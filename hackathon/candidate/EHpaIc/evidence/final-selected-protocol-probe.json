@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "status": "matched",
+  "exit": 0,
+  "error_kind": null,
+  "reasons": [],
+  "runtime": {
+    "amu_version": "0.2.0",
+    "version": "0.2.0",
+    "python_version": "3.14.6",
+    "executable": "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/environments/final314/bin/python",
+    "module": "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/environments/final314/lib/python3.14/site-packages/amu/mcp_server.py",
+    "distribution_version": "0.2.0",
+    "mcp_version": "2.2.0",
+    "pydantic_version": "2.13.5",
+    "build_sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+    "build": {
+      "sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+      "complete": true,
+      "files": 60,
+      "bytes": 909981,
+      "scope": "actual AMU Python payload only; not a wheel signature or provider identity"
+    }
+  },
+  "source_runtime": {
+    "amu_version": "0.2.0",
+    "version": "0.2.0",
+    "distribution_version": "0.2.0",
+    "python_version": "3.14.6",
+    "executable": "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/environments/final314/bin/python",
+    "module": "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/environments/final314/lib/python3.14/site-packages/amu/mcp_server.py",
+    "build_sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+    "build": {
+      "sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+      "complete": true,
+      "files": 60,
+      "bytes": 909981,
+      "scope": "actual AMU Python payload only; not a wheel signature or provider identity"
+    },
+    "manifest_version": "amu-inspection-v1",
+    "manifest_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761"
+  },
+  "manifest": {
+    "match": true,
+    "expected_version": "amu-inspection-v1",
+    "expected_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761",
+    "observed_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761",
+    "missing_tools": [],
+    "unexpected_tools": [],
+    "schema_mismatches": []
+  },
+  "protocol": {
+    "initialized": true,
+    "server_info": {
+      "name": "TWC Thugs \u00b7 amu",
+      "title": null,
+      "version": "amu/0.2.0 manifest/amu-inspection-v1:794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761 build/880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+      "description": null,
+      "websiteUrl": null,
+      "icons": null
+    },
+    "reported_identity": {
+      "amu_version": "0.2.0",
+      "build_sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+      "distribution_version": "0.2.0",
+      "manifest_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761",
+      "manifest_version": "amu-inspection-v1"
+    },
+    "tool_names": [
+      "amu_docs_reviews",
+      "amu_graph",
+      "amu_impact",
+      "amu_search"
+    ],
+    "tool_count": 4,
+    "inspection_only": true,
+    "checks": [
+      "initialize",
+      "tools/list"
+    ]
+  },
+  "authority": {
+    "profile": "inspection",
+    "repository_authorization_certified": false,
+    "live_client_configuration_changed": false,
+    "tool_calls_executed": false
+  }
+}

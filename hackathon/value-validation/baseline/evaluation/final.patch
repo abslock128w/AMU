@@ -1,0 +1,81 @@
+diff --git a/shop/pricing.py b/shop/pricing.py
+index bb50065..701b9f3 100644
+--- a/shop/pricing.py
++++ b/shop/pricing.py
+@@ -1,7 +1,7 @@
+ def discounted_total_cents(subtotal_cents: int, discount_percent: int = 0) -> int:
+-    """Return the total after applying an order-level percentage discount."""
++    """Return an order-level discounted total, rounding half cents upward."""
+     if subtotal_cents < 0:
+         raise ValueError("subtotal must be nonnegative")
+     if not 0 <= discount_percent <= 100:
+         raise ValueError("discount must be between 0 and 100")
+-    return round(subtotal_cents * (100 - discount_percent) / 100)
++    return (subtotal_cents * (100 - discount_percent) + 50) // 100
+diff --git a/tests/test_orders.py b/tests/test_orders.py
+index 3b9474b..b0f6c31 100644
+--- a/tests/test_orders.py
++++ b/tests/test_orders.py
+@@ -23,6 +23,31 @@ class OrderTests(unittest.TestCase):
+     def test_exact_discount(self):
+         self.assertEqual(discounted_total_cents(2000, 10), 1800)
+ 
++    def test_half_cent_rounds_up(self):
++        for subtotal, expected in [(1, 1), (5, 3), (7, 4)]:
++            with self.subTest(subtotal=subtotal):
++                self.assertEqual(discounted_total_cents(subtotal, 50), expected)
++
++    def test_discount_rounds_to_nearest_cent(self):
++        for subtotal, percent, expected in [(1, 51, 0), (1, 49, 1),
++                                             (5, 51, 2), (5, 49, 3)]:
++            with self.subTest(subtotal=subtotal, percent=percent):
++                self.assertEqual(discounted_total_cents(subtotal, percent), expected)
++
++    def test_large_integer_amounts(self):
++        cases = [(9007199254740993, 0, 9007199254740993),
++                 (9007199254740993, 50, 4503599627370497),
++                 (10 ** 400 + 5, 50, 5 * 10 ** 399 + 3),
++                 (10 ** 400 + 5, 100, 0)]
++        for subtotal, percent, expected in cases:
++            with self.subTest(subtotal=subtotal, percent=percent):
++                self.assertEqual(discounted_total_cents(subtotal, percent), expected)
++
++    def test_zero_subtotal(self):
++        for percent in [0, 50, 100]:
++            with self.subTest(percent=percent):
++                self.assertEqual(discounted_total_cents(0, percent), 0)
++
+     def test_free_order(self):
+         self.assertEqual(discounted_total_cents(2000, 100), 0)
+ 
+@@ -39,15 +64,30 @@ class OrderTests(unittest.TestCase):
+         self.assertEqual(quote([Item("book", 1000, 2)], 10),
+                          {"subtotal_cents": 2000, "total_cents": 1800})
+ 
++    def test_quote_rounds_order_total(self):
++        for quantity, expected in [(5, 3), (2, 1)]:
++            with self.subTest(quantity=quantity):
++                self.assertEqual(quote([Item("penny", 1, quantity)], 50),
++                                 {"subtotal_cents": quantity, "total_cents": expected})
++
+     def test_checkout(self):
+         gateway = Gateway()
+         self.assertEqual(checkout([Item("book", 1000, 2)], gateway, 10),
+                          {"charged_cents": 1800, "payment_id": "payment-1"})
+         self.assertEqual(gateway.charges, [1800])
+ 
++    def test_checkout_charges_rounded_total(self):
++        gateway = Gateway()
++        self.assertEqual(checkout([Item("penny", 1, 5)], gateway, 50),
++                         {"charged_cents": 3, "payment_id": "payment-1"})
++        self.assertEqual(gateway.charges, [3])
++
+     def test_receipt(self):
+         self.assertEqual(receipt_text([Item("book", 1000, 2)], 10), "Total: $18.00")
+ 
++    def test_receipt_shows_rounded_total(self):
++        self.assertEqual(receipt_text([Item("penny", 1, 5)], 50), "Total: $0.03")
++
+ 
+ if __name__ == "__main__":
+     unittest.main()

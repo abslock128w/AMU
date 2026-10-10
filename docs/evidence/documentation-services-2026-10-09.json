@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-10-09",
+  "scope": "Documentation application-service extraction and save-error reporting; not a complete CLI rewrite or a runtime-impact certification.",
+  "runtime": {"python": "3.14.6", "platform": "macOS arm64", "amu": "0.2.0", "dependencies": "matched constraints.txt"},
+  "implementation_sha256": {
+    "amu/services/documentation.py": "c490aadda52e01e848cd841830ae91f46f3c5708727c8c8e790ae65bf91f3ea9",
+    "amu/cli.py": "6cdfdc287fc17eef0be19de1c49a1770d24e4dc332ceedbb2ecc29096b7310d6"
+  },
+  "deterministic_suite": {"passed": 1365, "failed": 0, "skipped": 11, "elapsed_seconds": 96.79},
+  "installed_wheel_smoke": {
+    "status": "passed",
+    "includes": ["service imported from installed package", "direct/CLI queue parity", "direct/CLI docs graph hash/summary parity", "direct/CLI/MCP missing-provider error parity", "entry points", "API manifest", "versioned benchmarks", "interactive parser", "bounded process overflow withholding"]
+  },
+  "live_numpy_documentation_workflow": {
+    "commit": "0532af47d6a815298b7841de00bdbc547104b237",
+    "tag": "v2.3.0",
+    "command": "AMU_RUN_EXTERNAL_GRAPH=1 AMU_NUMPY_REPO=/private/tmp/amu-api-benchmark.6ecY4F/numpy AMU_EXTERNAL_ENTIRE_BIN=/opt/homebrew/bin/entire AMU_EXTERNAL_GRAPH_STRICT=1 python -m pytest -q -rA tests/test_external_numpy_graph.py -k api_edit_to_reviewed_rst_docs",
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "deselected": 6,
+    "elapsed_seconds": 4.56,
+    "scope": "Temporary clone: add keyword parameter to sqrt, detect candidate, prepare/edit/review-save existing RST section, verify prose and docs graph change. No NumPy imports/build/numerical execution. The remaining six external accuracy cases were not rerun in this batch."
+  },
+  "verified_boundaries": ["immutable typed request", "validation before workflow state access", "explicit existing absolute core repo", "relative CLI repo compatibility", "core imports no CLI/Typer/Rich", "normal listing parity across service/CLI/interactive/MCP", "issued candidate identity and freshness", "selected document target", "manual review and conflict guards", "auto worktree shadow restrictions", "recoverable queue discard", "save journal and guarded undo", "MCP confirmation before dispatch", "resource failure cannot become empty docs listing", "corrupt selected review is nonzero state error", "post-save derived metadata/comparison errors retain known saves", "malformed consumed graph fields fail closed", "intra-auto state error stops later writes and separates unconfirmed operation"],
+  "failure_reproduction": "Regression tests were red before fixes. Physical-save cases verified documents and saved journals survived post-save metadata errors. Partial-auto cases covered both failure before a second write and failure after that document was saved; third candidates were untouched.",
+  "remaining_scope": ["graph/lifecycle/navigation orchestration still in CLI", "MCP still bounded CLI subprocess adapter rather than direct service dispatch", "multiple document writes are not atomic and no automatic rollback was added", "transport errors can occur after side effects and require journal inspection", "native/runtime relations remain uncertain", "no live model calls", "no compiled NumPy numerical tests", "no remote release CI", "no automated browser accessibility run"]
+}

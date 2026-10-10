@@ -1,0 +1,217 @@
+{
+  "started_at_utc": "2026-10-10T07:01:41.958121+00:00",
+  "tool": "amu_impact",
+  "arguments": {
+    "file": "shop/pricing.py",
+    "line": 7,
+    "proposed_change": "Replace float division and ties-to-even round with integer-only nearest-cent rounding that rounds exact half cents upward, preserving validation and exact large integer totals.",
+    "depth": 3,
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/conditions/treatment/repo"
+  },
+  "local_only": true,
+  "live_configuration_changed": false,
+  "models_used_by_amu": false,
+  "build_identity": {
+    "amu_version": "0.2.0",
+    "build_sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+    "distribution_version": "0.2.0",
+    "manifest_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761",
+    "manifest_version": "amu-inspection-v1"
+  },
+  "initialization_seconds": 0.344289041000593,
+  "manifest": {
+    "match": true,
+    "expected_version": "amu-inspection-v1",
+    "expected_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761",
+    "observed_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761",
+    "missing_tools": [],
+    "unexpected_tools": [],
+    "schema_mismatches": []
+  },
+  "analysis_seconds": 0.4294010830053594,
+  "response": {
+    "jsonrpc": "2.0",
+    "id": "case-call",
+    "result": {
+      "content": [
+        {
+          "text": "{\"schema_version\": 1, \"operation\": \"proposed-change-impact\", \"request\": {\"file\": \"shop/pricing.py\", \"line\": 7, \"proposed_change\": \"Replace float division and ties-to-even round with integer-only nearest-cent rounding that rounds exact half cents upward, preserving validation and exact large integer totals.\", \"depth\": 3, \"change_kind\": \"body\", \"section\": \"impact\", \"cursor\": null, \"page_size\": 50}, \"target\": {\"file\": \"shop/pricing.py\", \"symbol\": \"shop/pricing.py#discounted_total_cents\", \"kind\": \"function\", \"range\": {\"start_line\": 1, \"definition_line\": 1, \"end_line\": 7}, \"resolution\": \"resolved\", \"source_sha256\": \"3908d80076b47216f172d7f760383489a8626f226a13803cf36d480799d9406c\", \"qualified_name\": \"discounted_total_cents\"}, \"status\": \"uncertain\", \"report_hash\": \"b8b89d1e4c84618e188e6f2162b7e9ca51ec4d2c2fc51b7f0e5c171bd32e3630\", \"assessment\": {\"likely_impacted\": 1, \"provider_reported_coverage_complete\": false, \"safe_to_change\": null, \"reasons\": [\"Limitations or failures were reported; retrieve the reasons section before relying on this result.\", \"Detailed evidence is paged; retrieve all relevant sections/fragments from the same report before relying on it.\"]}, \"impact\": {\"rows\": [{\"id\": \"n1\", \"path\": \"shop/pricing.py\", \"symbol\": \"discounted_total_cents\", \"confidence\": \"unknown\", \"risk\": \"unknown\", \"feature\": \"Shop (derived)\", \"order\": 99, \"action\": \"ask\", \"via\": null, \"reason\": \"impact query failed: impact --depth must be 1 or 2\", \"verify\": \"amu verify --node n1\", \"evidence\": [\"impact:error\"], \"compatibility\": {\"status\": \"not_assessed\", \"reason\": \"potentially affected; a relationship does not prove breakage. Proposed signatures, argument binding, return behavior, and public exports have not been checked\"}, \"context_reason\": \"uncertain boundary requires verification\"}], \"omitted\": 0, \"summary\": {\"candidate_count\": 1}, \"selection\": {\"row_limit\": 100, \"page_size\": 50, \"budget_bytes\": 65536, \"order\": \"shared context relevance, with stable source order for ties\"}}, \"graph_evidence\": {\"live_worktree\": true, \"provider_reported_coverage_complete\": false, \"map_hash\": \"f8022babe70b893b\", \"sha\": \"311d3bf49836bca7cec7ef30d8f01f485d2c6a9d\", \"worktree\": {\"stable\": true, \"before\": {\"head\": \"311d3bf49836bca7cec7ef30d8f01f485d2c6a9d\", \"relation_digest\": \"7032079ae584825957a8b010\"}, \"after\": {\"head\": \"311d3bf49836bca7cec7ef30d8f01f485d2c6a9d\", \"relation_digest\": \"7032079ae584825957a8b010\"}}, \"source_contradictions_count\": 0, \"source_uncertainties_count\": 0, \"coverage_detail_count\": 10}, \"dynamic_boundaries\": [], \"dynamic_boundaries_count\": 0, \"limitations\": [\"The proposed change is intent only; it has not been applied or executed.\", \"Rows describe current source-derived dependencies, not proof that a listed caller will break.\", \"Static source analysis cannot guarantee runtime impact; reflection, dispatch, generated code, native boundaries and feature flags can hide relationships.\", \"A zero-edge query is not proof that a change is safe. This operation does not call a model, import application modules, apply the proposal or run project tests/builds. Native Git/graph tools are not an OS sandbox.\", \"The graph provider may update its local cache; this operation does not save AMU maps, plans, contracts, history or workspace registrations.\"], \"retrieval\": {\"impact\": {\"logical_items\": 1, \"entries\": 1, \"fragmented_items\": 0, \"cursor\": \"eyJvZmZzZXQiOjAsInJlcG9ydF9oYXNoIjoiYjhiODlkMWU0Yzg0NjE4ZTE4OGU2ZjIxNjJiN2U5Y2E1MWVjNGQyYzJmYzUxYjdmMGU1YzE3MWJkMzJlMzYzMCIsInNlY3Rpb24iOiJpbXBhY3QiLCJ2IjoxfQ\"}, \"source_contradictions\": {\"logical_items\": 0, \"entries\": 0, \"fragmented_items\": 0, \"cursor\": null}, \"source_uncertainties\": {\"logical_items\": 0, \"entries\": 0, \"fragmented_items\": 0, \"cursor\": null}, \"dynamic_boundaries\": {\"logical_items\": 0, \"entries\": 0, \"fragmented_items\": 0, \"cursor\": null}, \"coverage\": {\"logical_items\": 10, \"entries\": 10, \"fragmented_items\": 0, \"cursor\": \"eyJvZmZzZXQiOjAsInJlcG9ydF9oYXNoIjoiYjhiODlkMWU0Yzg0NjE4ZTE4OGU2ZjIxNjJiN2U5Y2E1MWVjNGQyYzJmYzUxYjdmMGU1YzE3MWJkMzJlMzYzMCIsInNlY3Rpb24iOiJjb3ZlcmFnZSIsInYiOjF9\"}, \"reasons\": {\"logical_items\": 2, \"entries\": 2, \"fragmented_items\": 0, \"cursor\": \"eyJvZmZzZXQiOjAsInJlcG9ydF9oYXNoIjoiYjhiODlkMWU0Yzg0NjE4ZTE4OGU2ZjIxNjJiN2U5Y2E1MWVjNGQyYzJmYzUxYjdmMGU1YzE3MWJkMzJlMzYzMCIsInNlY3Rpb24iOiJyZWFzb25zIiwidiI6MX0\"}}, \"page\": {\"section\": \"impact\", \"offset\": 0, \"returned\": 1, \"total\": 1, \"remaining\": 0, \"fragmented_items\": 0, \"next_cursor\": null}, \"truncated\": true}",
+          "type": "text"
+        }
+      ],
+      "isError": false,
+      "structuredContent": {
+        "result": "{\"schema_version\": 1, \"operation\": \"proposed-change-impact\", \"request\": {\"file\": \"shop/pricing.py\", \"line\": 7, \"proposed_change\": \"Replace float division and ties-to-even round with integer-only nearest-cent rounding that rounds exact half cents upward, preserving validation and exact large integer totals.\", \"depth\": 3, \"change_kind\": \"body\", \"section\": \"impact\", \"cursor\": null, \"page_size\": 50}, \"target\": {\"file\": \"shop/pricing.py\", \"symbol\": \"shop/pricing.py#discounted_total_cents\", \"kind\": \"function\", \"range\": {\"start_line\": 1, \"definition_line\": 1, \"end_line\": 7}, \"resolution\": \"resolved\", \"source_sha256\": \"3908d80076b47216f172d7f760383489a8626f226a13803cf36d480799d9406c\", \"qualified_name\": \"discounted_total_cents\"}, \"status\": \"uncertain\", \"report_hash\": \"b8b89d1e4c84618e188e6f2162b7e9ca51ec4d2c2fc51b7f0e5c171bd32e3630\", \"assessment\": {\"likely_impacted\": 1, \"provider_reported_coverage_complete\": false, \"safe_to_change\": null, \"reasons\": [\"Limitations or failures were reported; retrieve the reasons section before relying on this result.\", \"Detailed evidence is paged; retrieve all relevant sections/fragments from the same report before relying on it.\"]}, \"impact\": {\"rows\": [{\"id\": \"n1\", \"path\": \"shop/pricing.py\", \"symbol\": \"discounted_total_cents\", \"confidence\": \"unknown\", \"risk\": \"unknown\", \"feature\": \"Shop (derived)\", \"order\": 99, \"action\": \"ask\", \"via\": null, \"reason\": \"impact query failed: impact --depth must be 1 or 2\", \"verify\": \"amu verify --node n1\", \"evidence\": [\"impact:error\"], \"compatibility\": {\"status\": \"not_assessed\", \"reason\": \"potentially affected; a relationship does not prove breakage. Proposed signatures, argument binding, return behavior, and public exports have not been checked\"}, \"context_reason\": \"uncertain boundary requires verification\"}], \"omitted\": 0, \"summary\": {\"candidate_count\": 1}, \"selection\": {\"row_limit\": 100, \"page_size\": 50, \"budget_bytes\": 65536, \"order\": \"shared context relevance, with stable source order for ties\"}}, \"graph_evidence\": {\"live_worktree\": true, \"provider_reported_coverage_complete\": false, \"map_hash\": \"f8022babe70b893b\", \"sha\": \"311d3bf49836bca7cec7ef30d8f01f485d2c6a9d\", \"worktree\": {\"stable\": true, \"before\": {\"head\": \"311d3bf49836bca7cec7ef30d8f01f485d2c6a9d\", \"relation_digest\": \"7032079ae584825957a8b010\"}, \"after\": {\"head\": \"311d3bf49836bca7cec7ef30d8f01f485d2c6a9d\", \"relation_digest\": \"7032079ae584825957a8b010\"}}, \"source_contradictions_count\": 0, \"source_uncertainties_count\": 0, \"coverage_detail_count\": 10}, \"dynamic_boundaries\": [], \"dynamic_boundaries_count\": 0, \"limitations\": [\"The proposed change is intent only; it has not been applied or executed.\", \"Rows describe current source-derived dependencies, not proof that a listed caller will break.\", \"Static source analysis cannot guarantee runtime impact; reflection, dispatch, generated code, native boundaries and feature flags can hide relationships.\", \"A zero-edge query is not proof that a change is safe. This operation does not call a model, import application modules, apply the proposal or run project tests/builds. Native Git/graph tools are not an OS sandbox.\", \"The graph provider may update its local cache; this operation does not save AMU maps, plans, contracts, history or workspace registrations.\"], \"retrieval\": {\"impact\": {\"logical_items\": 1, \"entries\": 1, \"fragmented_items\": 0, \"cursor\": \"eyJvZmZzZXQiOjAsInJlcG9ydF9oYXNoIjoiYjhiODlkMWU0Yzg0NjE4ZTE4OGU2ZjIxNjJiN2U5Y2E1MWVjNGQyYzJmYzUxYjdmMGU1YzE3MWJkMzJlMzYzMCIsInNlY3Rpb24iOiJpbXBhY3QiLCJ2IjoxfQ\"}, \"source_contradictions\": {\"logical_items\": 0, \"entries\": 0, \"fragmented_items\": 0, \"cursor\": null}, \"source_uncertainties\": {\"logical_items\": 0, \"entries\": 0, \"fragmented_items\": 0, \"cursor\": null}, \"dynamic_boundaries\": {\"logical_items\": 0, \"entries\": 0, \"fragmented_items\": 0, \"cursor\": null}, \"coverage\": {\"logical_items\": 10, \"entries\": 10, \"fragmented_items\": 0, \"cursor\": \"eyJvZmZzZXQiOjAsInJlcG9ydF9oYXNoIjoiYjhiODlkMWU0Yzg0NjE4ZTE4OGU2ZjIxNjJiN2U5Y2E1MWVjNGQyYzJmYzUxYjdmMGU1YzE3MWJkMzJlMzYzMCIsInNlY3Rpb24iOiJjb3ZlcmFnZSIsInYiOjF9\"}, \"reasons\": {\"logical_items\": 2, \"entries\": 2, \"fragmented_items\": 0, \"cursor\": \"eyJvZmZzZXQiOjAsInJlcG9ydF9oYXNoIjoiYjhiODlkMWU0Yzg0NjE4ZTE4OGU2ZjIxNjJiN2U5Y2E1MWVjNGQyYzJmYzUxYjdmMGU1YzE3MWJkMzJlMzYzMCIsInNlY3Rpb24iOiJyZWFzb25zIiwidiI6MX0\"}}, \"page\": {\"section\": \"impact\", \"offset\": 0, \"returned\": 1, \"total\": 1, \"remaining\": 0, \"fragmented_items\": 0, \"next_cursor\": null}, \"truncated\": true}"
+      }
+    }
+  },
+  "frames": [
+    {
+      "bytes": 1493,
+      "sha256": "b884172974100972e9570fffb2e04d1c5cabebc4c61c934e075ada7b121e49b4",
+      "response_kind": "result"
+    },
+    {
+      "bytes": 3187,
+      "sha256": "578564b801b65a0e7b8403bd456c573b1c1c41b324d458b17c46a242414405dd",
+      "response_kind": "result"
+    },
+    {
+      "bytes": 9696,
+      "sha256": "6495f862945d25b0ca0f0ca8456781eeac065af1ee1bb140347b7f6857f2a15c",
+      "response_kind": "result"
+    }
+  ],
+  "maximum_frame_bytes": 9696,
+  "total_elapsed_seconds": 0.8528044589984347,
+  "payload": {
+    "schema_version": 1,
+    "operation": "proposed-change-impact",
+    "request": {
+      "file": "shop/pricing.py",
+      "line": 7,
+      "proposed_change": "Replace float division and ties-to-even round with integer-only nearest-cent rounding that rounds exact half cents upward, preserving validation and exact large integer totals.",
+      "depth": 3,
+      "change_kind": "body",
+      "section": "impact",
+      "cursor": null,
+      "page_size": 50
+    },
+    "target": {
+      "file": "shop/pricing.py",
+      "symbol": "shop/pricing.py#discounted_total_cents",
+      "kind": "function",
+      "range": {
+        "start_line": 1,
+        "definition_line": 1,
+        "end_line": 7
+      },
+      "resolution": "resolved",
+      "source_sha256": "3908d80076b47216f172d7f760383489a8626f226a13803cf36d480799d9406c",
+      "qualified_name": "discounted_total_cents"
+    },
+    "status": "uncertain",
+    "report_hash": "b8b89d1e4c84618e188e6f2162b7e9ca51ec4d2c2fc51b7f0e5c171bd32e3630",
+    "assessment": {
+      "likely_impacted": 1,
+      "provider_reported_coverage_complete": false,
+      "safe_to_change": null,
+      "reasons": [
+        "Limitations or failures were reported; retrieve the reasons section before relying on this result.",
+        "Detailed evidence is paged; retrieve all relevant sections/fragments from the same report before relying on it."
+      ]
+    },
+    "impact": {
+      "rows": [
+        {
+          "id": "n1",
+          "path": "shop/pricing.py",
+          "symbol": "discounted_total_cents",
+          "confidence": "unknown",
+          "risk": "unknown",
+          "feature": "Shop (derived)",
+          "order": 99,
+          "action": "ask",
+          "via": null,
+          "reason": "impact query failed: impact --depth must be 1 or 2",
+          "verify": "amu verify --node n1",
+          "evidence": [
+            "impact:error"
+          ],
+          "compatibility": {
+            "status": "not_assessed",
+            "reason": "potentially affected; a relationship does not prove breakage. Proposed signatures, argument binding, return behavior, and public exports have not been checked"
+          },
+          "context_reason": "uncertain boundary requires verification"
+        }
+      ],
+      "omitted": 0,
+      "summary": {
+        "candidate_count": 1
+      },
+      "selection": {
+        "row_limit": 100,
+        "page_size": 50,
+        "budget_bytes": 65536,
+        "order": "shared context relevance, with stable source order for ties"
+      }
+    },
+    "graph_evidence": {
+      "live_worktree": true,
+      "provider_reported_coverage_complete": false,
+      "map_hash": "f8022babe70b893b",
+      "sha": "311d3bf49836bca7cec7ef30d8f01f485d2c6a9d",
+      "worktree": {
+        "stable": true,
+        "before": {
+          "head": "311d3bf49836bca7cec7ef30d8f01f485d2c6a9d",
+          "relation_digest": "7032079ae584825957a8b010"
+        },
+        "after": {
+          "head": "311d3bf49836bca7cec7ef30d8f01f485d2c6a9d",
+          "relation_digest": "7032079ae584825957a8b010"
+        }
+      },
+      "source_contradictions_count": 0,
+      "source_uncertainties_count": 0,
+      "coverage_detail_count": 10
+    },
+    "dynamic_boundaries": [],
+    "dynamic_boundaries_count": 0,
+    "limitations": [
+      "The proposed change is intent only; it has not been applied or executed.",
+      "Rows describe current source-derived dependencies, not proof that a listed caller will break.",
+      "Static source analysis cannot guarantee runtime impact; reflection, dispatch, generated code, native boundaries and feature flags can hide relationships.",
+      "A zero-edge query is not proof that a change is safe. This operation does not call a model, import application modules, apply the proposal or run project tests/builds. Native Git/graph tools are not an OS sandbox.",
+      "The graph provider may update its local cache; this operation does not save AMU maps, plans, contracts, history or workspace registrations."
+    ],
+    "retrieval": {
+      "impact": {
+        "logical_items": 1,
+        "entries": 1,
+        "fragmented_items": 0,
+        "cursor": "eyJvZmZzZXQiOjAsInJlcG9ydF9oYXNoIjoiYjhiODlkMWU0Yzg0NjE4ZTE4OGU2ZjIxNjJiN2U5Y2E1MWVjNGQyYzJmYzUxYjdmMGU1YzE3MWJkMzJlMzYzMCIsInNlY3Rpb24iOiJpbXBhY3QiLCJ2IjoxfQ"
+      },
+      "source_contradictions": {
+        "logical_items": 0,
+        "entries": 0,
+        "fragmented_items": 0,
+        "cursor": null
+      },
+      "source_uncertainties": {
+        "logical_items": 0,
+        "entries": 0,
+        "fragmented_items": 0,
+        "cursor": null
+      },
+      "dynamic_boundaries": {
+        "logical_items": 0,
+        "entries": 0,
+        "fragmented_items": 0,
+        "cursor": null
+      },
+      "coverage": {
+        "logical_items": 10,
+        "entries": 10,
+        "fragmented_items": 0,
+        "cursor": "eyJvZmZzZXQiOjAsInJlcG9ydF9oYXNoIjoiYjhiODlkMWU0Yzg0NjE4ZTE4OGU2ZjIxNjJiN2U5Y2E1MWVjNGQyYzJmYzUxYjdmMGU1YzE3MWJkMzJlMzYzMCIsInNlY3Rpb24iOiJjb3ZlcmFnZSIsInYiOjF9"
+      },
+      "reasons": {
+        "logical_items": 2,
+        "entries": 2,
+        "fragmented_items": 0,
+        "cursor": "eyJvZmZzZXQiOjAsInJlcG9ydF9oYXNoIjoiYjhiODlkMWU0Yzg0NjE4ZTE4OGU2ZjIxNjJiN2U5Y2E1MWVjNGQyYzJmYzUxYjdmMGU1YzE3MWJkMzJlMzYzMCIsInNlY3Rpb24iOiJyZWFzb25zIiwidiI6MX0"
+      }
+    },
+    "page": {
+      "section": "impact",
+      "offset": 0,
+      "returned": 1,
+      "total": 1,
+      "remaining": 0,
+      "fragmented_items": 0,
+      "next_cursor": null
+    },
+    "truncated": true
+  }
+}

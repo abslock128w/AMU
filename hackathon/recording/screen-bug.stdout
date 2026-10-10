@@ -1,0 +1,13 @@
+AMU | saved actual local evidence | synthetic checkout case
+
+5 cents, 50% discount; nearest cent, exact halves up.
+Observed original: 2 cents. Required: 3 cents.
+The original eight available tests passed despite this bug.
+
+shop/pricing.py: 1  def discounted_total_cents(subtotal_cents: int, discount_percent: int = 0) -> int:
+shop/pricing.py: 2      """Return the total after applying an order-level percentage discount."""
+shop/pricing.py: 3      if subtotal_cents < 0:
+shop/pricing.py: 4          raise ValueError("subtotal must be nonnegative")
+shop/pricing.py: 5      if not 0 <= discount_percent <= 100:
+shop/pricing.py: 6          raise ValueError("discount must be between 0 and 100")
+shop/pricing.py: 7      return round(subtotal_cents * (100 - discount_percent) / 100)

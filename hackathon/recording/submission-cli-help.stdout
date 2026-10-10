@@ -1,0 +1,83 @@
+                                                                                
+ Usage: amu [OPTIONS] COMMAND [ARGS]...                                         
+                                                                                
+ amu · Anti-Messup · TWC Thugs — scope guardrail for AI code edits, built on    
+ the Entire CLI                                                                 
+                                                                                
+╭─ Options ────────────────────────────────────────────────────────────────────╮
+│ --version          print version and exit                                    │
+│ --help             Show this message and exit.                               │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ───────────────────────────────────────────────────────────────────╮
+│ init           Index the repo with entire graph, snapshot it, draft config / │
+│                feature map / doc map / repo skills.                          │
+│ doctor         Read-only package, graph/repository health and optional MCP   │
+│                diagnostics.                                                  │
+│ map            Blast map: sound / guessed / unknown nodes with reason +      │
+│                verify, grouped by feature.                                   │
+│ impact         Inspect potential impact at a source line without saving a    │
+│                map or executing a change.                                    │
+│ plan           4-phase plan (additive → leaves → interior → removal).        │
+│                --approve writes .amu/contract.json.                          │
+│ check          Contract check; graph-relevant edits require a current        │
+│                matching refresh before green.                                │
+│ verify         Print and run a node's verify path. Never changes the         │
+│                contract.                                                     │
+│ answer         List unknowns and answer proposals, record your answer, or    │
+│                confirm a reviewed proposal.                                  │
+│ sync           Refresh the HEAD index + worktree snapshot; writes            │
+│                .amu/sync-state.json.                                         │
+│ compatibility  Compare static Python argument binding; never claims runtime  │
+│                compatibility.                                                │
+│ refresh        Post-edit refresh from an exact approved map; records edge    │
+│                additions/removals for check/done.                            │
+│ sweep          Every changed public export since the contract's base_sha     │
+│                that is not in the contract.                                  │
+│ docs           Doc candidates from graph diff plus worktree evidence; auto   │
+│                applies sound+mapped, unshadowed candidates only.             │
+│ docs-reviews   List, preview or archive review drafts independently of       │
+│                candidate freshness.                                          │
+│ api-manifest   Compare static API surfaces; every finding requires           │
+│                documentation review.                                         │
+│ benchmark      Score labeled fixtures; results describe this corpus rather   │
+│                than arbitrary repositories.                                  │
+│ model-preview  Show the sanitized initial chat request without making a      │
+│                provider call.                                                │
+│ docs-saves     Inspect recoverable documentation saves, or explicitly undo   │
+│                one.                                                          │
+│ docs-graph     Build the docs relationship graph: mapped sections, mentions, │
+│                and local links.                                              │
+│ done           Finish only after green phases and a current refresh for      │
+│                every graph-relevant edit.                                    │
+│ cd             Print the repo path only, so `cd "$(amu cd <name>)"` works.   │
+│ find           Ranked hits from `entire graph search`, each with the signals │
+│                that ranked it.                                               │
+│ open           `entire graph def` for a symbol (or list a file's symbols),   │
+│                then the one-line next.                                       │
+│ tree           Directory tree annotated with export counts and feature       │
+│                labels from feature_map.json.                                 │
+│ neighbors      Explore source-checked neighboring relations (never an        │
+│                approval artifact).                                           │
+│ where          Def site + the file's feature + whether it is frozen in the   │
+│                current contract.                                             │
+│ back           Return to the previous navigation target (map / find / open)  │
+│                from .amu/nav.json.                                           │
+│ recent                                                                       │
+│ graph          Source-checked relation graph; --format dot / mermaid for PR  │
+│                descriptions.                                                 │
+│ watch          Watch the working tree; update node states (▸ editing · ↯     │
+│                drift) against the active contract. Never runs tests.         │
+│ ask            Ask the model about this repo; it answers through the graph   │
+│                tools (read-only) and proposes the next amu command.          │
+│ stale          Contract/map staleness plus memory entries whose evidence     │
+│                hash moved.                                                   │
+│ memory         self-renovating CLAUDE.md memory block                        │
+│ skills         built-in and repo skills                                      │
+│ repo           workspace: add / list / use / remove / sync repos             │
+│ key            model credential: set / status / remove (value is never       │
+│                printed)                                                      │
+╰──────────────────────────────────────────────────────────────────────────────╯
+                                                                                
+ Built by TWC Thugs for the Bengaluru Tech Week Buildathon 2026                 
+                                                                                
+

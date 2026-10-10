@@ -4,7 +4,9 @@
 red-triage
 
 ## Steps
-- read the delta brief; revert PHASE_DRIFT files; never downgrade a blocking violation; retry at most twice then escalate
+- read the delta brief; revert or move out-of-phase files; never downgrade a blocking violation
+- for `GRAPH_REFRESH_REQUIRED`, re-run the exact target refresh with the approved change class; re-map and re-approve if the pre-edit baseline is no longer valid
+- retry at most twice, then escalate with the unresolved evidence
 
 ## Done when
-- the command in the last step printed its `next` line and no blocking violation remains
+- the phase is green or the remaining uncertainty has been escalated

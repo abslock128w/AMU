@@ -1,32 +1,25 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TWC Thugs · amu graph</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; object-src 'none'; form-action 'none'"><title>TWC Thugs · amu graph</title>
 <style>:root{color-scheme:dark;--gold:#F5B32E;--amber:#E08A1E;--ember:#C2410C;--sand:#FDF6E3;--ash:#8A8578;--bg:#161412;--card:#1e1b18;--sound:#3CB371}
 body{margin:0;background:var(--bg);color:var(--sand);font:14px/1.5 ui-monospace,Menlo,monospace}header{padding:1rem 1.5rem;border-bottom:1px solid rgba(224,138,30,.3)}h1{margin:0;color:var(--gold);font-size:1.1rem}.sub{color:var(--ash)}
 main{display:grid;grid-template-columns:1fr 320px;height:calc(100vh - 62px)}svg{width:100%;height:100%;background:var(--bg)}aside{border-left:1px solid rgba(224,138,30,.3);padding:1rem;overflow:auto}
 textarea{width:100%;min-height:90px;background:var(--card);color:var(--sand);border:1px solid rgba(224,138,30,.3);border-radius:8px;padding:.5rem;font:inherit}button{background:var(--gold);color:#161412;border:0;border-radius:6px;padding:.4rem .8rem;font:inherit;cursor:pointer;font-weight:600}
-.lbl{color:var(--ash);font-variant:small-caps;letter-spacing:.06em}.node text{fill:var(--sand);font-size:11px;pointer-events:none}.edge{stroke:var(--amber);stroke-opacity:.6;fill:none}.edge.guessed{stroke-dasharray:4}.elabel{fill:var(--ash);font-size:9px}
+.lbl{color:var(--ash);font-variant:small-caps;letter-spacing:.06em}.node text{fill:var(--sand);font-size:11px;pointer-events:none}.edge{stroke:var(--amber);stroke-opacity:.6;fill:none}.edge.guessed{stroke-dasharray:4}.edge.incomplete{stroke:var(--ash);stroke-dasharray:3}.elabel{fill:var(--ash);font-size:9px}.integrity{margin:.8rem 0;padding:.65rem;border:1px solid rgba(60,179,113,.45);border-radius:6px;color:var(--sand)}.integrity.blocked{border-color:rgba(194,65,12,.9);color:#f5b39e}
 #detail{margin-top:1rem;background:var(--card);border-radius:8px;padding:.8rem;border:1px solid rgba(224,138,30,.3)}code{color:var(--gold)}@media(max-width:800px){main{grid-template-columns:1fr}aside{border-left:0;border-top:1px solid rgba(224,138,30,.3)}}</style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script></head><body>
+<link rel="stylesheet" href="viewers.css">
+<script src="viewer-input.js" defer></script><script src="vendor/d3.min.js" defer></script><script src="graph.js" defer></script></head><body>
+<a class="skip" href="#in">Skip to graph controls</a>
 <header><h1>TWC THUGS · amu graph</h1><span class="sub">paste <code>amu graph &lt;symbol&gt; --format json</code> · nothing is uploaded</span></header>
-<main><svg id="g"></svg><aside>
-<div class="lbl">payload</div><textarea id="in" placeholder='{"focus":"…","nodes":[…],"edges":[…]}'></textarea>
-<p><button onclick="render()">Render</button> <input type="file" id="file" accept=".json" style="color:var(--ash)"></p>
-<div class="lbl">legend</div><div>● sound <span style="color:var(--sound)">■</span> · ◐ guessed <span style="color:var(--amber)">■</span> · ○ unknown <span style="color:var(--ash)">■</span> · dashed = no resolved edge</div>
-<div id="detail"><span class="lbl">node</span><br>click a node to see its reason and verify line</div></aside></main>
-<script>
-const COL={sound:'#3CB371',guessed:'#E08A1E',unknown:'#8A8578'},GL={sound:'●',guessed:'◐',unknown:'○'};
-document.getElementById('file').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{document.getElementById('in').value=t;render()})};
-function esc(s){return String(s??'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
-function render(){let p;try{p=JSON.parse(document.getElementById('in').value)}catch(e){alert('not JSON');return}
-const svg=d3.select('#g');svg.selectAll('*').remove();const W=svg.node().clientWidth,H=svg.node().clientHeight;
-const nodes=p.nodes.map(n=>({...n}));const idx=new Map(nodes.map(n=>[n.id,n]));const links=p.edges.filter(e=>idx.has(e.from)&&idx.has(e.to)).map(e=>({source:e.from,target:e.to,relation:e.relation,guessed:['co_changes','siblings'].includes(e.section)}));
-svg.append('defs').append('marker').attr('id','arrow').attr('viewBox','0 -5 10 10').attr('refX',22).attr('refY',0).attr('markerWidth',6).attr('markerHeight',6).attr('orient','auto').append('path').attr('d','M0,-5L10,0L0,5').attr('fill','#E08A1E');
-const g=svg.append('g');svg.call(d3.zoom().on('zoom',e=>g.attr('transform',e.transform)));
-const link=g.append('g').selectAll('path').data(links).join('path').attr('class',d=>'edge'+(d.guessed?' guessed':'')).attr('marker-end','url(#arrow)');
-const elabel=g.append('g').selectAll('text').data(links).join('text').attr('class','elabel').text(d=>d.relation);
-const node=g.append('g').selectAll('g').data(nodes).join('g').attr('class','node').call(d3.drag().on('start',(e,d)=>{if(!e.active)sim.alphaTarget(.3).restart();d.fx=d.x;d.fy=d.y}).on('drag',(e,d)=>{d.fx=e.x;d.fy=e.y}).on('end',(e,d)=>{if(!e.active)sim.alphaTarget(0);d.fx=null;d.fy=null}));
-node.append('circle').attr('r',d=>d.id===p.focus?14:9).attr('fill',d=>COL[d.confidence]||COL.unknown).attr('stroke',d=>d.id===p.focus?'#F5B32E':'none').attr('stroke-width',3);
-node.append('text').attr('dx',14).attr('dy',4).text(d=>GL[d.confidence]+' '+d.name);
-node.on('click',(e,d)=>{document.getElementById('detail').innerHTML=`<span class="lbl">node</span><br><b>${esc(d.name)}</b> <span class="sub">${esc(d.kind)}</span><br><code>${esc(d.path)}</code><br><br><span class="lbl">confidence</span> ${GL[d.confidence]} ${esc(d.confidence)}<br><span class="lbl">reason</span> ${esc(d.reason)}<br><span class="lbl">verify</span> <code>${esc(d.verify)}</code>`});
-const sim=d3.forceSimulation(nodes).force('link',d3.forceLink(links).id(d=>d.id).distance(110)).force('charge',d3.forceManyBody().strength(-320)).force('center',d3.forceCenter(W/2,H/2)).force('y',d3.forceY(d=>d.section==='callers'?H*.25:d.section==='callees'?H*.75:H/2).strength(.25));
-sim.on('tick',()=>{link.attr('d',d=>`M${d.source.x},${d.source.y}L${d.target.x},${d.target.y}`);elabel.attr('x',d=>(d.source.x+d.target.x)/2).attr('y',d=>(d.source.y+d.target.y)/2);node.attr('transform',d=>`translate(${d.x},${d.y})`)})}
-</script></body></html>
+<main class="graph-layout"><svg id="g" role="group" aria-label="Candidate relation graph. Use Inspect node for text details and relationships."></svg><aside aria-label="Graph controls and details">
+<label for="in">Graph JSON</label><p class="sub" id="input-limits">Local only. Maximum 4 MiB, 1,000 nodes and 5,000 edges. Larger accepted graphs use the text inspector.</p><textarea id="in" aria-describedby="input-limits input-error" placeholder='{"focus":"…","nodes":[…],"edges":[…]}'></textarea>
+<p id="input-error" class="error" role="alert"></p>
+<p><button type="button" id="render">Render</button></p>
+<label for="file">Load graph JSON file</label><input type="file" id="file" accept=".json" style="color:var(--ash)">
+<p id="status" role="status" aria-atomic="true"></p>
+<label for="node-select">Inspect node</label><select id="node-select" disabled><option>Render a graph first</option></select>
+<div class="actions" aria-label="Graph view controls">
+<button type="button" data-view="in" disabled>Zoom in</button><button type="button" data-view="out" disabled>Zoom out</button><button type="button" data-view="reset" disabled>Reset view</button>
+<button type="button" data-view="left" disabled>Pan left</button><button type="button" data-view="right" disabled>Pan right</button><button type="button" data-view="up" disabled>Pan up</button><button type="button" data-view="down" disabled>Pan down</button></div>
+<div id="integrity" class="integrity blocked"><span class="lbl">graph integrity</span><br>CANDIDATE GRAPH ONLY. Paste a graph payload to inspect its evidence.</div>
+<div class="lbl">legend</div><div>● sound <span style="color:var(--sound)">■</span> · ◐ guessed <span style="color:var(--amber)">■</span> · ○ unknown <span style="color:var(--ash)">■</span> · gray dashed = not approval-grade</div>
+<div id="detail" role="region" aria-label="Node details" tabindex="0"><span class="lbl">node</span><br>Select or click a node to see its reason, verify line, and relationships.</div></aside></main>
+</body></html>

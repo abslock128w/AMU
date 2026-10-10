@@ -32,4 +32,4 @@ def test_map_with_fake_entire(fake_entire, tmp_path):
     r = _run("map", "--symbol", "amu/classify.py#classify_consumers", "--json", cwd=tmp_path)
     assert r.returncode == 0
     m = json.loads(r.stdout)
-    assert m["resolution"]["sound"] > 0 and "TWC" not in r.stdout
+    assert m["resolution"]["sound"] > 0 and m["root"]["internal"] > 0 and "TWC" not in r.stdout

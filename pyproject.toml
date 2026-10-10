@@ -1,31 +1,37 @@
 [project]
 name = "amu"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Anti-Messup Agent – scope guardrail for AI code edits (TWC Buildathon 2026, Track 2)"
 requires-python = ">=3.11"
 dependencies = [
     "typer>=0.12",
     "rich>=13.0",
+    "markdown-it-py>=3.0,<5",
     "prompt_toolkit>=3.0",
     "watchfiles>=0.20",
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0", "pytest-cov", "ruff", "anthropic", "mcp"]
+model = ["anthropic"]
+mcp = ["mcp"]
+dev = ["pytest>=8.0", "pytest-cov", "ruff", "anthropic", "mcp", "build", "setuptools==84.0.0"]
 
 [project.scripts]
 amu = "amu.cli:app"
 entire-amu = "amu.cli:app"
 
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools==84.0.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 include = ["amu*"]
 
 [tool.setuptools.package-data]
-amu = ["skills/*/SKILL.md"]
+amu = ["skills/*/SKILL.md", "benchmark_data/*.json"]
+
+[tool.setuptools.dynamic]
+version = {attr = "amu.__version__"}
 
 [tool.ruff]
 line-length = 120

@@ -1,0 +1,372 @@
+{
+  "source": {
+    "sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+    "complete": true,
+    "files": 60,
+    "bytes": 909981,
+    "scope": "actual AMU Python payload only; not a wheel signature or provider identity"
+  },
+  "frozen_source": {
+    "sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+    "complete": true,
+    "files": 60,
+    "bytes": 909981,
+    "scope": "actual AMU Python payload only; not a wheel signature or provider identity"
+  },
+  "installed": {
+    "final-base314": {
+      "identity": {
+        "amu_version": "0.2.0",
+        "version": "0.2.0",
+        "distribution_version": "0.2.0",
+        "python_version": "3.14.6",
+        "executable": "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/environments/final-base314/bin/python",
+        "module": "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/environments/final-base314/lib/python3.14/site-packages/amu/mcp_server.py",
+        "build_sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+        "build": {
+          "sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+          "complete": true,
+          "files": 60,
+          "bytes": 909981,
+          "scope": "actual AMU Python payload only; not a wheel signature or provider identity"
+        },
+        "manifest_version": "amu-inspection-v1",
+        "manifest_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761"
+      },
+      "mcp_present": false,
+      "pydantic_present": false,
+      "python": "3.14.6 (main, Jun 10 2026, 10:03:53) [Clang 21.0.0 (clang-2100.0.123.102)]",
+      "base_executable": "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/bin/python3.14"
+    },
+    "final314": {
+      "identity": {
+        "amu_version": "0.2.0",
+        "version": "0.2.0",
+        "distribution_version": "0.2.0",
+        "python_version": "3.14.6",
+        "executable": "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/environments/final314/bin/python",
+        "module": "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/environments/final314/lib/python3.14/site-packages/amu/mcp_server.py",
+        "build_sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+        "build": {
+          "sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+          "complete": true,
+          "files": 60,
+          "bytes": 909981,
+          "scope": "actual AMU Python payload only; not a wheel signature or provider identity"
+        },
+        "manifest_version": "amu-inspection-v1",
+        "manifest_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761"
+      },
+      "mcp_present": true,
+      "pydantic_present": true,
+      "python": "3.14.6 (main, Jun 10 2026, 10:03:53) [Clang 21.0.0 (clang-2100.0.123.102)]",
+      "base_executable": "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/bin/python3.14"
+    },
+    "final311": {
+      "identity": {
+        "amu_version": "0.2.0",
+        "version": "0.2.0",
+        "distribution_version": "0.2.0",
+        "python_version": "3.11.16",
+        "executable": "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/environments/final311/bin/python",
+        "module": "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/environments/final311/lib/python3.11/site-packages/amu/mcp_server.py",
+        "build_sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+        "build": {
+          "sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+          "complete": true,
+          "files": 60,
+          "bytes": 909981,
+          "scope": "actual AMU Python payload only; not a wheel signature or provider identity"
+        },
+        "manifest_version": "amu-inspection-v1",
+        "manifest_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761"
+      },
+      "mcp_present": true,
+      "pydantic_present": true,
+      "python": "3.11.16 (main, Sep  1 2026, 14:08:22) [Clang 22.1.3 ]",
+      "base_executable": "/private/tmp/amu-production-hardening.bergOD/pythons/cpython-3.11.16-macos-aarch64-none/bin/python3.11"
+    }
+  },
+  "wheel_python_files": {
+    "amu/__init__.py": "667d4a15b970b851e20d17510224670c14646cfb6d5a1e388ca6b9cc6da8bf41",
+    "amu/api_manifest.py": "60c0510c63b81630169d685d119802db7bc08e7647dcd97319429e9fc866d401",
+    "amu/api_python.py": "0af3611775082dd4c23d0e3093d01e0591290f9b32ee07cfe40880ecdcaa4543",
+    "amu/benchmark.py": "c41da62930c34783f2f55178e735cdce2bfc34eb14e7f71fc847305cd37a9dff",
+    "amu/brand.py": "2b769a21ef0d95016685f2fab071f195de85e11b7de57d03831e00ca27115908",
+    "amu/classify.py": "2744b08f4a9da1524f150a15cbb30a7bc30602ceaf69bac68a4c34339ccb08d3",
+    "amu/cli.py": "be66e35c3ee5a6d59569598b405abc985fa3366d2fdd47153756a6d755566a77",
+    "amu/compatibility.py": "05cf6e81e057e807eadf863577bb6fe9b63d25b55554be5e5f8950e9ffacbb9b",
+    "amu/contract.py": "2fa756f8cacdb29d41668790c24ae1a95a23a77fa714189e07773f1c1014ae9a",
+    "amu/dependencies.py": "06cb8853df6718389756ce0ffdb9137b043ed22b1fb646034977598a5f94d19c",
+    "amu/docgraph.py": "b669e489412a2c01fef2d4a551f6f3de685a7e9595c13e3ed83ecdd720155b5f",
+    "amu/docreview.py": "1ee0ce9bc12f323dd3c61940a5405eef6764f1591b9a34f61708fdbba124483a",
+    "amu/docs.py": "b4006b6f65a925c3880f23b1c4c28fb089407ffe290fe8f22905b0226730d727",
+    "amu/docsave.py": "3a3f1339684a6ba00ca0ed219b743cdf2d63c16359d8d74019aeb321fabc0459",
+    "amu/docstructure.py": "baf091ebe981370c357ab826d60fe91b6495fc099788818cd5d179d204073929",
+    "amu/entire.py": "5e845592ad606ed67a33a8e7bc5468dfaa1998b4203b1ba288e168367b53adde",
+    "amu/freshness.py": "13901a762c6797961d9d3df4e2f0853cf561e80eb90c1de8cec1ee4e6b44d92b",
+    "amu/graph.py": "d0be28553311f7675aac06c9e1e29f0faaca1e97fb202551bcc2f52ac6944e3c",
+    "amu/graph_readiness.py": "1d5da3c0ad2e6e4d25991c96e435662f786708ba9a015074e98aaa27e3fd1bcb",
+    "amu/graph_refresh.py": "5402e9f6573187a534e50587939bfbf9c5641843bd305a1d3f5f654c0fa07780",
+    "amu/graphview.py": "5cbe26c8797cba433f0e47acb3f0143ab3ed9d23132f2e0fd3ec2d2a0e7986ea",
+    "amu/keys.py": "fc07958576ab27f9ac8224b3b2d3d02fb472d736173ad00b7ec58bf550f9eedb",
+    "amu/lifecycle.py": "36b0f3b19cb1e3c2589c9c50e939b9d354494710f58b71c4ba2325d92dab28d9",
+    "amu/mcp_access.py": "69b08645c7950482d3fa04e302010fa70635855060ec1a3a510600e33b2be5ee",
+    "amu/mcp_manifest.py": "b3f21429650e34fea69aca8cbc4a25e6dff0c4b10541a9432de7ad6523cd9e42",
+    "amu/mcp_server.py": "a3b822d0e3e3f90c020fcf9824b6caf6bc42169f34524087257253748d4b1f9c",
+    "amu/mcp_transport.py": "f185cbb117b7125b6c1df01e33818f313f7de8ff8670864ac5aefdb4f135e392",
+    "amu/mcp_verification.py": "3644c6ddfb02d4bad496e59d60106c99d9d1f4eb782ba307a07deda5dcb4edf6",
+    "amu/memory.py": "061ef656d106454ae6fcbf9138d5f7e72eff5289e6d2a80f4fc3d002d290ad17",
+    "amu/memory_commit.py": "86c6535f24acde563f8c9a0b7030fb6579db149a86a784930b509dd6d8d0d44f",
+    "amu/outbound.py": "96183437a1bc81aff3a34f51ecd53c90401456ca5a7c976e8e3e174ac1cdecdb",
+    "amu/plan.py": "0e48a18b7e4f5e34686316ba3898e611ae697e5688fdb99ac24fa948879bdb23",
+    "amu/process.py": "3ccc4c1039a9a544195d037a685ffce9842c50f30ae4b60ccf7e6c844240bdfd",
+    "amu/relations.py": "0cb4cf4274092b1cd75ed88760ed55df3868b699bff5214d0597c68aa0edbdd2",
+    "amu/render.py": "f366ad6527f09878d76e21559569e7266d551b280c3f05dc94c244e1d2382dd5",
+    "amu/repository_diagnostics.py": "2996668f6d3461ff702778f9b91e41b77c77eb33601f6d850fc98b574bf6550b",
+    "amu/router.py": "0f399a9954a811480f9fd391ec346c357d5c91dac5127a02e2e4776d0b927252",
+    "amu/source_evidence.py": "b3bffe9c77fd9e19e188d697834c347ba5a34caf89a5580bd1b5a3e55aae4337",
+    "amu/state.py": "a062ad3e3421f8cc877545f4a53c76ef8b04aac54c618e7f5640087d609b0e07",
+    "amu/state_io.py": "a1302cf4121fe264c34f4861c8aeedc849d46819b473c36f08ca0e01212eea91",
+    "amu/state_schema.py": "f83d1f69a8441bff486a042395de9dfc6945c139e02696d263c530d98261738c",
+    "amu/unknowns.py": "14b9d4fbf6c4e76f7ac546d6e6a25ddcea21b09896814479290138971baa749b",
+    "amu/watch.py": "c7d0f6fa5a3532c647e42678aa91cf8963ed032ced2a179cf38a1bef1d8e5fff",
+    "amu/workspace.py": "51f8236504dab813ab8f69113d4cd0237efe1bb6430db7588a0d9f42abf65602",
+    "amu/harness/chat.py": "ba023b081350cfb333266d2f6235836f27c3f691955f9ce721828c6a9efe90e0",
+    "amu/harness/context.py": "8d12a325e4e0d79603d18b8e4d00ca3199bc972d8ba24c49607755dace12b35d",
+    "amu/harness/model.py": "7dc1fed75724e688de9260c853439632751c302d8b82dbdad955c9f5d9e24fee",
+    "amu/harness/orchestrator.py": "79f5bbc171fde15c1dec996d55197d7ab20264d830ce8775887efc1b60294b56",
+    "amu/harness/prompts.py": "d6480c70d11e67ca3d59406f3880d0879097b7bd7ec7db2c058707756cdb6e42",
+    "amu/harness/providers.py": "d1331aaf0c1b9bef8ee90971c5a4437aa55f472629c07b80c4d8e4053dedfeb1",
+    "amu/harness/roles.py": "500b508de8ed80921de4f8e5b60819563f5d0868e003a8b63917db1aa1b2cf9d",
+    "amu/harness/schema.py": "d621044fc1322572d21970aaf8031fbb96d4c79efa871c23f5b6b72827ddcd0f",
+    "amu/harness/validation.py": "6da69177f73bb7bafe8e0b8cd78387cc7a6d9ad3c04b4cd5251bb6dd7d118e6e",
+    "amu/services/__init__.py": "cf1905fa51e527c891a86727f0ffe464d9faec06e56ac09d4e338816a2304e7c",
+    "amu/services/diagnostics.py": "3b850415d0c2138c0d30d1cfc5c4f8c2dd78155a2878786563d0a568534214fd",
+    "amu/services/documentation.py": "c490aadda52e01e848cd841830ae91f46f3c5708727c8c8e790ae65bf91f3ea9",
+    "amu/services/graph_sync.py": "07121b6168e165bdd4f4972b2268e231013b9bafdc902d475c2430b7f0f1a7ba",
+    "amu/services/impact.py": "8dc5e73a337173a3004260ed08259a09dcef79025ed05d422d05a21b5ecee937",
+    "amu/services/impact_report.py": "2bea1eaebac36cbc96b847910f0ddc0dcfb50f482deeb279cfce235c527bbf22",
+    "amu/services/mapping.py": "ff1f90daf41201a6746ad8698fcb57ce3617134a60c0c5fdf7a2059aec6101d2"
+  },
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "manifest": {
+    "schema_version": 1,
+    "manifest_version": "amu-inspection-v1",
+    "profile": "inspection",
+    "tools": [
+      {
+        "name": "amu_docs_reviews",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "repo": {
+              "type": "string"
+            },
+            "preview": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": [
+            "repo"
+          ]
+        },
+        "outputSchema": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "result"
+          ]
+        },
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        }
+      },
+      {
+        "name": "amu_graph",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "target": {
+              "type": "string"
+            },
+            "repo": {
+              "type": "string"
+            },
+            "depth": {
+              "type": "integer",
+              "default": 2
+            },
+            "relation": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": [
+            "repo",
+            "target"
+          ]
+        },
+        "outputSchema": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "result"
+          ]
+        },
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        }
+      },
+      {
+        "name": "amu_impact",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "proposed_change": {
+              "type": "string"
+            },
+            "repo": {
+              "type": "string"
+            },
+            "depth": {
+              "type": "integer",
+              "default": 2
+            },
+            "change_kind": {
+              "type": "string",
+              "default": "body"
+            },
+            "section": {
+              "type": "string",
+              "enum": [
+                "coverage",
+                "dynamic_boundaries",
+                "impact",
+                "reasons",
+                "source_contradictions",
+                "source_uncertainties"
+              ],
+              "default": "impact"
+            },
+            "cursor": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 1024
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "page_size": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          },
+          "required": [
+            "file",
+            "line",
+            "proposed_change",
+            "repo"
+          ]
+        },
+        "outputSchema": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "result"
+          ]
+        },
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        }
+      },
+      {
+        "name": "amu_search",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string"
+            },
+            "repo": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "query",
+            "repo"
+          ]
+        },
+        "outputSchema": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "result"
+          ]
+        },
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        }
+      }
+    ],
+    "sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761"
+  },
+  "identities_match": true,
+  "noneditable_installations": true,
+  "installed_exact_wheel_sha256": "1d1e5e8f28a288f9e8bf2df73af907a1d97b0babae7769e4bd8c0747e62c72d5"
+}

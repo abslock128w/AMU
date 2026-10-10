@@ -33,6 +33,7 @@ class Role:
     name: str
     tools: frozenset = field(default_factory=frozenset)
     allowed_files: frozenset = field(default_factory=frozenset)
+    unknown_files: frozenset = field(default_factory=frozenset)
 
     def call(self, tool: str, fn, *args, **kwargs):
         if tool not in self.tools:
@@ -44,21 +45,45 @@ class Role:
             raise ToolNotGranted(f"role {self.name} cannot write files")
         if path not in self.allowed_files:
             raise WriteRefused(f"{path} is outside the contract's allowed_files")
-        p = Path(repo) / path
+        if path in self.unknown_files:
+            raise WriteRefused(f"{path} is an unknown graph region and requires a human answer before editing")
+        raw_path = Path(path)
+        if raw_path.is_absolute() or ".." in raw_path.parts:
+            raise WriteRefused(f"{path} is not a repository-relative file")
+        root = Path(repo).resolve()
+        try:
+            p = (root / raw_path).resolve()
+            resolved_relative = p.relative_to(root)
+        except (OSError, RuntimeError, ValueError):
+            raise WriteRefused(f"{path} resolves outside the repository") from None
+        # Staying under the repository is necessary but not sufficient: an
+        # allowed symlink could still redirect a write into a different,
+        # unapproved in-repository file.  The resolved target must remain the
+        # exact contracted relative path as well.
+        if resolved_relative != raw_path:
+            raise WriteRefused(f"{path} resolves to a different file than the contracted path")
         p.write_text(content)
         return p
 
 
-def make_role(name: str, allowed_files: set | None = None) -> Role:
-    return Role(name, frozenset(TOOL_MATRIX[name]), frozenset(allowed_files or ()))
+def make_role(name: str, allowed_files: set | None = None, unknown_files: set | None = None) -> Role:
+    return Role(name, frozenset(TOOL_MATRIX[name]), frozenset(allowed_files or ()), frozenset(unknown_files or ()))
 
 
 class Budget:
     """Checker budget: max 2 retries, max 2 widenings, 1 sweep; the 3rd retry escalates."""
 
-    def __init__(self, retries: int = 2, widenings: int = 2, sweeps: int = 1):
+    def __init__(self, retries: int = 2, widenings: int = 2, sweeps: int = 1, used: dict | None = None):
         self.max = {"retry": retries, "widen": widenings, "sweep": sweeps}
-        self.used = {"retry": 0, "widen": 0, "sweep": 0}
+        if any(type(value) is not int or value < 0 for value in self.max.values()):
+            raise ValueError("budget limits must be nonnegative integers")
+        raw_used = {} if used is None else used
+        if not isinstance(raw_used, dict) or set(raw_used) - self.max.keys():
+            raise ValueError("budget used must be an object with retry, widen, or sweep counters")
+        self.used = {kind: raw_used.get(kind, 0) for kind in self.max}
+        if any(type(value) is not int or value < 0 or value > self.max[kind]
+               for kind, value in self.used.items()):
+            raise ValueError("budget counters must be nonnegative integers within their limits")
 
     def spend(self, kind: str) -> bool:
         if self.used[kind] >= self.max[kind]:
@@ -69,14 +94,23 @@ class Budget:
     def as_str(self) -> str:
         return " ".join(f"{k} {v}/{self.max[k]}" for k, v in self.used.items())
 
+    def to_dict(self) -> dict:
+        return {"max": dict(self.max), "used": dict(self.used)}
+
 
 def checker_decide(check_result: dict, budget: Budget) -> dict:
     """Deterministic checker: blocking violations cannot be downgraded; budget exhaustion escalates."""
-    blocking = [v for v in check_result.get("violations", []) if v["severity"] == "ERROR"]
+    violations = check_result.get("violations", [])
+    blocking = [v for v in violations if v["severity"] == "ERROR"]
+    escalate_kinds = {"FROZEN_SIGNATURE", "UNDECLARED_REMOVAL", "UNKNOWN_TOUCHED"}
+    protected = [v for v in violations if v["kind"] in escalate_kinds]
+    if protected:
+        return {"decision": "escalate", "confidence": 0.9, "escalate": True, "evidence": [v["symbol"] for v in protected],
+                "next": "human: review the protected contract or unknown-node violation before continuing"}
     if not blocking:
         return {"decision": "proceed", "confidence": 1.0, "escalate": False, "evidence": [], "next": "amu check --phase next"}
     kinds = {v["kind"] for v in blocking}
-    if "OUT_OF_SCOPE" in kinds and budget.spend("widen"):
+    if {"OUT_OF_SCOPE", "PHASE_DRIFT"} & kinds and budget.spend("widen"):
         return {"decision": "widen", "confidence": 0.6, "escalate": False, "evidence": [v["symbol"] for v in blocking], "next": "amu map --depth 2 then amu plan --approve"}
     if budget.spend("retry"):
         return {"decision": "retry", "confidence": 0.5, "escalate": False, "evidence": [v["symbol"] for v in blocking], "next": "revert the drifted file and re-run amu check"}

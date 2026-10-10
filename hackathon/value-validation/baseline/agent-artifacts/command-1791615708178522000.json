@@ -1,0 +1,19 @@
+{
+  "label": "tests-after-fix",
+  "started_at_utc": "2026-10-10T07:01:48.147483+00:00",
+  "command": [
+    "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "-B",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-v"
+  ],
+  "cwd": "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/conditions/baseline/repo",
+  "elapsed_seconds": 0.030942292003601324,
+  "exit_code": 0,
+  "stdout": "",
+  "stderr": "test_checkout (test_orders.OrderTests.test_checkout) ... ok\ntest_checkout_charges_rounded_total (test_orders.OrderTests.test_checkout_charges_rounded_total) ... ok\ntest_default_price (test_orders.OrderTests.test_default_price) ... ok\ntest_discount_rounds_to_nearest_cent (test_orders.OrderTests.test_discount_rounds_to_nearest_cent) ... ok\ntest_exact_discount (test_orders.OrderTests.test_exact_discount) ... ok\ntest_free_order (test_orders.OrderTests.test_free_order) ... ok\ntest_half_cent_rounds_up (test_orders.OrderTests.test_half_cent_rounds_up) ... ok\ntest_invalid_discount (test_orders.OrderTests.test_invalid_discount) ... ok\ntest_invalid_subtotal (test_orders.OrderTests.test_invalid_subtotal) ... ok\ntest_large_integer_amounts (test_orders.OrderTests.test_large_integer_amounts) ... ok\ntest_quote (test_orders.OrderTests.test_quote) ... ok\ntest_quote_rounds_order_total (test_orders.OrderTests.test_quote_rounds_order_total) ... ok\ntest_receipt (test_orders.OrderTests.test_receipt) ... ok\ntest_receipt_shows_rounded_total (test_orders.OrderTests.test_receipt_shows_rounded_total) ... ok\ntest_zero_subtotal (test_orders.OrderTests.test_zero_subtotal) ... ok\n\n----------------------------------------------------------------------\nRan 15 tests in 0.000s\n\nOK\n"
+}

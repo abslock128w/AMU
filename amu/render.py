@@ -35,16 +35,32 @@ def _risk(n: dict) -> str:
     return f"[risk]{tag}[/]" if n["risk"] == "will_break" else f"[brand.muted]{tag}[/]"
 
 
+def _display_nodes(nodes: list[dict]) -> list[dict]:
+    """Render uncertainty first without changing stable node IDs in the JSON map."""
+    confidence_order = {"unknown": 0, "guessed": 1, "sound": 2}
+    return sorted(
+        nodes,
+        key=lambda node: (
+            confidence_order.get(node.get("confidence"), 3),
+            node.get("order", 99),
+            node.get("path", ""),
+            node.get("symbol") or "",
+            node.get("id", ""),
+        ),
+    )
+
+
 def map_tree(m: dict, states: dict | None = None) -> Tree:
     r = m["root"]
-    tree = Tree(f"[brand]{r['file']}[/] [brand.muted]· {r['exports']} exports · feature {r['feature']} ({r['feature_source']}) · change {m.get('change', '?')}[/]",
+    tree = Tree(f"[brand]{r['file']}[/] [brand.muted]· {r['exports']} exports · {r.get('internal', 0)} internal helpers · feature {r['feature']} ({r['feature_source']}) · change {m.get('change', '?')}[/]",
                 guide_style="brand.rule")
-    for n in m["nodes"]:
+    for n in _display_nodes(m["nodes"]):
         st = (states or {}).get(n["id"])
         bits = []
         if states is not None:
             bits.append(f"[state.{st or 'planned'}]{STATE_GLYPH.get(st or 'planned', '·')}[/]")
-        bits += [_conf(n), _risk(n), f"[brand.body]{n['path']}[/]" + (f"#{n['symbol']}" if n["symbol"] else "")]
+        bits += [_conf(n), _risk(n), f"[brand.body]{n['path']}[/]" + (f"#{n['symbol']}" if n["symbol"] else ""),
+                 f"[brand.muted]order {n['order']} · {n['action']}[/]"]
         if not _narrow():
             bits.append(f"[brand.muted]{n['feature']}[/]")
             if n["via"]:
@@ -52,6 +68,16 @@ def map_tree(m: dict, states: dict | None = None) -> Tree:
         leaf = tree.add(f"[brand.muted]{n['id']:>4}[/] " + " ".join(bits))
         leaf.add(f"[brand.label]reason:[/] {n['reason']}")
         leaf.add(f"[brand.label]verify:[/] {n['verify']}")
+    ripples = m.get("ripples") or []
+    if ripples:
+        branch = tree.add(f"[brand.label]ripples[/] [brand.muted]· {len(ripples)} graph-backed relation(s)[/]")
+        for ripple in ripples:
+            endpoint = ripple.get("endpoint") or {}
+            branch.add(
+                f"[conf.{ripple.get('confidence', 'unknown')}]{GLYPH.get(ripple.get('confidence', 'unknown'), '○')}[/] "
+                f"{ripple.get('relation', '?')} → {endpoint.get('path', '?')}#{endpoint.get('symbol') or '?'} "
+                f"[brand.muted]· {ripple.get('reason', '')}[/]"
+            )
     return tree
 
 
@@ -125,6 +151,8 @@ def render_check(result: dict) -> None:
         c.print(f"  [{'risk' if x['severity'] == 'ERROR' else 'conf.guessed'}]{'✖' if x['severity'] == 'ERROR' else '⚠'} {x['kind']}[/] {x['symbol']}: {x['detail']}")
     if result.get("tests"):
         c.print(f"[brand.label]tests     [/] {result['tests']}")
+    if result.get("build"):
+        c.print(f"[brand.label]build     [/] {result['build']}")
     if result.get("delta_brief"):
         d = result["delta_brief"]
         c.print(f"[risk]delta brief:[/] {d['node']} · consumers {len(d['consumers'])} · {d['why']}")
@@ -142,7 +170,7 @@ def render_findings(title: str, findings: list[dict], summary: str, nxt: str) ->
 def render_report(report: dict) -> None:
     c = _console()
     c.print("[brand]amu done[/]")
-    for k in ("declared", "actual", "findings", "docs", "memory", "next"):
+    for k in ("declared", "actual", "findings", "docs", "snapshot", "memory", "next"):
         val = report.get(k)
         if isinstance(val, (list, dict)):
             val = json.dumps(val)

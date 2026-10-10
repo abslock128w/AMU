@@ -1,0 +1,306 @@
+* Getting build dependencies for wheel...
+running egg_info
+writing amu.egg-info/PKG-INFO
+writing dependency_links to amu.egg-info/dependency_links.txt
+writing entry points to amu.egg-info/entry_points.txt
+writing requirements to amu.egg-info/requires.txt
+writing top-level names to amu.egg-info/top_level.txt
+reading manifest file 'amu.egg-info/SOURCES.txt'
+reading manifest template 'MANIFEST.in'
+warning: no previously-included files matching 'release-candidate*.json' found under directory 'docs/evidence'
+warning: no files found matching '*.yaml' under directory '.github/workflows'
+no previously-included directories found matching '.git'
+no previously-included directories found matching '.amu'
+no previously-included directories found matching '.entire'
+no previously-included directories found matching '.venv'
+no previously-included directories found matching '.pytest_cache'
+no previously-included directories found matching '.ruff_cache'
+no previously-included directories found matching 'web/node_modules'
+no previously-included directories found matching 'tests/_nobin'
+warning: no previously-included files matching '*.py[cod]' found anywhere in distribution
+warning: no previously-included files matching '.DS_Store' found anywhere in distribution
+warning: no previously-included files matching '*/__pycache__/*' found anywhere in distribution
+warning: no previously-included files matching '*/node_modules/*' found anywhere in distribution
+warning: no previously-included files matching '*/.amu/*' found anywhere in distribution
+warning: no previously-included files matching '*/.git/*' found anywhere in distribution
+writing manifest file 'amu.egg-info/SOURCES.txt'
+* Building wheel...
+running bdist_wheel
+running build
+running build_py
+creating build/lib/amu
+copying amu/freshness.py -> build/lib/amu
+copying amu/unknowns.py -> build/lib/amu
+copying amu/plan.py -> build/lib/amu
+copying amu/compatibility.py -> build/lib/amu
+copying amu/benchmark.py -> build/lib/amu
+copying amu/memory.py -> build/lib/amu
+copying amu/state_io.py -> build/lib/amu
+copying amu/api_python.py -> build/lib/amu
+copying amu/render.py -> build/lib/amu
+copying amu/docreview.py -> build/lib/amu
+copying amu/mcp_verification.py -> build/lib/amu
+copying amu/source_evidence.py -> build/lib/amu
+copying amu/classify.py -> build/lib/amu
+copying amu/repository_diagnostics.py -> build/lib/amu
+copying amu/graph.py -> build/lib/amu
+copying amu/relations.py -> build/lib/amu
+copying amu/memory_commit.py -> build/lib/amu
+copying amu/state_schema.py -> build/lib/amu
+copying amu/graphview.py -> build/lib/amu
+copying amu/__init__.py -> build/lib/amu
+copying amu/docs.py -> build/lib/amu
+copying amu/keys.py -> build/lib/amu
+copying amu/mcp_manifest.py -> build/lib/amu
+copying amu/docgraph.py -> build/lib/amu
+copying amu/entire.py -> build/lib/amu
+copying amu/mcp_access.py -> build/lib/amu
+copying amu/outbound.py -> build/lib/amu
+copying amu/graph_readiness.py -> build/lib/amu
+copying amu/cli.py -> build/lib/amu
+copying amu/lifecycle.py -> build/lib/amu
+copying amu/mcp_transport.py -> build/lib/amu
+copying amu/process.py -> build/lib/amu
+copying amu/watch.py -> build/lib/amu
+copying amu/router.py -> build/lib/amu
+copying amu/workspace.py -> build/lib/amu
+copying amu/docsave.py -> build/lib/amu
+copying amu/api_manifest.py -> build/lib/amu
+copying amu/contract.py -> build/lib/amu
+copying amu/graph_refresh.py -> build/lib/amu
+copying amu/brand.py -> build/lib/amu
+copying amu/dependencies.py -> build/lib/amu
+copying amu/state.py -> build/lib/amu
+copying amu/mcp_server.py -> build/lib/amu
+copying amu/docstructure.py -> build/lib/amu
+creating build/lib/amu/harness
+copying amu/harness/roles.py -> build/lib/amu/harness
+copying amu/harness/prompts.py -> build/lib/amu/harness
+copying amu/harness/model.py -> build/lib/amu/harness
+copying amu/harness/providers.py -> build/lib/amu/harness
+copying amu/harness/chat.py -> build/lib/amu/harness
+copying amu/harness/context.py -> build/lib/amu/harness
+copying amu/harness/orchestrator.py -> build/lib/amu/harness
+copying amu/harness/schema.py -> build/lib/amu/harness
+copying amu/harness/validation.py -> build/lib/amu/harness
+creating build/lib/amu/services
+copying amu/services/documentation.py -> build/lib/amu/services
+copying amu/services/diagnostics.py -> build/lib/amu/services
+copying amu/services/__init__.py -> build/lib/amu/services
+copying amu/services/impact_report.py -> build/lib/amu/services
+copying amu/services/mapping.py -> build/lib/amu/services
+copying amu/services/graph_sync.py -> build/lib/amu/services
+copying amu/services/impact.py -> build/lib/amu/services
+running egg_info
+writing amu.egg-info/PKG-INFO
+writing dependency_links to amu.egg-info/dependency_links.txt
+writing entry points to amu.egg-info/entry_points.txt
+writing requirements to amu.egg-info/requires.txt
+writing top-level names to amu.egg-info/top_level.txt
+reading manifest file 'amu.egg-info/SOURCES.txt'
+reading manifest template 'MANIFEST.in'
+warning: no previously-included files matching 'release-candidate*.json' found under directory 'docs/evidence'
+warning: no files found matching '*.yaml' under directory '.github/workflows'
+no previously-included directories found matching '.git'
+no previously-included directories found matching '.amu'
+no previously-included directories found matching '.entire'
+no previously-included directories found matching '.venv'
+no previously-included directories found matching '.pytest_cache'
+no previously-included directories found matching '.ruff_cache'
+no previously-included directories found matching 'web/node_modules'
+no previously-included directories found matching 'tests/_nobin'
+warning: no previously-included files matching '*.py[cod]' found anywhere in distribution
+warning: no previously-included files matching '.DS_Store' found anywhere in distribution
+warning: no previously-included files matching '*/__pycache__/*' found anywhere in distribution
+warning: no previously-included files matching '*/node_modules/*' found anywhere in distribution
+warning: no previously-included files matching '*/.amu/*' found anywhere in distribution
+warning: no previously-included files matching '*/.git/*' found anywhere in distribution
+writing manifest file 'amu.egg-info/SOURCES.txt'
+creating build/lib/amu/skills/map-a-change
+copying amu/skills/map-a-change/SKILL.md -> build/lib/amu/skills/map-a-change
+creating build/lib/amu/skills/memory-renovate
+copying amu/skills/memory-renovate/SKILL.md -> build/lib/amu/skills/memory-renovate
+creating build/lib/amu/skills/feature-rollup
+copying amu/skills/feature-rollup/SKILL.md -> build/lib/amu/skills/feature-rollup
+creating build/lib/amu/skills/unknowns
+copying amu/skills/unknowns/SKILL.md -> build/lib/amu/skills/unknowns
+creating build/lib/amu/skills/red-triage
+copying amu/skills/red-triage/SKILL.md -> build/lib/amu/skills/red-triage
+creating build/lib/amu/skills/phase-edit
+copying amu/skills/phase-edit/SKILL.md -> build/lib/amu/skills/phase-edit
+creating build/lib/amu/skills/close-the-loop
+copying amu/skills/close-the-loop/SKILL.md -> build/lib/amu/skills/close-the-loop
+creating build/lib/amu/skills/doc-follow
+copying amu/skills/doc-follow/SKILL.md -> build/lib/amu/skills/doc-follow
+creating build/lib/amu/benchmark_data
+copying amu/benchmark_data/public-api-v1.json -> build/lib/amu/benchmark_data
+copying amu/benchmark_data/relations-v1.json -> build/lib/amu/benchmark_data
+installing to build/bdist.macosx-26.0-arm64/wheel
+running install
+running install_lib
+creating build/bdist.macosx-26.0-arm64/wheel
+creating build/bdist.macosx-26.0-arm64/wheel/amu
+copying build/lib/amu/freshness.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/unknowns.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/plan.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/compatibility.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/benchmark.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/memory.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/state_io.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/api_python.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/render.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/docreview.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/mcp_verification.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/source_evidence.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/classify.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/repository_diagnostics.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/graph.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/relations.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+creating build/bdist.macosx-26.0-arm64/wheel/amu/benchmark_data
+copying build/lib/amu/benchmark_data/public-api-v1.json -> build/bdist.macosx-26.0-arm64/wheel/./amu/benchmark_data
+copying build/lib/amu/benchmark_data/relations-v1.json -> build/bdist.macosx-26.0-arm64/wheel/./amu/benchmark_data
+copying build/lib/amu/memory_commit.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/state_schema.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/graphview.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/__init__.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/docs.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/keys.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/mcp_manifest.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/docgraph.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/entire.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+creating build/bdist.macosx-26.0-arm64/wheel/amu/harness
+copying build/lib/amu/harness/roles.py -> build/bdist.macosx-26.0-arm64/wheel/./amu/harness
+copying build/lib/amu/harness/prompts.py -> build/bdist.macosx-26.0-arm64/wheel/./amu/harness
+copying build/lib/amu/harness/model.py -> build/bdist.macosx-26.0-arm64/wheel/./amu/harness
+copying build/lib/amu/harness/providers.py -> build/bdist.macosx-26.0-arm64/wheel/./amu/harness
+copying build/lib/amu/harness/chat.py -> build/bdist.macosx-26.0-arm64/wheel/./amu/harness
+copying build/lib/amu/harness/context.py -> build/bdist.macosx-26.0-arm64/wheel/./amu/harness
+copying build/lib/amu/harness/orchestrator.py -> build/bdist.macosx-26.0-arm64/wheel/./amu/harness
+copying build/lib/amu/harness/schema.py -> build/bdist.macosx-26.0-arm64/wheel/./amu/harness
+copying build/lib/amu/harness/validation.py -> build/bdist.macosx-26.0-arm64/wheel/./amu/harness
+copying build/lib/amu/mcp_access.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/outbound.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/graph_readiness.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/cli.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/lifecycle.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/mcp_transport.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/process.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/watch.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+creating build/bdist.macosx-26.0-arm64/wheel/amu/skills
+creating build/bdist.macosx-26.0-arm64/wheel/amu/skills/map-a-change
+copying build/lib/amu/skills/map-a-change/SKILL.md -> build/bdist.macosx-26.0-arm64/wheel/./amu/skills/map-a-change
+creating build/bdist.macosx-26.0-arm64/wheel/amu/skills/memory-renovate
+copying build/lib/amu/skills/memory-renovate/SKILL.md -> build/bdist.macosx-26.0-arm64/wheel/./amu/skills/memory-renovate
+creating build/bdist.macosx-26.0-arm64/wheel/amu/skills/feature-rollup
+copying build/lib/amu/skills/feature-rollup/SKILL.md -> build/bdist.macosx-26.0-arm64/wheel/./amu/skills/feature-rollup
+creating build/bdist.macosx-26.0-arm64/wheel/amu/skills/unknowns
+copying build/lib/amu/skills/unknowns/SKILL.md -> build/bdist.macosx-26.0-arm64/wheel/./amu/skills/unknowns
+creating build/bdist.macosx-26.0-arm64/wheel/amu/skills/red-triage
+copying build/lib/amu/skills/red-triage/SKILL.md -> build/bdist.macosx-26.0-arm64/wheel/./amu/skills/red-triage
+creating build/bdist.macosx-26.0-arm64/wheel/amu/skills/phase-edit
+copying build/lib/amu/skills/phase-edit/SKILL.md -> build/bdist.macosx-26.0-arm64/wheel/./amu/skills/phase-edit
+creating build/bdist.macosx-26.0-arm64/wheel/amu/skills/close-the-loop
+copying build/lib/amu/skills/close-the-loop/SKILL.md -> build/bdist.macosx-26.0-arm64/wheel/./amu/skills/close-the-loop
+creating build/bdist.macosx-26.0-arm64/wheel/amu/skills/doc-follow
+copying build/lib/amu/skills/doc-follow/SKILL.md -> build/bdist.macosx-26.0-arm64/wheel/./amu/skills/doc-follow
+copying build/lib/amu/router.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/workspace.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/docsave.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/api_manifest.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/contract.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/graph_refresh.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/brand.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+creating build/bdist.macosx-26.0-arm64/wheel/amu/services
+copying build/lib/amu/services/documentation.py -> build/bdist.macosx-26.0-arm64/wheel/./amu/services
+copying build/lib/amu/services/diagnostics.py -> build/bdist.macosx-26.0-arm64/wheel/./amu/services
+copying build/lib/amu/services/__init__.py -> build/bdist.macosx-26.0-arm64/wheel/./amu/services
+copying build/lib/amu/services/impact_report.py -> build/bdist.macosx-26.0-arm64/wheel/./amu/services
+copying build/lib/amu/services/mapping.py -> build/bdist.macosx-26.0-arm64/wheel/./amu/services
+copying build/lib/amu/services/graph_sync.py -> build/bdist.macosx-26.0-arm64/wheel/./amu/services
+copying build/lib/amu/services/impact.py -> build/bdist.macosx-26.0-arm64/wheel/./amu/services
+copying build/lib/amu/dependencies.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/state.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/mcp_server.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+copying build/lib/amu/docstructure.py -> build/bdist.macosx-26.0-arm64/wheel/./amu
+running install_egg_info
+Copying amu.egg-info to build/bdist.macosx-26.0-arm64/wheel/./amu-0.2.0-py3.14.egg-info
+running install_scripts
+creating build/bdist.macosx-26.0-arm64/wheel/amu-0.2.0.dist-info/WHEEL
+creating '/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/artifacts/.tmp-y9sz2_v7/amu-0.2.0-py3-none-any.whl' and adding 'build/bdist.macosx-26.0-arm64/wheel' to it
+adding 'amu/__init__.py'
+adding 'amu/api_manifest.py'
+adding 'amu/api_python.py'
+adding 'amu/benchmark.py'
+adding 'amu/brand.py'
+adding 'amu/classify.py'
+adding 'amu/cli.py'
+adding 'amu/compatibility.py'
+adding 'amu/contract.py'
+adding 'amu/dependencies.py'
+adding 'amu/docgraph.py'
+adding 'amu/docreview.py'
+adding 'amu/docs.py'
+adding 'amu/docsave.py'
+adding 'amu/docstructure.py'
+adding 'amu/entire.py'
+adding 'amu/freshness.py'
+adding 'amu/graph.py'
+adding 'amu/graph_readiness.py'
+adding 'amu/graph_refresh.py'
+adding 'amu/graphview.py'
+adding 'amu/keys.py'
+adding 'amu/lifecycle.py'
+adding 'amu/mcp_access.py'
+adding 'amu/mcp_manifest.py'
+adding 'amu/mcp_server.py'
+adding 'amu/mcp_transport.py'
+adding 'amu/mcp_verification.py'
+adding 'amu/memory.py'
+adding 'amu/memory_commit.py'
+adding 'amu/outbound.py'
+adding 'amu/plan.py'
+adding 'amu/process.py'
+adding 'amu/relations.py'
+adding 'amu/render.py'
+adding 'amu/repository_diagnostics.py'
+adding 'amu/router.py'
+adding 'amu/source_evidence.py'
+adding 'amu/state.py'
+adding 'amu/state_io.py'
+adding 'amu/state_schema.py'
+adding 'amu/unknowns.py'
+adding 'amu/watch.py'
+adding 'amu/workspace.py'
+adding 'amu/benchmark_data/public-api-v1.json'
+adding 'amu/benchmark_data/relations-v1.json'
+adding 'amu/harness/chat.py'
+adding 'amu/harness/context.py'
+adding 'amu/harness/model.py'
+adding 'amu/harness/orchestrator.py'
+adding 'amu/harness/prompts.py'
+adding 'amu/harness/providers.py'
+adding 'amu/harness/roles.py'
+adding 'amu/harness/schema.py'
+adding 'amu/harness/validation.py'
+adding 'amu/services/__init__.py'
+adding 'amu/services/diagnostics.py'
+adding 'amu/services/documentation.py'
+adding 'amu/services/graph_sync.py'
+adding 'amu/services/impact.py'
+adding 'amu/services/impact_report.py'
+adding 'amu/services/mapping.py'
+adding 'amu/skills/close-the-loop/SKILL.md'
+adding 'amu/skills/doc-follow/SKILL.md'
+adding 'amu/skills/feature-rollup/SKILL.md'
+adding 'amu/skills/map-a-change/SKILL.md'
+adding 'amu/skills/memory-renovate/SKILL.md'
+adding 'amu/skills/phase-edit/SKILL.md'
+adding 'amu/skills/red-triage/SKILL.md'
+adding 'amu/skills/unknowns/SKILL.md'
+adding 'amu-0.2.0.dist-info/METADATA'
+adding 'amu-0.2.0.dist-info/WHEEL'
+adding 'amu-0.2.0.dist-info/entry_points.txt'
+adding 'amu-0.2.0.dist-info/top_level.txt'
+adding 'amu-0.2.0.dist-info/RECORD'
+removing build/bdist.macosx-26.0-arm64/wheel
+Successfully built amu-0.2.0-py3-none-any.whl

@@ -64,20 +64,22 @@ class TestUnknownBucket:
 # ---------------------------------------------------------------------------
 
 class TestWillBreakMightBreak:
-    def test_direct_hop_classified_as_will_break(self):
+    def test_direct_hop_classified_as_potential_impact(self):
         raw = "hop: 1 module.DirectCaller"
         buckets = classify_consumers("target.fn", raw, BASE_CAPS)
-        assert len(buckets["will_break"]) >= 1
+        assert buckets["will_break"] == []
+        assert len(buckets["might_break"]) >= 1
 
     def test_transitive_hop_classified_as_might_break(self):
         raw = "hop: 2 module.TransitiveCaller"
         buckets = classify_consumers("target.fn", raw, BASE_CAPS)
         assert len(buckets["might_break"]) >= 1
 
-    def test_direct_keyword_classified_as_will_break(self):
+    def test_direct_keyword_classified_as_potential_impact(self):
         raw = "direct caller: module.Foo"
         buckets = classify_consumers("target.fn", raw, BASE_CAPS)
-        assert len(buckets["will_break"]) >= 1
+        assert buckets["will_break"] == []
+        assert len(buckets["might_break"]) >= 1
 
     def test_transitive_keyword_classified_as_might_break(self):
         raw = "transitive consumer: module.Bar"

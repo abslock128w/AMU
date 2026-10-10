@@ -1,0 +1,72 @@
+name: Release checks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  viewer-accessibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: npm ci
+        working-directory: web
+      - run: npx playwright install --with-deps chromium
+        working-directory: web
+      - run: npm test
+        working-directory: web
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python: ['3.11', '3.14']
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install development dependencies
+        run: |
+          python -m venv "$RUNNER_TEMP/amu-dev"
+          "$RUNNER_TEMP/amu-dev/bin/python" -m pip install -c constraints.txt -e '.[dev]'
+      - name: Test source workflows
+        run: |
+          "$RUNNER_TEMP/amu-dev/bin/python" -m pip check
+          "$RUNNER_TEMP/amu-dev/bin/python" scripts/check_constraints.py
+          "$RUNNER_TEMP/amu-dev/bin/python" -m pytest -q -ra
+      - name: Build source archive and wheel from archive
+        run: |
+          "$RUNNER_TEMP/amu-dev/bin/python" -m build --no-isolation
+          cp constraints.txt dist/constraints.txt
+      - name: Check source archive completeness and safety
+        shell: bash
+        run: |
+          "$RUNNER_TEMP/amu-dev/bin/python" -I scripts/check_source_archive.py dist/*.tar.gz
+      - name: Install wheel in clean environment and exercise entry points
+        shell: bash
+        run: |
+          python -m venv "$RUNNER_TEMP/amu-wheel"
+          "$RUNNER_TEMP/amu-wheel/bin/python" -m pip install -c constraints.txt dist/*.whl
+          "$RUNNER_TEMP/amu-wheel/bin/python" -m pip check
+          "$RUNNER_TEMP/amu-wheel/bin/python" scripts/check_constraints.py
+          "$RUNNER_TEMP/amu-wheel/bin/python" -I scripts/smoke_installed.py
+      - name: Install optional MCP and exercise installed stdio protocol
+        shell: bash
+        run: |
+          "$RUNNER_TEMP/amu-wheel/bin/python" -m pip install -c constraints.txt mcp
+          "$RUNNER_TEMP/amu-wheel/bin/python" -m pip check
+          "$RUNNER_TEMP/amu-wheel/bin/python" scripts/check_constraints.py
+          "$RUNNER_TEMP/amu-wheel/bin/python" -I scripts/smoke_mcp_installed.py

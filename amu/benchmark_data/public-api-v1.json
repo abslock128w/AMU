@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "fixture_version": "public-api-v1",
+  "label_origin": "hand-authored",
+  "scope": "Small synthetic Python declarations; not representative of NumPy or whole-program behavior.",
+  "cases": [
+    {
+      "id": "optional-parameter-added",
+      "category": "signature",
+      "path": "pkg/api.py",
+      "before": "def scale(value):\n    return value\n",
+      "after": "def scale(value, factor=1):\n    return value\n",
+      "expected": "change",
+      "rationale": "A caller can supply a new optional parameter."
+    },
+    {
+      "id": "default-value-changed",
+      "category": "defaults",
+      "path": "pkg/api.py",
+      "before": "def scale(value, factor=1):\n    return value * factor\n",
+      "after": "def scale(value, factor=2):\n    return value * factor\n",
+      "expected": "change",
+      "rationale": "Omitting factor has a different default."
+    },
+    {
+      "id": "required-parameter-added",
+      "category": "signature",
+      "path": "pkg/api.py",
+      "before": "def scale(value):\n    return value\n",
+      "after": "def scale(value, factor):\n    return value * factor\n",
+      "expected": "change",
+      "rationale": "Existing one-argument callers must change."
+    },
+    {
+      "id": "public-alias-retargeted",
+      "category": "alias",
+      "path": "pkg/api.py",
+      "before": "def _first(value):\n    return value\ndef _second(value):\n    return value * 2\npublic = _first\n__all__ = ['public']\n",
+      "after": "def _first(value):\n    return value\ndef _second(value):\n    return value * 2\npublic = _second\n__all__ = ['public']\n",
+      "expected": "change",
+      "rationale": "The public name resolves to a different declared target."
+    },
+    {
+      "id": "public-reexport-retargeted",
+      "category": "reexport",
+      "path": "pkg/__init__.py",
+      "before": "from .first import operation as public\n__all__ = ['public']\n",
+      "after": "from .second import operation as public\n__all__ = ['public']\n",
+      "expected": "change",
+      "rationale": "The published import path resolves to a different module."
+    },
+    {
+      "id": "public-export-removed",
+      "category": "exports",
+      "path": "pkg/api.py",
+      "before": "__all__ = ['scale', 'old']\ndef scale(value):\n    return value\ndef old(value):\n    return value\n",
+      "after": "__all__ = ['scale']\ndef scale(value):\n    return value\ndef old(value):\n    return value\n",
+      "expected": "change",
+      "rationale": "The explicit export list stops publishing old."
+    },
+    {
+      "id": "private-refactor",
+      "category": "negative",
+      "path": "pkg/api.py",
+      "before": "def scale(value):\n    return value\ndef _unused():\n    return 1\n",
+      "after": "def scale(value):\n    return value\ndef _renamed():\n    return 2\n",
+      "expected": "no_change",
+      "rationale": "An unused private helper changes while the public declaration is identical."
+    },
+    {
+      "id": "explicitly-unexported-signature",
+      "category": "negative",
+      "path": "pkg/api.py",
+      "before": "__all__ = ['scale']\ndef scale(value):\n    return value\ndef internal(value):\n    return value\n",
+      "after": "__all__ = ['scale']\ndef scale(value):\n    return value\ndef internal(value, extra):\n    return value\n",
+      "expected": "no_change",
+      "rationale": "The unchanged explicit public surface excludes internal."
+    },
+    {
+      "id": "unchanged-public-api",
+      "category": "negative",
+      "path": "pkg/api.py",
+      "before": "def scale(value, factor=1):\n    return value * factor\n",
+      "after": "def scale(value, factor=1):\n    return value * factor\n",
+      "expected": "no_change",
+      "rationale": "Identical declarations must not cause a change recommendation."
+    },
+    {
+      "id": "overload-contract-changed",
+      "category": "overload",
+      "path": "pkg/api.py",
+      "before": "from typing import overload\n@overload\ndef parse(value: int) -> int: ...\n@overload\ndef parse(value: str) -> str: ...\ndef parse(value):\n    return value\n",
+      "after": "from typing import overload\n@overload\ndef parse(value: int) -> float: ...\n@overload\ndef parse(value: str) -> str: ...\ndef parse(value):\n    return value\n",
+      "expected": "change",
+      "rationale": "One declared overload advertises a different return type."
+    },
+    {
+      "id": "exception-hint-changed",
+      "category": "exceptions",
+      "path": "pkg/api.py",
+      "before": "def parse(value):\n    if value is None:\n        raise ValueError('missing')\n    return value\n",
+      "after": "def parse(value):\n    if value is None:\n        raise TypeError('missing')\n    return value\n",
+      "expected": "change",
+      "rationale": "The visible raise expression names a different exception; runtime proof is separate."
+    },
+    {
+      "id": "return-annotation-changed",
+      "category": "returns",
+      "path": "pkg/api.py",
+      "before": "def parse(value: str) -> int:\n    return int(value)\n",
+      "after": "def parse(value: str) -> float:\n    return float(value)\n",
+      "expected": "change",
+      "rationale": "The return annotation is part of the advertised interface."
+    },
+    {
+      "id": "return-shape-hint-changed",
+      "category": "returns",
+      "path": "pkg/api.py",
+      "before": "def parse(value):\n    return value\n",
+      "after": "def parse(value):\n    return (value, value)\n",
+      "expected": "change",
+      "rationale": "A visible return expression changes from one value to a tuple; it remains a review hint."
+    },
+    {
+      "id": "property-annotation-changed",
+      "category": "property",
+      "path": "pkg/api.py",
+      "before": "class Item:\n    @property\n    def value(self) -> int:\n        return 1\n",
+      "after": "class Item:\n    @property\n    def value(self) -> float:\n        return 1.0\n",
+      "expected": "change",
+      "rationale": "A public property advertises a different value type."
+    },
+    {
+      "id": "async-contract-changed",
+      "category": "async",
+      "path": "pkg/api.py",
+      "before": "def fetch():\n    return 1\n",
+      "after": "async def fetch():\n    return 1\n",
+      "expected": "change",
+      "rationale": "The caller must await the result after the change."
+    },
+    {
+      "id": "constant-value-changed",
+      "category": "constant",
+      "path": "pkg/api.py",
+      "before": "TIMEOUT = 10\n__all__ = ['TIMEOUT']\n",
+      "after": "TIMEOUT = 20\n__all__ = ['TIMEOUT']\n",
+      "expected": "change",
+      "rationale": "An explicitly exported default/configuration value changes."
+    },
+    {
+      "id": "deprecation-added",
+      "category": "deprecation",
+      "path": "pkg/api.py",
+      "before": "def old(value):\n    return value\n",
+      "after": "import warnings\ndef old(value):\n    warnings.warn('use new', DeprecationWarning)\n    return value\n",
+      "expected": "change",
+      "rationale": "The source now contains an explicit deprecation warning."
+    },
+    {
+      "id": "dynamic-exports",
+      "category": "uncertainty",
+      "path": "pkg/api.py",
+      "before": "def scale(value):\n    return value\n__all__ = exported_names()\n",
+      "after": "def scale(value, factor=1):\n    return value\n__all__ = exported_names()\n",
+      "expected": "unknown",
+      "rationale": "Whether scale is public depends on an executed export expression."
+    },
+    {
+      "id": "conditional-reexport",
+      "category": "uncertainty",
+      "path": "pkg/__init__.py",
+      "before": "if enabled:\n    from .first import public\n",
+      "after": "if enabled:\n    from .second import public\n",
+      "expected": "unknown",
+      "rationale": "The published name depends on a runtime condition."
+    },
+    {
+      "id": "star-import",
+      "category": "uncertainty",
+      "path": "pkg/__init__.py",
+      "before": "from .first import *\n",
+      "after": "from .second import *\n",
+      "expected": "unknown",
+      "rationale": "The exported names require resolving the imported module's surface."
+    }
+  ]
+}

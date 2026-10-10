@@ -1,0 +1,117 @@
+{
+  "independent": {
+    "command": [
+      "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+      "-I",
+      "-B",
+      "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/frozen-evaluator.py",
+      "--repo",
+      "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/conditions/baseline/repo"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.03482991700002458,
+    "stdout": "independent.stdout",
+    "stderr": "independent.stderr"
+  },
+  "agent-final-suite-recheck": {
+    "command": [
+      "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-v"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.03915012500510784,
+    "stdout": "agent-final-suite-recheck.stdout",
+    "stderr": "agent-final-suite-recheck.stderr"
+  },
+  "whitespace": {
+    "command": [
+      "git",
+      "-C",
+      "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/conditions/baseline/repo",
+      "diff",
+      "--check",
+      "311d3bf49836bca7cec7ef30d8f01f485d2c6a9d"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.006159333999676164,
+    "stdout": "whitespace.stdout",
+    "stderr": "whitespace.stderr"
+  },
+  "independent_result": {
+    "repository": "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/conditions/baseline/repo",
+    "requested_bug_fixed": true,
+    "protected_behavior_passed": true,
+    "checks": [
+      {
+        "name": "reported half-cent bug",
+        "category": "requested",
+        "passed": true
+      },
+      {
+        "name": "rounding boundary matrix",
+        "category": "requested",
+        "passed": true
+      },
+      {
+        "name": "large integer precision",
+        "category": "requested",
+        "passed": true
+      },
+      {
+        "name": "quote consumer",
+        "category": "requested",
+        "passed": true
+      },
+      {
+        "name": "payment consumer and single charge",
+        "category": "requested",
+        "passed": true
+      },
+      {
+        "name": "receipt consumer",
+        "category": "requested",
+        "passed": true
+      },
+      {
+        "name": "order-level rounding",
+        "category": "protected",
+        "passed": true
+      },
+      {
+        "name": "input validation and no invalid charge",
+        "category": "protected",
+        "passed": true
+      },
+      {
+        "name": "existing normal quote/payment/receipt",
+        "category": "protected",
+        "passed": true
+      },
+      {
+        "name": "default, zero and free order behavior",
+        "category": "protected",
+        "passed": true
+      }
+    ],
+    "passed": 10,
+    "failed": 0
+  },
+  "task_elapsed_seconds": 100.22441016700031,
+  "agent_task_lifecycle": {
+    "started_at_utc": "2026-10-10T07:00:47.296577+00:00",
+    "monotonic_start": 53734.439443041,
+    "finished_at_utc": "2026-10-10T07:02:27.521249+00:00",
+    "task_elapsed_seconds": 100.22441016700031
+  },
+  "patch_sha256": "d68a095b072dc4239586ea82320f3e451f1383fd6833d913b50be64768e9b4e1",
+  "amu_calls": [],
+  "amu_analysis_seconds": 0,
+  "amu_adapter_elapsed_seconds": 0,
+  "evaluated_at_utc": "2026-10-10T07:04:43.036325+00:00"
+}

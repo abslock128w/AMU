@@ -1,0 +1,12 @@
+AMU | saved actual local evidence | synthetic checkout case
+
+One illustrative case, two fresh agent contexts, identical starting source.
+Condition                  Independent checks   Selected tests   Task clock
+Ordinary exploration       10/10                15 passed        100.22 s
++ AMU                      10/10                15 passed        143.35 s
+
+AMU index preparation, separate: 0.297 s.
+AMU process-command time during task: 5.975 s.
+Both found quote, checkout and the indirect receipt consumer.
+AMU corroborated them with relationship/coverage packets. Baseline was faster.
+No correctness or speed advantage was observed; causal attribution is unavailable.

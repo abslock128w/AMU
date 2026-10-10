@@ -1,0 +1,105 @@
+{
+  "status": "passed",
+  "identity": {
+    "amu_version": "0.2.0",
+    "build": {
+      "bytes": 909981,
+      "complete": true,
+      "files": 60,
+      "scope": "actual AMU Python payload only; not a wheel signature or provider identity",
+      "sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e"
+    },
+    "build_sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+    "distribution_version": "0.2.0",
+    "executable": "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/environments/final314/bin/python",
+    "manifest_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761",
+    "manifest_version": "amu-inspection-v1",
+    "module": "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/environments/final314/lib/python3.14/site-packages/amu/mcp_server.py",
+    "python_version": "3.14.6",
+    "version": "0.2.0"
+  },
+  "manifest": {
+    "expected_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761",
+    "expected_version": "amu-inspection-v1",
+    "match": true,
+    "missing_tools": [],
+    "observed_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761",
+    "schema_mismatches": [],
+    "unexpected_tools": []
+  },
+  "report_hash": "1e7e6cf384f12dbcce4d031f3d4a1c158f84af068ba2a0732ef749333d567c5e",
+  "exact_root_denial": {
+    "category": "REPOSITORY_NOT_AUTHORIZED",
+    "error": "repository is not authorized for this MCP server",
+    "error_kind": "repository_not_allowed",
+    "exit": 2,
+    "hint": "Choose an explicitly authorized repository. Only the operator can review and change the server's exact-root grants; a tool request cannot expand them."
+  },
+  "stale_cursor_error": {
+    "error": "cursor is stale or belongs to a different analysis or section; restart inspection",
+    "exit": 2
+  },
+  "temporary_fixture_removed": true,
+  "live_configuration_changed": false,
+  "models_used": false,
+  "maximum_frame_bytes": 13532,
+  "wire_allowance_including_newline": 131072,
+  "sections": {
+    "coverage": {
+      "complete": true,
+      "entries": 10,
+      "entries_sha256": "9fe41663b89d3984f015d6cda32ddd8befc8df60733804327b27a0e8fc67f058",
+      "fragmented_items": 0,
+      "logical_items": 10,
+      "pages": 10
+    },
+    "dynamic_boundaries": {
+      "complete": true,
+      "entries": 0,
+      "entries_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "fragmented_items": 0,
+      "logical_items": 0,
+      "pages": 1
+    },
+    "impact": {
+      "complete": true,
+      "entries": 3,
+      "entries_sha256": "74f00f020b06b123a50743cab6d7011c3986edec2b4242f9caf3d0f3813fab62",
+      "fragmented_items": 0,
+      "logical_items": 3,
+      "pages": 3
+    },
+    "reasons": {
+      "complete": true,
+      "entries": 0,
+      "entries_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "fragmented_items": 0,
+      "logical_items": 0,
+      "pages": 1
+    },
+    "source_contradictions": {
+      "complete": true,
+      "entries": 0,
+      "entries_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "fragmented_items": 0,
+      "logical_items": 0,
+      "pages": 1
+    },
+    "source_uncertainties": {
+      "complete": true,
+      "entries": 0,
+      "entries_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "fragmented_items": 0,
+      "logical_items": 0,
+      "pages": 1
+    }
+  },
+  "tool_calls": 29,
+  "frames": 31,
+  "tools": [
+    "amu_docs_reviews",
+    "amu_graph",
+    "amu_impact",
+    "amu_search"
+  ]
+}

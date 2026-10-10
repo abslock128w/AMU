@@ -19,9 +19,11 @@ def test_frozen_signature_blocks():
     assert any(v.kind.value == "FROZEN_SIGNATURE" for v in r.violations) and not r.passed
 
 
-def test_unknown_touched_is_a_warning_not_a_block():
+def test_unknown_touched_blocks_until_a_human_resolves_the_graph_gap():
     r = check_contract(CONTRACT, [], ["amu/classify.py"], phase=1, unknown_files={"amu/classify.py"})
-    assert r.passed and r.violations[0].kind.value == "UNKNOWN_TOUCHED"
+    assert not r.passed
+    assert r.violations[0].kind.value == "UNKNOWN_TOUCHED"
+    assert r.violations[0].severity.value == "ERROR"
 
 
 def test_out_of_scope_blocks():
@@ -32,3 +34,20 @@ def test_out_of_scope_blocks():
 def test_real_diff_shape_parses():
     ch = parse_graph_diff({"files": [{"path": "a.py", "changes": [{"type": "removed", "kind": "function", "name": "f", "dependents_count": 2}]}]})
     assert ch[0]["change"] == "removed" and ch[0]["dependents_count"] == 2
+
+
+def test_default_file_wildcard_allows_a_declared_removal():
+    contract = {**CONTRACT, "targets": [{"symbol": "amu/classify.py#*", "change_class": "remove"}]}
+    changes = parse_graph_diff({"files": [{"path": "amu/classify.py", "changes": [{"type": "removed", "kind": "function", "name": "classify_consumers"}]}]})
+
+    result = check_contract(contract, changes, ["amu/classify.py"], phase=4)
+
+    assert not any(v.kind.value == "UNDECLARED_REMOVAL" for v in result.violations)
+
+
+def test_unguarded_change_requires_tests_for_its_own_phase():
+    changes = parse_graph_diff({"files": [{"path": "amu/cli.py", "changes": [{"type": "body_changed", "kind": "function", "name": "check"}]}]})
+
+    result = check_contract(CONTRACT, changes, ["amu/cli.py"], phase=3)
+
+    assert any(v.kind.value == "UNGUARDED_CHANGE" for v in result.violations)

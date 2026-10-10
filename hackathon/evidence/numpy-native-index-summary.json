@@ -1,0 +1,49 @@
+{
+  "format_version": 1,
+  "provider": "entire-graph",
+  "provider_version": "dev",
+  "repo_root": "/Users/Abslock128/Documents/Codex/2026-09-15/hey-so-this-is-a-project-2/integration-fixtures/numpy-v2.3.0",
+  "commit": "0532af47d6a815298b7841de00bdbc547104b237",
+  "tree": "f8c13a1943407ecd62b671b9aeead5b53f6d6e50",
+  "profile": "full",
+  "index_cache_hit": false,
+  "index_latency_ms": 307,
+  "counts": {
+    "files": 251,
+    "parsed_files": 251,
+    "symbols": 1233,
+    "relations": 1883,
+    "partial_failures": 1431,
+    "completeness_level": "unsafe"
+  },
+  "failure_code_counts": {
+    "E_PARSE_ERROR": 1,
+    "E_FILE_READ": 1363,
+    "E_UNSUPPORTED_LANGUAGE": 67
+  },
+  "target_failures": [
+    {
+      "code": "E_FILE_READ",
+      "severity": "error",
+      "file_path": "numpy/_core/getlimits.py",
+      "effect_on_semantic_completeness": "file omitted from semantic snapshot",
+      "detail": "file listed but content was unavailable"
+    }
+  ],
+  "graph_agent_summary": null,
+  "remaining_top_level_keys": [
+    "format_version",
+    "provider",
+    "provider_version",
+    "repo_root",
+    "commit",
+    "tree",
+    "profile",
+    "index_cache_hit",
+    "index_latency_ms",
+    "counts",
+    "warnings",
+    "partial_failures",
+    "completeness"
+  ]
+}

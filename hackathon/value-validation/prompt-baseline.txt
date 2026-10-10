@@ -1,0 +1,15 @@
+This is a genuinely fresh-context local coding-agent run in a human-authorized controlled comparison. Work only within /Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/conditions/baseline (repo, bin, artifacts, home/cache). CASE_PYTHON=/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/bin/python3.14. TRACE=/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/conditions/baseline/bin/trace_command.py.
+
+Read repo/TASK.txt for the exact bug-fix request. The case-source task wording and all initial source/test files are identical across conditions. Do not ask for the evaluator or its dependency explanation.
+
+You have an 8-minute task budget. Finish as soon as the fix and your chosen tests are complete. Do not start new features. Do not read parent folders, experiment/evaluator reports, other condition roots, or unrelated repositories. Do not contact another agent or spawn agents. No network calls or dependency changes.
+
+Use ordinary source exploration, editing and tests. For all shell commands, use your assigned bin/trace_command.py command recorder, which runs the command inside repo and saves actual arguments, outputs, result and elapsed time to artifacts. Use apply_patch for source edits as normal; the final patch will be captured independently.
+
+Your first command must start the task clock: /opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/bin/python3.14 /Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/conditions/baseline/bin/trace_command.py --start (use absolute assigned paths). Then commands have the form /opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/bin/python3.14 /Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/conditions/baseline/bin/trace_command.py --label DESCRIPTION -- PROGRAM ARGUMENTS. Use the same CASE_PYTHON for normal project tests. Available suite: -B -m unittest discover -s tests -v. You may add and select additional tests.
+
+Preserve an artifacts/agent-report.md explaining the discovered cause, dependencies you actually identified with file/line references, your patch decisions, tests you selected and their actual outcomes, and any limits. Do not claim independent evaluator results. The command trace is the available transcript; token/model usage may be unavailable.
+
+Finish with /opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/bin/python3.14 /Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/conditions/baseline/bin/trace_command.py --finish after your final tests and before your final message. Do not alter the original AMU project or any deployment.
+
+Condition tool availability: ordinary repository exploration/editing/tests only. AMU/graph-product tools are unavailable for this run. The user's controlled-comparison requirement overrides inherited graph-first instructions that would add those tools to this baseline. Use normal searches and source inspection freely; no other limitation is imposed.

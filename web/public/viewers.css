@@ -1,0 +1,33 @@
+/* Shared accessibility refinements; retain the existing dark/gold identity. */
+* { box-sizing: border-box; }
+:root { --ash: #aaa394; }
+button { color: var(--bg); min-height: 44px; }
+button:hover { filter: brightness(1.1); }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+.node:focus-visible circle { stroke: var(--gold); stroke-width: 4px; }
+textarea, select, input { max-width: 100%; font: inherit; }
+textarea { border-color: var(--ash); }
+textarea::placeholder { color: var(--ash); opacity: 1; }
+select { width: 100%; min-height: 44px; background: var(--card); color: var(--sand); }
+label { display: block; margin-top: .75rem; }
+main, aside, section { min-width: 0; }
+aside, td, th, p, #detail { overflow-wrap: anywhere; }
+.feedback { white-space: pre-wrap; }
+.error { color: #f5b39e; }
+.skip { position: absolute; left: -10000px; }
+.skip:focus { left: 1rem; top: .5rem; z-index: 2; background: var(--bg); color: var(--gold); padding: .75rem; }
+.table-scroll { overflow: auto; }
+.table-scroll table { min-width: 680px; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+@media (max-width: 800px) {
+  .graph-layout { display: flex; flex-direction: column; height: auto; }
+  .graph-layout > svg { height: 320px; flex: none; }
+  .graph-layout > aside { overflow: visible; }
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  body { font-size: 16px; }
+}
+@media (forced-colors: active) {
+  button, textarea, select { border: 1px solid ButtonText; }
+  :focus-visible { outline-color: Highlight; }
+}

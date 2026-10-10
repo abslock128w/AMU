@@ -1,0 +1,167 @@
+{
+  "independent": {
+    "command": [
+      "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+      "-I",
+      "-B",
+      "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/frozen-evaluator.py",
+      "--repo",
+      "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/conditions/treatment/repo"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.03334670800541062,
+    "stdout": "independent.stdout",
+    "stderr": "independent.stderr"
+  },
+  "agent-final-suite-recheck": {
+    "command": [
+      "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-v"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.030096208000031766,
+    "stdout": "agent-final-suite-recheck.stdout",
+    "stderr": "agent-final-suite-recheck.stderr"
+  },
+  "whitespace": {
+    "command": [
+      "git",
+      "-C",
+      "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/conditions/treatment/repo",
+      "diff",
+      "--check",
+      "311d3bf49836bca7cec7ef30d8f01f485d2c6a9d"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.005538000004889909,
+    "stdout": "whitespace.stdout",
+    "stderr": "whitespace.stderr"
+  },
+  "independent_result": {
+    "repository": "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/conditions/treatment/repo",
+    "requested_bug_fixed": true,
+    "protected_behavior_passed": true,
+    "checks": [
+      {
+        "name": "reported half-cent bug",
+        "category": "requested",
+        "passed": true
+      },
+      {
+        "name": "rounding boundary matrix",
+        "category": "requested",
+        "passed": true
+      },
+      {
+        "name": "large integer precision",
+        "category": "requested",
+        "passed": true
+      },
+      {
+        "name": "quote consumer",
+        "category": "requested",
+        "passed": true
+      },
+      {
+        "name": "payment consumer and single charge",
+        "category": "requested",
+        "passed": true
+      },
+      {
+        "name": "receipt consumer",
+        "category": "requested",
+        "passed": true
+      },
+      {
+        "name": "order-level rounding",
+        "category": "protected",
+        "passed": true
+      },
+      {
+        "name": "input validation and no invalid charge",
+        "category": "protected",
+        "passed": true
+      },
+      {
+        "name": "existing normal quote/payment/receipt",
+        "category": "protected",
+        "passed": true
+      },
+      {
+        "name": "default, zero and free order behavior",
+        "category": "protected",
+        "passed": true
+      }
+    ],
+    "passed": 10,
+    "failed": 0
+  },
+  "task_elapsed_seconds": 143.35329262499727,
+  "agent_task_lifecycle": {
+    "started_at_utc": "2026-10-10T07:01:00.730389+00:00",
+    "monotonic_start": 53747.873178333,
+    "finished_at_utc": "2026-10-10T07:03:24.084126+00:00",
+    "task_elapsed_seconds": 143.35329262499727
+  },
+  "patch_sha256": "d6ae6b84381799882913096ccc1a2cf69bdf6b1de785354240b42cd9c19e9e07",
+  "amu_calls": [
+    {
+      "tool": "--schema",
+      "analysis_seconds": 0,
+      "total_elapsed_seconds": 0.4216479579990846,
+      "wire_maximum": 3187,
+      "receipt": "conditions/treatment/artifacts/amu-1791615672363705000.json"
+    },
+    {
+      "tool": "amu_search",
+      "analysis_seconds": 0.4975589579989901,
+      "total_elapsed_seconds": 0.8416101250040811,
+      "wire_maximum": 6930,
+      "receipt": "conditions/treatment/artifacts/amu-1791615684156517000.json"
+    },
+    {
+      "tool": "amu_graph",
+      "analysis_seconds": 0.3155983750039013,
+      "total_elapsed_seconds": 0.734549832995981,
+      "wire_maximum": 6370,
+      "receipt": "conditions/treatment/artifacts/amu-1791615701958055000.json"
+    },
+    {
+      "tool": "amu_impact",
+      "analysis_seconds": 0.4294010830053594,
+      "total_elapsed_seconds": 0.8528044589984347,
+      "wire_maximum": 9696,
+      "receipt": "conditions/treatment/artifacts/amu-1791615701958119000.json"
+    },
+    {
+      "tool": "amu_impact",
+      "analysis_seconds": 0.4218356249984936,
+      "total_elapsed_seconds": 0.7936380829996779,
+      "wire_maximum": 22408,
+      "receipt": "conditions/treatment/artifacts/amu-1791615714068437000.json"
+    },
+    {
+      "tool": "amu_graph",
+      "analysis_seconds": 0.2865748749973136,
+      "total_elapsed_seconds": 0.6570438749986351,
+      "wire_maximum": 19816,
+      "receipt": "conditions/treatment/artifacts/amu-1791615714068848000.json"
+    },
+    {
+      "tool": "amu_impact",
+      "analysis_seconds": 0.573543916005292,
+      "total_elapsed_seconds": 0.9714755829991191,
+      "wire_maximum": 18034,
+      "receipt": "conditions/treatment/artifacts/amu-1791615748087747000.json"
+    }
+  ],
+  "amu_analysis_seconds": 2.52451283200935,
+  "amu_adapter_elapsed_seconds": 5.272769915995013,
+  "evaluated_at_utc": "2026-10-10T07:04:43.127866+00:00"
+}

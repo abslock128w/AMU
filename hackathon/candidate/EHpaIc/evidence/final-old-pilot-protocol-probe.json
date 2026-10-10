@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "status": "mismatch",
+  "exit": 2,
+  "error_kind": "mcp_installation_mismatch",
+  "reasons": [
+    "Advertised tools/schemas differ from the reviewed inspection manifest; use the matching installed candidate and restart the selected server.",
+    "Server initialize metadata lacks AMU manifest/build identity; the selected installation may predate parity diagnostics.",
+    "Selected server differs from this diagnostic runtime; version strings alone cannot establish installation parity.",
+    "Server initialize version is missing; old same-version installations cannot be distinguished by version alone."
+  ],
+  "runtime": {
+    "amu_version": "0.2.0",
+    "version": "0.2.0",
+    "python_version": "3.14.6",
+    "executable": "/Users/Abslock128/Documents/Codex/2026-09-13/hey/TWC-Thugs/.venv-pilot/bin/python",
+    "module": "/Users/Abslock128/Documents/Codex/2026-09-13/hey/TWC-Thugs/.venv-pilot/lib/python3.14/site-packages/amu/mcp_server.py",
+    "distribution_version": "0.2.0",
+    "mcp_version": "2.2.0",
+    "pydantic_version": "2.13.5",
+    "build_sha256": "a71c1b36059dd1de70a1b019ffbdc5b50353c801e144f35dac9689ea008c2a6c",
+    "build": {
+      "sha256": "a71c1b36059dd1de70a1b019ffbdc5b50353c801e144f35dac9689ea008c2a6c",
+      "complete": true,
+      "files": 53,
+      "bytes": 782827,
+      "scope": "actual AMU Python payload only; not a wheel signature or provider identity"
+    }
+  },
+  "source_runtime": {
+    "amu_version": "0.2.0",
+    "version": "0.2.0",
+    "distribution_version": "0.2.0",
+    "python_version": "3.14.6",
+    "executable": "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/environments/final314/bin/python",
+    "module": "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/environments/final314/lib/python3.14/site-packages/amu/mcp_server.py",
+    "build_sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+    "build": {
+      "sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+      "complete": true,
+      "files": 60,
+      "bytes": 909981,
+      "scope": "actual AMU Python payload only; not a wheel signature or provider identity"
+    },
+    "manifest_version": "amu-inspection-v1",
+    "manifest_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761"
+  },
+  "manifest": {
+    "match": false,
+    "expected_version": "amu-inspection-v1",
+    "expected_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761",
+    "observed_sha256": "e0e8be8cc27c3d6cd05cae95ac4101b56a5e3dcc7797df47adbe27c8d941313e",
+    "missing_tools": [
+      "amu_impact"
+    ],
+    "unexpected_tools": [],
+    "schema_mismatches": []
+  },
+  "protocol": {
+    "initialized": true,
+    "server_info": {
+      "name": "TWC Thugs \u00b7 amu",
+      "title": null,
+      "version": "",
+      "description": null,
+      "websiteUrl": null,
+      "icons": null
+    },
+    "reported_identity": null,
+    "tool_names": [
+      "amu_docs_reviews",
+      "amu_graph",
+      "amu_search"
+    ],
+    "tool_count": 3,
+    "inspection_only": true,
+    "checks": [
+      "initialize",
+      "tools/list"
+    ]
+  },
+  "authority": {
+    "profile": "inspection",
+    "repository_authorization_certified": false,
+    "live_client_configuration_changed": false,
+    "tool_calls_executed": false
+  }
+}

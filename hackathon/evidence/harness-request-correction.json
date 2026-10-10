@@ -1,0 +1,9 @@
+{
+  "original_receipt": "numpy-wire-preflight.json",
+  "classification": "Invalid preflight request, not a candidate defect",
+  "tool": "amu_docs_reviews",
+  "cause": "preview is an optional string; Boolean false failed SDK schema validation before tool execution",
+  "correction": "Omit preview to inspect the genuine queue",
+  "original_request_and_error_preserved": true,
+  "candidate_changed": false
+}

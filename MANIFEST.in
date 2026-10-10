@@ -1,0 +1,32 @@
+include constraints.txt
+include THIRD-PARTY.txt
+
+# A source release must be independently testable, not just contain test_*.py.
+recursive-include tests *.py *.json *.ndjson
+include tests/bin/entire
+recursive-include scripts *.py *.sh
+
+# Human guidance and historical evidence; candidate sidecars contain this
+# archive's hash, so including them would create a self-reference cycle.
+recursive-include docs *.md
+recursive-include docs/evidence *.json
+recursive-exclude docs/evidence release-candidate*.json
+
+# Frozen static viewers, their third-party license, and browser test setup.
+recursive-include web/public *.html *.css *.js *.sh *.LICENSE
+recursive-include web/public/vendor *LICENSE*
+include web/package.json web/package-lock.json web/playwright.config.js
+recursive-include web/tests *.js
+recursive-include .github/workflows *.yml *.yaml
+
+# Never distribute generated caches, local dependencies or private AMU state.
+prune .git
+prune .amu
+prune .entire
+prune .venv
+prune .pytest_cache
+prune .ruff_cache
+prune web/node_modules
+prune tests/_nobin
+global-exclude *.py[cod] .DS_Store
+global-exclude */__pycache__/* */node_modules/* */.amu/* */.git/*

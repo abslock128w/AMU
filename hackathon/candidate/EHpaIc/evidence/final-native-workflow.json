@@ -1,0 +1,146 @@
+{
+  "complete": true,
+  "client": "pinned MCP SDK stdio; not a live AI client",
+  "steps": [
+    {
+      "tool": "amu_map_target",
+      "status": "passed"
+    },
+    {
+      "tool": "amu_plan",
+      "status": "passed"
+    },
+    {
+      "tool": "amu_refresh_graph",
+      "status": "passed"
+    },
+    {
+      "tool": "amu_check",
+      "status": "passed"
+    },
+    {
+      "tool": "amu_check",
+      "status": "passed"
+    },
+    {
+      "tool": "amu_check",
+      "status": "passed"
+    },
+    {
+      "tool": "amu_check",
+      "status": "passed"
+    },
+    {
+      "tool": "amu_done",
+      "status": "passed"
+    },
+    {
+      "tool": "amu_docs",
+      "status": "passed"
+    },
+    {
+      "tool": "amu_docs_prepare",
+      "status": "passed"
+    },
+    {
+      "tool": "amu_docs_reviews",
+      "status": "passed"
+    },
+    {
+      "tool": "amu_docs_apply_review",
+      "status": "passed"
+    },
+    {
+      "tool": "amu_check",
+      "status": "passed"
+    },
+    {
+      "tool": "amu_done",
+      "status": "passed"
+    },
+    {
+      "tool": "amu_docs_saves",
+      "status": "passed"
+    },
+    {
+      "tool": "amu_docs_saves",
+      "status": "passed"
+    }
+  ],
+  "failures": [],
+  "engine": {
+    "dispatcher": {
+      "path": "/opt/homebrew/Caskroom/entire/0.10.5/entire",
+      "sha256": "b8cfe20381338a7c9f5bc53b4d824a34548d29385381eae8f8c93541ee56b262",
+      "bytes": 45162966,
+      "version": "Entire CLI 0.10.5\nGo version: go1.26.6\nOS/Arch: darwin/arm64"
+    },
+    "graph_plugin": {
+      "path": "/Users/Abslock128/go/bin/entire-graph",
+      "sha256": "d6a07d96d5306e3aa5c2db6047dce7cf6cb72c19030cfb8ca37e2a283c39954e",
+      "bytes": 85266466,
+      "version": "dev"
+    }
+  },
+  "application": {
+    "version": "0.2.0",
+    "package": "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/environments/final314/lib/python3.14/site-packages/amu/__init__.py",
+    "prefix": "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/environments/final314"
+  },
+  "isolation": {
+    "temporary_home": true,
+    "credentials_inherited": false,
+    "outbound_enabled": false,
+    "original_installation_modified": false,
+    "fixture_only": true
+  },
+  "documentation_listing_shape": {
+    "keys": [
+      "applied",
+      "candidates",
+      "commit_hint",
+      "docs_graph",
+      "mode",
+      "next",
+      "not_applied",
+      "prepared",
+      "relationship_comparisons",
+      "saves",
+      "worktree_blocks"
+    ],
+    "candidates": [
+      {
+        "keys": [
+          "api_change",
+          "api_evidence",
+          "candidate",
+          "class",
+          "confidence",
+          "evidence",
+          "facets_changed",
+          "fingerprint",
+          "id",
+          "new",
+          "old",
+          "reason",
+          "targets"
+        ],
+        "id": "d1",
+        "candidate": "pilotpkg/api.py#target",
+        "targets": [
+          {
+            "file": "docs/guide.md",
+            "section": "Public API"
+          }
+        ]
+      }
+    ]
+  },
+  "reviewed_documentation_current_completion": true,
+  "same_and_cross_file_callers": [
+    "pilotpkg/api.py#same_file_caller",
+    "pilotpkg/caller.py#cross_file_caller",
+    "tests/test_api.py#test_required_behavior"
+  ],
+  "temporary_fixture_removed_after_run": true
+}

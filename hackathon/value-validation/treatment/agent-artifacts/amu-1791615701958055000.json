@@ -1,0 +1,186 @@
+{
+  "started_at_utc": "2026-10-10T07:01:41.958057+00:00",
+  "tool": "amu_graph",
+  "arguments": {
+    "target": "shop/pricing.py:discounted_total_cents",
+    "depth": 3,
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/conditions/treatment/repo"
+  },
+  "local_only": true,
+  "live_configuration_changed": false,
+  "models_used_by_amu": false,
+  "build_identity": {
+    "amu_version": "0.2.0",
+    "build_sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+    "distribution_version": "0.2.0",
+    "manifest_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761",
+    "manifest_version": "amu-inspection-v1"
+  },
+  "initialization_seconds": 0.34424316600052407,
+  "manifest": {
+    "match": true,
+    "expected_version": "amu-inspection-v1",
+    "expected_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761",
+    "observed_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761",
+    "missing_tools": [],
+    "unexpected_tools": [],
+    "schema_mismatches": []
+  },
+  "analysis_seconds": 0.3155983750039013,
+  "response": {
+    "jsonrpc": "2.0",
+    "id": "case-call",
+    "result": {
+      "content": [
+        {
+          "text": "{\"focus\": \"shop/pricing.py:discounted_total_cents\", \"symbol\": \"shop/pricing.py:discounted_total_cents\", \"depth\": 2, \"nodes\": [{\"id\": \"shop/pricing.py:discounted_total_cents\", \"name\": \"shop/pricing.py:discounted_total_cents\", \"path\": \"?\", \"kind\": \"?\", \"confidence\": \"unknown\", \"section\": \"focus\", \"reason\": \"graph returned no focus (ambiguous or not found)\", \"verify\": \"entire graph def shop/pricing.py:discounted_total_cents\"}], \"edges\": [], \"counts\": {\"callers\": 0, \"callees\": 0, \"type_consumers\": 0, \"data_flows\": 0, \"co_changes\": 0, \"siblings\": 0}, \"status\": \"not_found\", \"candidates\": [], \"warnings\": [\"graph evidence is not approvable: live graph failed: impact --depth must be 1 or 2; live graph did not resolve focus for: shop/pricing.py:discounted_total_cents; graph display target is not an exact path#symbol\"], \"source_contradictions\": [], \"source_uncertainties\": [], \"graph_evidence\": {\"approvable\": false, \"stage\": \"live-refresh\", \"target\": \"shop/pricing.py:discounted_total_cents\", \"completeness_levels\": [], \"partial_failures\": 0, \"semantic_edges\": 0, \"reasons\": [\"live graph failed: impact --depth must be 1 or 2\", \"live graph did not resolve focus for: shop/pricing.py:discounted_total_cents\", \"graph display target is not an exact path#symbol\"], \"contradicted_python_calls\": [], \"unverified_python_calls\": [], \"worktree\": {\"before\": {\"head_before\": \"311d3bf49836bca7cec7ef30d8f01f485d2c6a9d\", \"head_after\": \"311d3bf49836bca7cec7ef30d8f01f485d2c6a9d\", \"worktree\": {\"digest\": \"e3b0c44298fc1c149afbf4c8\", \"files\": [], \"error\": null, \"evidence_version\": 1, \"records\": [], \"head\": \"311d3bf49836bca7cec7ef30d8f01f485d2c6a9d\", \"freshness\": {\"head\": \"311d3bf49836bca7cec7ef30d8f01f485d2c6a9d\", \"full\": {\"digest\": \"e3b0c44298fc1c149afbf4c8\", \"files\": [], \"error\": null, \"evidence_version\": 1, \"records\": []}, \"config_hash\": \"f3fd3c17f889fc352946f03e36e8a1ee92f75eceb865c7e58f3d2a6d489d45a4\", \"error\": null, \"schema_version\": 1, \"code\": {\"digest\": \"7032079ae584825957a8b010\", \"files\": [], \"error\": null}, \"docs\": {\"digest\": \"7032079ae584825957a8b010\", \"files\": [], \"error\": null}}}}, \"after\": {\"head_before\": \"311d3bf49836bca7cec7ef30d8f01f485d2c6a9d\", \"head_after\": \"311d3bf49836bca7cec7ef30d8f01f485d2c6a9d\", \"worktree\": {\"digest\": \"e3b0c44298fc1c149afbf4c8\", \"files\": [], \"error\": null, \"evidence_version\": 1, \"records\": [], \"head\": \"311d3bf49836bca7cec7ef30d8f01f485d2c6a9d\", \"freshness\": {\"head\": \"311d3bf49836bca7cec7ef30d8f01f485d2c6a9d\", \"full\": {\"digest\": \"e3b0c44298fc1c149afbf4c8\", \"files\": [], \"error\": null, \"evidence_version\": 1, \"records\": []}, \"config_hash\": \"f3fd3c17f889fc352946f03e36e8a1ee92f75eceb865c7e58f3d2a6d489d45a4\", \"error\": null, \"schema_version\": 1, \"code\": {\"digest\": \"7032079ae584825957a8b010\", \"files\": [], \"error\": null}, \"docs\": {\"digest\": \"7032079ae584825957a8b010\", \"files\": [], \"error\": null}}}}, \"stable\": true}}}",
+          "type": "text"
+        }
+      ],
+      "isError": false,
+      "structuredContent": {
+        "result": "{\"focus\": \"shop/pricing.py:discounted_total_cents\", \"symbol\": \"shop/pricing.py:discounted_total_cents\", \"depth\": 2, \"nodes\": [{\"id\": \"shop/pricing.py:discounted_total_cents\", \"name\": \"shop/pricing.py:discounted_total_cents\", \"path\": \"?\", \"kind\": \"?\", \"confidence\": \"unknown\", \"section\": \"focus\", \"reason\": \"graph returned no focus (ambiguous or not found)\", \"verify\": \"entire graph def shop/pricing.py:discounted_total_cents\"}], \"edges\": [], \"counts\": {\"callers\": 0, \"callees\": 0, \"type_consumers\": 0, \"data_flows\": 0, \"co_changes\": 0, \"siblings\": 0}, \"status\": \"not_found\", \"candidates\": [], \"warnings\": [\"graph evidence is not approvable: live graph failed: impact --depth must be 1 or 2; live graph did not resolve focus for: shop/pricing.py:discounted_total_cents; graph display target is not an exact path#symbol\"], \"source_contradictions\": [], \"source_uncertainties\": [], \"graph_evidence\": {\"approvable\": false, \"stage\": \"live-refresh\", \"target\": \"shop/pricing.py:discounted_total_cents\", \"completeness_levels\": [], \"partial_failures\": 0, \"semantic_edges\": 0, \"reasons\": [\"live graph failed: impact --depth must be 1 or 2\", \"live graph did not resolve focus for: shop/pricing.py:discounted_total_cents\", \"graph display target is not an exact path#symbol\"], \"contradicted_python_calls\": [], \"unverified_python_calls\": [], \"worktree\": {\"before\": {\"head_before\": \"311d3bf49836bca7cec7ef30d8f01f485d2c6a9d\", \"head_after\": \"311d3bf49836bca7cec7ef30d8f01f485d2c6a9d\", \"worktree\": {\"digest\": \"e3b0c44298fc1c149afbf4c8\", \"files\": [], \"error\": null, \"evidence_version\": 1, \"records\": [], \"head\": \"311d3bf49836bca7cec7ef30d8f01f485d2c6a9d\", \"freshness\": {\"head\": \"311d3bf49836bca7cec7ef30d8f01f485d2c6a9d\", \"full\": {\"digest\": \"e3b0c44298fc1c149afbf4c8\", \"files\": [], \"error\": null, \"evidence_version\": 1, \"records\": []}, \"config_hash\": \"f3fd3c17f889fc352946f03e36e8a1ee92f75eceb865c7e58f3d2a6d489d45a4\", \"error\": null, \"schema_version\": 1, \"code\": {\"digest\": \"7032079ae584825957a8b010\", \"files\": [], \"error\": null}, \"docs\": {\"digest\": \"7032079ae584825957a8b010\", \"files\": [], \"error\": null}}}}, \"after\": {\"head_before\": \"311d3bf49836bca7cec7ef30d8f01f485d2c6a9d\", \"head_after\": \"311d3bf49836bca7cec7ef30d8f01f485d2c6a9d\", \"worktree\": {\"digest\": \"e3b0c44298fc1c149afbf4c8\", \"files\": [], \"error\": null, \"evidence_version\": 1, \"records\": [], \"head\": \"311d3bf49836bca7cec7ef30d8f01f485d2c6a9d\", \"freshness\": {\"head\": \"311d3bf49836bca7cec7ef30d8f01f485d2c6a9d\", \"full\": {\"digest\": \"e3b0c44298fc1c149afbf4c8\", \"files\": [], \"error\": null, \"evidence_version\": 1, \"records\": []}, \"config_hash\": \"f3fd3c17f889fc352946f03e36e8a1ee92f75eceb865c7e58f3d2a6d489d45a4\", \"error\": null, \"schema_version\": 1, \"code\": {\"digest\": \"7032079ae584825957a8b010\", \"files\": [], \"error\": null}, \"docs\": {\"digest\": \"7032079ae584825957a8b010\", \"files\": [], \"error\": null}}}}, \"stable\": true}}}"
+      }
+    }
+  },
+  "frames": [
+    {
+      "bytes": 1493,
+      "sha256": "b884172974100972e9570fffb2e04d1c5cabebc4c61c934e075ada7b121e49b4",
+      "response_kind": "result"
+    },
+    {
+      "bytes": 3187,
+      "sha256": "578564b801b65a0e7b8403bd456c573b1c1c41b324d458b17c46a242414405dd",
+      "response_kind": "result"
+    },
+    {
+      "bytes": 6370,
+      "sha256": "a4685481f0e6e6f037e419eacb191acf2d72c10c3f3194d883dba99aceb4d559",
+      "response_kind": "result"
+    }
+  ],
+  "maximum_frame_bytes": 6370,
+  "total_elapsed_seconds": 0.734549832995981,
+  "payload": {
+    "focus": "shop/pricing.py:discounted_total_cents",
+    "symbol": "shop/pricing.py:discounted_total_cents",
+    "depth": 2,
+    "nodes": [
+      {
+        "id": "shop/pricing.py:discounted_total_cents",
+        "name": "shop/pricing.py:discounted_total_cents",
+        "path": "?",
+        "kind": "?",
+        "confidence": "unknown",
+        "section": "focus",
+        "reason": "graph returned no focus (ambiguous or not found)",
+        "verify": "entire graph def shop/pricing.py:discounted_total_cents"
+      }
+    ],
+    "edges": [],
+    "counts": {
+      "callers": 0,
+      "callees": 0,
+      "type_consumers": 0,
+      "data_flows": 0,
+      "co_changes": 0,
+      "siblings": 0
+    },
+    "status": "not_found",
+    "candidates": [],
+    "warnings": [
+      "graph evidence is not approvable: live graph failed: impact --depth must be 1 or 2; live graph did not resolve focus for: shop/pricing.py:discounted_total_cents; graph display target is not an exact path#symbol"
+    ],
+    "source_contradictions": [],
+    "source_uncertainties": [],
+    "graph_evidence": {
+      "approvable": false,
+      "stage": "live-refresh",
+      "target": "shop/pricing.py:discounted_total_cents",
+      "completeness_levels": [],
+      "partial_failures": 0,
+      "semantic_edges": 0,
+      "reasons": [
+        "live graph failed: impact --depth must be 1 or 2",
+        "live graph did not resolve focus for: shop/pricing.py:discounted_total_cents",
+        "graph display target is not an exact path#symbol"
+      ],
+      "contradicted_python_calls": [],
+      "unverified_python_calls": [],
+      "worktree": {
+        "before": {
+          "head_before": "311d3bf49836bca7cec7ef30d8f01f485d2c6a9d",
+          "head_after": "311d3bf49836bca7cec7ef30d8f01f485d2c6a9d",
+          "worktree": {
+            "digest": "e3b0c44298fc1c149afbf4c8",
+            "files": [],
+            "error": null,
+            "evidence_version": 1,
+            "records": [],
+            "head": "311d3bf49836bca7cec7ef30d8f01f485d2c6a9d",
+            "freshness": {
+              "head": "311d3bf49836bca7cec7ef30d8f01f485d2c6a9d",
+              "full": {
+                "digest": "e3b0c44298fc1c149afbf4c8",
+                "files": [],
+                "error": null,
+                "evidence_version": 1,
+                "records": []
+              },
+              "config_hash": "f3fd3c17f889fc352946f03e36e8a1ee92f75eceb865c7e58f3d2a6d489d45a4",
+              "error": null,
+              "schema_version": 1,
+              "code": {
+                "digest": "7032079ae584825957a8b010",
+                "files": [],
+                "error": null
+              },
+              "docs": {
+                "digest": "7032079ae584825957a8b010",
+                "files": [],
+                "error": null
+              }
+            }
+          }
+        },
+        "after": {
+          "head_before": "311d3bf49836bca7cec7ef30d8f01f485d2c6a9d",
+          "head_after": "311d3bf49836bca7cec7ef30d8f01f485d2c6a9d",
+          "worktree": {
+            "digest": "e3b0c44298fc1c149afbf4c8",
+            "files": [],
+            "error": null,
+            "evidence_version": 1,
+            "records": [],
+            "head": "311d3bf49836bca7cec7ef30d8f01f485d2c6a9d",
+            "freshness": {
+              "head": "311d3bf49836bca7cec7ef30d8f01f485d2c6a9d",
+              "full": {
+                "digest": "e3b0c44298fc1c149afbf4c8",
+                "files": [],
+                "error": null,
+                "evidence_version": 1,
+                "records": []
+              },
+              "config_hash": "f3fd3c17f889fc352946f03e36e8a1ee92f75eceb865c7e58f3d2a6d489d45a4",
+              "error": null,
+              "schema_version": 1,
+              "code": {
+                "digest": "7032079ae584825957a8b010",
+                "files": [],
+                "error": null
+              },
+              "docs": {
+                "digest": "7032079ae584825957a8b010",
+                "files": [],
+                "error": null
+              }
+            }
+          }
+        },
+        "stable": true
+      }
+    }
+  }
+}

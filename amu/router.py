@@ -1,4 +1,4 @@
-"""Intent router: deterministic keyword rules first, model second (only when ANTHROPIC_API_KEY is set).
+"""Intent router: deterministic keyword rules first, model second when a supported credential is connected.
 Symbols are never invented — they must come from the lookup (entire graph search / def)."""
 
 from __future__ import annotations
@@ -13,7 +13,8 @@ CLASS_RULES = [
     ("signature", r"\b(signature|param(eter)?s?|argument|return type|take[s]? an?|accept|overload)\b"),
     ("body", r"\b(body|implementation|fix|refactor internals|optimi[sz]e|bug)\b"),
 ]
-SLASH = {"/map": "map", "/plan": "plan", "/approve": "approve", "/check": "check", "/done": "done", "/docs": "docs",
+SLASH = {"/map": "map", "/plan": "plan", "/approve": "approve", "/check": "check", "/refresh": "refresh", "/done": "done", "/docs": "docs", "/answer": "answer",
+         "/api-manifest": "api-manifest", "/benchmark": "benchmark",
          "/verify": "verify", "/why": "why", "/feature": "feature", "/skills": "skills", "/help": "help",
          "/repo": "repo", "/use": "use", "/find": "find", "/open": "open", "/tree": "tree", "/back": "back", "/graph": "graph", "/ask": "ask", "/key": "key", "/cat": "cat", "/where": "where", "/recent": "recent", "/neighbors": "neighbors", "/quit": "quit"}
 _EXPLORE_RX = re.compile(r"^[A-Za-z0-9_./#-]+$")
@@ -35,8 +36,9 @@ def candidate_tokens(text: str) -> list[str]:
     return [t for t in toks if t.lower() not in stop and len(t) > 2]
 
 
-VERBS = {"open", "cat", "find", "search", "tree", "ls", "graph", "map", "where", "neighbors", "plan", "approve", "check", "done", "docs",
-         "verify", "why", "feature", "skills", "repo", "use", "back", "recent", "ask", "key", "help", "quit", "exit"}
+VERBS = {"open", "cat", "find", "search", "tree", "ls", "graph", "map", "where", "neighbors", "plan", "approve", "check", "refresh", "done", "docs",
+         "api-manifest", "benchmark",
+         "docs-reviews", "docs-graph", "docs-saves", "session", "verify", "answer", "why", "feature", "skills", "repo", "use", "back", "recent", "ask", "key", "help", "quit", "exit"}
 _ALIAS = {"search": "find", "ls": "tree", "quit": "quit", "exit": "quit"}
 
 

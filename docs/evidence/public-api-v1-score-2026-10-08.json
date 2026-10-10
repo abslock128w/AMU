@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "final_verified_on": "2026-10-09",
+  "implementation_sha256": {
+    "amu/api_manifest.py": "60c0510c63b81630169d685d119802db7bc08e7647dcd97319429e9fc866d401",
+    "amu/api_python.py": "0af3611775082dd4c23d0e3093d01e0591290f9b32ee07cfe40880ecdcaa4543",
+    "amu/benchmark.py": "c41da62930c34783f2f55178e735cdce2bfc34eb14e7f71fc847305cd37a9dff"
+  },
+  "benchmark": "public-api-review-signals",
+  "fixture_version": "public-api-v1",
+  "corpus_revision": "sha256:bd3de837e19c99ae641fca4032d0c3e4aef4288f24441e9613c8a7d8ed5817fc",
+  "source_revision": "sha256:dba08a28a4aad6e4380572492b7929dc69d92e3d024c8caf1011fd9338dd75f0",
+  "tool_version": "0.2.0",
+  "label_origin": "hand-authored",
+  "scope": "Small synthetic Python declarations; not representative of NumPy or whole-program behavior.",
+  "evaluator": "_evaluate_public_api",
+  "counts": {
+    "cases": 20,
+    "binary_labeled": 17,
+    "tp": 14,
+    "fp": 0,
+    "fn": 0,
+    "tn": 3,
+    "abstentions": 2,
+    "binary_abstentions": 0,
+    "negative_unassessed": 0,
+    "evaluation_errors": 0,
+    "uncertainty_required": 3,
+    "uncertainty_reported": 3
+  },
+  "metrics": {
+    "precision": 1,
+    "recall": 1,
+    "specificity": 1,
+    "binary_coverage": 1,
+    "uncertainty_reporting": 1
+  },
+  "cases": [
+    {
+      "id": "optional-parameter-added",
+      "category": "signature",
+      "expected": "change",
+      "observed": "change",
+      "matches_label": true
+    },
+    {
+      "id": "default-value-changed",
+      "category": "defaults",
+      "expected": "change",
+      "observed": "change",
+      "matches_label": true
+    },
+    {
+      "id": "required-parameter-added",
+      "category": "signature",
+      "expected": "change",
+      "observed": "change",
+      "matches_label": true
+    },
+    {
+      "id": "public-alias-retargeted",
+      "category": "alias",
+      "expected": "change",
+      "observed": "change",
+      "matches_label": true
+    },
+    {
+      "id": "public-reexport-retargeted",
+      "category": "reexport",
+      "expected": "change",
+      "observed": "change",
+      "matches_label": true
+    },
+    {
+      "id": "public-export-removed",
+      "category": "exports",
+      "expected": "change",
+      "observed": "change",
+      "matches_label": true
+    },
+    {
+      "id": "private-refactor",
+      "category": "negative",
+      "expected": "no_change",
+      "observed": "no_change",
+      "matches_label": true
+    },
+    {
+      "id": "explicitly-unexported-signature",
+      "category": "negative",
+      "expected": "no_change",
+      "observed": "no_change",
+      "matches_label": true
+    },
+    {
+      "id": "unchanged-public-api",
+      "category": "negative",
+      "expected": "no_change",
+      "observed": "no_change",
+      "matches_label": true
+    },
+    {
+      "id": "overload-contract-changed",
+      "category": "overload",
+      "expected": "change",
+      "observed": "change",
+      "matches_label": true
+    },
+    {
+      "id": "exception-hint-changed",
+      "category": "exceptions",
+      "expected": "change",
+      "observed": "change",
+      "matches_label": true
+    },
+    {
+      "id": "return-annotation-changed",
+      "category": "returns",
+      "expected": "change",
+      "observed": "change",
+      "matches_label": true
+    },
+    {
+      "id": "return-shape-hint-changed",
+      "category": "returns",
+      "expected": "change",
+      "observed": "change",
+      "matches_label": true
+    },
+    {
+      "id": "property-annotation-changed",
+      "category": "property",
+      "expected": "change",
+      "observed": "change",
+      "matches_label": true
+    },
+    {
+      "id": "async-contract-changed",
+      "category": "async",
+      "expected": "change",
+      "observed": "change",
+      "matches_label": true
+    },
+    {
+      "id": "constant-value-changed",
+      "category": "constant",
+      "expected": "change",
+      "observed": "change",
+      "matches_label": true
+    },
+    {
+      "id": "deprecation-added",
+      "category": "deprecation",
+      "expected": "change",
+      "observed": "change",
+      "matches_label": true
+    },
+    {
+      "id": "dynamic-exports",
+      "category": "uncertainty",
+      "expected": "unknown",
+      "observed": "change",
+      "matches_label": true
+    },
+    {
+      "id": "conditional-reexport",
+      "category": "uncertainty",
+      "expected": "unknown",
+      "observed": "unknown",
+      "matches_label": true
+    },
+    {
+      "id": "star-import",
+      "category": "uncertainty",
+      "expected": "unknown",
+      "observed": "unknown",
+      "matches_label": true
+    }
+  ],
+  "limitations": [
+    "Hand-authored synthetic fixtures do not estimate NumPy or repository-wide accuracy.",
+    "A static review signal does not prove a runtime change or required documentation edit.",
+    "Required uncertainty cases are excluded from binary precision/recall and scored separately.",
+    "Undefined metrics are null; abstaining on a labeled positive still lowers recall."
+  ],
+  "recorded_date": "2026-10-08"
+}

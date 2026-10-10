@@ -1,0 +1,205 @@
+{
+  "scope": "Fresh isolated offline wheel installation and actual local demo replay; no fresh agent comparison",
+  "started_at_utc": "2026-10-10T07:23:51.221659+00:00",
+  "environment": "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/submission-repository/.venv-demo",
+  "candidate": "EHpaIc",
+  "commands": [
+    {
+      "label": "submission-offline-install-private",
+      "arguments": [
+        "/private/tmp/amu-production-hardening.bergOD/uvtool/bin/uv",
+        "--cache-dir",
+        "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/submission-install-cache",
+        "pip",
+        "install",
+        "--offline",
+        "--python",
+        "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/submission-repository/.venv-demo/bin/python",
+        "--constraint",
+        "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/submission-repository/hackathon/candidate/EHpaIc/constraints.txt",
+        "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/submission-repository/hackathon/candidate/EHpaIc/amu-0.2.0-py3-none-any.whl[mcp]"
+      ],
+      "exit_code": 0,
+      "stdout": "submission-offline-install-private.stdout",
+      "stderr": "submission-offline-install-private.stderr"
+    },
+    {
+      "label": "submission-dependencies",
+      "arguments": [
+        "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/submission-repository/.venv-demo/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pip",
+        "check"
+      ],
+      "exit_code": 0,
+      "stdout": "submission-dependencies.stdout",
+      "stderr": "submission-dependencies.stderr"
+    },
+    {
+      "label": "submission-cli-help",
+      "arguments": [
+        "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/submission-repository/.venv-demo/bin/amu",
+        "--help"
+      ],
+      "exit_code": 0,
+      "stdout": "submission-cli-help.stdout",
+      "stderr": "submission-cli-help.stderr"
+    },
+    {
+      "label": "submission-identity",
+      "arguments": [
+        "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/submission-repository/.venv-demo/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import json;from amu.mcp_manifest import runtime_identity;print(json.dumps(runtime_identity()))"
+      ],
+      "exit_code": 0,
+      "stdout": "submission-identity.stdout",
+      "stderr": "submission-identity.stderr"
+    },
+    {
+      "label": "submission-environment-replay",
+      "arguments": [
+        "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/submission-repository/.venv-demo/bin/python",
+        "-I",
+        "-B",
+        "hackathon/replay_demo.py",
+        "--entire",
+        "/opt/homebrew/Caskroom/entire/0.10.5/entire",
+        "--graph-plugin",
+        "/Users/Abslock128/go/bin/entire-graph",
+        "--output",
+        "hackathon/recording/runs/submission-environment-replay.json"
+      ],
+      "exit_code": 0,
+      "stdout": "submission-environment-replay.stdout",
+      "stderr": "submission-environment-replay.stderr"
+    },
+    {
+      "label": "screen-bug",
+      "arguments": [
+        "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/submission-repository/.venv-demo/bin/python",
+        "-I",
+        "-B",
+        "hackathon/recording/show_evidence.py",
+        "bug"
+      ],
+      "exit_code": 0,
+      "stdout": "screen-bug.stdout",
+      "stderr": "screen-bug.stderr"
+    },
+    {
+      "label": "screen-graph",
+      "arguments": [
+        "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/submission-repository/.venv-demo/bin/python",
+        "-I",
+        "-B",
+        "hackathon/recording/show_evidence.py",
+        "graph"
+      ],
+      "exit_code": 0,
+      "stdout": "screen-graph.stdout",
+      "stderr": "screen-graph.stderr"
+    },
+    {
+      "label": "screen-impact",
+      "arguments": [
+        "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/submission-repository/.venv-demo/bin/python",
+        "-I",
+        "-B",
+        "hackathon/recording/show_evidence.py",
+        "impact"
+      ],
+      "exit_code": 0,
+      "stdout": "screen-impact.stdout",
+      "stderr": "screen-impact.stderr"
+    },
+    {
+      "label": "screen-patch",
+      "arguments": [
+        "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/submission-repository/.venv-demo/bin/python",
+        "-I",
+        "-B",
+        "hackathon/recording/show_evidence.py",
+        "patch"
+      ],
+      "exit_code": 0,
+      "stdout": "screen-patch.stdout",
+      "stderr": "screen-patch.stderr"
+    },
+    {
+      "label": "screen-tests",
+      "arguments": [
+        "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/submission-repository/.venv-demo/bin/python",
+        "-I",
+        "-B",
+        "hackathon/recording/show_evidence.py",
+        "tests"
+      ],
+      "exit_code": 0,
+      "stdout": "screen-tests.stdout",
+      "stderr": "screen-tests.stderr"
+    },
+    {
+      "label": "screen-comparison",
+      "arguments": [
+        "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/submission-repository/.venv-demo/bin/python",
+        "-I",
+        "-B",
+        "hackathon/recording/show_evidence.py",
+        "comparison"
+      ],
+      "exit_code": 0,
+      "stdout": "screen-comparison.stdout",
+      "stderr": "screen-comparison.stderr"
+    },
+    {
+      "label": "screen-limits",
+      "arguments": [
+        "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/submission-repository/.venv-demo/bin/python",
+        "-I",
+        "-B",
+        "hackathon/recording/show_evidence.py",
+        "limits"
+      ],
+      "exit_code": 0,
+      "stdout": "screen-limits.stdout",
+      "stderr": "screen-limits.stderr"
+    }
+  ],
+  "status": "passed",
+  "live_configuration_changed": false,
+  "network_access_requested": false,
+  "earlier_setup_attempt": "submission-setup.json",
+  "cache_copy_receipt": "../submission-cache-copy.json",
+  "environment_created_by": "submission-setup.json",
+  "identity": {
+    "amu_version": "0.2.0",
+    "version": "0.2.0",
+    "distribution_version": "0.2.0",
+    "python_version": "3.14.6",
+    "executable": "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/submission-repository/.venv-demo/bin/python",
+    "module": "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/submission-repository/.venv-demo/lib/python3.14/site-packages/amu/mcp_server.py",
+    "build_sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+    "build": {
+      "sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+      "complete": true,
+      "files": 60,
+      "bytes": 909981,
+      "scope": "actual AMU Python payload only; not a wheel signature or provider identity"
+    },
+    "manifest_version": "amu-inspection-v1",
+    "manifest_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761"
+  },
+  "replay": {
+    "status": "passed",
+    "frames": 16,
+    "maximum_frame_bytes": 29295,
+    "independent_checks_passed": 10,
+    "all_sections_complete": true
+  },
+  "finished_at_utc": "2026-10-10T07:24:00.000924+00:00"
+}

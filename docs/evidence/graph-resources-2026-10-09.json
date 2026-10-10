@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-10-09",
+  "scope": "Received graph/child-CLI output bounds, snapshot streaming and fail-closed consumers; not an engine RAM/CPU sandbox or semantic accuracy benchmark.",
+  "runtime": {"python": "3.14.6", "platform": "macOS arm64", "amu": "0.2.0", "dependencies": "matched constraints.txt"},
+  "implementation_sha256": {
+    "amu/process.py": "3ccc4c1039a9a544195d037a685ffce9842c50f30ae4b60ccf7e6c844240bdfd",
+    "amu/entire.py": "5e845592ad606ed67a33a8e7bc5468dfaa1998b4203b1ba288e168367b53adde",
+    "amu/cli.py": "24ad544135830165d7170d49ca1e186095835a6d7a45bcff85dae67f4143ebaa",
+    "amu/graph_refresh.py": "5402e9f6573187a534e50587939bfbf9c5641843bd305a1d3f5f654c0fa07780",
+    "amu/harness/chat.py": "ba023b081350cfb333266d2f6235836f27c3f691955f9ce721828c6a9efe90e0",
+    "amu/mcp_server.py": "8ea7302ab8723218d58ccf3ee56ed91ab3dfefb8fd2199d8988a42f22085f3dc",
+    "amu/workspace.py": "6b2ade817c8a963bb2632ef5ca2566227cd12faf722aa097a20fff7a07f4a769"
+  },
+  "limits_bytes": {"graph_queries": 4194304, "symbols": 16777216, "snapshots": 134217728, "stderr": 65536, "record": 1048576, "child_cli_stdout": 16777216, "completion_prefix": 2000000},
+  "limits_records": {"symbols": 100000, "snapshots": 1000000},
+  "deterministic_suite": {"passed": 1200, "failed": 0, "skipped": 11, "elapsed_seconds": 80.12},
+  "real_provider_refresh_suite": {"passed": 4, "failed": 0, "elapsed_seconds": 4.48, "scope": "disposable repositories: cross-file added/removed calls, renamed target, source-verified target removal"},
+  "installed_wheel_smoke": {"status": "passed", "includes": ["installed transport overflow withholding", "entry points", "bundled resources", "API manifest", "benchmarks", "REPL", "MCP CLI-wrapper parity"]},
+  "numpy_large_output_check": {
+    "commit": "0532af47d6a815298b7841de00bdbc547104b237",
+    "tag": "v2.3.0",
+    "engine_version": "dev",
+    "engine_sha256": "d6a07d96d5306e3aa5c2db6047dce7cf6cb72c19030cfb8ca37e2a283c39954e",
+    "source_checkout_untouched": true,
+    "symbol_inventory": {"records": 29103, "error": null, "elapsed_seconds": 31.8},
+    "worktree_snapshot": {"records": 180211, "bytes": 17284919, "error": null, "python_peak_traced_bytes": 874515, "elapsed_seconds": 31.66},
+    "measurement_limits": "Both large-output checks ran concurrently. tracemalloc began after imports and measures traced Python allocations for the snapshot call, not total RSS, native allocations, the graph engine, or whole-application peak memory. No baseline reduction ratio was measured. No NumPy code was imported or executed. Successful serialization does not establish semantic completeness."
+  },
+  "failure_regressions": ["exact boundaries", "stdout/stderr floods", "simultaneous streams", "inherited-pipe deadlines", "POSIX descendant teardown", "invalid UTF-8", "invalid/nonfinite/duplicate NDJSON", "snapshot total/record/count limits", "staged snapshot cleanup", "no invented removals on failed refresh", "failed capabilities block approval", "preserved prior capture metadata", "failed inventories do not become not-found", "workspace diff failure preserves registration", "REPL retries after lookup errors"],
+  "remaining_limits": ["Windows direct-child teardown only", "escaped POSIX process groups are outside cleanup guarantee", "synchronous sink/flush operations cannot be safely preempted", "graph engine RAM/CPU not limited", "other Git/build/test subprocess policies remain separate", "byte caps do not bound Python object memory to an exact RSS value", "remote CI and browser accessibility were not run", "no live model calls or compiled NumPy numerical tests"]
+}

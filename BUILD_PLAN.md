@@ -57,7 +57,7 @@ TWC-Thugs/
 │   ├── entire.py         # ALL subprocess calls to `entire …` live here (was graph.py; keep graph.py as a shim)
 │   ├── classify.py       # keep; extend with confidence axis + feature axis + verify lines
 │   ├── plan.py           # keep; phases additive→leaves→interior→removal; writes contract.json on --approve
-│   ├── contract.py       # keep; violations FROZEN_SIGNATURE OUT_OF_SCOPE UNDECLARED_REMOVAL PHASE_DRIFT (block) UNGUARDED_CHANGE UNKNOWN_TOUCHED (warn)
+│   ├── contract.py       # keep; violations FROZEN_SIGNATURE OUT_OF_SCOPE UNDECLARED_REMOVAL PHASE_DRIFT UNKNOWN_TOUCHED (block) UNGUARDED_CHANGE (warn)
 │   ├── state.py          # .amu/ read/write, schemas, hashes, checkpoint.json, stale
 │   ├── render.py         # Rich tree (§9 terminal view) + agent-card JSON; NEVER computes anything
 │   ├── brand.py          # "TWC Thugs" banner, header line, prompt, colours — stderr only, never in --json
@@ -238,7 +238,7 @@ Keep the 3 existing test files untouched (they are the noon-Curveball proof). Ad
 
 - `test_map.py` — sound/guessed/unknown assignment; every non-sound node has reason+verify; unresolved call site ⇒ unknown; `0 unknown` line carries its qualifier.
 - `test_honesty.py` — scan every rendered/`--json` output in the suite for `\b(safe|clean|verified|OK)\b` as a summary word ⇒ fail. Schema check on map/plan/state/contract JSON.
-- `test_contract_phase.py` — `check --phase` raises `PHASE_DRIFT` when a later-phase file changes; `FROZEN_SIGNATURE` on signature change of a frozen export; `UNKNOWN_TOUCHED` warning.
+- `test_contract_phase.py` — `check --phase` raises `PHASE_DRIFT` when a later-phase file changes; `FROZEN_SIGNATURE` on signature change of a frozen export; `UNKNOWN_TOUCHED` requires human review.
 - `test_done.py` — sweep reports a finding outside the contract with verify; empty sweep prints depth, never "nothing found"; `done` exits 0 even with findings.
 - `test_docs.py` — signature change on a mapped export ⇒ draft labelled SUGGESTED; body change ⇒ unknown candidate; unmapped ⇒ flag only; auto mode never applies unknown.
 - `test_router.py` — never invents a symbol; silent-on-params ⇒ `signature`; two targets ⇒ `multi_target`.

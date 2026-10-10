@@ -31,6 +31,15 @@ def test_amu_and_git_paths_ignored():
     assert watch.resolve_change(".amu/state.json", CONTRACT, MAP, 1)["ignored"]
 
 
+def test_watch_cannot_write_a_green_verification_state(tmp_path):
+    state.write_json("state.json", {"nodes": {"n1": "planned"}, "violations": [], "history": []}, str(tmp_path))
+
+    updated = watch.apply(str(tmp_path), {"nodes": {"n1": "green", "n2": "editing"}})
+
+    assert updated["nodes"] == {"n1": "planned", "n2": "editing"}
+    assert updated["history"] == []
+
+
 def test_live_watch_updates_state_json(fake_entire, tmp_path):
     subprocess.run(["git", "init", "-q"], cwd=tmp_path)
     (tmp_path / "b.py").write_text("x = 1\n")

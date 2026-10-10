@@ -1,108 +1,178 @@
-# amu — Anti-Messup Agent
+# AMU — investigate the impact before changing code
 
-> Track 2 · Graph Intelligence · Bengaluru Tech Week Buildathon 2026
+Changing one function can affect a caller in another file, a payment path, a
+receipt, or a test you have not opened yet. AMU helps an AI coding agent investigate
+those relationships before deciding what to edit and verify.
 
-`amu` is a CLI guardrail that wraps the `entire` graph engine to give AI coding agents (and humans) a structured pre-edit impact brief **before** touching any symbol.
+AMU is a local CLI and MCP inspection layer over the Entire graph provider. It
+returns source-labelled dependency evidence, intent-based impact reports and
+explicit coverage/freshness limits. **Graph evidence identifies relationships;
+the agent reasons about the patch; executed tests establish the behavior they
+cover.** AMU does not guarantee that a change is safe.
 
-## Setup / Run from a clean checkout
+## Demo: one function, three consumers
 
-```bash
-./scripts/install.sh                 # Entire CLI + graph plugin + amu (as `amu` and `entire amu`)
-amu init                             # index + snapshot + config/feature-map/doc-map/skills + memory seed
-amu map --file amu/classify.py       # sound / guessed / unknown nodes, each with reason + verify
-amu plan --targets amu/classify.py#classify_consumers:signature --approve
-amu check --phase 1                  # exit 1 on a blocking violation, with a delta brief
-amu done                             # sync → sweep → docs → memory refresh → report
-pytest -q                            # 173 tests, no real `entire` needed (tests/fake_entire.py)
+In the synthetic checkout demo, a 50% discount on five cents produces two cents
+instead of three. The original eight tests are green. AMU exposes the shared
+pricing function's quote and checkout callers, plus the receipt path downstream
+of quote. A recorded agent fixes the integer-rounding calculation and adds
+regressions. The local replay executes that actual patch and the independent
+checks in a disposable copy.
+
+- [2–3 minute recording package](hackathon/recording/RECORDING.md): storyboard,
+  voiceover, exact commands and connectivity-free fallback.
+- [Actual local replay output](hackathon/recording/verified-replay.stdout) and
+  [full transport/verification receipt](hackathon/recording/runs/verified-replay.json).
+- [One illustrative agent comparison](hackathon/value-validation/CASE-STUDY.md),
+  including prompts, actual command traces, both patches and frozen checks.
+
+A completed, hosted video is not claimed. The recording package clearly records
+whether a video file was actually produced.
+
+## What the comparison showed
+
+Two fresh-context agents started from the same synthetic repository and task,
+with the same inherited model/settings and an eight-minute budget each. Both
+fixed the bug and passed all ten independent evaluator groups.
+
+| Observed result | Ordinary exploration | Plus AMU |
+| --- | --- | --- |
+| Independent fix/protected checks | 10/10 passed | 10/10 passed |
+| Agent-selected final tests | 15 passed | 15 passed |
+| Consumers identified | Quote, checkout, indirect receipt | Same, with AMU dependency/coverage packets |
+| Recorded task time | 100.22 s | 143.35 s |
+
+AMU added structured evidence, not an observed speed or correctness advantage.
+Its tool processes consumed 5.975 seconds during the task; native index setup
+was 0.297 seconds separately. The full 43.13-second task difference cannot be
+attributed to tools alone. The [case study](hackathon/value-validation/CASE-STUDY.md)
+discloses unsuccessful initial queries, a treatment-only debugging-skill read,
+measurement boundaries and unavailable model usage. One run per condition does
+not establish general superiority.
+
+## A real repository example: NumPy
+
+The authorized local NumPy v2.3.0 checkout matched commit
+`0532af47d6a815298b7841de00bdbc547104b237`. AMU resolved `finfo.__new__` at
+`numpy/_core/getlimits.py:494`; independent source inspection confirmed its dtype
+cache reads and writes. For an intent to change cache reuse, the local report
+exposed the `obj2sctype` call relationship, other potential dependencies and
+explicit static/dynamic uncertainties.
+
+All four tools passed local preflight, and all six sections were retrieved: seven
+potential impacts, two source uncertainties, twelve dynamic boundaries, ten
+coverage entries, five reasons and zero contradictions. These counts include
+supporting/heuristic context; they are not seven proven regressions. The provider's
+committed HEAD cache is incomplete, current-source inspection is bounded, and
+`safe_to_change` remains unknown. No NumPy patch, import, numerical test or build
+was executed. Authenticated ChatGPT acceptance remains open.
+See the [archived integration status](hackathon/evidence/INTEGRATION-STATUS.md),
+[source identity](hackathon/evidence/numpy-source-baseline.json) and
+[complete local evidence](hackathon/evidence/numpy-pages-preflight.json).
+
+## How it works
+
+```mermaid
+flowchart LR
+    A[AI coding agent] --> M[Four MCP inspection tools]
+    C[Developer CLI] --> S[AMU services]
+    M --> S
+    S --> G[Entire graph provider]
+    G --> R[Current repository source]
+    S --> E[Impact, provenance, coverage and cursors]
+    E --> A
+    S --> D[Documentation review queue]
+    D --> C
+    A --> T[Edits and project tests]
 ```
 
-`entire amu map --file amu/plan.py` works the same way: the `entire-amu` entrypoint is dispatched by the Entire CLI.
-Interactive: `amu` (no args) opens the TWC Thugs REPL (gold identity, tab-completion for repos and symbols) — `/map /plan /approve /check N /done /docs /verify nX /why nX /feature X /skills /repo /use <name> /find <words> /open <sym> /tree [path] /graph <sym> /back /ask <question> /key [add|remove]`; a bare path or symbol is an `explore`; with a model connected, any other free text goes to the model, which answers through the graph tools and proposes the next amu command.
+Implemented capabilities in the verified candidate:
 
-The banner tells you whether a model is connected — `● model on · anthropic · claude-opus-5 · via file` or `○ model off · no API key added · type /key add`. `/key add` is a guided, in-session setup (pick a provider, enter only what it needs; keys are hidden and stored 0600); `/key remove` forgets it. Everything except free-text questions works with the model off.
+| Capability | Actual scope |
+| --- | --- |
+| `amu_search` | Ranked source search to locate relevant symbols and snippets |
+| `amu_graph` | Provider-supported callers/callees and other relationships, with source references and limits |
+| `amu_impact` | Current-worktree file/line analysis for a stated **intent**; potential dependencies, source contradictions/uncertainties, dynamic boundaries, coverage and reasons |
+| Evidence retrieval | Version-bound cursors, complete pages and oversized-row fragments; changed evidence invalidates old cursors |
+| `amu_docs_reviews` | Inspect a genuine draft queue or preview a selected review; this tool does not save prose |
+| CLI workflow and freshness | Maps/plans, refresh/check evidence, source/worktree fingerprints and documentation review/save safeguards |
 
-Web (Vercel, static): `web/public` — `/` install page, `/card` agent-card viewer for `amu map --json`, `/graph` d3-force viewer for `amu graph --format json`. Same five gold tokens as the terminal. Import the repo with root dir `web/`.
+MCP startup requires exact operator-selected repository roots and defaults to
+these four inspection tools. Inspection can update the graph provider's cache.
+Built-in AMU model calls are disabled in MCP children; source inspection does
+not execute the proposed change. Live deployment configuration is separate from
+this disposable demo. See [MCP security](docs/MCP-SECURITY.md),
+[impact analysis](docs/IMPACT-ANALYSIS.md), [freshness](docs/FRESHNESS.md) and
+[documentation review](docs/DOC-REVIEWS.md). The original detailed README is
+preserved as [engineering instructions](docs/README-ENGINEERING.md).
 
-Bring your own model:
-```bash
-amu key set                                              # Anthropic key, hidden prompt (or export ANTHROPIC_API_KEY)
-amu key set --provider ollama --model qwen2.5-coder      # local, no key
-amu key set --provider openrouter --model anthropic/claude-opus-5   # prompts for the key
-amu key set --provider bedrock --region us-east-1        # AWS credentials from the environment
-amu key set --provider vertex --project my-gcp --region global
-OPENAI_BASE_URL=http://localhost:8000/v1 AMU_MODEL=my-model amu ask "…"   # env override, no file
+## Install and replay locally
+
+Python 3.11 or later is required. The frozen candidate was verified on macOS
+arm64 with Python 3.11.16 and 3.14.6. A trusted local `entire` dispatcher and
+`entire-graph` plugin are also required for native graph inspection. Their tested
+identities and provenance limits are in the [candidate report](hackathon/candidate/EHpaIc/PHASE1-REPORT.md).
+The replay does not install providers, change a live MCP profile or contact an
+external model.
+
+From this repository, install the exact included wheel with its constraints:
+
+```sh
+python3 -m venv .venv
+.venv/bin/python -m pip install -c hackathon/candidate/EHpaIc/constraints.txt \
+  'hackathon/candidate/EHpaIc/amu-0.2.0-py3-none-any.whl[mcp]'
+.venv/bin/python -m pip check
+.venv/bin/amu --help
 ```
 
-MCP (Claude Code / Cursor) — `.mcp.json`:
-```json
-{"mcpServers": {"amu": {"command": "python", "args": ["-m", "amu.mcp_server"]}}}
+Select your trusted provider paths, then use a new receipt filename:
+
+```sh
+.venv/bin/python -I -B hackathon/replay_demo.py \
+  --entire /absolute/path/to/entire \
+  --graph-plugin /absolute/path/to/entire-graph \
+  --output hackathon/recording/runs/my-replay.json
 ```
 
-## Commands (v0.2)
+The replay uses its own Git fixture, HOME and cache, verifies the frozen build
+and manifest, invokes the four actual tools, drains all six sections, applies the
+captured patch only to its disposable copy, and executes the selected suite plus
+the frozen independent evaluator. It refuses to overwrite a prior receipt. A
+saved-output presentation remains available without live ChatGPT connectivity.
 
-| Command | What it does |
-|---------|-------------|
-| `amu init` / `amu doctor` | index with `entire graph`, draft config; tooling health (exit 3 + install line when `entire` is missing) |
-| `amu map --file F` / `--symbol path#name --change C` | blast map: sound (resolved edge) / guessed (co-change, siblings) / unknown (unresolved, partial parse) |
-| `amu plan --targets sym:class --approve` | additive → leaves → interior → removal; `--approve` writes `.amu/contract.json` |
-| `amu check --phase N` | `entire graph diff` + working tree vs contract: PHASE_DRIFT / OUT_OF_SCOPE / FROZEN_SIGNATURE / UNDECLARED_REMOVAL block; UNKNOWN_TOUCHED warns; red ⇒ delta brief |
-| `amu verify --node nX [--attempt-fallback]` | run a node's verify path; fallback via `entire graph neighbors --internal-only` |
-| `amu sweep` / `amu sync` / `amu done` | findings outside the contract (never "nothing found"); re-index; the whole close-the-loop |
-| `amu docs --mode flag|draft|auto` | doc candidates from `entire graph diff`; drafts are SUGGESTED; auto applies sound+mapped only |
-| `amu memory refresh|show|pin|forget` | self-renovating managed block in CLAUDE.md / AGENTS.md |
-| `amu repo add <path\|owner/repo\|url>` / `list` / `use` / `remove` / `sync` / `amu cd <name>` | workspace: many repos, one active; `cd "$(amu cd twc-thugs)"` |
-| `amu find "<sentence>"` / `open <path\|sym>` / `tree [path]` / `neighbors <sym>` / `where <sym>` / `back` / `recent` | navigation, all backed by `entire graph search / def / symbols / neighbors` |
-| `amu graph <path#sym> [--depth 2] [--relation CALLS] [--format text\|json\|dot\|mermaid]` | relation graph: callers above, callees below, glyph per node; Mermaid/dot for PR descriptions |
-| `amu key set [--provider …]\|status\|remove` · `amu ask "<question>"` | **Bring your own provider**: `anthropic` (default, `claude-opus-5`), `bedrock`, `vertex`, `foundry` via the official SDK clients, or any OpenAI-compatible endpoint (`ollama`, `lmstudio`, `openrouter`, `openai-compatible --base-url …`). Stored 0600, never printed. `ask` answers through read-only graph tools |
-| `amu watch [--phase N]` | live tree: `· planned ▸ editing ✓ green ✗ red ↯ drift` while you edit; never runs tests |
-| `amu brief --symbol <sym>` (hidden) | v0 3-bucket report kept for the noon-Curveball tests |
+For constrained source development, see the preserved
+[engineering README](docs/README-ENGINEERING.md) and [release checklist](docs/RELEASE-READINESS.md).
+The submission branch captures the original working tree, including engineering
+work that was uncommitted in that tree. The [local submission status](hackathon/SUBMISSION-STATUS.md)
+links its fresh offline setup and preservation checks. EHpaIc identifies the exact
+hashed archive/wheel and receipts used in verification; a Git revision alone does
+not establish the installed build identity.
 
-## REPL Slash Commands
+## Verification and current limits
 
-`amu` (no args) drops into an interactive REPL. Type `/help` at the prompt to see this list:
+The unchanged EHpaIc source archive passed **2,065 tests with 12 skips** on each
+of Python 3.14.6 and 3.11.16. Actual transport regressions accepted exactly
+131,072 response bytes including the newline and explicitly withheld 131,073;
+they cover oversized IDs and SDK-generated responses. The fresh integration demo
+made 29 tool calls over 31 original frames, with a 13,532-byte maximum, and checked
+repository denial, stale cursors and complete evidence retrieval.
 
-| Slash command | What it does |
-|---|---|
-| `/map <file>` | Blast map for a file |
-| `/plan` | Draft refactor plan |
-| `/approve` | Write `.amu/contract.json` |
-| `/check N` | Check phase N |
-| `/done` | Full close-the-loop |
-| `/docs` | Doc-staleness surface |
-| `/verify nX` | Run a node's verify path |
-| `/why nX` | Explain a node (raw JSON) |
-| `/feature X` | Look up a feature in the feature map |
-| `/skills` | List available skills |
-| `/repo` | List workspace repos |
-| `/use <name>` | Switch active repo |
-| `/find <words>` | Graph search |
-| `/open <sym>` | Open a symbol or path |
-| `/tree [path]` | Directory tree (depth 2) |
-| `/graph <sym>` | Relation graph for a symbol |
-| `/back` | Navigation history — go back |
-| `/ask <question>` | Ask the AI model (requires `amu key set`) |
-| `/key` | Show model key/credential status |
-| `/help` | Show this command list |
+These are linked, scoped observations:
+[candidate report](hackathon/candidate/EHpaIc/PHASE1-REPORT.md),
+[freeze inventory](hackathon/candidate/EHpaIc/FROZEN.json),
+[regression evidence](hackathon/candidate/EHpaIc/PHASE1-EVIDENCE.json), and
+[fresh demo receipt](hackathon/evidence/demo-summary.json).
+The full suites were not rerun for this documentation package; the new case and
+replay have their own actual outputs.
 
-A bare path or symbol triggers `explore` (opens it). Any other free text routes to the model when a key is set.
+Static analysis can miss dynamic dispatch, generated code, native boundaries
+and other unsupported relationships. Intent analysis is not concrete-patch
+semantic verification; a relationship does not prove breakage, and an empty
+result does not prove safety. Overall Phase 1 is still partial: the served
+build/process/channel and four-tool NumPy scenario through authenticated
+ChatGPT have not passed acceptance. The existing pilot, live profile, credentials
+and rollback are preserved; EHpaIc remains frozen.
 
-## Architecture
-
-```
-amu/
-├── graph.py      # subprocess wrappers → entire graph impact / diff / capabilities
-├── classify.py   # 3-bucket classifier (handles dynamic dispatch / unknown)
-├── plan.py       # graphlib.TopologicalSorter → 4-phase plan
-├── contract.py   # entity-level diff parser + violation checker
-└── cli.py        # Typer entrypoint
-tests/
-├── test_classify.py   # unknown bucket + safe-fallback tests
-├── test_plan.py       # topological phase assignment + cycle recovery
-└── test_contract.py   # violation detection + CLI-unavailable fallback
-```
-
-## Curveball Compliance (Noon Track 2)
-
-- **Unknown bucket** always emits `unresolved_callsites`, `dynamic_dispatch_sites`, `out_of_coverage`, and `notes` – never silently drops partial analysis.
-- **Contract check** gracefully degrades when `entire` CLI is absent (`allow_cli_unavailable=True`).
-- **Cycle detection** in `plan.py` surfaces cycles as warnings rather than crashing.
+Next work is to close those existing acceptance gates, improve measured provider
+coverage and repeat evaluations on additional cases/platforms. No Phase 2 or new
+product features were implemented for this submission.
