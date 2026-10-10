@@ -29,21 +29,26 @@ checks in a disposable copy.
 A completed, hosted video is not claimed. The recording package clearly records
 whether a video file was actually produced.
 
-## Potential impact at scale
+## What the comparison showed
 
-**Tested Results**
+Two fresh-context agents started from the same synthetic repository and task,
+with the same inherited model/settings and an eight-minute budget each. Both
+fixed the bug and passed all ten independent evaluator groups.
 
-Consider a large repository where a pricing change affects checkout, subscriptions, refunds, and invoices. This hypothetical example shows the improvement AMU is designed to enable:
+| Observed result | Ordinary exploration | Plus AMU |
+| --- | --- | --- |
+| Independent fix/protected checks | 10/10 passed | 10/10 passed |
+| Agent-selected final tests | 15 passed | 15 passed |
+| Consumers identified | Quote, checkout, indirect receipt | Same, with AMU dependency/coverage packets |
+| Recorded task time | 100.22 s | 143.35 s |
 
-| Evaluation metric | Without AMU | With AMU |
-| --- | ---: | ---: |
-| Relevant downstream consumers identified | 4/10 | 9/10 |
-| Relevant behavioral checks selected | 5/12 | 11/12 |
-| Regressions remaining after the fix | 3 | 1 |
-
- AMU supplies dependency paths that lead the agent to consumers it otherwise overlooks. Inspecting those consumers helps it preserve existing behavior and choose more relevant tests.
-
-**The intended advantage is a more complete understanding of the change’s blast radius, leading to better-informed fixes and verification.** These figures illustrate that goal; real large-repository benchmarks are still required to establish its magnitude.
+AMU added structured evidence, not an observed speed or correctness advantage.
+Its tool processes consumed 5.975 seconds during the task; native index setup
+was 0.297 seconds separately. The full 43.13-second task difference cannot be
+attributed to tools alone. The [case study](hackathon/value-validation/CASE-STUDY.md)
+discloses unsuccessful initial queries, a treatment-only debugging-skill read,
+measurement boundaries and unavailable model usage. One run per condition does
+not establish general superiority.
 
 This comparison used a small synthetic codebase whose consumers were quick to
 inspect. We have not run the same controlled agent comparison on a large
@@ -54,6 +59,22 @@ and coverage evidence could contribute more in those settings. That benefit
 still needs to be measured: actual coupling, provider coverage, task complexity
 and analysis overhead matter, and codebase size alone does not establish better
 results. Larger real-repository comparisons are the next validation step.
+
+## Potential impact at scale
+
+**Illustrative figures (not measured results)**
+
+Consider a large repository where a pricing change affects checkout, subscriptions, refunds, and invoices. The numbers below are a hypothetical illustration of AMU's intended benefit; they were not produced by an AMU evaluation:
+
+| Evaluation metric | Without AMU | With AMU |
+| --- | ---: | ---: |
+| Relevant downstream consumers identified | 4/10 | 9/10 |
+| Relevant behavioral checks selected | 5/12 | 11/12 |
+| Regressions remaining after the fix | 3 | 1 |
+
+In that scenario, dependency paths could guide the agent to overlooked consumers. Inspecting those consumers could help it preserve existing behavior and choose more relevant tests.
+
+**The intended advantage is a more complete understanding of the change’s blast radius, leading to better-informed fixes and verification.** These figures illustrate that goal; real large-repository benchmarks are still required to establish its magnitude.
 
 ## A real repository example: NumPy
 
