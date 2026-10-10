@@ -1,32 +1,262 @@
-# AMU — investigate the impact before changing code
+# AMU — give your coding agent the context behind the code
 
-Changing one function can affect a caller in another file, a payment path, a
-receipt, or a test you have not opened yet. AMU helps an AI coding agent investigate
-those relationships before deciding what to edit and verify.
+**Understand the dependencies. Investigate the impact. Make better-informed changes.**
 
-AMU is a local CLI and MCP inspection layer over the Entire graph provider. It
-returns source-labelled dependency evidence, intent-based impact reports and
-explicit coverage/freshness limits. **Graph evidence identifies relationships;
-the agent reasons about the patch; executed tests establish the behavior they
-cover.** AMU does not guarantee that a change is safe.
+An AI can fix the function in front of it and still miss the checkout flow, receipt generator, or downstream caller that depends on its behavior.
 
-## Demo: one function, three consumers
+AMU gives coding agents a structured way to investigate those connections **before they edit**.
 
-evealing the blast radius of a bug fix
-A shared pricing function calculates discounts incorrectly. Fixing it requires checking the checkout, quote, and receipt flows that depend on its output.
-AMU exposes those dependency paths with source evidence, giving the coding agent a concrete map of what to inspect. The recorded agent corrects the calculation and adds regression tests; the resulting patch passes all ten independent checks.
-The demo shows AMU making downstream dependencies visible so an agent can investigate beyond the function it is editing.
+Built as a local CLI and MCP inspection layer over the Entire graph provider, AMU delivers source-backed dependency relationships, intent-based impact reports, and explicit coverage and freshness information. The agent can use that evidence to decide what to inspect, what to change, and what to test.
 
-- [2–3 minute recording package](hackathon/recording/RECORDING.md): storyboard,
-  voiceover, exact commands and connectivity-free fallback.
-- [Actual local replay output](hackathon/recording/verified-replay.stdout) and
-  [full transport/verification receipt](hackathon/recording/runs/verified-replay.json).
-- [One illustrative agent comparison](hackathon/value-validation/CASE-STUDY.md),
-  including prompts, actual command traces, both patches and frozen checks.
+**The goal: fewer overlooked dependencies, fewer avoidable regressions, and less repeated work.**
 
-A completed, hosted video is not claimed. The recording package clearly records
-whether a video file was actually produced.
+Built using **GPT‑6.1 Sol in Codex**.
 
+---
+
+## Why AMU exists
+
+A correct-looking patch is only part of a successful change.
+
+In an unfamiliar repository, an agent also needs to understand:
+
+- Which functions consume the behavior it is changing.
+- Which downstream flows depend on those consumers.
+- Which assumptions a refactor needs to preserve.
+- Which behavioral checks are relevant.
+- Where the available analysis is incomplete or stale.
+
+Missing one of these connections can turn a small fix into another debugging cycle.
+
+AMU makes those relationships available as inspectable evidence. Instead of reconstructing every dependency through repeated searches, the agent can follow supported graph relationships back to the source and investigate the consequences of its proposed change.
+
+**AMU helps the agent reason beyond the edited function.**
+
+## What AMU adds to an agent’s workflow
+
+| Task | What AMU supplies | How the agent can use it |
+| --- | --- | --- |
+| Fixing a shared function | Callers, callees, and supported dependency paths | Inspect consumers before changing shared behavior |
+| Planning a refactor | Intent-based potential impacts and source references | Identify assumptions and dependencies to preserve |
+| Choosing verification | Dependency and coverage context | Select relevant behavioral checks |
+| Working across files | Structured relationships linked to source | Follow consequences beyond the initial search result |
+| Revisiting an analysis | Freshness information and version-bound evidence | Recognize when earlier findings need to be refreshed |
+| Reviewing documentation | Draft-queue inspection and review previews | Investigate documentation work alongside code changes |
+
+AMU supplies the repository evidence. The agent reasons about the patch. Executed tests establish the behavior they cover.
+
+## Results and evidence
+
+### Maintainer-reported internal testing
+
+The maintainer reports **approximately 90% fewer regressions with AMU in earlier internal testing**, alongside substantially less repeated refactoring and corrective work.
+
+The original evaluation records were lost. The percentage is therefore a maintainer-reported observation, not a reproducible benchmark. The task set, model configurations, baseline counts, and measurement method cannot currently be independently checked. It should not be interpreted as a guaranteed improvement across all agents or repositories.
+
+### Preserved, reproducible comparison
+
+The repository includes a synthetic comparison with prompts, command traces, patches, and frozen independent checks.
+
+| Observation | Preserved result |
+| --- | --- |
+| AMU-assisted correctness | Passed all ten independent evaluator groups |
+| Baseline correctness | Also passed all ten independent evaluator groups |
+| Additional evidence supplied by AMU | Structured dependency and coverage information |
+| Completion time | The baseline completed faster |
+
+This case demonstrates the AMU-assisted investigation and verification workflow. It does not establish a comparative correctness improvement or reproduce the reported 90% reduction.
+
+[Explore the case study](hackathon/value-validation/CASE-STUDY.md).
+
+## Demo — one shared function, three consumers
+
+A shared pricing function calculates a discount incorrectly. Its output feeds checkout and quote flows, with a receipt path downstream of quote.
+
+The coding task starts in one function, but the investigation extends across those consumers.
+
+In the recorded workflow:
+
+1. AMU exposes the dependency paths with source evidence.
+2. The agent uses those relationships to investigate the affected flows.
+3. The recorded agent corrects the calculation and adds regression tests.
+4. The local replay applies the captured patch in a disposable copy.
+5. The resulting patch passes all ten independent checks.
+
+**The demonstrated value is concrete: downstream relationships become visible and actionable during the fix.**
+
+### Inspect or replay the demo
+
+- [Recording package](hackathon/recording/RECORDING.md): storyboard, voiceover, exact commands, and connectivity-free fallback.
+- [Actual replay output](hackathon/recording/verified-replay.stdout).
+- [Full replay and verification receipt](hackathon/recording/runs/verified-replay.json).
+- [Agent comparison](hackathon/value-validation/CASE-STUDY.md): prompts, command traces, both patches, and frozen checks.
+
+The recording package documents whether a video file was produced; it is not itself a hosted video.
+
+## Real repository inspection — NumPy
+
+AMU has also been exercised against an authorized local NumPy v2.3.0 checkout at commit:
+
+```text
+0532af47d6a815298b7841de00bdbc547104b237
+```
+
+For an intent to change dtype-cache reuse, AMU resolved `finfo.__new__` at `numpy/_core/getlimits.py:494`. Independent source inspection confirmed its cache reads and writes.
+
+The impact report exposed the `obj2sctype` call relationship, other potential dependencies, and explicit static and dynamic uncertainties.
+
+All four inspection tools passed local preflight, and all six report sections were retrieved:
+
+| Report section | Entries |
+| --- | ---: |
+| Potential impacts | 7 |
+| Source uncertainties | 2 |
+| Dynamic boundaries | 12 |
+| Coverage entries | 10 |
+| Reasons | 5 |
+| Contradictions | 0 |
+
+These findings include supporting and heuristic context. They are inspection results, not counts of proven bugs.
+
+The NumPy exercise demonstrates source-grounded investigation in a real repository. No NumPy patch, import, numerical test, or build was executed. Provider coverage remained incomplete, and `safe_to_change` remained unknown.
+
+[Integration status](hackathon/evidence/INTEGRATION-STATUS.md) · [Source identity](hackathon/evidence/numpy-source-baseline.json) · [Complete evidence](hackathon/evidence/numpy-pages-preflight.json)
+
+## How it works
+
+AMU connects an agent’s stated change intent to repository relationships and source evidence.
+
+```mermaid
+flowchart TD
+    A["AI coding agent"] --> B["AMU MCP tools"]
+    C["Developer CLI"] --> D["AMU services"]
+    B --> D
+    D --> E["Entire graph provider"]
+    E --> F["Repository source"]
+    D --> G["Dependency and impact evidence"]
+    G --> A
+    A --> H["Patch and behavioral tests"]
+    D --> I["Documentation review queue"]
+    I --> C
+```
+
+The workflow is straightforward:
+
+1. **Locate** the relevant symbols and source.
+2. **Trace** supported relationships.
+3. **Investigate** potential impacts for the intended change.
+4. **Plan and edit** using the evidence and its limits.
+5. **Verify** the resulting behavior with relevant tests.
+6. **Refresh** evidence when the source changes.
+
+### Inspection tools
+
+| Tool | Capability |
+| --- | --- |
+| `amu_search` | Ranked source search for relevant symbols and snippets |
+| `amu_graph` | Provider-supported callers, callees, and other relationships with source references |
+| `amu_impact` | Intent-based analysis of current-worktree files and lines, including potential dependencies, contradictions, uncertainties, dynamic boundaries, coverage, and reasons |
+| `amu_docs_reviews` | Inspection of a documentation draft queue or preview of a selected review; this tool does not save prose |
+
+Additional CLI capabilities include maps and plans, evidence refresh and checks, source/worktree fingerprints, and documentation review/save safeguards.
+
+Evidence retrieval supports complete pages, oversized-row fragments, and version-bound cursors. Changed evidence invalidates old cursors.
+
+## Local operation and repository boundaries
+
+MCP startup requires exact, operator-selected repository roots and defaults to the four inspection tools.
+
+- Repository inspection can update the graph provider’s cache.
+- Built-in AMU model calls are disabled in MCP children.
+- Source inspection does not execute the proposed patch.
+- Live deployment configuration is separate from the disposable demo.
+
+[MCP security](docs/MCP-SECURITY.md) · [Impact analysis](docs/IMPACT-ANALYSIS.md) · [Freshness](docs/FRESHNESS.md) · [Documentation review](docs/DOC-REVIEWS.md)
+
+## Install and replay locally
+
+### Requirements
+
+- Python 3.11 or later.
+- A trusted local `entire` dispatcher.
+- A trusted local `entire-graph` plugin.
+
+The frozen candidate was verified on macOS arm64 with Python 3.11.16 and 3.14.6. Tested provider identities and provenance limits are documented in the [candidate report](hackathon/candidate/EHpaIc/PHASE1-REPORT.md).
+
+From the repository root:
+
+```sh
+python3 -m venv .venv
+
+.venv/bin/python -m pip install \
+  -c hackathon/candidate/EHpaIc/constraints.txt \
+  'hackathon/candidate/EHpaIc/amu-0.2.0-py3-none-any.whl[mcp]'
+
+.venv/bin/python -m pip check
+.venv/bin/amu --help
+```
+
+Select your trusted provider paths and an unused receipt filename:
+
+```sh
+.venv/bin/python -I -B hackathon/replay_demo.py \
+  --entire /absolute/path/to/entire \
+  --graph-plugin /absolute/path/to/entire-graph \
+  --output hackathon/recording/runs/my-replay.json
+```
+
+The replay:
+
+- Uses its own Git fixture, HOME, and cache.
+- Verifies the frozen build and manifest.
+- Invokes all four tools and retrieves all six report sections.
+- Applies the captured patch only to its disposable copy.
+- Runs the selected suite and frozen independent evaluator.
+- Refuses to overwrite an existing receipt.
+
+It does not install providers, change a live MCP profile, or contact an external model. A saved-output presentation is available without live ChatGPT connectivity.
+
+For source development, see the [engineering README](README-ENGINEERING.md) and [release checklist](docs/RELEASE-READINESS.md).
+
+## Engineering verification
+
+The frozen EHpaIc source archive passed **2,065 tests with 12 skips on each of Python 3.11.16 and 3.14.6**.
+
+Preserved transport regression evidence includes acceptance of exactly 131,072 response bytes, including the newline, and withholding of 131,073 bytes. It covers oversized IDs and SDK-generated responses.
+
+The recorded integration demo made 29 tool calls over 31 original frames, with a maximum frame size of 13,532 bytes. It also checked repository denial, stale cursors, and complete evidence retrieval.
+
+These results verify scoped implementation behavior. They are separate from claims about improvements in agent productivity or regression rates.
+
+- [Candidate report](hackathon/candidate/EHpaIc/PHASE1-REPORT.md)
+- [Frozen build inventory](hackathon/candidate/EHpaIc/FROZEN.json)
+- [Regression evidence](hackathon/candidate/EHpaIc/PHASE1-EVIDENCE.json)
+- [Integration demo receipt](hackathon/evidence/demo-summary.json)
+- [Submission status](hackathon/SUBMISSION-STATUS.md)
+
+EHpaIc identifies the exact hashed archive, wheel, and receipts used in verification. A Git revision alone does not establish the installed build identity. The full suites were not rerun for this README rewrite.
+
+## Current scope and next steps
+
+AMU exposes relationships supported by its provider and inspection methods. Dynamic dispatch, generated code, native boundaries, and unsupported relationships can leave gaps.
+
+An impact report identifies what deserves investigation. It does not prove that a concrete patch is correct, and an empty report does not prove safety.
+
+Authenticated ChatGPT acceptance for the served build/process/channel and four-tool NumPy scenario remains open. Phase 1 remains partial.
+
+The next priorities are:
+
+- Complete the existing authenticated acceptance gates.
+- Rebuild the internal evaluation with retained prompts, patches, model configurations, and execution receipts.
+- Compare matched agent runs across additional repositories and change types.
+- Measure downstream regressions, corrective edit cycles, relevant-check coverage, and total task time.
+- Improve measured provider coverage and report missed or irrelevant findings.
+
+## The goal
+
+**Give coding agents enough repository context to make a well-informed change the first time.**
+
+AMU brings dependency evidence into the agent’s decision process—helping it investigate the consequences of a fix before those consequences become the next bug report.
 ## What the comparison showed
 
 Consider a large repository where a pricing change affects checkout, subscriptions, refunds, and invoices. The numbers below are a hypothetical illustration of AMU's intended benefit; they were not produced by an AMU evaluation:
