@@ -104,7 +104,7 @@ not execute the proposed change. Live deployment configuration is separate from
 this disposable demo. See [MCP security](docs/MCP-SECURITY.md),
 [impact analysis](docs/IMPACT-ANALYSIS.md), [freshness](docs/FRESHNESS.md) and
 [documentation review](docs/DOC-REVIEWS.md). The original detailed README is
-preserved as [engineering instructions](docs/README-ENGINEERING.md).
+preserved as [engineering instructions](README-ENGINEERING.md).
 
 ## Install and replay locally
 
@@ -141,7 +141,7 @@ the frozen independent evaluator. It refuses to overwrite a prior receipt. A
 saved-output presentation remains available without live ChatGPT connectivity.
 
 For constrained source development, see the preserved
-[engineering README](docs/README-ENGINEERING.md) and [release checklist](docs/RELEASE-READINESS.md).
+[engineering README](README-ENGINEERING.md) and [release checklist](docs/RELEASE-READINESS.md).
 The submission branch captures the original working tree, including engineering
 work that was uncommitted in that tree. The [local submission status](hackathon/SUBMISSION-STATUS.md)
 links its fresh offline setup and preservation checks. EHpaIc identifies the exact
