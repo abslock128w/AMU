@@ -12,12 +12,10 @@ cover.** AMU does not guarantee that a change is safe.
 
 ## Demo: one function, three consumers
 
-In the synthetic checkout demo, a 50% discount on five cents produces two cents
-instead of three. The original eight tests are green. AMU exposes the shared
-pricing function's quote and checkout callers, plus the receipt path downstream
-of quote. A recorded agent fixes the integer-rounding calculation and adds
-regressions. The local replay executes that actual patch and the independent
-checks in a disposable copy.
+evealing the blast radius of a bug fix
+A shared pricing function calculates discounts incorrectly. Fixing it requires checking the checkout, quote, and receipt flows that depend on its output.
+AMU exposes those dependency paths with source evidence, giving the coding agent a concrete map of what to inspect. The recorded agent corrects the calculation and adds regression tests; the resulting patch passes all ten independent checks.
+The demo shows AMU making downstream dependencies visible so an agent can investigate beyond the function it is editing.
 
 - [2–3 minute recording package](hackathon/recording/RECORDING.md): storyboard,
   voiceover, exact commands and connectivity-free fallback.
