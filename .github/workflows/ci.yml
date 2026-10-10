@@ -59,6 +59,7 @@ jobs:
         shell: bash
         run: |
           python -m venv "$RUNNER_TEMP/amu-wheel"
+          "$RUNNER_TEMP/amu-wheel/bin/python" -m pip install -c constraints.txt setuptools
           "$RUNNER_TEMP/amu-wheel/bin/python" -m pip install -c constraints.txt dist/*.whl
           "$RUNNER_TEMP/amu-wheel/bin/python" -m pip check
           "$RUNNER_TEMP/amu-wheel/bin/python" scripts/check_constraints.py

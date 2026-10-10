@@ -376,7 +376,17 @@ def test_unusable_credential_files_remain_unknown_without_writes(tmp_path, diagn
         credential.chmod(0o600)
         if kind == "hardlink":
             os.link(credential, root / "credential-copy.json")
-    before = {item.name: item.lstat() for item in root.iterdir()}
+
+    def write_metadata(item):
+        observed = item.lstat()
+        # A read may update atime; identity, permissions and write times must stay unchanged.
+        return (
+            observed.st_mode, observed.st_ino, observed.st_dev, observed.st_nlink,
+            observed.st_uid, observed.st_gid, observed.st_size,
+            observed.st_mtime_ns, observed.st_ctime_ns,
+        )
+
+    before = {item.name: write_metadata(item) for item in root.iterdir()}
     monkeypatch.setenv("AMU_HOME", str(root))
     for key in ("ANTHROPIC_API_KEY", "GEMINI_API_KEY", "OPENAI_BASE_URL", "AMU_PROVIDER", "GOOGLE_API_KEY"):
         monkeypatch.delenv(key, raising=False)
@@ -387,4 +397,8 @@ def test_unusable_credential_files_remain_unknown_without_writes(tmp_path, diagn
     assert packet["anthropic_key_present"] is None
     assert packet["anthropic_key_source"] == "not_inspected"
     assert "private-doctor-file-key" not in result.stdout + result.stderr
-    assert {item.name: item.lstat() for item in root.iterdir()} == before
+    assert {item.name: write_metadata(item) for item in root.iterdir()} == before
+    if kind == "symlink":
+        assert elsewhere.read_bytes() == original
+    elif kind != "fifo":
+        assert credential.read_bytes() == data
