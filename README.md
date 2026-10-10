@@ -50,6 +50,16 @@ discloses unsuccessful initial queries, a treatment-only debugging-skill read,
 measurement boundaries and unavailable model usage. One run per condition does
 not establish general superiority.
 
+This comparison used a small synthetic codebase whose consumers were quick to
+inspect. We have not run the same controlled agent comparison on a large
+codebase; the local NumPy inspection below is a different kind of test. Larger,
+more interconnected projects can make it harder to track dependencies and
+downstream consequences. Our hypothesis is that AMU's structured relationship
+and coverage evidence could contribute more in those settings. That benefit
+still needs to be measured: actual coupling, provider coverage, task complexity
+and analysis overhead matter, and codebase size alone does not establish better
+results. Larger real-repository comparisons are the next validation step.
+
 ## A real repository example: NumPy
 
 The authorized local NumPy v2.3.0 checkout matched commit

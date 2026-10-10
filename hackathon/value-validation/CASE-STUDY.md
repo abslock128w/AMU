@@ -90,6 +90,16 @@ It cannot establish general superiority, statistical reliability or causal
 performance effects. The comparison finished in approximately 12 minutes,
 within the 25-minute limit, and experimental work stopped.
 
+The comparison's codebase was deliberately small enough for a clear hackathon
+demonstration. It does not measure agent performance on large repositories.
+Local NumPy source inspection exercises a larger repository, but is not an
+equivalent controlled bug-fix comparison. Our hypothesis is that AMU's structured
+dependency and coverage evidence may become more useful as cross-file coupling
+and investigation difficulty increase. Larger codebases also increase analysis
+cost and can expose coverage gaps, so better speed or correctness remains an
+untested expectation. Test that hypothesis on larger real cases with the same
+pre-frozen checks and fair controls before claiming an improvement.
+
 ## Reproduce and inspect
 
 - [Frozen checks and original outcomes](EVALUATION-FROZEN.json),

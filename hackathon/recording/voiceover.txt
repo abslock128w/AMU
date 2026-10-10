@@ -33,6 +33,8 @@ starting source and task. Both fixed the bug. Ordinary exploration took
 about one hundred seconds; the AMU run took about one hundred forty-three.
 AMU added structured dependency and coverage evidence, but this case showed
 no speed or correctness advantage. One case cannot establish general superiority.
+This was a small repository. Our hypothesis is that dependency evidence may help
+more in larger, interconnected projects; that still needs a controlled test.
 
 The repository includes both traces, both patches, the frozen checks and this
 actual local replay. Graph evidence identifies relationships; the agent reasons

@@ -70,7 +70,7 @@ evidence; the terminal labels it as such. They do not simulate a new agent run.
 | 1:15–1:35 | `patch`: actual agent-produced integer arithmetic and corrected total | The agent chooses the edit; AMU does not generate or semantically verify this patch. Seven tests were added. |
 | 1:35–2:00 | `tests`: actual 15-test result and ten frozen evaluator groups | Executed tests verify requested and protected behavior. Four-tool manifest, authorization denial and freshness checks passed locally. |
 | 2:00–2:25 | `comparison`: actual timings and setup overhead | Both agents passed. Baseline 100.22 s; plus AMU 143.35 s. Structured evidence, no observed performance advantage. |
-| 2:25–2:40 | `limits`: scope and evidence attribution | One illustrative case with disclosed control differences. Frozen local candidate; external authenticated acceptance open. |
+| 2:25–2:40 | `limits`: scope and evidence attribution | One small illustrative case with disclosed control differences. More value on larger, interconnected projects is a hypothesis to test. Frozen local candidate; external authenticated acceptance open. |
 
 Natural voiceover is in [voiceover.txt](voiceover.txt). Adjust pauses to the target
 duration; do not change the numbers or omit the outcome that the baseline was faster.

@@ -1,7 +1,7 @@
 # Local submission handoff — 10 October 2026
 
-**The repository, README, evidence and working recording package are ready
-locally. The video is not recorded and nothing has been published.** This work
+**The repository, README, evidence and working recording package are verified
+locally. The user has authorized GitHub publication; the video is not recorded.** This work
 adds submission documentation and disposable demonstrations, not AMU product
 features. Overall Phase 1 remains partial because external authenticated
 acceptance has not passed.
@@ -36,8 +36,8 @@ No replacement scenario or fresh comparison was run after the timebox.
 - [Preservation](evidence/preservation-after-submission.json) passed: original
   Git HEAD/status, 299 existing work files, 12 managed files, 53 pilot Python
   files, 92 candidate files plus its freeze inventory, live-profile hash/mode and
-  2,324 NumPy tracked records are unchanged. No deployment restart, network clone,
-  repository grant, upload or push was performed.
+  2,324 NumPy tracked records are unchanged. During that local verification pass,
+  no deployment restart, network clone, repository grant, upload or push was performed.
 
 The first offline install failed because the sandbox denied writes to the
 installer's shared cache. [That attempt](recording/submission-setup.json) and its
@@ -57,9 +57,11 @@ including it in the submission. [Recording status](recording/recording-status.js
 documents the inaccessible native controls; no completed video/audio is claimed.
 
 This isolated branch preserves the original repository history and working
-snapshot. A local commit/bundle is prepared for handoff; no remote state was
-changed. Pushing the branch, uploading a movie or changing repository visibility
-requires explicit instructions for that operation and destination.
+snapshot. The user has now authorized publishing the complete package to the
+existing `fayasfarmisofficial-cyber/TWC-Thugs` GitHub repository. The submission
+branch is `hackathon/submission`; the publication receipt is kept separately
+from earlier verification evidence. No repository-visibility or live-runtime
+change is included, and no completed movie is available to upload.
 
 Authenticated ChatGPT four-tool acceptance and the NumPy `finfo.__new__` intent
 scenario remain unexecuted. The NumPy checkout and new frozen environment were
