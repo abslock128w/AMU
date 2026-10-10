@@ -58,8 +58,8 @@ documents the inaccessible native controls; no completed video/audio is claimed.
 
 This isolated branch preserves the original repository history and working
 snapshot. The user has now authorized publishing the complete package to the
-existing `fayasfarmisofficial-cyber/TWC-Thugs` GitHub repository. The submission
-branch is `hackathon/submission`; the publication receipt is kept separately
+new `abslock128w/AMU` GitHub repository. The local submission
+branch is `hackathon/submission`, published as `main`; the publication receipt is kept separately
 from earlier verification evidence. No repository-visibility or live-runtime
 change is included, and no completed movie is available to upload.
 
