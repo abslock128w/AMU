@@ -33,6 +33,10 @@ amu = ["skills/*/SKILL.md", "benchmark_data/*.json"]
 [tool.setuptools.dynamic]
 version = {attr = "amu.__version__"}
 
+[tool.pytest.ini_options]
+# The checkout demo is a separate project exercised by hackathon/replay_demo.py.
+testpaths = ["tests"]
+
 [tool.ruff]
 line-length = 120
 target-version = "py311"
