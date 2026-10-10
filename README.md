@@ -202,3 +202,22 @@ and rollback are preserved; EHpaIc remains frozen.
 Next work is to close those existing acceptance gates, improve measured provider
 coverage and repeat evaluations on additional cases/platforms. No Phase 2 or new
 product features were implemented for this submission.
+
+
+## Expected production outcomes
+
+AMU aims to help coding agents identify downstream consequences before accepting a fix. Our production evaluation will compare the same agent and tasks with and without AMU across real repositories.
+
+The following are initial engineering targets, not measured results or evidence-based forecasts:
+
+| Metric | Production target |
+| --- | --- |
+| Dependency discovery | Surface at least 90% of independently identified relevant consumers within supported analysis scope |
+| Regression reduction | Reduce tasks ending with a downstream regression by 25% relative to the baseline |
+| Verification coverage | Improve relevant behavioral-check coverage by 20 percentage points |
+| Analysis latency | Return impact evidence within 10 seconds on an already indexed repository |
+
+We will measure these targets across repeated runs, reporting missed dependencies, irrelevant findings, indexing costs, and total task time.
+
+**Current evidence:** in our initial synthetic comparison, both agents passed all ten independent evaluator groups. AMU supplied structured dependency and coverage evidence but took longer. Large-repository performance and regression-reduction benefits remain to be established.**Built using GPT‑6.1 Sol in Codex.** AMU provides MCP tools for inspecting repository dependencies and the potential blast radius of proposed changes.
+In our initial agent comparison, the AMU-assisted patch passed all ten independent correctness checks. AMU supplied source-backed dependency and coverage evidence; the baseline also passed all checks and completed faster. This validates the demonstrated workflow, while broader performance benefits remain under evaluation.
