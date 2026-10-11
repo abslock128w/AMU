@@ -10,6 +10,7 @@ Phases (per Track 2 safe-migration contract):
   4. Removal    – Delete / deprecate the original symbol
 """
 
+import ast
 import json
 from dataclasses import dataclass, field
 from graphlib import CycleError, TopologicalSorter
@@ -239,13 +240,39 @@ def _is_test_path(path: str) -> bool:
     return path.rsplit("/", 1)[-1].startswith("test_") or path.startswith("tests/")
 
 
+def _patch_scope_nodes(body):
+    """Visit one lexical body without treating nested bodies as its references."""
+    pending = list(reversed(body))
+    while pending:
+        node = pending.pop()
+        yield node
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda)):
+            pending.extend(reversed(list(ast.iter_child_nodes(node))))
+
+
+def _patch_bound_names(nodes):
+    """Include bind sites whose names are strings rather than Name(Store)."""
+    names = set()
+    for node in nodes:
+        if isinstance(node, ast.Name) and isinstance(node.ctx, (ast.Store, ast.Del)):
+            names.add(node.id)
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            names.add(node.name)
+        elif isinstance(node, (ast.Import, ast.ImportFrom)):
+            names.update(alias.asname or alias.name.split('.')[0] for alias in node.names)
+        elif isinstance(node, (ast.ExceptHandler, ast.MatchAs, ast.MatchStar)) and node.name:
+            names.add(node.name)
+        elif isinstance(node, ast.MatchMapping) and node.rest:
+            names.add(node.rest)
+    return names
+
+
 def patch_test_recommendations(sources: list[dict], affected: dict[str, set[str]]) -> list[dict]:
     """Recommend real test declarations with direct, unshadowed import references.
 
     This reuses the plan's test-path rule, adding syntax evidence rather than
     treating a matching filename as coverage. Application modules are not imported.
     """
-    import ast
     import shlex
 
     result = []
@@ -262,8 +289,9 @@ def patch_test_recommendations(sources: list[dict], affected: dict[str, set[str]
                     if alias.name != "*":
                         bindings[alias.asname or alias.name] = (node.module, alias.name, node.lineno)
         # Module-level reassignment makes an import reference unreliable.
-        rebound = {node.id for statement in tree.body if not isinstance(statement, (ast.Import, ast.ImportFrom))
-                   for node in ast.walk(statement) if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store)}
+        rebound = _patch_bound_names(_patch_scope_nodes([
+            statement for statement in tree.body if not isinstance(statement, (ast.Import, ast.ImportFrom))
+        ]))
         tests = []
         for node in tree.body:
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith("test_"):
@@ -274,9 +302,12 @@ def patch_test_recommendations(sources: list[dict], affected: dict[str, set[str]
                 tests.extend((f"{node.name}::{child.name}", child) for child in node.body
                              if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)) and child.name.startswith("test_"))
         for name, test in tests:
-            local = {node.id for node in ast.walk(test) if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store)}
-            local.update(arg.arg for arg in [*test.args.posonlyargs, *test.args.args, *test.args.kwonlyargs])
-            for node in ast.walk(test):
+            nodes = list(_patch_scope_nodes(test.body))
+            local = _patch_bound_names(nodes)
+            local.update(arg.arg for arg in [*test.args.posonlyargs, *test.args.args, *test.args.kwonlyargs,
+                                            *([test.args.vararg] if test.args.vararg else []),
+                                            *([test.args.kwarg] if test.args.kwarg else [])])
+            for node in nodes:
                 if not isinstance(node, (ast.Name, ast.Attribute)) or not isinstance(node.ctx, ast.Load):
                     continue
                 pieces, root = [], node
