@@ -1,5 +1,7 @@
 # Concrete patch inspection and a reproducible cache regression
 
+This walkthrough records the Phase 2 version 3 scope. Current output adds behavioral obligations and assertion evidence under packet/patch-MCP version 4; see the [Phase 3 guide](phase3-quickstart.md) for current semantics and migration. The cache fixture and execution opt-in below remain supported.
+
 This bounded Phase 2 workflow inspects a real diff, recommends existing tests,
 and separately verifies four reviewed AMU-owned fixture candidates. Syntax
 findings describe possible effects; only the fixture check supplies executed

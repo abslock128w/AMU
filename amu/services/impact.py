@@ -76,7 +76,7 @@ def validate_patch_request(request: PatchRequest) -> None:
     if type(request.include_graph) is not bool:
         raise ImpactInputError("include_graph must be a boolean")
     if not isinstance(request.section, str) or request.section not in impact_report.PATCH_REQUEST_SECTIONS:
-        raise ImpactInputError("section must be summary, changes, findings, state_dependencies, recommended_checks or uncertainties")
+        raise ImpactInputError("section must be summary, changes, obligations, findings, state_dependencies, recommended_checks or uncertainties")
     if type(request.page_size) is not int or not 1 <= request.page_size <= MAX_ROWS:
         raise ImpactInputError(f"page_size must be an integer from 1 to {MAX_ROWS}")
     if request.cursor is not None:
@@ -385,7 +385,7 @@ _PATCH_LIMITATIONS = [
     "The diff was applied exactly in memory to live working-tree bytes; HEAD is an anchor, not a claim that those bytes equal the commit.",
     "Observed syntax and established source references are distinct from inferred behavioral risks. No regression or safety is proved by this inspection.",
     "No candidate module was imported, executed or written. Execution authorization is a separate operation.",
-    "Existing-test recommendations inspect at most 200 baseline Python test files. Direct unshadowed imports, verified inert package-submodule imports and at most two local direct-call hops are source paths, not executed or asserted coverage. Dynamic dispatch, aliases beyond imports and descriptors remain unresolved.",
+    "Existing-test recommendations inspect at most 200 baseline Python test files. Bounded direct calls, arguments and assertions may support a behavioral check target; source paths alone do not prove execution or coverage. Dynamic dispatch, rebinding, inheritance and descriptors remain unresolved.",
     "Markdown changes are recorded with exact content identity; Python behavioral analysis does not cover Markdown prose or fenced code.",
     "Optional provider relationships describe the baseline source only. The graph provider may update its local cache; native tools are not an OS sandbox.",
     "Retrieve all relevant sections and complete fragments from the same report before relying on detailed evidence.",
@@ -666,7 +666,7 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
             analysis["state_dependencies"] = [row for row in analysis["state_dependencies"]
                                                if row.get("state_id") in changed_ids or row.get("consumer_id") in changed_ids]
             groups["changes"].extend(analysis["modified_entities"])
-            for section in ("findings", "state_dependencies"):
+            for section in ("findings", "obligations", "state_dependencies"):
                 groups[section].extend(analysis[section])
             groups["uncertainties"].extend({"path": file.path, **row} for row in analysis["uncertainties"])
             for entity in analysis["modified_entities"]:
@@ -718,7 +718,35 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
     source_calls, source_call_limits = patch_source_call_edges(source_trees, declarations)
     groups["recommended_checks"] = patch_test_recommendations(
         tests, affected, declarations=declarations, state_dependencies=groups["state_dependencies"],
-        source_calls=source_calls, verified_submodules=verified_submodules)
+        source_calls=source_calls, verified_submodules=verified_submodules,
+        obligations=groups["obligations"], source_trees=source_trees)
+    groups["uncertainties"].extend({"path": row["path"], "test_id": row["test_id"],
+                                   "reason": row["behavioral_analysis_limit"]}
+                                  for row in groups["recommended_checks"] if row.get("behavioral_analysis_limit"))
+    for obligation in groups["obligations"]:
+        entity_id = obligation["entity_id"]
+        obligation["source_consumers"] = sorted({row["consumer_id"] for row in groups["state_dependencies"]
+                                                  if row.get("state_id") == entity_id and row.get("phase") == "after"})
+        linked = []
+        for test in groups["recommended_checks"]:
+            for association in test.get("associations", []):
+                for evidence in association.get("obligation_evidence", []):
+                    if evidence.get("obligation_id") == obligation["id"]:
+                        linked.append({"test_id": test["test_id"], "level": evidence.get("level"),
+                                       "reason": evidence.get("reason")})
+        obligation["verification_plan"] = {
+            "existing_baseline_tests": sorted(linked, key=lambda item: (item["level"] != "input-and-assertion",
+                                                                  item["test_id"])),
+            "candidate_added_test_files": sorted(file.path for file in files if file.operation == "add"
+                                                 and file.path.endswith(".py") and _is_test_path(file.path)),
+            "proposed_input": ({obligation["condition"]["parameter"]: obligation["condition"]["target_value"]}
+                               if (obligation.get("condition") or {}).get("kind") == "comparison-boundary"
+                               and obligation["condition"].get("target_value") is not None else None),
+            "observe": obligation["observable"],
+            "expectation": None, "expectation_basis": "unresolved-hypothesis",
+            "execution_status": "not-run",
+            "note": "Review the intended contract before interpreting a difference as a regression; test execution requires separate authorization.",
+        }
     for finding in groups["findings"]:
         entity_id = finding.get("entity_id")
         finding["recommended_test_ids"] = [test["test_id"] for test in groups["recommended_checks"]
@@ -788,8 +816,8 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
                                          "unresolved_package_imports": unresolved_imports,
                                          "local_call_limits": source_call_limits,
                                          "unavailable_baseline_tests": unavailable_tests},
-                "configuration": {"analysis": "python-markdown-concrete-patch-v2", "max_test_files": MAX_TEST_FILES,
-                                  "recommendation_evidence": "member-and-local-call-v2",
+                "configuration": {"analysis": "python-markdown-concrete-patch-v3", "max_test_files": MAX_TEST_FILES,
+                                  "recommendation_evidence": "behavioral-test-evidence-v3",
                                   "max_graph_targets": MAX_GRAPH_TARGETS, "max_ast_nodes": MAX_AST_NODES, "max_ast_depth": MAX_AST_DEPTH}}
     try:
         return impact_report.build_patch_packet(asdict(request), identity=identity, groups=groups,

@@ -1,0 +1,809 @@
+{
+  "families": {
+    "explicit-zero": {
+      "cases": {
+        "compatible": {
+          "candidate": {
+            "passed": true,
+            "probe": {
+              "expected": {
+                "value": 0
+              },
+              "input": [
+                0,
+                5
+              ],
+              "observed": {
+                "value": 0
+              },
+              "passed": true
+            },
+            "tests": [
+              {
+                "expected": {
+                  "raised": "ValueError"
+                },
+                "input": [
+                  false,
+                  5
+                ],
+                "observed": {
+                  "raised": "ValueError"
+                },
+                "outcome": "passed",
+                "test_id": "test_boolean_is_rejected"
+              },
+              {
+                "expected": {
+                  "value": 0
+                },
+                "input": [
+                  0,
+                  5
+                ],
+                "observed": {
+                  "value": 0
+                },
+                "outcome": "passed",
+                "test_id": "test_explicit_zero_is_kept"
+              },
+              {
+                "expected": {
+                  "value": 5
+                },
+                "input": [
+                  null,
+                  5
+                ],
+                "observed": {
+                  "value": 5
+                },
+                "outcome": "passed",
+                "test_id": "test_omitted_uses_default"
+              },
+              {
+                "expected": {
+                  "value": 3
+                },
+                "input": [
+                  3,
+                  5
+                ],
+                "observed": {
+                  "value": 3
+                },
+                "outcome": "passed",
+                "test_id": "test_positive_is_kept"
+              }
+            ]
+          },
+          "candidate_sha256": "0ff93e71a1ba9e26a2918399e4563fb9466214b79e29ee184d7c5b7b4ab30c49",
+          "expected_candidate_passes": true,
+          "patch_sha256": "15ea7b4d47995b048a3671a601ad9b62c1de6445b4f52cb01982a6baede18639"
+        },
+        "corrected": {
+          "candidate": {
+            "passed": true,
+            "probe": {
+              "expected": {
+                "value": 0
+              },
+              "input": [
+                0,
+                5
+              ],
+              "observed": {
+                "value": 0
+              },
+              "passed": true
+            },
+            "tests": [
+              {
+                "expected": {
+                  "raised": "ValueError"
+                },
+                "input": [
+                  false,
+                  5
+                ],
+                "observed": {
+                  "raised": "ValueError"
+                },
+                "outcome": "passed",
+                "test_id": "test_boolean_is_rejected"
+              },
+              {
+                "expected": {
+                  "value": 0
+                },
+                "input": [
+                  0,
+                  5
+                ],
+                "observed": {
+                  "value": 0
+                },
+                "outcome": "passed",
+                "test_id": "test_explicit_zero_is_kept"
+              },
+              {
+                "expected": {
+                  "value": 5
+                },
+                "input": [
+                  null,
+                  5
+                ],
+                "observed": {
+                  "value": 5
+                },
+                "outcome": "passed",
+                "test_id": "test_omitted_uses_default"
+              },
+              {
+                "expected": {
+                  "value": 3
+                },
+                "input": [
+                  3,
+                  5
+                ],
+                "observed": {
+                  "value": 3
+                },
+                "outcome": "passed",
+                "test_id": "test_positive_is_kept"
+              }
+            ]
+          },
+          "candidate_sha256": "b828c2e1de5c5a9731b71b97f175e0efefb471fca02dcc701908704cff4c5b45",
+          "corrected_from_case": "regression",
+          "corrected_from_patch_sha256": "f0fc0a182ab1f01ca3a09585ea6a700d7fafaf998dc62910d075689a1f5a9f71",
+          "expected_candidate_passes": true,
+          "patch_sha256": "725c1db56b793163d5981c95d1f6778b7a1e0dbd3a6b7bfee7d2c7f181bbe405"
+        },
+        "regression": {
+          "candidate": {
+            "passed": false,
+            "probe": {
+              "expected": {
+                "value": 0
+              },
+              "input": [
+                0,
+                5
+              ],
+              "observed": {
+                "value": 5
+              },
+              "passed": false
+            },
+            "tests": [
+              {
+                "error_type": "AssertionError",
+                "expected": {
+                  "raised": "ValueError"
+                },
+                "input": [
+                  false,
+                  5
+                ],
+                "observed": {
+                  "raised": null
+                },
+                "outcome": "failed",
+                "test_id": "test_boolean_is_rejected"
+              },
+              {
+                "error_type": "AssertionError",
+                "expected": {
+                  "value": 0
+                },
+                "input": [
+                  0,
+                  5
+                ],
+                "observed": {
+                  "value": 5
+                },
+                "outcome": "failed",
+                "test_id": "test_explicit_zero_is_kept"
+              },
+              {
+                "expected": {
+                  "value": 5
+                },
+                "input": [
+                  null,
+                  5
+                ],
+                "observed": {
+                  "value": 5
+                },
+                "outcome": "passed",
+                "test_id": "test_omitted_uses_default"
+              },
+              {
+                "expected": {
+                  "value": 3
+                },
+                "input": [
+                  3,
+                  5
+                ],
+                "observed": {
+                  "value": 3
+                },
+                "outcome": "passed",
+                "test_id": "test_positive_is_kept"
+              }
+            ]
+          },
+          "candidate_sha256": "ddfa236ecd787a291b9fcf3752d4809fc5b3677c6c49b75ca4c440db2857812e",
+          "expected_candidate_passes": false,
+          "patch_sha256": "f0fc0a182ab1f01ca3a09585ea6a700d7fafaf998dc62910d075689a1f5a9f71"
+        }
+      },
+      "contract_sha256": "1660a0dc438ad2635ffeb961262cc6d6254d9a4fd9ea35bbdfa3b68654c82da0",
+      "original": {
+        "passed": true,
+        "probe": {
+          "expected": {
+            "value": 0
+          },
+          "input": [
+            0,
+            5
+          ],
+          "observed": {
+            "value": 0
+          },
+          "passed": true
+        },
+        "tests": [
+          {
+            "expected": {
+              "raised": "ValueError"
+            },
+            "input": [
+              false,
+              5
+            ],
+            "observed": {
+              "raised": "ValueError"
+            },
+            "outcome": "passed",
+            "test_id": "test_boolean_is_rejected"
+          },
+          {
+            "expected": {
+              "value": 0
+            },
+            "input": [
+              0,
+              5
+            ],
+            "observed": {
+              "value": 0
+            },
+            "outcome": "passed",
+            "test_id": "test_explicit_zero_is_kept"
+          },
+          {
+            "expected": {
+              "value": 5
+            },
+            "input": [
+              null,
+              5
+            ],
+            "observed": {
+              "value": 5
+            },
+            "outcome": "passed",
+            "test_id": "test_omitted_uses_default"
+          },
+          {
+            "expected": {
+              "value": 3
+            },
+            "input": [
+              3,
+              5
+            ],
+            "observed": {
+              "value": 3
+            },
+            "outcome": "passed",
+            "test_id": "test_positive_is_kept"
+          }
+        ]
+      },
+      "protected_checks_sha256": "550fb9492b8c7d497e7cb11976f80b5a58bb4c09e7e5a7189358e1118fecd1f6",
+      "runner_sha256": "217525c4c64b08dc8fa45c341d412e17c911f356b554cdc5346b9b7628e0d526",
+      "source_sha256": "bf11471310b44eb91e1850a0b909e4ec9a41761274528bb555920cdae86b10fd"
+    },
+    "stable-order": {
+      "cases": {
+        "compatible": {
+          "candidate": {
+            "passed": true,
+            "probe": {
+              "expected": {
+                "values": [
+                  3,
+                  1,
+                  2
+                ]
+              },
+              "input": [
+                [
+                  3,
+                  1,
+                  3,
+                  2
+                ]
+              ],
+              "observed": {
+                "values": [
+                  3,
+                  1,
+                  2
+                ]
+              },
+              "passed": true
+            },
+            "tests": [
+              {
+                "expected": {
+                  "values": []
+                },
+                "input": [
+                  []
+                ],
+                "observed": {
+                  "values": []
+                },
+                "outcome": "passed",
+                "test_id": "test_empty_input"
+              },
+              {
+                "expected": {
+                  "values": [
+                    3,
+                    1,
+                    2
+                  ]
+                },
+                "input": [
+                  [
+                    3,
+                    1,
+                    3,
+                    2
+                  ]
+                ],
+                "observed": {
+                  "values": [
+                    3,
+                    1,
+                    2
+                  ]
+                },
+                "outcome": "passed",
+                "test_id": "test_first_seen_numeric_order"
+              },
+              {
+                "expected": {
+                  "values": [
+                    "b",
+                    "a"
+                  ]
+                },
+                "input": [
+                  [
+                    "b",
+                    "a",
+                    "b"
+                  ]
+                ],
+                "observed": {
+                  "values": [
+                    "b",
+                    "a"
+                  ]
+                },
+                "outcome": "passed",
+                "test_id": "test_first_seen_text_order"
+              },
+              {
+                "expected": {
+                  "values": [
+                    4
+                  ]
+                },
+                "input": [
+                  [
+                    4,
+                    4,
+                    4
+                  ]
+                ],
+                "observed": {
+                  "values": [
+                    4
+                  ]
+                },
+                "outcome": "passed",
+                "test_id": "test_repeat_single_value"
+              }
+            ]
+          },
+          "candidate_sha256": "b2926e75b1f1ebb455f8072ef75533311b21b337343053cd2e8a1571d8256c68",
+          "expected_candidate_passes": true,
+          "patch_sha256": "180341070d0e8d1e3aa381bbd7780762ae89d4af81ef268abf21abbe3c642558"
+        },
+        "corrected": {
+          "candidate": {
+            "passed": true,
+            "probe": {
+              "expected": {
+                "values": [
+                  3,
+                  1,
+                  2
+                ]
+              },
+              "input": [
+                [
+                  3,
+                  1,
+                  3,
+                  2
+                ]
+              ],
+              "observed": {
+                "values": [
+                  3,
+                  1,
+                  2
+                ]
+              },
+              "passed": true
+            },
+            "tests": [
+              {
+                "expected": {
+                  "values": []
+                },
+                "input": [
+                  []
+                ],
+                "observed": {
+                  "values": []
+                },
+                "outcome": "passed",
+                "test_id": "test_empty_input"
+              },
+              {
+                "expected": {
+                  "values": [
+                    3,
+                    1,
+                    2
+                  ]
+                },
+                "input": [
+                  [
+                    3,
+                    1,
+                    3,
+                    2
+                  ]
+                ],
+                "observed": {
+                  "values": [
+                    3,
+                    1,
+                    2
+                  ]
+                },
+                "outcome": "passed",
+                "test_id": "test_first_seen_numeric_order"
+              },
+              {
+                "expected": {
+                  "values": [
+                    "b",
+                    "a"
+                  ]
+                },
+                "input": [
+                  [
+                    "b",
+                    "a",
+                    "b"
+                  ]
+                ],
+                "observed": {
+                  "values": [
+                    "b",
+                    "a"
+                  ]
+                },
+                "outcome": "passed",
+                "test_id": "test_first_seen_text_order"
+              },
+              {
+                "expected": {
+                  "values": [
+                    4
+                  ]
+                },
+                "input": [
+                  [
+                    4,
+                    4,
+                    4
+                  ]
+                ],
+                "observed": {
+                  "values": [
+                    4
+                  ]
+                },
+                "outcome": "passed",
+                "test_id": "test_repeat_single_value"
+              }
+            ]
+          },
+          "candidate_sha256": "13281559623746c058332645c6ed47888e61eb57e1a2e12d33ac6beefac7208e",
+          "corrected_from_case": "regression",
+          "corrected_from_patch_sha256": "94891075634215ada9dfa7bfb9312acb513174875a46496c148d9b7d4767fffa",
+          "expected_candidate_passes": true,
+          "patch_sha256": "89e783b477d8c2092fccd119f0576af444c17169003cf68d880d28314befc49d"
+        },
+        "regression": {
+          "candidate": {
+            "passed": false,
+            "probe": {
+              "expected": {
+                "values": [
+                  3,
+                  1,
+                  2
+                ]
+              },
+              "input": [
+                [
+                  3,
+                  1,
+                  3,
+                  2
+                ]
+              ],
+              "observed": {
+                "values": [
+                  1,
+                  2,
+                  3
+                ]
+              },
+              "passed": false
+            },
+            "tests": [
+              {
+                "expected": {
+                  "values": []
+                },
+                "input": [
+                  []
+                ],
+                "observed": {
+                  "values": []
+                },
+                "outcome": "passed",
+                "test_id": "test_empty_input"
+              },
+              {
+                "error_type": "AssertionError",
+                "expected": {
+                  "values": [
+                    3,
+                    1,
+                    2
+                  ]
+                },
+                "input": [
+                  [
+                    3,
+                    1,
+                    3,
+                    2
+                  ]
+                ],
+                "observed": {
+                  "values": [
+                    1,
+                    2,
+                    3
+                  ]
+                },
+                "outcome": "failed",
+                "test_id": "test_first_seen_numeric_order"
+              },
+              {
+                "error_type": "AssertionError",
+                "expected": {
+                  "values": [
+                    "b",
+                    "a"
+                  ]
+                },
+                "input": [
+                  [
+                    "b",
+                    "a",
+                    "b"
+                  ]
+                ],
+                "observed": {
+                  "values": [
+                    "a",
+                    "b"
+                  ]
+                },
+                "outcome": "failed",
+                "test_id": "test_first_seen_text_order"
+              },
+              {
+                "expected": {
+                  "values": [
+                    4
+                  ]
+                },
+                "input": [
+                  [
+                    4,
+                    4,
+                    4
+                  ]
+                ],
+                "observed": {
+                  "values": [
+                    4
+                  ]
+                },
+                "outcome": "passed",
+                "test_id": "test_repeat_single_value"
+              }
+            ]
+          },
+          "candidate_sha256": "c4e4be2174279f99024fae596637328c65b675a9e87fd00c7251cfb240768d09",
+          "expected_candidate_passes": false,
+          "patch_sha256": "94891075634215ada9dfa7bfb9312acb513174875a46496c148d9b7d4767fffa"
+        }
+      },
+      "contract_sha256": "d8fe2eabeddc71d0c0bac3fef2fac5351f7e6d30abfbf78f6dcc8f562719dca9",
+      "original": {
+        "passed": true,
+        "probe": {
+          "expected": {
+            "values": [
+              3,
+              1,
+              2
+            ]
+          },
+          "input": [
+            [
+              3,
+              1,
+              3,
+              2
+            ]
+          ],
+          "observed": {
+            "values": [
+              3,
+              1,
+              2
+            ]
+          },
+          "passed": true
+        },
+        "tests": [
+          {
+            "expected": {
+              "values": []
+            },
+            "input": [
+              []
+            ],
+            "observed": {
+              "values": []
+            },
+            "outcome": "passed",
+            "test_id": "test_empty_input"
+          },
+          {
+            "expected": {
+              "values": [
+                3,
+                1,
+                2
+              ]
+            },
+            "input": [
+              [
+                3,
+                1,
+                3,
+                2
+              ]
+            ],
+            "observed": {
+              "values": [
+                3,
+                1,
+                2
+              ]
+            },
+            "outcome": "passed",
+            "test_id": "test_first_seen_numeric_order"
+          },
+          {
+            "expected": {
+              "values": [
+                "b",
+                "a"
+              ]
+            },
+            "input": [
+              [
+                "b",
+                "a",
+                "b"
+              ]
+            ],
+            "observed": {
+              "values": [
+                "b",
+                "a"
+              ]
+            },
+            "outcome": "passed",
+            "test_id": "test_first_seen_text_order"
+          },
+          {
+            "expected": {
+              "values": [
+                4
+              ]
+            },
+            "input": [
+              [
+                4,
+                4,
+                4
+              ]
+            ],
+            "observed": {
+              "values": [
+                4
+              ]
+            },
+            "outcome": "passed",
+            "test_id": "test_repeat_single_value"
+          }
+        ]
+      },
+      "protected_checks_sha256": "49bc46d3a7d3dcce2ec48ae337aa91b8ba0ef4f9fc3adb844c5e2f68b49ec583",
+      "runner_sha256": "217525c4c64b08dc8fa45c341d412e17c911f356b554cdc5346b9b7628e0d526",
+      "source_sha256": "16ee004eef4310b0781c7a046cd15e8b383fe3035bf0ac7632f5e6faebbfaa40"
+    }
+  },
+  "fixture_version": "phase3-counterexamples-v1",
+  "manifest_sha256": "9f692ff3c1d7c2aaa452e4d7e933783dbfaadf44488c4c8355ac318c551c6e8d",
+  "schema_version": 1
+}

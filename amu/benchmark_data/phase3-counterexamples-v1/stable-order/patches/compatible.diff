@@ -1,0 +1,14 @@
+--- a/case.py
++++ b/case.py
+@@ -5,7 +5,8 @@
+     seen = set()
+     result = []
+     for item in items:
+-        if item not in seen:
+-            seen.add(item)
+-            result.append(item)
++        if item in seen:
++            continue
++        seen.add(item)
++        result.append(item)
+     return result

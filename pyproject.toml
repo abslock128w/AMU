@@ -29,7 +29,10 @@ include = ["amu*"]
 
 [tool.setuptools.package-data]
 amu = ["skills/*/SKILL.md", "benchmark_data/*.json", "benchmark_data/shared-cache-v1/*.py",
-       "benchmark_data/shared-cache-v1/*.json", "benchmark_data/shared-cache-v1/patches/*.diff"]
+       "benchmark_data/shared-cache-v1/*.json", "benchmark_data/shared-cache-v1/patches/*.diff",
+       "benchmark_data/phase3-counterexamples-v1/*.py", "benchmark_data/phase3-counterexamples-v1/*.json",
+       "benchmark_data/phase3-counterexamples-v1/*.md", "benchmark_data/phase3-counterexamples-v1/*/*.py",
+       "benchmark_data/phase3-counterexamples-v1/*/*.json", "benchmark_data/phase3-counterexamples-v1/*/patches/*.diff"]
 
 [tool.setuptools.dynamic]
 version = {attr = "amu.__version__"}

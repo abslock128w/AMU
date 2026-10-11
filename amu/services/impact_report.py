@@ -17,7 +17,7 @@ from amu.harness.context import estimate, rank_rows
 from amu.mcp_manifest import MCP_WIRE_LIMIT, tool_result_bytes
 
 SECTIONS = frozenset({"impact", "source_contradictions", "source_uncertainties", "dynamic_boundaries", "coverage", "reasons"})
-PATCH_SECTIONS = frozenset({"changes", "findings", "state_dependencies", "recommended_checks", "uncertainties"})
+PATCH_SECTIONS = frozenset({"changes", "obligations", "findings", "state_dependencies", "recommended_checks", "uncertainties"})
 PATCH_REQUEST_SECTIONS = PATCH_SECTIONS | {"summary"}
 MAX_CURSOR_BYTES = 1024
 FRAGMENT_BYTES = 4096
@@ -26,6 +26,7 @@ MAX_NORMAL_ITEM_BYTES = 8192
 RETRIEVAL_VERSION = 1
 PATCH_SUMMARY_ENTITY_LIMIT = 4
 PATCH_SUMMARY_FINDING_LIMIT = 3
+PATCH_SUMMARY_OBLIGATION_LIMIT = 3
 PATCH_SUMMARY_CHECK_LIMIT = 3
 PATCH_SUMMARY_STATE_LIMIT = 4
 PATCH_SUMMARY_UNCERTAINTY_GROUP_LIMIT = 6
@@ -230,7 +231,7 @@ def _brief_patch_step(step: dict) -> dict:
 
 
 def _patch_summary(identity: dict, groups: dict) -> dict:
-    """Rank small source-backed previews; raw evidence stays in the five sections."""
+    """Rank small source-backed previews; raw evidence stays in paged sections."""
     coverage = {row["path"]: row for row in identity.get("file_coverage", [])}
     files = [{"path": row["path"], "operation": row["operation"],
               "file_type": coverage.get(row["path"], {}).get("file_type", "unknown"),
@@ -257,6 +258,20 @@ def _patch_summary(identity: dict, groups: dict) -> dict:
                         "existing_check_count": len(row.get("recommended_test_ids", []))}
                        for row in findings[:PATCH_SUMMARY_FINDING_LIMIT]]
 
+    obligations = sorted(groups["obligations"], key=lambda row: (
+        not any(check.get("level") == "input-and-assertion" for check in
+                row.get("verification_plan", {}).get("existing_baseline_tests", [])),
+        row.get("category") not in {"branch", "return", "exception"},
+        row.get("entity_id", ""), row.get("id", "")))
+    obligation_preview = [{"id": row.get("id"), "entity_id": row.get("entity_id"),
+                           "category": row.get("category"), "change": row.get("changed_operation"),
+                           "condition": row.get("condition"), "observe": row.get("observable", {}).get("kind"),
+                           "why": row.get("why"),
+                           "existing_check_count": len(row.get("verification_plan", {}).get("existing_baseline_tests", [])),
+                           "proposed_input": row.get("verification_plan", {}).get("proposed_input"),
+                           "execution_status": row.get("execution_status", "not-run")}
+                          for row in obligations[:PATCH_SUMMARY_OBLIGATION_LIMIT]]
+
     state_buckets = defaultdict(list)
     for row in groups["state_dependencies"]:
         key = (row.get("state_id", ""), row.get("consumer_id", ""), row.get("access", ""),
@@ -272,22 +287,29 @@ def _patch_summary(identity: dict, groups: dict) -> dict:
 
     relationship_rank = {"source-member-path": 0, "source-state-path": 0,
                          "direct-source-reference": 0, "source-call-path": 0,
+                         "constructed-instance-method": 0, "constructed-instance-state-path": 0,
                          "broad-class-reference": 1, "broad-source-reference": 1}
     ranked_checks = []
     for row in groups["recommended_checks"]:
         associations = sorted(row.get("associations", []), key=lambda item: (
+            min(({"input-and-assertion": 0, "assertion": 1, "input": 2, "broad": 3, "unresolved": 4}.get(
+                evidence.get("level"), 4) for evidence in item.get("obligation_evidence", [])), default=4),
             relationship_rank.get(item.get("relationship"), 2), item.get("entity_id", ""),
             item.get("relationship", "")))
         best = associations[0] if associations else {}
         rank = relationship_rank.get(best.get("relationship"), 2)
-        ranked_checks.append((rank, row.get("test_id", ""), row, best))
-    ranked_checks.sort(key=lambda item: (item[0], item[1]))
+        behavioral_rank = row.get("behavioral_rank", 4)
+        ranked_checks.append((behavioral_rank, rank, row.get("test_id", ""), row, best))
+    ranked_checks.sort(key=lambda item: (item[0], item[1], item[2]))
     check_preview = [{"test_id": row.get("test_id"),
-                      "kind": "supported-source-path" if rank == 0 else "broad-candidate" if rank == 1 else "unresolved",
+                      "kind": ("behavioral-evidence" if behavioral_rank < 4 else
+                               "supported-source-path" if rank == 0 else "broad-candidate" if rank == 1 else "unresolved"),
                       "relationship": best.get("relationship"), "entity_id": best.get("entity_id"),
                       "path": [_brief_patch_step(step) for step in best.get("path", [])],
+                      "behavioral_rank": behavioral_rank,
+                      "obligation_evidence": best.get("obligation_evidence", [])[:2],
                       "verification": row.get("verification"), "coverage_proven": False}
-                     for rank, _, row, best in ranked_checks[:PATCH_SUMMARY_CHECK_LIMIT]]
+                     for behavioral_rank, rank, _, row, best in ranked_checks[:PATCH_SUMMARY_CHECK_LIMIT]]
 
     uncertainty_buckets = defaultdict(list)
     for row in groups["uncertainties"]:
@@ -332,7 +354,7 @@ def _patch_summary(identity: dict, groups: dict) -> dict:
 
     scope = identity.get("recommendation_scope", {})
     if ranked_checks:
-        search = "Existing checks are baseline test references with located source paths or broad candidates; references do not prove executed coverage or assertions."
+        search = "Existing checks are ranked by bounded input and assertion evidence, then source relationship. Static evidence does not prove execution or contract coverage."
     elif not any(row.get("file_type") == "python" for row in files):
         search = "No Python entity changed; existing Python checks were not inferred for documentation-only content."
     else:
@@ -360,6 +382,8 @@ def _patch_summary(identity: dict, groups: dict) -> dict:
 
     return {"changed_files": files, "changed_entities": entity_preview,
             "omitted_changed_entities": len(changed_entities) - len(entity_preview),
+            "obligations": obligation_preview,
+            "omitted_obligations": len(obligations) - len(obligation_preview),
             "findings": finding_preview, "omitted_findings": len(findings) - len(finding_preview),
             "state_relationships": state_preview[:PATCH_SUMMARY_STATE_LIMIT],
             "omitted_state_relationships": len(state_preview) - min(len(state_preview), PATCH_SUMMARY_STATE_LIMIT),
@@ -412,7 +436,7 @@ def build_patch_packet(request: dict, *, identity: dict, groups: dict, limitatio
                                {"test_id": row.get("test_id"),
                                 "relationships": sorted({a["relationship"] for a in row.get("associations", [])})}
                                for row in groups["recommended_checks"][:3]]})
-    packet = {"schema_version": 3, "operation": "concrete-patch-impact", "request": public_request,
+    packet = {"schema_version": 4, "operation": "concrete-patch-impact", "request": public_request,
               "report_hash": report_hash, "identity": public_identity, "status": "uncertain" if groups["uncertainties"] else "inspectable",
               "assessment": assessment,
               "limitations": limitations, "retrieval": {}, "page": {}, "details": {}, "truncated": False}

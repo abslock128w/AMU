@@ -571,7 +571,7 @@ def analyze_patch_cmd(
     base: str = typer.Option("HEAD", "--base", help="HEAD/full current HEAD SHA anchors live source; worktree for non-Git copies"),
     depth: int = typer.Option(1, "--depth", help="optional graph relationship depth, 1–3"),
     include_graph: bool = typer.Option(False, "--include-graph", help="include current source-backed provider evidence"),
-    section: str = typer.Option("summary", "--section", help="summary|changes|findings|state_dependencies|recommended_checks|uncertainties"),
+    section: str = typer.Option("summary", "--section", help="summary|changes|obligations|findings|state_dependencies|recommended_checks|uncertainties"),
     cursor: str | None = typer.Option(None, "--cursor", help="opaque patch/evidence-bound cursor; stale cursors are refused"),
     page_size: int = typer.Option(20, "--page-size", help="page entries, 1–100"),
     repo: str = REPO_OPT,

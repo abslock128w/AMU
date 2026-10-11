@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "fixture_version": "phase3-counterexamples-v1",
+  "family": "explicit-zero",
+  "owner": "AMU",
+  "basis": "AMU-owned literal behavioral contract, defined independently of candidate outcomes.",
+  "probe": {"test_id": "contract::explicit_zero", "input": [0, 5], "expected": {"value": 0}},
+  "tests": [
+    {"test_id": "test_omitted_uses_default", "input": [null, 5], "expected": {"value": 5}},
+    {"test_id": "test_explicit_zero_is_kept", "input": [0, 5], "expected": {"value": 0}},
+    {"test_id": "test_positive_is_kept", "input": [3, 5], "expected": {"value": 3}},
+    {"test_id": "test_boolean_is_rejected", "input": [false, 5], "expected": {"raised": "ValueError"}}
+  ],
+  "cases": {
+    "compatible": {"candidate_passes": true, "change": "Invert the None branch without changing the input distinction."},
+    "regression": {"candidate_passes": false, "change": "Treat explicit zero and false as if no value was supplied."},
+    "corrected": {"candidate_passes": true, "corrects": "regression", "change": "Select the default only for None, then validate explicit values."}
+  }
+}

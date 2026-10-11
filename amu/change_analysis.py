@@ -8,7 +8,9 @@ verification. Hashes cover complete AST records even when display text is cut.
 from __future__ import annotations
 
 import ast
+import difflib
 import hashlib
+import math
 from pathlib import PurePosixPath
 
 from .outbound import redact
@@ -19,6 +21,7 @@ MAX_AST_DEPTH = 200
 MAX_ENTITIES = 2_000
 MAX_DEPENDENCIES = 2_000
 MAX_FINDINGS = 2_000
+MAX_OBLIGATIONS = 2_000
 MAX_TEXT = 1_000
 MAX_UNCERTAINTIES = 200
 _FUNCTIONS = (ast.FunctionDef, ast.AsyncFunctionDef)
@@ -190,7 +193,7 @@ class _Phase:
             evidence.insert(0, self.evidence(key, "key_definition"))
         fingerprint = _digest([semantic or node, *([key] if key is not None else [])])
         self.events.setdefault((entity, category), []).append({"hash": fingerprint, "evidence": evidence,
-                                                              "key": key is not None})
+                                                              "key": key is not None, "key_node": key, "node": node})
 
     def entity(self, name: str, kind: str, nodes: list[ast.AST], context: dict):
         if name in self.entities and (kind != "state" or self.entities[name]["kind"] != "state"):
@@ -213,7 +216,24 @@ class _Phase:
                 name = f"{prefix}.{child.name}" if prefix else child.name
                 if isinstance(child, ast.ClassDef):
                     safe = not child.decorator_list and not child.keywords and not child.bases and not _dynamic_namespace(child)
-                    self.classes[name] = {"node": child, "safe": safe, "bindings": _bindings(child)}
+                    safe = safe and not any(isinstance(method, _FUNCTIONS) and method.name in {
+                        "__getattribute__", "__getattr__", "__new__"} for method in child.body)
+                    instance_writes = set()
+                    for method in child.body:
+                        if not isinstance(method, _FUNCTIONS) or not [*method.args.posonlyargs, *method.args.args]:
+                            continue
+                        first = [*method.args.posonlyargs, *method.args.args][0].arg
+                        if first != "self":
+                            continue
+                        for use in _own_nodes(method):
+                            if (isinstance(use, ast.Attribute) and isinstance(use.value, ast.Name)
+                                    and use.value.id == "self" and isinstance(use.ctx, (ast.Store, ast.Del))):
+                                instance_writes.add(use.attr)
+                            if (isinstance(use, ast.Call) and isinstance(use.func, ast.Name)
+                                    and use.func.id in {"setattr", "delattr", "vars"}):
+                                instance_writes.add("*")
+                    self.classes[name] = {"node": child, "safe": safe, "bindings": _bindings(child),
+                                          "instance_writes": instance_writes}
                     if not safe:
                         self.unknown(f"class {name} has decorators, bases or metaclass syntax; attribute dispatch is unresolved", child)
                     self.entity(name, "class", [child], context)
@@ -252,6 +272,7 @@ class _Phase:
         nonlocals = {name for item in _own_nodes(node) if isinstance(item, ast.Nonlocal) for name in item.names}
         local = bindings - globals_
         receiver = None
+        receiver_kind = None
         cls = context["class"]
         if isinstance(node, _FUNCTIONS) and cls:
             decorators = node.decorator_list
@@ -267,12 +288,20 @@ class _Phase:
                     candidate = positional[0].arg
                     if not _binding_counts(node).get(candidate) and candidate not in globals_ | nonlocals:
                         receiver = candidate
+                        receiver_kind = "classmethod"
                     else:
                         self.unknown(f"classmethod receiver {candidate} is rebound; class-state resolution abstained", node)
                 else:
                     self.unknown("arbitrary or shadowed decorators leave method receiver and dispatch unresolved", node)
+            else:
+                positional = [*node.args.posonlyargs, *node.args.args]
+                if (positional and positional[0].arg == "self" and self.classes[cls]["safe"]
+                        and not _binding_counts(node).get("self") and "self" not in globals_ | nonlocals):
+                    receiver = "self"
+                    receiver_kind = "instance"
         return {**context, "local": local, "globals": globals_, "nonlocals": nonlocals,
-                "receiver": receiver, "node": node, "binding_counts": _binding_counts(node), "keys": {}}
+                "receiver": receiver, "receiver_kind": receiver_kind,
+                "node": node, "binding_counts": _binding_counts(node), "keys": {}}
 
     def resolve_state(self, node: ast.AST, scope: dict) -> str | None:
         if isinstance(node, ast.Name):
@@ -293,6 +322,11 @@ class _Phase:
             cls = scope["class"] if root == scope["receiver"] else root
             candidate = f"{cls}.{node.attr}"
             if candidate not in self.states:
+                return None
+            if (root == scope["receiver"] and scope.get("receiver_kind") == "instance"
+                    and (node.attr in self.classes[cls]["instance_writes"]
+                         or "*" in self.classes[cls]["instance_writes"])):
+                self.unknown(f"instance write may shadow class state {candidate}; identity is unresolved", node)
                 return None
             safe_root = (root == scope["receiver"] or
                          (root not in scope["local"] and not any(root in bound for bound in scope["enclosing"])
@@ -356,8 +390,19 @@ class _Phase:
             item["key_definition"] = self.evidence(definition, "key_definition")
         self.dependencies.append(item)
         self.event(entity, "state_access", node, key=definition)
-        if scope["receiver"] and self.states[state]["scope"] == "class":
+        if scope.get("receiver_kind") == "classmethod" and self.states[state]["scope"] == "class":
             self.unknown("classmethod state dependency is lexical; subclass overrides and runtime dispatch remain unverified", node)
+
+    def in_annotation(self, node: ast.AST) -> bool:
+        current = node
+        while current in self.parent:
+            parent = self.parent[current]
+            if ((isinstance(parent, (ast.arg, ast.AnnAssign)) and parent.annotation is current)
+                    or (isinstance(parent, _FUNCTIONS) and parent.returns is current)
+                    or (isinstance(parent, getattr(ast, "TypeAlias", ())))):
+                return True
+            current = parent
+        return False
 
     def scan(self, entity: str, node: ast.AST, context: dict):
         scope = self._scope(node, context)
@@ -384,6 +429,8 @@ class _Phase:
                     self.unknown("call target uses dynamic dispatch; callee identity is unresolved", item)
             elif isinstance(item, (ast.Return, ast.Yield, ast.YieldFrom)):
                 self.event(entity, "return", item)
+                if isinstance(getattr(item, "value", None), ast.Compare):
+                    self.event(entity, "branch", item.value)
             elif isinstance(item, (ast.If, ast.While, ast.IfExp, ast.Assert)):
                 self.event(entity, "branch", item.test)
             elif isinstance(item, ast.comprehension):
@@ -401,12 +448,15 @@ class _Phase:
                 shape = ast.Tuple(elts=[ast.Constant(len(item.handlers)), ast.Module(body=item.orelse, type_ignores=[]),
                                         ast.Module(body=item.finalbody, type_ignores=[])], ctx=ast.Load())
                 self.event(entity, "exception", item, semantic=shape)
-            if isinstance(item, ast.Subscript):
+            if isinstance(item, ast.Subscript) and not self.in_annotation(item):
                 state = self.resolve_state(item.value, scope)
                 if state:
                     access = "cache_set" if isinstance(item.ctx, ast.Store) else "cache_delete" if isinstance(item.ctx, ast.Del) else "cache_get"
                     operation = self.parent.get(item, item) if isinstance(item.ctx, (ast.Store, ast.Del)) else item
                     self.dependency(state, entity, access, operation, item.slice, scope)
+                else:
+                    definition = self.key_definition(item.slice, item, scope)
+                    self.event(entity, "keyed_access", item.slice, key=definition)
             elif isinstance(item, (ast.Name, ast.Attribute)):
                 state = self.resolve_state(item, scope)
                 if state:
@@ -494,9 +544,218 @@ def _recommendation_entities(phase: _Phase) -> dict[str, dict]:
     return result
 
 
+_COMPARISON_SYMBOLS = {ast.Lt: "<", ast.LtE: "<=", ast.Gt: ">", ast.GtE: ">=",
+                       ast.Eq: "==", ast.NotEq: "!="}
+
+
+def _comparison_condition(before: ast.AST | None, after: ast.AST | None) -> dict | None:
+    """Describe only a direct parameter-to-literal comparison, without solving it."""
+    if not all(isinstance(node, ast.Compare) and len(node.ops) == len(node.comparators) == 1
+               for node in (before, after)):
+        return None
+    if (isinstance(before.left, ast.Name) and isinstance(after.left, ast.Name)
+            and before.left.id == after.left.id and isinstance(before.comparators[0], ast.Name)
+            and isinstance(after.comparators[0], ast.Name)
+            and before.comparators[0].id == after.comparators[0].id):
+        old_op, new_op = _COMPARISON_SYMBOLS.get(type(before.ops[0])), _COMPARISON_SYMBOLS.get(type(after.ops[0]))
+        if old_op and new_op and {old_op, new_op} in ({"<", "<="}, {">", ">="}, {"==", "!="}):
+            return {"kind": "comparison-boundary", "parameter": before.left.id,
+                    "before_operator": old_op, "after_operator": new_op,
+                    "target_parameter": before.comparators[0].id, "target_value": None}
+        return None
+    if not (isinstance(before.left, ast.Name) and isinstance(after.left, ast.Name)
+            and before.left.id == after.left.id
+            and isinstance(before.comparators[0], ast.Constant)
+            and isinstance(after.comparators[0], ast.Constant)
+            and type(before.comparators[0].value) in {int, float, str, bool, type(None)}
+            and type(after.comparators[0].value) in {int, float, str, bool, type(None)}):
+        return None
+    old_op = _COMPARISON_SYMBOLS.get(type(before.ops[0]))
+    new_op = _COMPARISON_SYMBOLS.get(type(after.ops[0]))
+    if old_op is None or new_op is None:
+        return None
+    old_value, new_value = before.comparators[0].value, after.comparators[0].value
+    if any(isinstance(value, float) and not math.isfinite(value) for value in (old_value, new_value)):
+        return None
+    if any(isinstance(value, str) and redact(value) != value for value in (old_value, new_value)):
+        return None
+    target = old_value if old_value == new_value and {old_op, new_op} in (
+        {"<", "<="}, {">", ">="}, {"==", "!="}) else None
+    return {"kind": "comparison-boundary", "parameter": before.left.id,
+            "before_operator": old_op, "after_operator": new_op,
+            "before_boundary": old_value, "after_boundary": new_value,
+            "boundary": old_value if old_value == new_value else None,
+            "target_value": target}
+
+
+def _handler_condition(phase: _Phase | None, node: ast.AST | None) -> dict | None:
+    if phase is None or node is None:
+        return None
+    parent = phase.parent.get(node)
+    while parent is not None:
+        if isinstance(parent, ast.ExceptHandler):
+            if isinstance(parent.type, ast.Name):
+                return {"kind": "exception-handler", "exception": parent.type.id}
+            return None
+        if isinstance(parent, (*_FUNCTIONS, ast.ClassDef)):
+            break
+        parent = phase.parent.get(parent)
+    return None
+
+
+def _path_condition(phase: _Phase, entity: str, node: ast.AST | None) -> dict | None:
+    """Retain a simple enclosing guard only when its input is an unbound parameter."""
+    declaration = phase.entities.get(entity, {}).get("nodes", [None])[0]
+    if not isinstance(declaration, _FUNCTIONS) or node is None:
+        return None
+    parameters = {arg.arg for arg in [*declaration.args.posonlyargs, *declaration.args.args,
+                                      *declaration.args.kwonlyargs]}
+    current, guards = node, []
+    while current in phase.parent:
+        parent = phase.parent[current]
+        if parent is declaration:
+            break
+        if isinstance(parent, ast.If):
+            condition = _comparison_condition(parent.test, parent.test)
+            if (not condition or condition.get("target_parameter") or condition["parameter"] not in parameters
+                    or _binding_counts(declaration).get(condition["parameter"])):
+                return None
+            guards.append({"parameter": condition["parameter"], "operator": condition["before_operator"],
+                           "value": condition["boundary"], "taken": current in parent.body,
+                           "evidence": phase.evidence(parent.test, "input_guard")})
+        elif isinstance(parent, (ast.For, ast.AsyncFor, ast.While, ast.Match, ast.With, ast.AsyncWith)):
+            return None
+        current = parent
+    return {"kind": "branch-path", "guards": list(reversed(guards)), "phase": phase.phase} if guards else None
+
+
+def _default_expressions(node: ast.AST) -> dict[str, ast.AST]:
+    if not isinstance(node, _FUNCTIONS):
+        return {}
+    positional = [*node.args.posonlyargs, *node.args.args]
+    result = {arg.arg: default for arg, default in zip(positional[-len(node.args.defaults):], node.args.defaults)} if node.args.defaults else {}
+    result.update({arg.arg: default for arg, default in zip(node.args.kwonlyargs, node.args.kw_defaults)
+                   if default is not None})
+    return result
+
+
+def _obligations(old: _Phase, new: _Phase) -> tuple[list[dict], bool]:
+    """Turn changed source expressions into bounded, non-executed check targets."""
+    rows: list[dict] = []
+    categories = {"branch", "return", "exception", "state_access", "state_declaration", "keyed_access"}
+
+    def add(entity: str, category: str, previous: dict | None, current: dict | None,
+            *, condition: dict | None = None):
+        if len(rows) >= MAX_OBLIGATIONS:
+            return
+        before_node = previous["node"] if previous else None
+        after_node = current["node"] if current else None
+        before_text = old.text(before_node) if before_node else None
+        after_text = new.text(after_node) if after_node else None
+        if category == "branch" and condition is None:
+            condition = _comparison_condition(before_node, after_node)
+            declaration = old.entities.get(entity, {}).get("nodes", [None])[0]
+            if condition and isinstance(declaration, _FUNCTIONS):
+                parameters = {arg.arg for arg in [*declaration.args.posonlyargs, *declaration.args.args,
+                                                  *declaration.args.kwonlyargs]}
+                candidate_declaration = new.entities.get(entity, {}).get("nodes", [None])[0]
+                if (condition["parameter"] not in parameters
+                        or condition.get("target_parameter", condition["parameter"]) not in parameters
+                        or _binding_counts(declaration).get(condition["parameter"])
+                        or _binding_counts(declaration).get(condition.get("target_parameter", ""))
+                        or candidate_declaration is None
+                        or _binding_counts(candidate_declaration).get(condition["parameter"])
+                        or _binding_counts(candidate_declaration).get(condition.get("target_parameter", ""))):
+                    condition = None
+            else:
+                condition = None
+        if category == "return" and condition is None:
+            condition = _handler_condition(new, after_node) or _handler_condition(old, before_node)
+            if condition is None:
+                condition = _path_condition(new, entity, after_node) or _path_condition(old, entity, before_node)
+        if category == "exception" and condition is None:
+            exception_names = []
+            for node in (before_node, after_node):
+                exception = node.exc if isinstance(node, ast.Raise) else node.type if isinstance(node, ast.ExceptHandler) else None
+                if isinstance(exception, ast.Call):
+                    exception = exception.func
+                if isinstance(exception, ast.Name):
+                    exception_names.append(exception.id)
+            condition = {"kind": "exception-change", "exceptions": sorted(set(exception_names))} if exception_names else None
+        observable = {
+            "branch": ("return-or-state", "A different path may change a result, exception, or state effect."),
+            "return": ("return", "A caller may receive a different value or sentinel."),
+            "exception": ("exception-or-handler-result", "A caller may observe a different exception or failure result."),
+            "state_access": ("state-or-identity", "A read, write, or cache key may select a different value or identity."),
+            "keyed_access": ("key-or-index-result", "A changed key or index expression may select a different stored value; mapping identity is unresolved."),
+            "state_declaration": ("state", "A shared-state initializer may change values used by consumers."),
+            "default": ("argument-binding", "An omitted argument may bind to a different default."),
+        }[category]
+        if category == "exception" and any(isinstance(node, ast.Raise) for node in (before_node, after_node)):
+            observable = ("exception", "A caller may observe a different raised exception.")
+        if category == "branch" and any(isinstance(phase.parent.get(node), ast.Return)
+                                        for phase, node in ((old, before_node), (new, after_node)) if node is not None):
+            observable = ("predicate-result", "The returned comparison may produce a different boolean value.")
+        why = ("Check the equality input at the changed comparison boundary."
+               if condition and condition.get("kind") == "comparison-boundary" and (
+                   condition.get("target_value") is not None or condition.get("target_parameter"))
+               else "Check the changed failure path and its result."
+               if condition and condition.get("kind") == "exception-handler"
+               else observable[1])
+        limits = ["Static source does not prove execution, intended contract, or a regression."]
+        if condition is None:
+            limits.append("A reaching input condition was not established by bounded syntax analysis.")
+        if category == "state_access":
+            limits.append("A changed key expression does not by itself prove a collision or runtime object identity.")
+        before_evidence = previous["evidence"] if previous else []
+        after_evidence = current["evidence"] if current else []
+        if previous and previous.get("key_node"):
+            before_text = old.text(previous["key_node"])
+        if current and current.get("key_node"):
+            after_text = new.text(current["key_node"])
+        signature = (f"{entity}\0{category}\0{previous['hash'] if previous else ''}\0{current['hash'] if current else ''}"
+                     f"\0{_location(before_node) if before_node else ''}\0{_location(after_node) if after_node else ''}")
+        rows.append({"id": f"{old.path}#{entity}:obligation:{_hash(signature)[:16]}",
+                     "entity_id": f"{old.path}#{entity}", "category": category,
+                     "before": before_evidence, "after": after_evidence,
+                     "changed_operation": {"before": before_text, "after": after_text},
+                     "condition": condition,
+                     "observable": {"kind": observable[0], "detail": observable[1]},
+                     "why": why, "limits": limits,
+                     "execution_status": "not-run"})
+
+    for entity, category in sorted(old.events.keys() | new.events.keys()):
+        if category not in categories:
+            continue
+        previous = old.events.get((entity, category), [])
+        current = new.events.get((entity, category), [])
+        matcher = difflib.SequenceMatcher(None, [item["hash"] for item in previous],
+                                          [item["hash"] for item in current], autojunk=False)
+        for tag, a0, a1, b0, b1 in matcher.get_opcodes():
+            if tag == "equal":
+                continue
+            old_block, new_block = previous[a0:a1], current[b0:b1]
+            for index in range(max(len(old_block), len(new_block))):
+                add(entity, category, old_block[index] if index < len(old_block) else None,
+                    new_block[index] if index < len(new_block) else None)
+    for entity in sorted(old.entities.keys() & new.entities.keys()):
+        old_node, new_node = old.entities[entity]["nodes"][0], new.entities[entity]["nodes"][0]
+        old_defaults, new_defaults = _default_expressions(old_node), _default_expressions(new_node)
+        for parameter in sorted(old_defaults.keys() | new_defaults.keys()):
+            before, after = old_defaults.get(parameter), new_defaults.get(parameter)
+            if (ast.dump(before, include_attributes=False) if before else None) == (
+                    ast.dump(after, include_attributes=False) if after else None):
+                continue
+            old_item = {"node": before, "hash": _hash(_dump(before)), "evidence": [old.evidence(before)]} if before else None
+            new_item = {"node": after, "hash": _hash(_dump(after)), "evidence": [new.evidence(after)]} if after else None
+            add(entity, "default", old_item, new_item,
+                condition={"kind": "omitted-argument", "parameter": parameter})
+    return rows, len(rows) >= MAX_OBLIGATIONS
+
+
 def analyze_python_change(path: str, before: str | None, after: str | None) -> dict:
     """Compare bounded source ASTs and return hash-bound static change evidence."""
-    result = {"modified_entities": [], "findings": [], "state_dependencies": [], "uncertainties": [],
+    result = {"modified_entities": [], "findings": [], "obligations": [], "state_dependencies": [], "uncertainties": [],
               "analysis_scope": _NOTICE, "status": "complete"}
     if not isinstance(path, str) or len(path) > 4096 or PurePosixPath(path).suffix not in {".py", ".pyi"}:
         result["status"] = "unsupported"
@@ -508,7 +767,16 @@ def analyze_python_change(path: str, before: str | None, after: str | None) -> d
     if old is None or new is None:
         result["status"] = "partial"
         return result
+    # A changed class binding can reclassify an identical subscript as a
+    # resolved state access. That does not remove or change the method's key.
+    for name in old.entities.keys() & new.entities.keys():
+        if _digest(old.entities[name]["nodes"]) == _digest(new.entities[name]["nodes"]):
+            old.events.pop((name, "keyed_access"), None)
+            new.events.pop((name, "keyed_access"), None)
     result["recommendation_entities"] = _recommendation_entities(old)
+    result["obligations"], obligation_limit = _obligations(old, new)
+    if obligation_limit:
+        result["uncertainties"].append({"reason": "behavioral obligation output limit reached; further changed expressions were not captured"})
     for name in sorted(old.entities.keys() | new.entities.keys()):
         previous, current = old.entities.get(name), new.entities.get(name)
         previous_hash = _digest(previous["nodes"]) if previous else None
@@ -530,6 +798,7 @@ def analyze_python_change(path: str, before: str | None, after: str | None) -> d
         "exception": "Inferred: raised, caught, or cleanup behavior may change failure handling.",
         "state_declaration": "Inferred: changed shared-state initialization may affect lexical readers or writers.",
         "state_access": "Inferred: changed shared-state access or key construction may alter cache identity, reads, or writes.",
+        "keyed_access": "Inferred: a changed key or index may select a different value; runtime receiver identity is unverified.",
     }
     for entity, category in sorted(old.events.keys() | new.events.keys()):
         previous, current = old.events.get((entity, category), []), new.events.get((entity, category), [])
