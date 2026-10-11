@@ -1,0 +1,23 @@
+{
+  "version": "predeclared-input-probes-v1",
+  "purpose": "Implementation-guiding static cases declared before the schema-8 analyzer run; probes are classes, not expected whole-function results.",
+  "cases": [
+    {"name": "inclusive-boundary", "before": "def gate(n: int):\n    return n < 10\n", "after": "def gate(n: int):\n    return n <= 10\n", "family": "integer-boundary", "required_distinguishing": [10], "required_adjacent": [9, 11], "status": "complete-source-bound-invocation"},
+    {"name": "shifted-boundary", "before": "def gate(n: int):\n    return n < 3\n", "after": "def gate(n: int):\n    return n < 5\n", "family": "integer-boundary", "required_distinguishing": [3, 4], "required_adjacent": [], "status": "complete-source-bound-invocation"},
+    {"name": "reversed-zero", "before": "def gate(n: int):\n    return 0 < n\n", "after": "def gate(n: int):\n    return 0 <= n\n", "family": "integer-boundary", "required_distinguishing": [0], "required_adjacent": [-1, 1], "status": "complete-source-bound-invocation"},
+    {"name": "negative-threshold", "before": "def gate(n: int):\n    return n > -2\n", "after": "def gate(n: int):\n    return n >= -2\n", "family": "integer-boundary", "required_distinguishing": [-2], "required_adjacent": [-3, -1], "status": "complete-source-bound-invocation"},
+    {"name": "integer-compatible", "before": "def gate(n: int):\n    return n > -1\n", "after": "def gate(n: int):\n    return n >= 0\n", "family": "integer-boundary", "required_distinguishing": [], "required_adjacent": [0], "status": "complete-source-bound-invocation"},
+    {"name": "boolean-threshold-abstain", "before": "def gate(n):\n    return n < True\n", "after": "def gate(n):\n    return n <= True\n", "family": null},
+    {"name": "float-threshold-abstain", "before": "def gate(n):\n    return n < 1.5\n", "after": "def gate(n):\n    return n <= 1.5\n", "family": null},
+    {"name": "chained-comparison-abstain", "before": "def gate(n):\n    return 0 < n < 10\n", "after": "def gate(n):\n    return 0 <= n < 10\n", "family": null},
+    {"name": "none-vs-truth-intent", "before": "def choose(x: int | None):\n    if x is not None:\n        return 'selected'\n    return 'empty'\n", "after": "def choose(x: int | None):\n    if x:\n        return 'selected'\n    return 'empty'\n", "family": "none-truthiness", "required_distinguishing": [0], "forbidden_values": [""], "status": "complete-source-bound-invocation"},
+    {"name": "none-vs-truth-uncertain", "before": "def choose(x):\n    if x is None:\n        return 'empty'\n    return 'selected'\n", "after": "def choose(x):\n    if not x:\n        return 'empty'\n    return 'selected'\n", "family": "none-truthiness", "required_distinguishing": [0, false, ""], "status": "complete-source-bound-invocation"},
+    {"name": "mapping-missing-vs-none", "before": "def lookup(data: dict):\n    return data['item']\n", "after": "def lookup(data: dict):\n    return data.get('item')\n", "family": "mapping-key-presence", "required_key_states": ["absent", "present-none"], "status": "partial-invocation"},
+    {"name": "mapping-two-required", "before": "def lookup(data: dict, fallback):\n    return data['item']\n", "after": "def lookup(data: dict, fallback):\n    return data.get('item')\n", "family": "mapping-key-presence", "required_key_states": ["absent", "present-none"], "status": "partial-invocation"},
+    {"name": "rebound-parameter-abstain", "before": "def lookup(data):\n    data = {}\n    return data['item']\n", "after": "def lookup(data):\n    data = {}\n    return data.get('item')\n", "family": null},
+    {"name": "extra-required-argument", "before": "def gate(n, context):\n    return n < 10\n", "after": "def gate(n, context):\n    return n <= 10\n", "family": "integer-boundary", "required_distinguishing": [10], "status": "partial-invocation"},
+    {"name": "earlier-return", "before": "def gate(n):\n    if n == 0:\n        return False\n    return n < 10\n", "after": "def gate(n):\n    if n == 0:\n        return False\n    return n <= 10\n", "family": "integer-boundary", "required_distinguishing": [10], "reachability": "unestablished"},
+    {"name": "formatting-only", "before": "def gate(n):\n    return n < 10\n", "after": "def gate( n ):\n    return (n < 10)\n", "family": null},
+    {"name": "changed-signature", "before": "def gate(n):\n    return n < 10\n", "after": "def gate(n, context):\n    return n <= 10\n", "family": "integer-boundary", "required_distinguishing": [10], "status": "partial-invocation"}
+  ]
+}

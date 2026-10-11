@@ -31,8 +31,8 @@ def validate_check_spec(value):
     """Reject executable snippets, unbounded data, and implied expectations."""
     if value is None:
         return
-    if not isinstance(value, dict) or set(value) - {"obligation_id", "invocation", "expectation", "intent"}:
-        raise CheckSpecError("check_spec must have obligation_id, invocation and optional expectation/intent")
+    if not isinstance(value, dict) or set(value) - {"obligation_id", "suggestion_id", "invocation", "expectation", "intent"}:
+        raise CheckSpecError("check_spec must have obligation_id, invocation and optional suggestion_id/expectation/intent")
     try:
         if len(_encoded(value)) > MAX_CHECK_SPEC_BYTES:
             raise CheckSpecError("check_spec exceeds its 4096-byte limit")
@@ -42,20 +42,30 @@ def validate_check_spec(value):
         raise CheckSpecError("check_spec obligation_id must be bounded text")
     invocation = value.get("invocation")
     if isinstance(invocation, dict) and invocation.get("kind") == "ast-boundary":
-        raise CheckSpecError("ast-boundary drafting was retired in schema 7; schema-6 callback evidence remains historical")
+        raise CheckSpecError("ast-boundary drafting was retired in schema 7 and remains unsupported in schema 8; schema-6 callback evidence remains historical")
     if not isinstance(invocation, dict) or not isinstance(invocation.get("kind"), str) or invocation.get("kind") not in {
             "direct-return", "mapping-field", "expected-exception"}:
         raise CheckSpecError("check_spec invocation kind must be direct-return, mapping-field or expected-exception")
     kind = invocation["kind"]
-    required = {"kind", "args", "kwargs"} | ({"key", "operator"} if kind == "mapping-field" else set())
-    if set(invocation) != required or not isinstance(invocation["args"], list) or len(invocation["args"]) > 6:
-        raise CheckSpecError(f"{kind} requires up to six literal positional arguments and only its documented fields")
-    if not isinstance(invocation["kwargs"], dict) or len(invocation["kwargs"]) > 6:
-        raise CheckSpecError(f"{kind} keyword arguments must be bounded")
-    if not all(_scalar(item) for item in invocation["args"]) or not all(
-            isinstance(key, str) and key.isidentifier() and not keyword.iskeyword(key) and _scalar(item)
-            for key, item in invocation["kwargs"].items()):
-        raise CheckSpecError(f"{kind} arguments must be scalar literals")
+    suggestion_id = value.get("suggestion_id")
+    if suggestion_id is not None:
+        if (not isinstance(suggestion_id, str) or not 1 <= len(suggestion_id) <= 500
+                or not suggestion_id.startswith(value["obligation_id"] + ":input:")):
+            raise CheckSpecError("suggestion_id must identify a bounded input suggestion for this obligation")
+        if kind == "mapping-field":
+            raise CheckSpecError("mapping-key input suggestions are partial and have no supported draft template")
+        if set(invocation) != {"kind"}:
+            raise CheckSpecError("suggestion-bound invocation supplies only kind; AMU retains the selected literal arguments")
+    else:
+        required = {"kind", "args", "kwargs"} | ({"key", "operator"} if kind == "mapping-field" else set())
+        if set(invocation) != required or not isinstance(invocation["args"], list) or len(invocation["args"]) > 6:
+            raise CheckSpecError(f"{kind} requires up to six literal positional arguments and only its documented fields")
+        if not isinstance(invocation["kwargs"], dict) or len(invocation["kwargs"]) > 6:
+            raise CheckSpecError(f"{kind} keyword arguments must be bounded")
+        if not all(_scalar(item) for item in invocation["args"]) or not all(
+                isinstance(key, str) and key.isidentifier() and not keyword.iskeyword(key) and _scalar(item)
+                for key, item in invocation["kwargs"].items()):
+            raise CheckSpecError(f"{kind} arguments must be scalar literals")
     if kind == "mapping-field":
         key = invocation["key"]
         if not isinstance(key, str) or not key or len(key.encode()) > MAX_MAPPING_KEY_BYTES or any(
@@ -210,12 +220,29 @@ def propose(obligation, request_spec, *, baseline_tree, candidate_tree, tests, f
     if request_spec is None or request_spec["obligation_id"] != obligation["id"]:
         return spec
     invocation = request_spec["invocation"]
+    selected_suggestion = None
+    if request_spec.get("suggestion_id") is not None:
+        selected_suggestion = next((row for row in obligation.get("input_suggestions", [])
+                                    if row["id"] == request_spec["suggestion_id"]), None)
+        if selected_suggestion is None:
+            raise CheckSpecError("suggestion_id is stale, omitted by the report budget, or does not belong to this obligation")
+        if (selected_suggestion["probe_status"] != "complete-source-bound-invocation"
+                or selected_suggestion["family"] == "mapping-key-presence"
+                or selected_suggestion["invocation"] is None):
+            raise CheckSpecError("selected input suggestion is not a complete scalar source-bound invocation")
+        invocation = {"kind": invocation["kind"], **selected_suggestion["invocation"]}
+        spec["selected_input_suggestion"] = {"id": selected_suggestion["id"],
+            "sha256": hashlib.sha256(_encoded(selected_suggestion)).hexdigest()}
     expectation = request_spec.get("expectation")
     spec["check_specification"].update(status="specified" if expectation else "incomplete", input=invocation,
         expected_result=expectation["value"] if expectation else None,
         expectation_basis=expectation["basis"] if expectation else "unresolved",
         expectation_source=expectation["reference"] if expectation else None)
-    spec["authorship"]["supplied"].append("literal call arguments and observation kind")
+    if selected_suggestion:
+        spec["authorship"]["discovered"].append("literal call argument from the selected changed-expression probe")
+        spec["authorship"]["supplied"].append("selected suggestion identity and observation kind")
+    else:
+        spec["authorship"]["supplied"].append("literal call arguments and observation kind")
     if invocation["kind"] == "mapping-field":
         spec["authorship"]["supplied"].append("mapping key and getitem operator")
         spec["authorship"]["unresolved"].append("whether the function returns a mapping for this input")
@@ -277,6 +304,9 @@ def propose(obligation, request_spec, *, baseline_tree, candidate_tree, tests, f
              "configuration_sha256": config_sha256,
              "expectation_sha256": hashlib.sha256(_encoded(expectation)).hexdigest(),
              "invocation_sha256": hashlib.sha256(_encoded(invocation)).hexdigest()}
+    if selected_suggestion:
+        basis.update(suggestion_id=selected_suggestion["id"],
+                     suggestion_sha256=spec["selected_input_suggestion"]["sha256"])
     spec["check_specification"].update(setup="Pure literal input; no test fixtures or cleanup.",
         observable=observable if kind == "direct-return" else spec["check_specification"]["observable"],
         framework="plain pytest function", import_evidence=import_example, framework_evidence=framework_example)

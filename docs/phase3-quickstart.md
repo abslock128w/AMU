@@ -1,6 +1,6 @@
 # Current report format
 
-The current packet schema is 7. See [general check specifications and draft-test migration](phase3-check-drafts-v7.md). The Phase 3 launch description below records schema 4 behavior; [schema 5](phase3-report-migration.md) and the [schema-6 callback demonstration](phase3-check-drafts.md) remain historical.
+The current packet schema is 8. See [input suggestions and migration](phase3-input-suggestions-v8.md). The [schema-7 draft patterns](phase3-check-drafts-v7.md) remain supported; the Phase 3 launch description below records schema 4 behavior, while [schema 5](phase3-report-migration.md) and the [schema-6 callback demonstration](phase3-check-drafts.md) remain historical.
 
 # Phase 3: behavioral patch inspection
 

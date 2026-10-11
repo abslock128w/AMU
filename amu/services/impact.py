@@ -622,7 +622,8 @@ def _verified_package_submodules(root: Path, affected: dict[str, set[str]], test
 def execute_patch(repo: str, request: PatchRequest) -> dict:
     """Inspect a concrete diff and relevant existing test syntax, without execution."""
     from amu.change_analysis import analyze_python_change
-    from amu.check_drafts import propose
+    from amu.check_drafts import CheckSpecError, propose
+    from amu.input_suggestions import MAX_PER_REPORT as MAX_INPUT_SUGGESTIONS_PER_REPORT
     from amu.patch import MAX_TOTAL_SOURCE_BYTES, PYTHON_SUFFIXES, PatchError, apply_file, digest, parse_diff
     from amu.patch_roles import file_role, test_declarations, test_provenance
     from amu.plan import _is_test_path, patch_source_call_edges, patch_test_recommendations
@@ -763,6 +764,47 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
                                           "details_section": "changes"}
     for row in file_coverage:
         row["source_role"] = roles[row["path"]]
+    # Expression identities alone survive an unrelated patch edit. Bind every
+    # selectable input to the complete patch, source pair, and rule/configuration
+    # context before resolving check specifications or applying report budgets.
+    patch_sha256 = hashlib.sha256(request.patch.encode()).hexdigest()
+    for obligation in groups["obligations"]:
+        suggestions = obligation.get("input_suggestions", [])
+        if not suggestions:
+            continue
+        path = obligation["entity_id"].split("#", 1)[0]
+        binding = {"patch_sha256": patch_sha256,
+                   "source": next(row for row in file_identities if row["path"] == path),
+                   "configuration_sha256": (role_config_identity or {}).get("sha256"),
+                   "rules": "bounded-input-probes-v1"}
+        obligation["input_suggestion_identity"] = binding
+        for suggestion in suggestions:
+            digest = hashlib.sha256(impact_report._encode({"expression_id": suggestion["id"],
+                                                           "binding": binding})).hexdigest()[:16]
+            suggestion["id"] = obligation["id"] + ":input:" + digest
+    ranked_suggestions = sorted(((obligation, suggestion)
+                                 for obligation in groups["obligations"]
+                                 for suggestion in obligation.get("input_suggestions", [])),
+                                key=lambda pair: (pair[0]["source_role"].get("role") != "production",
+                                                  not pair[1]["distinguishes_expressions"],
+                                                  pair[1]["probe_status"] != "complete-source-bound-invocation",
+                                                  pair[1].get("applicability") == "type-uncertain-exploratory",
+                                                  pair[0]["entity_id"], pair[1]["id"]))
+    retained_ids = {suggestion["id"] for _, suggestion in ranked_suggestions[:MAX_INPUT_SUGGESTIONS_PER_REPORT]}
+    suggestion_omissions = sum(row.get("omitted_input_suggestions", 0) for row in groups["obligations"])
+    for obligation in groups["obligations"]:
+        suggestions = obligation.get("input_suggestions", [])
+        if not suggestions:
+            continue
+        retained = [row for row in suggestions if row["id"] in retained_ids]
+        omitted = len(suggestions) - len(retained)
+        suggestion_omissions += omitted
+        if retained:
+            obligation["input_suggestions"] = retained
+        else:
+            obligation.pop("input_suggestions")
+        if omitted:
+            obligation["omitted_input_suggestions"] = obligation.get("omitted_input_suggestions", 0) + omitted
     verified_submodules, resolution_sources, unresolved_imports, total_bytes, resolution_absences = _verified_package_submodules(
         root, affected, tests, snapshots, {file.path for file in files}, total_bytes)
     source_calls, source_call_limits = patch_source_call_edges(source_trees, declarations)
@@ -810,9 +852,10 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
             "existing_baseline_tests": linked,
             "candidate_added_test_files": sorted(file.path for file in files if file.operation == "add"
                                                  and file.path.endswith(".py") and _is_test_path(file.path)),
-            "proposed_input": ({obligation["condition"]["parameter"]: obligation["condition"]["target_value"]}
-                               if (obligation.get("condition") or {}).get("kind") == "comparison-boundary"
-                               and obligation["condition"].get("target_value") is not None else None),
+            "proposed_input": (first["invocation"]["kwargs"] if (suggestions := obligation.get("input_suggestions"))
+                               and (first := suggestions[0])["probe_status"] == "complete-source-bound-invocation"
+                               else None),
+            "input_suggestion_ids": [row["id"] for row in obligation.get("input_suggestions", [])],
             "observe": obligation["observable"],
             "strongest_evidence": linked[0]["evidence_category"] if linked else "unresolved-relationship",
             "next_step": f"Inspect {entity_id} at line {location.get('line', '?')}; trace {observation} into an assertion for the same call and changed condition.",
@@ -832,14 +875,17 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
         if selected_check is not None and selected_check["obligation_id"] == obligation["id"]:
             check_matched = True
             file_identity = next(row for row in file_identities if row["path"] == path)
-            obligation["proposed_check"] = propose(
-                obligation, selected_check, baseline_tree=source_trees.get(path, {}).get("tree"),
-                candidate_tree=candidate_trees.get(path), tests=tests, file_identity=file_identity,
-                patch_sha256=hashlib.sha256(request.patch.encode()).hexdigest(),
-                config_sha256=(role_config_identity or {}).get("sha256"),
-                search_scope={"test_inventory_complete": complete, "baseline_test_files_inspected": len(tests),
-                              "unavailable_baseline_test_files": len(unavailable_tests),
-                              "source_call_search_limits": len(source_call_limits)})
+            try:
+                obligation["proposed_check"] = propose(
+                    obligation, selected_check, baseline_tree=source_trees.get(path, {}).get("tree"),
+                    candidate_tree=candidate_trees.get(path), tests=tests, file_identity=file_identity,
+                    patch_sha256=hashlib.sha256(request.patch.encode()).hexdigest(),
+                    config_sha256=(role_config_identity or {}).get("sha256"),
+                    search_scope={"test_inventory_complete": complete, "baseline_test_files_inspected": len(tests),
+                                  "unavailable_baseline_test_files": len(unavailable_tests),
+                                  "source_call_search_limits": len(source_call_limits)})
+            except CheckSpecError as exc:
+                raise ImpactInputError(str(exc)) from exc
     if not check_matched:
         raise ImpactInputError("check_spec obligation_id does not identify a production obligation in this patch")
     for finding in groups["findings"]:
@@ -906,6 +952,9 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
                 "test_inventory_complete": complete, "graph_evidence_sha256": hashlib.sha256(impact_report._encode(graph_records)).hexdigest(),
                 "role_configuration": role_config_identity,
                 "test_change_counts": test_status_counts,
+                "input_suggestion_counts": {"retained": len(retained_ids),
+                                            "omitted": suggestion_omissions,
+                                            "per_report_limit": MAX_INPUT_SUGGESTIONS_PER_REPORT},
                 "resolution_sources": resolution_sources,
                 "resolution_absences": resolution_absences,
                 "candidate_test_files": sorted(file.path for file in files if file.path.endswith(".py") and _is_test_path(file.path)),
@@ -915,8 +964,9 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
                                          "unresolved_package_imports": unresolved_imports,
                                          "local_call_limits": source_call_limits,
                                          "unavailable_baseline_tests": unavailable_tests},
-                "configuration": {"analysis": "python-markdown-concrete-patch-v6", "max_test_files": MAX_TEST_FILES,
+                "configuration": {"analysis": "python-markdown-concrete-patch-v7", "max_test_files": MAX_TEST_FILES,
                                   "recommendation_evidence": "behavioral-test-evidence-v6",
+                                  "input_suggestions": "bounded-input-probes-v1",
                                   "max_graph_targets": MAX_GRAPH_TARGETS, "max_ast_nodes": MAX_AST_NODES, "max_ast_depth": MAX_AST_DEPTH}}
     try:
         return impact_report.build_patch_packet(asdict(request), identity=identity, groups=groups,

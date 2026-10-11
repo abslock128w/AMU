@@ -14,6 +14,7 @@ import math
 from pathlib import PurePosixPath
 
 from .outbound import redact
+from .input_suggestions import derive as derive_input_suggestions
 
 MAX_SOURCE_BYTES = 2 * 1024 * 1024
 MAX_AST_NODES = 50_000
@@ -715,14 +716,31 @@ def _obligations(old: _Phase, new: _Phase) -> tuple[list[dict], bool]:
             after_text = new.text(current["key_node"])
         signature = (f"{entity}\0{category}\0{previous['hash'] if previous else ''}\0{current['hash'] if current else ''}"
                      f"\0{_location(before_node) if before_node else ''}\0{_location(after_node) if after_node else ''}")
-        rows.append({"id": f"{old.path}#{entity}:obligation:{_hash(signature)[:16]}",
+        obligation = {"id": f"{old.path}#{entity}:obligation:{_hash(signature)[:16]}",
                      "entity_id": f"{old.path}#{entity}", "category": category,
                      "before": before_evidence, "after": after_evidence,
                      "changed_operation": {"before": before_text, "after": after_text},
                      "condition": condition,
                      "observable": {"kind": observable[0], "detail": observable[1]},
                      "why": why, "limits": limits,
-                     "execution_status": "not-run"})
+                     "execution_status": "not-run"}
+        if category in {"branch", "return"}:
+            old_declaration = old.entities.get(entity, {}).get("nodes", [None])[0]
+            new_declaration = new.entities.get(entity, {}).get("nodes", [None])[0]
+            rebound = set()
+            for declaration in (old_declaration, new_declaration):
+                if isinstance(declaration, _FUNCTIONS):
+                    rebound.update(_binding_counts(declaration))
+                    if _dynamic_namespace(declaration):
+                        rebound.update(arg.arg for arg in [*declaration.args.posonlyargs, *declaration.args.args,
+                                                          *declaration.args.kwonlyargs])
+            suggestions, omitted = derive_input_suggestions(obligation, old, new, entity, before_node, after_node,
+                                                             rebound_names=rebound)
+            if suggestions:
+                obligation["input_suggestions"] = suggestions
+            if omitted:
+                obligation["omitted_input_suggestions"] = omitted
+        rows.append(obligation)
 
     for entity, category in sorted(old.events.keys() | new.events.keys()):
         if category not in categories:

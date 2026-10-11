@@ -1,8 +1,10 @@
 """General literal drafting patterns; these tests inspect drafts but never run them."""
 
 import ast
+import base64
 import copy
 import hashlib
+import json
 from dataclasses import replace
 from pathlib import Path
 
@@ -13,6 +15,31 @@ from amu.services import impact
 from tests.test_patch_actionable import diff
 
 FIXTURES = Path(__file__).parent / "fixtures" / "draft_patterns"
+
+
+def _complete_obligation_items(tmp_path, request):
+    """Schema-8 suggestions can push a selected obligation into lossless fragments."""
+    entries, cursor = [], None
+    while True:
+        page = impact.execute_patch(str(tmp_path), replace(request, section="obligations", cursor=cursor, page_size=100))
+        entries.extend(page["details"]["items"])
+        cursor = page["page"]["next_cursor"]
+        if cursor is None:
+            break
+    rows, fragments = [], {}
+    for entry in entries:
+        if "evidence_fragment" not in entry:
+            rows.append(entry)
+        else:
+            part = entry["evidence_fragment"]
+            fragments.setdefault(part["item_sha256"], []).append(part)
+    for digest, parts in fragments.items():
+        parts.sort(key=lambda part: part["fragment_index"])
+        assert len(parts) == parts[0]["fragment_count"]
+        body = b"".join(base64.b64decode(part["data"]) for part in parts)
+        assert hashlib.sha256(body).hexdigest() == digest
+        rows.append(json.loads(body))
+    return rows
 
 
 def _source(pattern, version):
@@ -36,9 +63,8 @@ def _case(tmp_path, pattern, version):
         f"def test_smoke():\n    assert callable({symbol})\n")
     request = impact.PatchRequest(diff(old, new, relative), base="worktree")
     summary = impact.execute_patch(str(tmp_path), request)
-    details = impact.execute_patch(str(tmp_path), replace(request, section="obligations", page_size=100))
     entity = f"{relative}#{symbol}"
-    obligation = next(row for row in details["details"]["items"] if row["entity_id"] == entity)
+    obligation = next(row for row in _complete_obligation_items(tmp_path, request) if row["entity_id"] == entity)
     return request, summary, obligation
 
 
@@ -62,9 +88,8 @@ def _spec(obligation, pattern, *, argument=None, expected=None, match="subclass"
 
 def _proposal(tmp_path, request, spec):
     report = impact.execute_patch(str(tmp_path), replace(request, check_spec=spec))
-    details = impact.execute_patch(str(tmp_path), replace(request, check_spec=spec,
-                                                          section="obligations", page_size=100))
-    selected = next(row for row in details["details"]["items"] if row["id"] == spec["obligation_id"])
+    selected = next(row for row in _complete_obligation_items(tmp_path, replace(request, check_spec=spec))
+                    if row["id"] == spec["obligation_id"])
     return report, selected["proposed_check"]
 
 
@@ -75,7 +100,7 @@ def test_unrelated_modules_produce_same_protected_draft(tmp_path, pattern, versi
     request, summary, obligation = _case(tmp_path, pattern, version)
     spec = _spec(obligation, pattern)
     report, proposal = _proposal(tmp_path, request, spec)
-    assert summary["schema_version"] == report["schema_version"] == 7
+    assert summary["schema_version"] == report["schema_version"] == 8
     assert all("proposed_check" not in row for row in impact.execute_patch(
         str(tmp_path), replace(request, section="obligations", page_size=100))["details"]["items"])
     assert summary["summary"]["proposed_checks"][0]["draft_status"] == "unavailable"

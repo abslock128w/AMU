@@ -8,7 +8,7 @@
 
 The bounded patch workflow accepts a Python unified diff, reports source-backed
 changes, behavioral check targets, and recommended existing tests. Start with
-the [Phase 3 quickstart](docs/phase3-quickstart.md); the original
+the [Phase 3 quickstart](docs/phase3-quickstart.md) and [schema-8 input suggestions](docs/phase3-input-suggestions-v8.md); the original
 [Phase 2 cache walkthrough](docs/phase2-quickstart.md) remains available.
 `amu analyze-patch` only inspects candidate source in memory; `amu verify-fixture`
 requires an explicit flag to run the pinned example checks.

@@ -254,6 +254,7 @@ def _patch_summary(identity: dict, groups: dict) -> dict:
 
     obligations = sorted(groups["obligations"], key=lambda row: (
         role_rank(row), row.get("proposed_check", {}).get("draft_status") != "review-required",
+        not bool(row.get("input_suggestions")),
         not any(check.get("level") == "input-and-assertion" for check in
                 row.get("verification_plan", {}).get("existing_baseline_tests", [])),
         row.get("category") not in {"branch", "return", "exception"},
@@ -280,8 +281,22 @@ def _patch_summary(identity: dict, groups: dict) -> dict:
                            "category": row.get("category"), "change": row.get("changed_operation"),
                            "observe": row.get("observable", {}).get("kind"),
                            "existing_check_count": len(row.get("verification_plan", {}).get("existing_baseline_tests", [])),
-                           "proposed_input": row.get("verification_plan", {}).get("proposed_input")}
+                           "proposed_input": row.get("verification_plan", {}).get("proposed_input"),
+                           "input_suggestion_count": len(row.get("input_suggestions", [])),
+                           "omitted_input_suggestions": row.get("omitted_input_suggestions", 0),
+                           "details_section": "obligations"}
                           for row in prioritized]
+    ranked_suggestions = sorted(((row, suggestion) for row in production
+                                  for suggestion in row.get("input_suggestions", [])),
+                                 key=lambda pair: (not pair[1]["distinguishes_expressions"],
+                                                   pair[1]["probe_status"] != "complete-source-bound-invocation",
+                                                   pair[0]["entity_id"], pair[1]["id"]))
+    suggestion_preview = [{"obligation_id": row["id"], "id": suggestion["id"],
+                           "family": suggestion["family"], "parameter": suggestion["parameter"],
+                           "value": suggestion["value"], "probe_status": suggestion["probe_status"],
+                           "distinguishes_expressions": suggestion["distinguishes_expressions"],
+                           "expected_result": "unknown", "details_section": "obligations"}
+                          for row, suggestion in ranked_suggestions[:2]]
     specified = [row for row in production if row.get("proposed_check")]
     specified.sort(key=lambda row: (
         row["proposed_check"].get("draft_status") != "review-required",
@@ -304,6 +319,7 @@ def _patch_summary(identity: dict, groups: dict) -> dict:
                 "draft_status": proposal["draft_status"], "review_status": proposal["review_status"],
                 "unresolved": proposal["authorship"]["unresolved"][:2],
                 "draft_sha256": (proposal.get("draft") or {}).get("sha256"),
+                "selected_input_suggestion_id": (proposal.get("selected_input_suggestion") or {}).get("id"),
                 "details_section": "obligations"})
         else:
             proposed_input = row.get("verification_plan", {}).get("proposed_input")
@@ -431,6 +447,8 @@ def _patch_summary(identity: dict, groups: dict) -> dict:
     return {"changed_files": files, "changed_entities": entity_preview,
             "omitted_changed_entities": len(changed_entities) - len(entity_preview),
             "obligations": obligation_preview,
+            "input_suggestions": suggestion_preview,
+            "input_suggestion_counts": identity.get("input_suggestion_counts", {}),
             "proposed_checks": proposal_preview,
             "omitted_proposed_checks": len(proposal_candidates) - len(proposal_preview),
             "obligation_counts": {name: sum(role(row) == name for row in obligations) for name in ROLES},
@@ -496,7 +514,7 @@ def build_patch_packet(request: dict, *, identity: dict, groups: dict, limitatio
                                {"test_id": row.get("test_id"),
                                 "relationships": sorted({a["relationship"] for a in row.get("associations", [])})}
                                for row in groups["recommended_checks"][:3]]})
-    packet = {"schema_version": 7, "operation": "concrete-patch-impact", "request": public_request,
+    packet = {"schema_version": 8, "operation": "concrete-patch-impact", "request": public_request,
               "report_hash": report_hash, "identity": public_identity, "status": "uncertain" if groups["uncertainties"] else "inspectable",
               "assessment": assessment,
               "limitations": limitations, "retrieval": {}, "page": {}, "details": {}, "truncated": False}
