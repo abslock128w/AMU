@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import os
 import stat
+import sys
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -65,6 +66,33 @@ def _symbol_ref(path: object, symbol: object) -> str | None:
     if clean_path and clean_symbol:
         return f"{clean_path}#{clean_symbol}"
     return None
+
+
+def _external_ref(boundary: object) -> str | None:
+    """Validate an explicit source-established external boundary, never a fake file path."""
+    if not isinstance(boundary, Mapping):
+        return None
+    identity = _text(boundary.get("identity"))
+    path = _text(boundary.get("source_path"))
+    digest = _text(boundary.get("source_sha256"))
+    locations = boundary.get("locations")
+    if (not identity or not all(part.isidentifier() for part in identity.split("."))
+            or identity.split(".")[0] not in sys.stdlib_module_names
+            or boundary.get("kind") != "python-stdlib-import"
+            or boundary.get("evidence") != "source:python-ast:stdlib-import"
+            or boundary.get("runtime_verified") is not False
+            or not path or Path(path).is_absolute() or ".." in Path(path).parts or Path(path).suffix != ".py"
+            or not digest or len(digest) != 64 or any(char not in "0123456789abcdef" for char in digest)
+            or not isinstance(locations, list) or not locations
+            or any(not isinstance(site, Mapping) or _positive_int(site.get("line")) is None
+                   or _positive_int(site.get("end_line")) is None or site["end_line"] < site["line"]
+                   for site in locations)
+            or not isinstance(boundary.get("provider_endpoint"), Mapping)):
+        return None
+    endpoint = boundary["provider_endpoint"]
+    if (_text(endpoint.get("qualified_name")) or _text(endpoint.get("name"))) != identity:
+        return None
+    return "external:python:" + identity
 
 
 def _target_parts(target: object) -> tuple[str, str] | None:
@@ -488,9 +516,12 @@ def map_baseline(target: str, depth: int, amu_map: Mapping[str, Any] | None) -> 
         relation = _text(raw.get("relation"))
         direction = _text(raw.get("direction"))
         edge_depth = _positive_int(raw.get("depth"))
+        external = _external_ref(raw.get("external_boundary"))
         if (
             _text(raw.get("target")) != target
-            or _target_parts(related or "") is None
+            or (_target_parts(related or "") is None and (external != related or direction != "out"
+                                                         or relation not in {"CALLS", "ASYNC_CALLS"} or edge_depth != 1
+                                                         or raw["external_boundary"]["source_path"] != path))
             or not relation
             or direction not in {"in", "out"}
             or edge_depth is None
@@ -504,6 +535,8 @@ def map_baseline(target: str, depth: int, amu_map: Mapping[str, Any] | None) -> 
                 "direction": direction,
                 "depth": edge_depth,
                 **relations.evidence(raw),
+                **({"external_boundary": dict(raw["external_boundary"])} if external else {}),
+                **({"source_resolution": dict(raw["source_resolution"])} if isinstance(raw.get("source_resolution"), Mapping) else {}),
             }
         )
     return EdgeEvidence(True, _sorted(out))
@@ -596,6 +629,11 @@ def live_edges(target: str, impact: Mapping[str, Any] | None) -> EdgeEvidence:
             related = _symbol_ref(endpoint.get("file_path"), endpoint.get("qualified_name") or endpoint.get("name"))
             relation = _text(raw.get("relation"))
             edge_depth = _positive_int(raw.get("depth"))
+            external = _external_ref(raw.get("external_boundary"))
+            if (related is None and external and section == "callees" and direction == "out"
+                    and relation in {"CALLS", "ASYNC_CALLS"} and edge_depth == 1
+                    and raw["external_boundary"]["source_path"] == impact["focus"]["file_path"]):
+                related = external
             if not related or not relation or edge_depth is None:
                 return EdgeEvidence(False, [], f"live graph {section} edge {position} is incomplete")
             out.append(
@@ -606,6 +644,8 @@ def live_edges(target: str, impact: Mapping[str, Any] | None) -> EdgeEvidence:
                     "direction": direction,
                     "depth": edge_depth,
                     **relations.evidence(raw),
+                    **({"external_boundary": dict(raw["external_boundary"])} if related == external else {}),
+                    **({"source_resolution": dict(raw["source_resolution"])} if isinstance(raw.get("source_resolution"), Mapping) else {}),
                 }
             )
     return EdgeEvidence(True, _sorted(out))
