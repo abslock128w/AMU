@@ -1,0 +1,14 @@
+--- a/cache_case.py
++++ b/cache_case.py
+@@ -18,8 +18,9 @@
+         if type(value) not in SUPPORTED_TYPES:
+             raise ValueError("only integers and strings are supported")
+         key = (type(value).__name__, value)
+-        record = cls._cache.get(key)
+-        if record is None:
++        if key in cls._cache:
++            return cls._cache[key]
++        else:
+             record = ValueRecord(type(value).__name__, value)
+             cls._cache[key] = record
+         return record

@@ -180,6 +180,45 @@ def test_decorated_submodule_target_is_still_an_explicit_unknown(tmp_path):
     assert not graph_refresh.live_edges("pkg/client.py#consumer", filtered["consumer"]).available
 
 
+def test_plain_stdlib_frozen_dataclass_has_a_source_identity(tmp_path):
+    repo = _repo(
+        tmp_path,
+        "from pkg import api\ndef consumer(value):\n    return api.MapRequest(value)\n",
+        module=("from dataclasses import dataclass\n\n"
+                "@dataclass(frozen=True)\nclass MapRequest:\n    value: int\n"),
+    )
+    filtered, contradicted, uncertain = source_evidence.filter_python_call_evidence(
+        repo, {"consumer": _impact("pkg.MapRequest")},
+    )
+    endpoint = filtered["consumer"]["callees"]["entries"][0]["endpoint"]
+    assert endpoint["file_path"] == "pkg/api.py"
+    assert endpoint["qualified_name"] == "MapRequest"
+    assert endpoint["kind"] == "class"
+    assert not contradicted and not uncertain
+    assert graph_refresh.live_edges("pkg/client.py#consumer", filtered["consumer"]).available
+
+
+@pytest.mark.parametrize("decorator,extra,shadow", [
+    ("@custom", "", False),
+    ("@dataclass(init=False)", "", False),
+    ("@dataclass(frozen=True)", "dataclass = custom\n", False),
+    ("@dataclass(frozen=True)", "globals()['dataclass'] = custom\n", False),
+    ("@dataclass(frozen=True)", "", True),
+])
+def test_unestablished_dataclass_decorator_remains_unresolved(tmp_path, decorator, extra, shadow):
+    repo = _repo(
+        tmp_path,
+        "from pkg import api\ndef consumer(value):\n    return api.MapRequest(value)\n",
+        module=("from dataclasses import dataclass\n" + extra + "\n"
+                + decorator + "\nclass MapRequest:\n    value: int\n"),
+    )
+    if shadow:
+        (tmp_path / "dataclasses.py").write_text("def dataclass(*args, **kwargs):\n    return lambda cls: cls\n")
+    filtered, _, uncertain = source_evidence.filter_python_call_evidence(repo, {"consumer": _impact("pkg.MapRequest")})
+    assert uncertain
+    assert "file_path" not in filtered["consumer"]["callees"]["entries"][0]["endpoint"]
+
+
 def test_descriptor_or_class_method_target_is_not_inferred_from_spelling(tmp_path):
     repo = _repo(tmp_path, "from pkg import api\ndef consumer(value):\n    return api.Container.target(value)\n",
                  module="class Container:\n    def target(self, value):\n        return value\n")

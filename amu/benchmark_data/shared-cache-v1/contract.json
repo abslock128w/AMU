@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "fixture_version": "shared-cache-v1",
+  "owner": "AMU",
+  "basis": "AMU-owned literal behavioral contract, independent of test outcomes and static predictions.",
+  "mixed_contract": {
+    "test_id": "contract::mixed_identity",
+    "input": [1, "1"],
+    "expected": {"kinds": ["int", "str"], "values": [1, "1"], "same_identity": false}
+  },
+  "tests": [
+    {
+      "test_id": "test_cache_case.py::TestTypedCache::test_repeat_integer_identity",
+      "input": [1, 1],
+      "expected": {"same_identity": true, "kind": "int", "value": 1}
+    },
+    {
+      "test_id": "test_cache_case.py::TestTypedCache::test_repeat_string_identity",
+      "input": ["1", "1"],
+      "expected": {"same_identity": true, "kind": "str", "value": "1"}
+    },
+    {
+      "test_id": "test_cache_case.py::TestTypedCache::test_distinct_integer_and_string",
+      "input": [1, "1"],
+      "expected": {"kinds": ["int", "str"], "values": [1, "1"], "same_identity": false}
+    },
+    {
+      "test_id": "test_cache_case.py::TestTypedCache::test_none_is_rejected",
+      "input": [null],
+      "expected": {"raised": "ValueError"}
+    }
+  ],
+  "cases": {
+    "compatible-refactor": {"candidate_passes": true, "change": "Use membership and subscripting with the same typed tuple key."},
+    "wrong-key": {"candidate_passes": false, "change": "Collapse integer 1 and string 1 to one string cache key."},
+    "class-state": {"candidate_passes": false, "change": "Replace the shared dictionary declaration with None."},
+    "corrected": {"candidate_passes": true, "change": "Retain the typed tuple key while factoring its type name into a local variable."}
+  }
+}

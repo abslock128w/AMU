@@ -1,5 +1,6 @@
 include constraints.txt
 include THIRD-PARTY.txt
+recursive-include amu/benchmark_data/shared-cache-v1 *.py *.json *.diff
 
 # A source release must be independently testable, not just contain test_*.py.
 recursive-include tests *.py *.json *.ndjson

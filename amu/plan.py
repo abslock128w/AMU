@@ -239,6 +239,82 @@ def _is_test_path(path: str) -> bool:
     return path.rsplit("/", 1)[-1].startswith("test_") or path.startswith("tests/")
 
 
+def patch_test_recommendations(sources: list[dict], affected: dict[str, set[str]]) -> list[dict]:
+    """Recommend real test declarations with direct, unshadowed import references.
+
+    This reuses the plan's test-path rule, adding syntax evidence rather than
+    treating a matching filename as coverage. Application modules are not imported.
+    """
+    import ast
+    import shlex
+
+    result = []
+    for source in sources:
+        path, tree = source["path"], source["tree"]
+        bindings = {}
+        for node in tree.body:
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    if alias.asname or "." not in alias.name:
+                        bindings[alias.asname or alias.name] = (alias.name, None, node.lineno)
+            elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
+                for alias in node.names:
+                    if alias.name != "*":
+                        bindings[alias.asname or alias.name] = (node.module, alias.name, node.lineno)
+        # Module-level reassignment makes an import reference unreliable.
+        rebound = {node.id for statement in tree.body if not isinstance(statement, (ast.Import, ast.ImportFrom))
+                   for node in ast.walk(statement) if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store)}
+        tests = []
+        for node in tree.body:
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith("test_"):
+                tests.append((node.name, node))
+            elif isinstance(node, ast.ClassDef) and (node.name.startswith("Test") or any(
+                    isinstance(base, ast.Name) and base.id == "TestCase" or
+                    isinstance(base, ast.Attribute) and base.attr == "TestCase" for base in node.bases)):
+                tests.extend((f"{node.name}::{child.name}", child) for child in node.body
+                             if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)) and child.name.startswith("test_"))
+        for name, test in tests:
+            local = {node.id for node in ast.walk(test) if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store)}
+            local.update(arg.arg for arg in [*test.args.posonlyargs, *test.args.args, *test.args.kwonlyargs])
+            for node in ast.walk(test):
+                if not isinstance(node, (ast.Name, ast.Attribute)) or not isinstance(node.ctx, ast.Load):
+                    continue
+                pieces, root = [], node
+                while isinstance(root, ast.Attribute):
+                    pieces.append(root.attr)
+                    root = root.value
+                if not isinstance(root, ast.Name) or root.id in rebound | local or root.id not in bindings:
+                    continue
+                module, imported, import_line = bindings[root.id]
+                module_path = module.replace(".", "/")
+                matches = [file for file in affected if file in {module_path + ".py", module_path + "/__init__.py",
+                                                                 "src/" + module_path + ".py", "src/" + module_path + "/__init__.py"}]
+                if len(matches) != 1:
+                    continue
+                target_path = matches[0]
+                referenced = ".".join(([imported] if imported else []) + list(reversed(pieces)))
+                names = affected[target_path]
+                linked = sorted(value for value in names if referenced == value or referenced.startswith(value + ".")
+                                or value.startswith(referenced + ".") and referenced)
+                if not linked:
+                    continue
+                test_id = f"{path}::{name}"
+                entry = {"test_id": test_id, "path": path, "source_sha256": source["sha256"],
+                         "relationship": "direct-import-source-reference", "coverage_proven": False,
+                         "entities": [f"{target_path}#{value}" for value in linked],
+                         "evidence": {"import_line": import_line, "reference_line": node.lineno,
+                                      "reference": ast.unparse(node)[:400], "test_start_line": test.lineno,
+                                      "test_end_line": test.end_lineno},
+                         "verification": f"python -m pytest {shlex.quote(test_id)}",
+                         "unknown": "A source reference does not establish executed coverage or an expected behavioral outcome."}
+                existing = next((row for row in result if row["test_id"] == test_id), None)
+                if existing:
+                    existing["entities"] = sorted(set(existing["entities"]) | set(entry["entities"]))
+                else:
+                    result.append(entry)
+    return sorted(result, key=lambda row: row["test_id"])
+
+
 def documentation_scope(repo: str, requested: object = None) -> list[str]:
     """Validate explicitly requested existing prose, never infer write scope from a save.
 

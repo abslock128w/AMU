@@ -26,16 +26,14 @@ _SECTION_DIRECTIONS = {
     "type_consumers": "in",
     "data_flows": "in",
 }
-# ``entire graph impact`` groups entries by the traversal used to discover
-# them, but the ``DATA_FLOWS`` relation itself can legitimately point either
-# toward or away from the focus.  The real provider emits both forms: older
-# recorded responses include ``in`` and a live worktree call result emits
-# ``out``.  Keep the other sections narrow, and preserve the provider's
-# explicit direction for data flow rather than silently rewriting it.
+# ``entire graph impact`` groups entries by traversal, while type uses and
+# data flows can point either toward or away from the focus. The real provider
+# emits outbound PARAM_TYPE/USES_TYPE and both DATA_FLOWS forms. Require and
+# preserve their explicit directions rather than silently rewriting them.
 _SECTION_ALLOWED_DIRECTIONS = {
     "callers": frozenset({"in"}),
     "callees": frozenset({"out"}),
-    "type_consumers": frozenset({"in"}),
+    "type_consumers": frozenset({"in", "out"}),
     "data_flows": frozenset({"in", "out"}),
 }
 

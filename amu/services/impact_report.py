@@ -16,6 +16,7 @@ from amu.harness.context import estimate, rank_rows
 from amu.mcp_manifest import MCP_WIRE_LIMIT, tool_result_bytes
 
 SECTIONS = frozenset({"impact", "source_contradictions", "source_uncertainties", "dynamic_boundaries", "coverage", "reasons"})
+PATCH_SECTIONS = frozenset({"changes", "findings", "state_dependencies", "recommended_checks", "uncertainties"})
 MAX_CURSOR_BYTES = 1024
 FRAGMENT_BYTES = 4096
 MAX_ITEM_BYTES = 32 * 1024 * 1024
@@ -47,7 +48,7 @@ def cursor(report_hash: str, section: str, offset: int) -> str:
     return base64.urlsafe_b64encode(_encode({"v": 1, "report_hash": report_hash, "section": section, "offset": offset})).decode("ascii").rstrip("=")
 
 
-def decode_cursor(value: str) -> dict:
+def decode_cursor(value: str, *, sections: frozenset = SECTIONS) -> dict:
     """Reject malformed envelopes before any filesystem/provider inspection."""
     try:
         if (not isinstance(value, str) or len(value.encode("utf-8")) > MAX_CURSOR_BYTES
@@ -58,7 +59,7 @@ def decode_cursor(value: str) -> dict:
         if (not isinstance(decoded, dict) or set(decoded) != {"v", "report_hash", "section", "offset"}
                 or type(decoded["v"]) is not int or decoded["v"] != 1
                 or type(decoded["offset"]) is not int or decoded["offset"] < 0
-                or decoded["section"] not in SECTIONS
+                or decoded["section"] not in sections
                 or re.fullmatch(r"[0-9a-f]{64}", decoded["report_hash"]) is None):
             raise ValueError()
     except (TypeError, ValueError, UnicodeError, RecursionError) as exc:
@@ -66,10 +67,10 @@ def decode_cursor(value: str) -> dict:
     return decoded
 
 
-def cursor_offset(value: str | None, report_hash: str, section: str) -> int:
+def cursor_offset(value: str | None, report_hash: str, section: str, *, sections: frozenset = SECTIONS) -> int:
     if value is None:
         return 0
-    decoded = decode_cursor(value)
+    decoded = decode_cursor(value, sections=sections)
     if decoded["report_hash"] != report_hash or decoded["section"] != section:
         raise ReportError("cursor is stale or belongs to a different analysis or section; restart inspection")
     return decoded["offset"]
@@ -203,4 +204,62 @@ def build_packet(request: dict, target: dict, *, repo_binding: str, status: str,
                                 rows=rows, boundaries=boundaries, limitations=limitations, max_bytes=max_bytes,
                                 max_rows=max(1, len(returned) // 2))
         raise ReportError("impact response cannot fit its protocol budget; no partial evidence was returned")
+    return packet
+
+
+def build_patch_packet(request: dict, *, identity: dict, groups: dict, limitations: list[str],
+                       max_bytes: int, max_rows: int) -> dict:
+    """Use the same lossless fragments and freshness-bound cursors as intent reports."""
+    if set(groups) != PATCH_SECTIONS:
+        raise ReportError("invalid patch evidence sections")
+    public_request = {key: value for key, value in request.items() if key != "patch"}
+    public_request.update(patch_sha256=hashlib.sha256(request["patch"].encode("utf-8")).hexdigest(),
+                          patch_bytes=len(request["patch"].encode("utf-8")))
+    analysis_request = {key: value for key, value in public_request.items() if key not in {"cursor", "section", "page_size"}}
+    report_hash = hashlib.sha256(_encode({"operation": "concrete-patch-impact", "identity": identity,
+                                        "request": analysis_request, "groups": groups,
+                                        "retrieval_format": {"version": RETRIEVAL_VERSION, "fragment_bytes": FRAGMENT_BYTES,
+                                                             "max_normal_item_bytes": MAX_NORMAL_ITEM_BYTES,
+                                                             "max_item_bytes": MAX_ITEM_BYTES}})).hexdigest()
+    section, page_size = request["section"], request["page_size"]
+    packet = {"schema_version": 2, "operation": "concrete-patch-impact", "request": public_request,
+              "report_hash": report_hash, "identity": identity, "status": "uncertain" if groups["uncertainties"] else "inspectable",
+              "assessment": {"regression_proven": False, "safe_to_change": None, "executed": False,
+                             "counts": {key: len(value) for key, value in groups.items()},
+                             "observations": [row.get("observation", "")[:400] for row in groups["findings"][:3]],
+                             "recommended_test_ids": [row.get("test_id") for row in groups["recommended_checks"][:3]]},
+              "limitations": limitations, "retrieval": {}, "page": {}, "details": {}, "truncated": False}
+    available = max_bytes - estimate(packet) - 6000
+    if available <= 0:
+        raise ReportError("mandatory patch metadata exceeds the response limit")
+    paged = {}
+    for name, values in groups.items():
+        entries, fragmented = _fragment_items(values)
+        paged[name] = entries
+        packet["retrieval"][name] = {"logical_items": len(values), "entries": len(entries), "fragmented_items": fragmented,
+                                   "cursor": cursor(report_hash, name, 0) if entries else None}
+    items = paged[section]
+    offset = cursor_offset(request["cursor"], report_hash, section, sections=PATCH_SECTIONS)
+    if offset > len(items):
+        raise ReportError("cursor offset is outside this report; restart inspection")
+    returned, size = [], 0
+    for item in items[offset:offset + min(page_size, max_rows)]:
+        item_size = estimate(item) + 2
+        if size + item_size > available:
+            break
+        returned.append(item)
+        size += item_size
+    if offset < len(items) and not returned:
+        raise ReportError("one patch evidence entry cannot fit the response budget")
+    next_offset = offset + len(returned)
+    packet["page"] = {"section": section, "offset": offset, "returned": len(returned), "total": len(items),
+                      "remaining": len(items) - next_offset, "fragmented_items": packet["retrieval"][section]["fragmented_items"],
+                      "next_cursor": cursor(report_hash, section, next_offset) if next_offset < len(items) else None}
+    packet["details"] = {"section": section, "items": returned}
+    packet["truncated"] = next_offset < len(items) or any(name != section and entries for name, entries in paged.items())
+    if estimate(packet) > max_bytes or tool_result_bytes(json.dumps(packet, ensure_ascii=False)) > MCP_WIRE_LIMIT:
+        if len(returned) > 1:
+            return build_patch_packet(request, identity=identity, groups=groups, limitations=limitations,
+                                      max_bytes=max_bytes, max_rows=max(1, len(returned) // 2))
+        raise ReportError("patch response cannot fit its protocol budget")
     return packet

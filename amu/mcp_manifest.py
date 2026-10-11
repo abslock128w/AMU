@@ -21,8 +21,10 @@ from pathlib import Path
 from amu import __version__
 
 MANIFEST_VERSION = "amu-inspection-v1"
+PATCH_MANIFEST_VERSION = "amu-inspection-v2"
 SCHEMA_VERSION = 1
 IMPACT_SECTIONS = ("impact", "source_contradictions", "source_uncertainties", "dynamic_boundaries", "coverage", "reasons")
+PATCH_SECTIONS = ("changes", "findings", "state_dependencies", "recommended_checks", "uncertainties")
 _MAX_MANIFEST_BYTES = 128 * 1024
 _MAX_BUILD_FILES = 256
 _MAX_BUILD_ENTRIES = 4096
@@ -59,6 +61,18 @@ _REVIEWED_TOOLS = [
     {"name": "amu_docs_reviews", "inputSchema": _schema({"repo": {"type": "string"}, "preview": _NULLABLE_STRING}, ["repo"]),
      "outputSchema": _OUTPUT, "annotations": _ANNOTATIONS},
 ]
+
+_REVIEWED_PATCH_TOOL = {
+    "name": "amu_analyze_patch", "inputSchema": _schema({
+        "patch": {"type": "string"}, "repo": {"type": "string"},
+        "base": {"type": "string", "default": "HEAD"},
+        "depth": {"type": "integer", "default": 1},
+        "include_graph": {"type": "boolean", "default": False},
+        "section": {"type": "string", "enum": list(PATCH_SECTIONS), "default": "changes"},
+        "cursor": {"anyOf": [{"type": "string", "maxLength": 1024}, {"type": "null"}], "default": None},
+        "page_size": {"type": "integer", "minimum": 1, "maximum": 100, "default": 20},
+    }, ["patch", "repo"]), "outputSchema": _OUTPUT, "annotations": _ANNOTATIONS,
+}
 
 
 def _encoded(value) -> bytes:
@@ -140,26 +154,30 @@ def normalize_tools(tools: object) -> list[dict]:
         raise ValueError("MCP manifest is malformed or exceeds its limits") from exc
 
 
-def inspection_manifest() -> dict:
-    """Return a fresh copy of the independently reviewed four-tool contract."""
-    tools = normalize_tools(copy.deepcopy(_REVIEWED_TOOLS))
-    return {"schema_version": SCHEMA_VERSION, "manifest_version": MANIFEST_VERSION, "profile": "inspection", "tools": tools,
+def inspection_manifest(*, enable_patch_analysis: bool = False) -> dict:
+    """Return the reviewed legacy contract or its explicit inspection extension."""
+    if type(enable_patch_analysis) is not bool:
+        raise ValueError("enable_patch_analysis must be a boolean")
+    reviewed = _REVIEWED_TOOLS + ([_REVIEWED_PATCH_TOOL] if enable_patch_analysis else [])
+    tools = normalize_tools(copy.deepcopy(reviewed))
+    version = PATCH_MANIFEST_VERSION if enable_patch_analysis else MANIFEST_VERSION
+    return {"schema_version": SCHEMA_VERSION, "manifest_version": version, "profile": "inspection", "tools": tools,
             "sha256": hashlib.sha256(_encoded(tools)).hexdigest()}
 
 
-def compare_tools(observed: object) -> dict:
-    expected = inspection_manifest()
+def compare_tools(observed: object, *, enable_patch_analysis: bool = False) -> dict:
+    expected = inspection_manifest(enable_patch_analysis=enable_patch_analysis)
     try:
         actual = normalize_tools(observed)
     except ValueError:
-        return {"match": False, "expected_version": MANIFEST_VERSION, "expected_sha256": expected["sha256"],
+        return {"match": False, "expected_version": expected["manifest_version"], "expected_sha256": expected["sha256"],
                 "observed_sha256": None, "missing_tools": [], "unexpected_tools": [], "schema_mismatches": [],
                 "error_kind": "manifest_invalid", "reason": "observed tool manifest is malformed or exceeds its limits"}
     wanted = {row["name"]: row for row in expected["tools"]}
     received = {row["name"]: row for row in actual}
     missing, unexpected = sorted(wanted.keys() - received.keys()), sorted(received.keys() - wanted.keys())
     changed = [name for name in sorted(wanted.keys() & received.keys()) if _encoded(wanted[name]) != _encoded(received[name])]
-    return {"match": not (missing or unexpected or changed), "expected_version": MANIFEST_VERSION,
+    return {"match": not (missing or unexpected or changed), "expected_version": expected["manifest_version"],
             "expected_sha256": expected["sha256"], "observed_sha256": hashlib.sha256(_encoded(actual)).hexdigest(),
             "missing_tools": missing, "unexpected_tools": unexpected, "schema_mismatches": changed}
 
@@ -237,23 +255,23 @@ def package_build(package: Path) -> dict:
                 "reason": "package identity unavailable, changed, aliased or exceeds bounds"}
 
 
-def runtime_identity() -> dict:
+def runtime_identity(*, enable_patch_analysis: bool = False) -> dict:
     """Operator diagnostics for this loaded runtime, without SDK/provider imports."""
     try:
         distribution_version = importlib.metadata.version("amu")
     except importlib.metadata.PackageNotFoundError:
         distribution_version = None
     build = package_build(Path(__file__).parent)
-    manifest = inspection_manifest()
+    manifest = inspection_manifest(enable_patch_analysis=enable_patch_analysis)
     return {"amu_version": __version__, "version": __version__, "distribution_version": distribution_version, "python_version": platform.python_version(),
             "executable": sys.executable, "module": str(Path(__file__).parent / "mcp_server.py"),
-            "build_sha256": build["sha256"], "build": build, "manifest_version": MANIFEST_VERSION,
+            "build_sha256": build["sha256"], "build": build, "manifest_version": manifest["manifest_version"],
             "manifest_sha256": manifest["sha256"]}
 
 
-def public_identity() -> dict:
+def public_identity(*, enable_patch_analysis: bool = False) -> dict:
     """Initialize metadata excludes executable paths and repository authority."""
-    runtime = runtime_identity()
+    runtime = runtime_identity(enable_patch_analysis=enable_patch_analysis)
     return {key: runtime[key] for key in ("amu_version", "distribution_version", "build_sha256", "manifest_version", "manifest_sha256")}
 
 

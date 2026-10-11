@@ -1,0 +1,11 @@
+--- a/cache_case.py
++++ b/cache_case.py
+@@ -11,7 +11,7 @@
+ 
+ 
+ class TypedCache:
+-    _cache = {}
++    _cache = None
+ 
+     @classmethod
+     def lookup(cls, value):

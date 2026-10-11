@@ -4,6 +4,14 @@
 
 `amu` is a CLI guardrail that wraps the `entire` graph engine to give AI coding agents (and humans) a structured pre-edit impact brief **before** touching any symbol.
 
+## Concrete patch inspection
+
+The bounded Phase 2 workflow accepts a Python unified diff, reports source-backed
+changes and recommended existing tests, then separately verifies a reviewed
+AMU-owned cache fixture. Start with the [concrete patch quickstart](docs/phase2-quickstart.md).
+`amu analyze-patch` only inspects candidate source in memory; `amu verify-fixture`
+requires an explicit flag to run the pinned example checks.
+
 ## Setup / required edit loop
 
 Start this loop **before changing graph-relevant source code**. A map made after

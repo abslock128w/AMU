@@ -9,6 +9,7 @@ import json
 import os
 import re
 import shlex
+import stat
 import sys
 from pathlib import Path
 from typing import Annotated
@@ -501,6 +502,141 @@ def impact_cmd(
         for reason in result.get("assessment", {}).get("reasons", []):
             typer.echo(f"  {reason}")
         typer.echo("Use --json for ranked relationships, source capture and coverage details.")
+
+
+def _read_patch_file(value: str) -> str:
+    """Read bounded local UTF-8 diff bytes through pinned, unaliased descriptors."""
+    from amu.patch import MAX_PATCH_BYTES
+    from amu.services.impact import ImpactInputError
+
+    try:
+        valid_path = (isinstance(value, str) and bool(value) and len(value.encode("utf-8")) <= 4096
+                      and not any(ord(char) < 32 or ord(char) == 127 for char in value))
+    except UnicodeError:
+        valid_path = False
+    if not valid_path:
+        raise ImpactInputError("patch-file must be a bounded local file path")
+    if not all(hasattr(os, name) for name in ("O_NOFOLLOW", "O_DIRECTORY", "O_NONBLOCK")):
+        raise ImpactInputError("bounded patch-file inspection is unavailable on this host; use --patch")
+    path = Path(os.path.abspath(value))
+    descriptors, links = [], []
+    try:
+        parent = os.open(path.anchor, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        descriptors.append(parent)
+        for part in path.parts[1:-1]:
+            child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent)
+            info = os.fstat(child)
+            links.append((parent, part, (info.st_dev, info.st_ino)))
+            descriptors.append(child)
+            parent = child
+        descriptor = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=parent)
+        descriptors.append(descriptor)
+        before = os.fstat(descriptor)
+        if not stat.S_ISREG(before.st_mode) or before.st_size > MAX_PATCH_BYTES:
+            raise ImpactInputError(f"patch-file must be a regular file of at most {MAX_PATCH_BYTES} bytes")
+        data = bytearray()
+        while len(data) <= MAX_PATCH_BYTES:
+            chunk = os.read(descriptor, min(65536, MAX_PATCH_BYTES + 1 - len(data)))
+            if not chunk:
+                break
+            data.extend(chunk)
+        if len(data) > MAX_PATCH_BYTES:
+            raise ImpactInputError(f"patch-file exceeds its {MAX_PATCH_BYTES}-byte limit")
+        def identity(info):
+            return info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns
+        if (identity(before) != identity(os.fstat(descriptor))
+                or identity(before) != identity(os.stat(path.name, dir_fd=parent, follow_symlinks=False))):
+            raise ImpactInputError("patch-file changed during inspection; retry")
+        for directory, name, original in links:
+            current = os.stat(name, dir_fd=directory, follow_symlinks=False)
+            if not stat.S_ISDIR(current.st_mode) or (current.st_dev, current.st_ino) != original:
+                raise ImpactInputError("patch-file directory changed during inspection; retry")
+        return bytes(data).decode("utf-8")
+    except UnicodeError as exc:
+        raise ImpactInputError("patch-file must contain valid UTF-8 text") from exc
+    except (OSError, ValueError, RuntimeError) as exc:
+        if isinstance(exc, ImpactInputError):
+            raise
+        raise ImpactInputError("patch-file must be an existing regular local file without symbolic links") from exc
+    finally:
+        for descriptor in reversed(descriptors):
+            os.close(descriptor)
+
+
+@app.command(name="analyze-patch")
+def analyze_patch_cmd(
+    patch: str | None = typer.Option(None, "--patch", help="bounded literal unified diff; inspected in memory"),
+    patch_file: str | None = typer.Option(None, "--patch-file", help="bounded regular UTF-8 local diff file; no symlinks"),
+    base: str = typer.Option("HEAD", "--base", help="HEAD/full current HEAD SHA anchors live source; worktree for non-Git copies"),
+    depth: int = typer.Option(1, "--depth", help="optional graph relationship depth, 1–3"),
+    include_graph: bool = typer.Option(False, "--include-graph", help="include current source-backed provider evidence"),
+    section: str = typer.Option("changes", "--section", help="changes|findings|state_dependencies|recommended_checks|uncertainties"),
+    cursor: str | None = typer.Option(None, "--cursor", help="opaque patch/evidence-bound cursor; stale cursors are refused"),
+    page_size: int = typer.Option(20, "--page-size", help="page entries, 1–100"),
+    repo: str = REPO_OPT,
+    json_output: bool = JSON_OPT,
+):
+    """Inspect exact candidate changes without applying a patch or executing checks."""
+    from amu.services import impact as impact_service
+
+    try:
+        if (patch is None) == (patch_file is None):
+            raise impact_service.ImpactInputError("provide exactly one of --patch or --patch-file")
+        literal = _read_patch_file(patch_file) if patch_file is not None else patch
+        result = impact_service.execute_patch(repo, impact_service.PatchRequest(
+            patch=literal, base=base, depth=depth, include_graph=include_graph,
+            section=section, cursor=cursor, page_size=page_size,
+        ))
+    except impact_service.ImpactInputError as exc:
+        _out(exc.payload, json_output)
+        if not json_output:
+            typer.echo(str(exc), err=True)
+        raise typer.Exit(code=exc.exit_code) from exc
+    _out(result, json_output)
+    if not json_output:
+        typer.echo("Candidate inspected in memory. Checks are recommendations; candidate code and checks were not executed.")
+        typer.echo("Use --json and the same report's section/cursor retrieval for complete evidence.")
+
+
+@app.command(name="example-fixture")
+def example_fixture_cmd(
+    output: str = typer.Option(..., "--output", help="absolute absent directory for reviewable fixture files"),
+    case: str | None = typer.Option(None, "--case", help="export one named bundled case (default: all cases)"),
+    json_output: bool = JSON_OPT,
+):
+    """Export the bundled shared-cache example without executing it."""
+    from amu import fixture_verification
+
+    try:
+        result = fixture_verification.export_fixture(output, case)
+    except fixture_verification.FixtureVerificationError as exc:
+        _input_error(str(exc), json_output)
+    _out(result, json_output)
+    if not json_output:
+        typer.echo(f"Fixture exported to {result['output']}. Execution was not performed.")
+
+
+@app.command(name="verify-fixture")
+def verify_fixture_cmd(
+    case: str = typer.Option(..., "--case", help="compatible-refactor|wrong-key|class-state|corrected"),
+    execute_reviewed_fixture: bool = typer.Option(
+        False, "--execute-reviewed-fixture", help="execute only the hash-pinned bundled source, candidate and checks",
+    ),
+    json_output: bool = JSON_OPT,
+):
+    """Inspect one named fixture; explicitly opt in to its bounded verification."""
+    from amu import fixture_verification
+
+    try:
+        result = fixture_verification.verify_fixture(case, execute_reviewed_fixture)
+    except fixture_verification.FixtureVerificationError as exc:
+        _input_error(str(exc), json_output)
+    _out(result, json_output)
+    if not json_output:
+        typer.echo(f"{result['case']}: {result['status']}")
+        if not result["execution_performed"]:
+            typer.echo(result["reproduction_command"])
+    raise typer.Exit(code=result["exit_code"])
 
 
 # ---------------------------------------------------------------------------
@@ -2956,6 +3092,7 @@ HELP_SECTIONS = [
             ("/docs", "Find docs; --prepare or --apply with --review"),
             ("/docs-reviews", "List drafts; --preview or --discard a review id"),
             ("/api-manifest --file <path>", "Review static API changes against a Git revision"),
+            ("/analyze-patch --patch-file <path>", "Inspect candidate behavior and recommended checks in memory"),
             ("/benchmark [options]", "Score versioned fixtures; no model request"),
             ("/session", "Show AMU model requests, context usage and remaining limits"),
             ("/done", "Run final checks and report"),
@@ -3263,6 +3400,7 @@ def _repl(repo: str | None = None):
                 "docs-graph": lambda: _repl_cli_command("docs-graph", arg, repo),
                 "docs-saves": lambda: _repl_cli_command("docs-saves", arg, repo),
                 "api-manifest": lambda: _repl_cli_command("api-manifest", arg, repo),
+                "analyze-patch": lambda: _repl_cli_command("analyze-patch", arg, repo),
                 "benchmark": lambda: _repl_cli_command("benchmark", arg, repo),
                 "session": lambda: typer.echo(json.dumps(assistant.session_status() if assistant else {"mode": "manual", "usage": None}, indent=2)),
                 "answer": lambda: _repl_cli_command("answer", arg, repo),

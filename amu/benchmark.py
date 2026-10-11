@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 from collections.abc import Callable, Iterable, Mapping
 from pathlib import Path, PurePosixPath
 from typing import Any
@@ -337,4 +338,133 @@ def run_relations(
         "label_origin": corpus.get("label_origin", "unspecified"),
         "scope": corpus.get("scope", "supplied labeled fixtures only"),
         "reports": reports,
+    }
+
+
+def fixture_workflow_record(
+    analyses: Mapping[str, dict],
+    verifications: Mapping[str, dict],
+    measurements: Mapping[str, dict],
+    *,
+    tool_version: str | None = None,
+) -> dict:
+    """Record supplied static reports and actual fixture results without execution.
+
+    Static findings are review evidence, not binary predictions of a regression.
+    Runtime results and caller measurements remain explicit supplied observations;
+    this record does not attest to execution or establish agent effectiveness.
+    """
+    from amu import fixture_verification as fixture
+
+    for name, supplied in (("analyses", analyses), ("verifications", verifications), ("measurements", measurements)):
+        if not isinstance(supplied, Mapping) or set(supplied) != set(fixture.CASES):
+            raise ValueError(name + " must contain each exact named bundled fixture case")
+        if not all(isinstance(value, dict) for value in supplied.values()):
+            raise ValueError(name + " entries must be objects")
+    assets, contract, candidates = fixture._load_assets()
+    cases = []
+    baseline_passes = candidate_passes = runtime_failures = label_matches = 0
+    for case in fixture.CASES:
+        analysis, verification = analyses[case], verifications[case]
+        identity = {
+            "manifest_sha256": fixture.TRUSTED_MANIFEST_SHA256,
+            "source_sha256": hashlib.sha256(assets["cache_case.py"]).hexdigest(),
+            "patch_sha256": hashlib.sha256(assets[f"patches/{case}.diff"]).hexdigest(),
+            "candidate_sha256": hashlib.sha256(candidates[case]).hexdigest(),
+            "contract_sha256": hashlib.sha256(assets["contract.json"]).hexdigest(),
+            "test_sha256": hashlib.sha256(assets["protected_checks.py"]).hexdigest(),
+            "runner_sha256": hashlib.sha256(assets["runner.py"]).hexdigest(),
+        }
+        if verification.get("case") != case or any(verification.get(key) != value for key, value in identity.items()):
+            raise ValueError("verification identity differs from the trusted named fixture: " + case)
+        if (
+            not isinstance(analysis.get("request"), dict)
+            or analysis["request"].get("patch_sha256") != identity["patch_sha256"]
+        ):
+            raise ValueError("static analysis patch identity differs from its named fixture: " + case)
+        expected_file = {"path": "cache_case.py", "operation": "modify",
+                         "baseline_sha256": identity["source_sha256"],
+                         "candidate_sha256": identity["candidate_sha256"]}
+        assessment = analysis.get("assessment")
+        if (analysis.get("schema_version") != 2 or analysis.get("operation") != "concrete-patch-impact"
+                or not isinstance(analysis.get("identity"), dict)
+                or analysis["identity"].get("files") != [expected_file]
+                or not isinstance(analysis.get("report_hash"), str) or len(analysis["report_hash"]) != 64
+                or any(char not in "0123456789abcdef" for char in analysis["report_hash"])
+                or not isinstance(assessment, dict) or assessment.get("executed") is not False
+                or assessment.get("regression_proven") is not False):
+            raise ValueError("static analysis does not identify the unexecuted named fixture candidate: " + case)
+        if (verification.get("execution_requested") is not True or verification.get("execution_performed") is not True
+                or not fixture._same_json(verification.get("contract"), contract)
+                or verification.get("expected_candidate_passes") is not contract["cases"][case]["candidate_passes"]):
+            raise ValueError("fixture workflow needs explicit executed results: " + case)
+        required_measurements = {"analysis_latency_seconds", "verification_latency_seconds",
+                                 "initial_response_bytes", "complete_evidence_response_bytes"}
+        measured = measurements[case]
+        if not required_measurements <= measured.keys() or any(
+            type(measured[key]) not in (int, float) or not 0 <= measured[key] <= 1e9
+            or not math.isfinite(measured[key])
+            for key in ("analysis_latency_seconds", "verification_latency_seconds")
+        ) or any(type(measured[key]) is not int or not 0 <= measured[key] <= 2**31
+                 for key in ("initial_response_bytes", "complete_evidence_response_bytes")):
+            raise ValueError("fixture workflow needs nonnegative measured latency and response bytes: " + case)
+        try:
+            analysis_bytes = json.dumps(analysis, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
+            json.dumps(verification, allow_nan=False)
+            json.dumps(measurements[case], allow_nan=False)
+        except (TypeError, ValueError, UnicodeError, RecursionError) as exc:
+            raise ValueError("fixture workflow observations must be finite JSON") from exc
+        original, candidate = verification.get("original"), verification.get("candidate")
+        if not isinstance(original, dict) or not isinstance(candidate, dict):
+            raise ValueError("fixture workflow needs original and candidate result objects: " + case)
+        transport_failed = "execution_error" in original or "execution_error" in candidate
+        original_passed = "execution_error" not in original and original.get("passed") is True
+        candidate_passed = "execution_error" not in candidate and candidate.get("passed") is True
+        if not transport_failed:
+            for actual in (original, candidate):
+                fixture._validate_report(
+                    {key: value for key, value in actual.items() if key != "returncode"}, contract, actual.get("returncode")
+                )
+        else:
+            runtime_failures += 1
+        if transport_failed:
+            expected_status, expected_passed, expected_exit, label_match = "execution_failed", False, 2, False
+        elif not original_passed:
+            expected_status, expected_passed, expected_exit, label_match = "baseline_failed", False, 2, False
+        else:
+            expected_status = "passed" if candidate_passed else "regression"
+            expected_passed, expected_exit = candidate_passed, 0 if candidate_passed else 1
+            label_match = candidate_passed is contract["cases"][case]["candidate_passes"]
+        if (verification.get("status") != expected_status or verification.get("passed") is not expected_passed
+                or type(verification.get("exit_code")) is not int or verification["exit_code"] != expected_exit
+                or verification.get("matches_expected_outcome") is not label_match):
+            raise ValueError("fixture workflow envelope contradicts protected results: " + case)
+        baseline_passes += int(original_passed)
+        candidate_passes += int(candidate_passed)
+        label_matches += int(label_match)
+        cases.append({
+            "case": case, "identity": identity, "independent_label": contract["cases"][case],
+            "static_counts": assessment.get("counts", {}),
+            "recommended_test_ids": assessment.get("recommended_test_ids", []),
+            "report_hash": analysis.get("report_hash"), "analysis_report_bytes": len(analysis_bytes),
+            "measurements": measurements[case], "analysis": analysis, "verification": verification,
+        })
+    return {
+        "schema_version": 1, "benchmark": "owned-fixture-workflow", "fixture_version": fixture.FIXTURE_VERSION,
+        "tool_version": _version(tool_version),
+        "trusted_task": {"owner": contract["owner"], "manifest_sha256": fixture.TRUSTED_MANIFEST_SHA256},
+        "independent_labels": contract, "cases": cases,
+        "engineering_correctness": {
+            "basis": "Supplied actual protected fixture results, separate from static impact reports.",
+            "cases": len(cases), "original_passes": baseline_passes, "candidate_passes": candidate_passes,
+            "matches_independent_labels": label_matches, "runtime_transport_failures": runtime_failures,
+        },
+        "static_accuracy": {"status": "not_scored", "reason": "Static findings do not claim binary runtime predictions."},
+        "agent_effectiveness": {"status": "not_measured", "reason": "No controlled agent comparison was performed."},
+        "limitations": [
+            "This small AMU-owned fixture is not evidence about NumPy or external repositories.",
+            "Runtime results and latency measurements are supplied observations, not an execution attestation.",
+            "Static report counts and recommended tests do not prove a regression or safety.",
+            "Bounded disposable fixture execution is not a security sandbox for arbitrary code.",
+        ],
     }

@@ -616,8 +616,9 @@ def _scope_binds_name(tree: ast.AST, start_line: int | None, end_line: int | Non
 class _ModuleBindingRisk(ast.NodeVisitor):
     """Track syntax that can invalidate a saved top-level import binding."""
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, allowed_calls: frozenset[ast.Call] = frozenset()):
         self.name = name
+        self.allowed_calls = allowed_calls
         self.bindings = 0
         self.dynamic = False
 
@@ -669,7 +670,7 @@ class _ModuleBindingRisk(ast.NodeVisitor):
 
     def visit_Call(self, node: ast.Call) -> None:  # noqa: N802
         chain = _dotted_expr(node.func)
-        if chain and (chain[0] == self.name or chain == ("exec",) or chain == ("eval",)
+        if chain and ((chain[0] == self.name and node not in self.allowed_calls) or chain == ("exec",) or chain == ("eval",)
                       or chain == ("globals",) or chain == ("locals",)):
             self.dynamic = True
         if chain in {("setattr",), ("delattr",)} and node.args:
@@ -678,8 +679,8 @@ class _ModuleBindingRisk(ast.NodeVisitor):
         self.generic_visit(node)
 
 
-def _module_binding_uncertain(tree: ast.AST, name: str) -> bool:
-    risk = _ModuleBindingRisk(name)
+def _module_binding_uncertain(tree: ast.AST, name: str, *, allowed_calls: frozenset[ast.Call] = frozenset()) -> bool:
+    risk = _ModuleBindingRisk(name, allowed_calls)
     risk.visit(tree)
     return risk.dynamic or risk.bindings > 1
 
@@ -1097,6 +1098,32 @@ def _entry_evidence(
     return verdict, metadata
 
 
+def _plain_frozen_dataclass(tree: ast.AST, definition: ast.AST, repo: str) -> bool:
+    """Recognize only a top-level class decorated by unshadowed stdlib dataclass.
+
+    The source establishes the declaration's file/name identity. It does not
+    establish runtime behavior or make unrelated decorators safe to resolve.
+    """
+    if not isinstance(definition, ast.ClassDef) or len(definition.decorator_list) != 1:
+        return False
+    decorator = definition.decorator_list[0]
+    if (not isinstance(decorator, ast.Call) or not isinstance(decorator.func, ast.Name)
+            or decorator.func.id != "dataclass" or decorator.args or len(decorator.keywords) != 1
+            or decorator.keywords[0].arg != "frozen"
+            or not isinstance(decorator.keywords[0].value, ast.Constant)
+            or decorator.keywords[0].value.value is not True):
+        return False
+    imports = [alias for node in getattr(tree, "body", [])
+               if isinstance(node, ast.ImportFrom) and node.level == 0 and node.module == "dataclasses"
+               for alias in node.names if alias.name == "dataclass" and alias.asname is None]
+    if len(imports) != 1 or "dataclasses" not in sys.stdlib_module_names:
+        return False
+    root = Path(repo)
+    if any((root / item).exists() or (root / item).is_symlink() for item in ("dataclasses.py", "dataclasses")):
+        return False
+    return not _module_binding_uncertain(tree, "dataclass", allowed_calls=frozenset({decorator}))
+
+
 def _resolve_pathless_callee(repo: str, impact: Mapping[str, Any], entry: Mapping[str, Any]) -> dict:
     """Enrich one direct call from source, retaining its original provider endpoint.
 
@@ -1155,7 +1182,8 @@ def _resolve_pathless_callee(repo: str, impact: Mapping[str, Any], entry: Mappin
         target = _source_tree(repo, path)
         if target is not None:
             definition = _qualified_definition(target[0], ".".join(symbol))
-            if (len(symbol) == 1 and definition is not None and not definition.decorator_list
+            if (len(symbol) == 1 and definition is not None
+                    and (not definition.decorator_list or _plain_frozen_dataclass(target[0], definition, repo))
                     and not _module_binding_uncertain(target[0], symbol[0])):
                 matches.append((path, ".".join(symbol), definition, call, canonical))
         elif parts[0] in sys.stdlib_module_names:
@@ -1178,6 +1206,7 @@ def _resolve_pathless_callee(repo: str, impact: Mapping[str, Any], entry: Mappin
                                        "provider_endpoint": dict(endpoint)}
     else:
         result["source_resolution"] = {**proof, "evidence": "source:python-ast:package-submodule",
+                                       "definition_form": "stdlib-frozen-dataclass" if definition.decorator_list else "undecorated",
                                        "provider_endpoint": dict(endpoint)}
         result["endpoint"] = {"file_path": path, "name": definition.name, "qualified_name": symbol,
                               "kind": "class" if isinstance(definition, ast.ClassDef) else "function",
