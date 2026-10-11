@@ -32,7 +32,7 @@ def test_mixed_patch_records_complete_identity_and_content_only_docs(tmp_path):
     request = impact.PatchRequest(patch, base="worktree")
     report = impact.execute_patch(str(tmp_path), request)
 
-    assert report["schema_version"] == 4
+    assert report["schema_version"] == 5
     assert report["request"]["patch_sha256"] == hashlib.sha256(patch.encode()).hexdigest()
     assert {row["path"]: row["analysis"] for row in report["identity"]["file_coverage"]} == {
         "engine.py": "python-syntax", "GUIDE.md": "content-only"}

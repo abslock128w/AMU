@@ -232,25 +232,34 @@ def _brief_patch_step(step: dict) -> dict:
 
 def _patch_summary(identity: dict, groups: dict) -> dict:
     """Rank small source-backed previews; raw evidence stays in paged sections."""
+    from amu.patch_roles import ROLES
+
+    def role(row):
+        return row.get("source_role", {}).get("role", "uncertain")
+
+    def role_rank(row):
+        return {"production": 0, "uncertain": 1, "verification": 2, "documentation": 3}[role(row)]
+
     coverage = {row["path"]: row for row in identity.get("file_coverage", [])}
     files = [{"path": row["path"], "operation": row["operation"],
               "file_type": coverage.get(row["path"], {}).get("file_type", "unknown"),
-              "analysis": coverage.get(row["path"], {}).get("analysis", "unspecified")}
+              "analysis": coverage.get(row["path"], {}).get("analysis", "unspecified"),
+              "source_role": coverage.get(row["path"], {}).get("source_role", {})}
              for row in identity.get("files", [])]
     changes = [row for row in groups["changes"] if row.get("kind") != "markdown"]
     kinds = {row.get("id"): row.get("kind") for row in changes}
     function_kinds = {"function", "async_function", "method"}
     changed_entities = sorted(changes, key=lambda row: (
-        row.get("kind") not in function_kinds, row.get("path", ""), row.get("id", "")))
+        role_rank(row), row.get("kind") not in function_kinds, row.get("path", ""), row.get("id", "")))
     entity_preview = [{"id": row.get("id"), "kind": row.get("kind"), "change": row.get("change"),
-                       "before_line": (row.get("before_location") or {}).get("line"),
+                       "role": role(row), "before_line": (row.get("before_location") or {}).get("line"),
                        "after_line": (row.get("after_location") or {}).get("line")}
                       for row in changed_entities[:PATCH_SUMMARY_ENTITY_LIMIT]]
 
     categories = {"call": 0, "branch": 1, "return": 2, "exception": 3,
                   "state_access": 4, "state_declaration": 5}
     findings = sorted(groups["findings"], key=lambda row: (
-        kinds.get(row.get("entity_id")) not in function_kinds,
+        role_rank(row), kinds.get(row.get("entity_id")) not in function_kinds,
         not bool(row.get("recommended_test_ids")),
         categories.get(row.get("category"), 6), row.get("entity_id", ""), row.get("id", "")))
     finding_preview = [{"entity_id": row.get("entity_id"), "category": row.get("category"),
@@ -259,18 +268,35 @@ def _patch_summary(identity: dict, groups: dict) -> dict:
                        for row in findings[:PATCH_SUMMARY_FINDING_LIMIT]]
 
     obligations = sorted(groups["obligations"], key=lambda row: (
-        not any(check.get("level") == "input-and-assertion" for check in
+        role_rank(row), not any(check.get("level") == "input-and-assertion" for check in
                 row.get("verification_plan", {}).get("existing_baseline_tests", [])),
         row.get("category") not in {"branch", "return", "exception"},
         row.get("entity_id", ""), row.get("id", "")))
+    production = [row for row in obligations if role(row) == "production"]
+    prioritized = (production or obligations)[:PATCH_SUMMARY_OBLIGATION_LIMIT]
+    verification_groups = {}
+    group_for = {}
+    for row in prioritized:
+        plan = row.get("verification_plan", {})
+        checks = plan.get("existing_baseline_tests", [])
+        unresolved = plan.get("unresolved", [])
+        key = hashlib.sha256(_encode([checks, unresolved])).hexdigest()[:16]
+        group_for[row["id"]] = key
+        verification_groups.setdefault(key, {"id": key, "obligation_ids": [],
+            "checks": checks[:PATCH_SUMMARY_CHECK_LIMIT], "omitted_checks": max(0, len(checks) - PATCH_SUMMARY_CHECK_LIMIT),
+            "unresolved": unresolved[:3], "omitted_unresolved": max(0, len(unresolved) - 3),
+            "details_section": "obligations"})["obligation_ids"].append(row["id"])
     obligation_preview = [{"id": row.get("id"), "entity_id": row.get("entity_id"),
+                           "role": role(row), "verification_group": group_for[row["id"]],
+                           "strongest_evidence": row.get("verification_plan", {}).get("strongest_evidence"),
+                           "next_step": row.get("verification_plan", {}).get("next_step"),
                            "category": row.get("category"), "change": row.get("changed_operation"),
                            "condition": row.get("condition"), "observe": row.get("observable", {}).get("kind"),
                            "why": row.get("why"),
                            "existing_check_count": len(row.get("verification_plan", {}).get("existing_baseline_tests", [])),
                            "proposed_input": row.get("verification_plan", {}).get("proposed_input"),
                            "execution_status": row.get("execution_status", "not-run")}
-                          for row in obligations[:PATCH_SUMMARY_OBLIGATION_LIMIT]]
+                          for row in prioritized]
 
     state_buckets = defaultdict(list)
     for row in groups["state_dependencies"]:
@@ -302,11 +328,13 @@ def _patch_summary(identity: dict, groups: dict) -> dict:
         ranked_checks.append((behavioral_rank, rank, row.get("test_id", ""), row, best))
     ranked_checks.sort(key=lambda item: (item[0], item[1], item[2]))
     check_preview = [{"test_id": row.get("test_id"),
-                      "kind": ("behavioral-evidence" if behavioral_rank < 4 else
+                      "kind": ("behavioral-evidence" if behavioral_rank < 3 else
                                "supported-source-path" if rank == 0 else "broad-candidate" if rank == 1 else "unresolved"),
                       "relationship": best.get("relationship"), "entity_id": best.get("entity_id"),
                       "path": [_brief_patch_step(step) for step in best.get("path", [])],
                       "behavioral_rank": behavioral_rank,
+                      "test_status": row.get("test_provenance", {}).get("status", "unknown"),
+                      "evidence_phase": "before",
                       "obligation_evidence": best.get("obligation_evidence", [])[:2],
                       "verification": row.get("verification"), "coverage_proven": False}
                      for behavioral_rank, rank, _, row, best in ranked_checks[:PATCH_SUMMARY_CHECK_LIMIT]]
@@ -376,6 +404,8 @@ def _patch_summary(identity: dict, groups: dict) -> dict:
             search += f" {len(unavailable)} baseline test file(s) could not be parsed."
         if identity.get("test_inventory_complete") is False:
             search += " The test inventory was incomplete."
+    if not any(check.get("behavioral_rank", 4) < 2 for check in groups["recommended_checks"]):
+        search += " No behavior-related baseline assertion was established; this does not prove that no suitable test exists."
     added_tests = identity.get("candidate_added_test_files") or []
     if added_tests:
         search += f" {len(added_tests)} candidate-added test file(s) were excluded from baseline discovery."
@@ -383,6 +413,14 @@ def _patch_summary(identity: dict, groups: dict) -> dict:
     return {"changed_files": files, "changed_entities": entity_preview,
             "omitted_changed_entities": len(changed_entities) - len(entity_preview),
             "obligations": obligation_preview,
+            "obligation_counts": {name: sum(role(row) == name for row in obligations) for name in ROLES},
+            "verification_groups": list(verification_groups.values()),
+            "verification_changes": {
+                "obligation_count": sum(role(row) == "verification" for row in obligations),
+                "changed_entity_count": sum(role(row) == "verification" for row in changes),
+                "test_status_counts": identity.get("test_change_counts", {}),
+                "details_sections": ["changes", "obligations"],
+                "note": "Test and helper edits remain retrievable. Modified and added assertions are candidate verification, not independent proof."},
             "omitted_obligations": len(obligations) - len(obligation_preview),
             "findings": finding_preview, "omitted_findings": len(findings) - len(finding_preview),
             "state_relationships": state_preview[:PATCH_SUMMARY_STATE_LIMIT],
@@ -436,7 +474,7 @@ def build_patch_packet(request: dict, *, identity: dict, groups: dict, limitatio
                                {"test_id": row.get("test_id"),
                                 "relationships": sorted({a["relationship"] for a in row.get("associations", [])})}
                                for row in groups["recommended_checks"][:3]]})
-    packet = {"schema_version": 4, "operation": "concrete-patch-impact", "request": public_request,
+    packet = {"schema_version": 5, "operation": "concrete-patch-impact", "request": public_request,
               "report_hash": report_hash, "identity": public_identity, "status": "uncertain" if groups["uncertainties"] else "inspectable",
               "assessment": assessment,
               "limitations": limitations, "retrieval": {}, "page": {}, "details": {}, "truncated": False}

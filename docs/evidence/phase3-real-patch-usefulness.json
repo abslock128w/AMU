@@ -1,0 +1,175 @@
+{
+  "starting_commit": "a2d6e151a0f451c8cc67bbb4d4fa8ddd2855b734",
+  "organization_complete": true,
+  "behavioral_target_met": false,
+  "schema_version": 5,
+  "manifest_version": "amu-inspection-v5",
+  "target_execution": "not-run",
+  "suite": {
+    "passed": 2363,
+    "skipped": 12,
+    "failures": 0,
+    "seconds": 185.63
+  },
+  "before_after": {
+    "callback": {
+      "before_candidates": 15,
+      "after_candidates": 15,
+      "source_associations_before": 20,
+      "source_associations_after": 20,
+      "lost_relationships": [],
+      "stronger_behavioral_connections": [],
+      "behavioral_levels_unchanged": true,
+      "obligation_counts": {
+        "documentation": 0,
+        "production": 8,
+        "uncertain": 0,
+        "verification": 35
+      },
+      "initial_obligations_before": [
+        "amu/services/impact.py#_boundaries:obligation:2a2b1f1b2f840ba9",
+        "amu/services/impact.py#_direct_parameter_calls:obligation:3ac8ca13c075c797",
+        "amu/services/impact.py#_direct_parameter_calls:obligation:5977afaf5cc3beef"
+      ],
+      "initial_obligations_after": [
+        "amu/services/impact.py#_boundaries:obligation:2a2b1f1b2f840ba9",
+        "amu/services/impact.py#_direct_parameter_calls:obligation:3ac8ca13c075c797",
+        "amu/services/impact.py#_direct_parameter_calls:obligation:5977afaf5cc3beef"
+      ],
+      "initial_checks_before": [
+        "tests/test_impact_service.py::test_coverage_preserves_graph_baselines_and_semantic_counts",
+        "tests/test_impact_service.py::test_cursor_cannot_stitch_different_analysis_versions",
+        "tests/test_impact_service.py::test_cursor_rejects_changed_fragment_layout"
+      ],
+      "initial_checks_after": [
+        "tests/test_impact_service.py::test_coverage_preserves_graph_baselines_and_semantic_counts",
+        "tests/test_impact_service.py::test_cursor_cannot_stitch_different_analysis_versions",
+        "tests/test_impact_service.py::test_cursor_rejects_changed_fragment_layout"
+      ],
+      "test_changes": {
+        "changed_entity_count": 4,
+        "details_sections": [
+          "changes",
+          "obligations"
+        ],
+        "note": "Test and helper edits remain retrievable. Modified and added assertions are candidate verification, not independent proof.",
+        "obligation_count": 35,
+        "test_status_counts": {
+          "added": 4,
+          "modified": 0,
+          "removed": 0,
+          "unchanged": 15
+        }
+      },
+      "candidate_provenance": {
+        "tests/test_impact_service.py::test_coverage_preserves_graph_baselines_and_semantic_counts": "unchanged",
+        "tests/test_impact_service.py::test_cursor_cannot_stitch_different_analysis_versions": "unchanged",
+        "tests/test_impact_service.py::test_cursor_rejects_changed_fragment_layout": "unchanged",
+        "tests/test_impact_service.py::test_evidence_omission_has_same_tool_retrieval": "unchanged",
+        "tests/test_impact_service.py::test_malformed_cursor_refused_before_source_or_provider": "unchanged",
+        "tests/test_impact_service.py::test_module_scope_and_repeated_symbol_do_not_query_guessed_target": "unchanged",
+        "tests/test_impact_service.py::test_paging_retrieves_every_dependency_without_state_writes": "unchanged",
+        "tests/test_impact_service.py::test_public_impact_never_exceeds_response_cap_for_long_source_identity": "unchanged",
+        "tests/test_impact_service.py::test_report_pages_fit_full_mcp_envelope_not_only_payload": "unchanged",
+        "tests/test_impact_service.py::test_rows_changing_without_git_digest_change_invalidate_cursor": "unchanged",
+        "tests/test_impact_service.py::test_source_changed_during_graph_query_never_returns_completed_capture": "unchanged",
+        "tests/test_impact_service.py::test_source_location_resolves_innermost_declaration": "unchanged",
+        "tests/test_impact_service.py::test_source_symlink_and_fifo_refused_without_reading": "unchanged",
+        "tests/test_impact_service.py::test_unparseable_or_out_of_range_source_refused_before_graph": "unchanged",
+        "tests/test_impact_service.py::test_one_oversized_optional_item_is_not_silently_skipped": "unchanged"
+      }
+    },
+    "git-enumeration": {
+      "before_candidates": 4,
+      "after_candidates": 4,
+      "source_associations_before": 4,
+      "source_associations_after": 4,
+      "lost_relationships": [],
+      "stronger_behavioral_connections": [],
+      "behavioral_levels_unchanged": true,
+      "obligation_counts": {
+        "documentation": 0,
+        "production": 13,
+        "uncertain": 0,
+        "verification": 34
+      },
+      "initial_obligations_before": [
+        "amu/cli.py#StateGuardGroup.invoke:obligation:8cc6a14c2fc1435d",
+        "amu/cli.py#StateGuardGroup.invoke:obligation:f786bc249e45023a",
+        "amu/state.py#_git:obligation:144f06ccd1994195"
+      ],
+      "initial_obligations_after": [
+        "amu/cli.py#StateGuardGroup.invoke:obligation:8cc6a14c2fc1435d",
+        "amu/cli.py#StateGuardGroup.invoke:obligation:f786bc249e45023a",
+        "amu/state.py#_git:obligation:144f06ccd1994195"
+      ],
+      "initial_checks_before": [
+        "tests/test_check_e2e.py::test_check_accepts_a_successful_refresh_for_the_exact_current_worktree",
+        "tests/test_check_e2e.py::test_check_rejects_a_refresh_record_from_a_different_map_depth",
+        "tests/test_check_e2e.py::test_check_rejects_a_refresh_record_with_the_wrong_change_class_or_map"
+      ],
+      "initial_checks_after": [
+        "tests/test_check_e2e.py::test_check_accepts_a_successful_refresh_for_the_exact_current_worktree",
+        "tests/test_check_e2e.py::test_check_rejects_a_refresh_record_from_a_different_map_depth",
+        "tests/test_check_e2e.py::test_check_rejects_a_refresh_record_with_the_wrong_change_class_or_map"
+      ],
+      "test_changes": {
+        "changed_entity_count": 16,
+        "details_sections": [
+          "changes",
+          "obligations"
+        ],
+        "note": "Test and helper edits remain retrievable. Modified and added assertions are candidate verification, not independent proof.",
+        "obligation_count": 34,
+        "test_status_counts": {
+          "added": 5,
+          "modified": 4,
+          "removed": 0,
+          "unchanged": 56
+        }
+      },
+      "candidate_provenance": {
+        "tests/test_check_e2e.py::test_check_accepts_a_successful_refresh_for_the_exact_current_worktree": "unchanged",
+        "tests/test_check_e2e.py::test_check_rejects_a_refresh_record_from_a_different_map_depth": "unchanged",
+        "tests/test_check_e2e.py::test_check_rejects_a_refresh_record_with_the_wrong_change_class_or_map": "unchanged",
+        "tests/test_docs_freshness_lifecycle.py::test_legacy_full_capture_remains_strict_after_prose_edit": "unchanged"
+      }
+    }
+  },
+  "installed_cost": {
+    "phase3": {
+      "real/callback": {
+        "cli_seconds_median": 0.9731598340003984,
+        "cli_stdout_bytes": 15113,
+        "mcp_seconds_median": 1.2026684160009609,
+        "mcp_text_bytes": 15943,
+        "mcp_envelope_bytes": 34623
+      },
+      "real/git-enumeration": {
+        "cli_seconds_median": 2.8254510840015428,
+        "cli_stdout_bytes": 18282,
+        "mcp_seconds_median": 2.257258166999236,
+        "mcp_text_bytes": 19252,
+        "mcp_envelope_bytes": 41801
+      }
+    },
+    "candidate": {
+      "real/callback": {
+        "cli_seconds_median": 1.1867265830005636,
+        "cli_stdout_bytes": 20081,
+        "mcp_seconds_median": 1.1887882920018455,
+        "mcp_text_bytes": 21101,
+        "mcp_envelope_bytes": 45639
+      },
+      "real/git-enumeration": {
+        "cli_seconds_median": 2.1398263329974725,
+        "cli_stdout_bytes": 26358,
+        "mcp_seconds_median": 2.135328958000173,
+        "mcp_text_bytes": 27610,
+        "mcp_envelope_bytes": 59585
+      }
+    }
+  },
+  "raw_evidence": "../phase3-real-usefulness-2026-10-11",
+  "claims": "Development evidence only; no independent validation or coding-agent effectiveness claim."
+}

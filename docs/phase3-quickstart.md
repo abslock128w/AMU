@@ -1,3 +1,7 @@
+# Current report format
+
+The current packet schema is 5. See [role separation and migration](phase3-report-migration.md). The Phase 3 launch description below records schema 4 behavior.
+
 # Phase 3: behavioral patch inspection
 
 AMU can now turn supported Python edits into **verification obligations**: a changed expression, its before and after spans, a possible observable, a justified check target, and explicit analysis limits. An obligation says a behavior deserves review; it does not label a regression. Test recommendations distinguish source paths from bounded input and assertion evidence. Static inspection never imports or executes the proposed code.

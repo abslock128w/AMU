@@ -178,7 +178,7 @@ def test_default_manifest_identity_is_unchanged_and_v3_patch_contract_is_additiv
     assert original["manifest_version"] == "amu-inspection-v1"
     assert original["sha256"] == "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761"
     extended = mcp_manifest.inspection_manifest(enable_patch_analysis=True)
-    assert extended["manifest_version"] == "amu-inspection-v4"
+    assert extended["manifest_version"] == "amu-inspection-v5"
     assert {tool["name"] for tool in extended["tools"]} == mcp_access.PATCH_INSPECTION_TOOLS
     assert [tool for tool in extended["tools"] if tool["name"] != "amu_analyze_patch"] == original["tools"]
     patch_tool = next(tool for tool in extended["tools"] if tool["name"] == "amu_analyze_patch")

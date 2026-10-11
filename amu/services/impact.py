@@ -617,6 +617,7 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
     """Inspect a concrete diff and relevant existing test syntax, without execution."""
     from amu.change_analysis import analyze_python_change
     from amu.patch import MAX_TOTAL_SOURCE_BYTES, PYTHON_SUFFIXES, PatchError, apply_file, digest, parse_diff
+    from amu.patch_roles import file_role, test_declarations, test_provenance
     from amu.plan import _is_test_path, patch_source_call_edges, patch_test_recommendations
 
     validate_patch_request(request)
@@ -628,8 +629,27 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
     files = parse_diff(request.patch)
     groups = {section: [] for section in sorted(impact_report.PATCH_SECTIONS)}
     snapshots, file_identities, affected, graph_targets, declarations = {}, [], {}, [], {}
-    source_trees, file_coverage = {}, []
+    source_trees, file_coverage, candidate_trees = {}, [], {}
     total_bytes = 0
+    role_config, role_config_identity = {}, None
+    role_config_absent = not _source_path_present_or_unsafe(root, "pyproject.toml")
+    if not role_config_absent:
+        import tomllib
+
+        payload, config_identity = _source(root, "pyproject.toml")
+        snapshots["pyproject.toml"] = (payload, config_identity)
+        total_bytes += len(payload)
+        role_config_identity = {"path": "pyproject.toml", "sha256": hashlib.sha256(payload).hexdigest()}
+        try:
+            tool = tomllib.loads(payload.decode("utf-8")).get("tool", {})
+            pytest_options = tool.get("pytest", {}).get("ini_options", {})
+            packages = tool.get("setuptools", {}).get("packages", {})
+            includes = packages.get("find", {}).get("include", []) if isinstance(packages, dict) else []
+            for key, values in (("testpaths", pytest_options.get("testpaths", [])), ("package_include", includes)):
+                if isinstance(values, list) and all(isinstance(value, str) for value in values):
+                    role_config[key] = values
+        except (ValueError, UnicodeError, AttributeError):
+            groups["uncertainties"].append({"path": "pyproject.toml", "reason": "Role configuration could not be interpreted; convention-based classification remains inferred."})
     for file in files:
         python_file = PurePosixPath(file.path).suffix in PYTHON_SUFFIXES
         if file.operation == "add":
@@ -656,8 +676,7 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
             raise ImpactInputError("combined baseline and candidate source exceeds its byte limit")
         if python_file:
             before_tree = _python_tree(before, file.path) if before is not None else None
-            if after is not None:
-                _python_tree(after, file.path)
+            candidate_trees[file.path] = _python_tree(after, file.path) if after is not None else None
             if before_tree is not None:
                 source_trees[file.path] = {"tree": before_tree, "sha256": digest(before)}
             analysis = analyze_python_change(file.path, before, after)
@@ -713,6 +732,30 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
         tests.append({"path": path, "tree": tree, "sha256": sha})
     if not complete:
         groups["uncertainties"].append({"reason": "test inventory is incomplete within bounded directory/file/byte limits"})
+    roles, provenance = {}, {}
+    test_status_counts = dict.fromkeys(("unchanged", "modified", "added", "removed"), 0)
+    for file in files:
+        before_tree = source_trees.get(file.path, {}).get("tree")
+        after_tree = candidate_trees.get(file.path)
+        roles[file.path] = file_role(file.path, before_tree, after_tree, tests, role_config)
+        old, new = test_declarations(before_tree), test_declarations(after_tree)
+        for name in sorted(old.keys() | new.keys()):
+            item = test_provenance(old.get(name), new.get(name), changed_file=True)
+            provenance[f"{file.path}#{name}"] = item
+            test_status_counts[item["status"]] += 1
+    for section in ("changes", "findings", "obligations"):
+        for row in groups[section]:
+            entity_id = row.get("entity_id") or row.get("id", "")
+            path = row.get("path") or entity_id.split("#", 1)[0]
+            row["source_role"] = roles[path]
+            if entity_id in provenance:
+                if section == "changes":
+                    row["test_provenance"] = provenance[entity_id]
+                else:
+                    row["test_change"] = {"entity_id": entity_id, "status": provenance[entity_id]["status"],
+                                          "details_section": "changes"}
+    for row in file_coverage:
+        row["source_role"] = roles[row["path"]]
     verified_submodules, resolution_sources, unresolved_imports, total_bytes, resolution_absences = _verified_package_submodules(
         root, affected, tests, snapshots, {file.path for file in files}, total_bytes)
     source_calls, source_call_limits = patch_source_call_edges(source_trees, declarations)
@@ -720,6 +763,19 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
         tests, affected, declarations=declarations, state_dependencies=groups["state_dependencies"],
         source_calls=source_calls, verified_submodules=verified_submodules,
         obligations=groups["obligations"], source_trees=source_trees)
+    for check in groups["recommended_checks"]:
+        path, *names = check["test_id"].split("::")
+        key = path + "#" + ".".join(names)
+        source = next(item for item in tests if item["path"] == path)
+        node = test_declarations(source["tree"]).get(".".join(names))
+        check["test_provenance"] = provenance.get(key) or test_provenance(node, node)
+        for association in check["associations"]:
+            for evidence in association.get("obligation_evidence", []):
+                evidence["evidence_category"] = {
+                    "input-and-assertion": "supported-behavior-related-assertion",
+                    "assertion": "supported-behavior-related-assertion", "input": "supported-input",
+                    "unresolved": "unresolved-relationship",
+                }.get(evidence["level"], "supported-source-path-only" if association.get("resolution") == "resolved" else "broad-reference")
     groups["uncertainties"].extend({"path": row["path"], "test_id": row["test_id"],
                                    "reason": row["behavioral_analysis_limit"]}
                                   for row in groups["recommended_checks"] if row.get("behavioral_analysis_limit"))
@@ -733,16 +789,29 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
                 for evidence in association.get("obligation_evidence", []):
                     if evidence.get("obligation_id") == obligation["id"]:
                         linked.append({"test_id": test["test_id"], "level": evidence.get("level"),
-                                       "reason": evidence.get("reason")})
+                                       "reason": evidence.get("reason"),
+                                       "evidence_category": evidence.get("evidence_category"),
+                                       "test_status": test["test_provenance"]["status"],
+                                       "evidence_phase": "before"})
+        ranks = {"input-and-assertion": 0, "assertion": 1, "input": 2, "broad": 3, "unresolved": 4}
+        linked = sorted({(item["test_id"], item["level"]): item for item in linked}.values(),
+                        key=lambda item: (ranks.get(item["level"], 4), item["test_id"]))
+        spans = obligation.get("after") or obligation.get("before") or []
+        location = spans[0].get("location", {}) if spans else {}
+        observation = obligation["observable"].get("detail") or obligation["observable"].get("kind")
         obligation["verification_plan"] = {
-            "existing_baseline_tests": sorted(linked, key=lambda item: (item["level"] != "input-and-assertion",
-                                                                  item["test_id"])),
+            "existing_baseline_tests": linked,
             "candidate_added_test_files": sorted(file.path for file in files if file.operation == "add"
                                                  and file.path.endswith(".py") and _is_test_path(file.path)),
             "proposed_input": ({obligation["condition"]["parameter"]: obligation["condition"]["target_value"]}
                                if (obligation.get("condition") or {}).get("kind") == "comparison-boundary"
                                and obligation["condition"].get("target_value") is not None else None),
             "observe": obligation["observable"],
+            "strongest_evidence": linked[0]["evidence_category"] if linked else "unresolved-relationship",
+            "next_step": f"Inspect {entity_id} at line {location.get('line', '?')}; trace {observation} into an assertion for the same call and changed condition.",
+            "unresolved": sorted({item["reason"] for item in linked if item.get("level") in {"broad", "unresolved", "input"}})
+                or (["No behavior-related baseline assertion was established; this does not prove that no suitable test exists."]
+                    if not linked else ["Static assertion evidence does not establish runtime reachability or the intended contract."]),
             "expectation": None, "expectation_basis": "unresolved-hypothesis",
             "execution_status": "not-run",
             "note": "Review the intended contract before interpreting a difference as a regression; test execution requires separate authorization.",
@@ -798,6 +867,8 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
                 raise ImpactInputError("source or test evidence changed during inspection; retry")
     if any(_source_path_present_or_unsafe(root, path) for path in resolution_absences):
         raise ImpactInputError("competing package source path changed during inspection; retry")
+    if role_config_absent and _source_path_present_or_unsafe(root, "pyproject.toml"):
+        raise ImpactInputError("role configuration appeared during inspection; retry")
     final_inventory, final_complete = _test_inventory(root)
     if inventory != final_inventory or complete and not final_complete or state.git_head(str(root)) != head or _identity(root.stat())[:2] != root_identity:
         raise ImpactInputError("repository revision, identity or test inventory changed during inspection; retry")
@@ -807,6 +878,8 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
                 "test_sources_sha256": hashlib.sha256(impact_report._encode(test_hashes)).hexdigest(),
                 "test_inventory_sha256": hashlib.sha256("\n".join(inventory).encode()).hexdigest(),
                 "test_inventory_complete": complete, "graph_evidence_sha256": hashlib.sha256(impact_report._encode(graph_records)).hexdigest(),
+                "role_configuration": role_config_identity,
+                "test_change_counts": test_status_counts,
                 "resolution_sources": resolution_sources,
                 "resolution_absences": resolution_absences,
                 "candidate_test_files": sorted(file.path for file in files if file.path.endswith(".py") and _is_test_path(file.path)),
@@ -816,8 +889,8 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
                                          "unresolved_package_imports": unresolved_imports,
                                          "local_call_limits": source_call_limits,
                                          "unavailable_baseline_tests": unavailable_tests},
-                "configuration": {"analysis": "python-markdown-concrete-patch-v3", "max_test_files": MAX_TEST_FILES,
-                                  "recommendation_evidence": "behavioral-test-evidence-v3",
+                "configuration": {"analysis": "python-markdown-concrete-patch-v4", "max_test_files": MAX_TEST_FILES,
+                                  "recommendation_evidence": "behavioral-test-evidence-v4",
                                   "max_graph_targets": MAX_GRAPH_TARGETS, "max_ast_nodes": MAX_AST_NODES, "max_ast_depth": MAX_AST_DEPTH}}
     try:
         return impact_report.build_patch_packet(asdict(request), identity=identity, groups=groups,
