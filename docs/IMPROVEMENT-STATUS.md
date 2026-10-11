@@ -1,11 +1,22 @@
 # Improvement status
 
-Updated **10 October 2026**. **Phase 1 is PARTIAL; Phase 2 has not begun.**
-This is the current acceptance status, not a claim of general production
-readiness. The September improvement ledger below covers a broader roadmap;
-its item states do not replace Phase 1 acceptance checks.
+Updated **11 October 2026**. The local Phase 2 development candidate is
+`5655355c17ddef95e6dfa08dfd27cdf6272dc119`. Its package-import test
+discovery defect is **closed locally**: the validated correction restores
+supported paths through an inert literal-version initializer while rejecting
+conflicting bindings. See the [quickstart](phase2-quickstart.md) and
+[diagnostic evidence](../dist/git-enumeration-maintenance-2026-10-11/discovery-diagnosis/DIAGNOSIS.md).
+Recommendations remain bounded source relationships, not executed coverage or
+proof of an assertion's protection. Dynamic command/subprocess dispatch and
+candidate-added tests remain outside baseline discovery. External graph checks
+and environments represented by skipped tests remain unverified. Phase 1
+external acceptance remains **PARTIAL**; this local candidate has not been
+published or independently accepted for general production use.
 
-## Current Phase 1 replacement candidate
+The 10 October Phase 1 acceptance snapshot and September improvement ledger
+below remain historical; their item states do not replace acceptance checks.
+
+## Phase 1 replacement candidate (10 October snapshot)
 
 The response-boundary repair belongs to the separate replacement candidate
 `dist/phase1-wire-2026-10-10.EHpaIc`. Its external
