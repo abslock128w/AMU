@@ -1,4 +1,4 @@
-"""Check an installed inspection-only v1/v2 MCP server in a disposable fixture.
+"""Check an installed inspection-only v1/v3 MCP server in a disposable fixture.
 
 Run with the candidate installation's Python -I and --python /absolute/python.
 Only operator setup edits the tiny fixture; no candidate or check is executed.
@@ -61,7 +61,7 @@ def main() -> int:
     git = shutil.which("git")
     assert git, "git is required for the disposable fixture"
     report = {"schema_version": 1, "complete": False, "steps": [], "failures": [],
-              "scope": "installed v1/v2 inspection-only SDK stdio in a tiny disposable fixture",
+              "scope": "installed v1/v3 inspection-only SDK stdio in a tiny disposable fixture",
               "models_used": False, "candidate_executed": False, "checks_executed": False,
               "live_configuration_changed": False}
     old_environment = dict(os.environ)
@@ -112,7 +112,7 @@ def main() -> int:
             for enabled in (False, True):
                 diagnostic = mcp_verification.probe(str(python), str(repo), enable_patch_analysis=enabled)
                 assert diagnostic["status"] == "matched" and diagnostic["manifest"]["match"], diagnostic
-                name = "v2" if enabled else "v1"
+                name = "v3" if enabled else "v1"
                 identities[name] = diagnostic["protocol"]["reported_identity"]
                 report[name] = {"manifest_sha256": diagnostic["manifest"]["expected_sha256"],
                                 "build_sha256": diagnostic["runtime"]["build_sha256"],
@@ -120,7 +120,7 @@ def main() -> int:
 
             async def probe():
                 for enabled in (False, True):
-                    name = "v2" if enabled else "v1"
+                    name = "v3" if enabled else "v1"
                     arguments = ["-I", "-B", "-m", "amu.mcp_server", "--allow-repo", str(repo)]
                     if enabled:
                         arguments.append("--enable-patch-analysis")
@@ -149,13 +149,17 @@ def main() -> int:
                                 async def call(**options):
                                     return payload(await session.call_tool("amu_analyze_patch", {"repo": str(repo), "patch": PATCH, **options}))
 
-                                first = await call(page_size=1)
+                                summary = await call(page_size=1)
+                                assert summary["schema_version"] == 3 and summary["page"]["section"] == "summary", summary
+                                assert summary["summary"]["changed_files"] and summary["retrieval"]["changes"]["cursor"], summary
+                                first = await call(section="changes", page_size=1)
                                 assert first["operation"] == "concrete-patch-impact", first
                                 assert first["assessment"]["executed"] is False and first["assessment"]["safe_to_change"] is None, first
                                 assert first["page"]["section"] == "changes" and first["page"]["next_cursor"], first
-                                second = await call(page_size=1, cursor=first["page"]["next_cursor"])
+                                assert first["report_hash"] == summary["report_hash"], first
+                                second = await call(section="changes", page_size=1, cursor=first["page"]["next_cursor"])
                                 assert second["report_hash"] == first["report_hash"] and second["page"]["offset"] == 1, second
-                                full = await call(page_size=100)
+                                full = await call(section="changes", page_size=100)
                                 assert full["report_hash"] == first["report_hash"]
                                 assert full["details"]["items"] == first["details"]["items"] + second["details"]["items"]
                                 checks = await call(section="recommended_checks", cursor=first["retrieval"]["recommended_checks"]["cursor"])
@@ -195,9 +199,9 @@ def main() -> int:
                                 report["steps"].append({"profile": name, "check": "literal_patch_paging_strict_inputs_limits_repository_boundary", "status": "passed"})
                                 tests.write_text(TEST_SOURCE + "\n# operator changed test evidence\n", encoding="utf-8")
                                 edited = _capture(repo)
-                                stale = await call(page_size=1, cursor=first["page"]["next_cursor"])
+                                stale = await call(section="changes", page_size=1, cursor=first["page"]["next_cursor"])
                                 assert stale["exit"] == 2 and "stale" in stale["error"], stale
-                                fresh = await call(page_size=1)
+                                fresh = await call(section="changes", page_size=1)
                                 assert fresh["report_hash"] != first["report_hash"] and fresh["assessment"]["executed"] is False, fresh
                                 assert _capture(repo) == edited, "inspection changed operator-edited fixture"
                                 assert not (repo / ".amu").exists() and not (outside / ".amu").exists()

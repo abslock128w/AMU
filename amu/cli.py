@@ -570,7 +570,7 @@ def analyze_patch_cmd(
     base: str = typer.Option("HEAD", "--base", help="HEAD/full current HEAD SHA anchors live source; worktree for non-Git copies"),
     depth: int = typer.Option(1, "--depth", help="optional graph relationship depth, 1–3"),
     include_graph: bool = typer.Option(False, "--include-graph", help="include current source-backed provider evidence"),
-    section: str = typer.Option("changes", "--section", help="changes|findings|state_dependencies|recommended_checks|uncertainties"),
+    section: str = typer.Option("summary", "--section", help="summary|changes|findings|state_dependencies|recommended_checks|uncertainties"),
     cursor: str | None = typer.Option(None, "--cursor", help="opaque patch/evidence-bound cursor; stale cursors are refused"),
     page_size: int = typer.Option(20, "--page-size", help="page entries, 1–100"),
     repo: str = REPO_OPT,
@@ -592,8 +592,10 @@ def analyze_patch_cmd(
         if not json_output:
             typer.echo(str(exc), err=True)
         raise typer.Exit(code=exc.exit_code) from exc
-    _out(result, json_output)
-    if not json_output:
+    if json_output:
+        typer.echo(json.dumps(result, ensure_ascii=False, separators=(",", ":")))
+    else:
+        _out(result, False)
         typer.echo("Candidate inspected in memory. Checks are recommendations; candidate code and checks were not executed.")
         typer.echo("Use --json and the same report's section/cursor retrieval for complete evidence.")
 

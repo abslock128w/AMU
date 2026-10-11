@@ -58,7 +58,7 @@ class PatchRequest:
     base: str = "HEAD"
     depth: int = 1
     include_graph: bool = False
-    section: str = "changes"
+    section: str = "summary"
     cursor: str | None = None
     page_size: int = 20
 
@@ -75,11 +75,13 @@ def validate_patch_request(request: PatchRequest) -> None:
         raise ImpactInputError(f"depth must be an integer from 1 to {MAX_DEPTH}")
     if type(request.include_graph) is not bool:
         raise ImpactInputError("include_graph must be a boolean")
-    if not isinstance(request.section, str) or request.section not in impact_report.PATCH_SECTIONS:
-        raise ImpactInputError("section must be changes, findings, state_dependencies, recommended_checks or uncertainties")
+    if not isinstance(request.section, str) or request.section not in impact_report.PATCH_REQUEST_SECTIONS:
+        raise ImpactInputError("section must be summary, changes, findings, state_dependencies, recommended_checks or uncertainties")
     if type(request.page_size) is not int or not 1 <= request.page_size <= MAX_ROWS:
         raise ImpactInputError(f"page_size must be an integer from 1 to {MAX_ROWS}")
     if request.cursor is not None:
+        if request.section == "summary":
+            raise ImpactInputError("summary has no cursor; choose an evidence section for retrieval")
         if not isinstance(request.cursor, str) or not request.cursor:
             raise ImpactInputError("cursor must be nonempty bounded text or null")
         try:
@@ -383,7 +385,8 @@ _PATCH_LIMITATIONS = [
     "The diff was applied exactly in memory to live working-tree bytes; HEAD is an anchor, not a claim that those bytes equal the commit.",
     "Observed syntax and established source references are distinct from inferred behavioral risks. No regression or safety is proved by this inspection.",
     "No candidate module was imported, executed or written. Execution authorization is a separate operation.",
-    "Test recommendations use direct unshadowed import references in at most 200 Python test files, not executed coverage. Indirect imports, aliases beyond imports, dispatch and descriptors remain unresolved.",
+    "Existing-test recommendations inspect at most 200 baseline Python test files. Direct unshadowed imports, verified inert package-submodule imports and at most two local direct-call hops are source paths, not executed or asserted coverage. Dynamic dispatch, aliases beyond imports and descriptors remain unresolved.",
+    "Markdown changes are recorded with exact content identity; Python behavioral analysis does not cover Markdown prose or fenced code.",
     "Optional provider relationships describe the baseline source only. The graph provider may update its local cache; native tools are not an OS sandbox.",
     "Retrieve all relevant sections and complete fragments from the same report before relying on detailed evidence.",
 ]
@@ -481,11 +484,126 @@ def _python_tree(text: str, path: str) -> ast.AST:
         raise ImpactInputError(f"{path} is not safely parseable bounded UTF-8 Python") from exc
 
 
+def _markdown_text(text: str, path: str) -> None:
+    """Accept ordinary UTF-8 LF prose, without interpreting fenced code."""
+    if any((ord(char) < 32 and char not in "\n\t") or ord(char) == 127 for char in text):
+        raise ImpactInputError(f"{path} must be ordinary UTF-8 LF Markdown without controls")
+
+
+def _source_path_present_or_unsafe(root: Path, relative: str) -> bool:
+    """Check an alternative import path without following links or reading it.
+
+    A symlink or inaccessible parent is ambiguous, never proof of absence.
+    Recheck every established absence before returning a report.
+    """
+    if not all(hasattr(os, name) for name in ("O_NOFOLLOW", "O_DIRECTORY")):
+        raise ImpactInputError("secure source inspection is unavailable on this host")
+    descriptors = []
+    try:
+        parent = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        descriptors.append(parent)
+        parts = PurePosixPath(relative).parts
+        for part in parts[:-1]:
+            try:
+                parent = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent)
+            except FileNotFoundError:
+                return False
+            except OSError:
+                return True
+            descriptors.append(parent)
+        try:
+            os.stat(parts[-1], dir_fd=parent, follow_symlinks=False)
+        except FileNotFoundError:
+            return False
+        except OSError:
+            return True
+        return True
+    except OSError as exc:
+        raise ImpactInputError("repository identity changed during import-path inspection; retry") from exc
+    finally:
+        for descriptor in reversed(descriptors):
+            os.close(descriptor)
+
+
+def _verified_package_submodules(root: Path, affected: dict[str, set[str]], tests: list[dict],
+                                 snapshots: dict, changed_paths: set[str], total_bytes: int) -> tuple[dict, list, list, int, list]:
+    """Resolve ``from package import module`` only for an inert baseline initializer.
+
+    The package initializer and test imports are read as syntax, never imported.
+    An initializer changed by the candidate cannot establish the same path.
+    """
+    from amu.patch import MAX_TOTAL_SOURCE_BYTES
+
+    imports = {(node.module, alias.name) for source in tests for node in source["tree"].body
+               if isinstance(node, ast.ImportFrom) and node.level == 0 and node.module
+               for alias in node.names if alias.name != "*"}
+    verified, sources, unresolved, initializer_results = {}, [], [], {}
+    absent_competitors, unresolved_keys = set(), set()
+    for target_path in sorted(affected):
+        target = PurePosixPath(target_path)
+        if target.suffix != ".py" or target.name == "__init__.py" or target.parent == PurePosixPath("."):
+            continue
+        parts = target.parent.parts
+        module = ".".join(parts[1:] if parts[0] == "src" else parts)
+        key = (module, target.stem)
+        if key not in imports:
+            continue
+        initializer = (target.parent / "__init__.py").as_posix()
+        module_path = PurePosixPath(*(target.parts[1:] if target.parts[0] == "src" else target.parts))
+        competitors = sorted({module_path.as_posix(), (PurePosixPath("src") / module_path).as_posix(),
+                              (module_path.with_suffix("") / "__init__.py").as_posix(),
+                              (PurePosixPath("src") / module_path.with_suffix("") / "__init__.py").as_posix()}
+                             - {target_path})
+        changed_competitors = [path for path in competitors if path in changed_paths]
+        existing_competitors = [path for path in competitors if _source_path_present_or_unsafe(root, path)]
+        if changed_competitors:
+            reason = "another package-submodule path changes in the candidate"
+        elif existing_competitors:
+            reason = "another repository path could provide this package submodule"
+        elif snapshots.get(target_path, (None,))[0] is None:
+            reason = "target module has no baseline source"
+        elif initializer in changed_paths:
+            reason = "package initializer changes in the candidate"
+        else:
+            if initializer not in initializer_results:
+                try:
+                    payload, source_identity = _source(root, initializer)
+                    previous = snapshots.get(initializer)
+                    if previous is not None and previous != (payload, source_identity):
+                        raise ImpactInputError("package initializer or test evidence changed during inspection; retry")
+                    if previous is None and total_bytes + len(payload) > MAX_TOTAL_SOURCE_BYTES:
+                        raise ImpactInputError("combined source byte budget exhausted")
+                    tree = _python_tree(payload.decode("utf-8"), initializer)
+                    if not all(isinstance(node, ast.Pass) or isinstance(node, ast.Expr)
+                               and isinstance(node.value, ast.Constant) and isinstance(node.value.value, str)
+                               for node in tree.body):
+                        raise ImpactInputError("package initializer contains executable or binding statements")
+                except (ImpactInputError, UnicodeError) as exc:
+                    if isinstance(exc, ImpactInputError) and "changed during inspection" in str(exc):
+                        raise
+                    initializer_results[initializer] = str(exc)
+                else:
+                    initializer_results[initializer] = None
+                    snapshots[initializer] = (payload, source_identity)
+                    if previous is None:
+                        total_bytes += len(payload)
+                    sources.append({"path": initializer, "sha256": hashlib.sha256(payload).hexdigest()})
+            reason = initializer_results[initializer]
+            if reason is None:
+                verified[key] = target_path
+                absent_competitors.update(competitors)
+                continue
+        if key not in unresolved_keys:
+            unresolved.append({"import": f"from {module} import {target.stem}", "reason": reason})
+            unresolved_keys.add(key)
+    return verified, sources, unresolved, total_bytes, sorted(absent_competitors)
+
+
 def execute_patch(repo: str, request: PatchRequest) -> dict:
     """Inspect a concrete diff and relevant existing test syntax, without execution."""
     from amu.change_analysis import analyze_python_change
-    from amu.patch import MAX_TOTAL_SOURCE_BYTES, PatchError, apply_file, digest, parse_diff
-    from amu.plan import patch_test_recommendations
+    from amu.patch import MAX_TOTAL_SOURCE_BYTES, PYTHON_SUFFIXES, PatchError, apply_file, digest, parse_diff
+    from amu.plan import _is_test_path, patch_source_call_edges, patch_test_recommendations
 
     validate_patch_request(request)
     root = _repo(repo)
@@ -496,8 +614,10 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
     files = parse_diff(request.patch)
     groups = {section: [] for section in sorted(impact_report.PATCH_SECTIONS)}
     snapshots, file_identities, affected, graph_targets, declarations = {}, [], {}, [], {}
+    source_trees, file_coverage = {}, []
     total_bytes = 0
     for file in files:
+        python_file = PurePosixPath(file.path).suffix in PYTHON_SUFFIXES
         if file.operation == "add":
             _absent_source(root, file.path)
             before, source_identity = None, None
@@ -508,8 +628,11 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
             try:
                 before = payload.decode("utf-8")
             except UnicodeError as exc:
-                raise ImpactInputError(f"{file.path} must be UTF-8 Python source") from exc
+                kind = "Python source" if python_file else "Markdown"
+                raise ImpactInputError(f"{file.path} must be UTF-8 {kind}") from exc
             snapshots[file.path] = (payload, source_identity)
+            if not python_file:
+                _markdown_text(before, file.path)
         try:
             after = apply_file(file, before)
         except PatchError as exc:
@@ -517,27 +640,40 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
         total_bytes += len(after.encode("utf-8")) if after is not None else 0
         if total_bytes > MAX_TOTAL_SOURCE_BYTES:
             raise ImpactInputError("combined baseline and candidate source exceeds its byte limit")
-        for text in (before, after):
-            if text is not None:
-                _python_tree(text, file.path)
-        analysis = analyze_python_change(file.path, before, after)
-        declarations.update(analysis.get("recommendation_entities", {}))
-        changed_ids = {row["id"] for row in analysis["modified_entities"]}
-        analysis["state_dependencies"] = [row for row in analysis["state_dependencies"]
-                                           if row.get("state_id") in changed_ids or row.get("consumer_id") in changed_ids]
-        groups["changes"].extend(analysis["modified_entities"])
-        for section in ("findings", "state_dependencies", "uncertainties"):
-            groups[section].extend(analysis[section])
-        for entity in analysis["modified_entities"]:
-            name = entity["qualified_name"]
-            affected.setdefault(file.path, set()).add(name)
-            if before is not None and entity.get("before_location") and entity["kind"] in {"function", "async_function", "class", "method"}:
-                graph_targets.append(entity["id"])
-        for consumer in analysis["state_dependencies"]:
-            consumer_id = consumer.get("consumer_id", "")
-            if "#" in consumer_id:
-                path, name = consumer_id.split("#", 1)
-                affected.setdefault(path, set()).add(name)
+        if python_file:
+            before_tree = _python_tree(before, file.path) if before is not None else None
+            if after is not None:
+                _python_tree(after, file.path)
+            if before_tree is not None:
+                source_trees[file.path] = {"tree": before_tree, "sha256": digest(before)}
+            analysis = analyze_python_change(file.path, before, after)
+            declarations.update(analysis.get("recommendation_entities", {}))
+            changed_ids = {row["id"] for row in analysis["modified_entities"]}
+            analysis["state_dependencies"] = [row for row in analysis["state_dependencies"]
+                                               if row.get("state_id") in changed_ids or row.get("consumer_id") in changed_ids]
+            groups["changes"].extend(analysis["modified_entities"])
+            for section in ("findings", "state_dependencies"):
+                groups[section].extend(analysis[section])
+            groups["uncertainties"].extend({"path": file.path, **row} for row in analysis["uncertainties"])
+            for entity in analysis["modified_entities"]:
+                name = entity["qualified_name"]
+                affected.setdefault(file.path, set()).add(name)
+                if before is not None and entity.get("before_location") and entity["kind"] in {"function", "async_function", "class", "method"}:
+                    graph_targets.append(entity["id"])
+            for consumer in analysis["state_dependencies"]:
+                consumer_id = consumer.get("consumer_id", "")
+                if "#" in consumer_id:
+                    path, name = consumer_id.split("#", 1)
+                    affected.setdefault(path, set()).add(name)
+            file_coverage.append({"path": file.path, "file_type": "python", "analysis": "python-syntax"})
+        else:
+            if after is not None:
+                _markdown_text(after, file.path)
+            groups["changes"].append({"id": file.path, "path": file.path, "kind": "markdown",
+                                      "change": file.operation, "analysis": "content-only", "hunks": len(file.hunks),
+                                      "baseline_sha256": digest(before), "candidate_sha256": digest(after)})
+            file_coverage.append({"path": file.path, "file_type": "markdown", "analysis": "content-only",
+                                  "limitation": "Python behavioral analysis does not cover this Markdown content."})
         file_identities.append({"path": file.path, "operation": file.operation,
                                 "baseline_sha256": digest(before), "candidate_sha256": digest(after)})
     inventory, complete = _test_inventory(root)
@@ -562,8 +698,12 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
         tests.append({"path": path, "tree": tree, "sha256": sha})
     if not complete:
         groups["uncertainties"].append({"reason": "test inventory is incomplete within bounded directory/file/byte limits"})
+    verified_submodules, resolution_sources, unresolved_imports, total_bytes, resolution_absences = _verified_package_submodules(
+        root, affected, tests, snapshots, {file.path for file in files}, total_bytes)
+    source_calls, source_call_limits = patch_source_call_edges(source_trees, declarations)
     groups["recommended_checks"] = patch_test_recommendations(
-        tests, affected, declarations=declarations, state_dependencies=groups["state_dependencies"])
+        tests, affected, declarations=declarations, state_dependencies=groups["state_dependencies"],
+        source_calls=source_calls, verified_submodules=verified_submodules)
     for finding in groups["findings"]:
         entity_id = finding.get("entity_id")
         finding["recommended_test_ids"] = [test["test_id"] for test in groups["recommended_checks"]
@@ -613,15 +753,25 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
             current, current_identity = _source(root, path)
             if current != payload or current_identity != identity:
                 raise ImpactInputError("source or test evidence changed during inspection; retry")
+    if any(_source_path_present_or_unsafe(root, path) for path in resolution_absences):
+        raise ImpactInputError("competing package source path changed during inspection; retry")
     final_inventory, final_complete = _test_inventory(root)
     if inventory != final_inventory or complete and not final_complete or state.git_head(str(root)) != head or _identity(root.stat())[:2] != root_identity:
         raise ImpactInputError("repository revision, identity or test inventory changed during inspection; retry")
     identity = {"repository": {"path": str(root), "device": root_identity[0], "inode": root_identity[1]},
                 "baseline_kind": "live-worktree", "git_head": None if head == "no-git" else head, "files": file_identities,
-                "test_sources": test_hashes, "test_inventory_sha256": hashlib.sha256("\n".join(inventory).encode()).hexdigest(),
+                "file_coverage": file_coverage, "test_sources": test_hashes,
+                "test_sources_sha256": hashlib.sha256(impact_report._encode(test_hashes)).hexdigest(),
+                "test_inventory_sha256": hashlib.sha256("\n".join(inventory).encode()).hexdigest(),
                 "test_inventory_complete": complete, "graph_evidence_sha256": hashlib.sha256(impact_report._encode(graph_records)).hexdigest(),
-                "configuration": {"analysis": "python-concrete-patch-v1", "max_test_files": MAX_TEST_FILES,
-                                  "recommendation_evidence": "member-specific-v1",
+                "resolution_sources": resolution_sources,
+                "resolution_absences": resolution_absences,
+                "candidate_test_files": sorted(file.path for file in files if file.path.endswith(".py") and _is_test_path(file.path)),
+                "recommendation_scope": {"baseline_test_files_inspected": len(tests), "max_local_call_hops": 2,
+                                         "unresolved_package_imports": unresolved_imports,
+                                         "local_call_limits": source_call_limits},
+                "configuration": {"analysis": "python-markdown-concrete-patch-v2", "max_test_files": MAX_TEST_FILES,
+                                  "recommendation_evidence": "member-and-local-call-v2",
                                   "max_graph_targets": MAX_GRAPH_TARGETS, "max_ast_nodes": MAX_AST_NODES, "max_ast_depth": MAX_AST_DEPTH}}
     try:
         return impact_report.build_patch_packet(asdict(request), identity=identity, groups=groups,

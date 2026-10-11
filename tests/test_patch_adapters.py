@@ -42,6 +42,7 @@ def test_cli_patch_file_reads_regular_utf8_without_applying(monkeypatch, tmp_pat
                                        "--repo", str(tmp_path), "--json"])
     assert result.exit_code == 0, result.output
     assert calls[0][1].patch == PATCH
+    assert calls[0][1].section == "summary"
     assert path.read_text() == PATCH
     assert not (tmp_path / "api.py").exists()
 
@@ -172,14 +173,16 @@ def test_patch_policy_denies_before_read_and_sanitizes_environment(tmp_path, mon
     assert "private diff" not in capsys.readouterr().err
 
 
-def test_default_manifest_identity_is_unchanged_and_v2_is_additive():
+def test_default_manifest_identity_is_unchanged_and_v3_patch_contract_is_additive():
     original = mcp_manifest.inspection_manifest()
     assert original["manifest_version"] == "amu-inspection-v1"
     assert original["sha256"] == "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761"
     extended = mcp_manifest.inspection_manifest(enable_patch_analysis=True)
-    assert extended["manifest_version"] == "amu-inspection-v2"
+    assert extended["manifest_version"] == "amu-inspection-v3"
     assert {tool["name"] for tool in extended["tools"]} == mcp_access.PATCH_INSPECTION_TOOLS
     assert [tool for tool in extended["tools"] if tool["name"] != "amu_analyze_patch"] == original["tools"]
+    patch_tool = next(tool for tool in extended["tools"] if tool["name"] == "amu_analyze_patch")
+    assert patch_tool["inputSchema"]["properties"]["section"]["default"] == "summary"
     assert not mcp_manifest.compare_tools(extended["tools"])["match"]
     assert mcp_manifest.compare_tools(extended["tools"], enable_patch_analysis=True)["match"]
 

@@ -35,6 +35,9 @@ and all four diffs.
 amu example-fixture --output "$PWD/cache-example" --json
 amu analyze-patch --repo "$PWD/cache-example" --base worktree \
   --patch-file "$PWD/cache-example/patches/wrong-key.diff" \
+  --json
+amu analyze-patch --repo "$PWD/cache-example" --base worktree \
+  --patch-file "$PWD/cache-example/patches/wrong-key.diff" \
   --section findings --json
 amu analyze-patch --repo "$PWD/cache-example" --base worktree \
   --patch-file "$PWD/cache-example/patches/wrong-key.diff" \
@@ -52,9 +55,15 @@ repository, `--base HEAD` (the default) or the full current HEAD SHA also checks
 the Git anchor. It still applies to live working-tree bytes, including local
 changes. Arbitrary historical revisions and fuzzy context are rejected.
 
-The initial report includes counts, a short observation preview and test IDs.
-Full evidence is available in `changes`, `findings`, `state_dependencies`,
-`recommended_checks`, and `uncertainties`. Repeat the same patch/repository and
+The default `summary` answers which files changed, which bounded source paths
+support existing checks, and which uncertainties matter most. Its ranked
+previews include total and omitted counts. Repeated uncertainty reasons show
+before/after counts, file counts and located samples; a relationship present in
+both phases is not presented as a new risk. Candidate test edits are listed
+separately and cannot inflate baseline existing-test recommendations. The JSON
+response uses compact whitespace. Full evidence is available in `changes`,
+`findings`, `state_dependencies`, `recommended_checks`, and `uncertainties`.
+Repeat the same patch/repository and
 use the section's `retrieval` cursor or `page.next_cursor` with `--cursor`.
 Changing source, tests, Git identity, configuration or graph evidence invalidates
 the cursor. For fragmented items, retrieve all fragments, concatenate decoded
@@ -106,7 +115,7 @@ provider, so its cost is marked unavailable in this measurement.
 ## MCP
 
 The default server retains the four-tool `amu-inspection-v1` contract. Explicit
-patch opt-in adds `amu_analyze_patch` under `amu-inspection-v2`:
+patch opt-in adds `amu_analyze_patch` under `amu-inspection-v3`:
 
 ```sh
 python -m amu.mcp_server --allow-repo /absolute/path/to/cache-example \
@@ -121,7 +130,11 @@ bounded evidence retrieval still apply.
 
 ## Supported scope and limits
 
-Diffs are UTF-8 LF, at most 48 KiB, eight Python `.py`/`.pyi` files and 128 hunks.
+Diffs are UTF-8 LF, at most 48 KiB, eight total `.py`/`.pyi` Python and
+`.md`/`.markdown` Markdown files, and 128 hunks. Markdown must be ordinary
+UTF-8 LF text without controls. Its paths, baseline bytes and hunks are
+validated exactly, and its changed content is recorded with hashes; Python
+behavioral analysis does not cover Markdown prose or fenced code.
 Ordinary modifications, additions and deletions are supported; an addition
 requires existing nonsymlink parent directories. Binary/combined diffs,
 renames/copies, quoted or ambiguous headers, mode changes, path traversal,
@@ -132,12 +145,21 @@ The analyzer covers changed calls/arguments, returns, branches, exceptions,
 direct module/class state and recognized cache operations. State consumers and
 key definitions are connected only in the documented static scope. Aliases,
 conditional/rebound keys, dynamic dispatch and arbitrary descriptors remain
-uncertain. Test discovery is bounded to 200 files/10,000 directory entries and
-direct unshadowed imports; recommendations are source references, not coverage.
+uncertain. Existing-test discovery is bounded to 200 baseline Python files and
+10,000 directory entries. It follows direct unshadowed import references and,
+when an unchanged package initializer contains only a docstring/pass and no
+competing root, `src/` or package-module path exists or changes, a
+`from package import module` reference to that module. A directly called,
+unshadowed module function can connect through at most two direct local calls
+to a changed function. That optional path is capped at 128 module functions
+and 256 local call edges per source file; dynamic namespaces and shadowed or
+decorated bindings are excluded. These are lexical paths, not proof that a
+test ran the path or asserted the changed behavior.
 
-Recommendation evidence distinguishes specificity without changing candidate
-ordering (lexicographic full test ID) or hiding broad candidates. Every candidate
-remains in `recommended_checks`, its count, and the first-three-ID preview.
+Recommendation evidence distinguishes specificity without hiding broad
+candidates. Full `recommended_checks` rows keep lexicographic test-ID order;
+the default summary ranks supported paths ahead of broad candidates and states
+how many checks it omits. Every candidate remains retrievable.
 The additive `associations` records describe individual source relationships:
 
 - `source-member-path` connects a direct member reference, or a directly called
@@ -152,15 +174,20 @@ The additive `associations` records describe individual source relationships:
   all its members. Unresolved does not mean there is no dependency.
 - `direct-source-reference` preserves other direct source references;
   `broad-source-reference` preserves unresolved containing scopes outside classes.
+- `source-call-path` connects a directly called baseline module function to a
+  changed baseline function through up to two located direct calls in the same
+  file. Its test reference, declarations and call sites are hash-bound to
+  baseline source. Rebinding, decorators and runtime dispatch are not resolved.
 
 `entities` contains only the entities supported by these specific associations,
 including a containing class for a broad reference, never its members merely by
 name prefix. A finding's `recommended_test_ids` uses exact entity associations;
 separate `broad_class_test_ids` retain its containing-class candidates without
-asserting member dependencies. The initial `recommendation_relationships`
-preview labels the same candidates, and complete provenance remains paginated.
-The packet schema stays version 2; the identity configuration additionally
-records `recommendation_evidence: "member-specific-v1"` for cursor freshness.
+asserting member dependencies. Complete provenance remains paginated. The patch
+packet schema is version 3; explicit detail sections retain their existing
+shape with additive coverage, phase and source-call evidence. The identity
+configuration records `recommendation_evidence: "member-and-local-call-v2"`
+for cursor freshness. The original version 2 build and receipts remain separate.
 
 Member paths reuse baseline declarations and supported lexical state accesses;
 they do not infer paths through aliases, instance construction, inheritance,

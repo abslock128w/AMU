@@ -12,6 +12,8 @@ MAX_FILES = 8
 MAX_HUNKS = 128
 MAX_CANDIDATE_BYTES = 2 * 1024 * 1024
 MAX_TOTAL_SOURCE_BYTES = 8 * 1024 * 1024
+PYTHON_SUFFIXES = frozenset({".py", ".pyi"})
+MARKDOWN_SUFFIXES = frozenset({".md", ".markdown"})
 _HUNK = re.compile(r"@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@(?: [^\r\n]*)?\n?\Z")
 
 
@@ -43,8 +45,8 @@ def source_path(value: str) -> str:
             or any(char in value for char in "\\\t\r\n\x00#\"")
             or any(ord(char) < 32 or ord(char) == 127 for char in value)):
         raise PatchError("diff path must be a normalized repository-relative source path")
-    if path.suffix not in {".py", ".pyi"}:
-        raise PatchError("concrete patch inspection supports Python .py/.pyi files only")
+    if path.suffix not in PYTHON_SUFFIXES | MARKDOWN_SUFFIXES:
+        raise PatchError("concrete patch inspection supports Python .py/.pyi and Markdown .md/.markdown files only")
     return value
 
 

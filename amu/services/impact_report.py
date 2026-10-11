@@ -11,17 +11,24 @@ import base64
 import hashlib
 import json
 import re
+from collections import defaultdict
 
 from amu.harness.context import estimate, rank_rows
 from amu.mcp_manifest import MCP_WIRE_LIMIT, tool_result_bytes
 
 SECTIONS = frozenset({"impact", "source_contradictions", "source_uncertainties", "dynamic_boundaries", "coverage", "reasons"})
 PATCH_SECTIONS = frozenset({"changes", "findings", "state_dependencies", "recommended_checks", "uncertainties"})
+PATCH_REQUEST_SECTIONS = PATCH_SECTIONS | {"summary"}
 MAX_CURSOR_BYTES = 1024
 FRAGMENT_BYTES = 4096
 MAX_ITEM_BYTES = 32 * 1024 * 1024
 MAX_NORMAL_ITEM_BYTES = 8192
 RETRIEVAL_VERSION = 1
+PATCH_SUMMARY_ENTITY_LIMIT = 4
+PATCH_SUMMARY_FINDING_LIMIT = 3
+PATCH_SUMMARY_CHECK_LIMIT = 3
+PATCH_SUMMARY_STATE_LIMIT = 4
+PATCH_SUMMARY_UNCERTAINTY_GROUP_LIMIT = 6
 
 
 class ReportError(ValueError):
@@ -207,11 +214,168 @@ def build_packet(request: dict, target: dict, *, repo_binding: str, status: str,
     return packet
 
 
+def _brief_patch_step(step: dict) -> dict:
+    brief = {"role": step["role"]}
+    location = step.get("location")
+    if isinstance(location, dict) and "line" in location:
+        brief["line"] = location["line"]
+    if step.get("role") == "test_reference":
+        brief["reference"] = step.get("reference")
+    elif step.get("role") == "source_call":
+        brief["caller"] = step.get("caller_id", "").split("#")[-1]
+        brief["callee"] = step.get("callee_id", "").split("#")[-1]
+    elif step.get("role") in {"source_declaration", "state_access"}:
+        brief["entity"] = step.get("entity_id", "").split("#")[-1]
+    return brief
+
+
+def _patch_summary(identity: dict, groups: dict) -> dict:
+    """Rank small source-backed previews; raw evidence stays in the five sections."""
+    coverage = {row["path"]: row for row in identity.get("file_coverage", [])}
+    files = [{"path": row["path"], "operation": row["operation"],
+              "file_type": coverage.get(row["path"], {}).get("file_type", "unknown"),
+              "analysis": coverage.get(row["path"], {}).get("analysis", "unspecified")}
+             for row in identity.get("files", [])]
+    changes = [row for row in groups["changes"] if row.get("kind") != "markdown"]
+    kinds = {row.get("id"): row.get("kind") for row in changes}
+    function_kinds = {"function", "async_function", "method"}
+    changed_entities = sorted(changes, key=lambda row: (
+        row.get("kind") not in function_kinds, row.get("path", ""), row.get("id", "")))
+    entity_preview = [{"id": row.get("id"), "kind": row.get("kind"), "change": row.get("change"),
+                       "before_line": (row.get("before_location") or {}).get("line"),
+                       "after_line": (row.get("after_location") or {}).get("line")}
+                      for row in changed_entities[:PATCH_SUMMARY_ENTITY_LIMIT]]
+
+    categories = {"call": 0, "branch": 1, "return": 2, "exception": 3,
+                  "state_access": 4, "state_declaration": 5}
+    findings = sorted(groups["findings"], key=lambda row: (
+        kinds.get(row.get("entity_id")) not in function_kinds,
+        not bool(row.get("recommended_test_ids")),
+        categories.get(row.get("category"), 6), row.get("entity_id", ""), row.get("id", "")))
+    finding_preview = [{"entity_id": row.get("entity_id"), "category": row.get("category"),
+                        "observation": row.get("observation"),
+                        "existing_check_count": len(row.get("recommended_test_ids", []))}
+                       for row in findings[:PATCH_SUMMARY_FINDING_LIMIT]]
+
+    state_buckets = defaultdict(list)
+    for row in groups["state_dependencies"]:
+        key = (row.get("state_id", ""), row.get("consumer_id", ""), row.get("access", ""),
+               row.get("expression_hash") or "")
+        state_buckets[key].append(row)
+    state_preview = []
+    for key, rows in sorted(state_buckets.items(), key=lambda item: item[0]):
+        phases = [phase for phase in ("before", "after") if any(row.get("phase") == phase for row in rows)]
+        samples = [{"phase": phase, "line": (next(row.get("location") for row in rows if row.get("phase") == phase) or {}).get("line")}
+                   for phase in phases]
+        state_preview.append({"state_id": key[0], "consumer_id": key[1], "access": key[2],
+                              "phases": phases, "count": len(rows), "samples": samples})
+
+    relationship_rank = {"source-member-path": 0, "source-state-path": 0,
+                         "direct-source-reference": 0, "source-call-path": 0,
+                         "broad-class-reference": 1, "broad-source-reference": 1}
+    ranked_checks = []
+    for row in groups["recommended_checks"]:
+        associations = sorted(row.get("associations", []), key=lambda item: (
+            relationship_rank.get(item.get("relationship"), 2), item.get("entity_id", ""),
+            item.get("relationship", "")))
+        best = associations[0] if associations else {}
+        rank = relationship_rank.get(best.get("relationship"), 2)
+        ranked_checks.append((rank, row.get("test_id", ""), row, best))
+    ranked_checks.sort(key=lambda item: (item[0], item[1]))
+    check_preview = [{"test_id": row.get("test_id"),
+                      "kind": "supported-source-path" if rank == 0 else "broad-candidate" if rank == 1 else "unresolved",
+                      "relationship": best.get("relationship"), "entity_id": best.get("entity_id"),
+                      "path": [_brief_patch_step(step) for step in best.get("path", [])],
+                      "verification": row.get("verification"), "coverage_proven": False}
+                     for rank, _, row, best in ranked_checks[:PATCH_SUMMARY_CHECK_LIMIT]]
+
+    uncertainty_buckets = defaultdict(list)
+    for row in groups["uncertainties"]:
+        reason = row.get("reason") or f"{row.get('kind', 'other')} evidence"
+        uncertainty_buckets[reason].append(row)
+    uncertainty_groups = []
+
+    def phase_of(row):
+        return row.get("phase") if row.get("phase") in {"before", "after"} else "unphased"
+
+    for reason, rows in sorted(uncertainty_buckets.items(), key=lambda item: (-len(item[1]), item[0])):
+        phase_counts = {phase: sum(phase_of(row) == phase for row in rows)
+                        for phase in ("before", "after", "unphased")}
+        phase_counts = {phase: count for phase, count in phase_counts.items() if count}
+        path_counts = defaultdict(int)
+        for row in rows:
+            path_counts[row.get("path") or "(unscoped)"] += 1
+        ranked_paths = sorted(path_counts, key=lambda path: (-path_counts[path], path))
+        shown_paths = ranked_paths[:4]
+        samples = []
+        for path in shown_paths:
+            for phase in ("before", "after", "unphased"):
+                candidates = [row for row in rows if (row.get("path") or "(unscoped)") == path
+                              and phase_of(row) == phase]
+                if candidates and len(samples) < 4:
+                    first = min(candidates, key=lambda row: (
+                        (row.get("location") or {}).get("line", 0),
+                        (row.get("location") or {}).get("column", 0), _encode(row)))
+                    sample = {"phase": phase, "path": path}
+                    if isinstance(first.get("location"), dict):
+                        sample["line"] = first["location"].get("line")
+                    samples.append(sample)
+        presence = ("before-and-after" if "before" in phase_counts and "after" in phase_counts
+                    else "after-only" if "after" in phase_counts else "before-only" if "before" in phase_counts
+                    else "unphased")
+        uncertainty_groups.append({"reason": reason, "count": len(rows), "phase_counts": phase_counts,
+                                   "path_counts": {path: path_counts[path] for path in shown_paths},
+                                   "omitted_paths": len(ranked_paths) - len(shown_paths),
+                                   "omitted_path_occurrences": sum(path_counts[path] for path in ranked_paths[4:]),
+                                   "presence": presence,
+                                   "samples": samples, "omitted_samples": len(rows) - len(samples)})
+
+    scope = identity.get("recommendation_scope", {})
+    if ranked_checks:
+        search = "Existing checks are baseline test references with located source paths or broad candidates; references do not prove executed coverage or assertions."
+    elif not any(row.get("file_type") == "python" for row in files):
+        search = "No Python entity changed; existing Python checks were not inferred for documentation-only content."
+    else:
+        search = ("No supported direct test reference or at-most-two-hop local direct-call path to a changed Python entity "
+                  f"was found in {scope.get('baseline_test_files_inspected', 0)} inspected baseline Python test files. "
+                  "Package-submodule paths require an unchanged inert initializer and one unambiguous repository module path; dynamic dispatch and assertions are outside this search.")
+        gaps = scope.get("unresolved_package_imports") or []
+        if gaps:
+            search += f" {len(gaps)} package-submodule import(s) were unresolved; first: {gaps[0]['reason']}."
+        limits = scope.get("local_call_limits") or []
+        if limits:
+            search += f" {len(limits)} local-call search limit(s) were reached."
+        if identity.get("test_inventory_complete") is False:
+            search += " The test inventory was incomplete."
+
+    return {"changed_files": files, "changed_entities": entity_preview,
+            "omitted_changed_entities": len(changed_entities) - len(entity_preview),
+            "findings": finding_preview, "omitted_findings": len(findings) - len(finding_preview),
+            "state_relationships": state_preview[:PATCH_SUMMARY_STATE_LIMIT],
+            "omitted_state_relationships": len(state_preview) - min(len(state_preview), PATCH_SUMMARY_STATE_LIMIT),
+            "existing_checks": check_preview,
+            "omitted_existing_checks": len(ranked_checks) - len(check_preview),
+            "candidate_test_files": identity.get("candidate_test_files", []),
+            "recommendation_search": search,
+            "uncertainty_groups": uncertainty_groups[:PATCH_SUMMARY_UNCERTAINTY_GROUP_LIMIT],
+            "uncertainty_group_count": len(uncertainty_groups),
+            "omitted_uncertainty_groups": len(uncertainty_groups) - min(len(uncertainty_groups), PATCH_SUMMARY_UNCERTAINTY_GROUP_LIMIT),
+            "omitted_uncertainty_occurrences": sum(row["count"] for row in uncertainty_groups[PATCH_SUMMARY_UNCERTAINTY_GROUP_LIMIT:]),
+            "other_uncertainty_group_counts": [{"reason": row["reason"], "count": row["count"]}
+                                               for row in uncertainty_groups[PATCH_SUMMARY_UNCERTAINTY_GROUP_LIMIT:]],
+            "raw_uncertainty_count": len(groups["uncertainties"]),
+            "note": "Previews omit detail; use retrieval cursors for raw evidence. Uncertainty in either phase is not proof of a new bug."}
+
+
 def build_patch_packet(request: dict, *, identity: dict, groups: dict, limitations: list[str],
                        max_bytes: int, max_rows: int) -> dict:
     """Use the same lossless fragments and freshness-bound cursors as intent reports."""
     if set(groups) != PATCH_SECTIONS:
         raise ReportError("invalid patch evidence sections")
+    if request["section"] not in PATCH_REQUEST_SECTIONS:
+        raise ReportError("invalid patch report section")
+    if request["section"] == "summary" and request["cursor"] is not None:
+        raise ReportError("summary has no cursor; choose an evidence section for retrieval")
     public_request = {key: value for key, value in request.items() if key != "patch"}
     public_request.update(patch_sha256=hashlib.sha256(request["patch"].encode("utf-8")).hexdigest(),
                           patch_bytes=len(request["patch"].encode("utf-8")))
@@ -222,16 +386,23 @@ def build_patch_packet(request: dict, *, identity: dict, groups: dict, limitatio
                                                              "max_normal_item_bytes": MAX_NORMAL_ITEM_BYTES,
                                                              "max_item_bytes": MAX_ITEM_BYTES}})).hexdigest()
     section, page_size = request["section"], request["page_size"]
-    packet = {"schema_version": 2, "operation": "concrete-patch-impact", "request": public_request,
-              "report_hash": report_hash, "identity": identity, "status": "uncertain" if groups["uncertainties"] else "inspectable",
-              "assessment": {"regression_proven": False, "safe_to_change": None, "executed": False,
-                             "counts": {key: len(value) for key, value in groups.items()},
-                             "observations": [row.get("observation", "")[:400] for row in groups["findings"][:3]],
-                             "recommended_test_ids": [row.get("test_id") for row in groups["recommended_checks"][:3]],
-                             "recommendation_relationships": [
-                                 {"test_id": row.get("test_id"),
-                                  "relationships": sorted({a["relationship"] for a in row.get("associations", [])})}
-                                 for row in groups["recommended_checks"][:3]]},
+    public_identity = identity if section != "summary" else {
+        **{key: identity[key] for key in ("repository", "baseline_kind", "git_head", "files", "file_coverage",
+                                           "test_sources_sha256", "test_inventory_complete") if key in identity},
+        "test_source_count": len(identity.get("test_sources", [])),
+    }
+    assessment = {"regression_proven": False, "safe_to_change": None, "executed": False,
+                  "counts": {key: len(value) for key, value in groups.items()}}
+    if section != "summary":
+        assessment.update({"observations": [row.get("observation", "")[:400] for row in groups["findings"][:3]],
+                           "recommended_test_ids": [row.get("test_id") for row in groups["recommended_checks"][:3]],
+                           "recommendation_relationships": [
+                               {"test_id": row.get("test_id"),
+                                "relationships": sorted({a["relationship"] for a in row.get("associations", [])})}
+                               for row in groups["recommended_checks"][:3]]})
+    packet = {"schema_version": 3, "operation": "concrete-patch-impact", "request": public_request,
+              "report_hash": report_hash, "identity": public_identity, "status": "uncertain" if groups["uncertainties"] else "inspectable",
+              "assessment": assessment,
               "limitations": limitations, "retrieval": {}, "page": {}, "details": {}, "truncated": False}
     available = max_bytes - estimate(packet) - 6000
     if available <= 0:
@@ -242,6 +413,15 @@ def build_patch_packet(request: dict, *, identity: dict, groups: dict, limitatio
         paged[name] = entries
         packet["retrieval"][name] = {"logical_items": len(values), "entries": len(entries), "fragmented_items": fragmented,
                                    "cursor": cursor(report_hash, name, 0) if entries else None}
+    if section == "summary":
+        packet["summary"] = _patch_summary(identity, groups)
+        packet["page"] = {"section": "summary", "offset": 0, "returned": 0, "total": 0,
+                          "remaining": 0, "fragmented_items": 0, "next_cursor": None}
+        packet["details"] = {"section": "summary", "items": []}
+        packet["truncated"] = any(paged.values())
+        if estimate(packet) > max_bytes or tool_result_bytes(json.dumps(packet, ensure_ascii=False)) > MCP_WIRE_LIMIT:
+            raise ReportError("patch summary cannot fit its protocol budget; retrieve a narrower evidence section")
+        return packet
     items = paged[section]
     offset = cursor_offset(request["cursor"], report_hash, section, sections=PATCH_SECTIONS)
     if offset > len(items):

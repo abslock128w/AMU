@@ -267,14 +267,114 @@ def _patch_bound_names(nodes):
     return names
 
 
+MAX_PATCH_LOCAL_CALL_FUNCTIONS = 128
+MAX_PATCH_LOCAL_CALL_EDGES = 256
+MAX_PATCH_LOCAL_CALL_HOPS = 2
+
+
+def patch_source_call_edges(source_trees: dict, declarations: dict) -> tuple[dict, list[dict]]:
+    """Find bounded, unshadowed direct calls between baseline module functions.
+
+    A module-level ``def``/``async def`` must have one resolved declaration and
+    no decorator. Calls must name another such function directly. Any local
+    binding of that name, dynamic module namespace, or limit exhaustion makes
+    this optional path unavailable; there is no runtime dispatch inference.
+    """
+    from amu.change_analysis import _dynamic_namespace, _location
+
+    result, limitations = {}, []
+    for path, source in sorted(source_trees.items()):
+        tree = source["tree"]
+        definitions = {node.name: node for node in tree.body
+                       if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+                       and not node.decorator_list
+                       and (declarations.get(f"{path}#{node.name}") or {}).get("resolution") == "resolved"}
+        if len(definitions) > MAX_PATCH_LOCAL_CALL_FUNCTIONS:
+            limitations.append({"path": path, "reason": "local direct-call function limit reached"})
+            continue
+        adjacency, count = {}, 0
+        for caller_name, caller in sorted(definitions.items()):
+            if _dynamic_namespace(caller):
+                continue
+            nodes = list(_patch_scope_nodes(caller.body))
+            local = _patch_bound_names(nodes)
+            local.update(arg.arg for arg in [*caller.args.posonlyargs, *caller.args.args, *caller.args.kwonlyargs,
+                                            *([caller.args.vararg] if caller.args.vararg else []),
+                                            *([caller.args.kwarg] if caller.args.kwarg else [])])
+            for node in nodes:
+                if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Name):
+                    continue
+                callee_name = node.func.id
+                if callee_name not in definitions or callee_name in local:
+                    continue
+                adjacency.setdefault(caller_name, []).append({
+                    "role": "source_call", "path": path, "phase": "before",
+                    "caller_id": f"{path}#{caller_name}", "callee_id": f"{path}#{callee_name}",
+                    "location": _location(node), "source_sha256": source["sha256"],
+                    "evidence": ast.unparse(node)[:400],
+                })
+                count += 1
+                if count > MAX_PATCH_LOCAL_CALL_EDGES:
+                    break
+            if count > MAX_PATCH_LOCAL_CALL_EDGES:
+                break
+        if count > MAX_PATCH_LOCAL_CALL_EDGES:
+            limitations.append({"path": path, "reason": "local direct-call edge limit reached"})
+            continue
+        result[path] = {name: sorted(edges, key=lambda edge: (
+            edge["location"]["line"], edge["location"]["column"], edge["callee_id"]))
+                        for name, edges in adjacency.items()}
+    return result, limitations
+
+
+def _patch_test_reference(source, node, import_line):
+    from amu.change_analysis import _location
+
+    return {"role": "test_reference", "path": source["path"], "phase": "before",
+            "location": _location(node), "source_sha256": source["sha256"],
+            "import_line": import_line, "reference": ast.unparse(node)[:400]}
+
+
+def _patch_call_associations(source, node, target_path, referenced, affected_names,
+                             declarations, source_calls, import_line):
+    """Join a directly called baseline source function to changed local callees."""
+    if referenced not in source_calls.get(target_path, {}):
+        return []
+    root_id = f"{target_path}#{referenced}"
+    root_declaration = (declarations or {}).get(root_id)
+    if not root_declaration or root_declaration.get("resolution") != "resolved":
+        return []
+    path = [_patch_test_reference(source, node, import_line),
+            {"role": "source_declaration", "entity_id": root_id, **root_declaration}]
+    queue = [(referenced, path, frozenset({referenced}), 0)]
+    associations = {}
+    while queue:
+        current, evidence, seen, hops = queue.pop(0)
+        if hops >= MAX_PATCH_LOCAL_CALL_HOPS:
+            continue
+        for edge in source_calls[target_path].get(current, []):
+            callee_id = edge["callee_id"]
+            callee_name = callee_id.split("#", 1)[1]
+            if callee_name in seen:
+                continue
+            declaration = (declarations or {}).get(callee_id)
+            if not declaration or declaration.get("resolution") != "resolved":
+                continue
+            steps = [*evidence, edge, {"role": "source_declaration", "entity_id": callee_id, **declaration}]
+            if callee_name in affected_names and callee_id not in associations:
+                associations[callee_id] = {
+                    "entity_id": callee_id, "relationship": "source-call-path", "resolution": "resolved",
+                    "path": steps,
+                    "limitation": "A baseline lexical call path does not establish execution, dynamic targets or that the test asserts affected behavior.",
+                }
+            queue.append((callee_name, steps, seen | {callee_name}, hops + 1))
+    return [associations[key] for key in sorted(associations)]
+
+
 def _patch_reference_associations(source, node, target_path, referenced, linked,
                                   declarations, dependencies, called, import_line):
     """Separate a real reference from an unestablished descendant dependency."""
-    from amu.change_analysis import _location
-
-    reference = {"role": "test_reference", "path": source["path"], "phase": "before",
-                 "location": _location(node), "source_sha256": source["sha256"],
-                 "import_line": import_line, "reference": ast.unparse(node)[:400]}
+    reference = _patch_test_reference(source, node, import_line)
     associations = []
 
     def broad(name):
@@ -333,7 +433,9 @@ def _patch_reference_associations(source, node, target_path, referenced, linked,
 
 
 def patch_test_recommendations(sources: list[dict], affected: dict[str, set[str]], *,
-                               declarations: dict | None = None, state_dependencies: list[dict] | None = None) -> list[dict]:
+                               declarations: dict | None = None, state_dependencies: list[dict] | None = None,
+                               source_calls: dict | None = None,
+                               verified_submodules: dict[tuple[str, str], str] | None = None) -> list[dict]:
     """Recommend real test declarations with direct, unshadowed import references.
 
     This reuses the plan's test-path rule, adding syntax evidence rather than
@@ -384,25 +486,35 @@ def patch_test_recommendations(sources: list[dict], affected: dict[str, set[str]
                 if not isinstance(root, ast.Name) or root.id in rebound | local or root.id not in bindings:
                     continue
                 module, imported, import_line = bindings[root.id]
-                module_path = module.replace(".", "/")
-                matches = [file for file in affected if file in {module_path + ".py", module_path + "/__init__.py",
-                                                                 "src/" + module_path + ".py", "src/" + module_path + "/__init__.py"}]
+                submodule = (verified_submodules or {}).get((module, imported)) if imported else None
+                if submodule is not None:
+                    matches = [submodule] if submodule in affected else []
+                    referenced = ".".join(reversed(pieces))
+                else:
+                    module_path = module.replace(".", "/")
+                    matches = [file for file in affected if file in {module_path + ".py", module_path + "/__init__.py",
+                                                                     "src/" + module_path + ".py", "src/" + module_path + "/__init__.py"}]
+                    referenced = ".".join(([imported] if imported else []) + list(reversed(pieces)))
                 if len(matches) != 1:
                     continue
                 target_path = matches[0]
-                referenced = ".".join(([imported] if imported else []) + list(reversed(pieces)))
                 names = affected[target_path]
                 linked = sorted(value for value in names if referenced == value or referenced.startswith(value + ".")
                                 or value.startswith(referenced + ".") and referenced)
-                if not linked:
-                    continue
                 parent = parents.get(node)
+                called = isinstance(parent, ast.Call) and parent.func is node
                 associations = _patch_reference_associations(
                     source, node, target_path, referenced, linked, declarations, state_dependencies or [],
-                    isinstance(parent, ast.Call) and parent.func is node, import_line)
+                    called, import_line) if linked else []
+                if called and source_calls:
+                    associations.extend(_patch_call_associations(
+                        source, node, target_path, referenced, names, declarations, source_calls, import_line))
+                if not associations:
+                    continue
                 test_id = f"{path}::{name}"
                 entry = {"test_id": test_id, "path": path, "source_sha256": source["sha256"],
                          "relationship": "direct-import-source-reference", "coverage_proven": False,
+                         "test_source_phase": "before",
                          "entities": sorted({a["entity_id"] for a in associations}), "associations": associations,
                          "evidence": {"import_line": import_line, "reference_line": node.lineno,
                                       "reference": ast.unparse(node)[:400], "test_start_line": test.lineno,

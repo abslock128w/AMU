@@ -189,7 +189,7 @@ def amu_impact(
 
 def amu_analyze_patch(
     patch: str, base: str = "HEAD", depth: int = 1, include_graph: bool = False,
-    section: str = "changes", cursor: str | None = None, page_size: int = 20, *, repo: str,
+    section: str = "summary", cursor: str | None = None, page_size: int = 20, *, repo: str,
 ) -> str:
     """Inspect a bounded concrete diff in memory; never applies or executes candidate code."""
     from amu.services.impact import ImpactInputError, PatchRequest, validate_patch_request

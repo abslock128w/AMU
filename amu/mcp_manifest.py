@@ -21,10 +21,10 @@ from pathlib import Path
 from amu import __version__
 
 MANIFEST_VERSION = "amu-inspection-v1"
-PATCH_MANIFEST_VERSION = "amu-inspection-v2"
+PATCH_MANIFEST_VERSION = "amu-inspection-v3"
 SCHEMA_VERSION = 1
 IMPACT_SECTIONS = ("impact", "source_contradictions", "source_uncertainties", "dynamic_boundaries", "coverage", "reasons")
-PATCH_SECTIONS = ("changes", "findings", "state_dependencies", "recommended_checks", "uncertainties")
+PATCH_SECTIONS = ("summary", "changes", "findings", "state_dependencies", "recommended_checks", "uncertainties")
 _MAX_MANIFEST_BYTES = 128 * 1024
 _MAX_BUILD_FILES = 256
 _MAX_BUILD_ENTRIES = 4096
@@ -68,7 +68,7 @@ _REVIEWED_PATCH_TOOL = {
         "base": {"type": "string", "default": "HEAD"},
         "depth": {"type": "integer", "default": 1},
         "include_graph": {"type": "boolean", "default": False},
-        "section": {"type": "string", "enum": list(PATCH_SECTIONS), "default": "changes"},
+        "section": {"type": "string", "enum": list(PATCH_SECTIONS), "default": "summary"},
         "cursor": {"anyOf": [{"type": "string", "maxLength": 1024}, {"type": "null"}], "default": None},
         "page_size": {"type": "integer", "minimum": 1, "maximum": 100, "default": 20},
     }, ["patch", "repo"]), "outputSchema": _OUTPUT, "annotations": _ANNOTATIONS,
