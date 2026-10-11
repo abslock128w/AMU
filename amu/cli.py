@@ -574,6 +574,7 @@ def analyze_patch_cmd(
     section: str = typer.Option("summary", "--section", help="summary|changes|obligations|findings|state_dependencies|recommended_checks|uncertainties"),
     cursor: str | None = typer.Option(None, "--cursor", help="opaque patch/evidence-bound cursor; stale cursors are refused"),
     page_size: int = typer.Option(20, "--page-size", help="page entries, 1–100"),
+    check_spec: str | None = typer.Option(None, "--check-spec", help="bounded JSON check input and explicit expectation; review required"),
     repo: str = REPO_OPT,
     json_output: bool = JSON_OPT,
 ):
@@ -584,9 +585,33 @@ def analyze_patch_cmd(
         if (patch is None) == (patch_file is None):
             raise impact_service.ImpactInputError("provide exactly one of --patch or --patch-file")
         literal = _read_patch_file(patch_file) if patch_file is not None else patch
+        parsed_check = None
+        if check_spec is not None:
+            from amu.check_drafts import CheckSpecError, validate_check_spec
+
+            if len(check_spec.encode("utf-8")) > 4096:
+                raise impact_service.ImpactInputError("check_spec exceeds its 4096-byte limit")
+            try:
+                def unique_pairs(pairs):
+                    value = {}
+                    for key, child in pairs:
+                        if key in value:
+                            raise ValueError("duplicate check_spec field")
+                        value[key] = child
+                    return value
+                def invalid_constant(_value):
+                    raise ValueError("non-JSON constant")
+                parsed_check = json.loads(check_spec, object_pairs_hook=unique_pairs,
+                                          parse_constant=invalid_constant)
+            except (ValueError, UnicodeError, RecursionError) as exc:
+                raise impact_service.ImpactInputError("check_spec must be bounded JSON without duplicate keys") from exc
+            try:
+                validate_check_spec(parsed_check)
+            except CheckSpecError as exc:
+                raise impact_service.ImpactInputError(str(exc)) from exc
         result = impact_service.execute_patch(repo, impact_service.PatchRequest(
             patch=literal, base=base, depth=depth, include_graph=include_graph,
-            section=section, cursor=cursor, page_size=page_size,
+            section=section, cursor=cursor, page_size=page_size, check_spec=parsed_check,
         ))
     except impact_service.ImpactInputError as exc:
         _out(exc.payload, json_output)

@@ -61,10 +61,12 @@ class PatchRequest:
     section: str = "summary"
     cursor: str | None = None
     page_size: int = 20
+    check_spec: dict | None = None
 
 
 def validate_patch_request(request: PatchRequest) -> None:
     """Validate the entire diff/cursor envelope before touching the repository."""
+    from amu.check_drafts import CheckSpecError, validate_check_spec
     from amu.patch import PatchError, parse_diff
 
     if not isinstance(request, PatchRequest):
@@ -88,6 +90,10 @@ def validate_patch_request(request: PatchRequest) -> None:
             impact_report.decode_cursor(request.cursor, sections=impact_report.PATCH_SECTIONS)
         except impact_report.ReportError as exc:
             raise ImpactInputError(str(exc)) from exc
+    try:
+        validate_check_spec(request.check_spec)
+    except CheckSpecError as exc:
+        raise ImpactInputError(str(exc)) from exc
     try:
         parse_diff(request.patch)
     except PatchError as exc:
@@ -616,6 +622,7 @@ def _verified_package_submodules(root: Path, affected: dict[str, set[str]], test
 def execute_patch(repo: str, request: PatchRequest) -> dict:
     """Inspect a concrete diff and relevant existing test syntax, without execution."""
     from amu.change_analysis import analyze_python_change
+    from amu.check_drafts import propose
     from amu.patch import MAX_TOTAL_SOURCE_BYTES, PYTHON_SUFFIXES, PatchError, apply_file, digest, parse_diff
     from amu.patch_roles import file_role, test_declarations, test_provenance
     from amu.plan import _is_test_path, patch_source_call_edges, patch_test_recommendations
@@ -816,6 +823,25 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
             "execution_status": "not-run",
             "note": "Review the intended contract before interpreting a difference as a regression; test execution requires separate authorization.",
         }
+    selected_check = request.check_spec
+    check_matched = selected_check is None
+    for obligation in groups["obligations"]:
+        if obligation.get("source_role", {}).get("role") != "production":
+            continue
+        path = obligation["entity_id"].split("#", 1)[0]
+        if selected_check is not None and selected_check["obligation_id"] == obligation["id"]:
+            check_matched = True
+        file_identity = next(row for row in file_identities if row["path"] == path)
+        obligation["proposed_check"] = propose(
+            obligation, selected_check, baseline_tree=source_trees.get(path, {}).get("tree"),
+            candidate_tree=candidate_trees.get(path), tests=tests, file_identity=file_identity,
+            patch_sha256=hashlib.sha256(request.patch.encode()).hexdigest(),
+            config_sha256=(role_config_identity or {}).get("sha256"),
+            search_scope={"test_inventory_complete": complete, "baseline_test_files_inspected": len(tests),
+                          "unavailable_baseline_test_files": len(unavailable_tests),
+                          "source_call_search_limits": len(source_call_limits)})
+    if not check_matched:
+        raise ImpactInputError("check_spec obligation_id does not identify a production obligation in this patch")
     for finding in groups["findings"]:
         entity_id = finding.get("entity_id")
         finding["recommended_test_ids"] = [test["test_id"] for test in groups["recommended_checks"]
@@ -889,8 +915,8 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
                                          "unresolved_package_imports": unresolved_imports,
                                          "local_call_limits": source_call_limits,
                                          "unavailable_baseline_tests": unavailable_tests},
-                "configuration": {"analysis": "python-markdown-concrete-patch-v4", "max_test_files": MAX_TEST_FILES,
-                                  "recommendation_evidence": "behavioral-test-evidence-v4",
+                "configuration": {"analysis": "python-markdown-concrete-patch-v5", "max_test_files": MAX_TEST_FILES,
+                                  "recommendation_evidence": "behavioral-test-evidence-v5",
                                   "max_graph_targets": MAX_GRAPH_TARGETS, "max_ast_nodes": MAX_AST_NODES, "max_ast_depth": MAX_AST_DEPTH}}
     try:
         return impact_report.build_patch_packet(asdict(request), identity=identity, groups=groups,

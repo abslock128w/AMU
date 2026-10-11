@@ -1,6 +1,6 @@
 # Current report format
 
-The current packet schema is 5. See [role separation and migration](phase3-report-migration.md). The Phase 3 launch description below records schema 4 behavior.
+The current packet schema is 6. See [check proposals and draft-test migration](phase3-check-drafts.md). The Phase 3 launch description below records schema 4 behavior, and [schema 5](phase3-report-migration.md) remains historical.
 
 # Phase 3: behavioral patch inspection
 

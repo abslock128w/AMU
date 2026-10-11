@@ -21,7 +21,7 @@ from pathlib import Path
 from amu import __version__
 
 MANIFEST_VERSION = "amu-inspection-v1"
-PATCH_MANIFEST_VERSION = "amu-inspection-v5"
+PATCH_MANIFEST_VERSION = "amu-inspection-v6"
 SCHEMA_VERSION = 1
 IMPACT_SECTIONS = ("impact", "source_contradictions", "source_uncertainties", "dynamic_boundaries", "coverage", "reasons")
 PATCH_SECTIONS = ("summary", "changes", "obligations", "findings", "state_dependencies", "recommended_checks", "uncertainties")
@@ -71,6 +71,7 @@ _REVIEWED_PATCH_TOOL = {
         "section": {"type": "string", "enum": list(PATCH_SECTIONS), "default": "summary"},
         "cursor": {"anyOf": [{"type": "string", "maxLength": 1024}, {"type": "null"}], "default": None},
         "page_size": {"type": "integer", "minimum": 1, "maximum": 100, "default": 20},
+        "check_spec": {"anyOf": [{"type": "object", "additionalProperties": True}, {"type": "null"}], "default": None},
     }, ["patch", "repo"]), "outputSchema": _OUTPUT, "annotations": _ANNOTATIONS,
 }
 

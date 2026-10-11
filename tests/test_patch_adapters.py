@@ -47,6 +47,30 @@ def test_cli_patch_file_reads_regular_utf8_without_applying(monkeypatch, tmp_pat
     assert not (tmp_path / "api.py").exists()
 
 
+def test_cli_patch_forwards_bounded_check_spec_without_execution(monkeypatch, tmp_path):
+    spec = {"obligation_id": "api.py#public:obligation:example",
+            "invocation": {"kind": "direct-return", "args": [0], "kwargs": {}},
+            "expectation": {"basis": "user-supplied-task-requirement", "reference": "Keep explicit zero.",
+                            "predicate": "equals", "value": 0}}
+    calls = []
+    monkeypatch.setattr(impact, "execute_patch", lambda *args: calls.append(args) or _packet())
+    result = CliRunner().invoke(cli.app, ["analyze-patch", f"--patch={PATCH}", "--base=worktree",
+        "--check-spec=" + json.dumps(spec), "--repo", str(tmp_path), "--json"])
+    assert result.exit_code == 0, result.output
+    assert calls[0][1].check_spec == spec
+    assert not (tmp_path / ".amu").exists()
+
+
+@pytest.mark.parametrize("raw", ['{"obligation_id":"a","obligation_id":"b"}', '{"x":NaN}', '[]',
+                                  '{"x":"' + "a" * 5000 + '"}'])
+def test_cli_patch_rejects_invalid_check_spec_before_dispatch(monkeypatch, tmp_path, raw):
+    monkeypatch.setattr(impact, "execute_patch", lambda *_args: pytest.fail("invalid check dispatched"))
+    result = CliRunner().invoke(cli.app, ["analyze-patch", f"--patch={PATCH}", "--base=worktree",
+        "--check-spec=" + raw, "--repo", str(tmp_path), "--json"])
+    assert result.exit_code == 2
+    assert "check_spec" in json.loads(result.stdout)["error"]
+
+
 @pytest.mark.parametrize("options", [[], ["--patch=x", "--patch-file=unused"]])
 def test_cli_patch_requires_exactly_one_input(monkeypatch, tmp_path, options):
     monkeypatch.setattr(impact, "execute_patch", lambda *_args: pytest.fail("ambiguous input must not dispatch"))
@@ -129,6 +153,23 @@ def test_mcp_patch_forwards_literal_as_assigned_option_once(monkeypatch, tmp_pat
     assert len(calls) == 1
 
 
+def test_mcp_patch_forwards_structured_spec_as_one_literal_option(monkeypatch, tmp_path):
+    calls = []
+    monkeypatch.setattr(mcp_server, "_cli_process", lambda command, **options:
+        calls.append((command, options)) or SimpleNamespace(stdout=json.dumps(_packet()).encode(),
+                                                               stderr=b"", returncode=0, error=None))
+    spec = {"obligation_id": "api.py#public:obligation:example",
+            "invocation": {"kind": "direct-return", "args": [0], "kwargs": {}},
+            "expectation": {"basis": "user-supplied-task-requirement", "reference": "Keep explicit zero.",
+                            "predicate": "equals", "value": 0}}
+    assert json.loads(mcp_server.amu_analyze_patch(PATCH, base="worktree", check_spec=spec,
+                                                   repo=str(tmp_path))) == _packet()
+    command = calls[0][0]
+    assert next(value for value in command if value.startswith("--check-spec=")) == (
+        "--check-spec=" + json.dumps(spec, ensure_ascii=False, separators=(",", ":")))
+    assert len(calls) == 1
+
+
 @pytest.mark.parametrize("options", [{"patch": "invalid"}, {"depth": True}, {"include_graph": 1},
                                      {"page_size": True}, {"page_size": 101}, {"section": "impact"},
                                      {"cursor": "bad!"}, {"base": "other-branch"}])
@@ -178,7 +219,7 @@ def test_default_manifest_identity_is_unchanged_and_v3_patch_contract_is_additiv
     assert original["manifest_version"] == "amu-inspection-v1"
     assert original["sha256"] == "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761"
     extended = mcp_manifest.inspection_manifest(enable_patch_analysis=True)
-    assert extended["manifest_version"] == "amu-inspection-v5"
+    assert extended["manifest_version"] == "amu-inspection-v6"
     assert {tool["name"] for tool in extended["tools"]} == mcp_access.PATCH_INSPECTION_TOOLS
     assert [tool for tool in extended["tools"] if tool["name"] != "amu_analyze_patch"] == original["tools"]
     patch_tool = next(tool for tool in extended["tools"] if tool["name"] == "amu_analyze_patch")

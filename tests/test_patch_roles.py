@@ -107,11 +107,13 @@ def test_documentation_and_ambiguous_file_roles_are_explicit(tmp_path):
     (tmp_path / 'test_server.py').write_text(before)
     (tmp_path / 'guide.md').write_text('# Old\n')
     patch = diff(before, before.replace('1', '2'), 'test_server.py') + diff('# Old\n', '# New\n', 'guide.md')
-    summary = impact.execute_patch(str(tmp_path), impact.PatchRequest(patch, base='worktree'))['summary']
+    report = impact.execute_patch(str(tmp_path), impact.PatchRequest(patch, base='worktree'))
+    summary = report['summary']
     roles = {row['path']: row['source_role'] for row in summary['changed_files']}
     assert roles['test_server.py']['role'] == 'uncertain'
     assert roles['guide.md']['role'] == 'documentation'
-    assert all(row['basis'] and row['uncertainty'] for row in roles.values())
+    assert all(row['source_role']['basis'] and row['source_role']['uncertainty']
+               for row in report['identity']['file_coverage'])
     assert summary['obligation_counts']['uncertain'] > 0
 
 

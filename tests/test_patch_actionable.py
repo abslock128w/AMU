@@ -32,7 +32,7 @@ def test_mixed_patch_records_complete_identity_and_content_only_docs(tmp_path):
     request = impact.PatchRequest(patch, base="worktree")
     report = impact.execute_patch(str(tmp_path), request)
 
-    assert report["schema_version"] == 5
+    assert report["schema_version"] == 6
     assert report["request"]["patch_sha256"] == hashlib.sha256(patch.encode()).hexdigest()
     assert {row["path"]: row["analysis"] for row in report["identity"]["file_coverage"]} == {
         "engine.py": "python-syntax", "GUIDE.md": "content-only"}
@@ -393,8 +393,8 @@ def test_summary_counts_groups_beyond_preview_without_losing_retrieval():
                                               limitations=[], max_bytes=64 * 1024, max_rows=100)
     summary = packet["summary"]
     assert summary["uncertainty_group_count"] == 9
-    assert summary["omitted_uncertainty_groups"] == 3
-    assert summary["omitted_uncertainty_occurrences"] == 3
+    assert summary["omitted_uncertainty_groups"] == 6
+    assert summary["omitted_uncertainty_occurrences"] == 6
     assert sum(row["count"] for row in summary["uncertainty_groups"] +
                summary["other_uncertainty_group_counts"]) == 9
     assert packet["retrieval"]["uncertainties"]["logical_items"] == 9
