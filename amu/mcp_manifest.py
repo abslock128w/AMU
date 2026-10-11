@@ -21,7 +21,7 @@ from pathlib import Path
 from amu import __version__
 
 MANIFEST_VERSION = "amu-inspection-v1"
-PATCH_MANIFEST_VERSION = "amu-inspection-v6"
+PATCH_MANIFEST_VERSION = "amu-inspection-v7"
 SCHEMA_VERSION = 1
 IMPACT_SECTIONS = ("impact", "source_contradictions", "source_uncertainties", "dynamic_boundaries", "coverage", "reasons")
 PATCH_SECTIONS = ("summary", "changes", "obligations", "findings", "state_dependencies", "recommended_checks", "uncertainties")

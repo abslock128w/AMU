@@ -386,7 +386,7 @@ def fixture_workflow_record(
                          "baseline_sha256": identity["source_sha256"],
                          "candidate_sha256": identity["candidate_sha256"]}
         assessment = analysis.get("assessment")
-        if (analysis.get("schema_version") not in {2, 3, 4, 5, 6} or analysis.get("operation") != "concrete-patch-impact"
+        if (analysis.get("schema_version") not in {2, 3, 4, 5, 6, 7} or analysis.get("operation") != "concrete-patch-impact"
                 or not isinstance(analysis.get("identity"), dict)
                 or analysis["identity"].get("files") != [expected_file]
                 or not isinstance(analysis.get("report_hash"), str) or len(analysis["report_hash"]) != 64

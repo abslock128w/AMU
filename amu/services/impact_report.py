@@ -282,24 +282,39 @@ def _patch_summary(identity: dict, groups: dict) -> dict:
                            "existing_check_count": len(row.get("verification_plan", {}).get("existing_baseline_tests", [])),
                            "proposed_input": row.get("verification_plan", {}).get("proposed_input")}
                           for row in prioritized]
-    proposals = [row for row in production if row.get("proposed_check")]
-    proposals.sort(key=lambda row: (
+    specified = [row for row in production if row.get("proposed_check")]
+    specified.sort(key=lambda row: (
         row["proposed_check"].get("draft_status") != "review-required",
         row["proposed_check"].get("check_specification", {}).get("input") is None,
         kinds.get(row.get("entity_id")) not in function_kinds,
         row["id"]))
+    proposal_candidates = specified + [row for row in production if not row.get("proposed_check")]
     proposal_preview = []
-    for row in proposals[:2]:
-        proposal = row["proposed_check"]
-        specification = proposal["check_specification"]
-        proposal_preview.append({"obligation_id": row["id"], "entity_id": row["entity_id"],
-            "gap": proposal["evidence_gap"]["status"], "input": specification.get("input"),
-            "observable": specification.get("observable"),
-            "expected_result": specification.get("expected_result"),
-            "expectation_basis": specification.get("expectation_basis"),
-            "draft_status": proposal["draft_status"],
-            "draft_sha256": (proposal.get("draft") or {}).get("sha256"),
-            "details_section": "obligations"})
+    for row in proposal_candidates[:2]:
+        proposal = row.get("proposed_check")
+        if proposal:
+            specification = proposal["check_specification"]
+            proposal_preview.append({"obligation_id": row["id"], "entity_id": row["entity_id"],
+                "input": specification.get("input"),
+                "observable": specification.get("observable"),
+                "expected_result": specification.get("expected_result"),
+                "expectation_source": specification.get("expectation_source"),
+                "authorship": {"discovered": proposal["authorship"]["discovered"][:2],
+                               "supplied": proposal["authorship"]["supplied"]},
+                "draft_status": proposal["draft_status"], "review_status": proposal["review_status"],
+                "unresolved": proposal["authorship"]["unresolved"][:2],
+                "draft_sha256": (proposal.get("draft") or {}).get("sha256"),
+                "details_section": "obligations"})
+        else:
+            proposed_input = row.get("verification_plan", {}).get("proposed_input")
+            proposal_preview.append({"obligation_id": row["id"], "entity_id": row["entity_id"],
+                "input": proposed_input, "observable": row.get("observable", {}).get("kind"),
+                "expected_result": None, "expectation_source": None,
+                "authorship": {"discovered": ["changed source"] + (["comparison input"] if proposed_input else []),
+                               "supplied": []},
+                "draft_status": "unavailable", "review_status": "required",
+                "unresolved": ["invocation and expected result"], "draft_sha256": None,
+                "details_section": "obligations"})
 
     state_buckets = defaultdict(list)
     for row in groups["state_dependencies"]:
@@ -417,7 +432,7 @@ def _patch_summary(identity: dict, groups: dict) -> dict:
             "omitted_changed_entities": len(changed_entities) - len(entity_preview),
             "obligations": obligation_preview,
             "proposed_checks": proposal_preview,
-            "omitted_proposed_checks": len(proposals) - len(proposal_preview),
+            "omitted_proposed_checks": len(proposal_candidates) - len(proposal_preview),
             "obligation_counts": {name: sum(role(row) == name for row in obligations) for name in ROLES},
             "verification_groups": list(verification_groups.values()),
             "verification_changes": {
@@ -481,7 +496,7 @@ def build_patch_packet(request: dict, *, identity: dict, groups: dict, limitatio
                                {"test_id": row.get("test_id"),
                                 "relationships": sorted({a["relationship"] for a in row.get("associations", [])})}
                                for row in groups["recommended_checks"][:3]]})
-    packet = {"schema_version": 6, "operation": "concrete-patch-impact", "request": public_request,
+    packet = {"schema_version": 7, "operation": "concrete-patch-impact", "request": public_request,
               "report_hash": report_hash, "identity": public_identity, "status": "uncertain" if groups["uncertainties"] else "inspectable",
               "assessment": assessment,
               "limitations": limitations, "retrieval": {}, "page": {}, "details": {}, "truncated": False}
