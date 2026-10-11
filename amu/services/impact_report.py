@@ -227,7 +227,11 @@ def build_patch_packet(request: dict, *, identity: dict, groups: dict, limitatio
               "assessment": {"regression_proven": False, "safe_to_change": None, "executed": False,
                              "counts": {key: len(value) for key, value in groups.items()},
                              "observations": [row.get("observation", "")[:400] for row in groups["findings"][:3]],
-                             "recommended_test_ids": [row.get("test_id") for row in groups["recommended_checks"][:3]]},
+                             "recommended_test_ids": [row.get("test_id") for row in groups["recommended_checks"][:3]],
+                             "recommendation_relationships": [
+                                 {"test_id": row.get("test_id"),
+                                  "relationships": sorted({a["relationship"] for a in row.get("associations", [])})}
+                                 for row in groups["recommended_checks"][:3]]},
               "limitations": limitations, "retrieval": {}, "page": {}, "details": {}, "truncated": False}
     available = max_bytes - estimate(packet) - 6000
     if available <= 0:

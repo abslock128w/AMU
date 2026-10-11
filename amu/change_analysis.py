@@ -461,6 +461,39 @@ def _parse(path: str, source: str | None, phase: str) -> tuple[_Phase | None, li
         return None, [{"phase": phase, "reason": f"Python static analysis could not complete: {type(exc).__name__}"}]
 
 
+def _recommendation_entities(phase: _Phase) -> dict[str, dict]:
+    """Expose baseline declaration provenance using the existing lexical limits.
+
+    This does not resolve instance calls or inheritance. A direct class member
+    can only be associated with a declaration when its owner and bind site are
+    unambiguous; state paths still come from the existing dependency records.
+    """
+    result = {}
+    source_hash = _hash(phase.source)
+    class_bindings = {name: _binding_counts(cls["node"]) for name, cls in phase.classes.items()}
+    for name, entry in phase.entities.items():
+        node = entry["nodes"][0]
+        cls = entry["context"]["class"]
+        safe = not phase.module_dynamic and name not in phase.ambiguous
+        if cls:
+            owner = phase.classes[cls]
+            safe = (safe and owner["safe"] and "." not in cls and cls not in phase.ambiguous
+                    and phase.module_binding_counts.get(cls) == 1
+                    and class_bindings[cls].get(name.rsplit(".", 1)[-1]) == 1)
+            if entry["kind"] == "state":
+                safe = safe and phase.states.get(name, {}).get("safe", False)
+            elif isinstance(node, _FUNCTIONS) and node.decorator_list:
+                safe = safe and phase._scope(node, entry["context"])["receiver"] is not None
+        else:
+            safe = safe and "." not in name and phase.module_binding_counts.get(name) == 1
+        result[f"{phase.path}#{name}"] = {
+            "kind": entry["kind"], "path": phase.path, "phase": phase.phase,
+            "location": _location(node), "source_sha256": source_hash,
+            "resolution": "resolved" if safe else "unresolved",
+        }
+    return result
+
+
 def analyze_python_change(path: str, before: str | None, after: str | None) -> dict:
     """Compare bounded source ASTs and return hash-bound static change evidence."""
     result = {"modified_entities": [], "findings": [], "state_dependencies": [], "uncertainties": [],
@@ -475,6 +508,7 @@ def analyze_python_change(path: str, before: str | None, after: str | None) -> d
     if old is None or new is None:
         result["status"] = "partial"
         return result
+    result["recommendation_entities"] = _recommendation_entities(old)
     for name in sorted(old.entities.keys() | new.entities.keys()):
         previous, current = old.entities.get(name), new.entities.get(name)
         previous_hash = _digest(previous["nodes"]) if previous else None

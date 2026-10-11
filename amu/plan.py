@@ -267,7 +267,73 @@ def _patch_bound_names(nodes):
     return names
 
 
-def patch_test_recommendations(sources: list[dict], affected: dict[str, set[str]]) -> list[dict]:
+def _patch_reference_associations(source, node, target_path, referenced, linked,
+                                  declarations, dependencies, called, import_line):
+    """Separate a real reference from an unestablished descendant dependency."""
+    from amu.change_analysis import _location
+
+    reference = {"role": "test_reference", "path": source["path"], "phase": "before",
+                 "location": _location(node), "source_sha256": source["sha256"],
+                 "import_line": import_line, "reference": ast.unparse(node)[:400]}
+    associations = []
+
+    def broad(name):
+        entity_id = f"{target_path}#{name}"
+        kind = (declarations or {}).get(entity_id, {}).get("kind")
+        return {"entity_id": entity_id,
+                "relationship": "broad-class-reference" if kind == "class" else "broad-source-reference",
+                "resolution": "unresolved", "path": [reference],
+                "limitation": "A containing source reference establishes no member-specific path; absence of a resolved path is not absence of a dependency."}
+
+    for value in linked:
+        entity_id = f"{target_path}#{value}"
+        declaration = (declarations or {}).get(entity_id)
+        if value.startswith(referenced + ".") or (declaration or {}).get("kind") == "class":
+            associations.append(broad(referenced if value.startswith(referenced + ".") else value))
+            continue
+        if "." in value and declarations is not None and (declaration or {}).get("resolution") != "resolved":
+            # A dotted spelling alone cannot disambiguate descriptors, rebinding
+            # or decorated/inherited methods. Retain the containing candidate.
+            associations.append(broad(value.split(".")[0]))
+            continue
+        resolved = declaration is not None and declaration["resolution"] == "resolved"
+        path = [reference]
+        if resolved:
+            path.append({"role": "source_declaration", "entity_id": entity_id, **declaration})
+        associations.append({"entity_id": entity_id,
+                             "relationship": "source-member-path" if resolved and "." in value else "direct-source-reference",
+                             "resolution": "resolved" if resolved else "unresolved", "path": path,
+                             "limitation": "A source path does not establish execution or that the test asserts affected behavior."})
+        # Join only an exact, directly called consumer to a baseline lexical
+        # access. Merely loading the method/function object is not such a path.
+        if not (called and resolved and referenced == value):
+            continue
+        for dependency in dependencies:
+            if dependency["consumer_id"] != entity_id or dependency["phase"] != "before":
+                continue
+            state_id = dependency["state_id"]
+            state = (declarations or {}).get(state_id)
+            if not state or state["resolution"] != "resolved":
+                continue
+            associations.append({
+                "entity_id": state_id,
+                "relationship": "source-member-path" if "." in state_id.split("#", 1)[1] else "source-state-path",
+                "resolution": "resolved",
+                "path": [*path, {"role": "state_access", "entity_id": state_id,
+                                  "consumer_id": entity_id, "access": dependency["access"],
+                                  "phase": "before", "path": target_path,
+                                  "location": dependency["location"], "evidence": dependency["evidence"]}],
+                "limitation": "A lexical state path does not establish execution, subclass dispatch or that the test asserts affected behavior.",
+            })
+    unique = []
+    for association in associations:
+        if association not in unique:
+            unique.append(association)
+    return unique
+
+
+def patch_test_recommendations(sources: list[dict], affected: dict[str, set[str]], *,
+                               declarations: dict | None = None, state_dependencies: list[dict] | None = None) -> list[dict]:
     """Recommend real test declarations with direct, unshadowed import references.
 
     This reuses the plan's test-path rule, adding syntax evidence rather than
@@ -303,6 +369,7 @@ def patch_test_recommendations(sources: list[dict], affected: dict[str, set[str]
                              if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)) and child.name.startswith("test_"))
         for name, test in tests:
             nodes = list(_patch_scope_nodes(test.body))
+            parents = {child: parent for parent in nodes for child in ast.iter_child_nodes(parent)}
             local = _patch_bound_names(nodes)
             local.update(arg.arg for arg in [*test.args.posonlyargs, *test.args.args, *test.args.kwonlyargs,
                                             *([test.args.vararg] if test.args.vararg else []),
@@ -329,10 +396,14 @@ def patch_test_recommendations(sources: list[dict], affected: dict[str, set[str]
                                 or value.startswith(referenced + ".") and referenced)
                 if not linked:
                     continue
+                parent = parents.get(node)
+                associations = _patch_reference_associations(
+                    source, node, target_path, referenced, linked, declarations, state_dependencies or [],
+                    isinstance(parent, ast.Call) and parent.func is node, import_line)
                 test_id = f"{path}::{name}"
                 entry = {"test_id": test_id, "path": path, "source_sha256": source["sha256"],
                          "relationship": "direct-import-source-reference", "coverage_proven": False,
-                         "entities": [f"{target_path}#{value}" for value in linked],
+                         "entities": sorted({a["entity_id"] for a in associations}), "associations": associations,
                          "evidence": {"import_line": import_line, "reference_line": node.lineno,
                                       "reference": ast.unparse(node)[:400], "test_start_line": test.lineno,
                                       "test_end_line": test.end_lineno},
@@ -341,8 +412,18 @@ def patch_test_recommendations(sources: list[dict], affected: dict[str, set[str]
                 existing = next((row for row in result if row["test_id"] == test_id), None)
                 if existing:
                     existing["entities"] = sorted(set(existing["entities"]) | set(entry["entities"]))
+                    existing["associations"].extend(a for a in associations if a not in existing["associations"])
                 else:
                     result.append(entry)
+    for entry in result:
+        # A redundant ancestor load inside an explicit member expression is not
+        # a separate affected entity when only that member was requested.
+        direct = {a["entity_id"] for a in entry["associations"] if not a["relationship"].startswith("broad-")}
+        entry["associations"] = [a for a in entry["associations"] if not (
+            a["relationship"].startswith("broad-")
+            and a["entity_id"].split("#", 1)[1] not in affected.get(a["entity_id"].split("#", 1)[0], set())
+            and any(entity.startswith(a["entity_id"] + ".") for entity in direct))]
+        entry["entities"] = sorted({a["entity_id"] for a in entry["associations"]})
     return sorted(result, key=lambda row: row["test_id"])
 
 

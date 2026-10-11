@@ -135,6 +135,40 @@ conditional/rebound keys, dynamic dispatch and arbitrary descriptors remain
 uncertain. Test discovery is bounded to 200 files/10,000 directory entries and
 direct unshadowed imports; recommendations are source references, not coverage.
 
+Recommendation evidence distinguishes specificity without changing candidate
+ordering (lexicographic full test ID) or hiding broad candidates. Every candidate
+remains in `recommended_checks`, its count, and the first-three-ID preview.
+The additive `associations` records describe individual source relationships:
+
+- `source-member-path` connects a direct member reference, or a directly called
+  declared consumer and its existing lexical state access, to that member.
+  `source-state-path` is the equivalent module-state consumer path. Each has
+  `resolution: "resolved"`, baseline test/declaration/access locations, and
+  source hashes. Resolved means supported within the lexical resolver's limits;
+  it does not prove execution or that the test asserts affected behavior.
+- `broad-class-reference` identifies the containing class with
+  `resolution: "unresolved"` for a member path. A class import, constructor use,
+  class-object reference, or unrelated method does not establish a dependency on
+  all its members. Unresolved does not mean there is no dependency.
+- `direct-source-reference` preserves other direct source references;
+  `broad-source-reference` preserves unresolved containing scopes outside classes.
+
+`entities` contains only the entities supported by these specific associations,
+including a containing class for a broad reference, never its members merely by
+name prefix. A finding's `recommended_test_ids` uses exact entity associations;
+separate `broad_class_test_ids` retain its containing-class candidates without
+asserting member dependencies. The initial `recommendation_relationships`
+preview labels the same candidates, and complete provenance remains paginated.
+The packet schema stays version 2; the identity configuration additionally
+records `recommendation_evidence: "member-specific-v1"` for cursor freshness.
+
+Member paths reuse baseline declarations and supported lexical state accesses;
+they do not infer paths through aliases, instance construction, inheritance,
+arbitrary decorators or graph-provider assertions. For example, a supported
+direct classmethod call that reads `cls.limit` can supply a path. A call through
+`Container().method()` stays broad: this workflow does not add instance-dispatch
+analysis. Optional graph evidence cannot promote a broad reference to a path.
+
 Optional graph queries describe the baseline, query at most eight changed
 declarations, and retain provider incompleteness and unresolved endpoints.
 Package-submodule and established stdlib boundary resolution have focused

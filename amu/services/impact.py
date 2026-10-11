@@ -460,7 +460,7 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
         raise ImpactInputError("base does not identify the current Git HEAD; use worktree for a source-only baseline")
     files = parse_diff(request.patch)
     groups = {section: [] for section in sorted(impact_report.PATCH_SECTIONS)}
-    snapshots, file_identities, affected, graph_targets = {}, [], {}, []
+    snapshots, file_identities, affected, graph_targets, declarations = {}, [], {}, [], {}
     total_bytes = 0
     for file in files:
         if file.operation == "add":
@@ -486,6 +486,7 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
             if text is not None:
                 _python_tree(text, file.path)
         analysis = analyze_python_change(file.path, before, after)
+        declarations.update(analysis.get("recommendation_entities", {}))
         changed_ids = {row["id"] for row in analysis["modified_entities"]}
         analysis["state_dependencies"] = [row for row in analysis["state_dependencies"]
                                            if row.get("state_id") in changed_ids or row.get("consumer_id") in changed_ids]
@@ -526,14 +527,20 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
         tests.append({"path": path, "tree": tree, "sha256": sha})
     if not complete:
         groups["uncertainties"].append({"reason": "test inventory is incomplete within bounded directory/file/byte limits"})
-    groups["recommended_checks"] = patch_test_recommendations(tests, affected)
+    groups["recommended_checks"] = patch_test_recommendations(
+        tests, affected, declarations=declarations, state_dependencies=groups["state_dependencies"])
     for finding in groups["findings"]:
         entity_id = finding.get("entity_id")
         finding["recommended_test_ids"] = [test["test_id"] for test in groups["recommended_checks"]
-                                           if entity_id in test["entities"] or any(
-                                               entity_id and linked.split("#", 1)[0] == entity_id.split("#", 1)[0]
-                                               and linked.split("#", 1)[1].split(".")[0] == entity_id.split("#", 1)[1].split(".")[0]
-                                               for linked in test["entities"])]
+                                           if entity_id in test["entities"]]
+        # Keep containing-class candidates visible without placing them in the
+        # member's dependency list. The detailed association carries provenance
+        # and explicitly unresolved member-path semantics.
+        finding["broad_class_test_ids"] = [test["test_id"] for test in groups["recommended_checks"]
+                                           if test["test_id"] not in finding["recommended_test_ids"] and any(
+                                               a["relationship"] == "broad-class-reference"
+                                               and entity_id and entity_id.startswith(a["entity_id"] + ".")
+                                               for a in test["associations"])]
         finding["relationships"] = [{**{key: row[key] for key in ("state_id", "consumer_id", "access", "phase", "location")},
                                       "evidence_section": "state_dependencies"} for row in groups["state_dependencies"]
                                      if row.get("state_id") == entity_id or row.get("consumer_id") == entity_id]
@@ -579,6 +586,7 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
                 "test_sources": test_hashes, "test_inventory_sha256": hashlib.sha256("\n".join(inventory).encode()).hexdigest(),
                 "test_inventory_complete": complete, "graph_evidence_sha256": hashlib.sha256(impact_report._encode(graph_records)).hexdigest(),
                 "configuration": {"analysis": "python-concrete-patch-v1", "max_test_files": MAX_TEST_FILES,
+                                  "recommendation_evidence": "member-specific-v1",
                                   "max_graph_targets": MAX_GRAPH_TARGETS, "max_ast_nodes": MAX_AST_NODES, "max_ast_depth": MAX_AST_DEPTH}}
     try:
         return impact_report.build_patch_packet(asdict(request), identity=identity, groups=groups,
