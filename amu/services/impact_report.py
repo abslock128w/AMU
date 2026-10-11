@@ -336,17 +336,27 @@ def _patch_summary(identity: dict, groups: dict) -> dict:
     elif not any(row.get("file_type") == "python" for row in files):
         search = "No Python entity changed; existing Python checks were not inferred for documentation-only content."
     else:
-        search = ("No supported direct test reference or at-most-two-hop local direct-call path to a changed Python entity "
-                  f"was found in {scope.get('baseline_test_files_inspected', 0)} inspected baseline Python test files. "
-                  "Package-submodule paths require an unchanged inert initializer and one unambiguous repository module path; dynamic dispatch and assertions are outside this search.")
         gaps = scope.get("unresolved_package_imports") or []
-        if gaps:
-            search += f" {len(gaps)} package-submodule import(s) were unresolved; first: {gaps[0]['reason']}."
         limits = scope.get("local_call_limits") or []
+        unavailable = scope.get("unavailable_baseline_tests") or []
+        incomplete = identity.get("test_inventory_complete") is False or bool(limits or unavailable)
+        search = ("Search incomplete; no candidates found in the inspected portion. " if incomplete else
+                  "No candidates found within the completed bounded search. ")
+        search += (f"No supported direct test reference or at-most-two-hop local direct-call path to a changed Python entity "
+                   f"was found in {scope.get('baseline_test_files_inspected', 0)} parsed baseline Python test files. "
+                   "Dynamic command dispatch, subprocess calls, and assertions are outside this search. "
+                   "Package-submodule paths require an unchanged inert initializer and one unambiguous repository module path.")
+        if gaps:
+            search += f" {len(gaps)} package-submodule relationship(s) remain unresolved; first: {gaps[0]['reason']}."
         if limits:
             search += f" {len(limits)} local-call search limit(s) were reached."
+        if unavailable:
+            search += f" {len(unavailable)} baseline test file(s) could not be parsed."
         if identity.get("test_inventory_complete") is False:
             search += " The test inventory was incomplete."
+    added_tests = identity.get("candidate_added_test_files") or []
+    if added_tests:
+        search += f" {len(added_tests)} candidate-added test file(s) were excluded from baseline discovery."
 
     return {"changed_files": files, "changed_entities": entity_preview,
             "omitted_changed_entities": len(changed_entities) - len(entity_preview),
@@ -356,6 +366,8 @@ def _patch_summary(identity: dict, groups: dict) -> dict:
             "existing_checks": check_preview,
             "omitted_existing_checks": len(ranked_checks) - len(check_preview),
             "candidate_test_files": identity.get("candidate_test_files", []),
+            "candidate_existing_test_files": identity.get("candidate_existing_test_files", []),
+            "candidate_added_test_files": added_tests,
             "recommendation_search": search,
             "uncertainty_groups": uncertainty_groups[:PATCH_SUMMARY_UNCERTAINTY_GROUP_LIMIT],
             "uncertainty_group_count": len(uncertainty_groups),

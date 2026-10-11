@@ -147,14 +147,19 @@ key definitions are connected only in the documented static scope. Aliases,
 conditional/rebound keys, dynamic dispatch and arbitrary descriptors remain
 uncertain. Existing-test discovery is bounded to 200 baseline Python files and
 10,000 directory entries. It follows direct unshadowed import references and,
-when an unchanged package initializer contains only a docstring/pass and no
-competing root, `src/` or package-module path exists or changes, a
+when an unchanged package initializer contains only a docstring, pass, or a
+literal string `__version__` assignment that does not bind the imported name,
+and no competing root, `src/` or package-module path exists or changes, a
 `from package import module` reference to that module. A directly called,
 unshadowed module function can connect through at most two direct local calls
 to a changed function. That optional path is capped at 128 module functions
 and 256 local call edges per source file; dynamic namespaces and shadowed or
 decorated bindings are excluded. These are lexical paths, not proof that a
 test ran the path or asserted the changed behavior.
+The summary separates changed baseline test files from candidate-added test
+files. An empty recommendation states whether the bounded search completed,
+which import relationships remain unresolved, and whether any baseline tests
+could not be inspected.
 
 Recommendation evidence distinguishes specificity without hiding broad
 candidates. Full `recommended_checks` rows keep lexicographic test-ID order;

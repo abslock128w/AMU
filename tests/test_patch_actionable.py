@@ -138,10 +138,73 @@ def test_verified_package_submodule_and_direct_source_call_recommend_existing_te
     assert (tmp_path / "test_worker.py").read_text().count("def test_") == 4
 
 
+def test_literal_package_version_preserves_supported_submodule_path(tmp_path):
+    request = _package_case(tmp_path, package_override='__version__ = "1.0"\n')
+    report = impact.execute_patch(str(tmp_path), request)
+    assert [row["test_id"] for row in report["details"]["items"]] == ["test_worker.py::test_public"]
+    assert report["identity"]["recommendation_scope"]["unresolved_package_imports"] == []
+    assert report["identity"]["candidate_test_files"] == ["test_worker.py"]
+    assert "test_candidate_only" not in json.dumps(report)
+
+
+def test_literal_binding_of_imported_name_stays_unresolved(tmp_path):
+    package = tmp_path / "pkg"
+    package.mkdir()
+    (package / "__init__.py").write_text('__version__ = "1.0"\n')
+    before = "def run():\n    return 1\n"
+    (package / "__version__.py").write_text(before)
+    (tmp_path / "test_version.py").write_text(
+        "from pkg import __version__\n\ndef test_run():\n    assert __version__.run()\n")
+    patch = diff(before, before.replace("return 1", "return 2"), "pkg/__version__.py")
+    report = impact.execute_patch(str(tmp_path), impact.PatchRequest(
+        patch, base="worktree", section="recommended_checks"))
+    assert report["details"]["items"] == []
+    assert report["identity"]["recommendation_scope"]["unresolved_package_imports"][0]["reason"] == (
+        "package initializer binds the imported submodule name")
+
+
+def test_candidate_added_tests_are_separate_from_baseline_recommendations(tmp_path):
+    request = _package_case(tmp_path)
+    added = "from pkg import worker\n\ndef test_new():\n    assert worker.public(2)\n"
+    request = replace(request, patch=request.patch + diff(None, added, "test_new.py"))
+    report = impact.execute_patch(str(tmp_path), request)
+    assert [row["test_id"] for row in report["details"]["items"]] == ["test_worker.py::test_public"]
+    assert report["identity"]["candidate_existing_test_files"] == ["test_worker.py"]
+    assert report["identity"]["candidate_added_test_files"] == ["test_new.py"]
+    summary = impact.execute_patch(str(tmp_path), replace(request, section="summary"))["summary"]
+    assert summary["candidate_added_test_files"] == ["test_new.py"]
+    assert "excluded from baseline discovery" in summary["recommendation_search"]
+
+
+def test_empty_recommendation_explains_unresolved_and_limited_search(tmp_path, monkeypatch):
+    request = _package_case(tmp_path, package_override="worker = object()\n")
+    summary = impact.execute_patch(str(tmp_path), replace(request, section="summary"))["summary"]
+    assert summary["existing_checks"] == []
+    assert "No candidates found within the completed bounded search" in summary["recommendation_search"]
+    assert "relationship(s) remain unresolved" in summary["recommendation_search"]
+    monkeypatch.setattr(impact, "MAX_TEST_FILES", 0)
+    limited = impact.execute_patch(str(tmp_path), replace(request, section="summary"))
+    assert limited["identity"]["test_inventory_complete"] is False
+    assert "Search incomplete" in limited["summary"]["recommendation_search"]
+    assert "test inventory was incomplete" in limited["summary"]["recommendation_search"]
+
+
+def test_unparseable_baseline_test_is_reported_as_unavailable(tmp_path):
+    request = _package_case(tmp_path, package_override="worker = object()\n")
+    (tmp_path / "test_unparseable.py").write_text("def test_bad(:\n")
+    detailed = impact.execute_patch(str(tmp_path), request)
+    unavailable = detailed["identity"]["recommendation_scope"]["unavailable_baseline_tests"]
+    assert [row["path"] for row in unavailable] == ["test_unparseable.py"]
+    summary = impact.execute_patch(str(tmp_path), replace(request, section="summary"))["summary"]
+    assert "Search incomplete" in summary["recommendation_search"]
+    assert "1 baseline test file(s) could not be parsed" in summary["recommendation_search"]
+
+
 @pytest.mark.parametrize("rebound,dynamic,package_override", [
     (True, False, None),
     (False, True, None),
     (False, False, "worker = object()\n"),
+    (False, False, '__version__ = compute()\n'),
 ])
 def test_ambiguous_source_or_package_binding_does_not_create_specific_path(tmp_path, rebound, dynamic, package_override):
     request = _package_case(tmp_path, rebound=rebound, dynamic=dynamic, package_override=package_override)

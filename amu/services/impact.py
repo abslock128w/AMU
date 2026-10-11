@@ -525,6 +525,21 @@ def _source_path_present_or_unsafe(root: Path, relative: str) -> bool:
             os.close(descriptor)
 
 
+def _inert_initializer_bindings(tree: ast.Module) -> set[str]:
+    """Accept only a literal package version assignment in otherwise inert source."""
+    bound = set()
+    for node in tree.body:
+        if isinstance(node, ast.Pass) or isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant) and isinstance(node.value.value, str):
+            continue
+        if (isinstance(node, ast.Assign) and len(node.targets) == 1
+                and isinstance(node.targets[0], ast.Name) and node.targets[0].id == "__version__"
+                and isinstance(node.value, ast.Constant) and isinstance(node.value.value, str)):
+            bound.add("__version__")
+            continue
+        raise ImpactInputError("package initializer contains executable or binding statements")
+    return bound
+
+
 def _verified_package_submodules(root: Path, affected: dict[str, set[str]], tests: list[dict],
                                  snapshots: dict, changed_paths: set[str], total_bytes: int) -> tuple[dict, list, list, int, list]:
     """Resolve ``from package import module`` only for an inert baseline initializer.
@@ -574,21 +589,20 @@ def _verified_package_submodules(root: Path, affected: dict[str, set[str]], test
                     if previous is None and total_bytes + len(payload) > MAX_TOTAL_SOURCE_BYTES:
                         raise ImpactInputError("combined source byte budget exhausted")
                     tree = _python_tree(payload.decode("utf-8"), initializer)
-                    if not all(isinstance(node, ast.Pass) or isinstance(node, ast.Expr)
-                               and isinstance(node.value, ast.Constant) and isinstance(node.value.value, str)
-                               for node in tree.body):
-                        raise ImpactInputError("package initializer contains executable or binding statements")
+                    bound = _inert_initializer_bindings(tree)
                 except (ImpactInputError, UnicodeError) as exc:
                     if isinstance(exc, ImpactInputError) and "changed during inspection" in str(exc):
                         raise
-                    initializer_results[initializer] = str(exc)
+                    initializer_results[initializer] = (str(exc), set())
                 else:
-                    initializer_results[initializer] = None
+                    initializer_results[initializer] = (None, bound)
                     snapshots[initializer] = (payload, source_identity)
                     if previous is None:
                         total_bytes += len(payload)
                     sources.append({"path": initializer, "sha256": hashlib.sha256(payload).hexdigest()})
-            reason = initializer_results[initializer]
+            reason, bound = initializer_results[initializer]
+            if reason is None and target.stem in bound:
+                reason = "package initializer binds the imported submodule name"
             if reason is None:
                 verified[key] = target_path
                 absent_competitors.update(competitors)
@@ -677,7 +691,7 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
         file_identities.append({"path": file.path, "operation": file.operation,
                                 "baseline_sha256": digest(before), "candidate_sha256": digest(after)})
     inventory, complete = _test_inventory(root)
-    tests, test_hashes = [], []
+    tests, test_hashes, unavailable_tests = [], [], []
     for path in inventory:
         payload, identity = _source(root, path)
         total_bytes += len(payload)
@@ -694,6 +708,7 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
             tree = _python_tree(payload.decode("utf-8"), path)
         except (UnicodeError, ImpactInputError) as exc:
             groups["uncertainties"].append({"path": path, "reason": str(exc)})
+            unavailable_tests.append({"path": path, "reason": str(exc)})
             continue
         tests.append({"path": path, "tree": tree, "sha256": sha})
     if not complete:
@@ -767,9 +782,12 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
                 "resolution_sources": resolution_sources,
                 "resolution_absences": resolution_absences,
                 "candidate_test_files": sorted(file.path for file in files if file.path.endswith(".py") and _is_test_path(file.path)),
+                "candidate_existing_test_files": sorted(file.path for file in files if file.operation != "add" and file.path.endswith(".py") and _is_test_path(file.path)),
+                "candidate_added_test_files": sorted(file.path for file in files if file.operation == "add" and file.path.endswith(".py") and _is_test_path(file.path)),
                 "recommendation_scope": {"baseline_test_files_inspected": len(tests), "max_local_call_hops": 2,
                                          "unresolved_package_imports": unresolved_imports,
-                                         "local_call_limits": source_call_limits},
+                                         "local_call_limits": source_call_limits,
+                                         "unavailable_baseline_tests": unavailable_tests},
                 "configuration": {"analysis": "python-markdown-concrete-patch-v2", "max_test_files": MAX_TEST_FILES,
                                   "recommendation_evidence": "member-and-local-call-v2",
                                   "max_graph_targets": MAX_GRAPH_TARGETS, "max_ast_nodes": MAX_AST_NODES, "max_ast_depth": MAX_AST_DEPTH}}
