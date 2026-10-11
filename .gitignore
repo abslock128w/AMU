@@ -8,9 +8,13 @@ build/
 .coverage
 *.egg
 .amu/*
+.amu-home/
 !.amu/config.json
 !.amu/doc-map.json
 !.amu/feature_map.json
 !.amu/skills/
 .ruff_cache/
 _nobin/
+web/node_modules/
+web/test-results/
+web/playwright-report/

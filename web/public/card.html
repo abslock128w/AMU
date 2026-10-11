@@ -1,16 +1,50 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TWC Thugs · amu card</title>
-<style>:root{color-scheme:dark;--gold:#F5B32E;--amber:#E08A1E;--ember:#C2410C;--sand:#FDF6E3;--ash:#8A8578;--bg:#161412;--card:#1e1b18;--sound:#3CB371}body{margin:0;background:var(--bg);color:var(--sand);font:14px/1.5 ui-monospace,Menlo,monospace;padding:1.5rem;max-width:1000px;margin:auto}h1{color:var(--gold)}textarea{width:100%;min-height:120px;background:var(--card);color:var(--sand);border:1px solid rgba(224,138,30,.3);border-radius:8px;padding:.6rem;font:inherit}.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin:1rem 0}.tile{background:var(--card);border:1px solid rgba(224,138,30,.3);border-radius:8px;padding:.8rem}.tile b{font-size:1.6rem;display:block}table{width:100%;border-collapse:collapse}td,th{padding:.35rem .5rem;border-bottom:1px solid rgba(224,138,30,.3);text-align:left;vertical-align:top}.badge{display:inline-block;padding:0 .4rem;border-radius:4px;border:1px solid #8886;margin-right:.3rem}.sound{border-color:var(--sound)}.guessed{border-color:var(--amber)}.unknown{border-color:var(--ash)}button{background:var(--gold);color:#fff;border:0;border-radius:6px;padding:.4rem .8rem;font:inherit;cursor:pointer}button:disabled{opacity:.4;cursor:not-allowed}.dim{color:var(--ash)}pre{background:var(--card);padding:.6rem;border-radius:6px;overflow:auto;max-height:300px}</style></head><body>
-<h1>TWC Thugs · amu agent card</h1><p class="dim">Paste the output of <code>amu map --json</code> (or <code>.amu/map.json</code>) below.</p>
-<textarea id="in" placeholder='{"root":{...},"nodes":[...],"resolution":{...}}'></textarea>
-<p><button onclick="render()">Render</button> <button id="approve" disabled title="enabled only when planner decision is proceed">Approve</button> <button onclick="document.getElementById('raw').hidden=!document.getElementById('raw').hidden">View JSON</button></p>
-<div id="out"></div><pre id="raw" hidden></pre>
-<script>
-function esc(s){return String(s??'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
-function render(){let m;try{m=JSON.parse(document.getElementById('in').value)}catch(e){alert('not JSON');return}
-const r=m.resolution||{},n=m.nodes||[];document.getElementById('raw').textContent=JSON.stringify(m,null,2);
-document.getElementById('approve').disabled=(m.planner_decision!=='proceed'&&(m.planner||{}).decision!=='proceed');
-let h=`<div class="tiles"><div class="tile"><span class="dim">sound</span><b>${r.sound??0}</b></div><div class="tile"><span class="dim">guessed</span><b>${r.guessed??0}</b></div><div class="tile"><span class="dim">unknown</span><b>${r.unknown??0}</b></div><div class="tile"><span class="dim">ripples</span><b>${(m.ripples||[]).length}</b></div></div>`;
-h+=`<p class="dim">${esc(r.qualifier||'')}</p><table><tr><th>id</th><th>node</th><th>badges</th><th>reason</th><th>verify</th><th></th></tr>`;
-for(const x of n){h+=`<tr><td>${esc(x.id)}</td><td>${esc(x.path)}${x.symbol?'#'+esc(x.symbol):''}<br><span class="dim">${esc(x.feature)}</span></td><td><span class="badge ${esc(x.confidence)}">${esc(x.confidence)}</span><span class="badge">${esc(x.risk)}</span></td><td>${esc(x.reason)}</td><td><code>${esc(x.verify)}</code></td><td>${x.confidence!=='sound'?`<button onclick="alert('Answer ${esc(x.id)}: run\\n${esc(x.verify)}')">Answer ${esc(x.id)}</button>`:''}</td></tr>`}
-h+=`</table><p><b>next</b> <code>${esc(m.next||'')}</code></p>`;document.getElementById('out').innerHTML=h}
-</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; object-src 'none'; form-action 'none'">
+  <title>TWC Thugs · amu card</title>
+  <style>
+    :root{color-scheme:dark;--gold:#F5B32E;--amber:#E08A1E;--ember:#C2410C;--sand:#FDF6E3;--ash:#8A8578;--bg:#161412;--card:#1e1b18;--sound:#3CB371}
+    body{margin:0;background:var(--bg);color:var(--sand);font:14px/1.5 ui-monospace,Menlo,monospace;padding:1.5rem;max-width:1000px;margin:auto}
+    h1{color:var(--gold)}
+    textarea{width:100%;min-height:120px;background:var(--card);color:var(--sand);border:1px solid rgba(224,138,30,.3);border-radius:8px;padding:.6rem;font:inherit}
+    .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin:1rem 0}
+    .tile{background:var(--card);border:1px solid rgba(224,138,30,.3);border-radius:8px;padding:.8rem}
+    .tile b{font-size:1.6rem;display:block}
+    table{width:100%;border-collapse:collapse}
+    td,th{padding:.35rem .5rem;border-bottom:1px solid rgba(224,138,30,.3);text-align:left;vertical-align:top}
+    .badge{display:inline-block;padding:0 .4rem;border-radius:4px;border:1px solid #8886;margin-right:.3rem}
+    .sound{border-color:var(--sound)}
+    .guessed{border-color:var(--amber)}
+    .unknown{border-color:var(--ash)}
+    .blocked{color:#f5b39e;border-left:3px solid var(--ember);padding-left:.6rem}
+    button{background:var(--gold);color:#fff;border:0;border-radius:6px;padding:.4rem .8rem;font:inherit;cursor:pointer}
+    button:disabled{opacity:.4;cursor:not-allowed}
+    .dim{color:var(--ash)}
+    pre{background:var(--card);padding:.6rem;border-radius:6px;overflow:auto;max-height:300px}
+  </style>
+  <link rel="stylesheet" href="viewers.css">
+  <script src="viewer-input.js" defer></script>
+  <script src="card.js" defer></script>
+</head>
+<body>
+  <main>
+  <h1>TWC Thugs · amu agent card</h1>
+  <p class="dim">Paste the output of <code>amu map --json</code> (or <code>.amu/map.json</code>) below.</p>
+  <label for="in">Map JSON</label>
+  <p class="dim" id="input-limits">Local only. Maximum 4 MiB, 1,000 nodes and 5,000 relationships.</p>
+  <textarea id="in" aria-describedby="input-limits input-error" placeholder='{"root":{...},"nodes":[...],"resolution":{...}}'></textarea>
+  <p id="input-error" class="error" role="alert"></p>
+  <p>
+    <button id="render" type="button">Render</button>
+    <button id="approve" type="button" disabled title="Presentation only: approve from the repository CLI">Approval happens in CLI</button>
+    <button id="view-json" type="button" aria-controls="raw" aria-expanded="false">View JSON</button>
+  </p>
+  <div id="out"></div>
+  <p id="status" class="feedback" role="status" aria-atomic="true"></p>
+  <pre id="raw" tabindex="0" aria-label="Rendered map JSON" hidden></pre>
+  </main>
+</body>
+</html>

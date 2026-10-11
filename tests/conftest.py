@@ -26,6 +26,9 @@ def _hide_real_entire(monkeypatch, tmp_path_factory):
             if p and "homebrew" not in p and "/.local/share/entire" not in p]
     monkeypatch.setenv("PATH", os.pathsep.join([str(_EMPTY_BIN)] + keep))
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
+    monkeypatch.delenv("AMU_PROVIDER", raising=False)
     monkeypatch.setenv("NO_COLOR", "1")
     yield
 

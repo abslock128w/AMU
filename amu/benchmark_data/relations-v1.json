@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "fixture_version": "relations-v1",
+  "label_origin": "hand-authored",
+  "scope": "Synthetic direct Python CALLS edges and explicit negatives; not a NumPy/provider accuracy measurement.",
+  "sources": {
+    "pkg/local.py": "def helper(value):\n    return value\n\ndef same_file(value):\n    return helper(value)\n\ndef isolated(value):\n    return value\n\ndef example_only(value):\n    \"\"\"Example: helper(value).\"\"\"\n    return value\n",
+    "pkg/remote.py": "from .local import helper as imported\nfrom .other import helper\n\ndef across_files(value):\n    return imported(value)\n\ndef wrong_name(value):\n    return helper(value)\n",
+    "pkg/other.py": "def helper(value):\n    return value * 2\n"
+  },
+  "expected_edges": [
+    {"source": "pkg/local.py#same_file", "target": "pkg/local.py#helper", "relation": "CALLS"},
+    {"source": "pkg/remote.py#across_files", "target": "pkg/local.py#helper", "relation": "CALLS"},
+    {"source": "pkg/remote.py#wrong_name", "target": "pkg/other.py#helper", "relation": "CALLS"}
+  ],
+  "negative_edges": [
+    {"source": "pkg/local.py#isolated", "target": "pkg/local.py#helper", "relation": "CALLS", "label": "isolated function"},
+    {"source": "pkg/local.py#example_only", "target": "pkg/local.py#helper", "relation": "CALLS", "label": "docstring example is not executable"},
+    {"source": "pkg/remote.py#wrong_name", "target": "pkg/local.py#helper", "relation": "CALLS", "label": "same named function resolves to a different module"}
+  ],
+  "coverage_targets": [
+    "pkg/local.py#same_file",
+    "pkg/remote.py#across_files",
+    "pkg/local.py#isolated",
+    "pkg/local.py#example_only",
+    "pkg/remote.py#wrong_name"
+  ]
+}

@@ -13,7 +13,10 @@ Phases (per Track 2 safe-migration contract):
 import json
 from dataclasses import dataclass, field
 from graphlib import CycleError, TopologicalSorter
+from pathlib import Path
 from typing import Dict, List, Optional, Set
+
+from amu import dependencies
 
 # ---------------------------------------------------------------------------
 # Data model
@@ -208,30 +211,92 @@ def plan_to_json(plan: RefactoringPlan) -> str:
 PRD_PHASES = ["additive", "leaves", "interior", "removal"]
 
 
-def plan_from_map(amu_map: dict, targets: list[dict]) -> list[dict]:
+def _graph_order(node: dict) -> int:
+    """Return a sortable graph distance, placing incomplete evidence last."""
+    value = node.get("order")
+    if isinstance(value, bool):
+        return 10_000
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return 10_000
+
+
+def _node_order_key(node: dict) -> tuple:
+    """Keep phase output stable even when the graph returns nodes in a new order."""
+    risk_order = {"will_break": 0, "might_break": 1, "unknown": 2}
+    return (
+        _graph_order(node),
+        risk_order.get(node.get("risk"), 3),
+        str(node.get("via") or ""),
+        str(node.get("path") or ""),
+        str(node.get("symbol") or ""),
+        str(node.get("id") or ""),
+    )
+
+
+def _is_test_path(path: str) -> bool:
+    return path.rsplit("/", 1)[-1].startswith("test_") or path.startswith("tests/")
+
+
+def documentation_scope(repo: str, requested: object = None) -> list[str]:
+    """Validate explicitly requested existing prose, never infer write scope from a save.
+
+    Re-run immediately before approval persists the contract. The docs helper
+    applies the configured docs_dir boundary; this narrower planning path also
+    refuses executable MDX and every symlink alias, including parent aliases.
+    """
+    if requested is None:
+        return []
+    if not isinstance(requested, list) or len(requested) > 100:
+        raise ValueError("docs scope must be a list of at most 100 --docs-file paths")
+    from amu import docs
+
+    root = Path(repo).resolve()
+    canonical: set[str] = set()
+    for value in requested:
+        if not isinstance(value, str) or not value.strip() or "\x00" in value:
+            raise ValueError("docs scope paths must be nonempty strings")
+        raw = Path(value)
+        if raw.is_absolute() or ".." in raw.parts or raw.suffix.lower() not in {".md", ".rst"}:
+            raise ValueError("docs scope requires repository-relative Markdown/RST prose paths without traversal")
+        safe = docs._safe_mapped_doc_path({"file": value}, str(root))
+        if safe is None or safe != root / raw:
+            raise ValueError("docs scope must name an existing Markdown/RST file inside docs_dir, without symlinks")
+        canonical.add(safe.relative_to(root).as_posix())
+    return sorted(canonical)
+
+
+def plan_from_map(amu_map: dict, targets: list[dict], docs_files: list[str] | None = None) -> list[dict]:
     """Each phase lists node ids + files + tests + reason + verify. Deterministic, no ML."""
-    nodes = amu_map["nodes"]
+    nodes = sorted(amu_map["nodes"], key=_node_order_key)
     root = amu_map["root"]["file"]
-    is_test = lambda p: p.rsplit("/", 1)[-1].startswith("test_") or p.startswith("tests/")  # noqa: E731
-    leaves = [n for n in nodes if n["confidence"] != "unknown" and is_test(n["path"])]
-    interior = [n for n in nodes if n["confidence"] != "unknown" and not is_test(n["path"])]
+    known = [n for n in nodes if n["confidence"] != "unknown"]
+    known, leaf_refs, ordering = dependencies.order(amu_map, known)
+    leaves = [n for n in known if n["confidence"] == "sound" and f"{n['path']}#{n.get('symbol')}" in leaf_refs]
+    leaf_ids = {n["id"] for n in leaves}
+    interior = [n for n in known if n["id"] not in leaf_ids]
     unknown = [n for n in nodes if n["confidence"] == "unknown"]
-    tests = sorted({n["path"] for n in leaves})
+    tests = sorted({n["path"] for n in known if _is_test_path(n["path"])})
     removal_needed = any(t["change_class"] in ("remove", "rename", "move", "signature") for t in targets)
     phases = [
         {"n": 1, "kind": "additive", "nodes": [], "files": [root], "tests": tests,
          "reason": "introduce the new shape next to the old one; nothing breaks yet",
          "verify": "amu check --phase 1"},
         {"n": 2, "kind": "leaves", "nodes": [n["id"] for n in leaves], "files": sorted({n["path"] for n in leaves}), "tests": tests,
-         "reason": "migrate consumers with no dependants of their own (tests first)", "verify": "amu check --phase 2"},
+         "reason": "migrate consumers with complete recorded caller coverage and no observed dependants", "verify": "amu check --phase 2"},
         {"n": 3, "kind": "interior", "nodes": [n["id"] for n in interior], "files": sorted({n["path"] for n in interior}), "tests": tests,
-         "reason": "migrate interior consumers in graph order; guessed nodes are reviewed, not assumed", "verify": "amu check --phase 3"},
+         "reason": "migrate in observed consumer-first dependency groups; cycles move together, uncovered/guessed nodes need review", "verify": "amu check --phase 3"},
         {"n": 4, "kind": "removal", "nodes": [], "files": [root] if removal_needed else [], "tests": tests,
          "reason": "remove the old shape only after phases 1-3 are green" if removal_needed else "no removal for a body change",
          "verify": "amu check --phase 4"},
     ]
     for p in phases:
+        p["ordering"] = ordering
         p["open_questions"] = [f"{u['id']} {u['path']}: {u['reason']} → {u['verify']}" for u in unknown]
+    if docs_files:
+        phases[-1]["files"] = sorted(set(phases[-1]["files"]) | set(docs_files))
+        phases[-1]["reason"] += "; review and update explicitly scoped documentation after the code phases"
     return phases
 
 

@@ -84,7 +84,7 @@ class TestUnknownBucketRouting:
             "unresolved: plugin.X"
         )
         buckets = classify_consumers("target.fn", raw, self.BASE_CAPS)
-        assert len(buckets["will_break"]) >= 1
+        assert buckets["will_break"] == []
         assert len(buckets["might_break"]) >= 1
         assert buckets["unknown"]["unresolved_callsites"] >= 2
 

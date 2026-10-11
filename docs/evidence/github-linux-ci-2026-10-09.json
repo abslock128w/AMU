@@ -1,0 +1,262 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-09",
+  "status": "private_linux_ci_verified",
+  "user_authorization": "Private clean-candidate upload and Linux CI only; no public publishing or paid usage.",
+  "repository": {
+    "full_name": "abslock128w/amu-production-check-2026-10-09",
+    "url": "https://github.com/abslock128w/amu-production-check-2026-10-09",
+    "verified_visibility": "private",
+    "default_branch": "main",
+    "initial_snapshot_commit": "bc15b5f6a774321afcbef614a7fdd2fd9c1f4517",
+    "verified_head_commit": "2c7ec3bb01d6061a416dcfd03f1659754ce9994e",
+    "tested_candidate_commit": "907abfd6aadce3af426918a2271cabe8f7835936",
+    "verification_summary": "https://github.com/abslock128w/amu-production-check-2026-10-09/blob/main/VERIFICATION.md",
+    "disabled_actions_ui_note": "The browser returned a GitHub 404 for the run page while repository Actions are disabled; success remains verified through the authenticated API and retained logs. The private verification summary remains visible.",
+    "actions_enabled": false,
+    "workflow_id": 379517003,
+    "workflow_path": ".github/workflows/linux-candidate.yml",
+    "workflow_event": "workflow_dispatch_only",
+    "workflow_runs": 2,
+    "repository_secrets": 0,
+    "repository_variables": 0
+  },
+  "candidate": {
+    "source_archive_sha256": "e6411ac650ddbcbc98d26da77b4546160e86867d45dd1b2c1fcf5d14e7dba1ad",
+    "source_archive_bytes": 634785,
+    "source_archive_remote_git_blob": "0afbda0ff6b72c6134e2d712c8d7e869962cef8f",
+    "wheel_sha256": "0b7cd4636a7c045776ffd2f3b4da8d93cea914d8491f25ec80cf7a03bb7275f0",
+    "wheel_bytes": 246028,
+    "wheel_remote_git_blob": "5801338cb8a116e8710303264d7ccdc5d0d98a79",
+    "source_manifest_files": 228,
+    "wheel_runtime_files": 63,
+    "remote_git_blobs_match_local": true,
+    "runtime_unchanged": true,
+    "excluded": [
+      "original Git history",
+      "working checkout",
+      "virtual environments",
+      "credential stores",
+      "AMU state",
+      "graph binaries",
+      "local caches"
+    ],
+    "privacy_review": "No high-confidence live tokens/private keys found; deliberate synthetic credential fixtures and historical fixture/evidence paths remain in the exact frozen archive."
+  },
+  "prepared_checks": {
+    "runners": "standard ubuntu-24.04 only",
+    "python": [
+      "3.11",
+      "3.14"
+    ],
+    "node": "22",
+    "source_pytest": true,
+    "rebuild_from_exact_archive": true,
+    "rebuilt_wheel_runtime_identity": true,
+    "clean_base_installation": true,
+    "original_frozen_wheel_installation": true,
+    "installed_mcp_protocol": true,
+    "chromium_desktop_mobile_viewers": true,
+    "source_jobs_timeout_minutes_each": 20,
+    "viewer_job_timeout_minutes": 15,
+    "permissions": "contents: read; checkout persist-credentials false",
+    "actions_pinned_to_commit_sha": true,
+    "dependency_cache": false,
+    "workflow_artifact_uploads": false,
+    "deployment": false,
+    "remote_model_calls": false,
+    "model_disable_switch": "Explicitly enabled for installed smoke steps, not regression cases that intentionally exercise mocked providers.",
+    "integration_cases_excluded": "11 opt-in real graph-engine/NumPy cases; actual ChatGPT/Claude connection; Windows; non-Chromium browsers."
+  },
+  "local_preflight": {
+    "archive_safety": "passed; 255 members, all 52 required support files",
+    "candidate_manifest_match": "all 228 source files and all four artifacts",
+    "ci_verifier_regressions": "5 passed on each of Python 3.11.16 and 3.14.6",
+    "python_311_rebuilt_wheel": "passed; all 63 runtime files byte-identical to frozen candidate",
+    "workflow_yaml_parse": "passed",
+    "helper_lint": "passed",
+    "independent_wrapper_review": "no technical launch blocker found"
+  },
+  "billing_gate": {
+    "verified_no_charge_boundary": true,
+    "verified_remaining_included_allowance": true,
+    "verification_method": "Authenticated GitHub billing UI for abslock128w: Actions account budget $0, Stop usage Yes; 0 minutes used of 3,000 included; 0 GB storage used of 2 GB included. No billing settings changed.",
+    "api_blocker": "Existing GitHub CLI credential lacks user scope for personal billing usage; scope was not expanded.",
+    "browser_blocker": null,
+    "billing_settings_changed": false,
+    "payment_methods_added": false,
+    "next_action": "Both manual runs completed successfully. Repository Actions verified disabled again; account $0 Stop usage budget untouched."
+  },
+  "linux_run": {
+    "id": 37924972565,
+    "url": "https://github.com/abslock128w/amu-production-check-2026-10-09/actions/runs/37924972565",
+    "created_at_utc": "2026-10-09T11:38:20Z",
+    "completed_at_utc": "2026-10-09T11:41:35Z",
+    "head_sha": "907abfd6aadce3af426918a2271cabe8f7835936",
+    "event": "workflow_dispatch",
+    "status": "completed",
+    "conclusion": "success",
+    "allowed_actions": "Only three independently reviewed, exact official Node24-native action commits",
+    "jobs": [
+      {
+        "label": "py311",
+        "job_id": 113801616179,
+        "conclusion": "success",
+        "os": "Ubuntu24.04.5",
+        "architecture": "x64",
+        "python": "3.11.17",
+        "passed": 1739,
+        "skipped": 11,
+        "test_duration_seconds": 111.82,
+        "runtime_manifest_files": 63,
+        "rebuilt_wheel_identity": "passed",
+        "base_installed_smoke": "passed",
+        "original_frozen_wheel_smoke": "passed",
+        "installed_mcp_protocol": "passed",
+        "dependency_and_constraint_checks": "passed",
+        "source_archive_safety": "passed",
+        "retained_log": "dist/mcp-hardened-2026-10-09.7SsvDG/verification/linux-run-37924972565/py311.log",
+        "log_sha256": "2e046b4e5c3af9692dda186a131f5009e9a7aa3a80c03f41566f6b400b6c710a"
+      },
+      {
+        "label": "py314",
+        "job_id": 113801615962,
+        "conclusion": "success",
+        "os": "Ubuntu24.04.5",
+        "architecture": "x64",
+        "python": "3.14.8",
+        "passed": 1739,
+        "skipped": 11,
+        "test_duration_seconds": 133.33,
+        "runtime_manifest_files": 63,
+        "rebuilt_wheel_identity": "passed",
+        "base_installed_smoke": "passed",
+        "original_frozen_wheel_smoke": "passed",
+        "installed_mcp_protocol": "passed",
+        "dependency_and_constraint_checks": "passed",
+        "source_archive_safety": "passed",
+        "retained_log": "dist/mcp-hardened-2026-10-09.7SsvDG/verification/linux-run-37924972565/py314.log",
+        "log_sha256": "7eadfacdfb849d8771f8b2058c0314b46537c3f87f4e8ab3e8d1e9e5bd18ca08"
+      },
+      {
+        "label": "viewers",
+        "job_id": 113801615568,
+        "conclusion": "success",
+        "os": "Ubuntu24.04.5",
+        "architecture": "x64",
+        "node": "22.23.3",
+        "browser": "Chromium",
+        "projects": [
+          "desktop",
+          "mobile"
+        ],
+        "passed": 30,
+        "test_duration_seconds": 39.4,
+        "retained_log": "dist/mcp-hardened-2026-10-09.7SsvDG/verification/linux-run-37924972565/viewers.log",
+        "log_sha256": "61eb0f9428f49feb100251e24a7a9a54da8d02553d3cc93d03835e17b4b9444a"
+      }
+    ],
+    "deprecated_action_runtime_warning": false
+  },
+  "claims_not_made": [
+    "fully production-ready",
+    "publicly released",
+    "paid CI authorized",
+    "real AI-client connection verified"
+  ],
+  "previous_linux_runs": [
+    {
+      "id": 37923792739,
+      "url": "https://github.com/abslock128w/amu-production-check-2026-10-09/actions/runs/37923792739",
+      "created_at_utc": "2026-10-09T11:27:03Z",
+      "head_sha": "a404adcdeaf1ce2501499a4e4f5d4026465342f8",
+      "event": "workflow_dispatch",
+      "status": "completed",
+      "conclusion": "success",
+      "allowed_actions": "Only the three exact pinned checkout/setup-python/setup-node commit references are permitted.",
+      "completed_at_utc": "2026-10-09T11:30:15Z",
+      "jobs": [
+        {
+          "label": "py311",
+          "job_id": 113797822424,
+          "conclusion": "success",
+          "os": "Ubuntu24.04.5",
+          "architecture": "x64",
+          "python": "3.11.17",
+          "passed": 1739,
+          "skipped": 11,
+          "test_duration_seconds": 124.51,
+          "runtime_manifest_files": 63,
+          "rebuilt_wheel_identity": "passed",
+          "base_installed_smoke": "passed",
+          "original_frozen_wheel_smoke": "passed",
+          "installed_mcp_protocol": "passed",
+          "dependency_and_constraint_checks": "passed",
+          "source_archive_safety": "passed",
+          "retained_log": "dist/mcp-hardened-2026-10-09.7SsvDG/verification/linux-run-37923792739/py311.log"
+        },
+        {
+          "label": "py314",
+          "job_id": 113797822720,
+          "conclusion": "success",
+          "os": "Ubuntu24.04.5",
+          "architecture": "x64",
+          "python": "3.14.8",
+          "passed": 1739,
+          "skipped": 11,
+          "test_duration_seconds": 90.84,
+          "runtime_manifest_files": 63,
+          "rebuilt_wheel_identity": "passed",
+          "base_installed_smoke": "passed",
+          "original_frozen_wheel_smoke": "passed",
+          "installed_mcp_protocol": "passed",
+          "dependency_and_constraint_checks": "passed",
+          "source_archive_safety": "passed",
+          "retained_log": "dist/mcp-hardened-2026-10-09.7SsvDG/verification/linux-run-37923792739/py314.log"
+        },
+        {
+          "label": "viewers",
+          "job_id": 113797822674,
+          "conclusion": "success",
+          "os": "Ubuntu24.04.5",
+          "architecture": "x64",
+          "node": "22.23.3",
+          "browser": "Chromium",
+          "projects": [
+            "desktop",
+            "mobile"
+          ],
+          "passed": 30,
+          "test_duration_seconds": 42.3,
+          "retained_log": "dist/mcp-hardened-2026-10-09.7SsvDG/verification/linux-run-37923792739/viewers.log"
+        }
+      ],
+      "warning": "Older pinned GitHub actions declare Node20; GitHub forced Node24 and all jobs passed. Migrate only the private wrapper to official Node24-native releases and confirm separately; application/runtime artifact unchanged."
+    }
+  ],
+  "ci_runtime_fix": {
+    "cause": "Older official pinned action releases declared Node20; runner forced Node24 and emitted a deprecation warning.",
+    "scope": "Private manual CI wrapper only; frozen archive/wheel/application runtime unchanged.",
+    "method": "Systematic root-cause review, official action.yml/README/release API inspection, one failing pin regression before change, local passing checks and full Linux confirmation.",
+    "pins": {
+      "checkout": {
+        "version": "v7.0.1",
+        "sha": "3d3c42e5aac5ba805825da76410c181273ba90b1"
+      },
+      "setup_python": {
+        "version": "v7.0.0",
+        "sha": "5fda3b95a4ea91299a34e894583c3862153e4b97"
+      },
+      "setup_node": {
+        "version": "v7.1.0",
+        "sha": "949feb2413d6458794dcd2491c4babbbce0c15c1"
+      }
+    },
+    "native_action_runtime": "node24",
+    "minimum_runner": "2.327.1",
+    "observed_runner": "2.337.0",
+    "local_pin_regression": "Red on old pins, green on new pins on both Python3.11.16/3.14.6",
+    "confirmed_warning_removed": true
+  },
+  "provider_provenance_record": "docs/evidence/engine-provenance-2026-10-09.json"
+}

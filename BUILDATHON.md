@@ -28,7 +28,7 @@ outside the markers is byte-identical after a refresh (tested).
     amu plan --targets amu/classify.py#classify_consumers:signature --approve
     amu check --phase 1
     amu done
-Run tests: `pytest -q` (173 tests; the suite hides the real `entire`, isolates `~/.amu` via `AMU_HOME`, and replays fixtures via `tests/fake_entire.py`).
+Run tests: `pytest -q` (the deterministic suite hides the real `entire`, isolates `~/.amu` via `AMU_HOME`, and replays fixtures via `tests/fake_entire.py`).
 
 ## Entire Checkpoints
 | Checkpoint | Commit | Checkpoint ID | Link | Proves |
@@ -86,7 +86,7 @@ Every graph fact is an `entire graph …` call routed through `amu/entire.py`; n
 - test_classify / test_plan / test_contract / test_amu — v0 noon-Curveball behaviour (untouched)
 - test_map — sound/guessed/unknown assignment, reason+verify on every non-sound node, qualifier on 0 unknown
 - test_honesty — banned verdict words across map/plan/contract/agent-card/rendered output; schema validation
-- test_contract_phase — PHASE_DRIFT, FROZEN_SIGNATURE, OUT_OF_SCOPE block; UNKNOWN_TOUCHED warns; real diff shape parses
+- test_contract_phase — PHASE_DRIFT, FROZEN_SIGNATURE, OUT_OF_SCOPE, and UNKNOWN_TOUCHED block; real diff shape parses
 - test_done — sweep finding outside contract with verify; depth line never "nothing found"; done exits 0 with findings
 - test_docs — SUGGESTED draft for mapped signature change; body ⇒ unknown; unmapped ⇒ flag; auto never applies unknown
 - test_router — never invents a symbol; silent-on-params ⇒ signature; multi_target; ambiguous

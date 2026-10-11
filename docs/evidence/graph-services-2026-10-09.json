@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-10-09",
+  "scope": "Shared live mapping and snapshot-sync orchestration; not full lifecycle extraction or runtime-impact certification.",
+  "runtime": {"python": "3.14.6", "platform": "macOS arm64", "amu": "0.2.0", "dependencies": "matched constraints.txt"},
+  "implementation_sha256": {
+    "amu/services/mapping.py": "8e8c8694cc6b1f6c69f2dd4903120697d6d2c1a4f5486ad29803096e37600e90",
+    "amu/services/graph_sync.py": "07121b6168e165bdd4f4972b2268e231013b9bafdc902d475c2430b7f0f1a7ba",
+    "amu/cli.py": "9528e8910c16345628e88fcf53ae5758c630340dd50cbd420e0a0ce504ce59bf"
+  },
+  "deterministic_suite": {"passed": 1541, "failed": 0, "skipped": 11, "elapsed_seconds": 123.79},
+  "new_service_adapter_suite": {"passed": 176, "failed": 0, "scope": "mapping service, sync service, provider-controlled adapter parity and actual interactive map dispatch"},
+  "real_provider_refresh_suite": {"passed": 4, "failed": 0, "elapsed_seconds": 5.33, "scope": "disposable repositories: added/removed cross-file calls, renamed target, source-verified removal"},
+  "installed_wheel_smoke": {"status": "passed", "includes": ["mapping/sync services loaded from installed environment", "core rejects boolean depth", "direct/CLI missing-provider sync failure parity", "documentation service", "entry points", "API manifests", "benchmarks", "MCP wrapper and interactive parser", "bounded process overflow withholding"]},
+  "map_parity": {"adapters": ["direct service", "CLI", "interactive CLI parser and actual map session", "MCP bounded CLI wrapper"], "tests": ["stable exact-target payload/hash", "valid empty inventory versus failure", "ambiguous/mismatched/truncated provider response", "capability failure blocks approval", "source contradiction versus uncertainty policy", "dirty code/executable docs cannot become pre-edit baseline", "mid-query source/HEAD mutation does not replace prior map", "exact target/depth edge baseline", "legacy unsafe inferred paths rejected"]},
+  "sync_parity": {"adapters": ["direct service", "CLI", "shared interactive CLI parser helper; existing refresh/done use sync internally"], "tests": ["HEAD index versus worktree snapshot", "index failure skips snapshot", "snapshot failure retains prior metadata/bytes", "no failed-cache reuse", "provider/depth/source/configuration/checksum cache boundaries", "inert prose-only completion reuse", "explicit sync rebuilds"]},
+  "interface_limits": "No standalone MCP sync tool or interactive /sync command was introduced. MCP continues bounded CLI subprocess dispatch. Source uncertainty is disclosed and does not independently overturn a provider-resolved edge under the preserved policy; source contradiction blocks approval.",
+  "remaining_scope": ["post-edit refresh and plan/check/done orchestration", "navigation service extraction", "multi-file workflow atomicity", "direct MCP service dispatch", "engine RAM/CPU quotas and Windows descendant cleanup", "no full NumPy accuracy rerun in this batch", "no compiled NumPy numerical tests", "no live model calls", "no remote release CI", "no automated browser accessibility run"]
+}

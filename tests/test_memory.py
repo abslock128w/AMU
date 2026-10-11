@@ -57,6 +57,20 @@ def test_secret_pattern_rejected(tmp_path):
         memory._entry("answered_unknown", "key is sk-ant-abc123", [], str(tmp_path))
 
 
+@pytest.mark.parametrize(
+    "secret",
+    [
+        "GEMINI_API_KEY=AIza-gemini-memory-secret-123456",
+        "GOOGLE_API_KEY=AIza-google-memory-secret-123456",
+        "AIza1234567890abcdefghij",
+        "AQ.gemini-key-format-1234567890",
+    ],
+)
+def test_gemini_secret_patterns_are_rejected_from_memory(tmp_path, secret):
+    with pytest.raises(memory.MemoryRejected):
+        memory._entry("answered_unknown", f"do not retain {secret}", [], str(tmp_path))
+
+
 def test_no_change_no_write(tmp_path):
     repo = _repo(tmp_path)
     memory.refresh(repo, files=("CLAUDE.md",))

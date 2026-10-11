@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-09",
+  "method": "Read-only hashing and embedded Go build-info inspection; primary GitHub release/commit APIs; official dispatcher archive hashed without execution or installation.",
+  "dispatcher": {
+    "installed_path": "/opt/homebrew/Caskroom/entire/0.10.5/entire",
+    "sha256": "b8cfe20381338a7c9f5bc53b4d824a34548d29385381eae8f8c93541ee56b262",
+    "bytes": 45162966,
+    "module": "github.com/entireio/cli",
+    "module_version": "v0.10.5",
+    "go_version": "go1.26.6",
+    "vcs_revision": "52207b6d2961009115f557d87aef5ff564aa810d",
+    "vcs_modified": false,
+    "official_release": "https://github.com/entireio/cli/releases/tag/v0.10.5",
+    "official_release_api": "https://api.github.com/repos/entireio/cli/releases/tags/v0.10.5",
+    "archive": {
+      "name": "entire_darwin_arm64.tar.gz",
+      "url": "https://github.com/entireio/cli/releases/download/v0.10.5/entire_darwin_arm64.tar.gz",
+      "bytes": 19484147,
+      "sha256": "d1aa02745a0c0d432ab97d251b36f6286eb9b59e51b9426ff9fe359203e71e72",
+      "download_matches_published_size_and_digest": true,
+      "regular_binary_member_matches_installed_bytes": true
+    },
+    "license_observed": "MIT; bundled license matches the exact embedded commit license bytes",
+    "license_sha256": "7e763e0342febb10b46d5ea3d513c7d07a59dc09be3c508d01de899b6086fe25",
+    "independent_local_signature_verification": false
+  },
+  "graph": {
+    "installed_path": "/Users/Abslock128/go/bin/entire-graph",
+    "sha256": "d6a07d96d5306e3aa5c2db6047dce7cf6cb72c19030cfb8ca37e2a283c39954e",
+    "module": "github.com/entireio/entire-graph",
+    "module_version": "v0.4.1-nightly.202609050613.0a448c50.0.20260905152923-3a2a715fad19",
+    "go_version": "go1.27.1",
+    "platform": "darwin/arm64",
+    "cgo_enabled": true,
+    "source_revision_from_local_module_cache_origin": "3a2a715fad1948e83dc7ebe0d307377ba29e065a",
+    "source_commit": "https://github.com/entireio/entire-graph/commit/3a2a715fad1948e83dc7ebe0d307377ba29e065a",
+    "source_commit_api": "https://api.github.com/repos/entireio/entire-graph/commits/3a2a715fad1948e83dc7ebe0d307377ba29e065a",
+    "github_commit_verification": {"verified": true, "reason": "valid"},
+    "vcs_revision_field_in_binary": null,
+    "vcs_modified_field_in_binary": null,
+    "clean_build_status": "unknown",
+    "upstream_executable_bytes_authenticated": false,
+    "reproducible_build_performed": false,
+    "license_observed": "MIT in exact cached module and primary exact-commit license",
+    "license_url": "https://github.com/entireio/entire-graph/blob/3a2a715fad1948e83dc7ebe0d307377ba29e065a/LICENSE"
+  },
+  "boundaries": [
+    "Published release checksum corroboration over authenticated HTTPS is not independent local signature verification.",
+    "A GitHub-verified source commit and embedded module version do not authenticate the graph executable or prove a clean build.",
+    "No complete transitive dependency-license inventory or distribution-rights approval is inferred.",
+    "No AMU project license, release version, or publication decision was made.",
+    "No graph/dispatcher executable was executed, replaced, rebuilt, installed or uploaded during this audit."
+  ]
+}

@@ -35,6 +35,11 @@ class ViolationKind(str, Enum):
     PHASE_DRIFT        = "PHASE_DRIFT"
     UNGUARDED_CHANGE   = "UNGUARDED_CHANGE"
     UNKNOWN_TOUCHED    = "UNKNOWN_TOUCHED"
+    TEST_FAILURE        = "TEST_FAILURE"
+    BUILD_FAILURE       = "BUILD_FAILURE"
+    UNVERIFIABLE_WORKTREE_SEMANTICS = "UNVERIFIABLE_WORKTREE_SEMANTICS"
+    GRAPH_REFRESH_REQUIRED = "GRAPH_REFRESH_REQUIRED"
+    CHECK_EVIDENCE_INVALID = "CHECK_EVIDENCE_INVALID"
 
 
 class Severity(str, Enum):
@@ -49,7 +54,14 @@ _DEFAULT_SEVERITY: Dict[ViolationKind, Severity] = {
     ViolationKind.UNDECLARED_REMOVAL: Severity.ERROR,
     ViolationKind.PHASE_DRIFT:        Severity.ERROR,
     ViolationKind.UNGUARDED_CHANGE:   Severity.WARNING,
-    ViolationKind.UNKNOWN_TOUCHED:    Severity.WARNING,
+    # An edit in a region the graph could not resolve cannot be allowed to
+    # silently turn green.  A human must answer the unknown before proceeding.
+    ViolationKind.UNKNOWN_TOUCHED:    Severity.ERROR,
+    ViolationKind.TEST_FAILURE:        Severity.ERROR,
+    ViolationKind.BUILD_FAILURE:       Severity.ERROR,
+    ViolationKind.UNVERIFIABLE_WORKTREE_SEMANTICS: Severity.ERROR,
+    ViolationKind.GRAPH_REFRESH_REQUIRED: Severity.ERROR,
+    ViolationKind.CHECK_EVIDENCE_INVALID: Severity.ERROR,
 }
 
 
@@ -363,7 +375,7 @@ def run_contract_check(
 
 def check_contract(contract: dict, changes: List[dict], changed_files: List[str], phase: Optional[int],
                    unknown_files: Optional[set] = None, amu_files: Optional[set] = None) -> ContractResult:
-    """Blocking: FROZEN_SIGNATURE, OUT_OF_SCOPE, UNDECLARED_REMOVAL, PHASE_DRIFT. Warn: UNGUARDED_CHANGE, UNKNOWN_TOUCHED."""
+    """Block protected/scope/unknown edits; warn only when a declared change lacks a test."""
     unknown_files = unknown_files or set()
     ignore = amu_files or set()
     frozen = {f.split("#", 1)[-1] for f in contract.get("frozen_signatures", [])}
@@ -378,7 +390,9 @@ def check_contract(contract: dict, changes: List[dict], changed_files: List[str]
         else:
             later_files.update(p["files"])
     later_files -= phase_files
-    declared_removals = {t["symbol"].split("#")[-1] for t in contract.get("targets", []) if t.get("change_class") in ("remove", "rename", "move")}
+    removal_targets = [t for t in contract.get("targets", []) if t.get("change_class") in ("remove", "rename", "move")]
+    declared_removals = {str(t.get("symbol") or "").split("#")[-1] for t in removal_targets}
+    declared_removal_files = {str(t.get("symbol") or "").split("#", 1)[0] for t in removal_targets if str(t.get("symbol") or "").endswith("#*")}
 
     violations: List[Violation] = []
     for f in changed_files:
@@ -389,16 +403,41 @@ def check_contract(contract: dict, changes: List[dict], changed_files: List[str]
         elif allowed and f not in allowed:
             violations.append(Violation(ViolationKind.OUT_OF_SCOPE, f, "file is not in the contract's allowed_files", Severity.ERROR))
         if f in unknown_files:
-            violations.append(Violation(ViolationKind.UNKNOWN_TOUCHED, f, "file is an unknown node; graph cannot see its consumers", Severity.WARNING))
+            violations.append(Violation(ViolationKind.UNKNOWN_TOUCHED, f, "file is an unknown node; graph cannot see its consumers", Severity.ERROR))
     for c in changes:
         sym, file = c.get("symbol", ""), c.get("file", "")
         if file in ignore:
             continue
         if c.get("signature_changed") and (sym in frozen or f"{file}#{sym}" in set(contract.get("frozen_signatures", []))) and file in frozen_files:
             violations.append(Violation(ViolationKind.FROZEN_SIGNATURE, f"{file}#{sym}", "signature of a frozen consumer changed", Severity.ERROR))
-        if c.get("change") == "removed" and c.get("kind") in ("function", "class", "method") and not sym.split(".")[-1].startswith("_") and sym not in declared_removals:
+        if c.get("change") == "removed" and c.get("kind") in ("function", "class", "method") and not sym.split(".")[-1].startswith("_") and sym not in declared_removals and file not in declared_removal_files:
             violations.append(Violation(ViolationKind.UNDECLARED_REMOVAL, f"{file}#{sym}", "public symbol removed without a declared removal target", Severity.ERROR))
-        if c.get("type") in ("signature_changed", "body_changed") and file in allowed and not any(file in p["tests"] or p["tests"] for p in phases):
+        guarded = any(file in p.get("files", []) and p.get("tests") for p in phases)
+        if c.get("type") in ("signature_changed", "body_changed") and file in allowed and not guarded:
             violations.append(Violation(ViolationKind.UNGUARDED_CHANGE, f"{file}#{sym}", "changed export has no test in the contract", Severity.WARNING))
     has_errors = any(v.severity == Severity.ERROR for v in violations)
     return ContractResult(passed=not has_errors, violations=violations, warnings=[])
+
+
+def worktree_semantic_violations(contract: dict, worktree_files: set[str]) -> list[Violation]:
+    """Block uncommitted edits in frozen files without guessing their symbol change.
+
+    ``entire graph diff --base <commit> --head <commit>`` cannot describe a
+    working-tree signature edit.  The file-level signal is sufficient to show
+    that a frozen contract boundary is unverifiable, but not enough to name
+    the changed signature, so the violation deliberately names only the file.
+    """
+    frozen_files = {
+        signature.partition("#")[0]
+        for signature in contract.get("frozen_signatures", [])
+        if isinstance(signature, str) and signature.partition("#")[0]
+    }
+    return [
+        Violation(
+            ViolationKind.UNVERIFIABLE_WORKTREE_SEMANTICS,
+            path,
+            "uncommitted edit is in a file containing a frozen signature; commit the intended change, run `amu sync`, then re-run this phase (or revert it)",
+            Severity.ERROR,
+        )
+        for path in sorted(frozen_files & set(worktree_files))
+    ]

@@ -16,16 +16,37 @@ TAGLINE = "amu · Anti-Messup · built on the Entire CLI"
 EPILOG = "Built by TWC Thugs for the Bengaluru Tech Week Buildathon 2026"
 PROMPT = "twc-thugs ❯ "
 
-PALETTE = {"gold": "#F5B32E", "amber": "#E08A1E", "ember": "#C2410C", "sand": "#FDF6E3", "ash": "#8A8578", "bg": "#161412"}
+PALETTE = {
+    "gold": "#F5B32E",
+    "amber": "#E08A1E",
+    "ember": "#C2410C",
+    "sand": "#FDF6E3",
+    "ash": "#8A8578",
+    "bg": "#161412",
+}
 # Confidence / risk colours are semantic and never gold.
 SEMANTIC = {"sound": "#3CB371", "guessed": PALETTE["amber"], "unknown": PALETTE["ash"], "risk": PALETTE["ember"]}
 
-THEME = Theme({
-    "brand": f"bold {PALETTE['gold']}", "brand.sub": PALETTE["ash"], "brand.rule": PALETTE["amber"], "brand.caret": PALETTE["amber"],
-    "brand.body": PALETTE["sand"], "brand.muted": PALETTE["ash"], "brand.label": f"{PALETTE['ash']}",
-    "conf.sound": SEMANTIC["sound"], "conf.guessed": SEMANTIC["guessed"], "conf.unknown": SEMANTIC["unknown"], "risk": f"bold {SEMANTIC['risk']}",
-    "state.green": SEMANTIC["sound"], "state.red": SEMANTIC["risk"], "state.editing": PALETTE["gold"], "state.drift": SEMANTIC["risk"], "state.planned": PALETTE["ash"],
-})
+THEME = Theme(
+    {
+        "brand": f"bold {PALETTE['gold']}",
+        "brand.sub": PALETTE["ash"],
+        "brand.rule": PALETTE["amber"],
+        "brand.caret": PALETTE["amber"],
+        "brand.body": PALETTE["sand"],
+        "brand.muted": PALETTE["ash"],
+        "brand.label": f"{PALETTE['ash']}",
+        "conf.sound": SEMANTIC["sound"],
+        "conf.guessed": SEMANTIC["guessed"],
+        "conf.unknown": SEMANTIC["unknown"],
+        "risk": f"bold {SEMANTIC['risk']}",
+        "state.green": SEMANTIC["sound"],
+        "state.red": SEMANTIC["risk"],
+        "state.editing": PALETTE["gold"],
+        "state.drift": SEMANTIC["risk"],
+        "state.planned": PALETTE["ash"],
+    }
+)
 
 # pyfiglet 'slant' rendering of "TWC THUGS", pasted so pyfiglet is not a runtime dependency.
 WORDMARK = r"""
@@ -43,11 +64,13 @@ def color_enabled() -> bool:
 
 def err_console() -> Console:
     """stderr console; Rich degrades truecolor → 256 → 16 → none and honours NO_COLOR by itself."""
-    return Console(stderr=True, theme=THEME, highlight=False, soft_wrap=True, no_color=bool(os.environ.get("NO_COLOR")))
+    return Console(
+        stderr=True, theme=THEME, highlight=False, soft_wrap=False, no_color=bool(os.environ.get("NO_COLOR"))
+    )
 
 
 def out_console() -> Console:
-    return Console(theme=THEME, highlight=False, soft_wrap=True, no_color=bool(os.environ.get("NO_COLOR")))
+    return Console(theme=THEME, highlight=False, soft_wrap=False, no_color=bool(os.environ.get("NO_COLOR")))
 
 
 def header(command: str, repo: str, json_mode: bool = False) -> None:
@@ -55,7 +78,11 @@ def header(command: str, repo: str, json_mode: bool = False) -> None:
     if json_mode:
         return
     c = err_console()
-    c.print(Text.assemble((NAME, "brand"), (" · amu ", "brand.body"), (command, "brand"), (" · ", "brand.body"), (repo, "brand.sub")))
+    c.print(
+        Text.assemble(
+            (NAME, "brand"), (" · amu ", "brand.body"), (command, "brand"), (" · ", "brand.body"), (repo, "brand.sub")
+        )
+    )
     c.print(Rule(style="brand.rule"))
 
 
@@ -65,7 +92,15 @@ def banner(version: str, repo: str, entire_status: str, json_mode: bool = False)
     c = err_console()
     c.print(Text(WORDMARK, style="brand"))
     c.print(Text(f"  {TAGLINE}", style="brand.sub"))
-    c.print(Text.assemble(("  v" + version, "brand.body"), (" · ", "brand.sub"), (repo, "brand"), (" · entire ", "brand.sub"), (entire_status, "brand.body")))
+    c.print(
+        Text.assemble(
+            ("  v" + version, "brand.body"),
+            (" · ", "brand.sub"),
+            (repo, "brand"),
+            (" · entire ", "brand.sub"),
+            (entire_status, "brand.body"),
+        )
+    )
     c.print(Rule(style="brand.rule"))
 
 

@@ -4,7 +4,9 @@
 close-the-loop
 
 ## Steps
-- `amu done` = sync → sweep → docs → memory refresh → report; done never exits 1
+- make every planned phase green with `amu check --phase N`
+- make sure every graph-relevant edit has a current matching `amu refresh` record
+- run `amu done` for sync → sweep → docs → memory refresh → report
 
 ## Done when
-- the command in the last step printed its `next` line and no blocking violation remains
+- `amu done` completes; it deliberately refuses to run when phases are incomplete or required post-edit graph evidence is stale

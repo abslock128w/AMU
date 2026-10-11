@@ -1,0 +1,216 @@
+{
+  "schema_version": 1,
+  "fixture_version": "numpy-direct-relations-v1",
+  "checked_on": "2026-10-08",
+  "final_verified_on": "2026-10-09",
+  "scope": "Four hand-selected, positive Python CALLS labels, one empty direct-Python-call scope, and docstring-example negatives. Not a NumPy-wide accuracy estimate.",
+  "label_origin": "independent source inspection and Python AST; no NumPy imports or execution",
+  "repository": {
+    "upstream": "https://github.com/numpy/numpy",
+    "tag": "v2.3.0",
+    "commit": "0532af47d6a815298b7841de00bdbc547104b237",
+    "tree": "f8c13a1943407ecd62b671b9aeead5b53f6d6e50",
+    "isolated_checkout": "/private/tmp/amu-api-benchmark.6ecY4F/numpy",
+    "worktree_clean_before_and_after_queries": true
+  },
+  "tools": {
+    "python": "3.14.6",
+    "amu": "0.2.0",
+    "entire_graph_version": "dev",
+    "entire_binary_sha256": "b8cfe20381338a7c9f5bc53b4d824a34548d29385381eae8f8c93541ee56b262",
+    "entire_graph_engine": "/Users/Abslock128/go/bin/entire-graph",
+    "engine_resolution": "entire plugin list reported managed graph -> /Users/Abslock128/go/bin/entire-graph; its own version command returned dev",
+    "entire_graph_engine_sha256": "d6a07d96d5306e3aa5c2db6047dce7cf6cb72c19030cfb8ca37e2a283c39954e",
+    "python_calls_capability_advertised": true,
+    "baseline_source_guard_sha256": "23520205ca2eedb0342537dcc8598f570ad901cb428c6ff07262e61d4842f46e",
+    "benchmark_module_sha256": "c41da62930c34783f2f55178e735cdce2bfc34eb14e7f71fc847305cd37a9dff"
+  },
+  "source_sha256": {
+    "numpy/lib/_shape_base_impl.py": "e6f914f6b3cec0abd273b4f3c5d7d6b4cd3cb95d26d798873d3c5ba9c638ece7",
+    "numpy/lib/_scimath_impl.py": "400538b8cfc837356a093b3e013132cb526144497fc03267ff2814ef962d7e01",
+    "numpy/lib/_type_check_impl.py": "59e55f5b3ff42a5bdbd8affa974c789c7c070703d881f7317998a757f769fe6c",
+    "numpy/_core/_internal.py": "619ea730654ebdf4c3d67ce4d97a91773f24d395959d81a29636f54e71ef32af",
+    "numpy/_core/numeric.py": "fc3727bd7bbaa1a1d74a2f50f8157dc86cdfc7bb5cf620b1ebdafd3272439b98",
+    "numpy/_core/numerictypes.py": "98a3dbb0ecd7f6fc96404bf88e57f8c6794f7cfe086005de20b1c575bd854b42",
+    "numpy/_core/src/common/npy_ctypes.h": "bdecb7a610f0a375163d8e757d3a91ff12a7b921cd6fb5c7700cf165d0649739"
+  },
+  "expected_positive_labels": [
+    {"source": "numpy/lib/_shape_base_impl.py#take_along_axis", "relation": "CALLS", "target": "numpy/lib/_shape_base_impl.py#_make_along_axis_idx", "source_call_line": 182},
+    {"source": "numpy/lib/_shape_base_impl.py#put_along_axis", "relation": "CALLS", "target": "numpy/lib/_shape_base_impl.py#_make_along_axis_idx", "source_call_line": 274},
+    {"source": "numpy/lib/_scimath_impl.py#_fix_real_lt_zero", "relation": "CALLS", "target": "numpy/lib/_type_check_impl.py#isreal", "source_call_line": 120},
+    {"source": "numpy/lib/_shape_base_impl.py#_make_along_axis_idx", "relation": "CALLS", "target": "numpy/_core/numerictypes.py#issubdtype", "source_call_line": 36, "reexport_proof": ["_shape_base_impl.py:4 imports numpy._core.numeric as _nx", "numeric.py:2752 imports .numerictypes.*", "numerictypes.py:97 literal __all__ includes issubdtype", "numerictypes.py:476 defines issubdtype"]}
+  ],
+  "raw_provider_selected_label_score": {
+    "tp": 4,
+    "fp": 0,
+    "fn": 0,
+    "precision": null,
+    "recall": 1.0,
+    "specificity": null,
+    "scope": "Only the four explicit positive endpoint labels are scored. Other returned edges are recorded below but unlabelled and excluded from this metric. Precision is null because an independent negative/all-observed identity oracle was not established."
+  },
+  "amu_source_guard_before_fix_selected_label_score": {
+    "tp": 2,
+    "fp": 0,
+    "fn": 2,
+    "precision": null,
+    "recall": 0.5,
+    "specificity": null,
+    "false_negatives": [
+      {"source": "numpy/lib/_scimath_impl.py#_fix_real_lt_zero", "relation": "CALLS", "target": "numpy/lib/_type_check_impl.py#isreal", "cause": "Absolute import resolution incorrectly prepended the importing file's directory."},
+      {"source": "numpy/lib/_shape_base_impl.py#_make_along_axis_idx", "relation": "CALLS", "target": "numpy/_core/numerictypes.py#issubdtype", "cause": "Imported module path differed from the definition reached through a star reexport; mismatch was incorrectly treated as contradiction."}
+    ],
+    "scope": "Retention of the same four explicit positive labels. This baseline exposed defects; a passing raw-provider test does not validate the AMU guard."
+  },
+  "amu_source_guard_after_fix": {
+    "source_guard_sha256": "eec74f647aa53193df7f3dac5bfcc31231524cda89db985460e76a93538ed07e",
+    "replayed_on": "2026-10-09",
+    "method": "Replayed captured raw CALLS sections from the companion calls.json file through filter_python_call_evidence against the clean NumPy source. The selected four labels are a positive retrieval/retention slice, not an all-observed precision oracle.",
+    "capture_file": "numpy-v2.3.0-relations-2026-10-08-calls.json",
+    "replay_counts": {"raw_resolved_observation_rows": 14, "filtered_resolved_observation_rows": 14, "contradictions": 0, "uncertainties": 6, "duplicate_selected_observation_rows": 1},
+    "label_revision": "sha256:de56a5b7e091cb9a06f1c060fb1dbde338042cd9de243a16c561113537eb6c41",
+    "source_filtered_candidate_retention": {
+      "tp": 4, "fp": 0, "fn": 0, "precision": null, "recall": 1.0, "specificity": null,
+      "conclusion": "All four observed positive candidates survive; retention includes a disclosed uncertainty and is not proof of all four identities."
+    },
+    "source_verified_identity_only": {
+      "tp": 3, "fp": 0, "fn": 1, "positive_abstentions": 1,
+      "precision": null, "recall": 0.75, "specificity": null,
+      "abstained_edge": {"source": "numpy/lib/_shape_base_impl.py#_make_along_axis_idx", "relation": "CALLS", "target": "numpy/_core/numerictypes.py#issubdtype"},
+      "conclusion": "Absolute imports now verify. The star-reexport identity remains unverifiable in the bounded resolver and lowers proof recall instead of being silently promoted."
+    },
+    "changes": [
+      "Absolute imports resolve from the repository package root.",
+      "A differing import module is not a contradiction unless its own unambiguous declaration disproves the supplied endpoint.",
+      "Reexport/generated/unreadable bindings remain visible with uncertainty."
+    ]
+  },
+  "query_summaries": [
+    {
+      "case": "same-file-callers-and-reexport",
+      "symbol": "numpy/lib/_shape_base_impl.py:34",
+      "profile": "full",
+      "depth": 1,
+      "limit": 50,
+      "focus": "numpy/lib/_shape_base_impl.py#_make_along_axis_idx",
+      "raw_section_total_and_captured": {"callers": [2, 2], "callees": [3, 3], "type_consumers": [0, 0], "data_flows": [2, 2]},
+      "raw_resolved_direct_edges": [
+        {"source": "numpy/lib/_shape_base_impl.py#take_along_axis", "relation": "CALLS", "target": "numpy/lib/_shape_base_impl.py#_make_along_axis_idx"},
+        {"source": "numpy/lib/_shape_base_impl.py#put_along_axis", "relation": "CALLS", "target": "numpy/lib/_shape_base_impl.py#_make_along_axis_idx"},
+        {"source": "numpy/lib/_shape_base_impl.py#_make_along_axis_idx", "relation": "CALLS", "target": "numpy/_core/numerictypes.py#issubdtype"}
+      ],
+      "raw_named_unresolved_callees": ["numpy._core.numeric.arange", "numpy._core.numeric.issubdtype"],
+      "baseline_guard_removed": ["numpy/_core/numerictypes.py#issubdtype"],
+      "baseline_guard_uncertainties": ["numpy._core.numeric.arange", "numpy._core.numeric.issubdtype"],
+      "global_partial_failure_count": 349,
+      "focus_file_partial_failures": []
+    },
+    {
+      "case": "same-file-callee-and-docstrings",
+      "symbol": "numpy/lib/_shape_base_impl.py:62",
+      "profile": "full",
+      "depth": 1,
+      "limit": 50,
+      "focus": "numpy/lib/_shape_base_impl.py#take_along_axis",
+      "raw_section_total_and_captured": {"callers": [0, 0], "callees": [2, 2], "type_consumers": [0, 0], "data_flows": [1, 1]},
+      "raw_resolved_direct_edges": [
+        {"source": "numpy/lib/_shape_base_impl.py#take_along_axis", "relation": "CALLS", "target": "numpy/lib/_shape_base_impl.py#_make_along_axis_idx"}
+      ],
+      "raw_named_unresolved_callees": ["numpy._core.multiarray.normalize_axis_index"],
+      "docstring_regex_names_absent_from_executable_body": ["argmax", "argmin", "argsort", "array", "concatenate", "empty", "max", "ndarray", "ndindex", "range", "sort", "take_along_axis", "to"],
+      "returned_calls_matching_docstring_only_names": [],
+      "baseline_guard_removed": [],
+      "baseline_guard_uncertainties": ["numpy._core.multiarray.normalize_axis_index"],
+      "global_partial_failure_count": 349,
+      "focus_file_partial_failures": []
+    },
+    {
+      "case": "cross-file-callee",
+      "symbol": "numpy/lib/_scimath_impl.py:96",
+      "profile": "fast",
+      "depth": 1,
+      "limit": 50,
+      "focus": "numpy/lib/_scimath_impl.py#_fix_real_lt_zero",
+      "raw_section_total_and_captured": {"callers": [6, 6], "callees": [4, 4], "type_consumers": [0, 0], "data_flows": [0, 0]},
+      "raw_resolved_callees": ["numpy/_core/defchararray.py#asarray", "numpy/_core/fromnumeric.py#any", "numpy/lib/_scimath_impl.py#_tocomplex", "numpy/lib/_type_check_impl.py#isreal"],
+      "raw_resolved_callers_in_same_source": ["sqrt", "log", "log10", "logn", "log2", "power"],
+      "baseline_guard_removed": ["numpy/_core/defchararray.py#asarray", "numpy/_core/fromnumeric.py#any", "numpy/lib/_type_check_impl.py#isreal"],
+      "baseline_guard_uncertainties": [],
+      "global_partial_failure_count": 72,
+      "focus_file_partial_failures": [],
+      "unscored_identity_question": "The asarray edge points at defchararray.py despite an import from numpy._core.numeric. Native definitions, reexports and ambiguous same-name resolution require further attribution; it is not counted as a known false edge in this positive-only score."
+    },
+    {
+      "case": "static-isolated-scope",
+      "symbol": "numpy/_core/_internal.py:936",
+      "profile": "full",
+      "depth": 1,
+      "limit": 50,
+      "focus": "numpy/_core/_internal.py#npy_ctypes_check",
+      "raw_section_total_and_captured": {"callers": [0, 0], "callees": [0, 0], "type_consumers": [0, 0], "data_flows": [0, 0]},
+      "degenerate": true,
+      "degenerate_reason": "no callers, callees or type consumers",
+      "python_ast_body_direct_call_names": [],
+      "repository_python_direct_leaf_call_sites": [],
+      "baseline_guard_removed": [],
+      "baseline_guard_uncertainties": [],
+      "global_partial_failure_count": 349,
+      "focus_file_partial_failures": [],
+      "native_boundary": {
+        "source": "numpy/_core/src/common/npy_ctypes.h:26",
+        "mechanism": "npy_cache_import_runtime imports numpy._core._internal.npy_ctypes_check by string; PyObject_CallFunctionObjArgs invokes it.",
+        "conclusion": "This is an empty direct Python-call graph scope, not a runtime-isolated function."
+      }
+    }
+  ],
+  "strict_test_run_before_added_regressions": {
+    "command": "AMU_RUN_EXTERNAL_GRAPH=1 AMU_NUMPY_REPO=/private/tmp/amu-api-benchmark.6ecY4F/numpy AMU_EXTERNAL_ENTIRE_BIN=/opt/homebrew/bin/entire AMU_EXTERNAL_GRAPH_STRICT=1 python -m pytest tests/test_external_numpy_graph.py -q -rA",
+    "passed": 6,
+    "failed": 0,
+    "skipped": 0,
+    "xfailed": 0,
+    "elapsed_seconds": 233.51,
+    "includes": ["temporary NumPy API edit to reviewed RST save", "same-file raw calls", "cross-file raw call", "empty direct Python scope", "strict raw docstring exclusion", "AMU docstring guard"]
+  },
+  "strict_post_fix_regression_run": {
+    "command": "AMU_RUN_EXTERNAL_GRAPH=1 AMU_NUMPY_REPO=/private/tmp/amu-api-benchmark.6ecY4F/numpy AMU_EXTERNAL_ENTIRE_BIN=/opt/homebrew/bin/entire AMU_EXTERNAL_GRAPH_STRICT=1 python -m pytest tests/test_external_numpy_graph.py -q -rA -k 'cross_file_isreal or static_star_reexport'",
+    "passed": 2,
+    "failed": 0,
+    "deselected": 5,
+    "skipped": 0,
+    "xfailed": 0,
+    "elapsed_seconds": 71.18,
+    "includes": ["raw and AMU absolute-import isreal retention", "raw and AMU star-reexport issubdtype retention"],
+    "scope": "Focused rerun after the source-guard changes. Combined with the preceding six-test baseline, this is not a claim that all seven tests ran together after the fix."
+  },
+  "strict_final_frozen_code_run": {
+    "completed_on": "2026-10-09",
+    "command": "AMU_RUN_EXTERNAL_GRAPH=1 AMU_NUMPY_REPO=/private/tmp/amu-api-benchmark.6ecY4F/numpy AMU_EXTERNAL_ENTIRE_BIN=/opt/homebrew/bin/entire AMU_EXTERNAL_GRAPH_STRICT=1 python -m pytest -q -rA tests/test_external_numpy_graph.py",
+    "source_guard_sha256": "eec74f647aa53193df7f3dac5bfcc31231524cda89db985460e76a93538ed07e",
+    "passed": 7,
+    "failed": 0,
+    "skipped": 0,
+    "xfailed": 0,
+    "elapsed_seconds": 92.71,
+    "includes": ["API-to-reviewed-RST save", "same-file callers", "cross-file isreal with AMU validation", "empty direct Python scope", "strict docstring exclusion", "AMU docstring guard", "re-export retained with uncertainty"]
+  },
+  "final_local_verification": {
+    "completed_on": "2026-10-09",
+    "deterministic_suite": {"passed": 1106, "failed": 0, "skipped": 11, "elapsed_seconds": 71.87},
+    "separate_live_refresh_suite": {"passed": 4, "failed": 0, "elapsed_seconds": 17.35},
+    "rebuilt_installed_wheel_smoke": "passed",
+    "pinned_dependency_checks": "passed",
+    "lint_for_changed_modules_and_whitespace": "passed",
+    "not_performed": ["compiled NumPy numerical tests", "live model-provider calls", "remote release CI", "automated browser accessibility run"]
+  },
+  "limitations": [
+    "Four curated positive labels cannot estimate whole-project precision or recall; unlabelled edges are explicitly excluded. Precision is deliberately null rather than a tautological 1.0 computed after selecting only known positives.",
+    "All queries captured their reported section totals, but global C/Cython/other parse failures remain and runtime/build coverage is not established.",
+    "No NumPy code was imported or executed; this run does not verify numerical behavior, public dispatch, native implementations, or feature flags.",
+    "Named unresolved endpoints remain candidate evidence and cannot establish an exact function identity.",
+    "Docstring name extraction is a heuristic probe. Natural-language tokens in that list are not treated as exact endpoint labels or true negatives.",
+    "The empty Python-call sample has a known native caller and must not be described as having no runtime relationships.",
+    "The passing strict suite exposed no raw docstring defect with this binary, but additional evidence exposed AMU import-resolution defects and prompted new regressions.",
+    "Post-fix candidate retention and verified-identity scores are separate; a retained uncertain edge does not become a verified true positive."
+  ]
+}
