@@ -50,6 +50,10 @@ class StateReadError(SchemaError):
     """Existing state could not be trusted; it must not be treated as absent."""
 
 
+class GitChangeError(StateReadError):
+    """Changed-file enumeration is incomplete; no scope decision is safe."""
+
+
 _STATE_FIELDS = {
     "map.json": {"nodes": list, "ripples": list, "features": dict},
     "contract.json": {"targets": list, "phases": list, "frozen_signatures": list,
@@ -207,12 +211,26 @@ def file_hash(path: str, repo: str = ".") -> str:
     return hashlib.sha256(p.read_bytes()).hexdigest()[:16]
 
 
-def _git(args: list[str], repo: str = ".") -> str:
+def _git(args: list[str], repo: str = ".", *, required: bool = False) -> str:
+    operation = f"git {args[0]}"
     try:
         r = subprocess.run(["git", *args], cwd=repo, capture_output=True, text=True, timeout=30)
-    except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
+    except (FileNotFoundError, subprocess.TimeoutExpired, OSError, UnicodeError) as exc:
+        if required:
+            reason = "timed out" if isinstance(exc, subprocess.TimeoutExpired) else "could not run"
+            raise GitChangeError(
+                f"{operation} {reason}; changed-file enumeration is incomplete. "
+                "Check Git access and the repository, then retry"
+            ) from exc
         return ""
-    return r.stdout.strip() if r.returncode == 0 else ""
+    if r.returncode:
+        if required:
+            raise GitChangeError(
+                f"{operation} failed (exit {r.returncode}); changed-file enumeration is incomplete. "
+                "Check the repository and approved base ref, then retry"
+            )
+        return ""
+    return r.stdout.strip()
 
 
 def git_head(repo: str = ".") -> str:
@@ -223,9 +241,9 @@ def git_changed_files(repo: str = ".", base: str | None = None) -> list[str]:
     """Files changed since `base` (committed) plus working-tree modifications and untracked files."""
     files: set[str] = set()
     if base and base != "no-git":
-        files.update(f for f in _git(["diff", "--name-only", base, "HEAD"], repo).splitlines() if f)
-    files.update(f for f in _git(["diff", "--name-only", "HEAD"], repo).splitlines() if f)
-    files.update(f for f in _git(["ls-files", "--others", "--exclude-standard"], repo).splitlines() if f)
+        files.update(f for f in _git(["diff", "--name-only", base, "HEAD"], repo, required=True).splitlines() if f)
+    files.update(f for f in _git(["diff", "--name-only", "HEAD"], repo, required=True).splitlines() if f)
+    files.update(f for f in _git(["ls-files", "--others", "--exclude-standard"], repo, required=True).splitlines() if f)
     return sorted(f for f in files if "__pycache__" not in f and not f.endswith((".pyc", ".DS_Store")))
 
 

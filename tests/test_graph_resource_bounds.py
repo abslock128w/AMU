@@ -302,7 +302,7 @@ def test_snapshot_resource_failure_propagates_through_completion_commands(
         state.write_json("map.json", {"map_hash": "report-only-map", "depth": 2, "nodes": []}, str(repo))
         args = [command]
         if command == "done":
-            state.write_json("contract.json", {"targets": [], "base_sha": "HEAD~1", "map_hash": "report-only-map",
+            state.write_json("contract.json", {"targets": [], "base_sha": state.git_head(str(repo)), "map_hash": "report-only-map",
                              "phases": [], "frozen_signatures": [], "allowed_files": [], "created_at": "fixture"}, str(repo))
 
     result = CliRunner().invoke(cli.app, [*args, "--json", "--repo", str(repo)])

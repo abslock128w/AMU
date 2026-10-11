@@ -66,8 +66,9 @@ class StateGuardGroup(typer.core.TyperGroup):
         try:
             return super().invoke(ctx)
         except state.StateReadError as exc:
+            git_change_error = isinstance(exc, state.GitChangeError)
             if json_mode:
-                typer.echo(json.dumps({"error": str(exc), "error_kind": "state_unreadable", "exit": 2}))
+                typer.echo(json.dumps({"error": str(exc), "error_kind": "git_change_enumeration_failed" if git_change_error else "state_unreadable", "exit": 2}))
             else:
                 typer.echo(str(exc), err=True)
             raise typer.Exit(code=2) from exc
