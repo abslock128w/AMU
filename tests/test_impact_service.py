@@ -190,6 +190,75 @@ def test_source_location_resolves_innermost_declaration(context, source, line, e
     assert observed["calls"][0][1].symbol == "api.py#" + expected
 
 
+@pytest.mark.parametrize("source,line,call_line", [
+    ("def target(callback, /):\n    return callback()\n", 1, 2),
+    ("async def target(*, callback):\n    return await callback()\n", 1, 2),
+    ("class API:\n    def target(self, callback):\n        return callback()\n", 2, 3),
+])
+def test_direct_parameter_calls_report_unresolved_runtime_boundary(context, source, line, call_line):
+    root, _ = context
+    (root / "api.py").write_text(source)
+    packet = impact.execute(str(root), impact.ImpactRequest(
+        "api.py", line, "change callback handling", section="dynamic_boundaries"))
+
+    assert packet["status"] == "uncertain"
+    assert packet["assessment"]["safe_to_change"] is None
+    assert packet["dynamic_boundaries_count"] == 1
+    boundary = packet["dynamic_boundaries"][0]
+    assert boundary["kind"] == "indirect-call"
+    assert boundary["line"] == call_line
+    assert "unresolved runtime target" in boundary["reason"]
+    assert set(boundary) == {"kind", "line", "reason"}
+
+
+def test_rebound_parameter_call_remains_unresolved_without_a_guessed_callee(context):
+    root, _ = context
+    (root / "api.py").write_text(
+        "def target(callback):\n"
+        "    callback = replacement\n"
+        "    return callback()\n")
+    packet = impact.execute(str(root), impact.ImpactRequest(
+        "api.py", 1, "change callback handling", section="dynamic_boundaries"))
+
+    assert packet["dynamic_boundaries_count"] == 1
+    boundary = packet["dynamic_boundaries"][0]
+    assert boundary["kind"] == "indirect-call" and boundary["line"] == 3
+    assert "rebind" in boundary["reason"]
+    assert "replacement" not in str(packet["dynamic_boundaries"])
+
+
+def test_nested_closure_lambda_and_comprehension_do_not_claim_outer_parameter(context):
+    root, _ = context
+    (root / "api.py").write_text(
+        "def target(callback, callbacks):\n"
+        "    def closure():\n"
+        "        return callback()\n"
+        "    local = lambda callback: callback()\n"
+        "    values = [callback() for callback in callbacks]\n"
+        "    return helper(callback, local, values)\n")
+    packet = impact.execute(str(root), impact.ImpactRequest(
+        "api.py", 1, "change callback handling", section="dynamic_boundaries"))
+
+    assert packet["dynamic_boundaries_count"] == 0
+    assert packet["dynamic_boundaries"] == []
+
+
+def test_existing_dynamic_boundary_kinds_remain_visible_with_parameter_calls(context):
+    root, _ = context
+    (root / "api.py").write_text(
+        "def target(callback, obj):\n"
+        "    value = getattr(obj, 'run')\n"
+        "    obj.run()\n"
+        "    (lambda: value)()\n"
+        "    return callback()\n")
+    packet = impact.execute(str(root), impact.ImpactRequest(
+        "api.py", 1, "change callback handling", section="dynamic_boundaries"))
+
+    assert [(row["kind"], row["line"]) for row in packet["dynamic_boundaries"]] == [
+        ("dynamic-call", 2), ("attribute-dispatch", 3), ("indirect-call", 4), ("indirect-call", 5),
+    ]
+
+
 def test_module_scope_and_repeated_symbol_do_not_query_guessed_target(context):
     root, observed = context
     for source, line, resolution in [

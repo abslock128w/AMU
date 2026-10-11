@@ -223,8 +223,39 @@ def _declarations(tree: ast.AST) -> list[tuple[str, ast.AST, int, int, int]]:
     return declarations
 
 
+def _direct_parameter_calls(node: ast.AST) -> set[ast.Call]:
+    """Match direct calls to named parameters within each named function body.
+
+    This syntax check covers positional-only, positional and keyword-only
+    parameters of ``def`` and ``async def`` declarations. Each nested named
+    function is checked against its own parameters. Calls in nested classes,
+    lambdas, comprehensions, decorators, defaults and annotations are not
+    attributed to an enclosing parameter. Bindings and rebinding are not
+    resolved.
+    """
+    calls: set[ast.Call] = set()
+    nested_scopes = (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda,
+                     ast.ListComp, ast.SetComp, ast.DictComp, ast.GeneratorExp)
+    for scope in ast.walk(node):
+        if not isinstance(scope, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        parameters = {arg.arg for arg in (*scope.args.posonlyargs, *scope.args.args, *scope.args.kwonlyargs)}
+        if not parameters:
+            continue
+        pending = list(scope.body)
+        while pending:
+            child = pending.pop()
+            if isinstance(child, nested_scopes):
+                continue
+            if isinstance(child, ast.Call) and isinstance(child.func, ast.Name) and child.func.id in parameters:
+                calls.add(child)
+            pending.extend(ast.iter_child_nodes(child))
+    return calls
+
+
 def _boundaries(node: ast.AST) -> list[dict]:
     result = []
+    parameter_calls = _direct_parameter_calls(node)
     for child in ast.walk(node):
         if isinstance(child, (ast.Import, ast.ImportFrom)):
             names = [name.name for name in child.names]
@@ -235,6 +266,9 @@ def _boundaries(node: ast.AST) -> list[dict]:
         function = child.func
         if isinstance(function, ast.Name) and function.id in {"getattr", "setattr", "eval", "exec", "__import__", "globals", "locals"}:
             result.append({"kind": "dynamic-call", "line": child.lineno, "reason": f"{function.id} may change or resolve runtime targets"})
+        elif child in parameter_calls:
+            result.append({"kind": "indirect-call", "line": child.lineno,
+                           "reason": "direct call by a function-parameter name has an unresolved runtime target; local rebinding is not resolved"})
         elif isinstance(function, ast.Attribute):
             if function.attr in {"import_module", "load_module"}:
                 reason, kind = "dynamic import needs runtime resolution", "dynamic-import"
@@ -250,6 +284,7 @@ _LIMITATIONS = [
     "The proposed change is intent only; it has not been applied or executed.",
     "Rows describe current source-derived dependencies, not proof that a listed caller will break.",
     "Static source analysis cannot guarantee runtime impact; reflection, dispatch, generated code, native boundaries and feature flags can hide relationships.",
+    "Direct calls by positional-only, positional and keyword-only parameter names in def/async def bodies are tagged as unresolved runtime targets, not defects. Rebinding, aliases, forwarding and nested lambda/comprehension calls are not resolved.",
     "A zero-edge query is not proof that a change is safe. This operation does not call a model, import application modules, apply the proposal or run project tests/builds. Native Git/graph tools are not an OS sandbox.",
     "The graph provider may update its local cache; this operation does not save AMU maps, plans, contracts, history or workspace registrations.",
 ]
