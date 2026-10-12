@@ -711,7 +711,8 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
             for entity in analysis["modified_entities"]:
                 name = entity["qualified_name"]
                 affected.setdefault(file.path, set()).add(name)
-                if before is not None and entity.get("before_location") and entity["kind"] in {"function", "async_function", "class", "method"}:
+                if (before is not None and entity.get("before_location") and "@" not in entity["id"]
+                        and entity["kind"] in {"function", "async_function", "class", "method"}):
                     graph_targets.append(entity["id"])
             for consumer in analysis["state_dependencies"]:
                 consumer_id = consumer.get("consumer_id", "")
