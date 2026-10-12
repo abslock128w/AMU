@@ -346,6 +346,7 @@ def _patch_summary(identity: dict, groups: dict) -> dict:
                               "phases": phases, "count": len(rows), "samples": samples})
 
     relationship_rank = {"source-member-path": 0, "source-state-path": 0,
+                         "resolved-value-flow": 0,
                          "direct-source-reference": 0, "source-call-path": 0,
                          "constructed-instance-method": 0, "constructed-instance-state-path": 0,
                          "broad-class-reference": 1, "broad-source-reference": 1}
@@ -504,6 +505,8 @@ def build_patch_packet(request: dict, *, identity: dict, groups: dict, limitatio
         **{key: identity[key] for key in ("repository", "baseline_kind", "git_head", "files", "file_coverage",
                                            "test_sources_sha256", "test_inventory_complete") if key in identity},
         "test_source_count": len(identity.get("test_sources", [])),
+        "value_flow": {key: identity.get("value_flow", {}).get(key) for key in (
+            "version", "inventory_complete", "limits", "summary_cache")},
     }
     assessment = {"regression_proven": False, "safe_to_change": None, "executed": False,
                   "counts": {key: len(value) for key, value in groups.items()}}

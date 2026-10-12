@@ -1,0 +1,261 @@
+{
+  "rubric": {
+    "labeler": "Same Codex assistant selected and source-labeled all new cases before inspecting output. No independent validation. Werkzeug original 16 are exposed development evidence. Holdout output sealed until implementation and development validation end.",
+    "entities": "Expected names detected / predeclared expected names; accessor role separately tested. Enclosing class alone is not a member match.",
+    "relationships": "Source->consumer pairs present / labeled positive pairs; label source call separately from return value reachability and handler constraint. Missing pair is miss even when outside subset.",
+    "false_relationships": "Resolved negative pairs / labeled negative pairs; any promotion is a false positive.",
+    "assertions": "Test IDs with resolved assertion evidence tied to changed value/exception / labeled relevant test IDs. Irrelevant assertion IDs promoted / labeled negatives. Broad references and resolved calls counted separately; neither is asserted coverage.",
+    "uncertainty": "No static report may claim observed runtime failure; dynamic targets, decorators, unsupported mutation/control flow, limits and dependency gaps must be disclosed.",
+    "performance": "Sequential isolated CLI startup plus analysis, three initial calls; first vs repeats, max RSS where available, summary bytes and complete evidence bytes. Same interpreter dependencies, graph/models off; no summary cache added.",
+    "execution": "Only AMU code/tests and reviewed authored fixtures may execute; no upstream code/tests/drafts.",
+    "holdout": "0ac9f126 remains untouched for output tuning; source/labels necessarily inspected for labeling; baseline run sealed. Failures recorded before further edits."
+  },
+  "selection_sha256": "f21c9c347f3928efb8317587a405c4f186c65734725f8aa2f3d6bf1bf82eba2f",
+  "cases": [
+    {
+      "case_id": "01-4da3786f",
+      "split": "development",
+      "expected_entities": [
+        "uri_to_iri",
+        "iri_to_uri"
+      ],
+      "patch_sha256": "9473907a870e654eedef7d3f54808e388740352158a329fe87874b0020f9a217"
+    },
+    {
+      "case_id": "02-0c419f95",
+      "split": "development",
+      "expected_entities": [
+        "parse_range_header"
+      ],
+      "patch_sha256": "3b33fd59d45ca4381f5ed6fa3d414ee1c99d73766d297e8a700e9449c7615bdc"
+    },
+    {
+      "case_id": "03-594452f6",
+      "split": "development",
+      "expected_entities": [
+        "FloatConverter.to_url"
+      ],
+      "patch_sha256": "e77ae0fd4383c423823f519fcd4a356f029e56c84d5f9605a03cc665a6a4ef40"
+    },
+    {
+      "case_id": "04-fbbbf745",
+      "split": "development",
+      "expected_entities": [
+        "Range._private_range_for_length",
+        "Range.make_content_range",
+        "ETagSet.__init__"
+      ],
+      "patch_sha256": "272620c3b0d7b2469cf207c69fece86d08f9560a2dc7a438a14a610699abb7af"
+    },
+    {
+      "case_id": "05-2c453bf3",
+      "split": "development",
+      "expected_entities": [
+        "ProxyFix.__call__"
+      ],
+      "patch_sha256": "c3dd21560b0bd8a1bb393c9eef924658228e8272d6a929ae917715a9878165ca"
+    },
+    {
+      "case_id": "06-54b7596d",
+      "split": "development",
+      "expected_entities": [
+        "Accept.from_header"
+      ],
+      "patch_sha256": "00f82001bbe0bf20d89d0d310e83569ffb5801a70f0d10c0907632682ff50c8b"
+    },
+    {
+      "case_id": "07-42f3ccf9",
+      "split": "development",
+      "expected_entities": [
+        "ETags.__call__"
+      ],
+      "patch_sha256": "a8876d18ba7bd1b2e3a1de5cd1a7de6403d974837ab2555fd4f3dc104571d134"
+    },
+    {
+      "case_id": "08-23002fd6",
+      "split": "development",
+      "expected_entities": [
+        "IfRange.__bool__",
+        "Request.if_range"
+      ],
+      "patch_sha256": "18cb62ec7d2a1665e60de23d4fd8782ec2e8b785eaf639aba0619392d6bd29de"
+    },
+    {
+      "case_id": "09-f85f3807",
+      "split": "development",
+      "expected_entities": [
+        "header_property.__set__"
+      ],
+      "patch_sha256": "b1804ca0a59a7621095077a27956caf52f7b0de0130d5cf86c400af123698128"
+    },
+    {
+      "case_id": "10-ae7f2163",
+      "split": "development",
+      "expected_entities": [
+        "Response.mimetype",
+        "Response.mimetype_params"
+      ],
+      "patch_sha256": "0ab860e65c0a372c83f67e5302a72abaaa11d8449cc8cd5a2b734fbc92c80767"
+    },
+    {
+      "case_id": "11-b2a2c097",
+      "split": "development",
+      "expected_entities": [
+        "safe_join"
+      ],
+      "patch_sha256": "59f67b7ea79e29ed45da61df4b7ab00c2da008956d5453a608b55bf14a2bc865"
+    },
+    {
+      "case_id": "12-6d7c0b4e",
+      "split": "development",
+      "expected_entities": [
+        "StateMachineMatcher.match"
+      ],
+      "patch_sha256": "07d6061d31e12d300d6f07aafdcd0e4153787e140c3c4d5d3943145e07e7a111"
+    },
+    {
+      "case_id": "13-1b8bc581",
+      "split": "development",
+      "expected_entities": [
+        "Authorization.from_header"
+      ],
+      "patch_sha256": "33a7c08db7248c47422536006d829b02351e657d21135b35bdf58110a2c13d87"
+    },
+    {
+      "case_id": "14-c678a231",
+      "split": "development",
+      "expected_entities": [
+        "IntegerConverter.to_python",
+        "IntegerConverter.to_url",
+        "FloatConverter.to_python",
+        "FloatConverter.to_url"
+      ],
+      "patch_sha256": "1aeb01c05145120e146f0ff31aaf4332b9fe69dfcb27ec4937797af84973ad48"
+    },
+    {
+      "case_id": "15-ab16e62d",
+      "split": "development",
+      "expected_entities": [
+        "NumberConverter.to_python",
+        "StateMachineMatcher.match"
+      ],
+      "patch_sha256": "754aaeeb08f8d0f1020d3fbe93b0397d57614d6694a5f19aa22ba649dafa263d"
+    },
+    {
+      "case_id": "16-658bf5ed",
+      "split": "development",
+      "expected_entities": [
+        "host_is_trusted"
+      ],
+      "patch_sha256": "27c0b75664b94797d04f257e7d53506f5479a71791ea85db038a4d4d537baec7"
+    },
+    {
+      "case_id": "b9761b5b",
+      "split": "development",
+      "base": "efa80bff0ac50824ea4f7d848a10001cc614c893",
+      "commit": "b9761b5b6d9b5e068c2343f2ecd3580aee099fc6",
+      "expected_entities": [
+        "_plain_int"
+      ],
+      "relationships": [
+        [
+          "src/werkzeug/_internal.py#_plain_int",
+          "src/werkzeug/http.py#parse_age"
+        ]
+      ],
+      "relevant_assertions": [
+        "tests/test_internal.py::test_plain_int"
+      ],
+      "irrelevant_assertions": [
+        "tests/test_internal.py::test_wrapper_internals"
+      ],
+      "patch_sha256": "6004df70dea87aad8e9cd782f5607698c762d9fed54d26a481dfaa745bc3f176"
+    },
+    {
+      "case_id": "ea77c357",
+      "split": "development",
+      "base": "0aa1b95ae59f8ab9b4db8f4a1faabc996f7f5b8b",
+      "commit": "ea77c357b8bd6e2dcabb434c12b189bd96a4bb7c",
+      "expected_entities": [
+        "LimitedStream.readinto"
+      ],
+      "relationships": [],
+      "relevant_assertions": [],
+      "irrelevant_assertions": [
+        "tests/test_wsgi.py::test_get_host"
+      ],
+      "patch_sha256": "d9fa108a783dd0b2b133418263ae321b0eb070290ea42d7619e249e57c10a3ab"
+    },
+    {
+      "case_id": "0ac9f126",
+      "split": "holdout",
+      "base": "c1a9de83bc78e5954b614e54f639a3524547af82",
+      "commit": "0ac9f126e143498a2357b62e7cdbb0d45f004205",
+      "expected_entities": [
+        "parse_options_header"
+      ],
+      "relationships": [
+        [
+          "src/werkzeug/http.py#parse_options_header",
+          "src/werkzeug/sansio/request.py#Request._parse_content_type"
+        ]
+      ],
+      "relevant_assertions": [
+        "tests/test_http.py::TestHTTPUtility::test_parse_options_header",
+        "tests/test_http.py::TestHTTPUtility::test_parse_options_header_empty"
+      ],
+      "irrelevant_assertions": [
+        "tests/test_http.py::TestHTTPUtility::test_dump_options_header"
+      ],
+      "patch_sha256": "e7c75fcac9ef2a9f97ef38f3d4f472250da2ed79b3d16f58ed284ba87d3e415d"
+    },
+    {
+      "case_id": "bounded-flow",
+      "split": "development",
+      "provenance": "assistant-authored self-contained fixtures; external code is never executed",
+      "expected_entities": [
+        "load"
+      ],
+      "relationships": [
+        [
+          "pkg/api.py#load",
+          "client.py#consume"
+        ],
+        [
+          "pkg/api.py#load",
+          "client.py#guarded"
+        ],
+        [
+          "pkg/api.py#load",
+          "client.py#handled"
+        ],
+        [
+          "pkg/api.py#load",
+          "client.py#unrelated"
+        ]
+      ],
+      "nonrelationships": [
+        [
+          "pkg/api.py#load",
+          "client.py#shadowed"
+        ],
+        [
+          "pkg/api.py#load",
+          "client.py#rebound"
+        ]
+      ],
+      "relevant_assertions": [
+        "test_client.py::test_related",
+        "test_client.py::test_guarded",
+        "test_client.py::test_alias"
+      ],
+      "irrelevant_assertions": [
+        "test_client.py::test_unrelated_assertion",
+        "test_client.py::test_wrapper_unrelated",
+        "test_client.py::test_shadowed",
+        "test_client.py::test_reassigned"
+      ],
+      "patch_sha256": "5bd8ffcf72732c85119aeb3916dcaf0fa978043779bc8c80767f95f416037b42"
+    }
+  ]
+}

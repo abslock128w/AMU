@@ -13,8 +13,8 @@ import hashlib
 import math
 from pathlib import PurePosixPath
 
-from .outbound import redact
 from .input_suggestions import derive as derive_input_suggestions
+from .outbound import redact
 
 MAX_SOURCE_BYTES = 2 * 1024 * 1024
 MAX_AST_NODES = 50_000
@@ -241,6 +241,23 @@ class _Phase:
                     self.collect(child, name, name, enclosing)
                 else:
                     kind = "method" if class_name and not enclosing else "async_function" if isinstance(child, ast.AsyncFunctionDef) else "function"
+                    # A Python property intentionally reuses its binding name.
+                    # Keep each accessor's AST and location instead of deleting
+                    # the entire member as an ambiguous repeated declaration.
+                    accessor = None
+                    if class_name and len(child.decorator_list) == 1:
+                        decorator = child.decorator_list[0]
+                        if (isinstance(decorator, ast.Name) and decorator.id == "property"
+                                and "property" not in self.module_bindings and "property" not in _bindings(node)
+                                and not self.module_dynamic and not any("property" in names for names in enclosing)):
+                            accessor = "getter"
+                        elif (isinstance(decorator, ast.Attribute) and decorator.attr in {"setter", "deleter"}
+                              and isinstance(decorator.value, ast.Name) and decorator.value.id == child.name
+                              and f"{name}@getter" in self.entities):
+                            accessor = decorator.attr
+                    if accessor:
+                        name += "@" + accessor
+                        kind = "property_accessor"
                     self.entity(name, kind, [child], context)
                     self.collect(child, name, None, (*enclosing, frozenset(_bindings(child))))
             elif isinstance(child, (ast.Assign, ast.AnnAssign)) and not isinstance(node, _FUNCTIONS):
@@ -802,7 +819,9 @@ def analyze_python_change(path: str, before: str | None, after: str | None) -> d
         if previous_hash == current_hash:
             continue
         result["modified_entities"].append({
-            "id": f"{path}#{name}", "path": path, "qualified_name": name,
+            "id": f"{path}#{name}", "path": path,
+            "qualified_name": ".".join(part.split("@", 1)[0] for part in name.split(".")),
+            **({"accessor": name.rsplit("@", 1)[1]} if (current or previous)["kind"] == "property_accessor" else {}),
             "kind": (current or previous)["kind"],
             "change": "modified" if previous and current else "added" if current else "deleted",
             "before_location": _location(previous["nodes"][0]) if previous else None,

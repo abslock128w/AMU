@@ -1,0 +1,17 @@
+# Bounded Python change-impact evidence
+
+Concrete patch inspection now distinguishes property getter, setter and deleter identities. Accessors have stable IDs such as `Response.mimetype@setter`, retain the ordinary qualified name plus an `accessor` field, and preserve before/after locations. This identifies syntax without claiming descriptor dispatch was resolved.
+
+Ordinary explicit imports in a package initializer no longer block unrelated package-submodule references. The new request-local resolver follows unique root/src modules, relative imports, explicit reexports and stable aliases. It does not import application code. Competing layouts, repeated bindings, wildcard exports, executable package initializers, local shadowing and reassignment remain unresolved.
+
+Return and exception summaries are computed separately for the baseline and in-memory candidate. Located relationships distinguish a source call, possible returned-value use, a consumer's explicit `None` guard, and an established exception handler. A handled exception may influence its handler's literal result. A discarded call result does not influence an unrelated assertion. Straight literal-container return fields can rule out an assertion on an unchanged field. Attribute access records a source relationship, while descriptor result propagation stops.
+
+Evidence is added to the existing `findings` section under `value_flow`, with `summary_change` and `downstream_relationships`. Obligations link to those findings. Baseline recommendations use `resolved-value-flow` associations and keep broad class references separate, with a verification gap. Located assertions establish a related result observation, not reaching inputs, execution, or demonstrated detection of a particular regression. Added candidate tests keep separate provenance.
+
+Limits are explicit: 512 production source files, 200 baseline test files, a shared 8 MiB source budget, 1,024 analyzed functions/method bodies, 500,000 steps per snapshot, three composed call hops, eight import hops, and 1,024 relationships/assertions per snapshot. Unsupported decorators, instance dispatch, nested definitions, mutation, destructuring, container aliasing and control flow stop or limit reasoning. Async bodies and subclass dispatch are outside this subset. Unknown conditions are displayed as unresolved; only explicit `None` conditions are interpreted. A true `may_return_none` flag records a supported possibility; false means that possibility was not established, rather than proving a non-null return. Unsupported expressions also mark the function summary incomplete.
+
+Summaries are never cached across requests. Every inspected dependency and the production/test inventories participate in report identity and are rechecked before return. Source changes, new competing modules, configuration changes and analyzer version changes invalidate cursors. This avoids stale dependency summaries but increases latency and exhaustive retrieval cost.
+
+The Python AST parser and optional graph provider are unchanged. Provider records retain baseline provenance and uncertainty. Static evidence never establishes a reproduced failure.
+
+Validation and frozen evaluation receipts are preserved alongside the isolated checkout in `../core-accuracy-evaluation-2026-10-12/`. That directory contains the rubric, selection and source hashes, baseline/final CLI page receipts, installed MCP checks, performance measurements, and the final report. No external repository code or upstream tests are executed by this evaluation.
