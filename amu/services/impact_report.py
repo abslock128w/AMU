@@ -355,6 +355,7 @@ def _patch_summary(identity: dict, groups: dict) -> dict:
         associations = sorted(row.get("associations", []), key=lambda item: (
             min(({"input-and-assertion": 0, "assertion": 1, "input": 2, "broad": 3, "unresolved": 4}.get(
                 evidence.get("level"), 4) for evidence in item.get("obligation_evidence", [])), default=4),
+            0 if item.get("result_assertion") else 1,
             relationship_rank.get(item.get("relationship"), 2), item.get("entity_id", ""),
             item.get("relationship", "")))
         best = associations[0] if associations else {}
@@ -364,9 +365,13 @@ def _patch_summary(identity: dict, groups: dict) -> dict:
     ranked_checks.sort(key=lambda item: (item[0], item[1], item[2]))
     check_preview = [{"test_id": row.get("test_id"),
                       "kind": ("behavioral-evidence" if behavioral_rank < 3 else
+                               "related-result-assertion" if best.get("result_assertion") else
                                "supported-source-path" if rank == 0 else "broad-candidate" if rank == 1 else "unresolved"),
                       "relationship": best.get("relationship"), "entity_id": best.get("entity_id"),
                       "behavioral_rank": behavioral_rank,
+                      "result_assertion": ({"line": best["result_assertion"]["assertion"]["location"]["line"],
+                                            "changed_behavior_established": False}
+                                           if best.get("result_assertion") else None),
                       "test_status": row.get("test_provenance", {}).get("status", "unknown"),
                       "obligation_evidence": [{"evidence_category": evidence.get("evidence_category"),
                                                "level": evidence.get("level")}

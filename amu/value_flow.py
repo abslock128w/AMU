@@ -15,13 +15,14 @@ from pathlib import PurePosixPath
 from .change_analysis import _bindings, _dynamic_namespace, _location
 from .outbound import redact
 
-VERSION = "python-value-flow-v1"
+VERSION = "python-value-flow-v2"
 MAX_FUNCTIONS = 1024
 MAX_STEPS = 500_000
 MAX_HOPS = 3
 MAX_ROWS = 1024
 MAX_UNKNOWN = 200
 MAX_IMPORT_HOPS = 8
+MAX_TEST_OBSERVERS = 512
 FUNCTIONS = (ast.FunctionDef, ast.AsyncFunctionDef)
 EXCEPTIONS = frozenset(
     name for name, obj in vars(builtins).items() if isinstance(obj, type) and issubclass(obj, BaseException)
@@ -30,6 +31,80 @@ EXCEPTIONS = frozenset(
 
 def _selector(value):
     return hashlib.sha256((type(value).__name__ + ":" + repr(value)).encode()).hexdigest()
+
+
+def _marker_literal(node, depth=0):
+    """Bounded literal marker metadata, including literal string concatenation.
+
+    This never evaluates a call, name, attribute, comprehension or target code.
+    """
+    if depth > 20:
+        raise ValueError("marker literal depth")
+    if isinstance(node, ast.Constant) and type(node.value) in (str, int, float, bool, type(None)):
+        if isinstance(node.value, str) and len(node.value) > 8192:
+            raise ValueError("marker string limit")
+        return node.value
+    if isinstance(node, (ast.List, ast.Tuple, ast.Set)) and len(node.elts) <= 64:
+        return [_marker_literal(v, depth + 1) for v in node.elts]
+    if isinstance(node, ast.Dict) and len(node.keys) <= 64:
+        return {_marker_literal(k, depth + 1): _marker_literal(v, depth + 1) for k, v in zip(node.keys, node.values)}
+    if isinstance(node, ast.BinOp):
+        left, right = _marker_literal(node.left, depth + 1), _marker_literal(node.right, depth + 1)
+        if isinstance(node.op, ast.Add) and type(left) is str and type(right) is str and len(left) + len(right) <= 8192:
+            return left + right
+        if (
+            isinstance(node.op, ast.Mult)
+            and type(left) is str
+            and type(right) is int
+            and 0 <= right <= 8192
+            and len(left) * right <= 8192
+        ):
+            return left * right
+    if (
+        isinstance(node, ast.UnaryOp)
+        and isinstance(node.op, ast.USub)
+        and isinstance(node.operand, ast.Constant)
+        and type(node.operand.value) in (int, float)
+    ):
+        return -node.operand.value
+    raise ValueError("unsupported marker metadata")
+
+
+def _parameterized_test(node, table, class_bindings=()):
+    if not node.name.startswith("test_") or not node.decorator_list:
+        return False
+    try:
+        for decorator in node.decorator_list:
+            func = decorator.func if isinstance(decorator, ast.Call) else None
+            if not (
+                isinstance(func, ast.Attribute)
+                and func.attr == "parametrize"
+                and isinstance(func.value, ast.Attribute)
+                and func.value.attr == "mark"
+                and isinstance(func.value.value, ast.Name)
+                and table.get(func.value.value.id) == ("module", "pytest")
+                and func.value.value.id not in class_bindings
+                and len(decorator.args) == 2
+                and sum(1 for _ in ast.walk(decorator)) <= 1024
+            ):
+                return False
+            names, values = (_marker_literal(arg) for arg in decorator.args)
+            names = [p.strip() for p in names.split(",")] if isinstance(names, str) else names
+            if not (
+                isinstance(names, list)
+                and names
+                and all(isinstance(p, str) and p.isidentifier() for p in names)
+                and isinstance(values, list)
+                and len(values) <= 64
+            ):
+                return False
+            for keyword in decorator.keywords:
+                value = _marker_literal(keyword.value)
+                if keyword.arg is None or keyword.arg == "indirect" and value is not False:
+                    return False
+        return True
+    except (ValueError, TypeError, RecursionError, MemoryError):
+        return False
 
 
 @dataclass(frozen=True)
@@ -46,11 +121,15 @@ class Symbol:
 class Resolver:
     """Resolve unique source layouts, explicit exports and stable aliases."""
 
-    def __init__(self, sources):
+    def __init__(self, sources, syntax_facts=None):
         self.sources = sources
         self.tables = {}
         self.unknowns = []
+        self._unknown_keys = set()
+        self._unknown_limit_reported = False
+        self._syntax_facts = syntax_facts if syntax_facts is not None else {}
         self.functions = {}
+        self.test_observers = {}
         self.modules = {}
         self.steps = 0
         self.exhausted = False
@@ -123,7 +202,10 @@ class Resolver:
                         continue
                     self.functions[f"{path}#{name}"] = (path, name, fact[1])
                 elif fact[0] == "definition" and isinstance(fact[1], FUNCTIONS) and fact[1].decorator_list:
-                    self.unknown(path, fact[1], "decorated function behavior unresolved")
+                    if _parameterized_test(fact[1], table):
+                        self.add_test_observer(path, name, fact[1])
+                    else:
+                        self.unknown(path, fact[1], "decorated function behavior unresolved")
                 elif fact[0] == "definition" and isinstance(fact[1], ast.ClassDef):
                     owner = fact[1]
                     counts = {}
@@ -134,15 +216,40 @@ class Resolver:
                         if not isinstance(child, ast.FunctionDef) or counts[child.name] != 1:
                             continue
                         if child.decorator_list:
-                            self.unknown(
-                                path, child, "decorated member body not composed; descriptor dispatch unresolved"
-                            )
+                            if (
+                                owner.name.startswith("Test")
+                                and not owner.decorator_list
+                                and _parameterized_test(child, table, _bindings(owner))
+                            ):
+                                self.add_test_observer(path, owner.name + "::" + child.name, child)
+                            else:
+                                self.unknown(
+                                    path, child, "decorated member body not composed; descriptor dispatch unresolved"
+                                )
                             continue
                         if len(self.functions) >= MAX_FUNCTIONS:
                             self.unknown(path, child, "function limit reached; further methods not analyzed")
-                            break
+                            if (
+                                owner.name.startswith("Test")
+                                and not owner.decorator_list
+                                and child.name.startswith("test_")
+                            ):
+                                self.add_test_observer(path, owner.name + "::" + child.name, child)
+                            continue
                         name = owner.name + ("::" if owner.name.startswith("Test") else ".") + child.name
                         self.functions[f"{path}#{name}"] = (path, name, child)
+
+    def add_test_observer(self, path, name, node):
+        from .plan import _is_test_path
+
+        if not _is_test_path(path):
+            self.unknown(path, node, "parameterized declaration outside baseline test scope remains unresolved")
+        elif len(self.test_observers) >= MAX_TEST_OBSERVERS:
+            self.unknown(path, node, "test observer limit reached; further result assertions unresolved")
+        elif sum(1 for _ in ast.walk(node)) > 2048:
+            self.unknown(path, node, "test observer node limit reached; result assertions unresolved")
+        else:
+            self.test_observers[f"{path}#{name}"] = (path, name, node)
 
     @staticmethod
     def relative_module(path, module, level):
@@ -153,16 +260,26 @@ class Resolver:
             return ""
         return ".".join(parts[: len(parts) - level + 1] + ((module or "").split(".") if module else []))
 
+    def lexical_facts(self, node):
+        """Reuse immutable AST facts within this request, never dependency facts."""
+        if node not in self._syntax_facts:
+            self._syntax_facts[node] = (frozenset(_bindings(node)), _dynamic_namespace(node))
+        return self._syntax_facts[node]
+
     def unknown(self, path, node, reason):
         row = {"path": path, "location": _location(node), "reason": reason, "analyzer": VERSION}
-        if row not in self.unknowns:
-            if len(self.unknowns) < MAX_UNKNOWN:
-                self.unknowns.append(row)
-            elif not any(r["reason"].startswith("uncertainty limit") for r in self.unknowns):
-                self.unknowns[-1] = {
-                    **row,
-                    "reason": "uncertainty limit reached; additional unresolved boundaries omitted",
-                }
+        key = (path, tuple(row["location"].values()), reason)
+        if key in self._unknown_keys:
+            return
+        if len(self.unknowns) < MAX_UNKNOWN:
+            self._unknown_keys.add(key)
+            self.unknowns.append(row)
+        elif not self._unknown_limit_reported:
+            self._unknown_limit_reported = True
+            self.unknowns[-1] = {
+                **row,
+                "reason": "uncertainty limit reached; additional unresolved boundaries omitted",
+            }
 
     def module(self, name):
         paths = self.modules.get(name, [])
@@ -244,8 +361,8 @@ def union(values):
 class Scan:
     def __init__(self, resolver, function_id, summaries, phase, emit):
         self.r, self.id, self.summaries, self.phase, self.emit = resolver, function_id, summaries, phase, emit
-        self.path, self.name, self.node = resolver.functions[function_id]
-        self.local = _bindings(self.node)
+        self.path, self.name, self.node = resolver.functions.get(function_id) or resolver.test_observers[function_id]
+        self.local = set(resolver.lexical_facts(self.node)[0])
         self.env = {
             a.arg: Value(parameters={i}) for i, a in enumerate([*self.node.args.posonlyargs, *self.node.args.args])
         }
@@ -329,6 +446,14 @@ class Scan:
             symbol = self.r.expr(self.path, node.func, self.env, self.local)
             args = [self.expr(arg, constraints, handlers) for arg in node.args]
             keyword_args = [self.expr(k.value, constraints, handlers) for k in node.keywords]
+            if self.stopped:
+                return Value()
+            if any(isinstance(value, Symbol) for value in [*args, *keyword_args]):
+                self.stopped = True
+                self.unknown(
+                    self.path, node, "callable/module binding escaped to a call; subsequent alias identity unresolved"
+                )
+                return Value()
             if symbol and symbol.kind == "function" and symbol.id in self.r.functions:
                 self.calls.add(symbol.id)
                 call_step = self.evidence(node, "resolved_call")
@@ -424,7 +549,7 @@ class Scan:
             if isinstance(value, Value) and value.origins:
                 self.unknown(self.path, node, "attribute access exists; descriptor result identity unresolved")
             return Value()
-        if isinstance(node, (ast.Compare, ast.BinOp, ast.UnaryOp, ast.BoolOp, ast.Tuple, ast.List, ast.Set, ast.Dict)):
+        if isinstance(node, (ast.Compare, ast.BinOp, ast.UnaryOp, ast.Tuple, ast.List, ast.Set, ast.Dict)):
             # Containers preserve dependency, comparisons observe their input.
             value = union(
                 [
@@ -484,6 +609,8 @@ class Scan:
     def block(self, statements, constraints=(), handlers=()):
         constraints = list(constraints)
         for node in statements:
+            if self.stopped:
+                return False
             if not self.step(node):
                 return False
             if isinstance(node, ast.Return):
@@ -549,6 +676,10 @@ class Scan:
                         constraints.append(guard[0])
                 else:
                     self.env = {k: v for k, v in left.items() if k in right and v == right[k]}
+                    if any(
+                        isinstance(v, Value) and v.origins for k, v in {**left, **right}.items() if k not in self.env
+                    ):
+                        self.unknown(self.path, node, "branch-dependent result binding is unresolved after the join")
                 for key in self.local:
                     self.env.setdefault(key, Value())
             elif isinstance(node, ast.Try) and not node.finalbody:
@@ -625,7 +756,7 @@ class Scan:
         return False
 
     def run(self):
-        if _dynamic_namespace(self.node):
+        if self.r.lexical_facts(self.node)[1]:
             self.incomplete = True
             self.unknown(self.path, self.node, "dynamic namespace stops function analysis")
         else:
@@ -674,8 +805,9 @@ class Scan:
 def analyze_repository(before, after, changed_ids):
     """Compare request-local summaries and return located source evidence."""
     phases = {}
+    syntax_facts = {}
     for phase, sources in [("before", before), ("after", after)]:
-        resolver = Resolver(sources)
+        resolver = Resolver(sources, syntax_facts)
         summaries = {}
         # Finite composition: a pass consumes only the preceding snapshot.
         for _ in range(MAX_HOPS):
@@ -698,6 +830,18 @@ def analyze_repository(before, after, changed_ids):
             assertions.extend(r for r in scan.assertions if r["entity_id"] in changed_ids)
             if len(relations) > MAX_ROWS or len(assertions) > MAX_ROWS:
                 resolver.unknown(scan.path, scan.node, "relationship/assertion output limit reached")
+                break
+            if resolver.exhausted:
+                break
+        # Extra test bodies never displace the established function-summary
+        # universe. Their known parametrization metadata is not composed as a
+        # callable wrapper, and no runtime/input reachability is claimed.
+        for ident in resolver.test_observers:
+            scan = Scan(resolver, ident, summaries, phase, True)
+            scan.run()
+            assertions.extend(r for r in scan.assertions if r["entity_id"] in changed_ids)
+            if len(assertions) > MAX_ROWS:
+                resolver.unknown(scan.path, scan.node, "assertion output limit reached; further observers unresolved")
                 break
             if resolver.exhausted:
                 break
@@ -744,6 +888,7 @@ def analyze_repository(before, after, changed_ids):
             "summary_hops": MAX_HOPS,
             "relationships_per_phase": MAX_ROWS,
             "import_hops": MAX_IMPORT_HOPS,
+            "test_observers": MAX_TEST_OBSERVERS,
         },
         "steps": {p: data["steps"] for p, data in phases.items()},
     }
@@ -834,6 +979,15 @@ def merge_test_evidence(checks, flow, tests, obligations):
             "obligation_evidence": evidence,
             "limitation": "No runtime observation or demonstrated detection of a specific regression.",
             "evidence_category": "related-result-assertion",
+            "result_assertion": {
+                "assertion": assertion["assertion"],
+                "constraints": assertion["constraints"],
+                "source_phase": "before",
+                "changed_behavior_established": False,
+                "reaching_input_proven": False,
+                "observed_execution": False,
+                "regression_detection_demonstrated": False,
+            },
         }
         retained[key] = association
         if association not in row["associations"]:
@@ -843,17 +997,21 @@ def merge_test_evidence(checks, flow, tests, obligations):
             row["behavioral_rank"] = min(row.get("behavioral_rank", 4), 1)
     for row in by_id.values():
         broad = all(a["relationship"].startswith("broad-") for a in row["associations"])
+        observed_result = any(a.get("result_assertion") for a in row["associations"])
+        row["result_assertion_rank"] = 1 if observed_result else 4
         row["verification_category"] = (
             "broad-source-reference"
             if broad
             else "related-result-assertion"
-            if row.get("behavioral_rank", 4) <= 1
+            if observed_result or row.get("behavioral_rank", 4) <= 1
             else "resolved-source-path"
         )
         if broad:
             row["verification_gap"] = "No member-specific call or assertion on the changed behavior was established."
         elif row.get("behavioral_rank", 4) > 1:
             row["verification_gap"] = (
-                "No assertion observing the related result or identified exception was established for this source path."
+                "A located result assertion exists, but no supported changed-operation obligation and reaching input were established."
+                if observed_result
+                else "No assertion observing the related result or identified exception was established for this source path."
             )
     return sorted(by_id.values(), key=lambda r: r["test_id"])
