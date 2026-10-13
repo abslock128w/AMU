@@ -29,7 +29,9 @@ names another file. Record with per-test contexts, for example
 `pytest --cov=your_package --cov-context=test`. Reading a raw `.coverage` file needs the `coverage` package.
 
 A recording is judged per file. Files unchanged since the recording keep exact evidence. A file edited
-since is still used and marked as recorded before the edit. Recorded execution raises a test's rank and can
+since is still used and marked as recorded before the edit; when the edit is the patch being analysed, the
+recorded line numbers are moved through it. A test that ran a changed line few other tests share ranks
+highest, and a gap names changed functions whose changed lines no recorded test ran. Recorded execution raises a test's rank and can
 add tests static analysis missed. It never removes a test.
 
 ## How it ranks
@@ -45,6 +47,10 @@ Facts are stored per file under `.amu/index/`, keyed by content hash; only chang
 and the graph of an unchanged tree is reused. Set `AMU_INDEX_DIR` to keep the index elsewhere.
 
 ## Known limits
+
+In a ten-run agent trial on Click, agents with this tool did not find more breaking tests than agents who
+read the diff and searched; see the report. Treat the list as reachability, not as a prediction of failures.
+
 
 See `evaluation/before-tests/REPORT.md`. The main one: when hundreds of tests reach a hub class, the top 10
 is a reasoned guess. Dictionary dispatch, plugins and `getattr` are counted as unresolved, not followed.

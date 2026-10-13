@@ -1,0 +1,44 @@
+{
+ "task1": {
+  "case": "click-v2-9f0bcdf0",
+  "breaking": [
+   "tests/test_options.py::test_deprecated_warning"
+  ]
+ },
+ "task2": {
+  "case": "click-v2-d0368817",
+  "breaking": [
+   "tests/test_arguments.py::test_argument_name_check_applies_when_not_exposed",
+   "tests/test_arguments.py::test_argument_normalizes_an_identifier_decl",
+   "tests/test_arguments.py::test_argument_requires_its_one_declaration",
+   "tests/test_arguments.py::test_option_explicit_name_keeps_its_case",
+   "tests/test_arguments.py::test_parameter_name_is_an_identifier_or_deprecated",
+   "tests/test_arguments.py::test_parameter_name_not_an_identifier_is_deprecated",
+   "tests/test_deprecations.py::test_non_identifier_name_deprecated",
+   "tests/test_deprecations.py::test_unnormalized_explicit_name_deprecated",
+   "tests/test_options.py::test_auto_envvar_flattens_name_case",
+   "tests/test_options.py::test_option_name_check_applies_when_not_exposed",
+   "tests/test_options.py::test_option_prompt_still_guards_against_a_nameless_option"
+  ]
+ },
+ "task3": {
+  "case": "click-v2-f67c2bb6",
+  "breaking": [
+   "tests/test_utils/test_make_default_short_help.py::test_make_default_short_help"
+  ]
+ },
+ "task4": {
+  "case": "h3-click-bc32a92c",
+  "breaking": [
+   "tests/test_termui.py::test_get_pager_file_flushes_stream_on_exception",
+   "tests/test_termui.py::test_get_pager_file_nullpager_keeps_stringio_stream",
+   "tests/test_utils/test_echo_via_pager.py::test_echo_via_pager_yields_before_exception"
+  ]
+ },
+ "task5": {
+  "case": "h3-click-8ee83ddb",
+  "breaking": [
+   "tests/test_testing.py::test_isolated_filesystem_deprecated"
+  ]
+ }
+}

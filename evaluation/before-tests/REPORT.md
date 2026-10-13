@@ -39,7 +39,101 @@ Two Click commits delete tests that guard the behaviour they revert (38 tests in
 In the recorded holdout run, 7 and 1 of those were in the core's top 10. The label rule does not count
 deleted tests. That is an observation, not a rescoring.
 
-## Milestones
+## Later the same day: execution-backed evidence, a third holdout and an agent trial
+
+Everything above describes commit b3747c8. This section covers the work after it (through 9599611 and the
+trial). The owner authorised local test execution; all runs used disposable copies with plugin autoload off.
+
+### Static ranking on unseen Click commits (holdout 3, run once)
+
+Eight older Click commits, frozen by the same backwards walk before anything was run on them.
+
+| Build | Function hits | File hits | Largest packet | Slowest case |
+|---|---:|---:|---:|---:|
+| Legacy 68d82c8 | 1/8 | 2/8 | 38804 B | 3.21 s |
+| Core | 8/8 | 8/8 | 1997 B | 0.67 s |
+
+Same repository as holdout 1, so this is independent by commit, not by project. Werkzeug (10/16, 16/16) and
+holdout 2 (5/8, 7/8) were rerun with the final code and did not move.
+
+### Ground truth from execution
+
+`scripts/before_tests_exec.py` records per-test coverage on the parent tree, reruns the same tests with the
+production patch applied, and takes the existing tests whose outcome changed as ground truth. Click's
+`tests/test_stream_lifecycle.py` (a garbage-collection stress file) was left out because it is extremely slow
+under per-test coverage. About 3,000 tests ran per case.
+
+Only 5 of 18 Click commits break any existing test.
+
+| Set | Cases with a breaking test | Breaking test in top 10, static | With coverage |
+|---|---:|---:|---:|
+| Click holdout 1 (development for the coverage ranking) | 3 | 2 | 3 |
+| Click holdout 3 (unseen) | 2 | 2 | 1 |
+
+Coverage ranking is line-aware and rarity-weighted: a test that ran a changed line few other tests share
+ranks highest. It was tuned on the first row. On the unseen row it was worse than static in one case, where
+the breaking tests fell to ranks 9, 14 and 17 behind sibling tests that ran the same lines, and the packet
+showed 8 tests because a consequence row took the space. Coverage is therefore not shown to beat static
+ranking. Static stays the default signal; coverage adds the "no recorded test ran these changed lines" gap.
+
+Werkzeug M5 check on the full `tests/test_routing.py` (117 tests): all 44 tests recorded running the changed
+code rank above the 320 static-only ones, the 12 that ran the changed lines are within the first 13, and an
+unrelated edit keeps the evidence. The gap line correctly said no existing test ran the changed branch of
+`StateMachineMatcher.match`, which is the branch the upstream commit added a test for.
+
+### Defects found by using the tool on an already-edited tree
+
+- A real suite's `coverage.json` was 92 MB and was rejected by a 64 MiB guard.
+- A recording made before the edit was compared with post-edit line numbers. Recorded lines are now moved
+  through the patch.
+- A deletion-only edit mapped to no declaration and returned no tests, silently.
+- `git apply` inside a subdirectory of another repository exits 0 and changes nothing; the first execution
+  run therefore reported no outcome changes at all. The harness now uses `patch` and verifies the files differ.
+
+### Agent trial (smoke, 10 runs)
+
+Five tasks, each an edited Click tree whose change breaks existing tests. Instruction: name the existing test
+functions that now fail, running at most 15 test functions through a logging runner. Same model (Sonnet) and
+prompt in both arms; one arm also had `./amu` with the coverage recording. One run per cell.
+
+| Task | Breaking tests | Found without AMU (test runs) | Found with AMU (test runs) |
+|---|---:|---:|---:|
+| 1 click-v2-9f0bcdf0 | 1 | 1 (4) | 1 (8) |
+| 2 click-v2-d0368817 | 11 | 10 (12) | 8 (10) |
+| 3 click-v2-f67c2bb6 | 1 | 1 (4) | 1 (9) |
+| 4 h3-click-bc32a92c | 3 | 2 (8) | 2 (15) |
+| 5 h3-click-8ee83ddb | 1 | 1 (1) | 1 (3) |
+| Total | 17 | 15 (29) | 13 (45) |
+
+AMU did not help. Without it the agents found more breaking tests with fewer runs, at about the same token
+cost (50 to 63 thousand per run in both arms). No arm reported a false failure.
+
+Why, from the agents' own notes:
+
+1. The agents without AMU read the diff and searched the tests for what it removed or reworded (a warning
+   text, a tuple shape). That is a semantic question, and AMU's ranking has no notion of what a test asserts.
+2. The agents with AMU ran its list top-down. A list of tests that reach the code is longer than the list
+   of tests likely to fail, so it spent budget on passes.
+3. Click is small enough to search in seconds. Nothing here needed a graph.
+
+Neither arm found the third breaking test of task 4, which lives in another test file with no lexical link
+to the diff. That kind of case is where a reachability tool should earn its place, and AMU ranked it tenth
+in the unedited-tree run but did not show it in the trial packet.
+
+Limits of this trial: 5 tasks, one run each, one small library, three tasks from cases the coverage ranking
+was tuned on, and a task that hands the agent the diff. It cannot show AMU is useless on large repositories
+or on indirect breakage. It does show that on small, greppable changes a capable agent does not need it.
+
+### What this means for the product
+
+- The engine now does what the original brief asked on four sets, and the old analyzer does not.
+- The claim "an agent picks tests better with AMU" is not supported, and on this evidence is false for small
+  repositories with the diff in hand.
+- The places left where it could matter are specific: breakage with no lexical link to the diff, repositories
+  too large to search cheaply, and telling the agent which changed lines no test executes. Each needs its own
+  trial before more engine work.
+
+## Milestones (state at b3747c8)
 
 - **M1 harness.** `scripts/before_tests_harness.py`; protocol and manifests are hash-pinned.
 - **M2 discovery.** Met on Werkzeug: 10/16 function, 16/16 file, never more than 10 shown or 40 ranked.
