@@ -493,6 +493,37 @@ def test_live_edges_preserves_a_real_outbound_data_flow_direction():
     } in evidence.edges
 
 
+def test_live_edges_preserves_an_explicit_outbound_type_use():
+    """A focus function can use an annotated type rather than be its consumer."""
+    impact = _live_impact_after_edit()
+    impact["type_consumers"] = {
+        "total": 1,
+        "entries": [{
+            "endpoint": {"id": "type-id", "name": "Request", "qualified_name": "Request",
+                         "file_path": "pkg/request.py"},
+            "relation": "PARAM_TYPE", "direction": "out", "depth": 1,
+        }],
+    }
+    evidence = graph_refresh.live_edges(TARGET, impact)
+    assert evidence.available
+    assert any(row["related"] == "pkg/request.py#Request" and row["direction"] == "out"
+               and row["relation"] == "PARAM_TYPE" for row in evidence.edges)
+
+
+@pytest.mark.parametrize("direction", [None, "side"])
+def test_live_edges_refuses_ambiguous_type_use_direction(direction):
+    impact = _live_impact_after_edit()
+    entry = {"endpoint": {"id": "type-id", "name": "Request", "qualified_name": "Request",
+                          "file_path": "pkg/request.py"},
+             "relation": "PARAM_TYPE", "depth": 1}
+    if direction is not None:
+        entry["direction"] = direction
+    impact["type_consumers"] = {"total": 1, "entries": [entry]}
+    evidence = graph_refresh.live_edges(TARGET, impact)
+    assert not evidence.available
+    assert "type_consumers edge 1" in evidence.reason
+
+
 def test_map_baselines_normalize_an_omitted_caller_direction_without_dropping_the_edge():
     impact = _live_impact_after_edit()
     assert "direction" not in impact["callers"]["entries"][0]

@@ -1,0 +1,25 @@
+{
+  "case_id": "extra-0743179b",
+  "function_recall10": 0.0,
+  "file_recall10": 0.5,
+  "function_hits": [],
+  "missing_from_parent": [
+    "tests/sansio/test_utils.py::test_trusted"
+  ],
+  "recommended": 17,
+  "top10": [
+    "tests/sansio/test_utils.py::test_get_host",
+    "tests/sansio/test_utils.py::test_get_host_invalid",
+    "tests/sansio/test_utils.py::test_get_host_missing",
+    "tests/sansio/test_utils.py::test_get_host_unix",
+    "tests/test_test.py::test_builder_from_environ",
+    "tests/test_test.py::test_environ_builder_basics",
+    "tests/test_test.py::test_environ_builder_content_type",
+    "tests/test_test.py::test_environ_builder_data",
+    "tests/test_test.py::test_environ_builder_headers",
+    "tests/test_test.py::test_environ_builder_paths"
+  ],
+  "seconds": 5.576131208999868,
+  "bytes": 19303,
+  "noise10": 10
+}

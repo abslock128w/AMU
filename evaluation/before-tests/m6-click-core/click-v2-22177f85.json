@@ -1,0 +1,24 @@
+{
+  "case_id": "click-v2-22177f85",
+  "function_recall10": 0.0,
+  "file_recall10": 0.5,
+  "function_hits": [],
+  "missing_from_parent": [
+    "tests/test_types/test_Path.py::test_path_converted_type_parameter_at_runtime"
+  ],
+  "recommended": 9,
+  "top10": [
+    "tests/test_types/test_Path.py::test_path_resolve_symlink",
+    "tests/test_types/test_Path.py::test_invalid_path_with_esc_sequence",
+    "tests/test_shell_completion.py::test_path_types",
+    "tests/test_types/test_Path.py::test_path_surrogates",
+    "tests/test_types/test_Path.py::test_path_type",
+    "tests/test_types/test_convert_type.py::test_explicit_container_type_splits_string",
+    "tests/test_types/test_convert_type.py::test_explicit_dict_type_rejects_string",
+    "tests/test_shell_completion.py::test_absolute_path",
+    "tests/test_types/test_FuncParamType.py::test_func_param_type_uses_value_error_message"
+  ],
+  "seconds": 0.42918241699953796,
+  "bytes": 1890,
+  "noise10": 9
+}

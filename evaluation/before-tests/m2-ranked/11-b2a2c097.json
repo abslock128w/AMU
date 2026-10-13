@@ -1,0 +1,23 @@
+{
+  "case_id": "11-b2a2c097",
+  "function_recall10": null,
+  "file_recall10": null,
+  "function_hits": [],
+  "missing_from_parent": [],
+  "recommended": 10,
+  "top10": [
+    "tests/test_security.py::test_safe_join",
+    "tests/test_security.py::test_safe_join_empty_trusted",
+    "tests/test_security.py::test_safe_join_not_windows_special",
+    "tests/test_security.py::test_safe_join_os_sep",
+    "tests/test_security.py::test_safe_join_windows_special",
+    "tests/test_send_file.py::test_from_directory",
+    "tests/test_send_file.py::test_from_directory_not_found",
+    "tests/test_send_file.py::test_root_path",
+    "tests/middleware/test_shared_data.py::test_get_file_loader",
+    "tests/middleware/test_shared_data.py::test_shared_data_middleware"
+  ],
+  "seconds": 0.3116012499995122,
+  "bytes": 1974,
+  "noise10": 10
+}

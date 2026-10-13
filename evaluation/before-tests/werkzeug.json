@@ -1,0 +1,235 @@
+[
+  {
+    "case_id": "01-4da3786f",
+    "commit": "4da3786f1443cbd6efd3f4107bcd5b4ab121f122",
+    "parent": "b2b281beec14dad63882bcee863d8c2fc5be34c0",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/werkzeug.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/cases/01-4da3786f/baseline",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/01-4da3786f/production.patch",
+    "patch_sha256": "61f74990f775d2ebd74646ddc458d3a93d7b515d0afd8d8d37e833d77505fe4d",
+    "truth": [
+      "tests/test_urls.py::test_uri_empty_auth",
+      "tests/test_urls.py::test_uri_port_0"
+    ],
+    "existing_truth": [],
+    "files": [
+      "tests/test_urls.py"
+    ]
+  },
+  {
+    "case_id": "02-0c419f95",
+    "commit": "0c419f951f3206c89e7c95155f0bd771b02a961f",
+    "parent": "12abecb2de7ddf4767570c67dc3a5a1fc5b9c81d",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/werkzeug.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/cases/02-0c419f95/baseline",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/02-0c419f95/production.patch",
+    "patch_sha256": "eb68c5fad3ffb5ec4b41525e69fb23cc93d77f1f212b1865994a6688c3e50a0d",
+    "truth": [
+      "tests/test_http.py::TestRange::test_range_parsing"
+    ],
+    "existing_truth": [
+      "tests/test_http.py::TestRange::test_range_parsing"
+    ],
+    "files": [
+      "tests/test_http.py"
+    ]
+  },
+  {
+    "case_id": "03-594452f6",
+    "commit": "594452f6a4fe4de38a544962fbf04bfc9d37fbc2",
+    "parent": "f7e37f0bf510fa355fdac3e922cc2078916b021f",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/werkzeug.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/cases/03-594452f6/baseline",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/03-594452f6/production.patch",
+    "patch_sha256": "17c77b339e9dca1a3cf1dce2f9ecd02b6788ebd5333361b9b65e2f59aa7fc958",
+    "truth": [],
+    "existing_truth": [],
+    "files": [
+      "tests/test_routing.py"
+    ]
+  },
+  {
+    "case_id": "04-fbbbf745",
+    "commit": "fbbbf74573ddd05ac7c19854f9a1c0ea2ed4180b",
+    "parent": "eba2c4c83fbfea4590cfc5ac42b25b322fc24f7d",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/werkzeug.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/cases/04-fbbbf745/baseline",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/04-fbbbf745/production.patch",
+    "patch_sha256": "272620c3b0d7b2469cf207c69fece86d08f9560a2dc7a438a14a610699abb7af",
+    "truth": [],
+    "existing_truth": [],
+    "files": []
+  },
+  {
+    "case_id": "05-2c453bf3",
+    "commit": "2c453bf3f307b13cc2e3025458743d3812fa50e6",
+    "parent": "25663ddc295879d362a206b4c33f16ea2e694392",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/werkzeug.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/cases/05-2c453bf3/baseline",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/05-2c453bf3/production.patch",
+    "patch_sha256": "177b5e2f212af12692caf7e829cec5c752ac836076f83644f9eeac5fa8e6ae82",
+    "truth": [
+      "tests/middleware/test_proxy_fix.py::test_proxy_fix"
+    ],
+    "existing_truth": [
+      "tests/middleware/test_proxy_fix.py::test_proxy_fix"
+    ],
+    "files": [
+      "tests/middleware/test_proxy_fix.py"
+    ]
+  },
+  {
+    "case_id": "06-54b7596d",
+    "commit": "54b7596dff77d7e1a9d04b2490d5fd3b1de0fc7a",
+    "parent": "e573ef373b298fdf6028d5187f2947dfb08b53ec",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/werkzeug.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/cases/06-54b7596d/baseline",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/06-54b7596d/production.patch",
+    "patch_sha256": "00f82001bbe0bf20d89d0d310e83569ffb5801a70f0d10c0907632682ff50c8b",
+    "truth": [],
+    "existing_truth": [],
+    "files": []
+  },
+  {
+    "case_id": "07-42f3ccf9",
+    "commit": "42f3ccf94903bf7076591b4e04091de340fc73fe",
+    "parent": "63a800cacf9492b421c4fc29a66104894f802937",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/werkzeug.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/cases/07-42f3ccf9/baseline",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/07-42f3ccf9/production.patch",
+    "patch_sha256": "a8876d18ba7bd1b2e3a1de5cd1a7de6403d974837ab2555fd4f3dc104571d134",
+    "truth": [],
+    "existing_truth": [],
+    "files": []
+  },
+  {
+    "case_id": "08-23002fd6",
+    "commit": "23002fd651c1f190cc53150cd506425602bed6a1",
+    "parent": "2765b4823f9331b494c542b7db8b518666b27c44",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/werkzeug.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/cases/08-23002fd6/baseline",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/08-23002fd6/production.patch",
+    "patch_sha256": "18cb62ec7d2a1665e60de23d4fd8782ec2e8b785eaf639aba0619392d6bd29de",
+    "truth": [],
+    "existing_truth": [],
+    "files": []
+  },
+  {
+    "case_id": "09-f85f3807",
+    "commit": "f85f38071774a46a95830e7614c55a7a481c1c89",
+    "parent": "ae7f2163ff341bdf622ed162111265e3090d93d0",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/werkzeug.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/cases/09-f85f3807/baseline",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/09-f85f3807/production.patch",
+    "patch_sha256": "b1804ca0a59a7621095077a27956caf52f7b0de0130d5cf86c400af123698128",
+    "truth": [],
+    "existing_truth": [],
+    "files": []
+  },
+  {
+    "case_id": "10-ae7f2163",
+    "commit": "ae7f2163ff341bdf622ed162111265e3090d93d0",
+    "parent": "6a604e005d95af8129ee314863be8ad6b240dead",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/werkzeug.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/cases/10-ae7f2163/baseline",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/10-ae7f2163/production.patch",
+    "patch_sha256": "0ab860e65c0a372c83f67e5302a72abaaa11d8449cc8cd5a2b734fbc92c80767",
+    "truth": [],
+    "existing_truth": [],
+    "files": []
+  },
+  {
+    "case_id": "11-b2a2c097",
+    "commit": "b2a2c09730086ab2d375f0b069c821d4edf526b7",
+    "parent": "4efac9df7ebabe13f82ab0823d5ca0109db20bc3",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/werkzeug.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/cases/11-b2a2c097/baseline",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/11-b2a2c097/production.patch",
+    "patch_sha256": "59f67b7ea79e29ed45da61df4b7ab00c2da008956d5453a608b55bf14a2bc865",
+    "truth": [],
+    "existing_truth": [],
+    "files": []
+  },
+  {
+    "case_id": "12-6d7c0b4e",
+    "commit": "6d7c0b4e2f78c337f55a8a87c34fbb936a608f70",
+    "parent": "05ff3fe46845c8650e74c71b34f3f881392c478b",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/werkzeug.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/cases/12-6d7c0b4e/baseline",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/12-6d7c0b4e/production.patch",
+    "patch_sha256": "903ab7a4ee73848bb5a1ca48f3c5caf6fc3e7e5f45484b3686494b5a9ba71957",
+    "truth": [
+      "tests/test_routing.py::test_part_converter_order"
+    ],
+    "existing_truth": [],
+    "files": [
+      "tests/test_routing.py"
+    ]
+  },
+  {
+    "case_id": "13-1b8bc581",
+    "commit": "1b8bc581fd81374b2a989bed95e9bb329a6ee55f",
+    "parent": "5065b6cae016212f52a5210be0979f991abb8c04",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/werkzeug.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/cases/13-1b8bc581/baseline",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/13-1b8bc581/production.patch",
+    "patch_sha256": "9fc316dcdec47bf3eb80e93fb0e9a7622dfab59e3c80f44af562e4c32100db59",
+    "truth": [
+      "tests/test_http.py::TestHTTPUtility::test_authorization_basic_validate"
+    ],
+    "existing_truth": [],
+    "files": [
+      "tests/test_http.py"
+    ]
+  },
+  {
+    "case_id": "14-c678a231",
+    "commit": "c678a2310328d2ecd082f0c77a514eb738bbe9d2",
+    "parent": "ef518e429b67a91a307de37a1845c93110180371",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/werkzeug.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/cases/14-c678a231/baseline",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/14-c678a231/production.patch",
+    "patch_sha256": "41e4b406f9645432260c64dd26858a1a144f11ac0c9526f0c833f351b800fadc",
+    "truth": [
+      "tests/test_routing.py::test_converter"
+    ],
+    "existing_truth": [],
+    "files": [
+      "tests/test_routing.py"
+    ]
+  },
+  {
+    "case_id": "15-ab16e62d",
+    "commit": "ab16e62df72374059345eb0af07132ad7e5db9ce",
+    "parent": "a2bf38cf9c9501cc64fb324f5229543023c527bb",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/werkzeug.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/cases/15-ab16e62d/baseline",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/15-ab16e62d/production.patch",
+    "patch_sha256": "d10ecb6c237ea6db5dd8512f677f3ec9fe4f58365a6b38ab99f23241f27acccd",
+    "truth": [
+      "tests/test_routing.py::test_int_converter_404"
+    ],
+    "existing_truth": [],
+    "files": [
+      "tests/test_routing.py"
+    ]
+  },
+  {
+    "case_id": "16-658bf5ed",
+    "commit": "658bf5ed30e5b2b68826c31dfbe7ca8e13059c5d",
+    "parent": "0ac9f126e143498a2357b62e7cdbb0d45f004205",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/werkzeug.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/external-amu-evaluation-2026-10-12/cases/16-658bf5ed/baseline",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/16-658bf5ed/production.patch",
+    "patch_sha256": "155bc050f8e54a723ee469bf5b383cfc97fc94dfef72a190b4125b41b7179a34",
+    "truth": [
+      "tests/sansio/test_utils.py::test_get_host_invalid"
+    ],
+    "existing_truth": [
+      "tests/sansio/test_utils.py::test_get_host_invalid"
+    ],
+    "files": [
+      "tests/sansio/test_utils.py"
+    ]
+  }
+]

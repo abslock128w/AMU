@@ -7,9 +7,13 @@ are queried anew on each request and do not prove that a consumer will break.
 from __future__ import annotations
 
 import ast
+import codecs
 import hashlib
+import io
 import os
+import re
 import stat
+import tokenize
 from dataclasses import asdict, dataclass
 from pathlib import Path, PurePosixPath
 
@@ -46,6 +50,58 @@ class ImpactRequest:
     section: str = "impact"
     cursor: str | None = None
     page_size: int = 50
+
+
+@dataclass(frozen=True)
+class PatchRequest:
+    patch: str
+    base: str = "HEAD"
+    depth: int = 1
+    include_graph: bool = False
+    section: str = "summary"
+    cursor: str | None = None
+    page_size: int = 20
+    check_spec: dict | None = None
+    coverage_evidence: str | None = None
+
+
+def validate_patch_request(request: PatchRequest) -> None:
+    """Validate the entire diff/cursor envelope before touching the repository."""
+    from amu.check_drafts import CheckSpecError, validate_check_spec
+    from amu.patch import PatchError, parse_diff
+
+    if not isinstance(request, PatchRequest):
+        raise ImpactInputError("request must be a PatchRequest")
+    if not isinstance(request.base, str) or not (request.base in {"HEAD", "worktree"} or re.fullmatch(r"[0-9a-f]{40}", request.base)):
+        raise ImpactInputError("base must be HEAD, worktree or the full current Git HEAD SHA")
+    if type(request.depth) is not int or not 1 <= request.depth <= MAX_DEPTH:
+        raise ImpactInputError(f"depth must be an integer from 1 to {MAX_DEPTH}")
+    if type(request.include_graph) is not bool:
+        raise ImpactInputError("include_graph must be a boolean")
+    if not isinstance(request.section, str) or request.section not in impact_report.PATCH_REQUEST_SECTIONS:
+        raise ImpactInputError("section must be summary, changes, obligations, findings, state_dependencies, recommended_checks or uncertainties")
+    if type(request.page_size) is not int or not 1 <= request.page_size <= MAX_ROWS:
+        raise ImpactInputError(f"page_size must be an integer from 1 to {MAX_ROWS}")
+    if request.cursor is not None:
+        if request.section == "summary":
+            raise ImpactInputError("summary has no cursor; choose an evidence section for retrieval")
+        if not isinstance(request.cursor, str) or not request.cursor:
+            raise ImpactInputError("cursor must be nonempty bounded text or null")
+        try:
+            impact_report.decode_cursor(request.cursor, sections=impact_report.PATCH_SECTIONS)
+        except impact_report.ReportError as exc:
+            raise ImpactInputError(str(exc)) from exc
+    if request.coverage_evidence is not None:
+        from amu.observed_tests import relative_path
+        relative_path(request.coverage_evidence)
+    try:
+        validate_check_spec(request.check_spec)
+    except CheckSpecError as exc:
+        raise ImpactInputError(str(exc)) from exc
+    try:
+        parse_diff(request.patch)
+    except PatchError as exc:
+        raise ImpactInputError(str(exc)) from exc
 
 
 def _bytes(value: str, field: str, maximum: int) -> None:
@@ -179,8 +235,39 @@ def _declarations(tree: ast.AST) -> list[tuple[str, ast.AST, int, int, int]]:
     return declarations
 
 
+def _direct_parameter_calls(node: ast.AST) -> set[ast.Call]:
+    """Match direct calls to named parameters within each named function body.
+
+    This syntax check covers positional-only, positional and keyword-only
+    parameters of ``def`` and ``async def`` declarations. Each nested named
+    function is checked against its own parameters. Calls in nested classes,
+    lambdas, comprehensions, decorators, defaults and annotations are not
+    attributed to an enclosing parameter. Bindings and rebinding are not
+    resolved.
+    """
+    calls: set[ast.Call] = set()
+    nested_scopes = (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda,
+                     ast.ListComp, ast.SetComp, ast.DictComp, ast.GeneratorExp)
+    for scope in ast.walk(node):
+        if not isinstance(scope, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        parameters = {arg.arg for arg in (*scope.args.posonlyargs, *scope.args.args, *scope.args.kwonlyargs)}
+        if not parameters:
+            continue
+        pending = list(scope.body)
+        while pending:
+            child = pending.pop()
+            if isinstance(child, nested_scopes):
+                continue
+            if isinstance(child, ast.Call) and isinstance(child.func, ast.Name) and child.func.id in parameters:
+                calls.add(child)
+            pending.extend(ast.iter_child_nodes(child))
+    return calls
+
+
 def _boundaries(node: ast.AST) -> list[dict]:
     result = []
+    parameter_calls = _direct_parameter_calls(node)
     for child in ast.walk(node):
         if isinstance(child, (ast.Import, ast.ImportFrom)):
             names = [name.name for name in child.names]
@@ -191,6 +278,9 @@ def _boundaries(node: ast.AST) -> list[dict]:
         function = child.func
         if isinstance(function, ast.Name) and function.id in {"getattr", "setattr", "eval", "exec", "__import__", "globals", "locals"}:
             result.append({"kind": "dynamic-call", "line": child.lineno, "reason": f"{function.id} may change or resolve runtime targets"})
+        elif child in parameter_calls:
+            result.append({"kind": "indirect-call", "line": child.lineno,
+                           "reason": "direct call by a function-parameter name has an unresolved runtime target; local rebinding is not resolved"})
         elif isinstance(function, ast.Attribute):
             if function.attr in {"import_module", "load_module"}:
                 reason, kind = "dynamic import needs runtime resolution", "dynamic-import"
@@ -206,6 +296,7 @@ _LIMITATIONS = [
     "The proposed change is intent only; it has not been applied or executed.",
     "Rows describe current source-derived dependencies, not proof that a listed caller will break.",
     "Static source analysis cannot guarantee runtime impact; reflection, dispatch, generated code, native boundaries and feature flags can hide relationships.",
+    "Direct calls by positional-only, positional and keyword-only parameter names in def/async def bodies are tagged as unresolved runtime targets, not defects. Rebinding, aliases, forwarding and nested lambda/comprehension calls are not resolved.",
     "A zero-edge query is not proof that a change is safe. This operation does not call a model, import application modules, apply the proposal or run project tests/builds. Native Git/graph tools are not an OS sandbox.",
     "The graph provider may update its local cache; this operation does not save AMU maps, plans, contracts, history or workspace registrations.",
 ]
@@ -296,3 +387,761 @@ def execute(repo: str, request: ImpactRequest) -> dict:
     except (mapping.GraphDataError, state.StateReadError, state.SchemaError, RecursionError) as exc:
         return packet(target, status="uncertain", reasons=[str(exc) or "graph evidence could not be verified"],
                        evidence={"live_worktree": True, "provider_reported_coverage_complete": False}, boundaries=boundaries)
+
+
+MAX_TEST_FILES = 200
+MAX_GRAPH_TARGETS = 8
+_PATCH_LIMITATIONS = [
+    "The diff was applied exactly in memory to live working-tree bytes; HEAD is an anchor, not a claim that those bytes equal the commit.",
+    "Observed syntax and established source references are distinct from inferred behavioral risks. No regression or safety is proved by this inspection.",
+    "No candidate module was imported, executed or written. Execution authorization is a separate operation.",
+    "Existing-test recommendations inspect at most 200 baseline Python test files. Bounded direct calls, arguments and assertions may support a behavioral check target; source paths alone do not prove execution or coverage. Dynamic dispatch, rebinding, inheritance and descriptors remain unresolved.",
+    "Markdown changes are recorded with exact content identity; Python behavioral analysis does not cover Markdown prose or fenced code.",
+    "Optional provider relationships describe the baseline source only. The graph provider may update its local cache; native tools are not an OS sandbox.",
+    "Retrieve all relevant sections and complete fragments from the same report before relying on detailed evidence.",
+]
+
+
+def _absent_source(root: Path, relative: str) -> None:
+    """Pin existing parent directories and establish an absent addition target."""
+    if not all(hasattr(os, name) for name in ("O_NOFOLLOW", "O_DIRECTORY", "O_NONBLOCK")):
+        raise ImpactInputError("secure source inspection is unavailable on this host")
+    descriptors, links = [], []
+    try:
+        parent = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        descriptors.append(parent)
+        root_identity = _identity(os.fstat(parent))[:2]
+        parts = PurePosixPath(relative).parts
+        for part in parts[:-1]:
+            child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent)
+            descriptors.append(child)
+            links.append((parent, part, _identity(os.fstat(child))[:2]))
+            parent = child
+        try:
+            os.stat(parts[-1], dir_fd=parent, follow_symlinks=False)
+        except FileNotFoundError:
+            pass
+        else:
+            raise ImpactInputError("addition target already exists, including a symbolic link")
+        for directory, name, identity in links:
+            current = os.stat(name, dir_fd=directory, follow_symlinks=False)
+            if not stat.S_ISDIR(current.st_mode) or _identity(current)[:2] != identity:
+                raise ImpactInputError("source directory changed during inspection; retry")
+        if _identity(root.lstat())[:2] != root_identity:
+            raise ImpactInputError("repository changed during inspection; retry")
+    except OSError as exc:
+        raise ImpactInputError("addition requires existing nonsymlink parent directories inside repo") from exc
+    finally:
+        for descriptor in reversed(descriptors):
+            os.close(descriptor)
+
+
+def _python_inventory(root: Path, *, production: bool = False) -> tuple[list[str], bool]:
+    """Bound directory traversal, skipping managed/build and symlink trees."""
+    from amu.plan import _is_test_path
+
+    pending, paths, visited = [([], _identity(root.stat())[:2])], [], 0
+    ignored = {".git", ".amu", ".entire", ".venv", "venv", "node_modules", "__pycache__", "dist", "build"}
+    while pending:
+        parts, expected_identity = pending.pop()
+        descriptors = []
+        try:
+            descriptor = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+            descriptors.append(descriptor)
+            for part in parts:
+                descriptor = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=descriptor)
+                descriptors.append(descriptor)
+            if _identity(os.fstat(descriptor))[:2] != expected_identity:
+                raise ImpactInputError("test directory changed during inspection; retry")
+            entries = []
+            with os.scandir(descriptor) as scan:
+                for entry in scan:
+                    visited += 1
+                    if visited > 10000:
+                        return sorted(paths), False
+                    entries.append(entry)
+            entries.sort(key=lambda entry: entry.name)
+            for entry in entries:
+                if entry.is_symlink():
+                    continue
+                if entry.is_dir(follow_symlinks=False) and not entry.name.startswith(".") and entry.name not in ignored:
+                    pending.append(([*parts, entry.name], _identity(entry.stat(follow_symlinks=False))[:2]))
+                elif entry.is_file(follow_symlinks=False) and entry.name.endswith(".py"):
+                    relative = "/".join([*parts, entry.name])
+                    if _is_test_path(relative) != production:
+                        paths.append(relative)
+                        limit = 512 if production else MAX_TEST_FILES
+                        if len(paths) > limit:
+                            return sorted(paths[:limit]), False
+        except OSError as exc:
+            raise ImpactInputError("test inventory changed or became unreadable during inspection") from exc
+        finally:
+            for descriptor in reversed(descriptors):
+                os.close(descriptor)
+    return sorted(paths), True
+
+
+def _test_inventory(root: Path) -> tuple[list[str], bool]:
+    return _python_inventory(root)
+
+
+def _python_tree(text: str, path: str) -> ast.AST:
+    try:
+        if "\x00" in text:
+            raise ValueError("NUL in source")
+        encoding, _ = tokenize.detect_encoding(io.BytesIO(text.encode("utf-8")).readline)
+        if codecs.lookup(encoding).name != "utf-8":
+            raise ValueError("only declared UTF-8 source is supported")
+        tree = ast.parse(text, filename=path)
+        _declarations(tree)
+        return tree
+    except (SyntaxError, ValueError, LookupError, RecursionError, MemoryError) as exc:
+        raise ImpactInputError(f"{path} is not safely parseable bounded UTF-8 Python") from exc
+
+
+def _markdown_text(text: str, path: str) -> None:
+    """Accept ordinary UTF-8 LF prose, without interpreting fenced code."""
+    if any((ord(char) < 32 and char not in "\n\t") or ord(char) == 127 for char in text):
+        raise ImpactInputError(f"{path} must be ordinary UTF-8 LF Markdown without controls")
+
+
+def _source_path_present_or_unsafe(root: Path, relative: str) -> bool:
+    """Check an alternative import path without following links or reading it.
+
+    A symlink or inaccessible parent is ambiguous, never proof of absence.
+    Recheck every established absence before returning a report.
+    """
+    if not all(hasattr(os, name) for name in ("O_NOFOLLOW", "O_DIRECTORY")):
+        raise ImpactInputError("secure source inspection is unavailable on this host")
+    descriptors = []
+    try:
+        parent = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        descriptors.append(parent)
+        parts = PurePosixPath(relative).parts
+        for part in parts[:-1]:
+            try:
+                parent = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent)
+            except FileNotFoundError:
+                return False
+            except OSError:
+                return True
+            descriptors.append(parent)
+        try:
+            os.stat(parts[-1], dir_fd=parent, follow_symlinks=False)
+        except FileNotFoundError:
+            return False
+        except OSError:
+            return True
+        return True
+    except OSError as exc:
+        raise ImpactInputError("repository identity changed during import-path inspection; retry") from exc
+    finally:
+        for descriptor in reversed(descriptors):
+            os.close(descriptor)
+
+
+def _inert_initializer_bindings(tree: ast.Module) -> set[str]:
+    """Inspect ordinary explicit imports without executing initializer code.
+
+    Other exported names do not compete with an unbound submodule name.
+    Wildcards and executable export machinery remain unresolved.
+    """
+    bound = set()
+    for node in tree.body:
+        if isinstance(node, ast.Pass) or isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant) and isinstance(node.value.value, str):
+            continue
+        if (isinstance(node, ast.Assign) and len(node.targets) == 1
+                and isinstance(node.targets[0], ast.Name) and node.targets[0].id == "__version__"
+                and isinstance(node.value, ast.Constant) and isinstance(node.value.value, str)):
+            bound.add("__version__")
+            continue
+        if isinstance(node, (ast.Import, ast.ImportFrom)) and all(alias.name != "*" for alias in node.names):
+            bound.update(alias.asname or alias.name.split(".")[0] for alias in node.names)
+            continue
+        raise ImpactInputError("package initializer contains executable or binding statements")
+    return bound
+
+
+def _verified_package_submodules(root: Path, affected: dict[str, set[str]], tests: list[dict],
+                                 snapshots: dict, changed_paths: set[str], total_bytes: int) -> tuple[dict, list, list, int, list]:
+    """Resolve ``from package import module`` only for an inert baseline initializer.
+
+    The package initializer and test imports are read as syntax, never imported.
+    An initializer changed by the candidate cannot establish the same path.
+    """
+    from amu.patch import MAX_TOTAL_SOURCE_BYTES
+
+    imports = {(node.module, alias.name) for source in tests for node in source["tree"].body
+               if isinstance(node, ast.ImportFrom) and node.level == 0 and node.module
+               for alias in node.names if alias.name != "*"}
+    verified, sources, unresolved, initializer_results = {}, [], [], {}
+    absent_competitors, unresolved_keys = set(), set()
+    for target_path in sorted(affected):
+        target = PurePosixPath(target_path)
+        if target.suffix != ".py" or target.name == "__init__.py" or target.parent == PurePosixPath("."):
+            continue
+        parts = target.parent.parts
+        module = ".".join(parts[1:] if parts[0] == "src" else parts)
+        key = (module, target.stem)
+        if key not in imports:
+            continue
+        initializer = (target.parent / "__init__.py").as_posix()
+        module_path = PurePosixPath(*(target.parts[1:] if target.parts[0] == "src" else target.parts))
+        competitors = sorted({module_path.as_posix(), (PurePosixPath("src") / module_path).as_posix(),
+                              (module_path.with_suffix("") / "__init__.py").as_posix(),
+                              (PurePosixPath("src") / module_path.with_suffix("") / "__init__.py").as_posix()}
+                             - {target_path})
+        changed_competitors = [path for path in competitors if path in changed_paths]
+        existing_competitors = [path for path in competitors if _source_path_present_or_unsafe(root, path)]
+        if changed_competitors:
+            reason = "another package-submodule path changes in the candidate"
+        elif existing_competitors:
+            reason = "another repository path could provide this package submodule"
+        elif snapshots.get(target_path, (None,))[0] is None:
+            reason = "target module has no baseline source"
+        elif initializer in changed_paths:
+            reason = "package initializer changes in the candidate"
+        else:
+            if initializer not in initializer_results:
+                try:
+                    payload, source_identity = _source(root, initializer)
+                    previous = snapshots.get(initializer)
+                    if previous is not None and previous != (payload, source_identity):
+                        raise ImpactInputError("package initializer or test evidence changed during inspection; retry")
+                    if previous is None and total_bytes + len(payload) > MAX_TOTAL_SOURCE_BYTES:
+                        raise ImpactInputError("combined source byte budget exhausted")
+                    tree = _python_tree(payload.decode("utf-8"), initializer)
+                    bound = _inert_initializer_bindings(tree)
+                except (ImpactInputError, UnicodeError) as exc:
+                    if isinstance(exc, ImpactInputError) and "changed during inspection" in str(exc):
+                        raise
+                    initializer_results[initializer] = (str(exc), set())
+                else:
+                    initializer_results[initializer] = (None, bound)
+                    snapshots[initializer] = (payload, source_identity)
+                    if previous is None:
+                        total_bytes += len(payload)
+                    sources.append({"path": initializer, "sha256": hashlib.sha256(payload).hexdigest()})
+            reason, bound = initializer_results[initializer]
+            if reason is None and target.stem in bound:
+                reason = "package initializer binds the imported submodule name"
+            if reason is None:
+                verified[key] = target_path
+                absent_competitors.update(competitors)
+                continue
+        if key not in unresolved_keys:
+            unresolved.append({"import": f"from {module} import {target.stem}", "reason": reason})
+            unresolved_keys.add(key)
+    return verified, sources, unresolved, total_bytes, sorted(absent_competitors)
+
+
+def _compute_patch(repo: str, request: PatchRequest, *, snapshot_key=None) -> dict:
+    """Inspect a concrete diff and relevant existing test syntax, without execution."""
+    from amu.change_analysis import analyze_python_change
+    from amu.check_drafts import CheckSpecError, propose
+    from amu.input_suggestions import MAX_PER_REPORT as MAX_INPUT_SUGGESTIONS_PER_REPORT
+    from amu.patch import MAX_TOTAL_SOURCE_BYTES, PYTHON_SUFFIXES, PatchError, apply_file, digest, parse_diff
+    from amu.patch_roles import file_role, test_declarations, test_provenance
+    from amu.plan import _is_test_path, patch_source_call_edges, patch_test_recommendations
+
+    validate_patch_request(request)
+    root = _repo(repo)
+    root_identity = _identity(root.stat())[:2]
+    head = state.git_head(str(root))
+    if request.base != "worktree" and (head == "no-git" or request.base not in {"HEAD", head}):
+        raise ImpactInputError("base does not identify the current Git HEAD; use worktree for a source-only baseline")
+    files = parse_diff(request.patch)
+    observed_status = None
+    observed_data, observed_source = {}, {}
+    if request.coverage_evidence is not None:
+        from amu import observed_tests
+        observed_data, observed_source, observed_status = observed_tests.load(root, request.coverage_evidence)
+    groups = {section: [] for section in sorted(impact_report.PATCH_SECTIONS)}
+    snapshots, file_identities, affected, graph_targets, declarations = {}, [], {}, [], {}
+    source_trees, file_coverage, candidate_trees = {}, [], {}
+    total_bytes = 0
+    role_config, role_config_identity = {}, None
+    role_config_absent = not _source_path_present_or_unsafe(root, "pyproject.toml")
+    if not role_config_absent:
+        import tomllib
+
+        payload, config_identity = _source(root, "pyproject.toml")
+        snapshots["pyproject.toml"] = (payload, config_identity)
+        total_bytes += len(payload)
+        role_config_identity = {"path": "pyproject.toml", "sha256": hashlib.sha256(payload).hexdigest()}
+        try:
+            tool = tomllib.loads(payload.decode("utf-8")).get("tool", {})
+            pytest_options = tool.get("pytest", {}).get("ini_options", {})
+            packages = tool.get("setuptools", {}).get("packages", {})
+            includes = packages.get("find", {}).get("include", []) if isinstance(packages, dict) else []
+            for key, values in (("testpaths", pytest_options.get("testpaths", [])), ("package_include", includes)):
+                if isinstance(values, list) and all(isinstance(value, str) for value in values):
+                    role_config[key] = values
+        except (ValueError, UnicodeError, AttributeError):
+            groups["uncertainties"].append({"path": "pyproject.toml", "reason": "Role configuration could not be interpreted; convention-based classification remains inferred."})
+    for file in files:
+        python_file = PurePosixPath(file.path).suffix in PYTHON_SUFFIXES
+        if file.operation == "add":
+            _absent_source(root, file.path)
+            before, source_identity = None, None
+            snapshots[file.path] = (None, None)
+        else:
+            payload, source_identity = _source(root, file.path)
+            total_bytes += len(payload)
+            try:
+                before = payload.decode("utf-8")
+            except UnicodeError as exc:
+                kind = "Python source" if python_file else "Markdown"
+                raise ImpactInputError(f"{file.path} must be UTF-8 {kind}") from exc
+            snapshots[file.path] = (payload, source_identity)
+            if not python_file:
+                _markdown_text(before, file.path)
+        try:
+            after = apply_file(file, before)
+        except PatchError as exc:
+            raise ImpactInputError(str(exc)) from exc
+        total_bytes += len(after.encode("utf-8")) if after is not None else 0
+        if total_bytes > MAX_TOTAL_SOURCE_BYTES:
+            raise ImpactInputError("combined baseline and candidate source exceeds its byte limit")
+        if python_file:
+            before_tree = _python_tree(before, file.path) if before is not None else None
+            candidate_trees[file.path] = _python_tree(after, file.path) if after is not None else None
+            if before_tree is not None:
+                source_trees[file.path] = {"tree": before_tree, "sha256": digest(before)}
+            analysis = analyze_python_change(file.path, before, after)
+            declarations.update(analysis.get("recommendation_entities", {}))
+            changed_ids = {row["id"] for row in analysis["modified_entities"]}
+            analysis["state_dependencies"] = [row for row in analysis["state_dependencies"]
+                                               if row.get("state_id") in changed_ids or row.get("consumer_id") in changed_ids]
+            groups["changes"].extend(analysis["modified_entities"])
+            for section in ("findings", "obligations", "state_dependencies"):
+                groups[section].extend(analysis[section])
+            groups["uncertainties"].extend({"path": file.path, **row} for row in analysis["uncertainties"])
+            for entity in analysis["modified_entities"]:
+                name = entity["qualified_name"]
+                affected.setdefault(file.path, set()).add(name)
+                if (before is not None and entity.get("before_location") and "@" not in entity["id"]
+                        and entity["kind"] in {"function", "async_function", "class", "method"}):
+                    graph_targets.append(entity["id"])
+            for consumer in analysis["state_dependencies"]:
+                consumer_id = consumer.get("consumer_id", "")
+                if "#" in consumer_id:
+                    path, name = consumer_id.split("#", 1)
+                    affected.setdefault(path, set()).add(name)
+            file_coverage.append({"path": file.path, "file_type": "python", "analysis": "python-syntax"})
+        else:
+            if after is not None:
+                _markdown_text(after, file.path)
+            groups["changes"].append({"id": file.path, "path": file.path, "kind": "markdown",
+                                      "change": file.operation, "analysis": "content-only", "hunks": len(file.hunks),
+                                      "baseline_sha256": digest(before), "candidate_sha256": digest(after)})
+            file_coverage.append({"path": file.path, "file_type": "markdown", "analysis": "content-only",
+                                  "limitation": "Python behavioral analysis does not cover this Markdown content."})
+        file_identities.append({"path": file.path, "operation": file.operation,
+                                "baseline_sha256": digest(before), "candidate_sha256": digest(after)})
+    inventory, complete = _test_inventory(root)
+    tests, test_hashes, unavailable_tests = [], [], []
+    for path in inventory:
+        payload, identity = _source(root, path)
+        total_bytes += len(payload)
+        if total_bytes > MAX_TOTAL_SOURCE_BYTES:
+            groups["uncertainties"].append({"reason": "test-source byte budget exhausted; additional tests were not inspected"})
+            complete = False
+            break
+        if path in snapshots and snapshots[path] != (payload, identity):
+            raise ImpactInputError("changed test source no longer matches the patch baseline; retry")
+        snapshots[path] = (payload, identity)
+        sha = hashlib.sha256(payload).hexdigest()
+        test_hashes.append({"path": path, "sha256": sha})
+        try:
+            tree = _python_tree(payload.decode("utf-8"), path)
+        except (UnicodeError, ImpactInputError) as exc:
+            groups["uncertainties"].append({"path": path, "reason": str(exc)})
+            unavailable_tests.append({"path": path, "reason": str(exc)})
+            continue
+        tests.append({"path": path, "tree": tree, "sha256": sha})
+    if not complete:
+        groups["uncertainties"].append({"reason": "test inventory is incomplete within bounded directory/file/byte limits"})
+    roles, provenance = {}, {}
+    test_status_counts = dict.fromkeys(("unchanged", "modified", "added", "removed"), 0)
+    for file in files:
+        before_tree = source_trees.get(file.path, {}).get("tree")
+        after_tree = candidate_trees.get(file.path)
+        roles[file.path] = file_role(file.path, before_tree, after_tree, tests, role_config)
+        old, new = test_declarations(before_tree), test_declarations(after_tree)
+        for name in sorted(old.keys() | new.keys()):
+            item = test_provenance(old.get(name), new.get(name), changed_file=True)
+            provenance[f"{file.path}#{name}"] = item
+            test_status_counts[item["status"]] += 1
+    for section in ("changes", "findings", "obligations"):
+        for row in groups[section]:
+            entity_id = row.get("entity_id") or row.get("id", "")
+            path = row.get("path") or entity_id.split("#", 1)[0]
+            row["source_role"] = roles[path]
+            if entity_id in provenance:
+                if section == "changes":
+                    row["test_provenance"] = provenance[entity_id]
+                else:
+                    row["test_change"] = {"entity_id": entity_id, "status": provenance[entity_id]["status"],
+                                          "details_section": "changes"}
+    for row in file_coverage:
+        row["source_role"] = roles[row["path"]]
+    # Expression identities alone survive an unrelated patch edit. Bind every
+    # selectable input to the complete patch, source pair, and rule/configuration
+    # context before resolving check specifications or applying report budgets.
+    patch_sha256 = hashlib.sha256(request.patch.encode()).hexdigest()
+    for obligation in groups["obligations"]:
+        suggestions = obligation.get("input_suggestions", [])
+        if not suggestions:
+            continue
+        path = obligation["entity_id"].split("#", 1)[0]
+        binding = {"patch_sha256": patch_sha256,
+                   "source": next(row for row in file_identities if row["path"] == path),
+                   "configuration_sha256": (role_config_identity or {}).get("sha256"),
+                   "rules": "bounded-input-probes-v1"}
+        obligation["input_suggestion_identity"] = binding
+        for suggestion in suggestions:
+            digest = hashlib.sha256(impact_report._encode({"expression_id": suggestion["id"],
+                                                           "binding": binding})).hexdigest()[:16]
+            suggestion["id"] = obligation["id"] + ":input:" + digest
+    ranked_suggestions = sorted(((obligation, suggestion)
+                                 for obligation in groups["obligations"]
+                                 for suggestion in obligation.get("input_suggestions", [])),
+                                key=lambda pair: (pair[0]["source_role"].get("role") != "production",
+                                                  not pair[1]["distinguishes_expressions"],
+                                                  pair[1]["probe_status"] != "complete-source-bound-invocation",
+                                                  pair[1].get("applicability") == "type-uncertain-exploratory",
+                                                  pair[0]["entity_id"], pair[1]["id"]))
+    retained_ids = {suggestion["id"] for _, suggestion in ranked_suggestions[:MAX_INPUT_SUGGESTIONS_PER_REPORT]}
+    suggestion_omissions = sum(row.get("omitted_input_suggestions", 0) for row in groups["obligations"])
+    for obligation in groups["obligations"]:
+        suggestions = obligation.get("input_suggestions", [])
+        if not suggestions:
+            continue
+        retained = [row for row in suggestions if row["id"] in retained_ids]
+        omitted = len(suggestions) - len(retained)
+        suggestion_omissions += omitted
+        if retained:
+            obligation["input_suggestions"] = retained
+        else:
+            obligation.pop("input_suggestions")
+        if omitted:
+            obligation["omitted_input_suggestions"] = obligation.get("omitted_input_suggestions", 0) + omitted
+    verified_submodules, resolution_sources, unresolved_imports, total_bytes, resolution_absences = _verified_package_submodules(
+        root, affected, tests, snapshots, {file.path for file in files}, total_bytes)
+    source_calls, source_call_limits = patch_source_call_edges(source_trees, declarations)
+    # Inspect bounded production source as data, using the same secure reads
+    # and final snapshot checks as patch/test evidence. Unchanged dependencies
+    # participate in report identity; no cross-request summary cache exists.
+    from amu.value_flow import VERSION, analyze_repository, merge_test_evidence
+
+    production_inventory, production_complete = _python_inventory(root, production=True)
+    flow_before = dict(source_trees)
+    flow_hashes = []
+    for path in production_inventory:
+        if path not in flow_before:
+            try:
+                payload, source_identity = _source(root, path)
+                if path not in snapshots and total_bytes + len(payload) > MAX_TOTAL_SOURCE_BYTES:
+                    production_complete = False
+                    groups["uncertainties"].append({"reason": "production source byte budget reached; dependency analysis incomplete"})
+                    break
+                tree = _python_tree(payload.decode("utf-8"), path)
+            except (ImpactInputError, UnicodeError) as exc:
+                production_complete = False
+                groups["uncertainties"].append({"path": path, "reason": str(exc)})
+                continue
+            if path in snapshots and snapshots[path] != (payload, source_identity):
+                raise ImpactInputError("dependency changed during inspection; retry")
+            if path not in snapshots:
+                total_bytes += len(payload)
+            snapshots[path] = (payload, source_identity)
+            flow_before[path] = {"tree": tree, "sha256": hashlib.sha256(payload).hexdigest()}
+        flow_hashes.append({"path": path, "sha256": flow_before[path]["sha256"]})
+    flow_before.update({source["path"]: source for source in tests})
+    flow_after = dict(flow_before)
+    for file in files:
+        if file.path in candidate_trees:
+            if candidate_trees[file.path] is None:
+                flow_after.pop(file.path, None)
+            else:
+                flow_after[file.path] = {"tree": candidate_trees[file.path],
+                                        "sha256": next(row["candidate_sha256"] for row in file_identities if row["path"] == file.path)}
+    changed_production_ids = {row["id"] for row in groups["changes"]
+                              if row.get("source_role", {}).get("role") == "production"}
+    from amu.pytest_fixtures import CONFIG_FILES, implicit_setup
+    from amu.semantic import ACTIVE_INDEX
+    from amu.value_flow import Resolver
+
+    fixture_configs = {}
+    for path in CONFIG_FILES:
+        if _source_path_present_or_unsafe(root, path):
+            payload, config_identity = _source(root, path)
+            if path in snapshots and snapshots[path] != (payload, config_identity):
+                raise ImpactInputError("pytest configuration changed during inspection; retry")
+            snapshots[path] = (payload, config_identity)
+            fixture_configs[path] = payload
+        else:
+            snapshots[path] = (None, None)
+    fixture_setup_unresolved = implicit_setup(fixture_configs) or any(
+        os.environ.get(name) for name in ("PYTEST_ADDOPTS", "PYTEST_PLUGINS")
+    )
+    semantic_index = Resolver(flow_before)
+    semantic_index.repository = str(root)
+    graph_records = []
+    if request.include_graph:
+        try:
+            capture = mapping.worktree_fingerprint(str(root), "before concrete patch graph inspection")
+            targets = sorted(set(graph_targets))
+            for symbol in targets[:MAX_GRAPH_TARGETS]:
+                token = ACTIVE_INDEX.set(semantic_index)
+                try:
+                    mapped = mapping.inspect(str(root), mapping.MapRequest(symbol=symbol, depth=request.depth, change="body"))
+                finally:
+                    ACTIVE_INDEX.reset(token)
+                graph_records.append({"symbol": symbol, "map_hash": mapped["map_hash"], "baseline_only": True,
+                                      "graph_evidence": {key: value for key, value in mapped["graph_evidence"].items() if key != "at"}, "relationships": mapped["nodes"],
+                                      "source_resolution": mapped["resolution"]})
+            current = mapping.worktree_fingerprint(str(root), "after concrete patch graph inspection")
+            if capture["head"] != current["head"] or not graph_refresh.relation_capture_matches(capture, current):
+                raise ImpactInputError("worktree changed during graph inspection; retry")
+            if len(targets) > MAX_GRAPH_TARGETS:
+                groups["uncertainties"].append({"reason": "graph target limit reached; some changed entities have no provider query"})
+            if not targets:
+                groups["uncertainties"].append({"reason": "changed state/additions have no supported baseline provider declaration target"})
+        except (mapping.GraphDataError, state.StateReadError, state.SchemaError, RecursionError) as exc:
+            groups["uncertainties"].append({"reason": str(exc) or "graph provider evidence unavailable"})
+        groups["uncertainties"].extend({"kind": "baseline-provider-evidence", **record} for record in graph_records)
+    else:
+        groups["uncertainties"].append({"reason": "provider graph was not requested; relationships are limited to supported source syntax"})
+    from amu.semantic import normalized_id
+    provider_candidates = []
+    for record in graph_records:
+        evidence = record["graph_evidence"]
+        uncertain = evidence.get("unverified_python_calls", [])
+        if uncertain:
+            evidence["approvable"] = False
+        for node in record["relationships"]:
+            if any(u.get("endpoint") == node.get("symbol") for u in uncertain):
+                node["confidence"] = "unresolved"
+                node["identity_status"] = "source-unverified"
+        for edge in evidence.get("edge_baselines", {}).get(record["symbol"], []):
+            if edge.get("direction") == "in" and edge.get("relation") == "CALLS":
+                provider_candidates.append({"source_id": normalized_id(semantic_index, record["symbol"]), "consumer_id": normalized_id(semantic_index, edge["related"]),
+                                            "status": "candidate", "map_hash": record["map_hash"]})
+    groups["recommended_checks"] = patch_test_recommendations(
+        tests, affected, declarations=declarations, state_dependencies=groups["state_dependencies"],
+        source_calls=source_calls, verified_submodules=verified_submodules,
+        obligations=groups["obligations"], source_trees=source_trees)
+    flow = analyze_repository(flow_before, flow_after, changed_production_ids, provider_candidates=provider_candidates,
+                              fixture_setup_unresolved=fixture_setup_unresolved)
+    groups["uncertainties"].extend(flow["uncertainties"])
+    if not production_complete:
+        groups["uncertainties"].append({"reason": "production inventory/dependency analysis incomplete within 512-file and shared source-byte limits"})
+    groups["recommended_checks"] = merge_test_evidence(groups["recommended_checks"], flow, tests, groups["obligations"])
+    for entity_id in sorted(changed_production_ids):
+        relationships = [row for row in flow["relationships"] if row["source_id"] == entity_id]
+        summary_change = next((row for row in flow["summary_changes"] if row["entity_id"] == entity_id), None)
+        if relationships or summary_change:
+            groups["findings"].append({"id": entity_id + ":value-flow", "entity_id": entity_id,
+                "category": "value_flow", "source_role": roles[entity_id.split("#", 1)[0]],
+                "observation": "Supported source calls and return/exception consumers were inspected in both snapshots.",
+                "summary_change": summary_change, "downstream_relationships": relationships,
+                "potential_effect": "A changed value or identified exception may reach the located operation, subject to the listed guard or handler. Static reachability is not a reproduced regression.",
+                "verification": "Inspect related baseline assertions; execute only separately authorized checks.",
+                "uncertainties": ["Unresolved dispatch, decorators, mutation and unsupported control flow stop composition."]})
+    for obligation in groups["obligations"]:
+        entity_id = obligation.get("entity_id")
+        paths = [row for row in flow["relationships"] if row["source_id"] == entity_id]
+        if paths:
+            # Keep the detailed located evidence in one retrievable finding.
+            obligation["flow_evidence"] = {"finding_id": entity_id + ":value-flow",
+                                           "details_section": "findings", "relationship_count": len(paths)}
+    for check in groups["recommended_checks"]:
+        path, *names = check["test_id"].split("::")
+        key = path + "#" + ".".join(names)
+        source = next(item for item in tests if item["path"] == path)
+        node = test_declarations(source["tree"]).get(".".join(names))
+        check["test_provenance"] = provenance.get(key) or test_provenance(node, node)
+        for association in check["associations"]:
+            for evidence in association.get("obligation_evidence", []):
+                evidence["evidence_category"] = {
+                    "input-and-assertion": "supported-behavior-related-assertion",
+                    "assertion": "supported-behavior-related-assertion", "input": "supported-input",
+                    "unresolved": "unresolved-relationship",
+                }.get(evidence["level"], "supported-source-path-only" if association.get("resolution") == "resolved" else "broad-reference")
+    if observed_status is not None:
+        observed, unobserved = observed_tests.recommendations(
+            observed_data, observed_source, groups["changes"],
+            aggregate_classes=observed_tests.aggregate_class_changes(source_trees, candidate_trees, groups["changes"]))
+        observed_tests.merge(groups["recommended_checks"], observed)
+        observed_status.update(prioritized_tests=len(observed), unobserved_entities=unobserved)
+        groups["uncertainties"].append({"kind": "observed-execution-limit", "reason": observed_tests.LIMITATION,
+                                      "status": observed_status["status"]})
+    groups["uncertainties"].extend({"path": row["path"], "test_id": row["test_id"],
+                                   "reason": row["behavioral_analysis_limit"]}
+                                  for row in groups["recommended_checks"] if row.get("behavioral_analysis_limit"))
+    for obligation in groups["obligations"]:
+        entity_id = obligation["entity_id"]
+        obligation["source_consumers"] = sorted({row["consumer_id"] for row in groups["state_dependencies"]
+                                                  if row.get("state_id") == entity_id and row.get("phase") == "after"})
+        linked = []
+        for test in groups["recommended_checks"]:
+            for association in test.get("associations", []):
+                for evidence in association.get("obligation_evidence", []):
+                    if evidence.get("obligation_id") == obligation["id"]:
+                        linked.append({"test_id": test["test_id"], "level": evidence.get("level"),
+                                       "reason": evidence.get("reason"),
+                                       "evidence_category": evidence.get("evidence_category"),
+                                       "test_status": test["test_provenance"]["status"],
+                                       "evidence_phase": "before"})
+        ranks = {"input-and-assertion": 0, "assertion": 1, "input": 2, "broad": 3, "unresolved": 4}
+        linked = sorted({(item["test_id"], item["level"]): item for item in linked}.values(),
+                        key=lambda item: (ranks.get(item["level"], 4), item["test_id"]))
+        spans = obligation.get("after") or obligation.get("before") or []
+        location = spans[0].get("location", {}) if spans else {}
+        observation = obligation["observable"].get("detail") or obligation["observable"].get("kind")
+        obligation["verification_plan"] = {
+            "existing_baseline_tests": linked,
+            "candidate_added_test_files": sorted(file.path for file in files if file.operation == "add"
+                                                 and file.path.endswith(".py") and _is_test_path(file.path)),
+            "proposed_input": (first["invocation"]["kwargs"] if (suggestions := obligation.get("input_suggestions"))
+                               and (first := suggestions[0])["probe_status"] == "complete-source-bound-invocation"
+                               else None),
+            "input_suggestion_ids": [row["id"] for row in obligation.get("input_suggestions", [])],
+            "observe": obligation["observable"],
+            "strongest_evidence": linked[0]["evidence_category"] if linked else "unresolved-relationship",
+            "next_step": f"Inspect {entity_id} at line {location.get('line', '?')}; trace {observation} into an assertion for the same call and changed condition.",
+            "unresolved": sorted({item["reason"] for item in linked if item.get("level") in {"broad", "unresolved", "input"}})
+                or (["No behavior-related baseline assertion was established; this does not prove that no suitable test exists."]
+                    if not linked else ["Static assertion evidence does not establish runtime reachability or the intended contract."]),
+            "expectation": None, "expectation_basis": "unresolved-hypothesis",
+            "execution_status": "not-run",
+            "note": "Review the intended contract before interpreting a difference as a regression; test execution requires separate authorization.",
+        }
+    selected_check = request.check_spec
+    check_matched = selected_check is None
+    for obligation in groups["obligations"]:
+        if obligation.get("source_role", {}).get("role") != "production":
+            continue
+        path = obligation["entity_id"].split("#", 1)[0]
+        if selected_check is not None and selected_check["obligation_id"] == obligation["id"]:
+            check_matched = True
+            file_identity = next(row for row in file_identities if row["path"] == path)
+            try:
+                obligation["proposed_check"] = propose(
+                    obligation, selected_check, baseline_tree=source_trees.get(path, {}).get("tree"),
+                    candidate_tree=candidate_trees.get(path), tests=tests, file_identity=file_identity,
+                    patch_sha256=hashlib.sha256(request.patch.encode()).hexdigest(),
+                    config_sha256=(role_config_identity or {}).get("sha256"),
+                    search_scope={"test_inventory_complete": complete, "baseline_test_files_inspected": len(tests),
+                                  "unavailable_baseline_test_files": len(unavailable_tests),
+                                  "source_call_search_limits": len(source_call_limits)})
+            except CheckSpecError as exc:
+                raise ImpactInputError(str(exc)) from exc
+    if not check_matched:
+        raise ImpactInputError("check_spec obligation_id does not identify a production obligation in this patch")
+    for finding in groups["findings"]:
+        entity_id = finding.get("entity_id")
+        finding["recommended_test_ids"] = [test["test_id"] for test in groups["recommended_checks"]
+                                           if entity_id in test["entities"]]
+        # Keep containing-class candidates visible without placing them in the
+        # member's dependency list. The detailed association carries provenance
+        # and explicitly unresolved member-path semantics.
+        finding["broad_class_test_ids"] = [test["test_id"] for test in groups["recommended_checks"]
+                                           if test["test_id"] not in finding["recommended_test_ids"] and any(
+                                               a["relationship"] == "broad-class-reference"
+                                               and entity_id and entity_id.startswith(a["entity_id"] + ".")
+                                               for a in test["associations"])]
+        finding["relationships"] = [{**{key: row[key] for key in ("state_id", "consumer_id", "access", "phase", "location")},
+                                      "evidence_section": "state_dependencies"} for row in groups["state_dependencies"]
+                                     if row.get("state_id") == entity_id or row.get("consumer_id") == entity_id]
+    for finding in groups["findings"]:
+        finding["provider_context"] = [{"symbol": record["symbol"], "map_hash": record["map_hash"],
+                                        "baseline_only": True, "relationship_count": len(record["relationships"]),
+                                        "evidence_section": "uncertainties"}
+                                       for record in graph_records if record["symbol"] == finding.get("entity_id")]
+    for path, (payload, identity) in snapshots.items():
+        if payload is None:
+            _absent_source(root, path)
+        else:
+            current, current_identity = _source(root, path)
+            if current != payload or current_identity != identity:
+                raise ImpactInputError("source or test evidence changed during inspection; retry")
+    if any(_source_path_present_or_unsafe(root, path) for path in resolution_absences):
+        raise ImpactInputError("competing package source path changed during inspection; retry")
+    if role_config_absent and _source_path_present_or_unsafe(root, "pyproject.toml"):
+        raise ImpactInputError("role configuration appeared during inspection; retry")
+    final_inventory, final_complete = _test_inventory(root)
+    if inventory != final_inventory or complete and not final_complete or state.git_head(str(root)) != head or _identity(root.stat())[:2] != root_identity:
+        raise ImpactInputError("repository revision, identity or test inventory changed during inspection; retry")
+    final_production, final_production_complete = _python_inventory(root, production=True)
+    if production_inventory != final_production or production_complete and not final_production_complete:
+        raise ImpactInputError("production dependency inventory changed during inspection; retry")
+    if observed_status is not None:
+        _, _, final_observed = observed_tests.load(root, request.coverage_evidence)
+        if any(final_observed[key] != observed_status[key] for key in ("artifact_sha256", "status")):
+            raise ImpactInputError("coverage evidence or bound source changed during inspection; retry")
+    identity = {"repository": {"path": str(root), "device": root_identity[0], "inode": root_identity[1]},
+                "baseline_kind": "live-worktree", "git_head": None if head == "no-git" else head, "files": file_identities,
+                "file_coverage": file_coverage, "test_sources": test_hashes,
+                "test_sources_sha256": hashlib.sha256(impact_report._encode(test_hashes)).hexdigest(),
+                "test_inventory_sha256": hashlib.sha256("\n".join(inventory).encode()).hexdigest(),
+                "test_inventory_complete": complete, "graph_evidence_sha256": hashlib.sha256(impact_report._encode(graph_records)).hexdigest(),
+                "role_configuration": role_config_identity,
+                "fixture_configuration": {
+                    "source_hashes": {p: hashlib.sha256(v).hexdigest() for p, v in fixture_configs.items()},
+                    "implicit_setup_unresolved": fixture_setup_unresolved,
+                },
+                "test_change_counts": test_status_counts,
+                "input_suggestion_counts": {"retained": len(retained_ids),
+                                            "omitted": suggestion_omissions,
+                                            "per_report_limit": MAX_INPUT_SUGGESTIONS_PER_REPORT},
+                "resolution_sources": resolution_sources,
+                "resolution_absences": resolution_absences,
+                "value_flow": {"version": VERSION, "source_hashes": flow_hashes,
+                               "source_inventory_sha256": hashlib.sha256("\n".join(production_inventory).encode()).hexdigest(),
+                               "inventory_complete": production_complete, "limits": flow["limits"], "steps": flow["steps"],
+                               "summary_cache": "none; recomputed from source and dependencies for every request"},
+                "candidate_test_files": sorted(file.path for file in files if file.path.endswith(".py") and _is_test_path(file.path)),
+                "candidate_existing_test_files": sorted(file.path for file in files if file.operation != "add" and file.path.endswith(".py") and _is_test_path(file.path)),
+                "candidate_added_test_files": sorted(file.path for file in files if file.operation == "add" and file.path.endswith(".py") and _is_test_path(file.path)),
+                "recommendation_scope": {"baseline_test_files_inspected": len(tests), "max_local_call_hops": 2,
+                                         "unresolved_package_imports": unresolved_imports,
+                                         "local_call_limits": source_call_limits,
+                                         "unavailable_baseline_tests": unavailable_tests},
+                "configuration": {"analysis": "python-markdown-concrete-patch-v8", "max_test_files": MAX_TEST_FILES,
+                                  "recommendation_evidence": "behavioral-test-evidence-v6",
+                                  "input_suggestions": "bounded-input-probes-v1",
+                                  "max_graph_targets": MAX_GRAPH_TARGETS, "max_ast_nodes": MAX_AST_NODES, "max_ast_depth": MAX_AST_DEPTH}}
+    if observed_status is not None:
+        identity["observed_execution"] = observed_status
+    from amu import report_store
+    report_store.save(snapshot_key, identity=identity, groups=groups, limitations=_PATCH_LIMITATIONS,
+                      max_bytes=MAX_PACKET_BYTES, max_rows=MAX_ROWS)
+    try:
+        return impact_report.build_patch_packet(asdict(request), identity=identity, groups=groups,
+                                                limitations=_PATCH_LIMITATIONS, max_bytes=MAX_PACKET_BYTES, max_rows=MAX_ROWS)
+    except impact_report.ReportError as exc:
+        raise ImpactInputError(str(exc)) from exc
+
+
+def execute_patch(repo: str, request: PatchRequest) -> dict:
+    """Retrieve an immutable snapshot only after revalidating its entire binding."""
+    from amu import report_store
+    validate_patch_request(request)
+    root = _repo(repo)
+    key = None
+    try:
+        key = report_store.fingerprint(root, request)
+        snapshot = report_store.load(key)
+        if snapshot is not None and report_store.fingerprint(root, request) == key:
+            return impact_report.build_patch_packet(asdict(request), identity=snapshot["identity"],
+                groups=snapshot["groups"], limitations=snapshot["limitations"],
+                max_bytes=snapshot["max_bytes"], max_rows=snapshot["max_rows"])
+    except (OSError, ValueError, state.StateReadError, mapping.GraphDataError):
+        # A cache miss never relaxes the original secure source/freshness checks.
+        key = None
+    if key is not None and report_store.fingerprint(root, request) != key:
+        raise ImpactInputError("source or dependency changed during inspection; test inventory changed or another snapshot binding changed; retry")
+    return _compute_patch(repo, request, snapshot_key=key)

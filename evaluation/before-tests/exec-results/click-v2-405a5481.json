@@ -1,0 +1,89 @@
+{
+ "case_id": "click-v2-405a5481",
+ "record": {
+  "command": [
+   "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/../observed-tests-evaluation-2026-10-13/werkzeug-env/bin/python",
+   "-B",
+   "-m",
+   "pytest",
+   "tests",
+   "--ignore=tests/test_stream_lifecycle.py",
+   "-q",
+   "-p",
+   "no:cacheprovider",
+   "--junitxml=/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/exec/click-v2-405a5481/base.xml",
+   "-o",
+   "addopts=",
+   "-W",
+   "ignore",
+   "-p",
+   "pytest_cov.plugin",
+   "--cov=click",
+   "--cov-context=test",
+   "--cov-report="
+  ],
+  "exit": 0,
+  "seconds": 24.4,
+  "summary": "3035 passed, 25 skipped, 1 xfailed in 23.73s"
+ },
+ "patched": {
+  "command": [
+   "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/../observed-tests-evaluation-2026-10-13/werkzeug-env/bin/python",
+   "-B",
+   "-m",
+   "pytest",
+   "tests",
+   "--ignore=tests/test_stream_lifecycle.py",
+   "-q",
+   "-p",
+   "no:cacheprovider",
+   "--junitxml=/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/exec/click-v2-405a5481/patched.xml",
+   "-o",
+   "addopts=",
+   "-W",
+   "ignore"
+  ],
+  "exit": 0,
+  "seconds": 7.2,
+  "summary": "3035 passed, 25 skipped, 1 xfailed in 6.85s"
+ },
+ "patch_applied": true,
+ "tests_run": 529,
+ "outcome_changed": [],
+ "commit_truth": [],
+ "ranking": {
+  "static": {
+   "top10": [
+    "tests/test_info_dict.py::test_argument_to_info_dict_help",
+    "tests/test_info_dict.py::test_argument_to_info_dict_nargs",
+    "tests/test_info_dict.py::test_parameter",
+    "tests/test_options.py::test_file_type_help_default",
+    "tests/test_shell_completion.py::test_argument_nargs",
+    "tests/test_options.py::test_count_default_type_help",
+    "tests/test_arguments.py::test_deprecated_empty_help_no_leading_space",
+    "tests/test_options.py::test_intrange_default_help_text",
+    "tests/test_options.py::test_multiple_option_with_optional_value",
+    "tests/test_arguments.py::test_deprecated_required"
+   ],
+   "observed": 0,
+   "bytes": 1978,
+   "gaps": []
+  },
+  "coverage": {
+   "top10": [
+    "tests/test_info_dict.py::test_argument_to_info_dict_help",
+    "tests/test_info_dict.py::test_argument_to_info_dict_nargs",
+    "tests/test_info_dict.py::test_parameter",
+    "tests/test_options.py::test_deprecated_empty_help_no_leading_space",
+    "tests/test_info_dict.py::test_command_to_info_dict_multiple_arguments",
+    "tests/test_options.py::test_file_type_help_default",
+    "tests/test_shell_completion.py::test_argument_nargs",
+    "tests/test_info_dict.py::test_command",
+    "tests/test_arguments.py::test_deprecated_empty_help_no_leading_space"
+   ],
+   "observed": 9,
+   "bytes": 1940,
+   "gaps": []
+  }
+ }
+}

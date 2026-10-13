@@ -1,0 +1,5 @@
+{
+  "case_id": "h2-requests-f8bec2f7",
+  "error": "eze':lambda _:freeze(),'freeze-holdout2':lambda _:freeze_holdout2(),'run':run,'worker':worker}[a.action](a)\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^\n  File \"/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/scripts/before_tests_harness.py\", line 181, in worker\n    packet = execute_patch(row['tree'], PatchRequest(patch=patch, base='worktree'))\n  File \"/private/tmp/claude-502/-Users-Abslock128-Documents-ChatGPT-AMU/f7b55dfe-b587-4e07-bace-49a9194bc191/scratchpad/pristine/amu/services/impact.py\", line 1132, in execute_patch\n    validate_patch_request(request)\n    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^\n  File \"/private/tmp/claude-502/-Users-Abslock128-Documents-ChatGPT-AMU/f7b55dfe-b587-4e07-bace-49a9194bc191/scratchpad/pristine/amu/services/impact.py\", line 104, in validate_patch_request\n    raise ImpactInputError(str(exc)) from exc\namu.services.impact.ImpactInputError: patch exceeds its file limit\n",
+  "seconds": 0.09733237500040559
+}

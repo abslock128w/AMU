@@ -1,0 +1,415 @@
+[
+  {
+    "case_id": "01-4da3786f",
+    "function_recall10": 0.0,
+    "file_recall10": 1.0,
+    "function_hits": [],
+    "missing_from_parent": [
+      "tests/test_urls.py::test_uri_empty_auth",
+      "tests/test_urls.py::test_uri_port_0"
+    ],
+    "recommended": 13,
+    "top10": [
+      "tests/test_urls.py::test_iri_to_uri_dont_quote_valid_code_points",
+      "tests/test_urls.py::test_iri_to_uri_idempotence_ascii_only",
+      "tests/test_urls.py::test_iri_to_uri_idempotence_non_ascii",
+      "tests/test_urls.py::test_itms_services",
+      "tests/test_urls.py::test_quoting_of_local_urls",
+      "tests/test_urls.py::test_iri_safe_quoting",
+      "tests/test_urls.py::test_iri_support",
+      "tests/test_urls.py::test_iri_to_uri_to_iri",
+      "tests/test_urls.py::test_uri_iri_normalization",
+      "tests/test_urls.py::test_uri_to_iri_dont_unquote_space"
+    ],
+    "seconds": 5.0717250000016065,
+    "bytes": 13156,
+    "noise10": 10,
+    "wall_seconds": 6.212885666998773
+  },
+  {
+    "case_id": "02-0c419f95",
+    "function_recall10": 1.0,
+    "file_recall10": 1.0,
+    "function_hits": [
+      "tests/test_http.py::TestRange::test_range_parsing"
+    ],
+    "missing_from_parent": [],
+    "recommended": 3,
+    "top10": [
+      "tests/test_datastructures.py::test_range_to_header",
+      "tests/test_http.py::test_range_invalid_int",
+      "tests/test_http.py::TestRange::test_range_parsing"
+    ],
+    "seconds": 7.6660805419996905,
+    "bytes": 12128,
+    "noise10": 2,
+    "wall_seconds": 8.097600916000374
+  },
+  {
+    "case_id": "03-594452f6",
+    "function_recall10": 0.0,
+    "file_recall10": 0.0,
+    "function_hits": [],
+    "missing_from_parent": [],
+    "recommended": 0,
+    "top10": [],
+    "seconds": 5.565673582997988,
+    "bytes": 12757,
+    "noise10": 0,
+    "wall_seconds": 5.828751791999821
+  },
+  {
+    "case_id": "04-fbbbf745",
+    "function_recall10": null,
+    "file_recall10": null,
+    "function_hits": [],
+    "missing_from_parent": [],
+    "recommended": 0,
+    "top10": [],
+    "seconds": 4.811059791998559,
+    "bytes": 13552,
+    "noise10": 0,
+    "wall_seconds": 5.001599416998943
+  },
+  {
+    "case_id": "05-2c453bf3",
+    "function_recall10": 1.0,
+    "file_recall10": 1.0,
+    "function_hits": [
+      "tests/middleware/test_proxy_fix.py::test_proxy_fix"
+    ],
+    "missing_from_parent": [],
+    "recommended": 1,
+    "top10": [
+      "tests/middleware/test_proxy_fix.py::test_proxy_fix"
+    ],
+    "seconds": 4.2587225409988605,
+    "bytes": 11788,
+    "noise10": 0,
+    "wall_seconds": 4.430034125001839
+  },
+  {
+    "case_id": "06-54b7596d",
+    "function_recall10": null,
+    "file_recall10": null,
+    "function_hits": [],
+    "missing_from_parent": [],
+    "recommended": 0,
+    "top10": [],
+    "seconds": 4.259717875000206,
+    "bytes": 12677,
+    "noise10": 0,
+    "wall_seconds": 4.434503958997084
+  },
+  {
+    "case_id": "07-42f3ccf9",
+    "function_recall10": null,
+    "file_recall10": null,
+    "function_hits": [],
+    "missing_from_parent": [],
+    "recommended": 0,
+    "top10": [],
+    "seconds": 4.040583124999102,
+    "bytes": 11864,
+    "noise10": 0,
+    "wall_seconds": 4.204983166997408
+  },
+  {
+    "case_id": "08-23002fd6",
+    "function_recall10": null,
+    "file_recall10": null,
+    "function_hits": [],
+    "missing_from_parent": [],
+    "recommended": 4,
+    "top10": [
+      "tests/sansio/test_request.py::test_content_length",
+      "tests/sansio/test_request.py::test_cookies",
+      "tests/sansio/test_request.py::test_sec_fetch_mode",
+      "tests/sansio/test_request.py::test_sec_fetch_site"
+    ],
+    "seconds": 4.647816208998847,
+    "bytes": 15169,
+    "noise10": 4,
+    "wall_seconds": 4.814176416999544
+  },
+  {
+    "case_id": "09-f85f3807",
+    "function_recall10": null,
+    "file_recall10": null,
+    "function_hits": [],
+    "missing_from_parent": [],
+    "recommended": 0,
+    "top10": [],
+    "seconds": 4.145666500000516,
+    "bytes": 13401,
+    "noise10": 0,
+    "wall_seconds": 4.309563416001765
+  },
+  {
+    "case_id": "10-ae7f2163",
+    "function_recall10": null,
+    "file_recall10": null,
+    "function_hits": [],
+    "missing_from_parent": [],
+    "recommended": 4,
+    "top10": [
+      "tests/sansio/test_request.py::test_content_length",
+      "tests/sansio/test_request.py::test_cookies",
+      "tests/sansio/test_request.py::test_sec_fetch_mode",
+      "tests/sansio/test_request.py::test_sec_fetch_site"
+    ],
+    "seconds": 5.092808250003145,
+    "bytes": 16816,
+    "noise10": 4,
+    "wall_seconds": 5.259621249999327
+  },
+  {
+    "case_id": "11-b2a2c097",
+    "function_recall10": null,
+    "file_recall10": null,
+    "function_hits": [],
+    "missing_from_parent": [],
+    "recommended": 5,
+    "top10": [
+      "tests/test_security.py::test_safe_join",
+      "tests/test_security.py::test_safe_join_empty_trusted",
+      "tests/test_security.py::test_safe_join_not_windows_special",
+      "tests/test_security.py::test_safe_join_os_sep",
+      "tests/test_security.py::test_safe_join_windows_special"
+    ],
+    "seconds": 4.013679499999853,
+    "bytes": 12549,
+    "noise10": 5,
+    "wall_seconds": 4.254154624999501
+  },
+  {
+    "case_id": "12-6d7c0b4e",
+    "function_recall10": 0.0,
+    "file_recall10": 0.0,
+    "function_hits": [],
+    "missing_from_parent": [
+      "tests/test_routing.py::test_part_converter_order"
+    ],
+    "recommended": 0,
+    "top10": [],
+    "seconds": 4.180064124997443,
+    "bytes": 12954,
+    "noise10": 0,
+    "wall_seconds": 4.385111542000232
+  },
+  {
+    "case_id": "13-1b8bc581",
+    "function_recall10": 0.0,
+    "file_recall10": 0.0,
+    "function_hits": [],
+    "missing_from_parent": [
+      "tests/test_http.py::TestHTTPUtility::test_authorization_basic_validate"
+    ],
+    "recommended": 0,
+    "top10": [],
+    "seconds": 4.507141459002014,
+    "bytes": 9153,
+    "noise10": 0,
+    "wall_seconds": 4.696227459000511
+  },
+  {
+    "case_id": "14-c678a231",
+    "function_recall10": 0.0,
+    "file_recall10": 0.0,
+    "function_hits": [],
+    "missing_from_parent": [
+      "tests/test_routing.py::test_converter"
+    ],
+    "recommended": 0,
+    "top10": [],
+    "seconds": 4.248356791002152,
+    "bytes": 13148,
+    "noise10": 0,
+    "wall_seconds": 4.425742417002766
+  },
+  {
+    "case_id": "15-ab16e62d",
+    "function_recall10": 0.0,
+    "file_recall10": 0.0,
+    "function_hits": [],
+    "missing_from_parent": [
+      "tests/test_routing.py::test_int_converter_404"
+    ],
+    "recommended": 0,
+    "top10": [],
+    "seconds": 4.137437375000445,
+    "bytes": 15118,
+    "noise10": 0,
+    "wall_seconds": 4.303397416002554
+  },
+  {
+    "case_id": "16-658bf5ed",
+    "function_recall10": 1.0,
+    "file_recall10": 1.0,
+    "function_hits": [
+      "tests/sansio/test_utils.py::test_get_host_invalid"
+    ],
+    "missing_from_parent": [],
+    "recommended": 4,
+    "top10": [
+      "tests/sansio/test_utils.py::test_get_host",
+      "tests/sansio/test_utils.py::test_get_host_invalid",
+      "tests/sansio/test_utils.py::test_get_host_missing",
+      "tests/sansio/test_utils.py::test_get_host_unix"
+    ],
+    "seconds": 4.092550958001084,
+    "bytes": 12868,
+    "noise10": 3,
+    "wall_seconds": 4.257840666003176
+  },
+  {
+    "case_id": "extra-5b0e3209",
+    "function_recall10": 0.0,
+    "file_recall10": 1.0,
+    "function_hits": [],
+    "missing_from_parent": [
+      "tests/test_http.py::TestHTTPUtility::test_is_hop_by_hop_header"
+    ],
+    "recommended": 2,
+    "top10": [
+      "tests/middleware/test_http_proxy.py::test_http_proxy",
+      "tests/test_http.py::TestHTTPUtility::test_remove_hop_by_hop_headers"
+    ],
+    "seconds": 4.35570799999914,
+    "bytes": 15065,
+    "noise10": 2,
+    "wall_seconds": 4.546738333003304
+  },
+  {
+    "case_id": "extra-6b495d0d",
+    "function_recall10": 0.7142857142857143,
+    "file_recall10": 1.0,
+    "function_hits": [
+      "tests/test_formparser.py::TestFormParser::test_parse_form_data_get_without_content",
+      "tests/test_formparser.py::TestFormParser::test_parse_form_data_put_without_content",
+      "tests/test_formparser.py::TestMultiPart::test_empty_multipart",
+      "tests/test_test.py::test_environ_builder_empty_file",
+      "tests/test_test.py::test_environ_builder_stream_switch"
+    ],
+    "missing_from_parent": [
+      "tests/test_test.py::test_environ_builder_unicode_data"
+    ],
+    "recommended": 6,
+    "top10": [
+      "tests/test_formparser.py::TestFormParser::test_parse_form_data_get_without_content",
+      "tests/test_formparser.py::TestFormParser::test_parse_form_data_put_without_content",
+      "tests/test_formparser.py::TestMultiPart::test_empty_multipart",
+      "tests/test_test.py::test_environ_builder_empty_file",
+      "tests/test_test.py::test_environ_builder_stream_switch",
+      "tests/test_test.py::test_environ_builder_unicode_file_mix"
+    ],
+    "seconds": 3.995009416998073,
+    "bytes": 13059,
+    "noise10": 1,
+    "wall_seconds": 4.16938370799835
+  },
+  {
+    "case_id": "extra-97d9f22a",
+    "function_recall10": 0.0,
+    "file_recall10": 0.0,
+    "function_hits": [],
+    "missing_from_parent": [],
+    "recommended": 0,
+    "top10": [],
+    "seconds": 3.9345479999974486,
+    "bytes": 12411,
+    "noise10": 0,
+    "wall_seconds": 4.103240874999756
+  },
+  {
+    "case_id": "extra-0743179b",
+    "function_recall10": 0.0,
+    "file_recall10": 0.5,
+    "function_hits": [],
+    "missing_from_parent": [
+      "tests/sansio/test_utils.py::test_trusted"
+    ],
+    "recommended": 17,
+    "top10": [
+      "tests/sansio/test_utils.py::test_get_host",
+      "tests/sansio/test_utils.py::test_get_host_invalid",
+      "tests/sansio/test_utils.py::test_get_host_missing",
+      "tests/sansio/test_utils.py::test_get_host_unix",
+      "tests/test_test.py::test_builder_from_environ",
+      "tests/test_test.py::test_environ_builder_basics",
+      "tests/test_test.py::test_environ_builder_content_type",
+      "tests/test_test.py::test_environ_builder_data",
+      "tests/test_test.py::test_environ_builder_headers",
+      "tests/test_test.py::test_environ_builder_paths"
+    ],
+    "seconds": 5.576131208999868,
+    "bytes": 19303,
+    "noise10": 10,
+    "wall_seconds": 6.04012670800148
+  },
+  {
+    "case_id": "extra-45768395",
+    "function_recall10": 0.0,
+    "file_recall10": 0.0,
+    "function_hits": [],
+    "missing_from_parent": [],
+    "recommended": 38,
+    "top10": [
+      "tests/middleware/test_http_proxy.py::test_http_proxy",
+      "tests/middleware/test_profiler.py::test_filename_format_function",
+      "tests/middleware/test_proxy_fix.py::test_proxy_fix",
+      "tests/test_debug.py::TestDebugHelpers::test_exc_divider_found_on_chained_exception",
+      "tests/test_formparser.py::TestMultiPart::test_basic",
+      "tests/test_formparser.py::TestMultiPart::test_ie7_unc_path",
+      "tests/test_test.py::test_client_response_wrapper",
+      "tests/test_test.py::test_content_type",
+      "tests/test_test.py::test_cookie_across_redirect",
+      "tests/test_test.py::test_cookie_default_path"
+    ],
+    "seconds": 5.466709416999947,
+    "bytes": 17543,
+    "noise10": 10,
+    "wall_seconds": 6.2368441250000615
+  },
+  {
+    "case_id": "extra-dc199349",
+    "function_recall10": 1.0,
+    "file_recall10": 1.0,
+    "function_hits": [
+      "tests/test_wsgi.py::test_path_info_and_script_name_fetching"
+    ],
+    "missing_from_parent": [],
+    "recommended": 1,
+    "top10": [
+      "tests/test_wsgi.py::test_path_info_and_script_name_fetching"
+    ],
+    "seconds": 4.0952387920006,
+    "bytes": 12077,
+    "noise10": 0,
+    "wall_seconds": 4.265089500000613
+  },
+  {
+    "case_id": "extra-f359a67e",
+    "function_recall10": 0.0,
+    "file_recall10": 0.0,
+    "function_hits": [],
+    "missing_from_parent": [],
+    "recommended": 26,
+    "top10": [
+      "tests/middleware/test_http_proxy.py::test_http_proxy",
+      "tests/test_formparser.py::TestFormParser::test_parse_bad_content_type",
+      "tests/test_formparser.py::TestFormParser::test_parse_from_environ",
+      "tests/test_send_file.py::test_content_encoding",
+      "tests/test_send_file.py::test_disposition_name",
+      "tests/test_send_file.py::test_etag",
+      "tests/test_send_file.py::test_file",
+      "tests/test_send_file.py::test_from_directory",
+      "tests/test_send_file.py::test_from_directory_not_found",
+      "tests/test_send_file.py::test_last_modified"
+    ],
+    "seconds": 4.676155499997549,
+    "bytes": 18049,
+    "noise10": 10,
+    "wall_seconds": 5.236547167001845
+  }
+]

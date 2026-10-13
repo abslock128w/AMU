@@ -13,6 +13,12 @@ def _amu(args, cwd):
 
 def _approve_report_only_lifecycle(repo):
     """Give done a current approved lifecycle while a test isolates S4 reporting."""
+    for _ in range(2):
+        subprocess.run(
+            ["git", "-c", "user.name=AMU Test", "-c", "user.email=amu@example.invalid",
+             "commit", "--allow-empty", "-qm", "fixture baseline"],
+            cwd=repo, check=True,
+        )
     amu_dir = repo / ".amu"
     amu_dir.mkdir(exist_ok=True)
     (amu_dir / "map.json").write_text(json.dumps({"map_hash": "report-only-map", "depth": 2, "nodes": []}))

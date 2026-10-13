@@ -1,0 +1,23 @@
+{
+  "case_id": "h3-click-8ee83ddb",
+  "function_recall10": 0.0,
+  "file_recall10": 0.0,
+  "function_hits": [],
+  "missing_from_parent": [],
+  "recommended": 53,
+  "top10": [
+    "tests/test_options.py::test_flag_value_on_option_with_zero_or_one_args",
+    "tests/test_stream_lifecycle.py::test_exception_does_not_corrupt_next_invoke",
+    "tests/test_stream_lifecycle.py::test_getvalue_after_isolation_exit",
+    "tests/test_stream_lifecycle.py::test_invoke_with_logger_and_prompt",
+    "tests/test_stream_lifecycle.py::test_invoke_with_logger_warning",
+    "tests/test_stream_lifecycle.py::test_invoke_with_stream_handler_on_stderr",
+    "tests/test_stream_lifecycle.py::test_invoke_with_thread_pool",
+    "tests/test_stream_lifecycle.py::test_invoke_with_thread_pool_and_exit",
+    "tests/test_stream_lifecycle.py::test_invoke_with_threads_writing_to_streams",
+    "tests/test_stream_lifecycle.py::test_logging_with_cli_log_level"
+  ],
+  "seconds": 1.6441599170029804,
+  "bytes": 12032,
+  "noise10": 10
+}

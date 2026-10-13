@@ -1,0 +1,228 @@
+diff --git a/src/requests/__init__.py b/src/requests/__init__.py
+index 051cda1..6493fdc 100644
+--- a/src/requests/__init__.py
++++ b/src/requests/__init__.py
+@@ -98,8 +98,8 @@ def _check_cryptography(cryptography_version):
+         return
+ 
+     if cryptography_version < [1, 3, 4]:
+-        warning = "Old version of cryptography ({}) may cause slowdown.".format(
+-            cryptography_version
++        warning = (
++            f"Old version of cryptography ({cryptography_version}) may cause slowdown."
+         )
+         warnings.warn(warning, RequestsDependencyWarning)
+ 
+@@ -111,10 +111,9 @@ try:
+     )
+ except (AssertionError, ValueError):
+     warnings.warn(
+-        "urllib3 ({}) or chardet ({})/charset_normalizer ({}) doesn't match a supported "
+-        "version!".format(
+-            urllib3.__version__, chardet_version, charset_normalizer_version
+-        ),
++        f"urllib3 ({urllib3.__version__}) or chardet "
++        f"({chardet_version})/charset_normalizer ({charset_normalizer_version}) "
++        "doesn't match a supported version!",
+         RequestsDependencyWarning,
+     )
+ 
+diff --git a/src/requests/_internal_utils.py b/src/requests/_internal_utils.py
+index f2cf635..8c7c051 100644
+--- a/src/requests/_internal_utils.py
++++ b/src/requests/_internal_utils.py
+@@ -5,6 +5,7 @@ requests._internal_utils
+ Provides utility functions that are consumed internally by Requests
+ which depend on extremely few external helpers (such as compat)
+ """
++
+ import re
+ 
+ from .compat import builtin_str
+diff --git a/src/requests/adapters.py b/src/requests/adapters.py
+index 670c927..130154f 100644
+--- a/src/requests/adapters.py
++++ b/src/requests/adapters.py
+@@ -11,17 +11,19 @@ import socket  # noqa: F401
+ import typing
+ import warnings
+ 
+-from urllib3.exceptions import ClosedPoolError, ConnectTimeoutError
+-from urllib3.exceptions import HTTPError as _HTTPError
+-from urllib3.exceptions import InvalidHeader as _InvalidHeader
+ from urllib3.exceptions import (
++    ClosedPoolError,
++    ConnectTimeoutError,
+     LocationValueError,
+     MaxRetryError,
+     NewConnectionError,
+     ProtocolError,
++    ReadTimeoutError,
++    ResponseError,
+ )
++from urllib3.exceptions import HTTPError as _HTTPError
++from urllib3.exceptions import InvalidHeader as _InvalidHeader
+ from urllib3.exceptions import ProxyError as _ProxyError
+-from urllib3.exceptions import ReadTimeoutError, ResponseError
+ from urllib3.exceptions import SSLError as _SSLError
+ from urllib3.poolmanager import PoolManager, proxy_from_url
+ from urllib3.util import Timeout as TimeoutSauce
+@@ -76,9 +78,9 @@ DEFAULT_POOL_TIMEOUT = None
+ def _urllib3_request_context(
+     request: "PreparedRequest",
+     verify: "bool | str | None",
+-    client_cert: "typing.Tuple[str, str] | str | None",
++    client_cert: "tuple[str, str] | str | None",
+     poolmanager: "PoolManager",
+-) -> "(typing.Dict[str, typing.Any], typing.Dict[str, typing.Any])":
++) -> "(dict[str, typing.Any], dict[str, typing.Any])":
+     host_params = {}
+     pool_kwargs = {}
+     parsed_request_url = urlparse(request.url)
+diff --git a/src/requests/auth.py b/src/requests/auth.py
+index 4a7ce6d..c39b645 100644
+--- a/src/requests/auth.py
++++ b/src/requests/auth.py
+@@ -35,9 +35,9 @@ def _basic_auth_str(username, password):
+     if not isinstance(username, basestring):
+         warnings.warn(
+             "Non-string usernames will no longer be supported in Requests "
+-            "3.0.0. Please convert the object you've passed in ({!r}) to "
++            f"3.0.0. Please convert the object you've passed in ({username!r}) to "
+             "a string or bytes object in the near future to avoid "
+-            "problems.".format(username),
++            "problems.",
+             category=DeprecationWarning,
+         )
+         username = str(username)
+@@ -45,9 +45,9 @@ def _basic_auth_str(username, password):
+     if not isinstance(password, basestring):
+         warnings.warn(
+             "Non-string passwords will no longer be supported in Requests "
+-            "3.0.0. Please convert the object you've passed in ({!r}) to "
++            f"3.0.0. Please convert the object you've passed in ({type(password)!r}) to "
+             "a string or bytes object in the near future to avoid "
+-            "problems.".format(type(password)),
++            "problems.",
+             category=DeprecationWarning,
+         )
+         password = str(password)
+diff --git a/src/requests/certs.py b/src/requests/certs.py
+index be422c3..4f85ac0 100644
+--- a/src/requests/certs.py
++++ b/src/requests/certs.py
+@@ -11,6 +11,7 @@ If you are packaging Requests, e.g., for a Linux distribution or a managed
+ environment, you can change the definition of where() to return a separately
+ packaged CA bundle.
+ """
++
+ from certifi import where
+ 
+ if __name__ == "__main__":
+diff --git a/src/requests/exceptions.py b/src/requests/exceptions.py
+index 83986b4..6e71506 100644
+--- a/src/requests/exceptions.py
++++ b/src/requests/exceptions.py
+@@ -4,6 +4,7 @@ requests.exceptions
+ 
+ This module contains the set of Requests' exceptions.
+ """
++
+ from urllib3.exceptions import HTTPError as BaseHTTPError
+ 
+ from .compat import JSONDecodeError as CompatJSONDecodeError
+diff --git a/src/requests/help.py b/src/requests/help.py
+index 8fbcd65..5d51078 100644
+--- a/src/requests/help.py
++++ b/src/requests/help.py
+@@ -47,11 +47,8 @@ def _implementation():
+     if implementation == "CPython":
+         implementation_version = platform.python_version()
+     elif implementation == "PyPy":
+-        implementation_version = "{}.{}.{}".format(
+-            sys.pypy_version_info.major,
+-            sys.pypy_version_info.minor,
+-            sys.pypy_version_info.micro,
+-        )
++        pypy = sys.pypy_version_info
++        implementation_version = f"{pypy.major}.{pypy.minor}.{pypy.micro}"
+         if sys.pypy_version_info.releaselevel != "final":
+             implementation_version = "".join(
+                 [implementation_version, sys.pypy_version_info.releaselevel]
+diff --git a/src/requests/hooks.py b/src/requests/hooks.py
+index d181ba2..5976bc7 100644
+--- a/src/requests/hooks.py
++++ b/src/requests/hooks.py
+@@ -9,6 +9,7 @@ Available hooks:
+ ``response``:
+     The response generated from a Request.
+ """
++
+ HOOKS = ["response"]
+ 
+ 
+diff --git a/src/requests/models.py b/src/requests/models.py
+index c4b25fa..2d043f5 100644
+--- a/src/requests/models.py
++++ b/src/requests/models.py
+@@ -34,9 +34,11 @@ from .compat import (
+     builtin_str,
+     chardet,
+     cookielib,
++    urlencode,
++    urlsplit,
++    urlunparse,
+ )
+ from .compat import json as complexjson
+-from .compat import urlencode, urlsplit, urlunparse
+ from .cookies import _copy_cookie_jar, cookiejar_from_dict, get_cookie_header
+ from .exceptions import (
+     ChunkedEncodingError,
+@@ -45,11 +47,11 @@ from .exceptions import (
+     HTTPError,
+     InvalidJSONError,
+     InvalidURL,
++    MissingSchema,
++    StreamConsumedError,
+ )
+ from .exceptions import JSONDecodeError as RequestsJSONDecodeError
+-from .exceptions import MissingSchema
+ from .exceptions import SSLError as RequestsSSLError
+-from .exceptions import StreamConsumedError
+ from .hooks import default_hooks
+ from .status_codes import codes
+ from .structures import CaseInsensitiveDict
+diff --git a/src/requests/sessions.py b/src/requests/sessions.py
+index 731550d..7d34b29 100644
+--- a/src/requests/sessions.py
++++ b/src/requests/sessions.py
+@@ -5,6 +5,7 @@ requests.sessions
+ This module provides a Session object to manage and persist settings across
+ requests (cookies, auth, proxies).
+ """
++
+ import os
+ import sys
+ import time
+diff --git a/src/requests/utils.py b/src/requests/utils.py
+index 8ab5585..4d3039b 100644
+--- a/src/requests/utils.py
++++ b/src/requests/utils.py
+@@ -39,9 +39,6 @@ from .compat import (
+     getproxies_environment,
+     integer_types,
+     is_urllib3_1,
+-)
+-from .compat import parse_http_list as _parse_list_header
+-from .compat import (
+     proxy_bypass,
+     proxy_bypass_environment,
+     quote,
+@@ -50,6 +47,7 @@ from .compat import (
+     urlparse,
+     urlunparse,
+ )
++from .compat import parse_http_list as _parse_list_header
+ from .cookies import cookiejar_from_dict
+ from .exceptions import (
+     FileModeWarning,

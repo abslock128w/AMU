@@ -121,9 +121,14 @@ than guessed. Dynamic dispatch, reflection, generated code, native boundaries
 and feature flags can leave gaps even when source-derived relationships are
 fresh. The existing curated NumPy checks are not an accuracy estimate for every
 function or repository.
-The boundary detector is intentionally incomplete: a named parameter callback
-can depend on runtime dispatch without receiving a special AST boundary tag.
-Absence of tags does not establish runtime completeness.
+The boundary detector tags direct calls through positional-only, positional
+and keyword-only parameter names in named functions, async functions and
+methods. Each nested named function is checked against its own parameters.
+These calls have unresolved runtime targets; a tag does not establish a bug.
+The check does not resolve local rebinding, aliases or forwarded callbacks,
+and does not attribute calls in nested lambdas or comprehensions, decorators,
+defaults or annotations to an enclosing parameter. Other runtime dispatch can
+also escape the detector. Absence of tags does not establish runtime completeness.
 
 Release evidence must identify the actual candidate and distinguish unit/provider
 double tests, disposable real-engine tests, installed SDK protocol tests and a

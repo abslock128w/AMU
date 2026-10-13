@@ -1,0 +1,22 @@
+{
+  "case_id": "03-594452f6",
+  "function_recall10": 0.0,
+  "file_recall10": 1.0,
+  "function_hits": [],
+  "missing_from_parent": [],
+  "recommended": 9,
+  "top10": [
+    "tests/test_routing.py::test_default_converters",
+    "tests/middleware/test_proxy_fix.py::test_proxy_fix",
+    "tests/test_routing.py::test_adapter_match_return_rule",
+    "tests/test_routing.py::test_adapter_url_parameter_sorting",
+    "tests/test_routing.py::test_alias_redirects",
+    "tests/test_routing.py::test_allowed_methods_querying",
+    "tests/test_routing.py::test_any_converter_build_validates_value",
+    "tests/test_routing.py::test_anyconverter",
+    "tests/test_routing.py::test_basic_building"
+  ],
+  "seconds": 0.4239985420026642,
+  "bytes": 1924,
+  "noise10": 9
+}

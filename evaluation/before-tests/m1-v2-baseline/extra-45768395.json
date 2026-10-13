@@ -1,0 +1,23 @@
+{
+  "case_id": "extra-45768395",
+  "function_recall10": 0.0,
+  "file_recall10": 0.0,
+  "function_hits": [],
+  "missing_from_parent": [],
+  "recommended": 38,
+  "top10": [
+    "tests/middleware/test_http_proxy.py::test_http_proxy",
+    "tests/middleware/test_profiler.py::test_filename_format_function",
+    "tests/middleware/test_proxy_fix.py::test_proxy_fix",
+    "tests/test_debug.py::TestDebugHelpers::test_exc_divider_found_on_chained_exception",
+    "tests/test_formparser.py::TestMultiPart::test_basic",
+    "tests/test_formparser.py::TestMultiPart::test_ie7_unc_path",
+    "tests/test_test.py::test_client_response_wrapper",
+    "tests/test_test.py::test_content_type",
+    "tests/test_test.py::test_cookie_across_redirect",
+    "tests/test_test.py::test_cookie_default_path"
+  ],
+  "seconds": 5.466709416999947,
+  "bytes": 17543,
+  "noise10": 10
+}

@@ -1,0 +1,25 @@
+{
+  "case_id": "h2-itsdangerous-7f4dcf83",
+  "function_recall10": 1.0,
+  "file_recall10": 1.0,
+  "function_hits": [
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_iter_unsigners"
+  ],
+  "missing_from_parent": [],
+  "recommended": 10,
+  "top10": [
+    "tests/test_itsdangerous/test_signer.py::TestSigner::test_secret_keys",
+    "tests/test_itsdangerous/test_signer.py::TestSigner::test_algorithm",
+    "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_malformed_timestamp",
+    "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_timestamp_missing",
+    "tests/test_itsdangerous/test_signer.py::TestSigner::test_digest_method",
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_iter_unsigners",
+    "tests/test_itsdangerous/test_signer.py::test_abstract_algorithm",
+    "tests/test_itsdangerous/test_serializer.py::test_digests",
+    "tests/test_itsdangerous/test_signer.py::TestSigner::test_broken_signature",
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_fallback_signers"
+  ],
+  "seconds": 0.0443235829952755,
+  "bytes": 1968,
+  "noise10": 9
+}

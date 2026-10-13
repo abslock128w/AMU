@@ -1,0 +1,25 @@
+{
+  "case_id": "13-1b8bc581",
+  "function_recall10": 0.0,
+  "file_recall10": 1.0,
+  "function_hits": [],
+  "missing_from_parent": [
+    "tests/test_http.py::TestHTTPUtility::test_authorization_basic_validate"
+  ],
+  "recommended": 10,
+  "top10": [
+    "tests/test_http.py::TestHTTPUtility::test_authorization_header",
+    "tests/test_http.py::TestHTTPUtility::test_bad_authorization_header_encoding",
+    "tests/test_http.py::test_authorization_to_header",
+    "tests/test_http.py::TestHTTPUtility::test_authorization_basic_incorrect_padding",
+    "tests/test_http.py::TestHTTPUtility::test_authorization_eq",
+    "tests/test_http.py::TestHTTPUtility::test_authorization_ignore_invalid_parameters",
+    "tests/test_http.py::TestHTTPUtility::test_authorization_token_padding",
+    "tests/test_test.py::test_basic_auth",
+    "tests/test_wrappers.py::test_authorization",
+    "tests/test_wrappers.py::test_authorization_with_unicode"
+  ],
+  "seconds": 0.29161029099850566,
+  "bytes": 1987,
+  "noise10": 10
+}

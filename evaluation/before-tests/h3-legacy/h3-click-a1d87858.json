@@ -1,0 +1,21 @@
+{
+  "case_id": "h3-click-a1d87858",
+  "function_recall10": 0.0,
+  "file_recall10": 0.5,
+  "function_hits": [],
+  "missing_from_parent": [
+    "tests/test_termui.py::test_edit_pathlib"
+  ],
+  "recommended": 6,
+  "top10": [
+    "tests/test_termui.py::test_editor_env_passed_through",
+    "tests/test_termui.py::test_editor_failure_exception",
+    "tests/test_termui.py::test_editor_nonexistent_exception",
+    "tests/test_termui.py::test_editor_path_normalization",
+    "tests/test_termui.py::test_editor_unclosed_quote",
+    "tests/test_termui.py::test_editor_windows_path_normalization"
+  ],
+  "seconds": 1.6749754159973236,
+  "bytes": 11016,
+  "noise10": 6
+}

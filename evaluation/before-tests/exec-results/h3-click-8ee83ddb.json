@@ -1,0 +1,109 @@
+{
+ "case_id": "h3-click-8ee83ddb",
+ "record": {
+  "command": [
+   "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/../observed-tests-evaluation-2026-10-13/werkzeug-env/bin/python",
+   "-B",
+   "-m",
+   "pytest",
+   "tests",
+   "--ignore=tests/test_stream_lifecycle.py",
+   "-q",
+   "-p",
+   "no:cacheprovider",
+   "--junitxml=/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/exec/h3-click-8ee83ddb/base.xml",
+   "-o",
+   "addopts=",
+   "-W",
+   "ignore",
+   "-p",
+   "pytest_cov.plugin",
+   "--cov=click",
+   "--cov-context=test",
+   "--cov-report="
+  ],
+  "exit": 0,
+  "seconds": 13.4,
+  "summary": "2893 passed, 25 skipped, 1 xfailed in 13.04s"
+ },
+ "patched": {
+  "command": [
+   "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/../observed-tests-evaluation-2026-10-13/werkzeug-env/bin/python",
+   "-B",
+   "-m",
+   "pytest",
+   "tests",
+   "--ignore=tests/test_stream_lifecycle.py",
+   "-q",
+   "-p",
+   "no:cacheprovider",
+   "--junitxml=/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/exec/h3-click-8ee83ddb/patched.xml",
+   "-o",
+   "addopts=",
+   "-W",
+   "ignore"
+  ],
+  "exit": 1,
+  "seconds": 5.9,
+  "summary": "1 failed, 2892 passed, 25 skipped, 1 xfailed in 5.59s"
+ },
+ "patch_applied": true,
+ "tests_run": 495,
+ "outcome_changed": [
+  "tests/test_testing.py::test_isolated_filesystem_deprecated"
+ ],
+ "commit_truth": [
+  "tests/test_arguments.py::test_file_args",
+  "tests/test_arguments.py::test_file_atomics",
+  "tests/test_basic.py::test_file_lazy_mode",
+  "tests/test_basic.py::test_file_option",
+  "tests/test_basic.py::test_path_option",
+  "tests/test_shell_completion.py::test_files_closed",
+  "tests/test_testing.py::test_isolated_runner",
+  "tests/test_testing.py::test_isolated_runner_custom_tempdir",
+  "tests/test_utils/test_open_file.py::test_open_file",
+  "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_existing_file",
+  "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_new_file",
+  "tests/test_utils/test_open_file.py::test_open_file_ignore_invalid_utf8",
+  "tests/test_utils/test_open_file.py::test_open_file_ignore_no_encoding",
+  "tests/test_utils/test_open_file.py::test_open_file_respects_ignore"
+ ],
+ "ranking": {
+  "static": {
+   "top10": [
+    "tests/test_testing.py::test_isolated_filesystem_deprecated",
+    "tests/test_testing.py::test_isolated_runner_custom_tempdir",
+    "tests/test_testing.py::test_isolated_runner",
+    "tests/test_testing.py::test_catch_exceptions_cli_runner",
+    "tests/test_stream_lifecycle.py::test_logging_with_cli_log_level",
+    "tests/test_testing.py::test_runner",
+    "tests/test_testing.py::test_runner_with_stream",
+    "tests/test_testing.py::test_tempdir_replacement_pattern",
+    "tests/test_testing.py::test_capture_fd_logging_handler",
+    "tests/test_context.py::test_no_state_leaks"
+   ],
+   "observed": 0,
+   "bytes": 1999,
+   "gaps": [
+    "coverage evidence /Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/exec/h3-click-8ee83ddb/no-coverage not found; static ranking only"
+   ]
+  },
+  "coverage": {
+   "top10": [
+    "tests/test_testing.py::test_isolated_filesystem_deprecated",
+    "tests/test_testing.py::test_isolated_runner_custom_tempdir",
+    "tests/test_testing.py::test_isolated_runner",
+    "tests/test_testing.py::test_catch_exceptions_cli_runner",
+    "tests/test_stream_lifecycle.py::test_logging_with_cli_log_level",
+    "tests/test_testing.py::test_runner",
+    "tests/test_testing.py::test_runner_with_stream",
+    "tests/test_testing.py::test_tempdir_replacement_pattern",
+    "tests/test_testing.py::test_capture_fd_logging_handler",
+    "tests/test_context.py::test_no_state_leaks"
+   ],
+   "observed": 3,
+   "bytes": 1953,
+   "gaps": []
+  }
+ }
+}

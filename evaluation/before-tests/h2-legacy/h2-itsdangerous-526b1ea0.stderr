@@ -1,0 +1,34 @@
+Traceback (most recent call last):
+  File "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/scripts/before_tests_harness.py", line 258, in <module>
+    {'freeze':lambda _:freeze(),'freeze-holdout2':lambda _:freeze_holdout2(),'run':run,'worker':worker}[a.action](a)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/scripts/before_tests_harness.py", line 181, in worker
+    packet = execute_patch(row['tree'], PatchRequest(patch=patch, base='worktree'))
+  File "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/amu/services/impact.py", line 1147, in execute_patch
+    return _compute_patch(repo, request, snapshot_key=key)
+  File "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/amu/services/impact.py", line 936, in _compute_patch
+    flow = analyze_repository(flow_before, flow_after, changed_production_ids, provider_candidates=provider_candidates,
+                              fixture_setup_unresolved=fixture_setup_unresolved)
+  File "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/amu/value_flow.py", line 1236, in analyze_repository
+    summary = scan.run()
+  File "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/amu/value_flow.py", line 1075, in run
+    if not self.block(self.node.body) and not self.stopped:
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/amu/value_flow.py", line 1023, in block
+    self.block(
+    ~~~~~~~~~~^
+        handler.body,
+        ^^^^^^^^^^^^^
+        [*constraints, *([handler_constraint] if handler_constraint else [])],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        handlers,
+        ^^^^^^^^^
+    )
+    ^
+  File "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/amu/value_flow.py", line 913, in block
+    exc = self.r.exception(self.path, node.exc, self.env, self.local) if node.exc else None
+          ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/amu/semantic.py", line 484, in exception
+    if symbol and symbol.kind == "exception":
+                  ^^^^^^^^^^^
+AttributeError: 'Instance' object has no attribute 'kind'

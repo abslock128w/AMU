@@ -1,0 +1,26 @@
+{
+  "case_id": "extra-45768395",
+  "function_recall10": 1.0,
+  "file_recall10": 1.0,
+  "function_hits": [
+    "tests/test_wsgi.py::test_get_current_url_invalid_utf8",
+    "tests/test_wsgi.py::test_get_current_url_unicode"
+  ],
+  "missing_from_parent": [],
+  "recommended": 10,
+  "top10": [
+    "tests/test_test.py::test_client_response_wrapper",
+    "tests/test_wsgi.py::test_get_current_url_invalid_utf8",
+    "tests/test_wrappers.py::test_204_and_1XX_response_has_no_content_length",
+    "tests/test_test.py::test_set_cookie_app",
+    "tests/test_wrappers.py::test_response_304_no_content_length",
+    "tests/test_wsgi.py::test_get_current_url_unicode",
+    "tests/test_test.py::test_cookie_for_different_path",
+    "tests/test_test.py::test_cookie_forging",
+    "tests/test_test.py::test_cookiejar_stores_cookie",
+    "tests/test_wrappers.py::test_location_header_autocorrect"
+  ],
+  "seconds": 0.28623508300006506,
+  "bytes": 1999,
+  "noise10": 8
+}

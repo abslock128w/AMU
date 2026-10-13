@@ -1,0 +1,97 @@
+{
+ "case_id": "h3-click-bc32a92c",
+ "record": {
+  "command": [
+   "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/../observed-tests-evaluation-2026-10-13/werkzeug-env/bin/python",
+   "-B",
+   "-m",
+   "pytest",
+   "tests",
+   "--ignore=tests/test_stream_lifecycle.py",
+   "-q",
+   "-p",
+   "no:cacheprovider",
+   "--junitxml=/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/exec/h3-click-bc32a92c/base.xml",
+   "-o",
+   "addopts=",
+   "-W",
+   "ignore",
+   "-p",
+   "pytest_cov.plugin",
+   "--cov=click",
+   "--cov-context=test",
+   "--cov-report="
+  ],
+  "exit": 0,
+  "seconds": 12.3,
+  "summary": "2945 passed, 25 skipped, 1 xfailed in 11.96s"
+ },
+ "patched": {
+  "command": [
+   "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/../observed-tests-evaluation-2026-10-13/werkzeug-env/bin/python",
+   "-B",
+   "-m",
+   "pytest",
+   "tests",
+   "--ignore=tests/test_stream_lifecycle.py",
+   "-q",
+   "-p",
+   "no:cacheprovider",
+   "--junitxml=/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/exec/h3-click-bc32a92c/patched.xml",
+   "-o",
+   "addopts=",
+   "-W",
+   "ignore"
+  ],
+  "exit": 1,
+  "seconds": 6.2,
+  "summary": "3 failed, 2942 passed, 25 skipped, 1 xfailed in 5.93s"
+ },
+ "patch_applied": true,
+ "tests_run": 505,
+ "outcome_changed": [
+  "tests/test_termui.py::test_get_pager_file_flushes_stream_on_exception",
+  "tests/test_termui.py::test_get_pager_file_nullpager_keeps_stringio_stream",
+  "tests/test_utils/test_echo_via_pager.py::test_echo_via_pager_yields_before_exception"
+ ],
+ "commit_truth": [
+  "tests/test_termui.py::test_get_pager_file_flushes_stream_on_exception",
+  "tests/test_termui.py::test_get_pager_file_nullpager_keeps_stringio_stream",
+  "tests/test_termui.py::test_get_pager_file_nullpager_wraps_textio_stream",
+  "tests/test_termui.py::test_tempfile_pager_accepts_text",
+  "tests/test_termui.py::test_tempfile_pager_handles_ansi",
+  "tests/test_utils/test_echo_via_pager.py::test_echo_via_pager_yields_before_exception"
+ ],
+ "ranking": {
+  "static": {
+   "top10": [
+    "tests/test_termui.py::test_get_pager_file_nullpager_wraps_textio_stream",
+    "tests/test_termui.py::test_get_pager_file_missing_pager_keeps_borrowed_stream_open",
+    "tests/test_termui.py::test_get_pager_file_nullpager_keeps_stringio_stream",
+    "tests/test_compat.py::test_should_strip_ansi",
+    "tests/test_termui.py::test_get_pager_file_pager_missing_binary_falls_back",
+    "tests/test_termui.py::test_get_pager_file_pager_unset_falls_back_when_no_default",
+    "tests/test_termui.py::test_get_pager_file_flushes_stream_on_exception",
+    "tests/test_termui.py::test_tempfile_pager_closes_file_before_unlink"
+   ],
+   "observed": 0,
+   "bytes": 1980,
+   "gaps": []
+  },
+  "coverage": {
+   "top10": [
+    "tests/test_termui.py::test_get_pager_file_missing_pager_keeps_borrowed_stream_open",
+    "tests/test_termui.py::test_get_pager_file_with_real_pager_binary_stream",
+    "tests/test_termui.py::test_get_pager_file_nullpager_wraps_textio_stream",
+    "tests/test_termui.py::test_tempfile_pager_closes_file_before_unlink",
+    "tests/test_termui.py::test_get_pager_file_pager_missing_binary_falls_back",
+    "tests/test_termui.py::test_get_pager_file_pager_unset_falls_back_when_no_default",
+    "tests/test_utils/test_echo_via_pager.py::test_echo_via_pager",
+    "tests/test_termui.py::test_tempfile_pager_handles_ansi"
+   ],
+   "observed": 8,
+   "bytes": 1983,
+   "gaps": []
+  }
+ }
+}

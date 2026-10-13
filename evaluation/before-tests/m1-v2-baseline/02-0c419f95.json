@@ -1,0 +1,18 @@
+{
+  "case_id": "02-0c419f95",
+  "function_recall10": 1.0,
+  "file_recall10": 1.0,
+  "function_hits": [
+    "tests/test_http.py::TestRange::test_range_parsing"
+  ],
+  "missing_from_parent": [],
+  "recommended": 3,
+  "top10": [
+    "tests/test_datastructures.py::test_range_to_header",
+    "tests/test_http.py::test_range_invalid_int",
+    "tests/test_http.py::TestRange::test_range_parsing"
+  ],
+  "seconds": 7.6660805419996905,
+  "bytes": 12128,
+  "noise10": 2
+}

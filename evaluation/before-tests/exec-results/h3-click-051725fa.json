@@ -1,0 +1,96 @@
+{
+ "case_id": "h3-click-051725fa",
+ "record": {
+  "command": [
+   "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/../observed-tests-evaluation-2026-10-13/werkzeug-env/bin/python",
+   "-B",
+   "-m",
+   "pytest",
+   "tests",
+   "--ignore=tests/test_stream_lifecycle.py",
+   "-q",
+   "-p",
+   "no:cacheprovider",
+   "--junitxml=/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/exec/h3-click-051725fa/base.xml",
+   "-o",
+   "addopts=",
+   "-W",
+   "ignore",
+   "-p",
+   "pytest_cov.plugin",
+   "--cov=click",
+   "--cov-context=test",
+   "--cov-report="
+  ],
+  "exit": 0,
+  "seconds": 15.2,
+  "summary": "2877 passed, 25 skipped, 1 xfailed in 14.82s"
+ },
+ "patched": {
+  "command": [
+   "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/../observed-tests-evaluation-2026-10-13/werkzeug-env/bin/python",
+   "-B",
+   "-m",
+   "pytest",
+   "tests",
+   "--ignore=tests/test_stream_lifecycle.py",
+   "-q",
+   "-p",
+   "no:cacheprovider",
+   "--junitxml=/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/exec/h3-click-051725fa/patched.xml",
+   "-o",
+   "addopts=",
+   "-W",
+   "ignore"
+  ],
+  "exit": 0,
+  "seconds": 5.9,
+  "summary": "2877 passed, 25 skipped, 1 xfailed in 5.62s"
+ },
+ "patch_applied": true,
+ "tests_run": 488,
+ "outcome_changed": [],
+ "commit_truth": [
+  "tests/test_testing.py::test_echo_stdin_stream",
+  "tests/test_testing.py::test_runner",
+  "tests/test_testing.py::test_runner_with_stream"
+ ],
+ "ranking": {
+  "static": {
+   "top10": [
+    "tests/test_utils/test_LazyFile.py::test_iter_lazyfile",
+    "tests/test_testing.py::test_runner_with_stream",
+    "tests/test_testing.py::test_echo_stdin_stream",
+    "tests/test_testing.py::test_runner",
+    "tests/test_types.py::test_path_surrogates",
+    "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_existing_file",
+    "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_new_file",
+    "tests/test_utils/test_open_file.py::test_open_file_ignore_errors_stdin",
+    "tests/test_utils/test_open_file.py::test_open_file",
+    "tests/test_utils/test_open_file.py::test_open_file_ignore_invalid_utf8"
+   ],
+   "observed": 0,
+   "bytes": 1950,
+   "gaps": []
+  },
+  "coverage": {
+   "top10": [
+    "tests/test_testing.py::test_runner_with_stream",
+    "tests/test_testing.py::test_echo_stdin_stream",
+    "tests/test_utils/test_LazyFile.py::test_iter_lazyfile",
+    "tests/test_termui.py::test_file_prompt_default_format",
+    "tests/test_testing.py::test_runner",
+    "tests/test_testing.py::test_file_stdin_attrs",
+    "tests/test_arguments.py::test_file_args",
+    "tests/test_basic.py::test_file_option",
+    "tests/test_arguments.py::test_stdout_default",
+    "tests/test_chain.py::test_pipeline"
+   ],
+   "observed": 9,
+   "bytes": 1939,
+   "gaps": [
+    "No recorded test ran the changed lines of _safecall, get_binary_stream"
+   ]
+  }
+ }
+}

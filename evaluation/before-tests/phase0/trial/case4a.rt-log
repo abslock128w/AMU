@@ -1,0 +1,15 @@
+tests/admin_scripts/tests.py::DjangoAdminNoSettings::test_builtin_with_bad_settings
+tests/admin_scripts/tests.py::ManageNoSettings::test_builtin_command
+tests/admin_scripts/tests.py::ManageSettingsWithSettingsErrors::test_import_error
+tests/admin_scripts/tests.py::ManageSettingsWithSettingsErrors::test_attribute_error
+tests/admin_scripts/tests.py::ManageMinimalSettings::test_builtin_with_bad_settings
+tests/admin_scripts/tests.py::DjangoAdminDefaultSettings::test_custom_command
+tests/admin_scripts/tests.py::DjangoAdminNoSettings::test_commands_with_invalid_settings
+tests/admin_scripts/tests.py::ManageSettingsWithSettingsErrors::test_help
+tests/admin_scripts/tests.py::ManageMinimalSettings::test_custom_command
+tests/admin_scripts/tests.py::ManageDefaultSettings::test_custom_command_with_settings
+tests/admin_scripts/tests.py::ManageMultipleSettings::test_custom_command
+tests/user_commands/tests.py::CommandTests::test_system_exit
+tests/admin_scripts/tests.py::DjangoAdminDefaultSettings::test_commands_with_invalid_settings
+tests/admin_scripts/tests.py::ManageNoSettings::test_builtin_with_bad_settings
+tests/admin_scripts/tests.py::ManageDefaultSettings::test_builtin_with_bad_settings

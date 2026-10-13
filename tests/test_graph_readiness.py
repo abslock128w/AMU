@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 
 import pytest
 from typer.testing import CliRunner
@@ -48,6 +49,13 @@ def _degraded_impact() -> dict:
 
 
 def _approve_report_only_lifecycle(repo) -> None:
+    subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+    for _ in range(2):
+        subprocess.run(
+            ["git", "-c", "user.name=AMU Test", "-c", "user.email=amu@example.invalid",
+             "commit", "--allow-empty", "-qm", "fixture baseline"],
+            cwd=repo, check=True,
+        )
     state.write_json("map.json", {"map_hash": "report-only-map", "depth": 2, "nodes": []}, str(repo))
     state.write_json(
         "contract.json",

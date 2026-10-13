@@ -1,0 +1,8 @@
+tests/test_termui.py::test_get_pager_file_flushes_stream_on_exception
+tests/test_termui.py::test_echo_via_pager_streams_each_write
+tests/test_termui.py::test_get_pager_file_missing_pager_keeps_borrowed_stream_open
+tests/test_termui.py::test_get_pager_file_nullpager_keeps_stringio_stream
+tests/test_termui.py::test_tempfile_pager_closes_file_before_unlink
+tests/test_termui.py::test_tempfile_pager_accepts_text
+tests/test_termui.py::test_get_pager_file_with_real_pager_binary_stream
+tests/test_termui.py::test_get_pager_file_nullpager_wraps_textio_stream

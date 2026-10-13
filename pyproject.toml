@@ -14,6 +14,7 @@ dependencies = [
 [project.optional-dependencies]
 model = ["anthropic"]
 mcp = ["mcp"]
+coverage = ["coverage>=7.16,<8"]
 dev = ["pytest>=8.0", "pytest-cov", "ruff", "anthropic", "mcp", "build", "setuptools==84.0.0"]
 
 [project.scripts]
@@ -28,7 +29,11 @@ build-backend = "setuptools.build_meta"
 include = ["amu*"]
 
 [tool.setuptools.package-data]
-amu = ["skills/*/SKILL.md", "benchmark_data/*.json"]
+amu = ["skills/*/SKILL.md", "benchmark_data/*.json", "benchmark_data/shared-cache-v1/*.py",
+       "benchmark_data/shared-cache-v1/*.json", "benchmark_data/shared-cache-v1/patches/*.diff",
+       "benchmark_data/phase3-counterexamples-v1/*.py", "benchmark_data/phase3-counterexamples-v1/*.json",
+       "benchmark_data/phase3-counterexamples-v1/*.md", "benchmark_data/phase3-counterexamples-v1/*/*.py",
+       "benchmark_data/phase3-counterexamples-v1/*/*.json", "benchmark_data/phase3-counterexamples-v1/*/patches/*.diff"]
 
 [tool.setuptools.dynamic]
 version = {attr = "amu.__version__"}

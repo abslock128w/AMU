@@ -1,0 +1,28 @@
+{
+  "case_id": "click-v2-f25f697a",
+  "function_recall10": 0.0,
+  "file_recall10": 0.0,
+  "function_hits": [],
+  "missing_from_parent": [
+    "tests/test_arguments.py::test_argument_help_deprecated_without_help_lists_all",
+    "tests/test_arguments.py::test_argument_help_empty_string_lists_all",
+    "tests/test_arguments.py::test_argument_help_lists_undocumented_arguments",
+    "tests/test_arguments.py::test_argument_help_undocumented_arguments_only_no_section"
+  ],
+  "recommended": 10,
+  "top10": [
+    "tests/test_shell_completion.py::test_fish_format_completion_escapes_help",
+    "tests/test_shell_completion.py::test_powershell_format_completion_escapes_help",
+    "tests/test_commands.py::test_command_no_args_is_help",
+    "tests/test_commands.py::test_get_help_option_names",
+    "tests/test_commands.py::test_group_add_command_name",
+    "tests/test_custom_classes.py::test_group_command_class",
+    "tests/test_formatting.py::test_command_write_usage_no_args",
+    "tests/test_info_dict.py::test_command",
+    "tests/test_shell_completion.py::test_command",
+    "tests/test_shell_completion.py::test_group_command_same_option"
+  ],
+  "seconds": 0.4194792500020412,
+  "bytes": 1990,
+  "noise10": 10
+}

@@ -19,3 +19,9 @@ web/node_modules/
 web/test-results/
 web/playwright-report/
 /.venv*/
+
+# Before-tests evaluation: regenerable trees and caches stay local
+evaluation/before-tests/cases/*/parent/
+evaluation/before-tests/*/index/
+evaluation/before-tests/*/home/
+evaluation/before-tests/exec/

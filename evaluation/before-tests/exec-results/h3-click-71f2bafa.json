@@ -1,0 +1,93 @@
+{
+ "case_id": "h3-click-71f2bafa",
+ "record": {
+  "command": [
+   "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/../observed-tests-evaluation-2026-10-13/werkzeug-env/bin/python",
+   "-B",
+   "-m",
+   "pytest",
+   "tests",
+   "--ignore=tests/test_stream_lifecycle.py",
+   "-q",
+   "-p",
+   "no:cacheprovider",
+   "--junitxml=/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/exec/h3-click-71f2bafa/base.xml",
+   "-o",
+   "addopts=",
+   "-W",
+   "ignore",
+   "-p",
+   "pytest_cov.plugin",
+   "--cov=click",
+   "--cov-context=test",
+   "--cov-report="
+  ],
+  "exit": 0,
+  "seconds": 16.2,
+  "summary": "2724 passed, 25 skipped, 1 xfailed in 15.75s"
+ },
+ "patched": {
+  "command": [
+   "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/../observed-tests-evaluation-2026-10-13/werkzeug-env/bin/python",
+   "-B",
+   "-m",
+   "pytest",
+   "tests",
+   "--ignore=tests/test_stream_lifecycle.py",
+   "-q",
+   "-p",
+   "no:cacheprovider",
+   "--junitxml=/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/exec/h3-click-71f2bafa/patched.xml",
+   "-o",
+   "addopts=",
+   "-W",
+   "ignore"
+  ],
+  "exit": 0,
+  "seconds": 6.1,
+  "summary": "2724 passed, 25 skipped, 1 xfailed in 5.77s"
+ },
+ "patch_applied": true,
+ "tests_run": 473,
+ "outcome_changed": [],
+ "commit_truth": [
+  "tests/test_formatting.py::test_wrap_text_visible_width",
+  "tests/test_utils/test_style.py::test_unstyle_other_ansi"
+ ],
+ "ranking": {
+  "static": {
+   "top10": [
+    "tests/test_formatting.py::test_wrap_text_visible_width",
+    "tests/test_formatting.py::test_help_formatter_write_usage_without_args_styled_prefix",
+    "tests/test_utils/test_style.py::test_unstyle_other_ansi",
+    "tests/test_formatting.py::test_write_usage_styled_prefix_keeps_options_on_one_line",
+    "tests/test_termui.py::test_prompt_and_confirm_ansi_respects_color",
+    "tests/test_utils/test_style.py::test_styling",
+    "tests/test_context.py::test_multiple_eager_callbacks",
+    "tests/test_context.py::test_hiding_of_unset_sentinel_in_callbacks",
+    "tests/test_options.py::test_custom_type_flag_value_standalone_option",
+    "tests/test_options.py::test_dual_options_custom_type_sentinel_flag_value"
+   ],
+   "observed": 0,
+   "bytes": 1857,
+   "gaps": []
+  },
+  "coverage": {
+   "top10": [
+    "tests/test_formatting.py::test_wrap_text_visible_width",
+    "tests/test_formatting.py::test_help_formatter_write_usage_without_args_styled_prefix",
+    "tests/test_utils/test_style.py::test_unstyle_other_ansi",
+    "tests/test_formatting.py::test_write_usage_styled_prefix_keeps_options_on_one_line",
+    "tests/test_termui.py::test_prompt_and_confirm_ansi_respects_color",
+    "tests/test_utils/test_style.py::test_styling",
+    "tests/test_context.py::test_multiple_eager_callbacks",
+    "tests/test_context.py::test_hiding_of_unset_sentinel_in_callbacks",
+    "tests/test_options.py::test_custom_type_flag_value_standalone_option",
+    "tests/test_options.py::test_dual_options_custom_type_sentinel_flag_value"
+   ],
+   "observed": 0,
+   "bytes": 1992,
+   "gaps": []
+  }
+ }
+}

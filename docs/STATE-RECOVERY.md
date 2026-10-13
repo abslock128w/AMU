@@ -11,6 +11,12 @@ only to missing files. Existing corrupt data stays on disk; restore the affected
 file from a known backup or repair the reported field, then rerun the command.
 AMU does not silently clear a corrupt contract or reset a corrupt retry budget.
 
+If Git cannot enumerate changed files, `amu check`, `amu sweep`, and `amu done`
+stop with CLI exit 2 (`git_change_enumeration_failed` in JSON) instead of
+reporting a clean worktree. The diagnostic names the failing Git operation and
+asks you to check Git access, the repository, or the approved base ref before
+retrying. A failed check attempt remains nonpassing.
+
 JSON reads are limited to 16 MiB and reject ambiguous duplicate keys, nonfinite
 numbers, unsafe links and nonregular files. Managed state paths stay inside their
 directory. State directories and lock files must be owned by the current user;

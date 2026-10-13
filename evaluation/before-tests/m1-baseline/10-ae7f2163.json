@@ -1,0 +1,17 @@
+{
+  "case_id": "10-ae7f2163",
+  "function_recall10": null,
+  "file_recall10": null,
+  "function_hits": [],
+  "missing_from_parent": [],
+  "recommended": 4,
+  "top10": [
+    "tests/sansio/test_request.py::test_content_length",
+    "tests/sansio/test_request.py::test_cookies",
+    "tests/sansio/test_request.py::test_sec_fetch_mode",
+    "tests/sansio/test_request.py::test_sec_fetch_site"
+  ],
+  "seconds": 5.503700500001287,
+  "bytes": 16816,
+  "noise10": 4
+}

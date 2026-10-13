@@ -1,0 +1,338 @@
+{
+  "schema_version": 1,
+  "baseline_commit": "369c65c25d2a02831e178c04428c56d6e1245465",
+  "python_payload_sha256": "321492f0a49fd95150ebfe78ef001735bd1b6255b91e92982c05153c645accff",
+  "packet_schema_version": 4,
+  "mcp_manifest_version": "amu-inspection-v4",
+  "mcp_manifest_sha256": "69b9cb13ce88ddbb89a5aadeee716ff7776319d8acf8955a0fd6e0823f26a226",
+  "eligible_python_suite": {
+    "passed": 2353,
+    "failed": 0,
+    "skipped": 12,
+    "seconds": 246.841,
+    "skipped_reason_counts": {
+      "external_graph_opt_in": 11,
+      "filesystem_filename_support": 1
+    }
+  },
+  "installed_checks": {
+    "cli": "passed",
+    "mcp_base_stdio": "passed",
+    "mcp_patch_stdio": "passed",
+    "patch_steps": [
+      {
+        "profile": "v1",
+        "check": "manifest_identity_and_actions_denied",
+        "status": "passed"
+      },
+      {
+        "profile": "v4",
+        "check": "manifest_identity_and_actions_denied",
+        "status": "passed"
+      },
+      {
+        "profile": "v4",
+        "check": "literal_patch_paging_strict_inputs_limits_repository_boundary",
+        "status": "passed"
+      },
+      {
+        "profile": "v4",
+        "check": "stale_cursor_rejected_and_source_tests_state_preserved",
+        "status": "passed"
+      }
+    ],
+    "dependencies_match_existing_constraints": "passed"
+  },
+  "development_ranking": {
+    "matching_rules": "Exact test IDs. Relevant means the two inputs/assertions tied to the changed behavior. First three summary checks counted separately from the complete candidate set. All six tests remain denominator; calls alone are not credited as behavioral evidence.",
+    "label_denominator": {
+      "cases": 5,
+      "tests": 30,
+      "relevant_tests": 10
+    },
+    "runs": {
+      "development-baseline": {
+        "totals": {
+          "initial_candidates": 15,
+          "initial_relevant": 0,
+          "complete_candidates": 30,
+          "complete_relevant": 10,
+          "input_and_assertion_relevant": 0,
+          "assertion_only_relevant": 0,
+          "relevant_missing": 0,
+          "lost_baseline_relevant": 0
+        },
+        "cases": [
+          {
+            "case": "boundary",
+            "initial_candidates": 3,
+            "initial_relevant": 0,
+            "complete_candidates": 6,
+            "complete_relevant": 2,
+            "input_and_assertion_relevant": 0,
+            "assertion_only_relevant": 0,
+            "relevant_missing": 0,
+            "lost_baseline_relevant": 0,
+            "obligations": 0
+          },
+          {
+            "case": "guarded-return",
+            "initial_candidates": 3,
+            "initial_relevant": 0,
+            "complete_candidates": 6,
+            "complete_relevant": 2,
+            "input_and_assertion_relevant": 0,
+            "assertion_only_relevant": 0,
+            "relevant_missing": 0,
+            "lost_baseline_relevant": 0,
+            "obligations": 0
+          },
+          {
+            "case": "exception",
+            "initial_candidates": 3,
+            "initial_relevant": 0,
+            "complete_candidates": 6,
+            "complete_relevant": 2,
+            "input_and_assertion_relevant": 0,
+            "assertion_only_relevant": 0,
+            "relevant_missing": 0,
+            "lost_baseline_relevant": 0,
+            "obligations": 0
+          },
+          {
+            "case": "shared-state",
+            "initial_candidates": 3,
+            "initial_relevant": 0,
+            "complete_candidates": 6,
+            "complete_relevant": 2,
+            "input_and_assertion_relevant": 0,
+            "assertion_only_relevant": 0,
+            "relevant_missing": 0,
+            "lost_baseline_relevant": 0,
+            "obligations": 0
+          },
+          {
+            "case": "default",
+            "initial_candidates": 3,
+            "initial_relevant": 0,
+            "complete_candidates": 6,
+            "complete_relevant": 2,
+            "input_and_assertion_relevant": 0,
+            "assertion_only_relevant": 0,
+            "relevant_missing": 0,
+            "lost_baseline_relevant": 0,
+            "obligations": 0
+          }
+        ]
+      },
+      "development-candidate": {
+        "totals": {
+          "initial_candidates": 15,
+          "initial_relevant": 10,
+          "complete_candidates": 30,
+          "complete_relevant": 10,
+          "input_and_assertion_relevant": 6,
+          "assertion_only_relevant": 4,
+          "relevant_missing": 0,
+          "lost_baseline_relevant": 0
+        },
+        "cases": [
+          {
+            "case": "boundary",
+            "initial_candidates": 3,
+            "initial_relevant": 2,
+            "complete_candidates": 6,
+            "complete_relevant": 2,
+            "input_and_assertion_relevant": 2,
+            "assertion_only_relevant": 0,
+            "relevant_missing": 0,
+            "lost_baseline_relevant": 0,
+            "obligations": 1
+          },
+          {
+            "case": "guarded-return",
+            "initial_candidates": 3,
+            "initial_relevant": 2,
+            "complete_candidates": 6,
+            "complete_relevant": 2,
+            "input_and_assertion_relevant": 2,
+            "assertion_only_relevant": 0,
+            "relevant_missing": 0,
+            "lost_baseline_relevant": 0,
+            "obligations": 1
+          },
+          {
+            "case": "exception",
+            "initial_candidates": 3,
+            "initial_relevant": 2,
+            "complete_candidates": 6,
+            "complete_relevant": 2,
+            "input_and_assertion_relevant": 0,
+            "assertion_only_relevant": 2,
+            "relevant_missing": 0,
+            "lost_baseline_relevant": 0,
+            "obligations": 1
+          },
+          {
+            "case": "shared-state",
+            "initial_candidates": 3,
+            "initial_relevant": 2,
+            "complete_candidates": 6,
+            "complete_relevant": 2,
+            "input_and_assertion_relevant": 0,
+            "assertion_only_relevant": 2,
+            "relevant_missing": 0,
+            "lost_baseline_relevant": 0,
+            "obligations": 1
+          },
+          {
+            "case": "default",
+            "initial_candidates": 3,
+            "initial_relevant": 2,
+            "complete_candidates": 6,
+            "complete_relevant": 2,
+            "input_and_assertion_relevant": 2,
+            "assertion_only_relevant": 0,
+            "relevant_missing": 0,
+            "lost_baseline_relevant": 0,
+            "obligations": 1
+          }
+        ]
+      }
+    }
+  },
+  "preserved_development": {
+    "cases": 14,
+    "labels": {
+      "relevant": 16,
+      "irrelevant": 23,
+      "uncertain": 1
+    },
+    "baseline_and_candidate": {
+      "complete_candidates": 24,
+      "initial_selected": 24,
+      "relevant_selected": 13,
+      "irrelevant_selected": 11,
+      "relevant_missed": 3
+    },
+    "lost_baseline_relevant": 0
+  },
+  "original_frozen_holdout": {
+    "cases": 13,
+    "label_behavior_distinctions": 12,
+    "label_relevant_tests": 11,
+    "initial_and_complete": {
+      "baseline_relevant": 10,
+      "candidate_relevant": 10,
+      "baseline_candidates": 13,
+      "candidate_candidates": 13
+    },
+    "strict_behavior_descriptions": {
+      "baseline": 8,
+      "candidate": 9
+    },
+    "paired_input_assertion": {
+      "baseline": 0,
+      "candidate": 1
+    },
+    "end_to_end_source_paths": {
+      "denominator": 8,
+      "baseline": 5,
+      "candidate": 7
+    },
+    "lost_baseline_relevant": 0
+  },
+  "holdout_guided_development": {
+    "strict_behavior_descriptions": 11,
+    "paired_input_assertion": 2,
+    "shared_state_move": "partial",
+    "wrapper_path": "missed",
+    "false_key_removal": "removed in separate final review correction; original evidence preserved"
+  },
+  "real_patches": {
+    "callback": {
+      "commit": "bac5dbc710f2c5e9a8b8854e6f0f2bbdda1c5ab8",
+      "tests": 15,
+      "obligations": 43,
+      "test_source_obligations": 35,
+      "behavioral_evidence": "broad"
+    },
+    "git_enumeration": {
+      "commit": "bf313a9caca5d7cd6dc0d4ab9b9fe5e45a0b720b",
+      "tests": 4,
+      "obligations": 47,
+      "test_source_obligations": 34,
+      "behavioral_evidence": "broad"
+    }
+  },
+  "reviewed_execution": {
+    "families": 2,
+    "regression_candidates_failed": 2,
+    "original_compatible_corrected_variants_passed": 6,
+    "protected_checks_unchanged": true,
+    "manifest_sha256": "9f692ff3c1d7c2aaa452e4d7e933783dbfaadf44488c4c8355ac318c551c6e8d"
+  },
+  "not_run": [
+    "external graph opt-ins",
+    "browser suite: local web dependencies unavailable; network installation not authorized",
+    "controlled agent trials"
+  ],
+  "raw_evidence": "sibling phase3-validation-2026-10-11 directory; frozen author inputs/labels in sibling phase3-holdout",
+  "historical_failure_correction": "Earlier build-identity test used older AMU installed in final314 while pytest loaded current checkout. Reproduced; matching installed release resolves it. Failed and interrupted logs preserved.",
+  "installed_measurements": {
+    "method": "20 existing static cases (5 development, 13 holdout-derived development replay, 2 real patches), three serial trials per installed version; CLI includes process startup, MCP calls include the installed CLI subprocess and SDK transport after stdio initialization. Two serial MCP batches of ten exact repository grants preserve the existing sixteen-root cap. Byte counts are exact stdout/text and compact SDK envelopes. Runs may have OS cache effects; no statistical inference. Run after the full suite and collections finish to avoid overlapping validation load.",
+    "summary": {
+      "baseline": {
+        "cli_trials": 60,
+        "cli_seconds_median": 0.11238106199925824,
+        "cli_seconds_max": 1.2074640419996285,
+        "cli_stdout_bytes_median": 5978.0,
+        "cli_stdout_bytes_max": 13997,
+        "mcp_trials": 60,
+        "mcp_seconds_median": 0.11286114599897701,
+        "mcp_seconds_max": 1.3548565000019153,
+        "mcp_text_bytes_median": 6283.0,
+        "mcp_text_bytes_max": 14793,
+        "mcp_envelope_bytes_max": 32299,
+        "mcp_startup_initialize_seconds": 0.5845320209991769
+      },
+      "candidate": {
+        "cli_trials": 60,
+        "cli_seconds_median": 0.11285497950120771,
+        "cli_seconds_max": 1.5049512919977133,
+        "cli_stdout_bytes_median": 7783.0,
+        "cli_stdout_bytes_max": 18282,
+        "mcp_trials": 60,
+        "mcp_seconds_median": 0.11362072900010389,
+        "mcp_seconds_max": 1.4847706250002375,
+        "mcp_text_bytes_median": 8186.5,
+        "mcp_text_bytes_max": 19252,
+        "mcp_envelope_bytes_max": 41801,
+        "mcp_startup_initialize_seconds": 0.29443129150058667
+      }
+    },
+    "deterministic_report_groups": 80,
+    "trials_per_group": 3,
+    "raw_sha256": "621310907bd1db651db5b04137070e737c35c35e08c175cb46d7fdfd11344aa6",
+    "real_cli_medians": {
+      "baseline": {
+        "real/callback": 0.5966155000023718,
+        "real/git-enumeration": 1.204875625000568
+      },
+      "candidate": {
+        "real/callback": 0.8433498750018771,
+        "real/git-enumeration": 1.48451895800099
+      }
+    }
+  },
+  "performance_investigation": {
+    "profile_scope": "Trusted installed AMU on same real patches; target code parsed only. Profiling wall times are instrumented and not end-to-end measurements.",
+    "additional_work": "Test-call discovery, AST walking, lexical binding counts",
+    "test_functions_scanned": {
+      "callback": 1323,
+      "git_enumeration": 1341
+    },
+    "larger_patch_cost": "Callback CLI +0.247s (~41%); Git enumeration CLI +0.280s (~23%). Overall medians near equal; responses ~30% larger.",
+    "known_limit": "Behavioral discovery examines bounded inventoried tests before selecting candidates."
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "case_id": "h3-click-71f2bafa",
+  "function_recall10": 0.16666666666666666,
+  "file_recall10": 0.6666666666666666,
+  "function_hits": [
+    "tests/test_formatting.py::test_wrap_text_visible_width",
+    "tests/test_utils/test_style.py::test_unstyle_other_ansi"
+  ],
+  "missing_from_parent": [
+    "tests/test_compat.py::test_ansi_re_matches_whole_sequence",
+    "tests/test_compat.py::test_strip_ansi_is_idempotent",
+    "tests/test_compat.py::test_strip_ansi_is_superset_of_legacy",
+    "tests/test_compat.py::test_strip_ansi_leaves_incomplete_sequences",
+    "tests/test_compat.py::test_strip_ansi_leaves_plain_text",
+    "tests/test_compat.py::test_strip_ansi_mixed_content",
+    "tests/test_compat.py::test_strip_ansi_removes_full_sequence",
+    "tests/test_compat.py::test_strip_ansi_stops_at_final_byte",
+    "tests/test_compat.py::test_term_len",
+    "tests/test_compat.py::test_truncate_visible"
+  ],
+  "recommended": 10,
+  "top10": [
+    "tests/test_formatting.py::test_wrap_text_visible_width",
+    "tests/test_formatting.py::test_help_formatter_write_usage_without_args_styled_prefix",
+    "tests/test_utils/test_style.py::test_unstyle_other_ansi",
+    "tests/test_formatting.py::test_write_usage_styled_prefix_keeps_options_on_one_line",
+    "tests/test_termui.py::test_prompt_and_confirm_ansi_respects_color",
+    "tests/test_utils/test_style.py::test_styling",
+    "tests/test_context.py::test_multiple_eager_callbacks",
+    "tests/test_context.py::test_hiding_of_unset_sentinel_in_callbacks",
+    "tests/test_options.py::test_custom_type_flag_value_standalone_option",
+    "tests/test_options.py::test_dual_options_custom_type_sentinel_flag_value"
+  ],
+  "seconds": 0.43284637499891687,
+  "bytes": 1948,
+  "noise10": 8
+}

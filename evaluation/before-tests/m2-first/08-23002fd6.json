@@ -1,0 +1,22 @@
+{
+  "case_id": "08-23002fd6",
+  "function_recall10": null,
+  "file_recall10": null,
+  "function_hits": [],
+  "missing_from_parent": [],
+  "recommended": 9,
+  "top10": [
+    "tests/sansio/test_request.py::test_content_length",
+    "tests/sansio/test_request.py::test_cookies",
+    "tests/sansio/test_request.py::test_sec_fetch_mode",
+    "tests/sansio/test_request.py::test_sec_fetch_site",
+    "tests/test_http.py::TestRange::test_if_range_parsing",
+    "tests/middleware/test_proxy_fix.py::test_proxy_fix",
+    "tests/test_wrappers.py::test_accept",
+    "tests/test_wrappers.py::test_etag_request",
+    "tests/test_wrappers.py::test_request_method_case_sensitivity"
+  ],
+  "seconds": 0.4748699169977044,
+  "bytes": 1886,
+  "noise10": 9
+}

@@ -1,0 +1,90 @@
+{
+ "case_id": "click-v2-05f6fd0d",
+ "record": {
+  "command": [
+   "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/../observed-tests-evaluation-2026-10-13/werkzeug-env/bin/python",
+   "-B",
+   "-m",
+   "pytest",
+   "tests",
+   "--ignore=tests/test_stream_lifecycle.py",
+   "-q",
+   "-p",
+   "no:cacheprovider",
+   "--junitxml=/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/exec/click-v2-05f6fd0d/base.xml",
+   "-o",
+   "addopts=",
+   "-W",
+   "ignore",
+   "-p",
+   "pytest_cov.plugin",
+   "--cov=click",
+   "--cov-context=test",
+   "--cov-report="
+  ],
+  "exit": 0,
+  "seconds": 22.8,
+  "summary": "3039 passed, 25 skipped, 1 xfailed in 22.31s"
+ },
+ "patched": {
+  "command": [
+   "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/../observed-tests-evaluation-2026-10-13/werkzeug-env/bin/python",
+   "-B",
+   "-m",
+   "pytest",
+   "tests",
+   "--ignore=tests/test_stream_lifecycle.py",
+   "-q",
+   "-p",
+   "no:cacheprovider",
+   "--junitxml=/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/exec/click-v2-05f6fd0d/patched.xml",
+   "-o",
+   "addopts=",
+   "-W",
+   "ignore"
+  ],
+  "exit": 0,
+  "seconds": 8.2,
+  "summary": "3039 passed, 25 skipped, 1 xfailed in 7.80s"
+ },
+ "patch_applied": true,
+ "tests_run": 533,
+ "outcome_changed": [],
+ "commit_truth": [],
+ "ranking": {
+  "static": {
+   "top10": [
+    "tests/test_arguments.py::test_deprecated_empty_help_no_leading_space",
+    "tests/test_options.py::test_help_spec",
+    "tests/test_options.py::test_deprecated_empty_help_no_leading_space",
+    "tests/test_options.py::test_file_type_help_default",
+    "tests/test_options.py::test_intrange_default_help_text",
+    "tests/test_options.py::test_dynamic_default_help_special_method",
+    "tests/test_options.py::test_count_default_type_help",
+    "tests/test_options.py::test_do_not_show_default_empty_multiple",
+    "tests/test_options.py::test_hide_false_default_boolean_flag_value",
+    "tests/test_options.py::test_show_true_default_boolean_flag_value"
+   ],
+   "observed": 0,
+   "bytes": 1860,
+   "gaps": []
+  },
+  "coverage": {
+   "top10": [
+    "tests/test_arguments.py::test_deprecated_empty_help_no_leading_space",
+    "tests/test_arguments.py::test_deprecated_usage_help_record",
+    "tests/test_arguments.py::test_deprecated_usage_help_record_without_help",
+    "tests/test_arguments.py::test_argument_help_lists_undocumented_arguments",
+    "tests/test_arguments.py::test_argument_help_empty_string_lists_all",
+    "tests/test_arguments.py::test_argument_help_optional_metavar",
+    "tests/test_arguments.py::test_argument_help",
+    "tests/test_arguments.py::test_argument_help_deprecated_without_help_lists_all",
+    "tests/test_arguments.py::test_deprecated_usage",
+    "tests/test_arguments.py::test_argument_help_undocumented_arguments_only_no_section"
+   ],
+   "observed": 10,
+   "bytes": 1955,
+   "gaps": []
+  }
+ }
+}

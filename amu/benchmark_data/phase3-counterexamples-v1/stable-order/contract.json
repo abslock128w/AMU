@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "fixture_version": "phase3-counterexamples-v1",
+  "family": "stable-order",
+  "owner": "AMU",
+  "basis": "AMU-owned literal behavioral contract, defined independently of candidate outcomes.",
+  "probe": {"test_id": "contract::first_seen_order", "input": [[3, 1, 3, 2]], "expected": {"values": [3, 1, 2]}},
+  "tests": [
+    {"test_id": "test_first_seen_numeric_order", "input": [[3, 1, 3, 2]], "expected": {"values": [3, 1, 2]}},
+    {"test_id": "test_first_seen_text_order", "input": [["b", "a", "b"]], "expected": {"values": ["b", "a"]}},
+    {"test_id": "test_empty_input", "input": [[]], "expected": {"values": []}},
+    {"test_id": "test_repeat_single_value", "input": [[4, 4, 4]], "expected": {"values": [4]}}
+  ],
+  "cases": {
+    "compatible": {"candidate_passes": true, "change": "Use an early continue for duplicates while keeping first-seen order."},
+    "regression": {"candidate_passes": false, "change": "Sort a set, losing the first-seen order."},
+    "corrected": {"candidate_passes": true, "corrects": "regression", "change": "Use insertion-ordered dictionary keys to retain first-seen order."}
+  }
+}

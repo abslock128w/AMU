@@ -1,0 +1,5 @@
+{
+  "case_id": "h2-itsdangerous-aed5b260",
+  "error": "-4e07-bace-49a9194bc191/scratchpad/pristine/amu/value_flow.py\", line 1023, in block\n    self.block(\n    ~~~~~~~~~~^\n        handler.body,\n        ^^^^^^^^^^^^^\n        [*constraints, *([handler_constraint] if handler_constraint else [])],\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        handlers,\n        ^^^^^^^^^\n    )\n    ^\n  File \"/private/tmp/claude-502/-Users-Abslock128-Documents-ChatGPT-AMU/f7b55dfe-b587-4e07-bace-49a9194bc191/scratchpad/pristine/amu/value_flow.py\", line 913, in block\n    exc = self.r.exception(self.path, node.exc, self.env, self.local) if node.exc else None\n          ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/claude-502/-Users-Abslock128-Documents-ChatGPT-AMU/f7b55dfe-b587-4e07-bace-49a9194bc191/scratchpad/pristine/amu/semantic.py\", line 472, in exception\n    if symbol and symbol.kind == \"exception\":\n                  ^^^^^^^^^^^\nAttributeError: 'Instance' object has no attribute 'kind'\n",
+  "seconds": 0.4179175419994863
+}

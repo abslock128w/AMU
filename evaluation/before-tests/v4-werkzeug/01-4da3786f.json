@@ -1,0 +1,26 @@
+{
+  "case_id": "01-4da3786f",
+  "function_recall10": 0.0,
+  "file_recall10": 1.0,
+  "function_hits": [],
+  "missing_from_parent": [
+    "tests/test_urls.py::test_uri_empty_auth",
+    "tests/test_urls.py::test_uri_port_0"
+  ],
+  "recommended": 10,
+  "top10": [
+    "tests/test_urls.py::test_iri_to_uri_to_iri",
+    "tests/test_urls.py::test_uri_to_iri_to_uri",
+    "tests/test_urls.py::test_uri_iri_normalization",
+    "tests/test_urls.py::test_iri_safe_quoting",
+    "tests/test_urls.py::test_iri_support",
+    "tests/test_urls.py::test_iri_to_uri_dont_quote_valid_code_points",
+    "tests/test_urls.py::test_uri_to_iri_dont_unquote_space",
+    "tests/test_urls.py::test_iri_to_uri_idempotence_ascii_only",
+    "tests/test_urls.py::test_uri_to_iri_idempotence_ascii_only",
+    "tests/test_urls.py::test_iri_to_uri_idempotence_non_ascii"
+  ],
+  "seconds": 0.49717041699477704,
+  "bytes": 1964,
+  "noise10": 10
+}

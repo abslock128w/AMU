@@ -1,0 +1,75 @@
+{
+  "rule": "Walk git rev-list --no-merges backwards from frozen HEAD; first commits with production src .py and added/modified test function AST, including transitively referenced decorator parameter data. Werkzeug skips original 16. No AMU execution before selection.",
+  "heads": {
+    "werkzeug": "3e430f68900f2ffd89906137526a722eb4f6ebbb",
+    "click": "2247b35ea1c47c727d7a06e51fa280e12a863ff6"
+  },
+  "hashes": {
+    "werkzeug-v2.json": "54c4a060e1e8bdd6b8a394da7ae48349f68730f8af35b9a019951cc6b6e11513",
+    "click-sealed-v2.json": "86615aa349bb6153fe7df08f50c95fe7f1beb6abacfc21ae1a806067ec1c2503"
+  },
+  "commits": {
+    "werkzeug-v2.json": [
+      "4da3786f1443cbd6efd3f4107bcd5b4ab121f122",
+      "0c419f951f3206c89e7c95155f0bd771b02a961f",
+      "594452f6a4fe4de38a544962fbf04bfc9d37fbc2",
+      "fbbbf74573ddd05ac7c19854f9a1c0ea2ed4180b",
+      "2c453bf3f307b13cc2e3025458743d3812fa50e6",
+      "54b7596dff77d7e1a9d04b2490d5fd3b1de0fc7a",
+      "42f3ccf94903bf7076591b4e04091de340fc73fe",
+      "23002fd651c1f190cc53150cd506425602bed6a1",
+      "f85f38071774a46a95830e7614c55a7a481c1c89",
+      "ae7f2163ff341bdf622ed162111265e3090d93d0",
+      "b2a2c09730086ab2d375f0b069c821d4edf526b7",
+      "6d7c0b4e2f78c337f55a8a87c34fbb936a608f70",
+      "1b8bc581fd81374b2a989bed95e9bb329a6ee55f",
+      "c678a2310328d2ecd082f0c77a514eb738bbe9d2",
+      "ab16e62df72374059345eb0af07132ad7e5db9ce",
+      "658bf5ed30e5b2b68826c31dfbe7ca8e13059c5d",
+      "5b0e3209ad5d81b0015c277c0521d6d956d7f688",
+      "6b495d0d7e9f5fdce019ef30cc8bde77ac992306",
+      "97d9f22ac3c78f4a197826b5ddbcb261ff540383",
+      "0743179b5d010eb851c66e40d69c52244ed99aea",
+      "4576839553881c3ff45a0ac7376b470d758aacec",
+      "dc1993492efbdf2fd61b04971e4b9db575d61a7c",
+      "f359a67ed75112cb8633d8edf589a1e58d035d37"
+    ],
+    "click-sealed-v2.json": [
+      "9f0bcdf0d868edfc71435cd0aac2dcc08cf94828",
+      "b90faad1788bc030bb3320938f07c9189f42d7d0",
+      "d036881798e34289a49b18a5c550c7cf687e5a7a",
+      "e2bddbc801dabc4efc3c3c1e32b53b3f938d3efc",
+      "f67c2bb6c2f055c1c7a57cd46c3697fc26a7742e",
+      "05f6fd0df4ecbd104eb7a229f9f185c2484dee69",
+      "405a5481e4dbd5022799993d787bd8446137d9a3",
+      "f25f697a439acc2b0d84aa8f5413330f4e2e75cf",
+      "22177f857a34e3c35ba957553853a37f23feb37e",
+      "271effb3d96da5575eb527216ce3552bd7628fab"
+    ]
+  },
+  "original_cases": [
+    "01-4da3786f",
+    "02-0c419f95",
+    "03-594452f6",
+    "04-fbbbf745",
+    "05-2c453bf3",
+    "06-54b7596d",
+    "07-42f3ccf9",
+    "08-23002fd6",
+    "09-f85f3807",
+    "10-ae7f2163",
+    "11-b2a2c097",
+    "12-6d7c0b4e",
+    "13-1b8bc581",
+    "14-c678a231",
+    "15-ab16e62d",
+    "16-658bf5ed"
+  ],
+  "thresholds": {
+    "file_case_hit_rate": 0.75,
+    "function_case_hit_rate": 0.5,
+    "max_recommendations": 40
+  },
+  "scoring": "Per-case recall fractions and aggregate nonzero-hit proportions; empty ground truth N/A. New tests absent in parent count as misses. Noise means non-ground-truth recommendations, not proof of irrelevance.",
+  "supersedes": "freeze.json; original baseline retained unchanged; Click v1 never executed"
+}

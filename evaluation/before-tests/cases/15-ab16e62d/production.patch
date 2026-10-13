@@ -1,0 +1,33 @@
+diff --git a/src/werkzeug/routing/converters.py b/src/werkzeug/routing/converters.py
+index 6016a975..aa862af9 100644
+--- a/src/werkzeug/routing/converters.py
++++ b/src/werkzeug/routing/converters.py
+@@ -152,7 +152,12 @@ class NumberConverter(BaseConverter):
+     def to_python(self, value: str) -> t.Any:
+         if self.fixed_digits and len(value) != self.fixed_digits:
+             raise ValidationError()
+-        value_num = self.num_convert(value)
++
++        try:
++            value_num = self.num_convert(value)
++        except ValueError as e:
++            raise ValidationError() from e
++
+         if (self.min is not None and value_num < self.min) or (
+             self.max is not None and value_num > self.max
+         ):
+diff --git a/src/werkzeug/routing/matcher.py b/src/werkzeug/routing/matcher.py
+index 1f03c460..06483e77 100644
+--- a/src/werkzeug/routing/matcher.py
++++ b/src/werkzeug/routing/matcher.py
+@@ -188,8 +188,8 @@ class StateMachineMatcher:
+             for name, value in zip(rule._converters.keys(), values):
+                 try:
+                     value = rule._converters[name].to_python(value)
+-                except ValidationError:
+-                    raise NoMatch(have_match_for, websocket_mismatch) from None
++                except ValidationError as e:
++                    raise NoMatch(have_match_for, websocket_mismatch) from e
+                 result[str(name)] = value
+             if rule.defaults:
+                 result.update(rule.defaults)

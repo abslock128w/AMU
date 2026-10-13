@@ -1,0 +1,28 @@
+{
+  "case_id": "extra-0743179b",
+  "function_recall10": 0.6666666666666666,
+  "file_recall10": 1.0,
+  "function_hits": [
+    "tests/test_wsgi.py::test_get_host",
+    "tests/test_wsgi.py::test_get_host_fallback"
+  ],
+  "missing_from_parent": [
+    "tests/sansio/test_utils.py::test_trusted"
+  ],
+  "recommended": 10,
+  "top10": [
+    "tests/test_wsgi.py::test_get_host_validate_trusted_hosts",
+    "tests/test_wsgi.py::test_get_host",
+    "tests/test_routing.py::test_external_building_with_port_bind_to_environ",
+    "tests/test_test.py::test_environ_builder_paths",
+    "tests/sansio/test_utils.py::test_get_host_unix",
+    "tests/test_wsgi.py::test_get_host_fallback",
+    "tests/test_routing.py::test_external_building_with_port_bind_to_environ_wrong_servername",
+    "tests/test_routing.py::test_http_host_before_server_name",
+    "tests/sansio/test_utils.py::test_get_host",
+    "tests/test_routing.py::test_bind_trusted_host"
+  ],
+  "seconds": 0.5609780410013627,
+  "bytes": 1994,
+  "noise10": 8
+}

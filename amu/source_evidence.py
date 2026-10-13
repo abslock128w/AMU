@@ -11,8 +11,10 @@ from __future__ import annotations
 
 import ast
 import copy
+import hashlib
 import os
 import re
+import sys
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any, Literal
@@ -539,8 +541,31 @@ def _dotted_expr(node: ast.expr) -> tuple[str, ...] | None:
     return None
 
 
+def _package_submodule(repo: str, source_path: str, module: str | None, level: int, name: str) -> str | None:
+    """Resolve a plain package submodule only when its package has no competing binding."""
+    path = _module_file(source_path, module, level)
+    if path is None or not name.isidentifier():
+        return None
+    package = path[:-3]
+    root = Path(repo)
+    # A same-named module/package or package export can change import meaning.
+    if (root / path).exists() or (root / path).is_symlink():
+        return None
+    parsed = _source_tree(repo, package + "/__init__.py")
+    candidate = package + "/" + name + ".py"
+    if parsed is None or _source_tree(repo, candidate) is None:
+        return None
+    risk = _ModuleBindingRisk(name)
+    risk.visit(parsed[0])
+    if (risk.bindings or risk.dynamic
+            or any(isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == "__getattr__"
+                   for node in getattr(parsed[0], "body", []))):
+        return None
+    return candidate
+
+
 def _module_bindings(
-    tree: ast.AST, source_path: str
+    tree: ast.AST, source_path: str, *, repo: str | None = None
 ) -> tuple[dict[str, tuple[str, tuple[str, ...]]], dict[str, tuple[str, tuple[str, ...]]]]:
     """Return simple ``from`` and ``import`` bindings visible at module scope."""
     direct: dict[str, tuple[str, tuple[str, ...]]] = {}
@@ -554,7 +579,11 @@ def _module_bindings(
                 parts = tuple(part for part in alias.name.split(".") if part)
                 local = alias.asname or (parts[0] if parts else "")
                 if local and parts and all(part.isidentifier() for part in parts):
-                    direct[local] = (module_path, parts)
+                    submodule = _package_submodule(repo, source_path, node.module, node.level, alias.name) if repo else None
+                    if submodule:
+                        modules[local] = (submodule, (local,))
+                    else:
+                        direct[local] = (module_path, parts)
         elif isinstance(node, ast.Import):
             for alias in node.names:
                 parts = tuple(part for part in alias.name.split(".") if part)
@@ -587,8 +616,9 @@ def _scope_binds_name(tree: ast.AST, start_line: int | None, end_line: int | Non
 class _ModuleBindingRisk(ast.NodeVisitor):
     """Track syntax that can invalidate a saved top-level import binding."""
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, allowed_calls: frozenset[ast.Call] = frozenset()):
         self.name = name
+        self.allowed_calls = allowed_calls
         self.bindings = 0
         self.dynamic = False
 
@@ -640,7 +670,7 @@ class _ModuleBindingRisk(ast.NodeVisitor):
 
     def visit_Call(self, node: ast.Call) -> None:  # noqa: N802
         chain = _dotted_expr(node.func)
-        if chain and (chain[0] == self.name or chain == ("exec",) or chain == ("eval",)
+        if chain and ((chain[0] == self.name and node not in self.allowed_calls) or chain == ("exec",) or chain == ("eval",)
                       or chain == ("globals",) or chain == ("locals",)):
             self.dynamic = True
         if chain in {("setattr",), ("delattr",)} and node.args:
@@ -649,8 +679,8 @@ class _ModuleBindingRisk(ast.NodeVisitor):
         self.generic_visit(node)
 
 
-def _module_binding_uncertain(tree: ast.AST, name: str) -> bool:
-    risk = _ModuleBindingRisk(name)
+def _module_binding_uncertain(tree: ast.AST, name: str, *, allowed_calls: frozenset[ast.Call] = frozenset()) -> bool:
+    risk = _ModuleBindingRisk(name, allowed_calls)
     risk.visit(tree)
     return risk.dynamic or risk.bindings > 1
 
@@ -727,7 +757,7 @@ def _call_identity(
     base = chain[0]
     if _scope_binds_name(tree, start_line, end_line, base) or _module_binding_uncertain(tree, base):
         return "unverifiable"
-    direct, modules = _module_bindings(tree, source_path)
+    direct, modules = _module_bindings(tree, source_path, repo=repo)
     binding = direct.get(base)
     if binding is not None:
         actual_path, prefix = binding
@@ -907,6 +937,16 @@ def graph_call_evidence(
     different file alone cannot: reexports/dynamic bindings remain deliberately
     unverifiable.
     """
+    from .semantic import ACTIVE_INDEX, normalized_id, source_calls
+    index = ACTIVE_INDEX.get()
+    if target_path and index is not None and getattr(index,"repository",None)==str(Path(repo).resolve()):
+        expected=normalized_id(index,target_path+"#"+target_symbol)
+        rows=source_calls(index,relative_path,scope_start,scope_end)
+        rows=[r for r in rows if line is None or r["location"]["line"]<=line<=r["location"]["end_line"]]
+        if any(r["source_id"]==expected and r["resolution"]=="resolved" for r in rows):
+            return "verified"
+        if any(r["source_id"]==expected for r in rows):
+            return "unverifiable"
     target = target_symbol.rsplit(".", 1)[-1].strip()
     parsed = _source_tree(repo, relative_path)
     if not target or parsed is None:
@@ -1003,6 +1043,10 @@ def _entry_evidence(
 
     if not source_path or not target:
         return "unverifiable", None
+    if section == "callees" and entry.get("external_boundary"):
+        # The filter establishes this syntax boundary independently below;
+        # it does not certify the imported callable's implementation.
+        return "verified", None
     if not target_path:
         # Entire can emit a named CALLS candidate without a resolved endpoint
         # file.  It is not identity-grade evidence, but the caller's AST can
@@ -1064,6 +1108,122 @@ def _entry_evidence(
     return verdict, metadata
 
 
+def _plain_frozen_dataclass(tree: ast.AST, definition: ast.AST, repo: str) -> bool:
+    """Recognize only a top-level class decorated by unshadowed stdlib dataclass.
+
+    The source establishes the declaration's file/name identity. It does not
+    establish runtime behavior or make unrelated decorators safe to resolve.
+    """
+    if not isinstance(definition, ast.ClassDef) or len(definition.decorator_list) != 1:
+        return False
+    decorator = definition.decorator_list[0]
+    if (not isinstance(decorator, ast.Call) or not isinstance(decorator.func, ast.Name)
+            or decorator.func.id != "dataclass" or decorator.args or len(decorator.keywords) != 1
+            or decorator.keywords[0].arg != "frozen"
+            or not isinstance(decorator.keywords[0].value, ast.Constant)
+            or decorator.keywords[0].value.value is not True):
+        return False
+    imports = [alias for node in getattr(tree, "body", [])
+               if isinstance(node, ast.ImportFrom) and node.level == 0 and node.module == "dataclasses"
+               for alias in node.names if alias.name == "dataclass" and alias.asname is None]
+    if len(imports) != 1 or "dataclasses" not in sys.stdlib_module_names:
+        return False
+    root = Path(repo)
+    if any((root / item).exists() or (root / item).is_symlink() for item in ("dataclasses.py", "dataclasses")):
+        return False
+    return not _module_binding_uncertain(tree, "dataclass", allowed_calls=frozenset({decorator}))
+
+
+def _resolve_pathless_callee(repo: str, impact: Mapping[str, Any], entry: Mapping[str, Any]) -> dict:
+    """Enrich one direct call from source, retaining its original provider endpoint.
+
+    Only explicit static imports, plain package submodules and unshadowed
+    standard-library imports are supported. Unknown third-party imports and
+    package exports retain their original unresolved identity.
+    """
+    result = dict(entry)
+    result.pop("external_boundary", None)  # Never accept a provider's source-proof claim.
+    endpoint = entry.get("endpoint")
+    focus = impact.get("focus")
+    if (not isinstance(endpoint, Mapping) or endpoint.get("file_path") or not isinstance(focus, Mapping)
+            or _line_value(entry.get("depth")) != 1 or entry.get("relation") not in {"CALLS", "ASYNC_CALLS"}):
+        return result
+    source_path = _text(focus.get("file_path"))
+    identity = _text(endpoint.get("qualified_name")) or _text(endpoint.get("name"))
+    parsed = _source_tree(repo, source_path) if source_path else None
+    if parsed is None or not identity:
+        return result
+    tree, source = parsed
+    start, end = _line_value(focus.get("start_line")), _line_value(focus.get("end_line"))
+    if start is None or end is None:
+        return result
+    direct, modules = _module_bindings(tree, source_path, repo=repo)
+    matches = []
+    for call in _scoped_calls(tree, start, end):
+        chain = _dotted_expr(call.func)
+        if (not chain or chain[-1] != identity.rsplit(".", 1)[-1]
+                or _scope_binds_name(tree, start, end, chain[0]) or _module_binding_uncertain(tree, chain[0])):
+            continue
+        path, symbol = None, ()
+        if chain[0] in direct:
+            path, prefix = direct[chain[0]]
+            symbol = (*prefix, *chain[1:])
+        elif chain[0] in modules:
+            path, prefix = modules[chain[0]]
+            symbol = chain[len(prefix):] if chain[:len(prefix)] == prefix else chain[1:]
+        if path is None or not symbol:
+            continue
+        parts = _module_parts(path)
+        if not parts:
+            continue
+        canonical = ".".join((*parts, *symbol))
+        # Some providers collapse `from package import submodule` to the
+        # package namespace. Match only that exact documented import form.
+        names = {canonical}
+        for node in getattr(tree, "body", []):
+            if isinstance(node, ast.ImportFrom):
+                for alias in node.names:
+                    if (alias.asname or alias.name) == chain[0] and chain[0] in modules:
+                        parent = _module_file(source_path, node.module, node.level)
+                        if parent:
+                            names.add(".".join((*(_module_parts(parent) or ()), *symbol)))
+        if identity not in names:
+            continue
+        target = _source_tree(repo, path)
+        if target is not None:
+            definition = _qualified_definition(target[0], ".".join(symbol))
+            if (len(symbol) == 1 and definition is not None
+                    and (not definition.decorator_list or _plain_frozen_dataclass(target[0], definition, repo))
+                    and not _module_binding_uncertain(target[0], symbol[0])):
+                matches.append((path, ".".join(symbol), definition, call, canonical))
+        elif parts[0] in sys.stdlib_module_names:
+            # Root shadowing (including packages/symlinks) precludes an
+            # established external import in this repository source namespace.
+            root = Path(repo)
+            if any((root / item).exists() or (root / item).is_symlink()
+                   for item in (parts[0] + ".py", parts[0])):
+                continue
+            matches.append((None, canonical, None, call, canonical))
+    identities = {(path, symbol) for path, symbol, _, _, _ in matches}
+    if len(identities) != 1:
+        return result
+    path, symbol, definition, _, _ = matches[0]
+    proof = {"source_path": source_path, "source_sha256": hashlib.sha256(source.encode("utf-8")).hexdigest(),
+             "locations": [{"line": call.lineno, "end_line": call.end_lineno} for _, _, _, call, _ in matches]}
+    if path is None:
+        result["external_boundary"] = {**proof, "identity": symbol, "kind": "python-stdlib-import",
+                                       "evidence": "source:python-ast:stdlib-import", "runtime_verified": False,
+                                       "provider_endpoint": dict(endpoint)}
+    else:
+        result["source_resolution"] = {**proof, "evidence": "source:python-ast:package-submodule",
+                                       "definition_form": "stdlib-frozen-dataclass" if definition.decorator_list else "undecorated",
+                                       "provider_endpoint": dict(endpoint)}
+        result["endpoint"] = {"file_path": path, "name": definition.name, "qualified_name": symbol,
+                              "kind": "class" if isinstance(definition, ast.ClassDef) else "function",
+                              "start_line": definition.lineno, "end_line": definition.end_lineno}
+    return result
+
+
 def filter_python_call_evidence(
     repo: str, impacts: Mapping[str, object]
 ) -> tuple[dict[str, object], list[dict[str, object]], list[dict[str, object]]]:
@@ -1090,6 +1250,8 @@ def filter_python_call_evidence(
                 if not isinstance(entry, Mapping):
                     retained.append(entry)
                     continue
+                if section == "callees":
+                    entry = _resolve_pathless_callee(repo, raw_impact, entry)
                 verdict, metadata = _entry_evidence(repo, raw_symbol, raw_impact, section, entry)
                 if verdict == "contradicted" and metadata is not None:
                     contradictions.append(metadata)
@@ -1098,8 +1260,6 @@ def filter_python_call_evidence(
                 if verdict == "unverifiable" and metadata is not None:
                     uncertainties.append(metadata)
                 retained.append(entry)
-            if not removed:
-                continue
             group["entries"] = retained
             total = group.get("total")
             if isinstance(total, int) and not isinstance(total, bool):

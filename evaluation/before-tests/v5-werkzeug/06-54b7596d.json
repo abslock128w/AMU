@@ -1,0 +1,23 @@
+{
+  "case_id": "06-54b7596d",
+  "function_recall10": null,
+  "file_recall10": null,
+  "function_hits": [],
+  "missing_from_parent": [],
+  "recommended": 10,
+  "top10": [
+    "tests/test_http.py::test_accept_invalid_float",
+    "tests/test_http.py::TestHTTPUtility::test_accept",
+    "tests/test_http.py::TestHTTPUtility::test_mime_accept",
+    "tests/test_http.py::TestHTTPUtility::test_accept_matches",
+    "tests/test_http.py::TestHTTPUtility::test_accept_mime_specificity",
+    "tests/test_http.py::TestHTTPUtility::test_accept_parameter_with_space",
+    "tests/test_http.py::TestHTTPUtility::test_language_accept",
+    "tests/test_http.py::test_accept_valid_int_one_zero",
+    "tests/test_http.py::TestRegression::test_best_match_works",
+    "tests/test_wrappers.py::test_accept"
+  ],
+  "seconds": 0.5136139580063173,
+  "bytes": 1982,
+  "noise10": 10
+}

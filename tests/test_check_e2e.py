@@ -77,6 +77,7 @@ def test_test_runner_rejects_phase_targets_outside_the_repo(tmp_path):
 
 
 def test_check_blocks_and_marks_state_red_when_tests_fail(fake_entire, tmp_path, monkeypatch):
+    _commit_source(tmp_path)
     _write_approved_state(tmp_path)
     monkeypatch.setattr(cli, "_run_tests", lambda *_args, **_kwargs: {"command": "pytest", "returncode": 1, "passed": False, "summary": "1 failed"})
 
@@ -90,6 +91,7 @@ def test_check_blocks_and_marks_state_red_when_tests_fail(fake_entire, tmp_path,
 
 
 def test_check_blocks_and_marks_state_red_when_the_build_fails(fake_entire, tmp_path, monkeypatch):
+    _commit_source(tmp_path)
     _write_approved_state(tmp_path)
     monkeypatch.setattr(cli, "_run_tests", lambda *_args, **_kwargs: {"command": "pytest", "returncode": 0, "passed": True, "summary": "1 passed"})
     monkeypatch.setattr(cli, "_run_build", lambda *_args, **_kwargs: {"command": "python -m build", "returncode": 1, "passed": False, "summary": "build failed"})
@@ -186,6 +188,7 @@ def test_sync_returns_tooling_exit_when_graph_snapshotting_fails(tmp_path, monke
 
 
 def test_check_enforces_graph_diff_files_even_when_git_has_no_worktree_change(fake_entire, tmp_path, monkeypatch):
+    _commit_source(tmp_path)
     _write_approved_state(tmp_path)
     monkeypatch.setattr(cli, "_run_tests", lambda *_args, **_kwargs: {"command": "pytest", "returncode": 0, "passed": True, "summary": "1 passed"})
 

@@ -90,7 +90,7 @@ def _initialize_identity(hello: dict) -> dict | None:
         return None
 
 
-async def _wire(python: str, repo: str, timeout: int) -> dict:
+async def _wire(python: str, repo: str, timeout: int, *, enable_patch_analysis: bool = False) -> dict:
     try:
         from mcp import ClientSession, StdioServerParameters
         from mcp.client.stdio import stdio_client
@@ -103,14 +103,18 @@ async def _wire(python: str, repo: str, timeout: int) -> dict:
     if runtime.get("mcp_version") is None:
         return _failure("mcp_sdk_unavailable", "Selected server Python has no optional MCP SDK; install its matching optional extra explicitly.",
                         status="unavailable", runtime=runtime)
-    parameters = StdioServerParameters(command=python, args=["-I", "-B", "-m", "amu.mcp_server", "--allow-repo", repo],
+    manifest_options = {"enable_patch_analysis": True} if enable_patch_analysis else {}
+    arguments = ["-I", "-B", "-m", "amu.mcp_server", "--allow-repo", repo]
+    if enable_patch_analysis:
+        arguments.append("--enable-patch-analysis")
+    parameters = StdioServerParameters(command=python, args=arguments,
                                        cwd=repo, env=mcp_access.child_environment())
     async with stdio_client(parameters) as (read, write):
         async with ClientSession(read, write, read_timeout_seconds=timeout) as session:
             hello = (await session.initialize()).model_dump(by_alias=True)
             listed = (await session.list_tools()).model_dump(by_alias=True)
     tools = listed.get("tools")
-    comparison = mcp_manifest.compare_tools(tools)
+    comparison = mcp_manifest.compare_tools(tools, **manifest_options)
     names = sorted(tool.get("name", "") for tool in tools) if isinstance(tools, list) and all(isinstance(tool, dict) for tool in tools) else []
     identity = _initialize_identity(hello)
     reasons = []
@@ -119,7 +123,7 @@ async def _wire(python: str, repo: str, timeout: int) -> dict:
     if identity is None:
         reasons.append("Server initialize metadata lacks AMU manifest/build identity; the selected installation may predate parity diagnostics.")
     else:
-        if identity.get("manifest_sha256") != mcp_manifest.inspection_manifest()["sha256"]:
+        if identity.get("manifest_sha256") != mcp_manifest.inspection_manifest(**manifest_options)["sha256"]:
             reasons.append("Server-reported manifest identity differs from the reviewed contract.")
         if identity.get("build_sha256") is None or identity.get("build_sha256") != runtime.get("build_sha256"):
             reasons.append("Server-reported build identity is unavailable or does not match the selected installed payload.")
@@ -127,7 +131,7 @@ async def _wire(python: str, repo: str, timeout: int) -> dict:
             reasons.append("Server-reported AMU version differs from the selected installed payload.")
     if runtime.get("build_sha256") is None:
         reasons.append("Selected Python payload identity could not be captured completely.")
-    source = mcp_manifest.runtime_identity()
+    source = mcp_manifest.runtime_identity(**manifest_options)
     if runtime.get("amu_version") != source["amu_version"] or runtime.get("build_sha256") != source["build_sha256"]:
         reasons.append("Selected server differs from this diagnostic runtime; version strings alone cannot establish installation parity.")
     server_info = hello.get("serverInfo") or {}
@@ -145,22 +149,26 @@ async def _wire(python: str, repo: str, timeout: int) -> dict:
             "protocol": {"initialized": True, "server_info": server_info, "reported_identity": identity,
                          "tool_names": names, "tool_count": len(names), "inspection_only": not comparison.get("unexpected_tools"),
                          "checks": ["initialize", "tools/list"]},
-            "authority": {"profile": "inspection", "repository_authorization_certified": False,
+            "authority": {"profile": "inspection", "patch_analysis_enabled": enable_patch_analysis,
+                          "repository_authorization_certified": False,
                           "live_client_configuration_changed": False, "tool_calls_executed": False}}
 
 
-def probe(python: str, repo: str, *, timeout: int = 20) -> dict:
+def probe(python: str, repo: str, *, timeout: int = 20, enable_patch_analysis: bool = False) -> dict:
     """Compare an actual selected stdio server with the independent contract."""
     if (not isinstance(python, str) or not python or not Path(python).is_absolute()
             or any(ord(char) < 32 for char in python) or not Path(python).is_file() or not os.access(python, os.X_OK)):
         return _failure("invalid_mcp_executable", "Select an explicit absolute executable Python for the AMU MCP server.", exit_code=2)
     if (not isinstance(repo, str) or not repo or not Path(repo).is_absolute() or "\x00" in repo
-            or not Path(repo).is_dir() or type(timeout) is not int or not 1 <= timeout <= 60):
+            or not Path(repo).is_dir() or type(timeout) is not int or not 1 <= timeout <= 60
+            or type(enable_patch_analysis) is not bool):
         return _failure("invalid_mcp_probe", "Use an existing absolute diagnostic repository and a 1–60 second timeout.", exit_code=2)
     if importlib.util.find_spec("mcp") is None:
         return _failure("mcp_sdk_unavailable", "Optional MCP SDK is unavailable; base doctor checks remain usable. No dependency was installed.", status="unavailable")
     command = [sys.executable, "-I", "-B", "-m", "amu.mcp_verification", "--stdio-probe", "--server-python", python,
                "--repo", repo, "--timeout", str(timeout)]
+    if enable_patch_analysis:
+        command.append("--enable-patch-analysis")
     try:
         result = process.run(command, timeout=timeout + 5, stdout_limit=MAX_STDOUT_BYTES,
                              stderr_limit=MAX_STDERR_BYTES, env=mcp_access.child_environment())
@@ -181,9 +189,12 @@ def main() -> None:
     parser.add_argument("--server-python", required=True)
     parser.add_argument("--repo", required=True)
     parser.add_argument("--timeout", type=int, default=20)
+    parser.add_argument("--enable-patch-analysis", action="store_true",
+                        help="probe the explicitly enabled v2 inspection manifest")
     arguments = parser.parse_args()
     try:
-        result = asyncio.run(asyncio.wait_for(_wire(arguments.server_python, arguments.repo, arguments.timeout), arguments.timeout))
+        options = {"enable_patch_analysis": True} if arguments.enable_patch_analysis else {}
+        result = asyncio.run(asyncio.wait_for(_wire(arguments.server_python, arguments.repo, arguments.timeout, **options), arguments.timeout))
     except Exception:
         result = _failure("mcp_protocol_failure", "Selected AMU stdio server failed initialize/tools-list or its bounded deadline; verify the executable and optional SDK.")
     encoded = json.dumps(result, allow_nan=False, ensure_ascii=False)

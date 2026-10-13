@@ -1,0 +1,15 @@
+--- a/cache_case.py
++++ b/cache_case.py
+@@ -17,9 +17,10 @@
+     def lookup(cls, value):
+         if type(value) not in SUPPORTED_TYPES:
+             raise ValueError("only integers and strings are supported")
+-        key = (type(value).__name__, value)
++        kind = type(value).__name__
++        key = (kind, value)
+         record = cls._cache.get(key)
+         if record is None:
+-            record = ValueRecord(type(value).__name__, value)
++            record = ValueRecord(kind, value)
+             cls._cache[key] = record
+         return record

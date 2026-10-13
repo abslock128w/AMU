@@ -1,0 +1,25 @@
+{
+  "case_id": "click-v2-05f6fd0d",
+  "function_recall10": 0.0,
+  "file_recall10": 1.0,
+  "function_hits": [],
+  "missing_from_parent": [
+    "tests/test_arguments.py::test_argument_get_help_record_never_none"
+  ],
+  "recommended": 10,
+  "top10": [
+    "tests/test_arguments.py::test_deprecated_empty_help_no_leading_space",
+    "tests/test_options.py::test_count_default_type_help",
+    "tests/test_options.py::test_deprecated_empty_help_no_leading_space",
+    "tests/test_options.py::test_dynamic_default_help_special_method",
+    "tests/test_options.py::test_file_type_help_default",
+    "tests/test_options.py::test_help_spec",
+    "tests/test_options.py::test_intrange_default_help_text",
+    "tests/test_options.py::test_do_not_show_default_empty_multiple",
+    "tests/test_options.py::test_do_not_show_no_default",
+    "tests/test_options.py::test_hide_false_default_boolean_flag_value"
+  ],
+  "seconds": 0.44116291599857504,
+  "bytes": 1939,
+  "noise10": 10
+}

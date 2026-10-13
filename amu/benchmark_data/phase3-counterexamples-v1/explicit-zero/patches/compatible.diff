@@ -1,0 +1,16 @@
+--- a/case.py
++++ b/case.py
+@@ -2,8 +2,8 @@
+ 
+ 
+ def effective_limit(requested, default=5):
+-    if requested is None:
+-        return default
+-    if type(requested) is not int or requested < 0:
+-        raise ValueError("requested limit must be a nonnegative integer")
+-    return requested
++    if requested is not None:
++        if type(requested) is not int or requested < 0:
++            raise ValueError("requested limit must be a nonnegative integer")
++        return requested
++    return default

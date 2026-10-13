@@ -1,0 +1,92 @@
+{
+ "case_id": "click-v2-f25f697a",
+ "record": {
+  "command": [
+   "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/../observed-tests-evaluation-2026-10-13/werkzeug-env/bin/python",
+   "-B",
+   "-m",
+   "pytest",
+   "tests",
+   "--ignore=tests/test_stream_lifecycle.py",
+   "-q",
+   "-p",
+   "no:cacheprovider",
+   "--junitxml=/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/exec/click-v2-f25f697a/base.xml",
+   "-o",
+   "addopts=",
+   "-W",
+   "ignore",
+   "-p",
+   "pytest_cov.plugin",
+   "--cov=click",
+   "--cov-context=test",
+   "--cov-report="
+  ],
+  "exit": 0,
+  "seconds": 38.3,
+  "summary": "3035 passed, 25 skipped, 1 xfailed in 37.44s"
+ },
+ "patched": {
+  "command": [
+   "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/../observed-tests-evaluation-2026-10-13/werkzeug-env/bin/python",
+   "-B",
+   "-m",
+   "pytest",
+   "tests",
+   "--ignore=tests/test_stream_lifecycle.py",
+   "-q",
+   "-p",
+   "no:cacheprovider",
+   "--junitxml=/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/exec/click-v2-f25f697a/patched.xml",
+   "-o",
+   "addopts=",
+   "-W",
+   "ignore"
+  ],
+  "exit": 0,
+  "seconds": 11.8,
+  "summary": "3035 passed, 25 skipped, 1 xfailed in 11.11s"
+ },
+ "patch_applied": true,
+ "tests_run": 529,
+ "outcome_changed": [],
+ "commit_truth": [],
+ "ranking": {
+  "static": {
+   "top10": [
+    "tests/test_custom_classes.py::test_context_formatter_class",
+    "tests/test_context.py::test_no_state_leaks",
+    "tests/test_formatting.py::test_formatting_custom_type_metavar",
+    "tests/test_options.py::test_help_option_custom_names_and_class",
+    "tests/test_basic.py::test_param_named_help",
+    "tests/test_basic.py::test_option_reusing_help_flag",
+    "tests/test_shell_completion.py::test_fish_format_completion_escapes_help",
+    "tests/test_shell_completion.py::test_powershell_format_completion_escapes_help",
+    "tests/test_formatting.py::test_command_write_usage_no_args",
+    "tests/test_commands.py::test_get_help_option_names"
+   ],
+   "observed": 0,
+   "bytes": 1988,
+   "gaps": [
+    "coverage evidence /Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/exec/click-v2-f25f697a/no-coverage not found; static ranking only"
+   ]
+  },
+  "coverage": {
+   "top10": [
+    "tests/test_arguments.py::test_deprecated_usage_help_record",
+    "tests/test_arguments.py::test_deprecated_usage_help_record_without_help",
+    "tests/test_arguments.py::test_argument_help",
+    "tests/test_arguments.py::test_argument_help_optional_metavar",
+    "tests/test_arguments.py::test_deprecated_usage",
+    "tests/test_custom_classes.py::test_context_formatter_class",
+    "tests/test_formatting.py::test_command_write_usage_no_args",
+    "tests/test_context.py::test_no_state_leaks",
+    "tests/test_basic.py::test_datetime_argument_optional_metavar",
+    "tests/test_basic.py::test_choice_argument_optional_metavar"
+   ],
+   "observed": 10,
+   "bytes": 1959,
+   "gaps": []
+  }
+ }
+}

@@ -14,7 +14,7 @@ CLASS_RULES = [
     ("body", r"\b(body|implementation|fix|refactor internals|optimi[sz]e|bug)\b"),
 ]
 SLASH = {"/map": "map", "/plan": "plan", "/approve": "approve", "/check": "check", "/refresh": "refresh", "/done": "done", "/docs": "docs", "/answer": "answer",
-         "/api-manifest": "api-manifest", "/benchmark": "benchmark",
+         "/api-manifest": "api-manifest", "/benchmark": "benchmark", "/analyze-patch": "analyze-patch",
          "/verify": "verify", "/why": "why", "/feature": "feature", "/skills": "skills", "/help": "help",
          "/repo": "repo", "/use": "use", "/find": "find", "/open": "open", "/tree": "tree", "/back": "back", "/graph": "graph", "/ask": "ask", "/key": "key", "/cat": "cat", "/where": "where", "/recent": "recent", "/neighbors": "neighbors", "/quit": "quit"}
 _EXPLORE_RX = re.compile(r"^[A-Za-z0-9_./#-]+$")
@@ -37,7 +37,7 @@ def candidate_tokens(text: str) -> list[str]:
 
 
 VERBS = {"open", "cat", "find", "search", "tree", "ls", "graph", "map", "where", "neighbors", "plan", "approve", "check", "refresh", "done", "docs",
-         "api-manifest", "benchmark",
+         "api-manifest", "benchmark", "analyze-patch",
          "docs-reviews", "docs-graph", "docs-saves", "session", "verify", "answer", "why", "feature", "skills", "repo", "use", "back", "recent", "ask", "key", "help", "quit", "exit"}
 _ALIAS = {"search": "find", "ls": "tree", "quit": "quit", "exit": "quit"}
 

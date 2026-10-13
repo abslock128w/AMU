@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 INSPECTION_TOOLS = frozenset({"amu_search", "amu_graph", "amu_impact", "amu_docs_reviews"})
+PATCH_INSPECTION_TOOLS = INSPECTION_TOOLS | {"amu_analyze_patch"}
 MAX_ARGUMENT_BYTES = 64 * 1024
 MAX_REPOSITORIES = 16
 
@@ -73,9 +74,10 @@ class MCPAccessPolicy:
     filesystem races. Use only trusted repositories and clients.
     """
 
-    def __init__(self, repositories: list[str], *, enable_actions: bool = False):
+    def __init__(self, repositories: list[str], *, enable_actions: bool = False,
+                 enable_patch_analysis: bool = False):
         if (not isinstance(repositories, list) or not repositories or len(repositories) > MAX_REPOSITORIES
-                or type(enable_actions) is not bool):
+                or type(enable_actions) is not bool or type(enable_patch_analysis) is not bool):
             raise AccessError("invalid_authority", "select 1–16 explicit --allow-repo roots")
         roots = {_directory(value) for value in repositories}
         grants = []
@@ -89,10 +91,14 @@ class MCPAccessPolicy:
             grants.append(RepositoryGrant(path, info.st_dev, info.st_ino))
         self.grants = tuple(grants)
         self.enable_actions = enable_actions
+        self.enable_patch_analysis = enable_patch_analysis
+        self.inspection_tools = PATCH_INSPECTION_TOOLS if enable_patch_analysis else INSPECTION_TOOLS
         self._slot = threading.BoundedSemaphore(1)
 
     def allows_tool(self, name: str) -> bool:
-        return self.enable_actions or name in INSPECTION_TOOLS
+        if name == "amu_analyze_patch":
+            return self.enable_patch_analysis
+        return self.enable_actions or name in self.inspection_tools
 
     def repository(self, value: object) -> str:
         selected = _directory(value)

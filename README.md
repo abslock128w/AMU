@@ -416,3 +416,15 @@ We will measure these targets across repeated runs, reporting missed dependencie
 
 **Current evidence:** in our initial synthetic comparison, both agents passed all ten independent evaluator groups. AMU supplied structured dependency and coverage evidence but took longer. Large-repository performance and regression-reduction benefits remain to be established.**Built using GPT‑6.1 Sol in Codex.** AMU provides MCP tools for inspecting repository dependencies and the potential blast radius of proposed changes.
 In our initial agent comparison, the AMU-assisted patch passed all ten independent correctness checks. AMU supplied source-backed dependency and coverage evidence; the baseline also passed all checks and completed faster. This validates the demonstrated workflow, while broader performance benefits remain under evaluation.
+
+## Patch inspection and before-tests
+
+Two commands inspect a proposed change without applying or running it:
+
+- `amu before-tests` reads a diff, or the uncommitted change of the working tree, and reports which existing
+  tests are expected to fail and why. With `--run` it executes candidate tests before and after the change
+  using the project's own runner and names the ones that flip. See [docs/before-tests.md](docs/before-tests.md);
+  measured results and their limits are in
+  [evaluation/before-tests/REPORT.md](evaluation/before-tests/REPORT.md).
+- `amu analyze-patch` is the earlier bounded patch workflow. Start with the
+  [Phase 3 quickstart](docs/phase3-quickstart.md).
