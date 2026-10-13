@@ -1,0 +1,25 @@
+{
+  "case_id": "h2-itsdangerous-aed5b260",
+  "function_recall10": 0.25,
+  "file_recall10": 0.8,
+  "function_hits": [
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_bad_payload_exception",
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_bad_signature_exception",
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_loads_unsafe"
+  ],
+  "missing_from_parent": [],
+  "recommended": 8,
+  "top10": [
+    "tests/test_itsdangerous/test_signer.py::TestSigner::test_secret_keys",
+    "tests/test_itsdangerous/test_jws.py::TestJWSSerializer::test_secret_keys",
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_bad_payload_exception",
+    "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_malformed_timestamp",
+    "tests/test_itsdangerous/test_jws.py::TestJWSSerializer::test_load_payload_exceptions",
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_loads_unsafe",
+    "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_timestamp_missing",
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_bad_signature_exception"
+  ],
+  "seconds": 0.05476995800199802,
+  "bytes": 1611,
+  "noise10": 5
+}

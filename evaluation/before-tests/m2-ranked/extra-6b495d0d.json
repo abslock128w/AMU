@@ -1,0 +1,27 @@
+{
+  "case_id": "extra-6b495d0d",
+  "function_recall10": 0.7142857142857143,
+  "file_recall10": 1.0,
+  "function_hits": [
+    "tests/test_formparser.py::TestFormParser::test_parse_form_data_get_without_content",
+    "tests/test_formparser.py::TestFormParser::test_parse_form_data_put_without_content",
+    "tests/test_formparser.py::TestMultiPart::test_empty_multipart",
+    "tests/test_test.py::test_environ_builder_empty_file",
+    "tests/test_test.py::test_environ_builder_stream_switch"
+  ],
+  "missing_from_parent": [
+    "tests/test_test.py::test_environ_builder_unicode_data"
+  ],
+  "recommended": 6,
+  "top10": [
+    "tests/test_formparser.py::TestFormParser::test_parse_form_data_get_without_content",
+    "tests/test_formparser.py::TestFormParser::test_parse_form_data_put_without_content",
+    "tests/test_formparser.py::TestMultiPart::test_empty_multipart",
+    "tests/test_test.py::test_environ_builder_empty_file",
+    "tests/test_test.py::test_environ_builder_stream_switch",
+    "tests/test_test.py::test_environ_builder_unicode_file_mix"
+  ],
+  "seconds": 0.2796094169971184,
+  "bytes": 1360,
+  "noise10": 1
+}

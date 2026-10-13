@@ -1,0 +1,21 @@
+{
+  "case_id": "12-6d7c0b4e",
+  "function_recall10": 0.0,
+  "file_recall10": 0.0,
+  "function_hits": [],
+  "missing_from_parent": [
+    "tests/test_routing.py::test_part_converter_order"
+  ],
+  "recommended": 6,
+  "top10": [
+    "tests/test_http.py::TestHTTPUtility::test_dict_header",
+    "tests/test_http.py::TestHTTPUtility::test_etags",
+    "tests/test_http.py::TestHTTPUtility::test_etags_nonzero",
+    "tests/test_http.py::TestHTTPUtility::test_parse_options_header",
+    "tests/test_http.py::TestHTTPUtility::test_parse_options_header_broken_values",
+    "tests/test_http.py::TestHTTPUtility::test_parse_options_header_case_insensitive"
+  ],
+  "seconds": 0.4777787920029368,
+  "bytes": 1830,
+  "noise10": 6
+}

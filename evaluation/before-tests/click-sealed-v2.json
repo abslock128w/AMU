@@ -1,0 +1,269 @@
+[
+  {
+    "case_id": "click-v2-9f0bcdf0",
+    "commit": "9f0bcdf0d868edfc71435cd0aac2dcc08cf94828",
+    "parent": "06b2a678741131fd577ce170e23e5ca0aeba0309",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/click.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-v2-9f0bcdf0/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-v2-9f0bcdf0/production.patch",
+    "patch_sha256": "c3f2ec8a38c4fdb3eb1d5ec14038f4025efd1c5a4437a63c67439efcccd28ca9",
+    "truth": [
+      "tests/test_arguments.py::test_help_spec_matches_help_record",
+      "tests/test_arguments.py::test_spec_and_help_spec",
+      "tests/test_deprecations.py::test_parameter_human_readable_name_deprecated",
+      "tests/test_deprecations.py::test_parameter_human_readable_name_override_deprecated",
+      "tests/test_deprecations.py::test_parameter_subclass_without_override_is_silent",
+      "tests/test_options.py::test_deprecated_warning",
+      "tests/test_options.py::test_spec",
+      "tests/test_options.py::test_spec_with_explicit_name"
+    ],
+    "existing_truth": [
+      "tests/test_options.py::test_deprecated_warning"
+    ],
+    "files": [
+      "tests/test_arguments.py",
+      "tests/test_deprecations.py",
+      "tests/test_options.py"
+    ]
+  },
+  {
+    "case_id": "click-v2-b90faad1",
+    "commit": "b90faad1788bc030bb3320938f07c9189f42d7d0",
+    "parent": "a59f7c624fb7272e37d97921047dab8bf3ff0675",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/click.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-v2-b90faad1/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-v2-b90faad1/production.patch",
+    "patch_sha256": "cb1da9a0091c0e1969337f9695a50d2fb6b5a890f3c252a4dff4b1786739946b",
+    "truth": [
+      "tests/test_arguments.py::test_argument_explicit_envvar_case_sensitivity",
+      "tests/test_arguments.py::test_argument_has_no_auto_envvar",
+      "tests/test_arguments.py::test_argument_metavar_renders_what_a_declaration_may_not",
+      "tests/test_arguments.py::test_argument_name_can_collide_with_an_option",
+      "tests/test_arguments.py::test_argument_name_case_transform_can_collide",
+      "tests/test_arguments.py::test_argument_name_check_applies_when_not_exposed",
+      "tests/test_arguments.py::test_argument_name_keeps_its_normalization_form",
+      "tests/test_arguments.py::test_argument_names",
+      "tests/test_arguments.py::test_argument_normalizes_an_identifier_decl",
+      "tests/test_arguments.py::test_argument_requires_its_one_declaration",
+      "tests/test_arguments.py::test_option_explicit_name_keeps_its_case",
+      "tests/test_arguments.py::test_parameter_name_identifier_check_follows_the_unicode_table",
+      "tests/test_arguments.py::test_parameter_name_is_an_identifier_or_deprecated",
+      "tests/test_arguments.py::test_parameter_name_is_not_nfkc_normalized",
+      "tests/test_arguments.py::test_parameter_name_not_an_identifier_is_deprecated",
+      "tests/test_arguments.py::test_parameter_name_transform",
+      "tests/test_deprecations.py::test_normalized_explicit_name_not_deprecated",
+      "tests/test_deprecations.py::test_unnormalized_explicit_name_deprecated",
+      "tests/test_deprecations.py::test_unnormalized_name_on_a_refused_option_is_silent",
+      "tests/test_deprecations.py::test_unusable_name_deprecated",
+      "tests/test_deprecations.py::test_unusable_name_names_the_release_that_refuses_it",
+      "tests/test_deprecations.py::test_usable_name_not_deprecated",
+      "tests/test_options.py::test_auto_envvar_flattens_name_case",
+      "tests/test_options.py::test_auto_envvar_ignores_decl_case",
+      "tests/test_options.py::test_auto_envvar_prefix_is_upper_cased",
+      "tests/test_options.py::test_auto_envvar_upper_can_change_length",
+      "tests/test_options.py::test_auto_envvar_uses_the_transformed_name",
+      "tests/test_options.py::test_explicit_envvar_case_sensitivity",
+      "tests/test_options.py::test_explicit_envvar_list_keeps_each_spelling",
+      "tests/test_options.py::test_file_type_help_default",
+      "tests/test_options.py::test_option_explicit_name_carries_a_refused_declaration",
+      "tests/test_options.py::test_option_name_case_transform_can_collide",
+      "tests/test_options.py::test_option_name_case_variants_share_one_parameter",
+      "tests/test_options.py::test_option_name_check_applies_when_not_exposed",
+      "tests/test_options.py::test_option_name_keeps_its_normalization_form",
+      "tests/test_options.py::test_option_name_may_be_a_python_keyword",
+      "tests/test_options.py::test_option_name_must_be_an_identifier",
+      "tests/test_options.py::test_option_names",
+      "tests/test_options.py::test_option_prompt_still_guards_against_a_nameless_option"
+    ],
+    "existing_truth": [
+      "tests/test_options.py::test_file_type_help_default",
+      "tests/test_options.py::test_option_names"
+    ],
+    "files": [
+      "tests/test_arguments.py",
+      "tests/test_deprecations.py",
+      "tests/test_options.py"
+    ]
+  },
+  {
+    "case_id": "click-v2-d0368817",
+    "commit": "d036881798e34289a49b18a5c550c7cf687e5a7a",
+    "parent": "e2bddbc801dabc4efc3c3c1e32b53b3f938d3efc",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/click.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-v2-d0368817/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-v2-d0368817/production.patch",
+    "patch_sha256": "d46676b951d4075f5828f7310de4b76553aa4aac8c50e6d348b66ac426c08d57",
+    "truth": [
+      "tests/test_options.py::test_option_names"
+    ],
+    "existing_truth": [
+      "tests/test_options.py::test_option_names"
+    ],
+    "files": [
+      "tests/test_arguments.py",
+      "tests/test_deprecations.py",
+      "tests/test_options.py"
+    ]
+  },
+  {
+    "case_id": "click-v2-e2bddbc8",
+    "commit": "e2bddbc801dabc4efc3c3c1e32b53b3f938d3efc",
+    "parent": "6d5bac5c712195cbfa9666ba0ecbf0573cdea356",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/click.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-v2-e2bddbc8/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-v2-e2bddbc8/production.patch",
+    "patch_sha256": "94b207fec51627e2884c79d267567aec4b1cc5865fce747c795ea0cc2ae9d7a4",
+    "truth": [
+      "tests/test_arguments.py::test_argument_explicit_envvar_case_sensitivity",
+      "tests/test_arguments.py::test_argument_has_no_auto_envvar",
+      "tests/test_arguments.py::test_argument_metavar_renders_what_a_declaration_may_not",
+      "tests/test_arguments.py::test_argument_name_can_collide_with_an_option",
+      "tests/test_arguments.py::test_argument_name_case_transform_can_collide",
+      "tests/test_arguments.py::test_argument_name_check_applies_when_not_exposed",
+      "tests/test_arguments.py::test_argument_name_keeps_its_normalization_form",
+      "tests/test_arguments.py::test_argument_names",
+      "tests/test_arguments.py::test_argument_normalizes_an_identifier_decl",
+      "tests/test_arguments.py::test_argument_requires_its_one_declaration",
+      "tests/test_arguments.py::test_option_explicit_name_keeps_its_case",
+      "tests/test_arguments.py::test_parameter_name_identifier_check_follows_the_unicode_table",
+      "tests/test_arguments.py::test_parameter_name_is_an_identifier_or_deprecated",
+      "tests/test_arguments.py::test_parameter_name_is_not_nfkc_normalized",
+      "tests/test_arguments.py::test_parameter_name_keeps_every_dash_past_the_prefix",
+      "tests/test_arguments.py::test_parameter_name_not_an_identifier_is_deprecated",
+      "tests/test_arguments.py::test_parameter_name_unicode_case_transform",
+      "tests/test_deprecations.py::test_identifier_name_not_deprecated",
+      "tests/test_deprecations.py::test_non_identifier_name_deprecated",
+      "tests/test_deprecations.py::test_non_identifier_option_name_still_raises",
+      "tests/test_deprecations.py::test_normalized_explicit_name_not_deprecated",
+      "tests/test_deprecations.py::test_unnormalized_explicit_name_deprecated",
+      "tests/test_deprecations.py::test_unnormalized_name_on_a_refused_option_is_silent",
+      "tests/test_options.py::test_auto_envvar_flattens_name_case",
+      "tests/test_options.py::test_auto_envvar_ignores_decl_case",
+      "tests/test_options.py::test_auto_envvar_prefix_is_upper_cased",
+      "tests/test_options.py::test_auto_envvar_upper_can_change_length",
+      "tests/test_options.py::test_auto_envvar_uses_the_transformed_name",
+      "tests/test_options.py::test_explicit_envvar_case_sensitivity",
+      "tests/test_options.py::test_explicit_envvar_list_keeps_each_spelling",
+      "tests/test_options.py::test_option_explicit_name_carries_a_refused_declaration",
+      "tests/test_options.py::test_option_name_case_transform_can_collide",
+      "tests/test_options.py::test_option_name_case_variants_share_one_parameter",
+      "tests/test_options.py::test_option_name_check_applies_when_not_exposed",
+      "tests/test_options.py::test_option_name_keeps_its_normalization_form",
+      "tests/test_options.py::test_option_name_may_be_a_python_keyword",
+      "tests/test_options.py::test_option_name_must_be_an_identifier",
+      "tests/test_options.py::test_option_names",
+      "tests/test_options.py::test_option_prompt_still_guards_against_a_nameless_option"
+    ],
+    "existing_truth": [
+      "tests/test_options.py::test_option_names"
+    ],
+    "files": [
+      "tests/test_arguments.py",
+      "tests/test_deprecations.py",
+      "tests/test_options.py"
+    ]
+  },
+  {
+    "case_id": "click-v2-f67c2bb6",
+    "commit": "f67c2bb6c2f055c1c7a57cd46c3697fc26a7742e",
+    "parent": "6d5bac5c712195cbfa9666ba0ecbf0573cdea356",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/click.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-v2-f67c2bb6/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-v2-f67c2bb6/production.patch",
+    "patch_sha256": "e094b7282fce589a82ca94f1cc44d2b19002867ce64d48f2e23280b911190b9f",
+    "truth": [
+      "tests/test_utils/test_make_default_short_help.py::test_make_default_short_help"
+    ],
+    "existing_truth": [
+      "tests/test_utils/test_make_default_short_help.py::test_make_default_short_help"
+    ],
+    "files": [
+      "tests/test_utils/test_make_default_short_help.py"
+    ]
+  },
+  {
+    "case_id": "click-v2-05f6fd0d",
+    "commit": "05f6fd0df4ecbd104eb7a229f9f185c2484dee69",
+    "parent": "f25f697a439acc2b0d84aa8f5413330f4e2e75cf",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/click.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-v2-05f6fd0d/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-v2-05f6fd0d/production.patch",
+    "patch_sha256": "004e2174e01ae4f485249179a9eb57e6feffca29825b6dfa1ed7d20d0961081a",
+    "truth": [
+      "tests/test_arguments.py::test_argument_get_help_record_never_none"
+    ],
+    "existing_truth": [],
+    "files": [
+      "tests/test_arguments.py"
+    ]
+  },
+  {
+    "case_id": "click-v2-405a5481",
+    "commit": "405a5481e4dbd5022799993d787bd8446137d9a3",
+    "parent": "86949d19b930ef68a45566544cb4b9508d895d0d",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/click.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-v2-405a5481/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-v2-405a5481/production.patch",
+    "patch_sha256": "123618fe32d829e636fa5e019476de564509ab9d16361919ab00812d1f8aa6a0",
+    "truth": [
+      "tests/test_info_dict.py::test_param_to_info_dict_deprecated_help",
+      "tests/test_info_dict.py::test_param_to_info_dict_help"
+    ],
+    "existing_truth": [],
+    "files": [
+      "tests/test_info_dict.py"
+    ]
+  },
+  {
+    "case_id": "click-v2-f25f697a",
+    "commit": "f25f697a439acc2b0d84aa8f5413330f4e2e75cf",
+    "parent": "86949d19b930ef68a45566544cb4b9508d895d0d",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/click.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-v2-f25f697a/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-v2-f25f697a/production.patch",
+    "patch_sha256": "4b403f0397abf48b12844c0930ab29929305f99d8d9a75e66bd07794c6f979f9",
+    "truth": [
+      "tests/test_arguments.py::test_argument_help_deprecated_without_help_lists_all",
+      "tests/test_arguments.py::test_argument_help_empty_string_lists_all",
+      "tests/test_arguments.py::test_argument_help_lists_undocumented_arguments",
+      "tests/test_arguments.py::test_argument_help_undocumented_arguments_only_no_section"
+    ],
+    "existing_truth": [],
+    "files": [
+      "tests/test_arguments.py"
+    ]
+  },
+  {
+    "case_id": "click-v2-22177f85",
+    "commit": "22177f857a34e3c35ba957553853a37f23feb37e",
+    "parent": "7944461a80b780d060899c8835acab3c273a04a6",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/click.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-v2-22177f85/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-v2-22177f85/production.patch",
+    "patch_sha256": "92b6136f9dac122188e73c99b179454702a17f3628ab439d4dc95383ab6c33aa",
+    "truth": [
+      "tests/test_types/test_Path.py::test_path_converted_type_parameter_at_runtime"
+    ],
+    "existing_truth": [],
+    "files": [
+      "tests/test_types/test_Path.py",
+      "tests/typing/typing_path.py"
+    ]
+  },
+  {
+    "case_id": "click-v2-271effb3",
+    "commit": "271effb3d96da5575eb527216ce3552bd7628fab",
+    "parent": "be13b152cf5949a362926322c835fa76019cc6fe",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/click.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-v2-271effb3/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-v2-271effb3/production.patch",
+    "patch_sha256": "c7f13e05045c9436c0db3a4819fdd8cbd805a901e65f3e7b61c765cb5a57bd8d",
+    "truth": [
+      "tests/test_options.py::test_help_spec"
+    ],
+    "existing_truth": [],
+    "files": [
+      "tests/test_options.py"
+    ]
+  }
+]

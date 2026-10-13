@@ -1,0 +1,18 @@
+{
+  "case_id": "h2-requests-f0198e6d",
+  "function_recall10": 1.0,
+  "file_recall10": 1.0,
+  "function_hits": [
+    "tests/test_utils.py::test__parse_content_type_header",
+    "tests/test_utils.py::test_get_encoding_from_headers"
+  ],
+  "missing_from_parent": [],
+  "recommended": 2,
+  "top10": [
+    "tests/test_utils.py::test_get_encoding_from_headers",
+    "tests/test_utils.py::test__parse_content_type_header"
+  ],
+  "seconds": 0.9007020829994872,
+  "bytes": 14422,
+  "noise10": 0
+}

@@ -1,0 +1,22 @@
+{
+  "case_id": "05-2c453bf3",
+  "function_recall10": 1.0,
+  "file_recall10": 1.0,
+  "function_hits": [
+    "tests/middleware/test_proxy_fix.py::test_proxy_fix"
+  ],
+  "missing_from_parent": [],
+  "recommended": 7,
+  "top10": [
+    "tests/middleware/test_proxy_fix.py::test_proxy_fix",
+    "tests/middleware/test_http_proxy.py::test_http_proxy",
+    "tests/test_datastructures.py::TestCallbackDict::test_callback_dict_reads",
+    "tests/test_datastructures.py::TestCallbackDict::test_callback_dict_writes",
+    "tests/test_datastructures.py::TestCombinedMultiDict::test_basic_interface",
+    "tests/test_datastructures.py::TestCombinedMultiDict::test_length",
+    "tests/test_datastructures.py::TestContentSecurityPolicy::test_construct"
+  ],
+  "seconds": 0.474337874999037,
+  "bytes": 1983,
+  "noise10": 6
+}

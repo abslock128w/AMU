@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "/private/tmp/claude-502/-Users-Abslock128-Documents-ChatGPT-AMU/f7b55dfe-b587-4e07-bace-49a9194bc191/scratchpad/pristine/amu/services/impact.py", line 102, in validate_patch_request
+    parse_diff(request.patch)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/private/tmp/claude-502/-Users-Abslock128-Documents-ChatGPT-AMU/f7b55dfe-b587-4e07-bace-49a9194bc191/scratchpad/pristine/amu/patch.py", line 163, in parse_diff
+    raise PatchError("patch exceeds its file limit")
+amu.patch.PatchError: patch exceeds its file limit
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/scripts/before_tests_harness.py", line 258, in <module>
+    {'freeze':lambda _:freeze(),'freeze-holdout2':lambda _:freeze_holdout2(),'run':run,'worker':worker}[a.action](a)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/scripts/before_tests_harness.py", line 181, in worker
+    packet = execute_patch(row['tree'], PatchRequest(patch=patch, base='worktree'))
+  File "/private/tmp/claude-502/-Users-Abslock128-Documents-ChatGPT-AMU/f7b55dfe-b587-4e07-bace-49a9194bc191/scratchpad/pristine/amu/services/impact.py", line 1132, in execute_patch
+    validate_patch_request(request)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/private/tmp/claude-502/-Users-Abslock128-Documents-ChatGPT-AMU/f7b55dfe-b587-4e07-bace-49a9194bc191/scratchpad/pristine/amu/services/impact.py", line 104, in validate_patch_request
+    raise ImpactInputError(str(exc)) from exc
+amu.services.impact.ImpactInputError: patch exceeds its file limit

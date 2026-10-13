@@ -1,0 +1,192 @@
+[
+  {
+    "case_id": "click-029bbeda",
+    "commit": "029bbeda76aa824149f110408d56de7b402a87ed",
+    "parent": "a2b699a134ae4f2459808290f62e96e5b3c1d54f",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/click.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-029bbeda/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-029bbeda/production.patch",
+    "patch_sha256": "a147d04e0b0d35f5e087ef3ebce994ef1f3e08534cb6c21cec408a10146d4c40",
+    "truth": [
+      "tests/test_options.py::test_default_dual_option_callback"
+    ],
+    "existing_truth": [
+      "tests/test_options.py::test_default_dual_option_callback"
+    ],
+    "files": [
+      "tests/test_options.py"
+    ]
+  },
+  {
+    "case_id": "click-051725fa",
+    "commit": "051725fa7e0c69effc9107066d8791c5b99242c3",
+    "parent": "7a0a3447f6ddd2c15438c5d098e289323f9f9556",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/click.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-051725fa/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-051725fa/production.patch",
+    "patch_sha256": "c9fb60f445a2256f080395544195ed36d0703642e0fc0cfaf107a380fb4751e6",
+    "truth": [
+      "tests/test_deprecations.py::test_stream_helper_deprecated",
+      "tests/test_deprecations.py::test_utilities_deprecated",
+      "tests/test_testing.py::test_echo_stdin_stream",
+      "tests/test_testing.py::test_runner",
+      "tests/test_testing.py::test_runner_with_stream"
+    ],
+    "existing_truth": [
+      "tests/test_testing.py::test_echo_stdin_stream",
+      "tests/test_testing.py::test_runner",
+      "tests/test_testing.py::test_runner_with_stream"
+    ],
+    "files": [
+      "tests/test_deprecations.py",
+      "tests/test_testing.py"
+    ]
+  },
+  {
+    "case_id": "click-051bb0f3",
+    "commit": "051bb0f30b545cf7426deef819811815297c2798",
+    "parent": "cd9bdd96a9dcc8e4ecabd45b5c244dbc70034484",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/click.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-051bb0f3/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-051bb0f3/production.patch",
+    "patch_sha256": "0c723e4fb8a0a1ee70928bb9fef1bb4f1ccbb97cb4e05233e0c566db8f15092d",
+    "truth": [
+      "tests/test_termui.py::test_echo_via_pager_tty_pager_missing",
+      "tests/test_termui.py::test_get_pager_file_missing_pager_keeps_borrowed_stream_open"
+    ],
+    "existing_truth": [],
+    "files": [
+      "tests/test_termui.py"
+    ]
+  },
+  {
+    "case_id": "click-0551bf53",
+    "commit": "0551bf53588ae87f462d336f24f853a156fefe3a",
+    "parent": "7c99ebe23b931f27562d926814423cce85fd9766",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/click.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-0551bf53/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-0551bf53/production.patch",
+    "patch_sha256": "f56793f2d64a678823aac1801a8d710c68bc7472476688cc921ab0bd16e7852c",
+    "truth": [
+      "tests/test_formatting.py::test_command_write_usage_no_args",
+      "tests/test_formatting.py::test_help_formatter_write_usage",
+      "tests/test_formatting.py::test_help_formatter_write_usage_without_args_styled_prefix"
+    ],
+    "existing_truth": [],
+    "files": [
+      "tests/test_formatting.py"
+    ]
+  },
+  {
+    "case_id": "click-05b795c9",
+    "commit": "05b795c917f4146edfe83b2d08c189886b301785",
+    "parent": "01e4dac0b1f855a54eb923380d6af64171c66f22",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/click.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-05b795c9/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-05b795c9/production.patch",
+    "patch_sha256": "dbc7c181bdac7d385c3f9cbe89142b8e4bf4d07dbde00fd114ba758fdf58acdf",
+    "truth": [
+      "tests/test_utils.py::test_styling"
+    ],
+    "existing_truth": [
+      "tests/test_utils.py::test_styling"
+    ],
+    "files": [
+      "tests/test_utils.py"
+    ]
+  },
+  {
+    "case_id": "click-05f6fd0d",
+    "commit": "05f6fd0df4ecbd104eb7a229f9f185c2484dee69",
+    "parent": "f25f697a439acc2b0d84aa8f5413330f4e2e75cf",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/click.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-05f6fd0d/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-05f6fd0d/production.patch",
+    "patch_sha256": "004e2174e01ae4f485249179a9eb57e6feffca29825b6dfa1ed7d20d0961081a",
+    "truth": [
+      "tests/test_arguments.py::test_argument_get_help_record_never_none"
+    ],
+    "existing_truth": [],
+    "files": [
+      "tests/test_arguments.py"
+    ]
+  },
+  {
+    "case_id": "click-06847da9",
+    "commit": "06847da9126a99c88bf347adf213d33bfe4e4af2",
+    "parent": "bbe1eb6d41f54bd49690a5c385b0895d061a76c1",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/click.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-06847da9/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-06847da9/production.patch",
+    "patch_sha256": "769f78803c4ed9c92847da68e4ff7f9a40960f7dbaa0eecbb3c24bf19cda3168",
+    "truth": [
+      "tests/test_basic.py::test_flag_value_dual_options",
+      "tests/test_options.py::test_custom_type_flag_value_dual_options",
+      "tests/test_options.py::test_custom_type_flag_value_standalone_option",
+      "tests/test_options.py::test_default_dual_option_callback",
+      "tests/test_options.py::test_flag_value_and_default",
+      "tests/test_termui.py::test_flag_value_prompt"
+    ],
+    "existing_truth": [
+      "tests/test_basic.py::test_flag_value_dual_options",
+      "tests/test_options.py::test_custom_type_flag_value_dual_options",
+      "tests/test_options.py::test_custom_type_flag_value_standalone_option",
+      "tests/test_options.py::test_default_dual_option_callback",
+      "tests/test_options.py::test_flag_value_and_default",
+      "tests/test_termui.py::test_flag_value_prompt"
+    ],
+    "files": [
+      "tests/test_basic.py",
+      "tests/test_options.py",
+      "tests/test_termui.py"
+    ]
+  },
+  {
+    "case_id": "click-0b7a9acc",
+    "commit": "0b7a9acc63dac907088de7d9238f7f4b2afe02ea",
+    "parent": "0bf333e1b77b4ae0e85d387531b38930fc657f12",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/click.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-0b7a9acc/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-0b7a9acc/production.patch",
+    "patch_sha256": "f2ed47c70df7522286b0d6a2df332a1246491ade7ae07e61ccf636c85c807796",
+    "truth": [
+      "tests/test_options.py::test_help_option_custom_names_and_class"
+    ],
+    "existing_truth": [],
+    "files": [
+      "tests/test_options.py"
+    ]
+  },
+  {
+    "case_id": "click-0baa8db0",
+    "commit": "0baa8db07736fc7ad3d3eed97d4c73b0059c63e1",
+    "parent": "7d05a59b9d46a415d85937630d1d812cf477f60a",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/click.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-0baa8db0/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-0baa8db0/production.patch",
+    "patch_sha256": "1ba3504815e425125e436e5c05dde3a8bf50fa3a90326b9c7139399fe063b47c",
+    "truth": [
+      "tests/test_defaults.py::test_parameter_source_on_parse_result_bypass"
+    ],
+    "existing_truth": [],
+    "files": [
+      "tests/test_defaults.py"
+    ]
+  },
+  {
+    "case_id": "click-0d69b6ce",
+    "commit": "0d69b6ce8b25fe31ea580c608adb8e45df3805bb",
+    "parent": "d791537317947448a3960662d00acf160eff2602",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/click.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-0d69b6ce/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-0d69b6ce/production.patch",
+    "patch_sha256": "932101f389718ddca16646ef514a7f4ad822f73ca8b4bce25b6915e460f0fed2",
+    "truth": [
+      "tests/test_termui.py::test_edit"
+    ],
+    "existing_truth": [],
+    "files": [
+      "tests/test_termui.py"
+    ]
+  }
+]

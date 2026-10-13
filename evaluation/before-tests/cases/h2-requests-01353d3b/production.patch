@@ -1,0 +1,41 @@
+diff --git a/src/requests/compat.py b/src/requests/compat.py
+index 4e843c6..7f9d754 100644
+--- a/src/requests/compat.py
++++ b/src/requests/compat.py
+@@ -17,10 +17,10 @@ from urllib3 import __version__ as urllib3_version
+ 
+ # Detect which major version of urllib3 is being used.
+ try:
+-    is_urllib3_2 = int(urllib3_version.split(".")[0]) == 2
++    is_urllib3_1 = int(urllib3_version.split(".")[0]) == 1
+ except (TypeError, AttributeError):
+     # If we can't discern a version, prefer old functionality.
+-    is_urllib3_2 = False
++    is_urllib3_1 = True
+ 
+ # -------------------
+ # Character Detection
+diff --git a/src/requests/utils.py b/src/requests/utils.py
+index be7fc1d..699683e 100644
+--- a/src/requests/utils.py
++++ b/src/requests/utils.py
+@@ -38,7 +38,7 @@ from .compat import (
+     getproxies,
+     getproxies_environment,
+     integer_types,
+-    is_urllib3_2,
++    is_urllib3_1,
+ )
+ from .compat import parse_http_list as _parse_list_header
+ from .compat import (
+@@ -137,8 +137,8 @@ def super_len(o):
+     total_length = None
+     current_position = 0
+ 
+-    if is_urllib3_2 and isinstance(o, str):
+-        # urllib3 2.x treats all strings as utf-8 instead
++    if not is_urllib3_1 and isinstance(o, str):
++        # urllib3 2.x+ treats all strings as utf-8 instead
+         # of latin-1 (iso-8859-1) like http.client.
+         o = o.encode("utf-8")
+ 

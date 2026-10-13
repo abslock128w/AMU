@@ -1,0 +1,25 @@
+{
+  "case_id": "extra-dc199349",
+  "function_recall10": 1.0,
+  "file_recall10": 1.0,
+  "function_hits": [
+    "tests/test_wsgi.py::test_path_info_and_script_name_fetching"
+  ],
+  "missing_from_parent": [],
+  "recommended": 10,
+  "top10": [
+    "tests/test_wsgi.py::test_path_info_and_script_name_fetching",
+    "tests/test_wsgi.py::test_limited_stream_read_with_raw_io",
+    "tests/test_wsgi.py::test_get_host",
+    "tests/test_wsgi.py::test_get_host_validate_trusted_hosts",
+    "tests/test_wsgi.py::test_get_host_fallback",
+    "tests/test_wsgi.py::test_limited_stream",
+    "tests/test_wsgi.py::test_get_current_url_invalid_utf8",
+    "tests/test_wsgi.py::test_get_current_url_unicode",
+    "tests/test_wsgi.py::test_limited_stream_disconnection",
+    "tests/test_wsgi.py::test_limited_stream_json_load"
+  ],
+  "seconds": 0.45982329199978267,
+  "bytes": 1804,
+  "noise10": 9
+}

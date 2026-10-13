@@ -1,0 +1,18 @@
+{
+  "case_id": "extra-f359a67e",
+  "function_recall10": 0.0,
+  "file_recall10": 0.0,
+  "function_hits": [],
+  "missing_from_parent": [],
+  "recommended": 5,
+  "top10": [
+    "tests/test_formparser.py::TestFormParser::test_parse_from_environ",
+    "tests/test_send_file.py::test_content_encoding",
+    "tests/test_send_file.py::test_disposition_name",
+    "tests/test_send_file.py::test_etag",
+    "tests/test_send_file.py::test_file"
+  ],
+  "seconds": 0.4217683749993739,
+  "bytes": 1983,
+  "noise10": 5
+}

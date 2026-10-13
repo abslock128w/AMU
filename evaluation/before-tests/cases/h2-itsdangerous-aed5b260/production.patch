@@ -1,0 +1,948 @@
+diff --git a/src/itsdangerous/_json.py b/src/itsdangerous/_json.py
+index 6cfe0e6..d21aae7 100644
+--- a/src/itsdangerous/_json.py
++++ b/src/itsdangerous/_json.py
+@@ -1,4 +1,5 @@
+ import json
++import typing as _t
+ from types import ModuleType
+ 
+ 
+@@ -6,18 +7,18 @@ class _CompactJSON:
+     """Wrapper around json module that strips whitespace."""
+ 
+     @staticmethod
+-    def loads(payload):
++    def loads(payload: _t.Union[str, bytes]) -> _t.Any:
+         return json.loads(payload)
+ 
+     @staticmethod
+-    def dumps(obj, **kwargs):
++    def dumps(obj: _t.Any, **kwargs: _t.Any) -> str:
+         kwargs.setdefault("ensure_ascii", False)
+         kwargs.setdefault("separators", (",", ":"))
+         return json.dumps(obj, **kwargs)
+ 
+ 
+ class DeprecatedJSON(ModuleType):
+-    def __getattribute__(self, item):
++    def __getattribute__(self, item: str) -> _t.Any:
+         import warnings
+ 
+         warnings.warn(
+diff --git a/src/itsdangerous/encoding.py b/src/itsdangerous/encoding.py
+index afcaca4..cacc1c5 100644
+--- a/src/itsdangerous/encoding.py
++++ b/src/itsdangerous/encoding.py
+@@ -1,18 +1,23 @@
+ import base64
+ import string
+ import struct
++import typing as _t
+ 
+ from .exc import BadData
+ 
++_t_str_bytes = _t.Union[str, bytes]
+ 
+-def want_bytes(s, encoding="utf-8", errors="strict"):
++
++def want_bytes(
++    s: _t_str_bytes, encoding: str = "utf-8", errors: str = "strict"
++) -> bytes:
+     if isinstance(s, str):
+         s = s.encode(encoding, errors)
+ 
+     return s
+ 
+ 
+-def base64_encode(string):
++def base64_encode(string: _t_str_bytes) -> bytes:
+     """Base64 encode a string of bytes or text. The resulting bytes are
+     safe to use in URLs.
+     """
+@@ -20,7 +25,7 @@ def base64_encode(string):
+     return base64.urlsafe_b64encode(string).rstrip(b"=")
+ 
+ 
+-def base64_decode(string):
++def base64_decode(string: _t_str_bytes) -> bytes:
+     """Base64 decode a URL-safe string of bytes or text. The result is
+     bytes.
+     """
+@@ -38,12 +43,12 @@ _base64_alphabet = f"{string.ascii_letters}{string.digits}-_=".encode("ascii")
+ 
+ _int64_struct = struct.Struct(">Q")
+ _int_to_bytes = _int64_struct.pack
+-_bytes_to_int = _int64_struct.unpack
++_bytes_to_int = _t.cast("_t.Callable[[bytes], _t.Tuple[int]]", _int64_struct.unpack)
+ 
+ 
+-def int_to_bytes(num):
++def int_to_bytes(num: int) -> bytes:
+     return _int_to_bytes(num).lstrip(b"\x00")
+ 
+ 
+-def bytes_to_int(bytestr):
++def bytes_to_int(bytestr: bytes) -> int:
+     return _bytes_to_int(bytestr.rjust(8, b"\x00"))[0]
+diff --git a/src/itsdangerous/exc.py b/src/itsdangerous/exc.py
+index 8c9021d..c38a6af 100644
+--- a/src/itsdangerous/exc.py
++++ b/src/itsdangerous/exc.py
+@@ -1,3 +1,10 @@
++import typing as _t
++from datetime import datetime
++
++_t_opt_any = _t.Optional[_t.Any]
++_t_opt_exc = _t.Optional[Exception]
++
++
+ class BadData(Exception):
+     """Raised if bad data of any sort was encountered. This is the base
+     for all exceptions that ItsDangerous defines.
+@@ -5,20 +12,18 @@ class BadData(Exception):
+     .. versionadded:: 0.15
+     """
+ 
+-    message = None
+-
+-    def __init__(self, message):
++    def __init__(self, message: str):
+         super().__init__(message)
+         self.message = message
+ 
+-    def __str__(self):
++    def __str__(self) -> str:
+         return self.message
+ 
+ 
+ class BadSignature(BadData):
+     """Raised if a signature does not match."""
+ 
+-    def __init__(self, message, payload=None):
++    def __init__(self, message: str, payload: _t_opt_any = None):
+         super().__init__(message)
+ 
+         #: The payload that failed the signature test. In some
+@@ -26,7 +31,7 @@ class BadSignature(BadData):
+         #: you know it was tampered with.
+         #:
+         #: .. versionadded:: 0.14
+-        self.payload = payload
++        self.payload: _t_opt_any = payload
+ 
+ 
+ class BadTimeSignature(BadSignature):
+@@ -34,7 +39,12 @@ class BadTimeSignature(BadSignature):
+     of :class:`BadSignature`.
+     """
+ 
+-    def __init__(self, message, payload=None, date_signed=None):
++    def __init__(
++        self,
++        message: str,
++        payload: _t_opt_any = None,
++        date_signed: _t.Optional[datetime] = None,
++    ):
+         super().__init__(message, payload)
+ 
+         #: If the signature expired this exposes the date of when the
+@@ -62,16 +72,22 @@ class BadHeader(BadSignature):
+     .. versionadded:: 0.24
+     """
+ 
+-    def __init__(self, message, payload=None, header=None, original_error=None):
++    def __init__(
++        self,
++        message: str,
++        payload: _t_opt_any = None,
++        header: _t_opt_any = None,
++        original_error: _t_opt_exc = None,
++    ):
+         super().__init__(message, payload)
+ 
+         #: If the header is actually available but just malformed it
+         #: might be stored here.
+-        self.header = header
++        self.header: _t_opt_any = header
+ 
+         #: If available, the error that indicates why the payload was
+         #: not valid. This might be ``None``.
+-        self.original_error = original_error
++        self.original_error: _t_opt_exc = original_error
+ 
+ 
+ class BadPayload(BadData):
+@@ -83,9 +99,9 @@ class BadPayload(BadData):
+     .. versionadded:: 0.15
+     """
+ 
+-    def __init__(self, message, original_error=None):
++    def __init__(self, message: str, original_error: _t_opt_exc = None):
+         super().__init__(message)
+ 
+         #: If available, the error that indicates why the payload was
+         #: not valid. This might be ``None``.
+-        self.original_error = original_error
++        self.original_error: _t_opt_exc = original_error
+diff --git a/src/itsdangerous/serializer.py b/src/itsdangerous/serializer.py
+index 625001f..dea877f 100644
+--- a/src/itsdangerous/serializer.py
++++ b/src/itsdangerous/serializer.py
+@@ -1,12 +1,23 @@
+ import json
++import typing as _t
+ 
+ from .encoding import want_bytes
+ from .exc import BadPayload
+ from .exc import BadSignature
++from .signer import _make_keys_list
+ from .signer import Signer
+ 
++_t_str_bytes = _t.Union[str, bytes]
++_t_opt_str_bytes = _t.Optional[_t_str_bytes]
++_t_kwargs = _t.Dict[str, _t.Any]
++_t_opt_kwargs = _t.Optional[_t_kwargs]
++_t_signer = _t.Type[Signer]
++_t_fallbacks = _t.List[_t.Union[_t_kwargs, _t.Tuple[_t_signer, _t_kwargs], _t_signer]]
++_t_load_unsafe = _t.Tuple[bool, _t.Any]
++_t_secret_key = _t.Union[_t.Iterable[_t_str_bytes], _t_str_bytes]
+ 
+-def is_text_serializer(serializer):
++
++def is_text_serializer(serializer: _t.Any) -> bool:
+     """Checks whether a serializer generates text or binary."""
+     return isinstance(serializer.dumps({}), str)
+ 
+@@ -66,64 +77,61 @@ class Serializer:
+     #: The default serialization module to use to serialize data to a
+     #: string internally. The default is :mod:`json`, but can be changed
+     #: to any object that provides ``dumps`` and ``loads`` methods.
+-    default_serializer = json
++    default_serializer: _t.Any = json
+ 
+     #: The default ``Signer`` class to instantiate when signing data.
+     #: The default is :class:`itsdangerous.signer.Signer`.
+-    default_signer = Signer
++    default_signer: _t_signer = Signer
+ 
+     #: The default fallback signers to try when unsigning fails.
+-    default_fallback_signers = []
++    default_fallback_signers: _t_fallbacks = []
+ 
+     def __init__(
+         self,
+-        secret_key,
+-        salt=b"itsdangerous",
+-        serializer=None,
+-        serializer_kwargs=None,
+-        signer=None,
+-        signer_kwargs=None,
+-        fallback_signers=None,
++        secret_key: _t_secret_key,
++        salt: _t_str_bytes = b"itsdangerous",
++        serializer: _t.Any = None,
++        serializer_kwargs: _t_opt_kwargs = None,
++        signer: _t.Optional[_t_signer] = None,
++        signer_kwargs: _t_opt_kwargs = None,
++        fallback_signers: _t.Optional[_t_fallbacks] = None,
+     ):
+-        if isinstance(secret_key, list):
+-            secret_keys = [want_bytes(s) for s in secret_key]
+-        else:
+-            secret_keys = [want_bytes(secret_key)]
+-
+         #: The list of secret keys to try for verifying signatures, from
+         #: oldest to newest. The newest (last) key is used for signing.
+         #:
+         #: This allows a key rotation system to keep a list of allowed
+         #: keys and remove expired ones.
+-        self.secret_keys = secret_keys
+-        self.salt = want_bytes(salt)
++        self.secret_keys: _t.List[bytes] = _make_keys_list(secret_key)
++        self.salt: bytes = want_bytes(salt)
+ 
+         if serializer is None:
+             serializer = self.default_serializer
+ 
+-        self.serializer = serializer
+-        self.is_text_serializer = is_text_serializer(serializer)
++        self.serializer: _t.Any = serializer
++        self.is_text_serializer: bool = is_text_serializer(serializer)
+ 
+         if signer is None:
+             signer = self.default_signer
+ 
+         self.signer = signer
+-        self.signer_kwargs = signer_kwargs or {}
++        self.signer_kwargs: _t_kwargs = signer_kwargs or {}
+ 
+         if fallback_signers is None:
+             fallback_signers = list(self.default_fallback_signers or ())
+ 
+-        self.fallback_signers = fallback_signers
+-        self.serializer_kwargs = serializer_kwargs or {}
++        self.fallback_signers: _t_fallbacks = fallback_signers
++        self.serializer_kwargs: _t_kwargs = serializer_kwargs or {}
+ 
+     @property
+-    def secret_key(self):
++    def secret_key(self) -> bytes:
+         """The newest (last) entry in the :attr:`secret_keys` list. This
+         is for compatibility from before key rotation support was added.
+         """
+         return self.secret_keys[-1]
+ 
+-    def load_payload(self, payload, serializer=None):
++    def load_payload(
++        self, payload: bytes, serializer: _t.Optional[_t.Any] = None
++    ) -> _t.Any:
+         """Loads the encoded object. This function raises
+         :class:`.BadPayload` if the payload is not valid. The
+         ``serializer`` parameter can be used to override the serializer
+@@ -138,7 +146,7 @@ class Serializer:
+ 
+         try:
+             if is_text:
+-                payload = payload.decode("utf-8")
++                return serializer.loads(payload.decode("utf-8"))
+ 
+             return serializer.loads(payload)
+         except Exception as e:
+@@ -148,22 +156,23 @@ class Serializer:
+                 original_error=e,
+             )
+ 
+-    def dump_payload(self, obj):
++    def dump_payload(self, obj: _t.Any) -> bytes:
+         """Dumps the encoded object. The return value is always bytes.
+         If the internal serializer returns text, the value will be
+         encoded as UTF-8.
+         """
+         return want_bytes(self.serializer.dumps(obj, **self.serializer_kwargs))
+ 
+-    def make_signer(self, salt=None):
++    def make_signer(self, salt: _t_opt_str_bytes = None) -> Signer:
+         """Creates a new instance of the signer to be used. The default
+         implementation uses the :class:`.Signer` base class.
+         """
+         if salt is None:
+             salt = self.salt
++
+         return self.signer(self.secret_keys, salt=salt, **self.signer_kwargs)
+ 
+-    def iter_unsigners(self, salt=None):
++    def iter_unsigners(self, salt: _t_opt_str_bytes = None) -> _t.Iterator[Signer]:
+         """Iterates over all signers to be tried for unsigning. Starts
+         with the configured signer, then constructs each signer
+         specified in ``fallback_signers``.
+@@ -174,10 +183,10 @@ class Serializer:
+         yield self.make_signer(salt)
+ 
+         for fallback in self.fallback_signers:
+-            if type(fallback) is dict:
++            if isinstance(fallback, dict):
+                 kwargs = fallback
+                 fallback = self.signer
+-            elif type(fallback) is tuple:
++            elif isinstance(fallback, tuple):
+                 fallback, kwargs = fallback
+             else:
+                 kwargs = self.signer_kwargs
+@@ -185,7 +194,7 @@ class Serializer:
+             for secret_key in self.secret_keys:
+                 yield fallback(secret_key, salt=salt, **kwargs)
+ 
+-    def dumps(self, obj, salt=None):
++    def dumps(self, obj: _t.Any, salt: _t_opt_str_bytes = None) -> _t_str_bytes:
+         """Returns a signed string serialized with the internal
+         serializer. The return value can be either a byte or unicode
+         string depending on the format of the internal serializer.
+@@ -194,17 +203,19 @@ class Serializer:
+         rv = self.make_signer(salt).sign(payload)
+ 
+         if self.is_text_serializer:
+-            rv = rv.decode("utf-8")
++            return rv.decode("utf-8")
+ 
+         return rv
+ 
+-    def dump(self, obj, f, salt=None):
++    def dump(self, obj: _t.Any, f: _t.IO, salt: _t_opt_str_bytes = None) -> None:
+         """Like :meth:`dumps` but dumps into a file. The file handle has
+         to be compatible with what the internal serializer expects.
+         """
+         f.write(self.dumps(obj, salt))
+ 
+-    def loads(self, s, salt=None):
++    def loads(
++        self, s: _t_str_bytes, salt: _t_opt_str_bytes = None, **kwargs: _t.Any
++    ) -> _t.Any:
+         """Reverse of :meth:`dumps`. Raises :exc:`.BadSignature` if the
+         signature validation fails.
+         """
+@@ -217,13 +228,15 @@ class Serializer:
+             except BadSignature as err:
+                 last_exception = err
+ 
+-        raise last_exception
++        raise _t.cast(BadSignature, last_exception)
+ 
+-    def load(self, f, salt=None):
++    def load(self, f: _t.IO, salt: _t_opt_str_bytes = None) -> _t.Any:
+         """Like :meth:`loads` but loads from a file."""
+         return self.loads(f.read(), salt)
+ 
+-    def loads_unsafe(self, s, salt=None):
++    def loads_unsafe(
++        self, s: _t_str_bytes, salt: _t_opt_str_bytes = None
++    ) -> _t_load_unsafe:
+         """Like :meth:`loads` but without verifying the signature. This
+         is potentially very dangerous to use depending on how your
+         serializer works. The return value is ``(signature_valid,
+@@ -239,27 +252,39 @@ class Serializer:
+         """
+         return self._loads_unsafe_impl(s, salt)
+ 
+-    def _loads_unsafe_impl(self, s, salt, load_kwargs=None, load_payload_kwargs=None):
++    def _loads_unsafe_impl(
++        self,
++        s: _t_str_bytes,
++        salt: _t_opt_str_bytes,
++        load_kwargs: _t_opt_kwargs = None,
++        load_payload_kwargs: _t_opt_kwargs = None,
++    ) -> _t_load_unsafe:
+         """Low level helper function to implement :meth:`loads_unsafe`
+         in serializer subclasses.
+         """
++        if load_kwargs is None:
++            load_kwargs = {}
++
+         try:
+-            return True, self.loads(s, salt=salt, **(load_kwargs or {}))
++            return True, self.loads(s, salt=salt, **load_kwargs)
+         except BadSignature as e:
+             if e.payload is None:
+                 return False, None
+ 
++            if load_payload_kwargs is None:
++                load_payload_kwargs = {}
++
+             try:
+                 return (
+                     False,
+-                    self.load_payload(e.payload, **(load_payload_kwargs or {})),
++                    self.load_payload(e.payload, **load_payload_kwargs),
+                 )
+             except BadPayload:
+                 return False, None
+ 
+-    def load_unsafe(self, f, *args, **kwargs):
++    def load_unsafe(self, f: _t.IO, salt: _t_opt_str_bytes = None) -> _t_load_unsafe:
+         """Like :meth:`loads_unsafe` but loads from a file.
+ 
+         .. versionadded:: 0.15
+         """
+-        return self.loads_unsafe(f.read(), *args, **kwargs)
++        return self.loads_unsafe(f.read(), salt=salt)
+diff --git a/src/itsdangerous/signer.py b/src/itsdangerous/signer.py
+index 21d6f5d..7e2be7d 100644
+--- a/src/itsdangerous/signer.py
++++ b/src/itsdangerous/signer.py
+@@ -1,5 +1,6 @@
+ import hashlib
+ import hmac
++import typing as _t
+ 
+ from .encoding import _base64_alphabet
+ from .encoding import base64_decode
+@@ -7,17 +8,21 @@ from .encoding import base64_encode
+ from .encoding import want_bytes
+ from .exc import BadSignature
+ 
++_t_str_bytes = _t.Union[str, bytes]
++_t_opt_str_bytes = _t.Optional[_t_str_bytes]
++_t_secret_key = _t.Union[_t.Iterable[_t_str_bytes], _t_str_bytes]
++
+ 
+ class SigningAlgorithm:
+     """Subclasses must implement :meth:`get_signature` to provide
+     signature generation functionality.
+     """
+ 
+-    def get_signature(self, key, value):
++    def get_signature(self, key: bytes, value: bytes) -> bytes:
+         """Returns the signature for the given key and value."""
+         raise NotImplementedError()
+ 
+-    def verify_signature(self, key, value, sig):
++    def verify_signature(self, key: bytes, value: bytes, sig: bytes) -> bool:
+         """Verifies the given signature matches the expected
+         signature.
+         """
+@@ -29,7 +34,7 @@ class NoneAlgorithm(SigningAlgorithm):
+     returns an empty signature.
+     """
+ 
+-    def get_signature(self, key, value):
++    def get_signature(self, key: bytes, value: bytes) -> bytes:
+         return b""
+ 
+ 
+@@ -39,19 +44,26 @@ class HMACAlgorithm(SigningAlgorithm):
+     #: The digest method to use with the MAC algorithm. This defaults to
+     #: SHA1, but can be changed to any other function in the hashlib
+     #: module.
+-    default_digest_method = staticmethod(hashlib.sha1)
++    default_digest_method: _t.Any = staticmethod(hashlib.sha1)
+ 
+-    def __init__(self, digest_method=None):
++    def __init__(self, digest_method: _t.Any = None):
+         if digest_method is None:
+             digest_method = self.default_digest_method
+ 
+-        self.digest_method = digest_method
++        self.digest_method: _t.Any = digest_method
+ 
+-    def get_signature(self, key, value):
++    def get_signature(self, key: bytes, value: bytes) -> bytes:
+         mac = hmac.new(key, msg=value, digestmod=self.digest_method)
+         return mac.digest()
+ 
+ 
++def _make_keys_list(secret_key: _t_secret_key) -> _t.List[bytes]:
++    if isinstance(secret_key, (str, bytes)):
++        return [want_bytes(secret_key)]
++
++    return [want_bytes(s) for s in secret_key]
++
++
+ class Signer:
+     """A signer securely signs bytes, then unsigns them to verify that
+     the value hasn't been changed.
+@@ -96,36 +108,31 @@ class Signer:
+     #: doesn't apply when used intermediately in HMAC.
+     #:
+     #: .. versionadded:: 0.14
+-    default_digest_method = staticmethod(hashlib.sha1)
++    default_digest_method: _t.Any = staticmethod(hashlib.sha1)
+ 
+     #: The default scheme to use to derive the signing key from the
+     #: secret key and salt. The default is ``django-concat``. Possible
+     #: values are ``concat``, ``django-concat``, and ``hmac``.
+     #:
+     #: .. versionadded:: 0.14
+-    default_key_derivation = "django-concat"
++    default_key_derivation: str = "django-concat"
+ 
+     def __init__(
+         self,
+-        secret_key,
+-        salt=None,
+-        sep=".",
+-        key_derivation=None,
+-        digest_method=None,
+-        algorithm=None,
++        secret_key: _t_secret_key,
++        salt: _t_str_bytes = b"itsdangerous.Signer",
++        sep: _t_str_bytes = b".",
++        key_derivation: _t.Optional[str] = None,
++        digest_method: _t.Optional[_t.Any] = None,
++        algorithm: _t.Optional[SigningAlgorithm] = None,
+     ):
+-        if isinstance(secret_key, list):
+-            secret_keys = [want_bytes(s) for s in secret_key]
+-        else:
+-            secret_keys = [want_bytes(secret_key)]
+-
+         #: The list of secret keys to try for verifying signatures, from
+         #: oldest to newest. The newest (last) key is used for signing.
+         #:
+         #: This allows a key rotation system to keep a list of allowed
+         #: keys and remove expired ones.
+-        self.secret_keys = secret_keys
+-        self.sep = want_bytes(sep)
++        self.secret_keys: _t.List[bytes] = _make_keys_list(secret_key)
++        self.sep: bytes = want_bytes(sep)
+ 
+         if self.sep in _base64_alphabet:
+             raise ValueError(
+@@ -134,31 +141,31 @@ class Signer:
+                 " digits, and '-_=' must not be used."
+             )
+ 
+-        self.salt = "itsdangerous.Signer" if salt is None else salt
++        self.salt: bytes = want_bytes(salt)
+ 
+         if key_derivation is None:
+             key_derivation = self.default_key_derivation
+ 
+-        self.key_derivation = key_derivation
++        self.key_derivation: str = key_derivation
+ 
+         if digest_method is None:
+             digest_method = self.default_digest_method
+ 
+-        self.digest_method = digest_method
++        self.digest_method: _t.Any = digest_method
+ 
+         if algorithm is None:
+             algorithm = HMACAlgorithm(self.digest_method)
+ 
+-        self.algorithm = algorithm
++        self.algorithm: SigningAlgorithm = algorithm
+ 
+     @property
+-    def secret_key(self):
++    def secret_key(self) -> bytes:
+         """The newest (last) entry in the :attr:`secret_keys` list. This
+         is for compatibility from before key rotation support was added.
+         """
+         return self.secret_keys[-1]
+ 
+-    def derive_key(self, secret_key=None):
++    def derive_key(self, secret_key: _t_opt_str_bytes = None) -> bytes:
+         """This method is called to derive the key. The default key
+         derivation choices can be overridden here. Key derivation is not
+         intended to be used as a security method to make a complex key
+@@ -176,39 +183,42 @@ class Signer:
+         else:
+             secret_key = want_bytes(secret_key)
+ 
+-        salt = want_bytes(self.salt)
+-
+         if self.key_derivation == "concat":
+-            return self.digest_method(salt + secret_key).digest()
++            return _t.cast(bytes, self.digest_method(self.salt + secret_key).digest())
+         elif self.key_derivation == "django-concat":
+-            return self.digest_method(salt + b"signer" + secret_key).digest()
++            return _t.cast(
++                bytes, self.digest_method(self.salt + b"signer" + secret_key).digest()
++            )
+         elif self.key_derivation == "hmac":
+             mac = hmac.new(secret_key, digestmod=self.digest_method)
+-            mac.update(salt)
++            mac.update(self.salt)
+             return mac.digest()
+         elif self.key_derivation == "none":
+             return secret_key
+         else:
+             raise TypeError("Unknown key derivation method")
+ 
+-    def get_signature(self, value):
++    def get_signature(self, value: _t_str_bytes) -> bytes:
+         """Returns the signature for the given value."""
+         value = want_bytes(value)
+         key = self.derive_key()
+         sig = self.algorithm.get_signature(key, value)
+         return base64_encode(sig)
+ 
+-    def sign(self, value):
++    def sign(self, value: _t_str_bytes) -> bytes:
+         """Signs the given string."""
+-        return want_bytes(value) + want_bytes(self.sep) + self.get_signature(value)
++        value = want_bytes(value)
++        return value + self.sep + self.get_signature(value)
+ 
+-    def verify_signature(self, value, sig):
++    def verify_signature(self, value: _t_str_bytes, sig: _t_str_bytes) -> bool:
+         """Verifies the signature for the given value."""
+         try:
+             sig = base64_decode(sig)
+         except Exception:
+             return False
+ 
++        value = want_bytes(value)
++
+         for secret_key in reversed(self.secret_keys):
+             key = self.derive_key(secret_key)
+ 
+@@ -217,22 +227,21 @@ class Signer:
+ 
+         return False
+ 
+-    def unsign(self, signed_value):
++    def unsign(self, signed_value: _t_str_bytes) -> bytes:
+         """Unsigns the given string."""
+         signed_value = want_bytes(signed_value)
+-        sep = want_bytes(self.sep)
+ 
+-        if sep not in signed_value:
++        if self.sep not in signed_value:
+             raise BadSignature(f"No {self.sep!r} found in value")
+ 
+-        value, sig = signed_value.rsplit(sep, 1)
++        value, sig = signed_value.rsplit(self.sep, 1)
+ 
+         if self.verify_signature(value, sig):
+             return value
+ 
+         raise BadSignature(f"Signature {sig!r} does not match", payload=value)
+ 
+-    def validate(self, signed_value):
++    def validate(self, signed_value: _t_str_bytes) -> bool:
+         """Only validates the given signed value. Returns ``True`` if
+         the signature exists and is valid.
+         """
+diff --git a/src/itsdangerous/timed.py b/src/itsdangerous/timed.py
+index 178322f..2e254e9 100644
+--- a/src/itsdangerous/timed.py
++++ b/src/itsdangerous/timed.py
+@@ -1,4 +1,6 @@
+ import time
++import typing
++import typing as _t
+ from datetime import datetime
+ from datetime import timezone
+ 
+@@ -13,6 +15,10 @@ from .exc import SignatureExpired
+ from .serializer import Serializer
+ from .signer import Signer
+ 
++_t_str_bytes = _t.Union[str, bytes]
++_t_opt_str_bytes = _t.Optional[_t_str_bytes]
++_t_opt_int = _t.Optional[int]
++
+ 
+ class TimestampSigner(Signer):
+     """Works like the regular :class:`.Signer` but also records the time
+@@ -21,13 +27,13 @@ class TimestampSigner(Signer):
+     unsigning failed because the signature is expired.
+     """
+ 
+-    def get_timestamp(self):
++    def get_timestamp(self) -> int:
+         """Returns the current timestamp. The function must return an
+         integer.
+         """
+         return int(time.time())
+ 
+-    def timestamp_to_datetime(self, ts):
++    def timestamp_to_datetime(self, ts: int) -> datetime:
+         """Convert the timestamp from :meth:`get_timestamp` into an
+         aware :class`datetime.datetime` in UTC.
+ 
+@@ -37,7 +43,7 @@ class TimestampSigner(Signer):
+         """
+         return datetime.fromtimestamp(ts, tz=timezone.utc)
+ 
+-    def sign(self, value):
++    def sign(self, value: _t_str_bytes) -> bytes:
+         """Signs the given string and also attaches time information."""
+         value = want_bytes(value)
+         timestamp = base64_encode(int_to_bytes(self.get_timestamp()))
+@@ -45,7 +51,33 @@ class TimestampSigner(Signer):
+         value = value + sep + timestamp
+         return value + sep + self.get_signature(value)
+ 
+-    def unsign(self, value, max_age=None, return_timestamp=False):
++    # Ignore overlapping signatures check, return_timestamp is the only
++    # parameter that affects the return type.
++
++    @typing.overload
++    def unsign(  # type: ignore
++        self,
++        signed_value: _t_str_bytes,
++        max_age: _t_opt_int = None,
++        return_timestamp: "_t.Literal[False]" = False,
++    ) -> bytes:
++        ...
++
++    @typing.overload
++    def unsign(
++        self,
++        signed_value: _t_str_bytes,
++        max_age: _t_opt_int = None,
++        return_timestamp: "_t.Literal[True]" = True,
++    ) -> _t.Tuple[bytes, datetime]:
++        ...
++
++    def unsign(
++        self,
++        signed_value: _t_str_bytes,
++        max_age: _t_opt_int = None,
++        return_timestamp: bool = False,
++    ) -> _t.Union[_t.Tuple[bytes, datetime], bytes]:
+         """Works like the regular :meth:`.Signer.unsign` but can also
+         validate the time. See the base docstring of the class for
+         the general behavior. If ``return_timestamp`` is ``True`` the
+@@ -57,7 +89,7 @@ class TimestampSigner(Signer):
+             in UTC rather than a naive ``datetime`` assumed to be UTC.
+         """
+         try:
+-            result = super().unsign(value)
++            result = super().unsign(signed_value)
+             sig_error = None
+         except BadSignature as e:
+             sig_error = e
+@@ -76,50 +108,52 @@ class TimestampSigner(Signer):
+ 
+             raise BadTimeSignature("timestamp missing", payload=result)
+ 
+-        value, timestamp = result.rsplit(sep, 1)
++        value, ts_bytes = result.rsplit(sep, 1)
++        ts_int: _t_opt_int = None
++        ts_dt: _t.Optional[datetime] = None
+ 
+         try:
+-            timestamp = bytes_to_int(base64_decode(timestamp))
++            ts_int = bytes_to_int(base64_decode(ts_bytes))
+         except Exception:
+-            timestamp = None
++            pass
+ 
+         # Signature is *not* okay. Raise a proper error now that we have
+         # split the value and the timestamp.
+         if sig_error is not None:
+-            if timestamp is not None:
+-                timestamp = self.timestamp_to_datetime(timestamp)
++            if ts_int is not None:
++                ts_dt = self.timestamp_to_datetime(ts_int)
+ 
+-            raise BadTimeSignature(str(sig_error), payload=value, date_signed=timestamp)
++            raise BadTimeSignature(str(sig_error), payload=value, date_signed=ts_dt)
+ 
+         # Signature was okay but the timestamp is actually not there or
+         # malformed. Should not happen, but we handle it anyway.
+-        if timestamp is None:
++        if ts_int is None:
+             raise BadTimeSignature("Malformed timestamp", payload=value)
+ 
+         # Check timestamp is not older than max_age
+         if max_age is not None:
+-            age = self.get_timestamp() - timestamp
++            age = self.get_timestamp() - ts_int
+ 
+             if age > max_age:
+                 raise SignatureExpired(
+                     f"Signature age {age} > {max_age} seconds",
+                     payload=value,
+-                    date_signed=self.timestamp_to_datetime(timestamp),
++                    date_signed=self.timestamp_to_datetime(ts_int),
+                 )
+ 
+             if age < 0:
+                 raise SignatureExpired(
+                     f"Signature age {age} < 0 seconds",
+                     payload=value,
+-                    date_signed=self.timestamp_to_datetime(timestamp),
++                    date_signed=self.timestamp_to_datetime(ts_int),
+                 )
+ 
+         if return_timestamp:
+-            return value, self.timestamp_to_datetime(timestamp)
++            return value, self.timestamp_to_datetime(ts_int)
+ 
+         return value
+ 
+-    def validate(self, signed_value, max_age=None):
++    def validate(self, signed_value: _t_str_bytes, max_age: _t_opt_int = None) -> bool:
+         """Only validates the given signed value. Returns ``True`` if
+         the signature exists and is valid."""
+         try:
+@@ -134,9 +168,23 @@ class TimedSerializer(Serializer):
+     :class:`.Signer`.
+     """
+ 
+-    default_signer = TimestampSigner
++    default_signer: _t.Type[TimestampSigner] = TimestampSigner
++
++    def iter_unsigners(
++        self, salt: _t_opt_str_bytes = None
++    ) -> _t.Iterator[TimestampSigner]:
++        return _t.cast("_t.Iterator[TimestampSigner]", super().iter_unsigners(salt))
+ 
+-    def loads(self, s, max_age=None, return_timestamp=False, salt=None):
++    # TODO: Signature is incompatible because parameters were added
++    #  before salt.
++
++    def loads(  # type: ignore
++        self,
++        s: _t_str_bytes,
++        max_age: _t_opt_int = None,
++        return_timestamp: bool = False,
++        salt: _t_opt_str_bytes = None,
++    ) -> _t.Any:
+         """Reverse of :meth:`dumps`, raises :exc:`.BadSignature` if the
+         signature validation fails. If a ``max_age`` is provided it will
+         ensure the signature is not older than that time in seconds. In
+@@ -149,24 +197,28 @@ class TimedSerializer(Serializer):
+ 
+         for signer in self.iter_unsigners(salt):
+             try:
+-                base64d, timestamp = signer.unsign(s, max_age, return_timestamp=True)
++                base64d, timestamp = signer.unsign(
++                    s, max_age=max_age, return_timestamp=True
++                )
+                 payload = self.load_payload(base64d)
+ 
+                 if return_timestamp:
+                     return payload, timestamp
+ 
+                 return payload
+-            # If we get a signature expired it means we could read the
+-            # signature but it's invalid.  In that case we do not want to
+-            # try the next signer.
+             except SignatureExpired:
++                # The signature was unsigned successfully but was
++                # expired. Do not try the next signer.
+                 raise
+             except BadSignature as err:
+                 last_exception = err
+ 
+-        raise last_exception
++        raise _t.cast(BadSignature, last_exception)
+ 
+-    def loads_unsafe(self, s, max_age=None, salt=None):
+-        load_kwargs = {"max_age": max_age}
+-        load_payload_kwargs = {}
+-        return self._loads_unsafe_impl(s, salt, load_kwargs, load_payload_kwargs)
++    def loads_unsafe(  # type: ignore
++        self,
++        s: _t_str_bytes,
++        max_age: _t_opt_int = None,
++        salt: _t_opt_str_bytes = None,
++    ) -> _t.Tuple[bool, _t.Any]:
++        return self._loads_unsafe_impl(s, salt, load_kwargs={"max_age": max_age})
+diff --git a/src/itsdangerous/url_safe.py b/src/itsdangerous/url_safe.py
+index 14aa7b9..f76fa24 100644
+--- a/src/itsdangerous/url_safe.py
++++ b/src/itsdangerous/url_safe.py
+@@ -1,3 +1,4 @@
++import typing as _t
+ import zlib
+ 
+ from ._json import _CompactJSON
+@@ -8,7 +9,7 @@ from .serializer import Serializer
+ from .timed import TimedSerializer
+ 
+ 
+-class URLSafeSerializerMixin:
++class URLSafeSerializerMixin(Serializer):
+     """Mixed in with a regular serializer it will attempt to zlib
+     compress the string to make it shorter if necessary. It will also
+     base64 encode the string so that it can safely be placed in a URL.
+@@ -16,7 +17,13 @@ class URLSafeSerializerMixin:
+ 
+     default_serializer = _CompactJSON
+ 
+-    def load_payload(self, payload, *args, **kwargs):
++    def load_payload(
++        self,
++        payload: bytes,
++        *args: _t.Any,
++        serializer: _t.Optional[_t.Any] = None,
++        **kwargs: _t.Any,
++    ) -> _t.Any:
+         decompress = False
+ 
+         if payload.startswith(b"."):
+@@ -42,7 +49,7 @@ class URLSafeSerializerMixin:
+ 
+         return super().load_payload(json, *args, **kwargs)
+ 
+-    def dump_payload(self, obj):
++    def dump_payload(self, obj: _t.Any) -> bytes:
+         json = super().dump_payload(obj)
+         is_compressed = False
+         compressed = zlib.compress(json)

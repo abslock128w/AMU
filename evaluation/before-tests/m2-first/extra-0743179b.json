@@ -1,0 +1,23 @@
+{
+  "case_id": "extra-0743179b",
+  "function_recall10": 0.0,
+  "file_recall10": 0.5,
+  "function_hits": [],
+  "missing_from_parent": [
+    "tests/sansio/test_utils.py::test_trusted"
+  ],
+  "recommended": 8,
+  "top10": [
+    "tests/sansio/test_utils.py::test_get_host",
+    "tests/sansio/test_utils.py::test_get_host_invalid",
+    "tests/sansio/test_utils.py::test_get_host_missing",
+    "tests/sansio/test_utils.py::test_get_host_unix",
+    "tests/test_routing.py::test_basic_routing",
+    "tests/test_routing.py::test_bind_trusted_host",
+    "tests/test_routing.py::test_bind_untrusted_host",
+    "tests/test_routing.py::test_dispatch"
+  ],
+  "seconds": 0.4303432500018971,
+  "bytes": 1887,
+  "noise10": 8
+}

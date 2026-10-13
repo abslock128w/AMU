@@ -1,0 +1,26 @@
+{
+  "rule": "Walk git rev-list --no-merges backwards from each frozen HEAD; first 5 commits per repository that change production src .py and modify at least one test function already present in the parent. No analyzer run before selection.",
+  "reason": "The Click holdout was read on 2026-10-13 (core: 1/10 function hits, 9/10 file hits). Fixes for its misses are judged here, once.",
+  "heads": {
+    "requests": "611c6162cbc4ac2020a2f91c7cfa4f3abf9bbb60",
+    "itsdangerous": "672971d66a2ef9f85151e53283113f33d642dabd"
+  },
+  "hashes": {
+    "holdout2.json": "0ae2b3272c815073862cbb7c70c969fad026c25c3c7c0bf29dc0b3d26041c498"
+  },
+  "commits": [
+    "f0198e6dfc431a2293dc16e1b1e8fcddc910a7f3",
+    "bc7dd0fc4d56e808bcdd85ac2d797b3107c89259",
+    "f8bec2f7ca9d7c03981a12ff8866a9b3923f1699",
+    "01353d3b4afe3afa838f8f5c08e5f30a5b50cb05",
+    "7f4dcf83a07bb3d53f4e0e65ef1b43327b4cca90",
+    "177196d3a5c7ad37b8ccbd0f88445aced07f1ca0",
+    "aed5b260111c19e91af839c2c64d771c794250a0",
+    "526b1ea02934f529606dcbf3c3340ab429dcde04"
+  ],
+  "thresholds": {
+    "function_case_hit_rate": 0.6,
+    "file_case_hit_rate": 0.75,
+    "max_recommendations": 40
+  }
+}

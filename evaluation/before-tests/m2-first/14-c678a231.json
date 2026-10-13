@@ -1,0 +1,20 @@
+{
+  "case_id": "14-c678a231",
+  "function_recall10": 0.0,
+  "file_recall10": 0.0,
+  "function_hits": [],
+  "missing_from_parent": [
+    "tests/test_routing.py::test_converter"
+  ],
+  "recommended": 5,
+  "top10": [
+    "tests/middleware/test_http_proxy.py::test_http_proxy",
+    "tests/middleware/test_proxy_fix.py::test_proxy_fix",
+    "tests/test_datastructures.py::TestAccept::test_accept_basic",
+    "tests/test_datastructures.py::TestAccept::test_accept_equal_quality",
+    "tests/test_datastructures.py::TestAccept::test_accept_keep_order"
+  ],
+  "seconds": 0.49047266699926695,
+  "bytes": 1930,
+  "noise10": 5
+}

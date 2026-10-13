@@ -1,0 +1,183 @@
+[
+  {
+    "case_id": "h2-requests-f0198e6d",
+    "commit": "f0198e6dfc431a2293dc16e1b1e8fcddc910a7f3",
+    "parent": "bc7dd0fc4d56e808bcdd85ac2d797b3107c89259",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/requests.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h2-requests-f0198e6d/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h2-requests-f0198e6d/production.patch",
+    "patch_sha256": "1c05e9e88c5c6a9a7030d588fbb8cecbaddf84f02500db41c3071f4f118286e5",
+    "truth": [
+      "tests/test_utils.py::test__parse_content_type_header",
+      "tests/test_utils.py::test_get_encoding_from_headers"
+    ],
+    "existing_truth": [
+      "tests/test_utils.py::test__parse_content_type_header",
+      "tests/test_utils.py::test_get_encoding_from_headers"
+    ],
+    "files": [
+      "tests/test_utils.py"
+    ]
+  },
+  {
+    "case_id": "h2-requests-bc7dd0fc",
+    "commit": "bc7dd0fc4d56e808bcdd85ac2d797b3107c89259",
+    "parent": "4443b1a847b190010c2972a658924b98b5db6360",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/requests.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h2-requests-bc7dd0fc/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h2-requests-bc7dd0fc/production.patch",
+    "patch_sha256": "494b0de8205f795a8d3c76a2d5b56713d61be30e02f7969559c2a93692531429",
+    "truth": [
+      "tests/test_requests.py::TestRequests::test_header_no_return_chars"
+    ],
+    "existing_truth": [
+      "tests/test_requests.py::TestRequests::test_header_no_return_chars"
+    ],
+    "files": [
+      "tests/test_requests.py"
+    ]
+  },
+  {
+    "case_id": "h2-requests-f8bec2f7",
+    "commit": "f8bec2f7ca9d7c03981a12ff8866a9b3923f1699",
+    "parent": "70298332899f25826e35e42f8d83425124f755a5",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/requests.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h2-requests-f8bec2f7/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h2-requests-f8bec2f7/production.patch",
+    "patch_sha256": "311cd0fe7cb2e7aae236d826fa143348a5d381c3b7411895abd74f0be9ec5818",
+    "truth": [
+      "tests/test_requests.py::TestRequests::test_invalid_ca_certificate_path",
+      "tests/test_requests.py::TestRequests::test_invalid_ssl_certificate_files"
+    ],
+    "existing_truth": [
+      "tests/test_requests.py::TestRequests::test_invalid_ca_certificate_path",
+      "tests/test_requests.py::TestRequests::test_invalid_ssl_certificate_files"
+    ],
+    "files": [
+      "tests/test_lowlevel.py",
+      "tests/test_requests.py",
+      "tests/test_testserver.py"
+    ]
+  },
+  {
+    "case_id": "h2-requests-01353d3b",
+    "commit": "01353d3b4afe3afa838f8f5c08e5f30a5b50cb05",
+    "parent": "4e383642a9ebb82a67eaeed199d0fbbb31991e3c",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/requests.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h2-requests-01353d3b/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h2-requests-01353d3b/production.patch",
+    "patch_sha256": "46e3823fc214af58c7621c8d9d9ceaf7ff3312fe4df1a44004393ad381ab9b55",
+    "truth": [
+      "tests/test_requests.py::test_content_length_for_string_data_counts_bytes"
+    ],
+    "existing_truth": [
+      "tests/test_requests.py::test_content_length_for_string_data_counts_bytes"
+    ],
+    "files": [
+      "tests/test_requests.py"
+    ]
+  },
+  {
+    "case_id": "h2-itsdangerous-7f4dcf83",
+    "commit": "7f4dcf83a07bb3d53f4e0e65ef1b43327b4cca90",
+    "parent": "93ae366874bbd4f69d90495c45b2cd336387496c",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/core-pipeline-evaluation-2026-10-12/itsdangerous.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h2-itsdangerous-7f4dcf83/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h2-itsdangerous-7f4dcf83/production.patch",
+    "patch_sha256": "9c197c346f2b20bfe8862110cbfcba0d00eb5fb591afb7c7f3d876123df141ac",
+    "truth": [
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_iter_unsigners"
+    ],
+    "existing_truth": [
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_iter_unsigners"
+    ],
+    "files": [
+      "tests/test_itsdangerous/test_serializer.py"
+    ]
+  },
+  {
+    "case_id": "h2-itsdangerous-177196d3",
+    "commit": "177196d3a5c7ad37b8ccbd0f88445aced07f1ca0",
+    "parent": "37f09970fa32a330a6660ded3abdb264086531b5",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/core-pipeline-evaluation-2026-10-12/itsdangerous.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h2-itsdangerous-177196d3/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h2-itsdangerous-177196d3/production.patch",
+    "patch_sha256": "16c4cebfccaa43601ed868b8cc07b1132be43e329265a9c07240066a76299466",
+    "truth": [
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_malformed_future_timestamp"
+    ],
+    "existing_truth": [
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_malformed_future_timestamp"
+    ],
+    "files": [
+      "tests/test_itsdangerous/test_timed.py"
+    ]
+  },
+  {
+    "case_id": "h2-itsdangerous-aed5b260",
+    "commit": "aed5b260111c19e91af839c2c64d771c794250a0",
+    "parent": "b2ac67e17e82657b38a7cd8fdcea093977bcaafc",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/core-pipeline-evaluation-2026-10-12/itsdangerous.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h2-itsdangerous-aed5b260/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h2-itsdangerous-aed5b260/production.patch",
+    "patch_sha256": "8e3ceb529c8cb455f7d5c9c201246041bf8e0f9b65aa859b341f8fe624cf7a79",
+    "truth": [
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_alt_salt",
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_bad_payload_exception",
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_bad_signature_exception",
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_changed_value",
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_fallback_signers",
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_file",
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_iter_unsigners",
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_loads_unsafe",
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_serializer",
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_signer_cls",
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_signer_kwargs",
+      "tests/test_itsdangerous/test_signer.py::test_abstract_algorithm"
+    ],
+    "existing_truth": [
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_alt_salt",
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_bad_payload_exception",
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_bad_signature_exception",
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_changed_value",
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_fallback_signers",
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_file",
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_iter_unsigners",
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_loads_unsafe",
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_serializer",
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_signer_cls",
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_signer_kwargs",
+      "tests/test_itsdangerous/test_signer.py::test_abstract_algorithm"
+    ],
+    "files": [
+      "tests/test_itsdangerous/test_jws.py",
+      "tests/test_itsdangerous/test_serializer.py",
+      "tests/test_itsdangerous/test_signer.py",
+      "tests/test_itsdangerous/test_timed.py",
+      "tests/test_itsdangerous/test_url_safe.py"
+    ]
+  },
+  {
+    "case_id": "h2-itsdangerous-526b1ea0",
+    "commit": "526b1ea02934f529606dcbf3c3340ab429dcde04",
+    "parent": "b11475aa0e1534f1fe7736d56140d81e872b1f5f",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/core-pipeline-evaluation-2026-10-12/itsdangerous.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h2-itsdangerous-526b1ea0/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h2-itsdangerous-526b1ea0/production.patch",
+    "patch_sha256": "d9a6a61813089629bb867bca54857da80bcda7b9ae68c1d6c422f81105d4a14a",
+    "truth": [
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_future_age",
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_malformed_timestamp",
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_sig_error_date_signed",
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_timestamp_missing"
+    ],
+    "existing_truth": [
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_future_age",
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_malformed_timestamp",
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_timestamp_missing"
+    ],
+    "files": [
+      "tests/test_itsdangerous/test_timed.py"
+    ]
+  }
+]

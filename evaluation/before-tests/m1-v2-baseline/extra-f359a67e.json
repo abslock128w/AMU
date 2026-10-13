@@ -1,0 +1,23 @@
+{
+  "case_id": "extra-f359a67e",
+  "function_recall10": 0.0,
+  "file_recall10": 0.0,
+  "function_hits": [],
+  "missing_from_parent": [],
+  "recommended": 26,
+  "top10": [
+    "tests/middleware/test_http_proxy.py::test_http_proxy",
+    "tests/test_formparser.py::TestFormParser::test_parse_bad_content_type",
+    "tests/test_formparser.py::TestFormParser::test_parse_from_environ",
+    "tests/test_send_file.py::test_content_encoding",
+    "tests/test_send_file.py::test_disposition_name",
+    "tests/test_send_file.py::test_etag",
+    "tests/test_send_file.py::test_file",
+    "tests/test_send_file.py::test_from_directory",
+    "tests/test_send_file.py::test_from_directory_not_found",
+    "tests/test_send_file.py::test_last_modified"
+  ],
+  "seconds": 4.676155499997549,
+  "bytes": 18049,
+  "noise10": 10
+}

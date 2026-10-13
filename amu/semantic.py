@@ -22,6 +22,18 @@ EXCEPTIONS = frozenset(
 
 
 def overload_nodes(tree):
+    """Typing-only overload stubs of one parsed module.
+
+    The answer depends only on the tree, so it is computed once per tree and
+    kept on it. Callers previously repeated two full walks per declaration.
+    """
+    cached = getattr(tree, "_amu_overload_nodes", None)
+    if cached is None:
+        cached = tree._amu_overload_nodes = frozenset(_overload_nodes(tree))
+    return cached
+
+
+def _overload_nodes(tree):
     aliases = {
         a.asname or a.name
         for n in tree.body

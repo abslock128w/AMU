@@ -1,0 +1,23 @@
+{
+  "case_id": "h2-requests-f8bec2f7",
+  "function_recall10": 0.0,
+  "file_recall10": 0.3333333333333333,
+  "function_hits": [],
+  "missing_from_parent": [],
+  "recommended": 10,
+  "top10": [
+    "tests/test_requests.py::TestRequests::test_basic_auth_str_is_always_native",
+    "tests/test_help.py::test_idna_with_version_attribute",
+    "tests/test_help.py::test_idna_without_version_attribute",
+    "tests/test_help.py::test_system_ssl",
+    "tests/test_requests.py::TestRequests::test_set_basicauth",
+    "tests/test_requests.py::TestRequests::test_proxy_auth",
+    "tests/test_adapters.py::test_request_url_trims_leading_path_separators",
+    "tests/test_requests.py::TestRequests::test_proxy_auth_empty_pass",
+    "tests/test_requests.py::TestPreparingURLs::test_different_connection_pool_for_tls_settings_verify_bundle_expired_cert",
+    "tests/test_hooks.py::test_default_hooks"
+  ],
+  "seconds": 0.1724257910027518,
+  "bytes": 1997,
+  "noise10": 10
+}

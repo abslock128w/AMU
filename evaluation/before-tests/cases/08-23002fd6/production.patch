@@ -1,0 +1,47 @@
+diff --git a/src/werkzeug/datastructures/range.py b/src/werkzeug/datastructures/range.py
+index bbbdf4ae..bd9d9514 100644
+--- a/src/werkzeug/datastructures/range.py
++++ b/src/werkzeug/datastructures/range.py
+@@ -61,6 +61,9 @@ class IfRange:
+             return quote_etag(self.etag)
+         return ""
+ 
++    def __bool__(self) -> bool:
++        return self.etag is not None or self.date is not None
++
+     def __str__(self) -> str:
+         return self.to_header()
+ 
+diff --git a/src/werkzeug/sansio/request.py b/src/werkzeug/sansio/request.py
+index a55b5d36..f9388528 100644
+--- a/src/werkzeug/sansio/request.py
++++ b/src/werkzeug/sansio/request.py
+@@ -494,9 +494,14 @@ class Request:
+         """
+         return parse_date(self.headers.get("If-Unmodified-Since"))
+ 
+-    @cached_property
+-    def if_range(self) -> IfRange:
+-        """The parsed ``If-Range`` header.
++    if_range = header_property[IfRange](
++        "If-Range",
++        load_func=IfRange.from_header,
++        read_only=True,
++        doc="""The ``If-Range`` header. If the response does not satisfy the
++        condition, it ignores the ``Range`` header.
++
++        An :class:`.IfRange`, empty if not set.
+ 
+         .. versionchanged:: 3.2
+             A weak ETag is discarded.
+@@ -505,8 +510,8 @@ class Request:
+             ``IfRange.date`` is timezone-aware.
+ 
+         .. versionadded:: 0.7
+-        """
+-        return IfRange.from_header(self.headers.get("If-Range"))
++        """,
++    )
+ 
+     @cached_property
+     def range(self) -> Range | None:

@@ -1,0 +1,562 @@
+[
+  {
+    "case_id": "01-4da3786f",
+    "function_recall10": 0.0,
+    "file_recall10": 1.0,
+    "function_hits": [],
+    "missing_from_parent": [
+      "tests/test_urls.py::test_uri_empty_auth",
+      "tests/test_urls.py::test_uri_port_0"
+    ],
+    "recommended": 10,
+    "top10": [
+      "tests/test_urls.py::test_iri_to_uri_to_iri",
+      "tests/test_urls.py::test_uri_to_iri_to_uri",
+      "tests/test_urls.py::test_uri_iri_normalization",
+      "tests/test_urls.py::test_iri_safe_quoting",
+      "tests/test_urls.py::test_iri_support",
+      "tests/test_urls.py::test_iri_to_uri_dont_quote_valid_code_points",
+      "tests/test_urls.py::test_uri_to_iri_dont_unquote_space",
+      "tests/test_urls.py::test_iri_to_uri_idempotence_ascii_only",
+      "tests/test_urls.py::test_uri_to_iri_idempotence_ascii_only",
+      "tests/test_urls.py::test_iri_to_uri_idempotence_non_ascii"
+    ],
+    "seconds": 0.6983005000001867,
+    "bytes": 1999,
+    "noise10": 10,
+    "wall_seconds": 0.7464714999987336
+  },
+  {
+    "case_id": "02-0c419f95",
+    "function_recall10": 1.0,
+    "file_recall10": 1.0,
+    "function_hits": [
+      "tests/test_http.py::TestRange::test_range_parsing"
+    ],
+    "missing_from_parent": [],
+    "recommended": 9,
+    "top10": [
+      "tests/test_datastructures.py::test_range_to_header",
+      "tests/test_http.py::TestRange::test_range_parsing",
+      "tests/test_http.py::test_range_invalid_int",
+      "tests/test_wrappers.py::test_ranges",
+      "tests/test_wrappers.py::test_advertise_accept_ranges",
+      "tests/test_wrappers.py::test_invalid_range_request",
+      "tests/test_wrappers.py::test_range_request_basic",
+      "tests/test_wrappers.py::test_range_request_out_of_bound",
+      "tests/test_wrappers.py::test_range_request_with_complete_file"
+    ],
+    "seconds": 1.2031703749998996,
+    "bytes": 1860,
+    "noise10": 8,
+    "wall_seconds": 1.2856471250015602
+  },
+  {
+    "case_id": "03-594452f6",
+    "function_recall10": 1.0,
+    "file_recall10": 1.0,
+    "function_hits": [
+      "tests/test_routing.py::test_converter"
+    ],
+    "missing_from_parent": [],
+    "recommended": 10,
+    "top10": [
+      "tests/test_routing.py::test_converter",
+      "tests/test_routing.py::test_converter_with_tuples",
+      "tests/test_routing.py::test_default_converters",
+      "tests/test_routing.py::test_multiple_converters_per_part",
+      "tests/test_routing.py::test_part_converter_order",
+      "tests/test_routing.py::test_uuid_converter",
+      "tests/test_debug.py::TestDebugRepr::test_regex_repr",
+      "tests/test_routing.py::test_adapter_match_return_rule",
+      "tests/test_routing.py::test_anyconverter",
+      "tests/test_routing.py::test_basic_routing"
+    ],
+    "seconds": 0.9648244580021128,
+    "bytes": 1930,
+    "noise10": 9,
+    "wall_seconds": 1.0597767500003101
+  },
+  {
+    "case_id": "04-fbbbf745",
+    "function_recall10": null,
+    "file_recall10": null,
+    "function_hits": [],
+    "missing_from_parent": [],
+    "recommended": 9,
+    "top10": [
+      "tests/test_datastructures.py::test_etag_strong_comparison",
+      "tests/test_wrappers.py::test_ranges",
+      "tests/test_datastructures.py::test_etag_weak_comparison",
+      "tests/test_wrappers.py::test_range_request_without_complete_length",
+      "tests/test_wrappers.py::test_advertise_accept_ranges",
+      "tests/test_wrappers.py::test_invalid_range_request",
+      "tests/test_wrappers.py::test_etag_response",
+      "tests/test_wrappers.py::test_etag_response_412",
+      "tests/test_wrappers.py::test_range_request_basic"
+    ],
+    "seconds": 0.7941615419986192,
+    "bytes": 1998,
+    "noise10": 9,
+    "wall_seconds": 0.8692713330019615
+  },
+  {
+    "case_id": "05-2c453bf3",
+    "function_recall10": 1.0,
+    "file_recall10": 1.0,
+    "function_hits": [
+      "tests/middleware/test_proxy_fix.py::test_proxy_fix"
+    ],
+    "missing_from_parent": [],
+    "recommended": 1,
+    "top10": [
+      "tests/middleware/test_proxy_fix.py::test_proxy_fix"
+    ],
+    "seconds": 0.7816806669979997,
+    "bytes": 766,
+    "noise10": 0,
+    "wall_seconds": 0.8449102499980654
+  },
+  {
+    "case_id": "06-54b7596d",
+    "function_recall10": null,
+    "file_recall10": null,
+    "function_hits": [],
+    "missing_from_parent": [],
+    "recommended": 10,
+    "top10": [
+      "tests/test_http.py::TestHTTPUtility::test_accept",
+      "tests/test_http.py::TestHTTPUtility::test_accept_matches",
+      "tests/test_http.py::TestHTTPUtility::test_accept_mime_specificity",
+      "tests/test_http.py::TestHTTPUtility::test_accept_parameter_with_space",
+      "tests/test_http.py::TestHTTPUtility::test_language_accept",
+      "tests/test_http.py::TestHTTPUtility::test_mime_accept",
+      "tests/test_http.py::test_accept_invalid_float",
+      "tests/test_http.py::test_accept_valid_int_one_zero",
+      "tests/test_http.py::TestRegression::test_best_match_works",
+      "tests/test_wrappers.py::test_accept"
+    ],
+    "seconds": 0.8282680829979654,
+    "bytes": 1911,
+    "noise10": 10,
+    "wall_seconds": 0.9033073750033509
+  },
+  {
+    "case_id": "07-42f3ccf9",
+    "function_recall10": null,
+    "file_recall10": null,
+    "function_hits": [],
+    "missing_from_parent": [],
+    "recommended": 10,
+    "top10": [
+      "tests/test_http.py::TestHTTPUtility::test_etags",
+      "tests/test_http.py::TestHTTPUtility::test_etags_bool",
+      "tests/test_wrappers.py::test_etag_request",
+      "tests/test_wrappers.py::test_etag_response",
+      "tests/test_wrappers.py::test_etag_response_412",
+      "tests/test_send_file.py::test_etag",
+      "tests/test_wrappers.py::test_advertise_accept_ranges",
+      "tests/test_wrappers.py::test_common_response_descriptors",
+      "tests/test_wrappers.py::test_disabled_auto_content_length",
+      "tests/test_wrappers.py::test_invalid_range_request"
+    ],
+    "seconds": 0.952206166999531,
+    "bytes": 1824,
+    "noise10": 10,
+    "wall_seconds": 1.0443699589995958
+  },
+  {
+    "case_id": "08-23002fd6",
+    "function_recall10": null,
+    "file_recall10": null,
+    "function_hits": [],
+    "missing_from_parent": [],
+    "recommended": 10,
+    "top10": [
+      "tests/test_http.py::TestRange::test_if_range_parsing",
+      "tests/test_http.py::TestHTTPUtility::test_is_resource_modified_for_range_requests",
+      "tests/test_http.py::TestHTTPUtility::test_is_resource_modified",
+      "tests/sansio/test_request.py::test_content_length",
+      "tests/sansio/test_request.py::test_cookies",
+      "tests/sansio/test_request.py::test_sec_fetch_mode",
+      "tests/sansio/test_request.py::test_sec_fetch_site",
+      "tests/test_wrappers.py::test_ranges",
+      "tests/test_test.py::test_full_url_requests_with_args::test_app",
+      "tests/test_wrappers.py::test_base_request"
+    ],
+    "seconds": 0.9670425830008753,
+    "bytes": 1992,
+    "noise10": 10,
+    "wall_seconds": 1.0512628330034204
+  },
+  {
+    "case_id": "09-f85f3807",
+    "function_recall10": null,
+    "file_recall10": null,
+    "function_hits": [],
+    "missing_from_parent": [],
+    "recommended": 10,
+    "top10": [
+      "tests/sansio/test_request.py::test_sec_fetch_mode",
+      "tests/sansio/test_request.py::test_sec_fetch_site",
+      "tests/test_wrappers.py::test_204_and_1XX_response_has_no_content_length",
+      "tests/test_wrappers.py::test_auto_content_length",
+      "tests/test_wrappers.py::test_common_response_descriptors",
+      "tests/test_wrappers.py::test_disabled_auto_content_length",
+      "tests/test_wrappers.py::test_etag_response",
+      "tests/test_wrappers.py::test_etag_response_412",
+      "tests/test_wrappers.py::test_malformed_204_response_has_no_content_length",
+      "tests/test_wrappers.py::test_response_coep"
+    ],
+    "seconds": 0.8138222920024418,
+    "bytes": 1947,
+    "noise10": 10,
+    "wall_seconds": 0.8867047080020711
+  },
+  {
+    "case_id": "10-ae7f2163",
+    "function_recall10": null,
+    "file_recall10": null,
+    "function_hits": [],
+    "missing_from_parent": [],
+    "recommended": 10,
+    "top10": [
+      "tests/test_wrappers.py::test_common_response_descriptors",
+      "tests/test_wrappers.py::test_request_mimetype_always_lowercase",
+      "tests/test_wrappers.py::test_common_request_descriptors",
+      "tests/test_send_file.py::test_object_mimetype_from_name",
+      "tests/test_formparser.py::TestMultiPart::test_headers",
+      "tests/test_send_file.py::test_content_encoding",
+      "tests/test_send_file.py::test_object",
+      "tests/test_send_file.py::test_path",
+      "tests/test_wrappers.py::test_file_closing",
+      "tests/test_wrappers.py::test_file_closing_with"
+    ],
+    "seconds": 0.8079630419997557,
+    "bytes": 1953,
+    "noise10": 10,
+    "wall_seconds": 0.8772015419999661
+  },
+  {
+    "case_id": "11-b2a2c097",
+    "function_recall10": null,
+    "file_recall10": null,
+    "function_hits": [],
+    "missing_from_parent": [],
+    "recommended": 10,
+    "top10": [
+      "tests/test_security.py::test_safe_join",
+      "tests/test_security.py::test_safe_join_empty_trusted",
+      "tests/test_security.py::test_safe_join_not_windows_special",
+      "tests/test_security.py::test_safe_join_os_sep",
+      "tests/test_security.py::test_safe_join_windows_special",
+      "tests/test_send_file.py::test_from_directory",
+      "tests/test_send_file.py::test_from_directory_not_found",
+      "tests/test_send_file.py::test_root_path",
+      "tests/middleware/test_shared_data.py::test_get_file_loader",
+      "tests/middleware/test_shared_data.py::test_shared_data_middleware"
+    ],
+    "seconds": 0.8167278750006517,
+    "bytes": 1979,
+    "noise10": 10,
+    "wall_seconds": 0.8869211669989454
+  },
+  {
+    "case_id": "12-6d7c0b4e",
+    "function_recall10": 0.0,
+    "file_recall10": 1.0,
+    "function_hits": [],
+    "missing_from_parent": [
+      "tests/test_routing.py::test_part_converter_order"
+    ],
+    "recommended": 10,
+    "top10": [
+      "tests/test_routing.py::test_adapter_match_return_rule",
+      "tests/test_routing.py::test_both_bind_and_match_path_info_are_none",
+      "tests/test_routing.py::test_merge_slashes_match",
+      "tests/test_routing.py::test_newline_match",
+      "tests/test_routing.py::test_server_name_match_default_port",
+      "tests/test_http.py::TestHTTPUtility::test_dict_header",
+      "tests/test_http.py::TestHTTPUtility::test_etags",
+      "tests/test_http.py::TestHTTPUtility::test_etags_nonzero",
+      "tests/test_http.py::TestHTTPUtility::test_parse_options_header",
+      "tests/test_http.py::TestHTTPUtility::test_parse_options_header_broken_values"
+    ],
+    "seconds": 0.964622708997922,
+    "bytes": 1999,
+    "noise10": 10,
+    "wall_seconds": 1.0517137500028184
+  },
+  {
+    "case_id": "13-1b8bc581",
+    "function_recall10": 0.0,
+    "file_recall10": 1.0,
+    "function_hits": [],
+    "missing_from_parent": [
+      "tests/test_http.py::TestHTTPUtility::test_authorization_basic_validate"
+    ],
+    "recommended": 10,
+    "top10": [
+      "tests/test_http.py::TestHTTPUtility::test_authorization_header",
+      "tests/test_http.py::TestHTTPUtility::test_bad_authorization_header_encoding",
+      "tests/test_http.py::test_authorization_to_header",
+      "tests/test_http.py::TestHTTPUtility::test_authorization_basic_incorrect_padding",
+      "tests/test_http.py::TestHTTPUtility::test_authorization_eq",
+      "tests/test_http.py::TestHTTPUtility::test_authorization_ignore_invalid_parameters",
+      "tests/test_http.py::TestHTTPUtility::test_authorization_token_padding",
+      "tests/test_test.py::test_basic_auth",
+      "tests/test_wrappers.py::test_authorization",
+      "tests/test_wrappers.py::test_authorization_with_unicode"
+    ],
+    "seconds": 0.9637330839977949,
+    "bytes": 1949,
+    "noise10": 10,
+    "wall_seconds": 1.0531729999966046
+  },
+  {
+    "case_id": "14-c678a231",
+    "function_recall10": 0.0,
+    "file_recall10": 1.0,
+    "function_hits": [],
+    "missing_from_parent": [
+      "tests/test_routing.py::test_converter"
+    ],
+    "recommended": 9,
+    "top10": [
+      "tests/test_routing.py::test_default_converters",
+      "tests/test_routing.py::test_converter_with_tuples",
+      "tests/test_routing.py::test_int_converter_404",
+      "tests/test_debug.py::TestDebugRepr::test_regex_repr",
+      "tests/test_routing.py::test_multiple_converters_per_part",
+      "tests/test_routing.py::test_uuid_converter",
+      "tests/test_routing.py::test_any_converter_build_validates_value",
+      "tests/test_routing.py::test_duplicate_converter",
+      "tests/test_routing.py::test_no_duplicate_different_converters"
+    ],
+    "seconds": 0.8586905420015682,
+    "bytes": 1900,
+    "noise10": 9,
+    "wall_seconds": 0.9484334579974529
+  },
+  {
+    "case_id": "15-ab16e62d",
+    "function_recall10": 0.0,
+    "file_recall10": 1.0,
+    "function_hits": [],
+    "missing_from_parent": [
+      "tests/test_routing.py::test_int_converter_404"
+    ],
+    "recommended": 8,
+    "top10": [
+      "tests/test_routing.py::test_adapter_match_return_rule",
+      "tests/test_routing.py::test_converter_with_tuples",
+      "tests/test_routing.py::test_both_bind_and_match_path_info_are_none",
+      "tests/test_routing.py::test_default_converters",
+      "tests/test_routing.py::test_merge_slashes_match",
+      "tests/test_routing.py::test_multiple_converters_per_part",
+      "tests/test_routing.py::test_uuid_converter",
+      "tests/test_routing.py::test_newline_match"
+    ],
+    "seconds": 0.8544409999994969,
+    "bytes": 1918,
+    "noise10": 8,
+    "wall_seconds": 0.9242860420017678
+  },
+  {
+    "case_id": "16-658bf5ed",
+    "function_recall10": 1.0,
+    "file_recall10": 1.0,
+    "function_hits": [
+      "tests/sansio/test_utils.py::test_get_host_invalid"
+    ],
+    "missing_from_parent": [],
+    "recommended": 10,
+    "top10": [
+      "tests/sansio/test_utils.py::test_get_host",
+      "tests/sansio/test_utils.py::test_get_host_invalid",
+      "tests/sansio/test_utils.py::test_get_host_missing",
+      "tests/sansio/test_utils.py::test_get_host_unix",
+      "tests/test_wsgi.py::test_get_host_validate_trusted_hosts",
+      "tests/test_wsgi.py::test_get_host",
+      "tests/test_wsgi.py::test_get_host_fallback",
+      "tests/test_wrappers.py::test_url_request_descriptors_hosts",
+      "tests/test_wrappers.py::test_url_request_descriptors",
+      "tests/test_test.py::test_environ_builder_paths"
+    ],
+    "seconds": 0.8558885830025247,
+    "bytes": 1979,
+    "noise10": 9,
+    "wall_seconds": 0.9285352500010049
+  },
+  {
+    "case_id": "extra-5b0e3209",
+    "function_recall10": 0.0,
+    "file_recall10": 1.0,
+    "function_hits": [],
+    "missing_from_parent": [
+      "tests/test_http.py::TestHTTPUtility::test_is_hop_by_hop_header"
+    ],
+    "recommended": 2,
+    "top10": [
+      "tests/test_http.py::TestHTTPUtility::test_remove_hop_by_hop_headers",
+      "tests/middleware/test_http_proxy.py::test_http_proxy"
+    ],
+    "seconds": 0.8904951659969811,
+    "bytes": 1536,
+    "noise10": 2,
+    "wall_seconds": 0.9675368749994959
+  },
+  {
+    "case_id": "extra-6b495d0d",
+    "function_recall10": 0.7142857142857143,
+    "file_recall10": 1.0,
+    "function_hits": [
+      "tests/test_formparser.py::TestFormParser::test_parse_form_data_get_without_content",
+      "tests/test_formparser.py::TestFormParser::test_parse_form_data_put_without_content",
+      "tests/test_formparser.py::TestMultiPart::test_empty_multipart",
+      "tests/test_test.py::test_environ_builder_empty_file",
+      "tests/test_test.py::test_environ_builder_stream_switch"
+    ],
+    "missing_from_parent": [
+      "tests/test_test.py::test_environ_builder_unicode_data"
+    ],
+    "recommended": 6,
+    "top10": [
+      "tests/test_formparser.py::TestFormParser::test_parse_form_data_get_without_content",
+      "tests/test_formparser.py::TestFormParser::test_parse_form_data_put_without_content",
+      "tests/test_formparser.py::TestMultiPart::test_empty_multipart",
+      "tests/test_test.py::test_environ_builder_empty_file",
+      "tests/test_test.py::test_environ_builder_stream_switch",
+      "tests/test_test.py::test_environ_builder_unicode_file_mix"
+    ],
+    "seconds": 1.03401012500035,
+    "bytes": 1333,
+    "noise10": 1,
+    "wall_seconds": 1.1269789580001088
+  },
+  {
+    "case_id": "extra-97d9f22a",
+    "function_recall10": 1.0,
+    "file_recall10": 1.0,
+    "function_hits": [
+      "tests/test_utils.py::test_append_slash_redirect"
+    ],
+    "missing_from_parent": [],
+    "recommended": 1,
+    "top10": [
+      "tests/test_utils.py::test_append_slash_redirect"
+    ],
+    "seconds": 1.0816335829986201,
+    "bytes": 678,
+    "noise10": 0,
+    "wall_seconds": 1.1911329590002424
+  },
+  {
+    "case_id": "extra-0743179b",
+    "function_recall10": 0.6666666666666666,
+    "file_recall10": 1.0,
+    "function_hits": [
+      "tests/test_wsgi.py::test_get_host",
+      "tests/test_wsgi.py::test_get_host_fallback"
+    ],
+    "missing_from_parent": [
+      "tests/sansio/test_utils.py::test_trusted"
+    ],
+    "recommended": 10,
+    "top10": [
+      "tests/test_wsgi.py::test_get_host_validate_trusted_hosts",
+      "tests/test_routing.py::test_external_building_with_port_bind_to_environ",
+      "tests/test_wsgi.py::test_get_host",
+      "tests/test_test.py::test_environ_builder_paths",
+      "tests/sansio/test_utils.py::test_get_host",
+      "tests/test_routing.py::test_external_building_with_port_bind_to_environ_wrong_servername",
+      "tests/test_wsgi.py::test_get_host_fallback",
+      "tests/sansio/test_utils.py::test_get_host_invalid",
+      "tests/test_test.py::test_builder_from_environ",
+      "tests/test_routing.py::test_environ_defaults"
+    ],
+    "seconds": 0.8890913750001346,
+    "bytes": 1941,
+    "noise10": 8,
+    "wall_seconds": 0.9873279170024034
+  },
+  {
+    "case_id": "extra-45768395",
+    "function_recall10": 1.0,
+    "file_recall10": 1.0,
+    "function_hits": [
+      "tests/test_wsgi.py::test_get_current_url_invalid_utf8",
+      "tests/test_wsgi.py::test_get_current_url_unicode"
+    ],
+    "missing_from_parent": [],
+    "recommended": 10,
+    "top10": [
+      "tests/test_test.py::test_client_response_wrapper",
+      "tests/test_wsgi.py::test_get_current_url_invalid_utf8",
+      "tests/test_wrappers.py::test_204_and_1XX_response_has_no_content_length",
+      "tests/test_test.py::test_set_cookie_app",
+      "tests/test_wsgi.py::test_get_current_url_unicode",
+      "tests/test_test.py::test_cookie_for_different_path",
+      "tests/test_wrappers.py::test_response_304_no_content_length",
+      "tests/test_test.py::test_cookie_forging",
+      "tests/test_test.py::test_cookiejar_stores_cookie",
+      "tests/test_wrappers.py::test_location_header_autocorrect"
+    ],
+    "seconds": 0.8263437079986033,
+    "bytes": 1999,
+    "noise10": 8,
+    "wall_seconds": 0.8959662089982885
+  },
+  {
+    "case_id": "extra-dc199349",
+    "function_recall10": 1.0,
+    "file_recall10": 1.0,
+    "function_hits": [
+      "tests/test_wsgi.py::test_path_info_and_script_name_fetching"
+    ],
+    "missing_from_parent": [],
+    "recommended": 10,
+    "top10": [
+      "tests/test_wsgi.py::test_path_info_and_script_name_fetching",
+      "tests/test_wsgi.py::test_get_current_url_invalid_utf8",
+      "tests/test_wsgi.py::test_get_current_url_unicode",
+      "tests/test_wsgi.py::test_get_host",
+      "tests/test_wsgi.py::test_get_host_fallback",
+      "tests/test_wsgi.py::test_get_host_validate_trusted_hosts",
+      "tests/test_wsgi.py::test_limited_stream",
+      "tests/test_wsgi.py::test_limited_stream_disconnection",
+      "tests/test_wsgi.py::test_limited_stream_json_load",
+      "tests/test_wsgi.py::test_limited_stream_read_with_raw_io"
+    ],
+    "seconds": 0.8017621250000957,
+    "bytes": 1804,
+    "noise10": 9,
+    "wall_seconds": 0.8723284160005278
+  },
+  {
+    "case_id": "extra-f359a67e",
+    "function_recall10": 0.4,
+    "file_recall10": 1.0,
+    "function_hits": [
+      "tests/test_wsgi.py::test_limited_stream",
+      "tests/test_wsgi.py::test_limited_stream_disconnection"
+    ],
+    "missing_from_parent": [],
+    "recommended": 9,
+    "top10": [
+      "tests/test_send_file.py::test_path",
+      "tests/test_formparser.py::TestFormParser::test_parse_from_environ",
+      "tests/test_send_file.py::test_root_path",
+      "tests/test_wsgi.py::test_limited_stream",
+      "tests/test_wsgi.py::test_range_wrapper",
+      "tests/test_wrappers.py::test_shallow_mode",
+      "tests/test_formparser.py::TestFormParser::test_parse_form_data_get_without_content",
+      "tests/test_wrappers.py::test_get_data_method_parsing_caching_behavior",
+      "tests/test_wsgi.py::test_limited_stream_disconnection"
+    ],
+    "seconds": 0.9663976249976258,
+    "bytes": 1923,
+    "noise10": 7,
+    "wall_seconds": 1.0395195829987642
+  }
+]

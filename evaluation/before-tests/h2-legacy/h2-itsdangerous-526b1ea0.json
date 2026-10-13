@@ -1,0 +1,5 @@
+{
+  "case_id": "h2-itsdangerous-526b1ea0",
+  "error": ") and not self.stopped:\n           ~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/amu/value_flow.py\", line 1023, in block\n    self.block(\n    ~~~~~~~~~~^\n        handler.body,\n        ^^^^^^^^^^^^^\n        [*constraints, *([handler_constraint] if handler_constraint else [])],\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        handlers,\n        ^^^^^^^^^\n    )\n    ^\n  File \"/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/amu/value_flow.py\", line 913, in block\n    exc = self.r.exception(self.path, node.exc, self.env, self.local) if node.exc else None\n          ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/amu/semantic.py\", line 484, in exception\n    if symbol and symbol.kind == \"exception\":\n                  ^^^^^^^^^^^\nAttributeError: 'Instance' object has no attribute 'kind'\n",
+  "seconds": 0.1418641669988574
+}
