@@ -8,6 +8,7 @@ This executes the repository's whole test suite. It runs only when asked for.
 """
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
 import os
@@ -16,6 +17,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import zlib
 from pathlib import Path
 
 from . import runners
@@ -196,7 +198,12 @@ def store(root, exported, index_dir, info):
                 added += len(ran - in_process)
                 via_child.update(ran - in_process)
         shard = out/'files'/(hashlib.sha256((path + '\0' + hashes[path]).encode()).hexdigest() + '.json')
-        shard.write_text(json.dumps(dict(path=path, sha=hashes[path], lines=lines, functions=functions), separators=(',', ':')))
+        try:
+            # The recorded text lets a later run map these line numbers through whatever changed since.
+            text = base64.b64encode(zlib.compress((root/path).read_bytes(), 6)).decode()
+        except OSError:
+            text = None
+        shard.write_text(json.dumps(dict(path=path, sha=hashes[path], lines=lines, functions=functions, source=text), separators=(',', ':')))
         recorded[path] = hashes[path]
     (out/'meta.json').write_text(json.dumps(dict(
         format=FORMAT, recorded_at=time.time(), runner=info.get('runner'), command=info.get('command'),

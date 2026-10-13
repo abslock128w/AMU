@@ -70,10 +70,11 @@ from rt import BUDGET, charge, spent
 left = BUDGET - spent()
 if left <= 30:
     sys.exit(f"budget exhausted or too little left for AMU: {left:.0f} s")
-per_side = int(max(10, min(60, (left - 30) / 2)))
+# AMU's own overhead (index from cold, tree copy) is about 30 s on Django; the rest goes to running tests.
+allowance = int(max(10, min(110, left - 45)))
 env = dict(os.environ, PYTHONPATH="%(tools)s", AMU_INDEX_DIR=os.path.join(HERE, ".amu-index"))
 start = time.time()
-done = subprocess.run(["/opt/homebrew/bin/python3", "-m", "amu.core", "--repo", HERE, "--python", "%(python)s", "--budget", str(per_side), *sys.argv[1:]],
+done = subprocess.run(["/opt/homebrew/bin/python3", "-m", "amu.core", "--repo", HERE, "--python", "%(python)s", "--budget", str(allowance), *sys.argv[1:]],
                       env=env, capture_output=True, text=True)
 charge("amu", time.time() - start, " ".join(sys.argv[1:]))
 print(done.stdout.strip() or done.stderr.strip()[-600:])

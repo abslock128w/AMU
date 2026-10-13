@@ -15,6 +15,7 @@ from . import runners
 from .patch import applied, candidate, original
 
 CHUNK = 40
+CONFIRM = 20  # seconds always allowed for confirming a failure on the unchanged code
 IGNORED = ('.git', '.amu', '.amu-index', '.venv', 'venv', 'node_modules', '__pycache__', '.tox', '.nox',
            '.mypy_cache', '.pytest_cache', '.ruff_cache', 'dist', 'build', '*.egg-info', '.coverage', 'coverage.json')
 
@@ -40,30 +41,38 @@ def run(root, edits, ids, python=None, budget=60, runner=None):
         live_is_after = any(on_disk.values())
         trees = dict(after=root if live_is_after else other, before=other if live_is_after else root)
         states = dict(after={}, before={})
-        # Most promising candidates first, in chunks, each chunk on both sides before the next. When the
-        # budget runs out, everything already compared still counts and the rest is reported as not run.
-        deadline = {side: budget for side in states}
-        done = 0
+        # Most promising candidates first, in chunks. Each chunk runs on the changed code; only the tests
+        # that fail there are run on the code as it was, to confirm they passed before. A test that passes
+        # after the change cannot be a new failure, so the unchanged side is never paid for it.
+        left, done = float(budget), 0
         for start in range(0, len(ids), CHUNK):
             chunk = ids[start:start + CHUNK]
-            if min(deadline.values()) <= 1:
+            if left <= 1:
                 break
-            for side in ('after', 'before'):
+            began = time.perf_counter()
+            found, problem = runners.execute(runner, python, trees['after'], chunk, Path(scratch)/'after.xml', max(left, 1))
+            left -= time.perf_counter() - began
+            states['after'].update(found)
+            if problem and problem != 'timed out':
+                gaps.append(f'shadow run (after the change, {runner.name}): {problem}')
+                break
+            if problem == 'timed out':
+                break
+            failing = [ident for ident in chunk if found.get(ident) == 'failed']
+            if failing:
                 began = time.perf_counter()
-                found, problem = runners.execute(runner, python, trees[side], chunk, Path(scratch)/(side + '.xml'), max(deadline[side], 1))
-                deadline[side] -= time.perf_counter() - began
-                states[side].update(found)
-                if problem and problem != 'timed out':
-                    gaps.append(f'shadow run ({side} the change, {runner.name}): {problem}')
+                confirmed, problem = runners.execute(runner, python, trees['before'], failing, Path(scratch)/'before.xml', max(left, CONFIRM))
+                left -= time.perf_counter() - began
+                states['before'].update(confirmed)
+                if problem:
+                    gaps.append(f'shadow run (before the change, {runner.name}): {problem}')
             done = start + len(chunk)
-            if any('timed out' in gap or 'could not start' in gap or 'did not run' in gap for gap in gaps):
-                break
         if done < len(ids):
-            gaps.append(f'shadow run stopped at its {budget} s budget per side: {done} of {len(ids)} candidates compared')
+            gaps.append(f'shadow run stopped at its {budget} s budget: {done} of {len(ids)} candidates run')
     rows = []
     for ident in ids:
         before, after = states['before'].get(ident), states['after'].get(ident)
         if before and after and before != after:
             rows.append(dict(id=ident, before=before, after=after, label='executed'))
-    info = dict(ran=len(set(states['after']) | set(states['before'])), seconds=round(time.perf_counter() - started, 1), runner=runner.name)
+    info = dict(ran=len(states['after']), seconds=round(time.perf_counter() - started, 1), runner=runner.name)
     return rows, info, gaps

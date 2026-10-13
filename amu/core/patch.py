@@ -184,3 +184,14 @@ def original(root, path, edit):
                 position += 1
     out.extend(lines[position:])
     return ''.join(out)
+
+
+def align(old_text, new_text):
+    """Map line numbers of ``old_text`` to ``new_text`` for the lines the two versions share."""
+    import difflib
+    old, new = old_text.splitlines(), new_text.splitlines()
+    table = {}
+    for a, b, size in difflib.SequenceMatcher(None, old, new, autojunk=False).get_matching_blocks():
+        for offset in range(size):
+            table[a + offset + 1] = b + offset + 1
+    return table

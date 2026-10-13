@@ -405,7 +405,7 @@ def test_shadow_execution_reports_exactly_the_tests_that_flip(tmp_path):
             (tmp_path/'lib.py').write_text(changed)
         result = analyze(tmp_path, patch('lib.py', source, changed), index_dir=tmp_path/'.index', run=True, python=sys.executable)
         assert result['predicted_failures'] == ['tests/test_lib.py::test_work'], result
-        assert result['summary'].startswith('EXECUTED 2 candidate tests') and '1 now fail' in result['summary']
+        assert result['summary'].startswith('EXECUTED 2 candidate tests after the change') and '1 now fail' in result['summary']
         assert result['tests'] == []
 
 
@@ -534,3 +534,26 @@ def test_recording_attributes_inherited_tests_and_child_processes(tmp_path):
     assert result['untested'] == [dict(symbol='orphan', file='lib.py', lines='10', basis='coverage')]
     flips = analyze(tmp_path, patch('lib.py', source, source.replace('return 1', 'return 9')), index_dir=tmp_path/'.index', run=True, python=sys.executable)
     assert sorted(flips['predicted_failures']) == ['python -m unittest tests.test_a.Base.test_direct', 'python -m unittest tests.test_a.Variant.test_direct']
+
+
+def test_recorded_lines_follow_the_file_through_edits_made_after_the_recording(tmp_path):
+    import sys
+
+    import pytest
+    pytest.importorskip('coverage')
+    from amu.core import observe
+    source = 'def parse(v):\n    if v:\n        return 1\n    return 2\n'
+    tests = ('import unittest\nimport lib\nclass T(unittest.TestCase):\n'
+             '    def test_truthy(self):\n        self.assertEqual(lib.parse(1), 1)\n'
+             '    def test_falsy(self):\n        self.assertEqual(lib.parse(0), 2)\n')
+    repository(tmp_path, {'lib.py': source, 'tests/__init__.py': '', 'tests/test_a.py': tests})
+    assert not observe.record(tmp_path, sys.executable, index_dir=tmp_path/'.index')['gaps']
+    # Someone else edits the file after the recording: every line moves down.
+    later = '"""A docstring added later."""\nimport os\n\n\n' + source
+    (tmp_path/'lib.py').write_text(later)
+    result = analyze(tmp_path, patch('lib.py', later, later.replace('return 2', 'return 3')), index_dir=tmp_path/'.index', full_evidence=True)
+    assert result['coverage']['edited_since'] == 1
+    first = result['tests'][0]
+    assert first['id'] == 'tests/test_a.py::T::test_falsy' and 'ran the changed lines of parse' in first['why'], result['tests']
+    flips = analyze(tmp_path, patch('lib.py', later, later.replace('return 2', 'return 3')), index_dir=tmp_path/'.index', run=True, python=sys.executable)
+    assert flips['predicted_failures'] == ['python -m unittest tests.test_a.T.test_falsy'] and flips['flips'] == 1

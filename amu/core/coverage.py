@@ -5,10 +5,12 @@ still match it; a file edited since is used as approximate evidence.
 """
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
 import math
 import re
+import zlib
 from pathlib import Path
 
 DEFAULTS = ('.amu/observed-tests.json', 'coverage.json', '.coverage')
@@ -92,7 +94,7 @@ class _Shards(dict):
     def __init__(self, base, recorded, hashes, labels):
         super().__init__()
         self.base, self.recorded, self.hashes, self.labels = base, recorded, hashes, labels
-        self.functions = {}
+        self.functions, self.sources = {}, {}
 
     def _read(self, path):
         if path in self.recorded and not dict.__contains__(self, path):
@@ -105,6 +107,7 @@ class _Shards(dict):
                     continue
                 dict.__setitem__(self, path, {int(line): {self.labels[i] for i in found} for line, found in raw['lines'].items()})
                 self.functions[path] = {qual: {self.labels[i] for i in found} for qual, found in raw.get('functions', {}).items()}
+                self.sources[path] = raw.get('source') if raw.get('sha') != self.hashes.get(path) else None
                 break
             else:
                 dict.__setitem__(self, path, {})
@@ -125,6 +128,17 @@ class _Shards(dict):
         self._read(path)
         return self.functions.get(path)
 
+    def recorded_text(self, path):
+        """The file as it was when recorded, when that differs from the tree now; else None."""
+        self._read(path)
+        packed = self.sources.get(path)
+        if not packed:
+            return None
+        try:
+            return zlib.decompress(base64.b64decode(packed)).decode(errors='replace')
+        except (ValueError, zlib.error):
+            return None
+
 
 def recording(cache, hashes):
     """The recording stored beside the index by ``--observe``, or None."""
@@ -139,7 +153,7 @@ def recording(cache, hashes):
     stale = {path for path, sha in recorded.items() if hashes.get(path) != sha}
     files = _Shards(base, recorded, hashes, meta['labels'])
     status = dict(evidence='recording', tests=len(meta['labels']), files=len(recorded), edited_since=len(stale))
-    return dict(files=files, stale=stale, by_function=files.by_function, recorded=recorded), status
+    return dict(files=files, stale=stale, by_function=files.by_function, recorded=recorded, text=files.recorded_text), status
 
 
 def identifier(tests, graph=None):

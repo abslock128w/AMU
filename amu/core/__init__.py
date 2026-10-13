@@ -11,7 +11,7 @@ from . import consequences, coverage, lexical, rank, runners, shadow
 from .git import working_diff
 from .index import cache_dir, parse_or_none
 from .index import state as load_state
-from .patch import applied, candidate, changes, original, renumber
+from .patch import align, applied, candidate, changes, original, renumber
 
 LIMIT = 2000
 MAX_TESTS = 40
@@ -58,6 +58,13 @@ def changed_symbols(root, facts, edits, gaps):
     if edits and not changed:
         gaps.append('Changed lines could not be mapped to any declaration')
     return changed, where
+
+
+def _read(root, path):
+    try:
+        return (Path(root)/path).read_text(errors='replace')
+    except OSError:
+        return None
 
 
 def label(graph, path):
@@ -117,18 +124,36 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     identify = coverage.identifier(tests, graph)
     recorded = {}
     for path, edit in edits.items():
-        # A recording made before this edit is in parent line numbers; the tree is not.
-        before_edit = original(root, path, edit) if observed and path in observed['stale'] else None
-        # With a stored recording the file's recorded hash says whether this edit is the only difference.
-        only_this_edit = before_edit is not None and (
-            'recorded' not in observed or hashlib.sha256(before_edit.encode()).hexdigest() == observed['recorded'].get(path))
-        if observed and path in observed['files'] and path in observed['stale'] and applied(root, path, edit) and only_this_edit:
-            observed.setdefault('translated', set()).add(path)
-            place, moved = renumber(edit), {}
-            for line, contexts in observed['files'][path].items():
-                moved.setdefault(place(line), set()).update(contexts)
-            observed['files'][path] = moved
+        # A recording is in the line numbers of the file as recorded; the tree may have moved on, through
+        # this edit, through earlier ones, or both. Carry the recorded lines forward through each.
+        if not observed or path not in observed['files'] or path not in observed['stale']:
+            continue
+        on_disk = applied(root, path, edit)
+        before_edit = original(root, path, edit) if on_disk else None
+        then = observed['text'](path) if observed.get('text') else None
+        steps = []
+        if then is not None:
+            now = before_edit if on_disk else _read(root, path)
+            if now is None:
+                continue
+            table = align(then, now)
+            steps.append(table.get)
+        elif not (on_disk and before_edit is not None and (
+                'recorded' not in observed or hashlib.sha256(before_edit.encode()).hexdigest() == observed['recorded'].get(path))):
+            continue  # no recorded text and other edits intervene: judged by function name instead
+        if on_disk:
+            steps.append(renumber(edit))
+        moved = {}
+        for line, contexts in observed['files'][path].items():
+            for step in steps:
+                line = step(line) if line is not None else None
+            if line is not None:
+                moved.setdefault(line, set()).update(contexts)
+        observed['files'][path] = moved
+        observed.setdefault('translated', set()).add(path)
+        if on_disk:
             # Lines the patch added did not exist when the recording was made; it says nothing about them.
+            place = renumber(edit)
             recorded[path] = {place(line) for line in edit['old'] | edit['anchor']}
     scores, best, impacted, untested, functions = {}, {}, {}, [], []
     for symbol, fallback in symbols.items():
@@ -288,7 +313,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     fails = sum(row['expect'] == 'likely_fail' for row in rows)
     summary = f"{fails} likely_fail, {len(scores)} tests reach the change."
     if executed is not None and executed['ran']:
-        summary = (f"EXECUTED {executed['ran']} candidate tests on both sides with {executed['runner']} in {executed['seconds']} s: "
+        summary = (f"EXECUTED {executed['ran']} candidate tests after the change with {executed['runner']} in {executed['seconds']} s, failures confirmed before it: "
                    f"{len(executed['predicted_failures'])} now fail. " + summary.split(', ', 1)[1])
     elif executed is not None:
         # Saying "0 now fail" when nothing ran would be a false all-clear.

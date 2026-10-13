@@ -9,7 +9,7 @@ amu before-tests --full-evidence       # every ranked test, dependant and conseq
 ```
 
 For your own uncommitted change, in a tree with tests, AMU executes: it copies the tree, rebuilds the code as
-it was before the edit in the copy, runs up to 150 candidate tests (300 with a recording), in chunks, on both sides with the project's runner
+it was before the edit in the copy, runs up to 150 candidate tests (300 with a recording), in chunks, on the changed code, and reruns only the failures on the code as it was to confirm they passed before with the project's runner
 (60 s per side, `--budget` to change), and prints `flips` and `predicted_failures` first, then `gaps`. It
 uses `$VIRTUAL_ENV`, `.venv` or `venv` when present, else the interpreter running AMU; `--python` overrides.
 If nothing could be run, `flips` is null and the summary says NOT EXECUTED, never "0 fail". Bare `amu` opens
