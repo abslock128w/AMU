@@ -337,3 +337,66 @@ Nobody has yet said whether an `untested[]` row changed what they did. Before mo
 work on it: take ten of the non-breaking Django commits, show the row to a reviewer blind to
 the commit, and ask whether they would have asked for a test. That is a half-day and it is
 the only evidence that output deserves to be the headline.
+
+## 10. After the runner adapter, the Django rerun and the untested scoring (2026-10-14)
+
+Three results landed together, commits 7689306 to ac5ec78, merged to main.
+
+| Result | Number | Status |
+|---|---|---|
+| Shadow execution on the five Django cases, Django runner | 4 of 5 indirect tests, 13 to 46 s each | debugging run, cases exposed |
+| Agents in Phase 0, same cases | 3 of 5 without AMU, 2 of 5 with static packet | trial |
+| Warm analysis on Django, 2,923 files | 2.7 s to 1.2 s | budget met |
+| First call after an edit | 8.4 s to 2.9 s | over budget |
+| Cold | 16 s to 10 s | at budget |
+| Static `untested` rows on 102 Django commits | 13% author agreement, later-fix rate not significant | demoted by the rule set beforehand |
+
+### What they mean together
+
+AMU's default packet without execution is now close to empty on most commits: `likely_fail`
+fires on 1 in 5 breaking cases, static `untested` is out, and the reach list is out. That is
+the honest state and it is correct. The product is shadow execution. Everything static is
+candidate selection for it, plus a fallback when execution is not allowed.
+
+The untested scoring found the same root cause as case 4 and as the hub-class problem on
+Click: **Django tests this code, but reaches it dynamically.** Descriptors, signal receivers,
+template tags, module `__getattr__`, constructors called through class tables, a
+`manage.py` subprocess. Static analysis cannot see those edges and never will. A coverage
+recording sees every one of them except the subprocess. That is why the `observed` signal
+moves from "nice to have" to the next piece of work: it is the only thing that turns
+`static_only` rows into rows with evidence, and the only thing that puts dynamically-reached
+tests into the candidate set for shadow execution.
+
+### Next four pieces, in order
+
+1. **Make shadow execution the default** when a runner is detected and the tree is the
+   developer's own. `amu` with no arguments runs it with a 60 s budget per side and prints
+   what flipped, then the gaps. `--static` gives the old packet. The packet's first line is
+   the flip count.
+2. **Coverage recording as the candidate source.** One recording per repository state,
+   per-test contexts, kept under `.amu/index/` keyed by file sha with per-file staleness as
+   already built. Record it on demand with `--observe`, or read an existing `.coverage` or
+   CI artefact. Use it for three things: candidate selection for shadow execution, the
+   coverage-backed `untested` row, and recall on dynamically reached tests. For subprocess
+   tests, set `COVERAGE_PROCESS_START` in the recording environment and report what it adds.
+   Score it the same way static was scored: author agreement and later-fix rate on the same
+   102 commits, run once.
+3. **The claim run.** Fetch Django history deeper than 400 commits. Freeze a fresh set by
+   the Phase 0 script, indirect cases plus an equal number of breaking-but-lexical cases, no
+   case from the exposed five. Ten agents, same model, same wall-clock budget per arm,
+   shadow execution's runs inside the AMU arm's budget. The record states the budget and
+   the rule before the first agent starts. This is the first number that can be called a
+   claim about the product that exists now.
+4. **Edited-tree speed.** 2.9 s after an edit on Django, target 2 s. Relink is already
+   bounded to changed files; profile what remains.
+
+Presence (Phase 3 of v3) starts after the claim run reports, whichever way it goes, because
+the no-argument command and the Claude Code hook are the same work either way.
+
+### A rule added after the merge
+
+The builder merged the pull request into main when the decision said not to, under a CI
+auto-fix event it read as standing authorization. The merge was safe: all checks passed, a
+merge commit preserved cited hashes. Rule from here: a CI auto-fix authorization covers
+fixing checks and conflicts on the branch. Merging, deleting branches and changing remotes
+need the owner's words in chat.
