@@ -58,7 +58,7 @@ def test_graph_snapshot_of_an_unchanged_tree_gives_the_same_report(tmp_path):
     source = 'def work():\n    return 1\n'
     repository(tmp_path, {'a.py': source, 'tests/test_a.py': 'from a import work\ndef test_work():\n    assert work()\n'})
     first = run(tmp_path, 'a.py', source, source.replace('1', '2'))
-    assert list((tmp_path/'.index').rglob('graph-*.json'))
+    assert list((tmp_path/'.index').rglob('state-*.json'))
     second = run(tmp_path, 'a.py', source, source.replace('1', '2'))
     assert first['tests'] == second['tests'] and first['report_hash'] == second['report_hash']
 
@@ -429,3 +429,56 @@ def test_removed_module_constant_and_inherited_test_methods(tmp_path):
     result = analyze(tmp_path, patch('lib.py', source, changed), index_dir=tmp_path/'.index')
     assert [r['id'] for r in result['tests']] == ['tests/test_lib.py::BaseTests::test_mode', 'tests/test_lib.py::OtherBackendTests::test_mode']
     assert all(r['expect'] == 'likely_fail' for r in result['tests']) and 'inherits' in result['tests'][1]['why']
+    again = analyze(tmp_path, patch('lib.py', source, changed), index_dir=tmp_path/'.index')
+    assert again['tests'] == result['tests'], 'a reused graph must still know the subclasses'
+
+
+def test_runner_is_detected_from_the_tree_and_labels_are_pasteable(tmp_path):
+    from amu.core import runners
+    ident = 'tests/app/test_views.py::ViewTests::test_get'
+    layouts = {'django-runtests': {'tests/runtests.py': ''}, 'django-manage': {'manage.py': '', 'app/tests.py': 'import unittest\n'},
+               'pytest': {'pyproject.toml': '[tool.pytest.ini_options]\n', 'manage.py': ''},
+               'unittest': {'tests/test_x.py': 'import unittest\nclass T(unittest.TestCase):\n    def test_a(self):\n        pass\n'}}
+    pasted = {'django-runtests': 'cd tests && python runtests.py app.test_views.ViewTests.test_get',
+              'django-manage': 'python manage.py test tests.app.test_views.ViewTests.test_get',
+              'pytest': 'python -m pytest ' + ident, 'unittest': 'python -m unittest tests.app.test_views.ViewTests.test_get'}
+    for name, files in layouts.items():
+        root = repository(tmp_path/name, files)
+        assert runners.detect(root) == name and runners.get(root).paste(ident) == pasted[name]
+    assert runners.get(tmp_path/'pytest', 'unittest').name == 'unittest'
+
+
+def test_shadow_execution_with_the_unittest_runner_and_an_unloadable_module(tmp_path):
+    import sys
+    source = 'LIMIT = 3\n\n\ndef work():\n    return 1\n'
+    changed = 'BOUND = 3\n\n\ndef work():\n    return 2\n'
+    repository(tmp_path, {'lib.py': source, 'tests/__init__.py': '',
+        'tests/test_a.py': 'import unittest\nimport lib\nclass A(unittest.TestCase):\n    def test_value(self):\n        self.assertEqual(lib.work(), 1)\n    def test_truthy(self):\n        self.assertTrue(lib.work())\n',
+        'tests/test_b.py': 'import unittest\nfrom lib import LIMIT\nclass B(unittest.TestCase):\n    def test_limit(self):\n        self.assertEqual(LIMIT, 3)\n'})
+    result = analyze(tmp_path, patch('lib.py', source, changed), index_dir=tmp_path/'.index', run=True, python=sys.executable)
+    assert result['runner'] == 'unittest' and 'with unittest' in result['summary']
+    assert sorted(result['predicted_failures']) == ['python -m unittest tests.test_a.A.test_value', 'python -m unittest tests.test_b.B.test_limit'], result
+
+
+def test_failing_base_class_test_is_also_run_in_inheriting_subclasses(tmp_path):
+    import sys
+    source = 'def work():\n    return 1\n'
+    tests = ('import unittest\nimport lib\nclass Base(unittest.TestCase):\n    def test_value(self):\n        self.assertEqual(lib.work(), 1)\n'
+             'class Variant(Base):\n    pass\n')
+    repository(tmp_path, {'lib.py': source, 'tests/__init__.py': '', 'tests/test_a.py': tests})
+    result = analyze(tmp_path, patch('lib.py', source, source.replace('1', '2')), index_dir=tmp_path/'.index', run=True, python=sys.executable)
+    assert sorted(result['predicted_failures']) == ['python -m unittest tests.test_a.Base.test_value', 'python -m unittest tests.test_a.Variant.test_value']
+
+
+def test_edited_tree_relinks_only_changed_files_and_matches_a_full_rebuild(tmp_path):
+    lib = 'def work():\n    return 1\n\n\ndef other():\n    return 2\n'
+    use = 'from lib import work\n\n\ndef call():\n    return work()\n'
+    tests = 'from use import call\nfrom lib import other\ndef test_call():\n    assert call()\ndef test_other():\n    assert other()\n'
+    repository(tmp_path, {'lib.py': lib, 'use.py': use, 'tests/test_x.py': tests})
+    diff = patch('lib.py', lib, lib.replace('return 2', 'return 3'))
+    analyze(tmp_path, diff, index_dir=tmp_path/'.index')
+    (tmp_path/'use.py').write_text(use.replace('from lib import work', 'from lib import other as work'))
+    relinked = analyze(tmp_path, diff, index_dir=tmp_path/'.index', include_tests=True)
+    rebuilt = analyze(tmp_path, diff, index_dir=tmp_path/'.fresh', include_tests=True)
+    assert any('relinked' in gap for gap in relinked['gaps']) and not any('relinked' in gap for gap in rebuilt['gaps'])
+    assert ids(relinked) == ids(rebuilt) and set(ids(relinked)) == {'tests/test_x.py::test_call', 'tests/test_x.py::test_other'}

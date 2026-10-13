@@ -205,49 +205,145 @@ def parse_or_none(path, data):
         return None
 
 
-def build(root, index_dir=None):
-    root = Path(root).resolve()
-    cache = Path(index_dir or os.environ.get('AMU_INDEX_DIR') or root/'.amu/index')/VERSION
-    facts, hashes, gaps = {}, {}, []
-    parsed = 0
+RELINK_LIMIT = 25
+PARALLEL_FROM = 300
+SLIM_DROP = ('refs', 'bindings', 'imports', 'returns', 'args', 'required_args', 'values')
+
+
+def _sources(root):
+    """Every Python file of the tree as (relative path, bytes), in a stable order."""
     for directory, dirs, files in os.walk(root, followlinks=False):
         dirs[:] = sorted(d for d in dirs if d not in SKIP and not d.startswith('.') and not Path(directory, d).is_symlink())
         for filename in sorted(files):
-            source = Path(directory, filename)
-            if source.suffix not in {'.py', '.pyi'} or source.is_symlink():
+            if not filename.endswith(('.py', '.pyi')):
                 continue
-            path = source.relative_to(root).as_posix()
+            source = Path(directory, filename)
+            if source.is_symlink():
+                continue
             try:
-                data = source.read_bytes()
-                digest = hashlib.sha256(data).hexdigest()
-                hashes[path] = digest
-                key = hashlib.sha256((path+'\0'+digest).encode()).hexdigest()
-                dest = cache/(key+'.json')
-                try:
-                    fact = json.loads(dest.read_text())
-                    if fact.get('path') != path:
-                        raise ValueError('cache identity mismatch')
-                except (OSError, ValueError):
-                    fact = parse(path, data)
-                    parsed += 1
-                    try:
-                        cache.mkdir(parents=True, exist_ok=True)
-                        temporary = dest.with_suffix('.'+str(os.getpid())+'.tmp')
-                        temporary.write_text(json.dumps(fact, separators=(',', ':')))
-                        temporary.replace(dest)
-                    except OSError:
-                        gaps.append('Index cache unavailable; analysis remains in memory')
-                facts[path] = fact
-            except (SyntaxError, UnicodeError, OSError, RecursionError) as exc:
-                gaps.append(f'{path}: {type(exc).__name__}')
+                yield source.relative_to(root).as_posix(), source.read_bytes()
+            except OSError:
+                yield source.relative_to(root).as_posix(), None
+
+
+def _parse_job(job):
+    path, data = job
+    try:
+        return path, parse(path, data), None
+    except (SyntaxError, UnicodeError, RecursionError, ValueError) as exc:
+        return path, None, type(exc).__name__
+
+
+def _facts(cache, sources, gaps):
+    facts, missing = {}, []
+    for path, data, digest in sources:
+        dest = cache/(hashlib.sha256((path+'\0'+digest).encode()).hexdigest()+'.json')
+        try:
+            fact = json.loads(dest.read_text())
+            if fact.get('path') != path:
+                raise ValueError('cache identity mismatch')
+            facts[path] = fact
+        except (OSError, ValueError):
+            missing.append((path, data, dest))
+    jobs = [(path, data) for path, data, _ in missing]
+    results = None
+    if len(jobs) >= PARALLEL_FROM and (os.cpu_count() or 1) > 1:
+        # A cold index of a large tree is parsing-bound; parsing is independent per file.
+        try:
+            from concurrent.futures import ProcessPoolExecutor
+            with ProcessPoolExecutor(max_workers=min(8, os.cpu_count() or 1)) as pool:
+                results = list(pool.map(_parse_job, jobs, chunksize=64))
+        except (OSError, RuntimeError, ImportError):
+            results = None
+    if results is None:
+        results = [_parse_job(job) for job in jobs]
+    writable = True
+    for (path, _, dest), (_, fact, problem) in zip(missing, results):
+        if fact is None:
+            gaps.append(f'{path}: {problem}')
+            continue
+        facts[path] = fact
+        if writable:
+            try:
+                cache.mkdir(parents=True, exist_ok=True)
+                temporary = dest.with_suffix('.'+str(os.getpid())+'.tmp')
+                temporary.write_text(json.dumps(fact, separators=(',', ':')))
+                temporary.replace(dest)
+            except OSError:
+                writable = False
+                gaps.append('Index cache unavailable; analysis remains in memory')
+    return {path: facts[path] for path, _, _ in sources if path in facts}, len(missing)
+
+
+def _scan(root, index_dir):
+    root = Path(root).resolve()
+    cache = Path(index_dir or os.environ.get('AMU_INDEX_DIR') or root/'.amu/index')/VERSION
+    sources, hashes, gaps = [], {}, []
+    for path, data in _sources(root):
+        if data is None:
+            gaps.append(f'{path}: OSError')
+            continue
+        hashes[path] = hashlib.sha256(data).hexdigest()
+        sources.append((path, data, hashes[path]))
+    return cache, sources, hashes, gaps
+
+
+def build(root, index_dir=None):
+    """Per-file facts of the tree: (facts, hashes, gaps, files parsed this call, cache directory)."""
+    cache, sources, hashes, gaps = _scan(root, index_dir)
+    facts, parsed = _facts(cache, sources, gaps)
     return facts, hashes, sorted(set(gaps)), parsed, cache
+
+
+def state(root, index_dir=None):
+    """Facts and reference graph of the tree: (facts, hashes, gaps, files parsed, graph).
+
+    An unchanged tree is answered from one snapshot file holding the graph and only the record
+    fields analysis reads afterwards; the per-file facts are needed again only to rebuild a graph.
+    """
+    from .graph import Graph
+    cache, sources, hashes, gaps = _scan(root, index_dir)
+    key = hashlib.sha256(json.dumps(sorted(hashes.items())).encode()).hexdigest()
+    dest = cache/('state-'+key+'.json')
+    try:
+        saved = json.loads(dest.read_text())
+        return saved['facts'], hashes, sorted(set(gaps) | set(saved['gaps'])), 0, Graph(saved['facts'], saved['graph'])
+    except (OSError, ValueError, KeyError, TypeError):
+        pass
+    facts, parsed = _facts(cache, sources, gaps)
+    built = None
+    for earlier in sorted(cache.glob('state-*.json'), key=lambda p: p.stat().st_mtime, reverse=True)[:1]:
+        # An edited tree: reuse the latest snapshot's graph and relink only the files that differ.
+        try:
+            saved = json.loads(earlier.read_text())
+            differs = {path for path in set(hashes) | set(saved['hashes']) if hashes.get(path) != saved['hashes'].get(path)}
+            if len(differs) <= RELINK_LIMIT:
+                built = Graph(facts, saved['graph'], relink=differs)
+                gaps.append(f'graph reused from the previous state; {len(differs)} changed file(s) relinked')
+        except (OSError, ValueError, KeyError, TypeError):
+            built = None
+    if built is None:
+        built = Graph(facts)
+    slim = {path: dict(fact, records={ident: {k: v for k, v in record.items() if k not in SLIM_DROP}
+                                      for ident, record in fact['records'].items()}) for path, fact in facts.items()}
+    try:
+        cache.mkdir(parents=True, exist_ok=True)
+        for old in sorted(cache.glob('state-*.json'), key=lambda p: p.stat().st_mtime)[:-2]:
+            old.unlink(missing_ok=True)
+        temporary = dest.with_suffix('.'+str(os.getpid())+'.tmp')
+        temporary.write_text(json.dumps(dict(facts=slim, hashes=hashes, gaps=sorted(g for g in set(gaps) if 'relinked' not in g),
+                                             graph=built.snapshot()), separators=(',', ':')))
+        temporary.replace(dest)
+    except OSError:
+        pass
+    return facts, hashes, sorted(set(gaps)), parsed, built
 
 
 def graph(facts, hashes, cache):
     """Build the reference graph, reusing the snapshot of an identical tree state."""
     from .graph import Graph
     key = hashlib.sha256(json.dumps(sorted(hashes.items())).encode()).hexdigest()
-    dest = cache/('graph-'+key+'.json')
+    dest = cache/('graph2-'+key+'.json')
     try:
         return Graph(facts, json.loads(dest.read_text()))
     except (OSError, ValueError, KeyError, TypeError):
@@ -255,7 +351,7 @@ def graph(facts, hashes, cache):
     built = Graph(facts)
     try:
         cache.mkdir(parents=True, exist_ok=True)
-        stale = sorted(cache.glob('graph-*.json'), key=lambda p: p.stat().st_mtime)[:-2]
+        stale = sorted(cache.glob('graph*.json'), key=lambda p: p.stat().st_mtime)[:-2]
         for old in stale:
             old.unlink(missing_ok=True)
         temporary = dest.with_suffix('.'+str(os.getpid())+'.tmp')

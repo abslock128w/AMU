@@ -5,7 +5,7 @@ AMBIGUITY_LIMIT = 8
 
 
 class Graph:
-    def __init__(self, facts, snapshot=None):
+    def __init__(self, facts, snapshot=None, relink=None):
         self.records = {k: r for f in facts.values() for k, r in f['records'].items()}
         self.modules = {f['module']: f['path'] for f in facts.values()}
         self.members = defaultdict(list)
@@ -26,7 +26,7 @@ class Graph:
                 self.fixtures[r.get('fixture_name', r['qual'].rsplit('.', 1)[-1])].append(ident)
         self.subclasses = defaultdict(set)
         self.state = defaultdict(list)
-        if snapshot is not None:
+        if snapshot is not None and relink is None:
             # Edges of an unchanged tree are reused; only the reverse map is rebuilt.
             self.unresolved_count, self.ambiguous = snapshot['unresolved'], snapshot['ambiguous']
             for caller, targets in snapshot['edges'].items():
@@ -34,7 +34,18 @@ class Graph:
                     row = dict(line=line, specificity=specificity, approximate=bool(approximate))
                     self.edges[caller][target] = row
                     self.reverse[target][caller] = row
+            for parent, subs in snapshot.get('subclasses', {}).items():
+                self.subclasses[parent] = set(subs)
             return
+        if snapshot is not None:
+            # A few files changed since the snapshot: keep every link whose caller sits in an
+            # untouched file, and work out afresh only what the changed files reference.
+            for caller, targets in snapshot['edges'].items():
+                if caller in self.records and self.records[caller]['path'] not in relink:
+                    for target, (line, specificity, approximate) in targets.items():
+                        if target in self.records:
+                            self.edges[caller][target] = dict(line=line, specificity=specificity, approximate=bool(approximate))
+            self.ambiguous = snapshot['ambiguous']
         for ident, r in self.records.items():
             if r['kind'] == 'class':
                 for base in r['bases']:
@@ -49,7 +60,7 @@ class Graph:
         self.memo.clear()
         autouse = {name for name, found in self.fixtures.items() if any(self.records[f].get('autouse') for f in found)}
         for ident, r in self.records.items():
-            if r['kind'] not in ('function', 'variable'):
+            if r['kind'] not in ('function', 'variable') or (relink is not None and r['path'] not in relink):
                 continue
             scope = ident if r['kind'] == 'function' else r['owner']
             for expr, kind, line in r['refs']:
@@ -92,10 +103,11 @@ class Graph:
         for caller, targets in self.edges.items():
             for target, edge in targets.items():
                 self.reverse[target][caller] = edge
-        self.unresolved_count = len(self.unresolved)
+        self.unresolved_count = len(self.unresolved) + (snapshot['unresolved'] if snapshot is not None else 0)
 
     def snapshot(self):
         return dict(unresolved=self.unresolved_count, ambiguous=self.ambiguous,
+                    subclasses={parent: sorted(subs) for parent, subs in self.subclasses.items()},
                     edges={caller: {target: [e['line'], e['specificity'], int(e['approximate'])] for target, e in targets.items()}
                            for caller, targets in self.edges.items()})
 

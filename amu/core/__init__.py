@@ -7,10 +7,10 @@ import math
 import re
 from pathlib import Path
 
-from . import consequences, coverage, lexical, rank, shadow
+from . import consequences, coverage, lexical, rank, runners, shadow
 from .git import working_diff
-from .index import build, parse_or_none
-from .index import graph as build_graph
+from .index import parse_or_none
+from .index import state as load_state
 from .patch import applied, candidate, changes, original, renumber
 
 LIMIT = 2000
@@ -86,7 +86,7 @@ def after_facts(root, facts, edits, gaps):
 
 
 def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, index_dir=None, run=False, python=None,
-            budget=60, include_tests=False):
+            budget=60, include_tests=False, runner=None):
     """What a change reaches, which existing tests to run first, and what could not be seen.
 
     ``patch`` is unified-diff text, applied or not yet applied to ``root``. Without one,
@@ -96,10 +96,9 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     early = []
     if patch is None:
         patch, early = working_diff(root)
-    facts, hashes, gaps, parsed, cache = build(root, index_dir)
+    facts, hashes, gaps, parsed, graph = load_state(root, index_dir)
     edits, patch_gaps = changes(root, patch)
     gaps.extend([*early, *patch_gaps])
-    graph = build_graph(facts, hashes, cache)
     symbols, where = changed_symbols(root, facts, edits, gaps)
     order = {'function': 0, 'variable': 0, 'class': 1, 'module': 2}
     narrow = sorted(symbols, key=lambda s: (order[graph.records[s]['kind']], s))
@@ -178,15 +177,17 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         near = [ident for ident, (position, _, _) in graph.reach([symbol], max_depth=2).items() if not position[2]]
         for ident, reason in lexical.expecting(tests, near, categories).items():
             likely.setdefault(ident, reason)
-    inherited = {}
-    for ident in list(likely):
-        # A test method defined on a base class also runs, and fails, in every subclass that inherits it.
+    def inheritors(ident):
+        """Ids of the same test method in subclasses that inherit it: it runs, and fails, there too."""
         owner = tests[ident].get('owner')
-        if graph.records.get(owner, {}).get('kind') == 'class':
-            name = tests[ident]['qual'].rsplit('.', 1)[-1]
-            for sub in sorted(graph.descendants(owner)):
-                if not graph.members.get((sub, name)) and graph.records[sub]['path'].split('/')[0] == tests[ident]['path'].split('/')[0]:
-                    inherited.setdefault(ident, []).append(graph.records[sub]['path'] + '::' + graph.records[sub]['qual'].replace('.', '::') + '::' + name)
+        if graph.records.get(owner, {}).get('kind') != 'class':
+            return []
+        name = tests[ident]['qual'].rsplit('.', 1)[-1]
+        return [graph.records[sub]['path'] + '::' + graph.records[sub]['qual'].replace('.', '::') + '::' + name
+                for sub in sorted(graph.descendants(owner))
+                if not graph.members.get((sub, name)) and graph.records[sub]['path'].split('/')[0] == tests[ident]['path'].split('/')[0]]
+
+    inherited = {ident: copies for ident in likely if (copies := inheritors(ident))}
     for ident in likely:
         # A test found only by what it says still belongs in the list.
         scores.setdefault(ident, {}).setdefault('', 0.5)
@@ -227,8 +228,17 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     if run:
         # Exact beats ranked: run the candidates on both sides of the change and report what flips.
         wide = [tests[ident]['path'] + '::' + tests[ident]['qual'].replace('.', '::') for ident, _ in order[:RUN_CANDIDATES]]
-        flips, executed, run_gaps = shadow.run(root, edits, wide, python, budget)
+        flips, executed, run_gaps = shadow.run(root, edits, wide, python, budget, runner)
         gaps.extend(run_gaps)
+        # A failing test defined on a base class is run again in every subclass that inherits it.
+        by_id = {tests[ident]['path'] + '::' + tests[ident]['qual'].replace('.', '::'): ident for ident, _ in order[:RUN_CANDIDATES]}
+        copies = sorted({copy for flip in flips if flip['after'] == 'failed' and flip['id'] in by_id
+                         for copy in inheritors(by_id[flip['id']])} - set(wide))[:RUN_CANDIDATES]
+        if copies:
+            more, again, more_gaps = shadow.run(root, edits, copies, python, budget, runner)
+            flips.extend(more)
+            gaps.extend(more_gaps)
+            executed.update(ran=executed['ran'] + again['ran'], seconds=round(executed['seconds'] + again['seconds'], 1))
         state = {flip['id']: flip for flip in flips}
         for row in rows:
             if row['id'] in state:
@@ -252,11 +262,16 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     fails = sum(row['expect'] == 'likely_fail' for row in rows)
     summary = f"{fails} likely_fail, {len(untested)} untested, {len(scores)} tests reach the change."
     if executed is not None:
-        summary = (f"EXECUTED {executed['ran']} candidate tests on both sides in {executed['seconds']} s: "
+        summary = (f"EXECUTED {executed['ran']} candidate tests on both sides with {executed['runner']} in {executed['seconds']} s: "
                    f"{len(executed['predicted_failures'])} now fail. " + summary.split(', ', 1)[1])
     report = dict(summary=summary, changed_symbols=narrow, untested=untested, tests=rows, consequences=found,
                   impacted=listed, gaps=sorted(set(gaps)),
                   caveats='Static unless a row says observed. Not proof.')
+    # Every listed test carries the exact command for the project's own runner.
+    chosen = runners.get(root, runner)
+    report['runner'] = chosen.name
+    for row in rows:
+        row['run'] = chosen.paste(row['id']) if not chosen.needs_class or row['id'].count('::') >= 2 else None
     if coverage_status:
         report['coverage'] = coverage_status
     if executed is not None:
@@ -276,13 +291,15 @@ def compact(report, include_tests=False):
     """
     out = dict(report)
     listed = report['tests'] if include_tests else [row for row in report['tests'] if row['expect'] in ('likely_fail', 'fails')]
-    out['tests'] = [{k: row[k] for k in ('id', 'expect', 'why', 'confidence')} for row in listed[:10]]
+    native = report.get('runner') == 'pytest'
+    out['tests'] = [{k: row[k] for k in ('id', 'expect', 'why', 'confidence') + (() if native else ('run',))} for row in listed[:10]]
     if not include_tests:
         out['caveats'] = report['caveats'] + ' Tests that only reach the change are omitted; --tests lists them.'
         report = dict(report, caveats=out['caveats'])
     out['untested'] = [dict(row) for row in report['untested'][:3]]
     if 'predicted_failures' in report:
-        out['predicted_failures'] = [row['id'] for row in report['predicted_failures'][:12]]
+        commands = {row['id']: row.get('run') for row in report['tests']}
+        out['predicted_failures'] = [(row['id'] if native else commands.get(row['id']) or row['id']) for row in report['predicted_failures'][:12]]
         out['tests'] = [row for row in out['tests'] if row['expect'] != 'fails'][:6]
     out['changed_symbols'] = report['changed_symbols'][:5]
     out['impacted'] = [dict(row) for row in report['impacted'][:3]]

@@ -634,6 +634,7 @@ def before_tests_cmd(
     full_evidence: bool = typer.Option(False, "--full-evidence", help="all ranked tests, dependants and consequences instead of the 2 KB packet"),
     tests: bool = typer.Option(False, "--tests", help="also list tests that only reach the change"),
     run: bool = typer.Option(False, "--run", help="execute candidate tests before and after the change and report which flip"),
+    runner: str | None = typer.Option(None, "--runner", help="pytest, unittest, django-runtests or django-manage; default: detected from the tree"),
     python: str | None = typer.Option(None, "--python", help="interpreter with pytest for --run; default: this one"),
     budget: int = typer.Option(60, "--budget", help="seconds allowed per side for --run"),
     repo: str = typer.Option(".", "--repo", help="repository root"),
@@ -651,7 +652,7 @@ def before_tests_cmd(
         except OSError as exc:
             typer.echo(json.dumps({"error": f"cannot read patch file: {exc.strerror}"}))
             raise typer.Exit(code=2) from exc
-    result = core.analyze(repo, patch, full_evidence=full_evidence, coverage_evidence=coverage, run=run, python=python, budget=budget, include_tests=tests)
+    result = core.analyze(repo, patch, full_evidence=full_evidence, coverage_evidence=coverage, run=run, python=python, budget=budget, include_tests=tests, runner=runner)
     typer.echo(core.encoded(result).decode())
 
 

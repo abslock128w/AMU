@@ -226,6 +226,62 @@ modules the commit touched, and it undercounted case 3 (3 tests) because tests i
 were not parsed; the agents' 12 were verified by hand on both trees. Only Django's two required dependencies
 were installed, so tests needing optional packages were skipped.
 
+## Runner adapter, shadow execution on Django, and speed
+
+### Runner adapter
+
+`amu/core/runners.py` detects the project's runner from the tree and `--runner` overrides it: `pytest`,
+`unittest`, `django-runtests` (a `tests/runtests.py`), `django-manage` (a `manage.py` without pytest
+configuration). Each listed test carries a `run` command that can be pasted, for example
+`cd tests && python runtests.py mail.tests.MailAdminsAndManagersTests.test_wrong_admins_managers`.
+A unittest-style batch that one unloadable label aborts is retried one test file at a time, and tests under
+a module that fails to import are counted as failing.
+
+### Shadow execution on the five Django cases: a debugging run, not a trial
+
+Same five frozen cases as Phase 0, unedited parent tree plus the production diff, `--run` with a 120 s
+budget per side. This run was used to find and fix defects, so it proves nothing about new cases.
+
+| Case | Phase 0 agents without AMU | Phase 0 agents with static packet | Shadow execution (debug run) | Wall time |
+|---|---|---|---|---:|
+| 1 | found | found | found | 13 s |
+| 2 | found | missed | found | 29 s |
+| 3 | found | found | found | 44 s |
+| 4 | missed | missed | missed | 15 s |
+| 5 | missed | missed | found | 46 s |
+| Indirect test found | 3 of 5 | 2 of 5 | 4 of 5 | |
+
+Two defects surfaced and were fixed during this run:
+
+- The first pass found 3 of 5. Case 2's indirect test is a method inherited by a subclass, and inherited
+  copies were not candidates. A failing test defined on a base class is now rerun in every inheriting subclass.
+- That fix did nothing until a second defect was found: a graph loaded from its snapshot had no subclass map,
+  so inherited tests disappeared on every warm run. The map is now saved with the graph.
+
+Case 4 stays out of reach: the breaking test drives `manage.py` in a subprocess, and no call path exists
+for static analysis to put it among the 150 candidates.
+
+### Speed on Django (2,923 Python files)
+
+| Path | Before | After |
+|---|---:|---:|
+| Warm, unchanged tree | 2.05 to 2.7 s | 1.2 s |
+| First call after editing a file | about 8.4 s | 2.9 s |
+| Cold | 16.2 s | 10.2 s |
+
+- Warm: half the time was decoding 2,923 per-file fact files. One snapshot per tree state now holds the graph
+  and only the record fields analysis reads afterwards.
+- Edited tree: the previous graph is reused and only the changed files are relinked (up to 25 files). On the
+  Django case this returned the same tests as a full rebuild; a unit test checks the same on a small tree.
+- Cold: files are parsed in parallel from 300 uncached files up. The remaining time is graph construction.
+
+Tried and rejected: storing facts with `marshal` or `pickle` for faster loading. The index can sit inside a
+repository someone else controls, and neither format is safe to load from there. The first call after an
+edit is still over the 2 s target on Django.
+
+Static ranking after these changes: Werkzeug 10/16 and 16/16; requests plus itsdangerous 6/8 and 8/8 (was
+5/8 and 7/8); Click holdout 3 8/8 and 8/8. All are exposed sets.
+
 ## Milestones (state at b3747c8)
 
 - **M1 harness.** `scripts/before_tests_harness.py`; protocol and manifests are hash-pinned.

@@ -29,7 +29,9 @@ amu before-tests --run --python .venv/bin/python --budget 120
 ```
 
 `--run` copies the tree, builds the other side of the change in the copy, and runs up to 150 candidate tests
-on both sides with pytest. It is exact for what it runs and silent about tests outside the candidate set.
+on both sides with the project's own runner. The runner is detected from the tree (`pytest`, `unittest`,
+`django-runtests`, `django-manage`) and `--runner` overrides it. Outside pytest, each listed test has a `run`
+field with the exact command to paste. It is exact for what it runs and silent about tests outside the candidate set.
 
 `confidence` on a test is `direct` (calls the changed symbol), `transitive` (reaches it through resolved
 calls), `heuristic` (a receiver was guessed, or only the class or names match) or `observed` (a recording

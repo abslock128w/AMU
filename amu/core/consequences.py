@@ -120,7 +120,7 @@ class Finder:
                     if other.get('owner') != owner['id'] or other['id'] == ident or other['kind'] != 'function':
                         continue
                     other = self.record(other['id'])
-                    reads = [at for expr, _, at in other['refs'] if expr == ['attr', ['name', 'self'], attribute]]
+                    reads = [at for expr, _, at in other.get('refs', []) if expr == ['attr', ['name', 'self'], attribute]]
                     written = {at for name, at in other.get('writes', []) if name == attribute}
                     reads = [at for at in reads if at not in written]
                     if reads:
