@@ -23,8 +23,30 @@ are inspected without collection. A bounded matcher can bind baseline literal
 parameters to a changed return-controlling condition. This means one baseline
 assertion is relevant to one condition side. It supplies no candidate-derived
 business expectation, executed reachability, observed coverage or regression proof.
-Dynamic fixture factories, arbitrary marker metadata, framework invocation and
-unmodeled lifecycle hooks remain unresolved.
+Simple source-declared pytest return fixtures can bind test arguments to exact
+constructed receivers, supported returned values, and other return fixtures.
+Module-local declarations precede ancestor conftest declarations. Unsupported
+nearest declarations and imported aliases block fallback. Direct parametrized
+arguments override fixtures. Dependencies share an allocation within one test,
+so escape through an alias invalidates the same receiver. Factory and initializer
+dependencies participate in summary recomputation, with located constructor,
+factory and fixture-binding provenance attached to receiver evidence.
+
+This model supports unshadowed `pytest.fixture` and explicit imported aliases,
+default/function scope, literal names and non-autouse metadata, and straight-line
+assignments followed by one return. It is bounded to 128 fixture declarations,
+eight dependency hops, and the existing three factory-summary hops. Ambiguous
+factories, unsupported initializer effects/exceptions, generator teardown,
+class/inherited fixtures, implicit setup, plugins, arbitrary marker metadata and
+framework invocation remain unresolved. Every requested fixture must resolve
+before any fixture receiver is promoted. No collection or fixture body executes.
+
+Pytest configuration (`pyproject.toml`, `pytest.ini`, `setup.cfg`, `tox.ini`) is
+read as metadata and bound to report freshness, including absent-file identities.
+Unmodeled `usefixtures`, `addopts`, required plugins, or pytest plugin/addopts
+environment settings disable fixture binding. These checks do not model installed
+third-party plugin behavior; evidence assumes no unmodeled runtime mutation and
+does not establish that an assertion executes or detects the proposed change.
 
 Evidence levels stay distinct: broad reference; resolved source call; supported
 value/state use; assertion on a related result; assertion relevant to a changed

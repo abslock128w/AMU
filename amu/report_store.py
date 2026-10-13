@@ -45,7 +45,7 @@ def _directory():
 
 
 def fingerprint(root, request):
-    from . import value_flow
+    from . import pytest_fixtures, value_flow
     from .patch import parse_diff
     from .services import impact, impact_report, mapping
 
@@ -54,6 +54,7 @@ def fingerprint(root, request):
     names = set(production) | set(tests)
     names.update(f.path for f in parse_diff(request.patch))
     names.update({"pyproject.toml", ".amu/config.json", ".amu/feature_map.json", ".entire/settings.json"})
+    names.update(pytest_fixtures.CONFIG_FILES)
     files = []
     for name in sorted(names):
         if impact._source_path_present_or_unsafe(root, name):
@@ -135,10 +136,11 @@ def fingerprint(root, request):
         "inventory_complete": [production_complete, tests_complete],
         "runtime_limits": {
             module.__name__: {k: v for k, v in vars(module).items() if k.startswith("MAX_") and type(v) in {int, float}}
-            for module in [impact, impact_report, value_flow]
+            for module in [impact, impact_report, value_flow, pytest_fixtures]
         },
         "provider": provider,
         "runtime_adapters": runtime,
+        "pytest_environment": {name: _digest(os.environ.get(name, "").encode()) for name in ("PYTEST_ADDOPTS", "PYTEST_PLUGINS")},
         "request": envelope,
     }
     return _digest(json.dumps(binding, sort_keys=True, separators=(",", ":"), default=str).encode())

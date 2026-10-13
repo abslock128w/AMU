@@ -10,7 +10,7 @@ from pathlib import PurePosixPath
 
 from .change_analysis import _bindings, _dynamic_namespace, _location
 
-VERSION = "python-value-flow-v3"
+VERSION = "python-value-flow-v4"
 MAX_FUNCTIONS = 1024
 MAX_TEST_OBSERVERS = 512
 MAX_IMPORT_HOPS = 8
@@ -84,6 +84,7 @@ class Instance:
     fields: dict = field(default_factory=dict)
     exact: bool = True
     escaped: bool = False
+    provenance: list = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -250,6 +251,9 @@ class SemanticIndex:
                             if self.is_static_method(child, table)
                             else "method",
                         )
+        from .pytest_fixtures import FixtureIndex
+
+        self.fixtures = FixtureIndex(self)
 
     @staticmethod
     def accessor(node, table):

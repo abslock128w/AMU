@@ -13,13 +13,14 @@ import hashlib
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
 
+from . import pytest_fixtures
 from .change_analysis import _bindings as _bindings
 from .change_analysis import _dynamic_namespace as _dynamic_namespace
 from .change_analysis import _location
 from .outbound import redact
 from .semantic import Instance, SemanticIndex, Symbol
 
-VERSION = "python-value-flow-v3"
+VERSION = "python-value-flow-v4"
 MAX_FUNCTIONS = 1024
 MAX_STEPS = 500_000
 MAX_HOPS = 3
@@ -133,7 +134,7 @@ def _parameterized_test(node, table, class_bindings=()):
 class Resolver(SemanticIndex):
     """Compatibility entry point backed by shared identities."""
 
-    def __init__(self, sources, syntax_facts=None, provider_candidates=()):
+    def __init__(self, sources, syntax_facts=None, provider_candidates=(), *, fixture_setup_unresolved=False):
         super().__init__(
             sources,
             syntax_facts,
@@ -142,6 +143,7 @@ class Resolver(SemanticIndex):
             observer_limit=MAX_TEST_OBSERVERS,
             provider_candidates=provider_candidates,
         )
+        self.fixture_setup_unresolved = fixture_setup_unresolved
 
 
 @dataclass
@@ -226,7 +228,11 @@ def literal_value(value):
 class Scan:
     def __init__(self, resolver, function_id, summaries, phase, emit):
         self.r, self.id, self.summaries, self.phase, self.emit = resolver, function_id, summaries, phase, emit
-        self.path, self.name, self.node = resolver.functions.get(function_id) or resolver.test_observers[function_id]
+        self.path, self.name, self.node = (
+            resolver.functions.get(function_id)
+            or resolver.test_observers.get(function_id)
+            or resolver.fixtures.bodies[function_id]
+        )
         self.local = set(resolver.lexical_facts(self.node)[0])
         self.env = {
             a.arg: Value(parameters={i}) for i, a in enumerate([*self.node.args.posonlyargs, *self.node.args.args])
@@ -237,6 +243,7 @@ class Scan:
         self.returns = Value()
         self.return_instances = []
         self.return_count = 0
+        self.return_values = []
         self.return_shapes = set()
         self.binding_invalid = False
         self.raises = set()
@@ -509,8 +516,11 @@ class Scan:
                     )
                     return Value()
                 obj = Instance(symbol, f"{self.id}:{node.lineno}:{node.col_offset}")
+                obj.provenance = [self.evidence(node, "constructor")]
                 init = self.r.member(symbol, "__init__")
                 if init and init.id in self.r.functions:
+                    self.calls.add(init.id)
+                    obj.provenance[-1]["initializer_id"] = init.id
                     bound = self.arguments(init, node, args, keyword_args, obj)
                     if self.binding_invalid:
                         return Value()
@@ -534,6 +544,7 @@ class Scan:
                         "type_id": receiver.type.id,
                         "allocation": receiver.allocation,
                         "status": "constructed" if receiver.exact else "declaring-type-assumption",
+                        "source_path": receiver.provenance,
                     }
                 matches = self.r.provider_matches(symbol.id, self.id)
                 if matches:
@@ -633,11 +644,16 @@ class Scan:
                 returned = summary.get("return_instances", [])
                 if len(returned) == 1:
                     row = returned[0]
+                    if sum(s.get("role") == "resolved_call" for s in row.get("provenance", [])) >= MAX_HOPS:
+                        self.unknown(self.path, node, "factory receiver summary hop limit reached")
+                        return Value()
                     cls_path, cls_name = row["type_id"].split("#", 1)
                     return Instance(
                         Symbol(cls_path, cls_name, "class"),
                         f"{self.id}:{node.lineno}",
                         {k: self.substitute(unpacked(v), bound, call_step) for k, v in row["fields"].items()},
+                        exact=row.get("exact", True),
+                        provenance=[*row.get("provenance", []), call_step],
                     )
                 return value
             for arg in [*args, *keyword_args]:
@@ -863,6 +879,7 @@ class Scan:
             if isinstance(node, ast.Return):
                 self.return_count += 1
                 value = self.expr(node.value, constraints, handlers) if node.value is not None else Value(none=True)
+                self.return_values.append(value)
                 # A literal handler result is constrained by the established
                 # exception source, unlike an unrelated later return/raise.
                 if self.handler_value.origins:
@@ -872,7 +889,12 @@ class Scan:
                 )
                 if isinstance(value, Instance) and not value.escaped:
                     self.return_instances.append(
-                        {"type_id": value.type.id, "fields": {k: packed(v) for k, v in value.fields.items()}}
+                        {
+                            "type_id": value.type.id,
+                            "fields": {k: packed(v) for k, v in value.fields.items()},
+                            "exact": value.exact,
+                            "provenance": value.provenance,
+                        }
                     )
                 if isinstance(value, Value):
                     previous = self.returns
@@ -1121,13 +1143,80 @@ class Scan:
         }
 
 
-def analyze_repository(before, after, changed_ids, *, provider_candidates=()):
+def bind_test_fixtures(scan):
+    """Evaluate bounded AST fixture bodies in the requesting test's scope."""
+    from .condition_evidence import parameter_cases
+    from .pytest_fixtures import MAX_FIXTURE_HOPS
+
+    index = scan.r.fixtures
+    names = set().union(*(case.keys() for case in parameter_cases(scan.r, scan.path + "::" + scan.name)))
+    requested = [
+        a.arg for a in [*scan.node.args.args, *scan.node.args.kwonlyargs]
+        if a.arg not in names and not (a.arg == "self" and "::" in scan.name)
+    ]
+    if not requested:
+        return
+    if scan.r.fixture_setup_unresolved or not index.safe_context(scan.path, scan.name):
+        scan.unknown(scan.path, scan.node, "fixture context includes unsupported implicit setup, class scope or plugins")
+        return
+    cache = {}
+
+    def resolve(name, stack=()):
+        if name in cache:
+            return cache[name]
+        fixture = index.lookup(scan.path, name)
+        if fixture is None or not fixture.supported or fixture.id in stack or len(stack) >= MAX_FIXTURE_HOPS:
+            raise ValueError("fixture identity, metadata, dependency or cycle unresolved")
+        dependencies = {a.arg: resolve(a.arg, (*stack, fixture.id)) for a in fixture.node.args.args}
+        body = Scan(scan.r, fixture.id, scan.summaries, scan.phase, False)
+        body.env.update(dependencies)
+        body.run()
+        if body.incomplete or body.stopped or len(body.return_values) != 1:
+            raise ValueError("fixture return path contains unsupported operations")
+        value = body.return_values[0]
+        if isinstance(value, Instance):
+            if value.escaped or not value.exact:
+                raise ValueError("fixture receiver identity is not an exact supported construction")
+            for step in value.provenance:
+                if step.get("initializer_id"):
+                    summary = scan.summaries.get(step["initializer_id"])
+                    if not summary or summary.get("incomplete") or summary.get("exceptions"):
+                        raise ValueError("fixture initializer effects or exception route unresolved")
+        elif not isinstance(value, Value) or not (value.origins or value.literal is not None or value.fields):
+            raise ValueError("fixture result identity is unresolved")
+        step = body.evidence(fixture.node, "fixture_binding")
+        step.update(fixture_id=fixture.id, requested_name=name, model="pytest-return-fixture-v1", test_id=scan.path + "::" + scan.name)
+        if isinstance(value, Instance):
+            # Dependencies share allocations within one test, just as pytest
+            # caches fixture results; copying here loses escape invalidation.
+            value.provenance = [*value.provenance, step]
+        else:
+
+            def annotate(saved):
+                saved.origins = {o: [*path, step] for o, path in saved.origins.items()}
+                saved.alternative_paths = {o: [[*path, step] for path in paths] for o, paths in saved.alternative_paths.items()}
+                for child in saved.fields.values():
+                    annotate(child)
+
+            annotate(value)
+        cache[name] = value
+        return value
+
+    try:
+        bindings = {name: resolve(name) for name in requested}
+    except ValueError as exc:
+        scan.unknown(scan.path, scan.node, str(exc))
+        return
+    scan.env.update(bindings)
+
+
+def analyze_repository(before, after, changed_ids, *, provider_candidates=(), fixture_setup_unresolved=False):
     """Compare request-local summaries and return located source evidence."""
     phases = {}
     syntax_facts = {}
     indexes = {}
     for phase, sources in [("before", before), ("after", after)]:
-        resolver = Resolver(sources, syntax_facts, provider_candidates)
+        resolver = Resolver(sources, syntax_facts, provider_candidates, fixture_setup_unresolved=fixture_setup_unresolved)
         indexes[phase] = resolver
         summaries = {}
         # Dependency-driven fixed point. Each update consumes immutable preceding
@@ -1160,6 +1249,8 @@ def analyze_repository(before, after, changed_ids, *, provider_candidates=()):
         assertions = []
         for ident in resolver.functions:
             scan = Scan(resolver, ident, summaries, phase, True)
+            if scan.name.startswith("test_") or "::test_" in scan.name:
+                bind_test_fixtures(scan)
             scan.run()
             relations.extend(
                 r for r in scan.records if r["source_id"] in changed_ids and r["consumer_id"] != r["source_id"]
@@ -1175,6 +1266,7 @@ def analyze_repository(before, after, changed_ids, *, provider_candidates=()):
         # callable wrapper, and no runtime/input reachability is claimed.
         for ident in resolver.test_observers:
             scan = Scan(resolver, ident, summaries, phase, True)
+            bind_test_fixtures(scan)
             scan.run()
             assertions.extend(r for r in scan.assertions if r["entity_id"] in changed_ids)
             if len(assertions) > MAX_ROWS:
@@ -1241,6 +1333,8 @@ def analyze_repository(before, after, changed_ids, *, provider_candidates=()):
             "relationships_per_phase": MAX_ROWS,
             "import_hops": MAX_IMPORT_HOPS,
             "test_observers": MAX_TEST_OBSERVERS,
+            "fixture_declarations": pytest_fixtures.MAX_FIXTURES,
+            "fixture_dependency_hops": pytest_fixtures.MAX_FIXTURE_HOPS,
         },
         "steps": {p: data["steps"] for p, data in phases.items()},
     }

@@ -860,8 +860,23 @@ def _compute_patch(repo: str, request: PatchRequest, *, snapshot_key=None) -> di
                                         "sha256": next(row["candidate_sha256"] for row in file_identities if row["path"] == file.path)}
     changed_production_ids = {row["id"] for row in groups["changes"]
                               if row.get("source_role", {}).get("role") == "production"}
+    from amu.pytest_fixtures import CONFIG_FILES, implicit_setup
     from amu.semantic import ACTIVE_INDEX
     from amu.value_flow import Resolver
+
+    fixture_configs = {}
+    for path in CONFIG_FILES:
+        if _source_path_present_or_unsafe(root, path):
+            payload, config_identity = _source(root, path)
+            if path in snapshots and snapshots[path] != (payload, config_identity):
+                raise ImpactInputError("pytest configuration changed during inspection; retry")
+            snapshots[path] = (payload, config_identity)
+            fixture_configs[path] = payload
+        else:
+            snapshots[path] = (None, None)
+    fixture_setup_unresolved = implicit_setup(fixture_configs) or any(
+        os.environ.get(name) for name in ("PYTEST_ADDOPTS", "PYTEST_PLUGINS")
+    )
     semantic_index = Resolver(flow_before)
     semantic_index.repository = str(root)
     graph_records = []
@@ -909,7 +924,8 @@ def _compute_patch(repo: str, request: PatchRequest, *, snapshot_key=None) -> di
         tests, affected, declarations=declarations, state_dependencies=groups["state_dependencies"],
         source_calls=source_calls, verified_submodules=verified_submodules,
         obligations=groups["obligations"], source_trees=source_trees)
-    flow = analyze_repository(flow_before, flow_after, changed_production_ids, provider_candidates=provider_candidates)
+    flow = analyze_repository(flow_before, flow_after, changed_production_ids, provider_candidates=provider_candidates,
+                              fixture_setup_unresolved=fixture_setup_unresolved)
     groups["uncertainties"].extend(flow["uncertainties"])
     if not production_complete:
         groups["uncertainties"].append({"reason": "production inventory/dependency analysis incomplete within 512-file and shared source-byte limits"})
@@ -1052,6 +1068,10 @@ def _compute_patch(repo: str, request: PatchRequest, *, snapshot_key=None) -> di
                 "test_inventory_sha256": hashlib.sha256("\n".join(inventory).encode()).hexdigest(),
                 "test_inventory_complete": complete, "graph_evidence_sha256": hashlib.sha256(impact_report._encode(graph_records)).hexdigest(),
                 "role_configuration": role_config_identity,
+                "fixture_configuration": {
+                    "source_hashes": {p: hashlib.sha256(v).hexdigest() for p, v in fixture_configs.items()},
+                    "implicit_setup_unresolved": fixture_setup_unresolved,
+                },
                 "test_change_counts": test_status_counts,
                 "input_suggestion_counts": {"retained": len(retained_ids),
                                             "omitted": suggestion_omissions,
