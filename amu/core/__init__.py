@@ -7,14 +7,15 @@ import math
 import re
 from pathlib import Path
 
-from . import consequences, coverage, rank
+from . import consequences, coverage, lexical, rank, shadow
 from .git import working_diff
 from .index import build, parse_or_none
 from .index import graph as build_graph
-from .patch import applied, candidate, changes, renumber
+from .patch import applied, candidate, changes, original, renumber
 
 LIMIT = 2000
 MAX_TESTS = 40
+RUN_CANDIDATES = 150  # executing is cheap next to guessing; --run looks well past the ranked list
 
 
 def encoded(value):
@@ -61,13 +62,17 @@ def changed_symbols(root, facts, edits, gaps):
 
 def label(graph, path):
     names = [graph.records[x]['qual'] or graph.records[x]['module'] for x in path[1:]]
-    return ' > '.join(names)
+    return ' > '.join(names) or 'no resolved path'
 
 
 def after_facts(root, facts, edits, gaps):
     """Records of changed files as of the candidate source, plus the lines the patch wrote."""
-    after, new_lines, renumbered = {}, {}, set()
+    after, before, new_lines, renumbered = {}, {}, {}, set()
     for path, edit in edits.items():
+        earlier = original(root, path, edit)
+        parsed = parse_or_none(path, earlier) if earlier is not None else None
+        if parsed:
+            before.update(parsed['records'])
         source = candidate(root, path, edit)
         parsed = parse_or_none(path, source) if source is not None else None
         if parsed is None:
@@ -77,10 +82,10 @@ def after_facts(root, facts, edits, gaps):
         new_lines[path] = edit['new']
         if not applied(root, path, edit):
             renumbered.add(path)
-    return after, new_lines, renumbered
+    return after, before, new_lines, renumbered
 
 
-def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, index_dir=None):
+def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, index_dir=None, run=False, python=None, budget=60):
     """What a change reaches, which existing tests to run first, and what could not be seen.
 
     ``patch`` is unified-diff text, applied or not yet applied to ``root``. Without one,
@@ -103,6 +108,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     # What the patch says, per file: the words of its added and removed lines.
     said = {path: content.query(' '.join(text for _, text in [*edit['added'], *edit['removed']])) for path, edit in edits.items()}
     observed, coverage_status = coverage.load(root, coverage_evidence, hashes, gaps)
+    recorded = {}
     for path, edit in edits.items():
         # A recording made before this edit is in parent line numbers; the tree is not.
         if observed and path in observed['files'] and path in observed['stale'] and applied(root, path, edit):
@@ -110,7 +116,9 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
             for line, contexts in observed['files'][path].items():
                 moved.setdefault(place(line), set()).update(contexts)
             observed['files'][path] = moved
-    scores, best, impacted, unexecuted = {}, {}, {}, []
+            # Lines the patch added did not exist when the recording was made; it says nothing about them.
+            recorded[path] = {place(line) for line in edit['old'] | edit['anchor']}
+    scores, best, impacted, untested = {}, {}, {}, []
     for symbol, fallback in symbols.items():
         record = graph.records[symbol]
         names = rank.symbol_tokens(record)
@@ -125,8 +133,16 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
             # The more tests merely mention the class, the less each mention says about this member.
             broad_weight = 0.5 / math.log2(2 + sum(ident in tests for ident in extra))
         seen = coverage.tests_for(observed, record, tests, where.get(symbol, ()))
-        if seen and next(iter(seen.values()))[1] is None and record['kind'] == 'function':
-            unexecuted.append(record['qual'])
+        if record['kind'] == 'function' and symbol in where:
+            lines = sorted(where[symbol])
+            span = f'{lines[0]}-{lines[-1]}' if len(lines) > 1 else str(lines[0])
+            judged = [line for line in lines if record['path'] not in recorded or line in recorded[record['path']]]
+            if observed and record['path'] in observed['files'] and judged:
+                rows_here = observed['files'][record['path']]
+                if not any(coverage._test_identity(c) in tests for line in judged for c in rows_here.get(line, ())):
+                    untested.append(dict(symbol=record['qual'], file=record['path'], lines=span, basis='coverage'))
+            elif not any(ident in tests for ident in reached):
+                untested.append(dict(symbol=record['qual'], file=record['path'], lines=span, basis='static_only'))
         for ident, (position, path, broad) in reached.items():
             if ident not in tests:
                 if not broad and (ident not in impacted or position < impacted[ident][0]):
@@ -149,38 +165,89 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
             scores.setdefault(ident, {})[symbol] = value
             if ident not in best or best[ident][5] is None or value > best[ident][0]:
                 best[ident] = (value, (1, 0, False), [ident, symbol], shared, False, (exactness, on_line))
+    after, before, new_lines, renumbered = after_facts(root, facts, edits, gaps)
+    gone_phrases = set().union(*(lexical.removed_phrases(edit) for edit in edits.values())) if edits else set()
+    # Only files whose patched form was established can say a definition is gone.
+    settled = {r['path'] for r in after.values()}
+    elsewhere = {r['qual'].rsplit('.', 1)[-1] for r in graph.records.values()
+                 if r['path'] not in settled and r['kind'] in ('function', 'class', 'variable') and not graph.is_test(r)}
+    likely = lexical.matches(tests, gone_phrases, lexical.removed_names(
+        {k: r for k, r in before.items() if r['path'] in settled}, after, elsewhere))
+    for symbol, categories in lexical.removed_signals(before, after).items():
+        near = [ident for ident, (position, _, _) in graph.reach([symbol], max_depth=2).items() if not position[2]]
+        for ident, reason in lexical.expecting(tests, near, categories).items():
+            likely.setdefault(ident, reason)
+    for ident in likely:
+        # A test found only by what it says still belongs in the list.
+        scores.setdefault(ident, {}).setdefault('', 0.5)
+        best.setdefault(ident, (0.5, (1, 2, True), [ident], [], True, None))
+    # Likely failures lead; each group keeps its own relevance order.
+    first = rank.diverse({t: v for t, v in scores.items() if t in likely}, MAX_TESTS)
+    order = first + rank.diverse({t: v for t, v in scores.items() if t not in likely}, RUN_CANDIDATES if run else MAX_TESTS)
     rows = []
-    for ident, gain in rank.diverse(scores, MAX_TESTS):
+    for ident, gain in order[:MAX_TESTS]:
         _, position, path, shared, broad, exactness = best[ident]
         r = tests[ident]
         exact = not position[2] and not broad and position[1] == 0
         if exactness is not None:
-            exactness, on_line = exactness
+            _, on_line = exactness
+            exactness = exactness[0], on_line
+            exact_value = exactness[0]
             why = ('ran the changed lines of ' if on_line else 'ran ') + label(graph, path) + (
-                '' if exactness == 1 else ' (recorded before an edit to this file)')
+                '' if exact_value == 1 else ' (recorded before an edit to this file)')
             confidence = 'observed'
         else:
             why = ('calls ' if position[0] == 1 and exact else 'via ') + label(graph, path)
             confidence = 'heuristic' if not exact else 'direct' if position[0] == 1 else 'transitive'
         if shared:
             why += ' (name: ' + ','.join(shared) + ')'
-        rows.append(dict(id=r['path'] + '::' + r['qual'].replace('.', '::'), why=why, confidence=confidence,
-                         source='coverage' if exactness is not None else 'static', line=r['line'], score=round(gain, 3)))
-    after, new_lines, renumbered = after_facts(root, facts, edits, gaps)
+        expect = 'reaches'
+        if exactness is not None and exactness[1]:
+            expect = 'ran_changed_lines'
+        if ident in likely:
+            expect, why = 'likely_fail', likely[ident] + ('; ' + why if len(path) > 1 else '')
+            confidence = confidence if len(path) > 1 else 'lexical'
+        rows.append(dict(id=r['path'] + '::' + r['qual'].replace('.', '::'), expect=expect, why=why, confidence=confidence,
+                         line=r['line'], score=round(gain, 3)))
     found = consequences.find(graph, after, new_lines, renumbered)
+    executed = None
+    if run:
+        # Exact beats ranked: run the candidates on both sides of the change and report what flips.
+        wide = [tests[ident]['path'] + '::' + tests[ident]['qual'].replace('.', '::') for ident, _ in order[:RUN_CANDIDATES]]
+        flips, executed, run_gaps = shadow.run(root, edits, wide, python, budget)
+        gaps.extend(run_gaps)
+        state = {flip['id']: flip for flip in flips}
+        for row in rows:
+            if row['id'] in state:
+                row['expect'] = 'fails' if state[row['id']]['after'] == 'failed' else 'now_' + state[row['id']]['after']
+            elif executed['ran'] and not run_gaps:
+                row['expect'] = 'unchanged'
+        rows.sort(key=lambda row: row['expect'] != 'fails')
+        executed['predicted_failures'] = [flip for flip in flips if flip['after'] == 'failed']
+        shown = {row['id'] for row in rows}
+        for flip in executed['predicted_failures']:
+            if flip['id'] not in shown:
+                rows.insert(0, dict(id=flip['id'], expect='fails', why='failed when executed after the change',
+                                    confidence='executed', line=0, score=0.0))
     unresolved = graph.unresolved_count + graph.ambiguous
     if unresolved:
         gaps.append(f'{unresolved} call sites unresolved repo-wide; dynamic dispatch may reach more')
-    if unexecuted:
-        gaps.append('No recorded test ran the changed lines of ' + ', '.join(sorted(set(unexecuted))[:3]))
     if not rows:
         gaps.append('No existing test reaches the change within five source hops')
     listed = [dict(symbol=ident, depth=position[0], via=label(graph, path))
               for ident, (position, path) in sorted(impacted.items(), key=lambda item: (item[1][0], item[0]))]
-    report = dict(changed_symbols=narrow, impacted=listed, tests=rows, consequences=found, gaps=sorted(set(gaps)),
-                  caveats=f'Static candidates, not proof. {len(scores)} tests reach the change; run these first, not only.')
+    fails = sum(row['expect'] == 'likely_fail' for row in rows)
+    summary = f"{fails} likely_fail, {len(untested)} untested, {len(scores)} tests reach. Judge rows by expect and why; not a run-all list."
+    if executed is not None:
+        summary = (f"EXECUTED {executed['ran']} candidate tests on both sides in {executed['seconds']} s: "
+                   f"{len(executed['predicted_failures'])} now fail. " + summary.split(', ', 1)[1].split('. ')[0] + '.')
+    report = dict(summary=summary, changed_symbols=narrow, untested=untested, tests=rows, consequences=found,
+                  impacted=listed, gaps=sorted(set(gaps)),
+                  caveats='Static unless a row says observed. Not proof.')
     if coverage_status:
         report['coverage'] = coverage_status
+    if executed is not None:
+        report['predicted_failures'] = executed['predicted_failures']
     report['report_hash'] = hashlib.sha256(encoded([hashes, patch, report])).hexdigest()[:12]
     if full_evidence:
         report['index'] = {'parsed_files': parsed, 'files': len(facts)}
@@ -191,7 +258,11 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
 def compact(report):
     """Fit the agent packet under LIMIT bytes. Runnable test ids are the last thing to go."""
     out = dict(report)
-    out['tests'] = [{k: row[k] for k in ('id', 'why', 'confidence', 'source')} for row in report['tests'][:10]]
+    out['tests'] = [{k: row[k] for k in ('id', 'expect', 'why', 'confidence')} for row in report['tests'][:10]]
+    out['untested'] = [dict(row) for row in report['untested'][:3]]
+    if 'predicted_failures' in report:
+        out['predicted_failures'] = [row['id'] for row in report['predicted_failures'][:12]]
+        out['tests'] = [row for row in out['tests'] if row['expect'] != 'fails'][:6]
     out['changed_symbols'] = report['changed_symbols'][:5]
     out['impacted'] = [dict(row) for row in report['impacted'][:3]]
     # Steps keep the last two path components here; --full-evidence has full paths.
@@ -216,12 +287,14 @@ def compact(report):
     steps = [lambda: narrow(28),
              lambda: out['impacted'] and out['impacted'].pop(),
              lambda: len(out['gaps']) > 1 and out['gaps'].pop(),
+             lambda: len(out['untested']) > 2 and out['untested'].pop(),
              lambda: len(out['changed_symbols']) > 3 and out['changed_symbols'].pop(),
              lambda: len(out['consequences']) > 1 and out['consequences'].pop(),
              lambda: len(out['changed_symbols']) > 1 and out['changed_symbols'].pop(),
              lambda: len(out['tests']) > 8 and out['consequences'] and out['tests'].pop(),
              lambda: narrow(12),
              lambda: out['consequences'] and out['consequences'].pop(),
+             lambda: len(out['untested']) > 1 and out['untested'].pop(),
              lambda: len(out['tests']) > 1 and out['tests'].pop()]
     while len(encoded(out)) >= LIMIT:
         if not any(step() for step in steps):

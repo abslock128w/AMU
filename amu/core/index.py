@@ -9,7 +9,7 @@ from pathlib import Path
 
 from .rank import tokens
 
-VERSION = '4'
+VERSION = '6'
 FUNCTIONS = (ast.FunctionDef, ast.AsyncFunctionDef)
 SKIP = {'.git', '.amu', '.entire', '.venv', 'venv', 'node_modules', '__pycache__', 'build', 'dist', 'site-packages'}
 
@@ -91,6 +91,11 @@ def parse(path, data):
                                 for n in ast.walk(node)
                                 if isinstance(n, (ast.Name, ast.Attribute)) or isinstance(n, ast.Constant) and isinstance(n.value, str))
                 record['words'] = sorted(tokens(text[:20000]))[:400]
+                # Raw identifiers and string literals: what the test names and what it asserts on.
+                record['names'] = sorted({n.id if isinstance(n, ast.Name) else n.attr for n in ast.walk(node)
+                                          if isinstance(n, (ast.Name, ast.Attribute))})[:600]
+                record['literals'] = sorted({' '.join(n.value.split())[:200] for n in ast.walk(node)
+                                             if isinstance(n, ast.Constant) and isinstance(n.value, str) and len(n.value) >= 8})[:200]
         if isinstance(node, ast.ClassDef):
             record['bases'] = [expression(b) for b in node.bases]
 
@@ -172,6 +177,9 @@ def parse(path, data):
                             record['writes'].append([item.attr, n.lineno])
             if isinstance(n, ast.Call):
                 record['refs'].append([expression(n.func), 'call', n.lineno])
+                if terminal(n.func) == 'warn':
+                    category = next((k.value for k in n.keywords if k.arg == 'category'), n.args[1] if len(n.args) > 1 else None)
+                    record['raises'].append(['warn:' + (terminal(category) or 'UserWarning'), n.lineno])
             elif isinstance(n, (ast.Name, ast.Attribute)) and isinstance(n.ctx, ast.Load):
                 record['refs'].append([expression(n), 'reference', n.lineno])
             for child in ast.iter_child_nodes(n):

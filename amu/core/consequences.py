@@ -45,7 +45,7 @@ class Finder:
                 continue
             # Parent call lines cannot be compared with a candidate file's numbering.
             if caller['path'] in self.renumbered or start <= call_line <= end:
-                raised = [name for name, at in caller.get('raises', []) if line <= at <= last]
+                raised = [name for name, at in caller.get('raises', []) if line <= at <= last and not (name or '').startswith('warn:')]
                 return line, last, raised
         return None
 
@@ -56,7 +56,7 @@ class Finder:
                 continue
             lines = self.new_lines.get(record['path'], set())
             for name, line in record.get('raises', []):
-                if name and line in lines:
+                if name and not name.startswith('warn:') and line in lines:
                     found = self.chain(ident, name, 0, {ident})
                     if found:
                         steps, end, guessed = found

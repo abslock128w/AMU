@@ -1,0 +1,26 @@
+{
+  "case_id": "h2-requests-f0198e6d",
+  "function_recall10": 1.0,
+  "file_recall10": 1.0,
+  "function_hits": [
+    "tests/test_utils.py::test__parse_content_type_header",
+    "tests/test_utils.py::test_get_encoding_from_headers"
+  ],
+  "missing_from_parent": [],
+  "recommended": 10,
+  "top10": [
+    "tests/test_utils.py::test__parse_content_type_header",
+    "tests/test_utils.py::test_get_encoding_from_headers",
+    "tests/test_lowlevel.py::test_conflicting_content_lengths",
+    "tests/test_lowlevel.py::test_chunked_encoding_error",
+    "tests/test_lowlevel.py::test_digestauth_401_count_reset_on_redirect",
+    "tests/test_lowlevel.py::test_fragment_update_on_redirect",
+    "tests/test_requests.py::TestPreparingURLs::test_different_connection_pool_for_mtls_settings",
+    "tests/test_requests.py::TestPreparingURLs::test_different_connection_pool_for_tls_settings_verify_True",
+    "tests/test_requests.py::TestPreparingURLs::test_different_connection_pool_for_tls_settings_verify_bundle_expired_cert",
+    "tests/test_requests.py::TestPreparingURLs::test_different_connection_pool_for_tls_settings_verify_bundle_unexpired_cert"
+  ],
+  "seconds": 0.19470354200166184,
+  "bytes": 1974,
+  "noise10": 8
+}

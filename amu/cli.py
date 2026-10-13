@@ -632,9 +632,12 @@ def before_tests_cmd(
     patch_file: str | None = typer.Option(None, "--patch-file", help="unified diff, or - for stdin; default: uncommitted changes (git diff HEAD)"),
     coverage: str | None = typer.Option(None, "--coverage", help="per-test coverage recording (.coverage, coverage.json or AMU artifact); default: auto-detect"),
     full_evidence: bool = typer.Option(False, "--full-evidence", help="all ranked tests, dependants and consequences instead of the 2 KB packet"),
+    run: bool = typer.Option(False, "--run", help="execute candidate tests before and after the change and report which flip"),
+    python: str | None = typer.Option(None, "--python", help="interpreter with pytest for --run; default: this one"),
+    budget: int = typer.Option(60, "--budget", help="seconds allowed per side for --run"),
     repo: str = typer.Option(".", "--repo", help="repository root"),
 ):
-    """What a change reaches and which existing tests to run first. Compact JSON; nothing is executed."""
+    """What a change reaches, what it likely breaks and what nothing tests. Executes tests only with --run."""
     from amu import core
 
     if patch_file is None:
@@ -647,7 +650,7 @@ def before_tests_cmd(
         except OSError as exc:
             typer.echo(json.dumps({"error": f"cannot read patch file: {exc.strerror}"}))
             raise typer.Exit(code=2) from exc
-    result = core.analyze(repo, patch, full_evidence=full_evidence, coverage_evidence=coverage)
+    result = core.analyze(repo, patch, full_evidence=full_evidence, coverage_evidence=coverage, run=run, python=python, budget=budget)
     typer.echo(core.encoded(result).decode())
 
 

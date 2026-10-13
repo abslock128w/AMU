@@ -149,3 +149,38 @@ def renumber(edit):
                 shift = value
         return line + shift
     return place
+
+
+def original(root, path, edit):
+    """The file as it was before the patch, whichever side the tree holds. None when it cannot be established."""
+    try:
+        source = (Path(root)/path).read_text()
+    except (OSError, UnicodeError):
+        return None
+    if not applied(root, path, edit):
+        return source
+    flipped = dict(edit, hunks=[[start, [('+' if row[:1] == '-' else '-' if row[:1] == '+' else ' ') + row[1:] for row in body]]
+                               for start, body in edit['hunks']])
+    # Hunk starts are parent positions; walking the patched file needs patched positions.
+    place, moved = renumber(edit), []
+    for (start, _), (_, body) in zip(edit['hunks'], flipped['hunks']):
+        moved.append([place(start) if start else 0, body])
+    lines, out, position = source.splitlines(keepends=True), [], 0
+    for start, body in moved:
+        start = max(start - 1, 0)
+        if start < position or start > len(lines):
+            return None
+        out.extend(lines[position:start])
+        position = start
+        for row in body:
+            sign, text = row[:1], row[1:]
+            if sign == '+':
+                out.append(text)
+            else:
+                if position >= len(lines) or lines[position].rstrip('\r\n') != text.rstrip('\r\n'):
+                    return None
+                if sign == ' ':
+                    out.append(lines[position])
+                position += 1
+    out.extend(lines[position:])
+    return ''.join(out)

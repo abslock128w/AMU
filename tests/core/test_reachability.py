@@ -216,7 +216,7 @@ def test_recorded_execution_outranks_static_paths_and_adds_statically_invisible_
     coverage_report(tmp_path, {'lib.py': {'2': ['tests/test_lib.py::test_dynamic|run']}})
     result = run(tmp_path, 'lib.py', source, source.replace('1', '2'))
     assert ids(result) == ['tests/test_lib.py::test_dynamic', 'tests/test_lib.py::test_static']
-    assert result['tests'][0]['confidence'] == 'observed' and result['tests'][0]['source'] == 'coverage'
+    assert result['tests'][0]['confidence'] == 'observed' and result['tests'][0]['expect'] == 'ran_changed_lines'
 
 
 def test_coverage_staleness_is_per_file(tmp_path):
@@ -239,15 +239,16 @@ def test_coverage_staleness_is_per_file(tmp_path):
 
 
 def test_default_packet_stays_under_two_kilobytes_and_keeps_ten_tests(tmp_path):
-    names = [f'operation_number_{i}' for i in range(12)]
+    names = [f'op_{i}' for i in range(12)]
     source = ''.join(f'def {n}():\n    return 1\n' for n in names)
     tests = 'from package_with_long_name import library_module as lib\n' + ''.join(
         f'def test_{n}_behaves_in_case_{i}():\n    assert lib.{n}()\n' for n in names for i in range(4))
     repository(tmp_path, {'package_with_long_name/library_module.py': source, 'package_with_long_name/__init__.py': '',
                           'tests/integration/test_library_module_operations.py': tests})
-    result = analyze(tmp_path, patch('package_with_long_name/library_module.py', source, source.replace('1', '2')), index_dir=tmp_path/'.index')
+    result = analyze(tmp_path, patch('package_with_long_name/library_module.py', source, source.replace('return 1', 'return 2')), index_dir=tmp_path/'.index')
     assert len(encoded(result)) < LIMIT and len(json.dumps(result, separators=(',', ':')).encode()) < LIMIT
-    assert len(result['tests']) == 10 and set(result) >= {'changed_symbols', 'impacted', 'tests', 'consequences', 'gaps', 'caveats', 'report_hash'}
+    assert len(result['tests']) == 10 and set(result) >= {'summary', 'changed_symbols', 'untested', 'tests', 'consequences', 'gaps', 'caveats', 'report_hash'}
+    assert list(result)[0] == 'summary'
 
 
 def test_nested_definition_costs_no_hop_and_deep_paths_are_still_found(tmp_path):
@@ -295,7 +296,7 @@ def test_change_in_code_no_recorded_test_ran_is_a_gap(tmp_path):
     repository(tmp_path, {'lib.py': source, 'tests/test_lib.py': 'from lib import parse\ndef test_a():\n    assert parse(1)\n'})
     coverage_report(tmp_path, {'lib.py': {'2': ['tests/test_lib.py::test_a|run'], '3': ['tests/test_lib.py::test_a|run']}})
     result = run(tmp_path, 'lib.py', source, source.replace('return 2', 'return 3'))
-    assert any('No recorded test ran the changed lines of parse' in gap for gap in result['gaps'])
+    assert result['untested'] == [dict(symbol='parse', file='lib.py', lines='4', basis='coverage')]
     assert ids(result) == ['tests/test_lib.py::test_a']
 
 
@@ -327,3 +328,80 @@ def test_deletion_only_edit_already_on_disk_still_maps_to_its_function(tmp_path)
     repository(tmp_path, {'lib.py': changed, 'tests/test_lib.py': 'from lib import work\ndef test_work():\n    assert work()\n'})
     result = run(tmp_path, 'lib.py', source, changed)
     assert result['changed_symbols'] == ['lib.py#work'] and ids(result) == ['tests/test_lib.py::test_work']
+
+
+def test_test_asserting_on_removed_message_is_likely_to_fail_even_without_a_call_path(tmp_path):
+    source = 'import warnings\ndef old():\n    warnings.warn("this option name is deprecated and will be removed in version nine")\n    return 1\n'
+    changed = source.replace('    warnings.warn("this option name is deprecated and will be removed in version nine")\n', '')
+    tests = ('import importlib, pytest\n'
+             'def test_warns():\n    with pytest.warns(match="option name is deprecated and will be removed"):\n        getattr(importlib.import_module("lib"), "old")()\n'
+             'def test_plain():\n    from lib import old\n    assert old()\n')
+    repository(tmp_path, {'lib.py': source, 'tests/test_lib.py': tests})
+    result = run(tmp_path, 'lib.py', source, changed)
+    first = result['tests'][0]
+    assert first['id'] == 'tests/test_lib.py::test_warns' and first['expect'] == 'likely_fail' and 'removed text' in first['why']
+    assert [r['expect'] for r in result['tests'][1:]] == ['reaches'] and result['summary'].startswith('1 likely_fail')
+
+
+def test_test_using_a_deleted_definition_is_likely_to_fail_from_either_side_of_the_edit(tmp_path):
+    source = 'class LegacyWrapper:\n    pass\n\n\ndef keep():\n    return 1\n'
+    changed = 'def keep():\n    return 1\n'
+    tests = 'import lib\ndef test_legacy():\n    assert lib.LegacyWrapper\ndef test_keep():\n    assert lib.keep()\n'
+    repository(tmp_path, {'lib.py': source, 'tests/test_lib.py': tests})
+    before = run(tmp_path, 'lib.py', source, changed)
+    (tmp_path/'lib.py').write_text(changed)
+    after = run(tmp_path, 'lib.py', source, changed)
+    for result in (before, after):
+        assert result['tests'][0]['id'] == 'tests/test_lib.py::test_legacy' and result['tests'][0]['expect'] == 'likely_fail'
+        assert 'uses removed LegacyWrapper' in result['tests'][0]['why']
+
+
+def test_changed_function_nothing_reaches_is_reported_untested(tmp_path):
+    source = 'def used():\n    return 1\n\n\ndef orphan():\n    return 2\n'
+    repository(tmp_path, {'lib.py': source, 'tests/test_lib.py': 'from lib import used\ndef test_used():\n    assert used()\n'})
+    result = run(tmp_path, 'lib.py', source, source.replace('return 2', 'return 3'))
+    assert result['untested'] == [dict(symbol='orphan', file='lib.py', lines='6', basis='static_only')]
+    assert run(tmp_path, 'lib.py', source, source.replace('return 1', 'return 5'))['untested'] == []
+
+
+def test_test_expecting_a_removed_warning_is_likely_to_fail(tmp_path):
+    source = 'import warnings\ndef legacy():\n    warnings.warn("old", DeprecationWarning)\n    return 1\n'
+    tests = ('import pytest\nfrom lib import legacy\n'
+             'def test_warns():\n    with pytest.warns(DeprecationWarning, match="x"):\n        legacy()\n'
+             'def test_value():\n    assert legacy() == 1\n')
+    repository(tmp_path, {'lib.py': source, 'tests/test_lib.py': tests})
+    result = run(tmp_path, 'lib.py', source, source.replace('    warnings.warn("old", DeprecationWarning)\n', ''))
+    assert [(r['id'].split('::')[-1], r['expect']) for r in result['tests']] == [('test_warns', 'likely_fail'), ('test_value', 'reaches')]
+    assert 'DeprecationWarning' in result['tests'][0]['why']
+
+
+def test_boilerplate_wording_shared_by_many_tests_is_not_a_likely_failure(tmp_path):
+    source = 'def work():\n    """This is deprecated and will be removed soon."""\n    return 1\n'
+    tests = 'from lib import work\n' + ''.join(f'def test_{i}():\n    assert work(), "this thing is deprecated and so on"\n' for i in range(8))
+    repository(tmp_path, {'lib.py': source, 'tests/test_lib.py': tests})
+    result = run(tmp_path, 'lib.py', source, source.replace('    """This is deprecated and will be removed soon."""\n', ''))
+    assert all(r['expect'] == 'reaches' for r in result['tests'])
+
+
+def test_definition_moved_to_another_file_is_not_a_removed_name(tmp_path):
+    source = 'def helper_function():\n    return 1\n\n\ndef keep():\n    return 2\n'
+    changed = 'from other import helper_function\n\n\ndef keep():\n    return 2\n'
+    repository(tmp_path, {'lib.py': source, 'other.py': 'def helper_function():\n    return 1\n',
+                          'tests/test_lib.py': 'import lib\ndef test_helper():\n    assert lib.helper_function()\n'})
+    assert all(r['expect'] != 'likely_fail' for r in run(tmp_path, 'lib.py', source, changed)['tests'])
+
+
+def test_shadow_execution_reports_exactly_the_tests_that_flip(tmp_path):
+    import sys
+
+    source = 'def work():\n    return 1\n\n\ndef other():\n    return 5\n'
+    changed = source.replace('return 1', 'return 2')
+    tests = 'from lib import work, other\ndef test_work():\n    assert work() == 1\ndef test_loose():\n    assert work()\ndef test_other():\n    assert other() == 5\n'
+    repository(tmp_path, {'lib.py': source, 'tests/test_lib.py': tests})
+    for on_disk in (False, True):
+        if on_disk:
+            (tmp_path/'lib.py').write_text(changed)
+        result = analyze(tmp_path, patch('lib.py', source, changed), index_dir=tmp_path/'.index', run=True, python=sys.executable)
+        assert result['predicted_failures'] == ['tests/test_lib.py::test_work'], result
+        assert result['summary'].startswith('EXECUTED 2 candidate tests') and '1 now fail' in result['summary']
+        assert {r['id'].split('::')[-1]: r['expect'] for r in result['tests']} == {'test_loose': 'unchanged'}

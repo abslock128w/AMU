@@ -133,6 +133,42 @@ or on indirect breakage. It does show that on small, greppable changes a capable
   too large to search cheaply, and telling the agent which changed lines no test executes. Each needs its own
   trial before more engine work.
 
+## After the agent trial: exact outputs first (plan v3, actions 4 to 7)
+
+The trial showed a ranked reachability list loses to an agent that reads the diff and searches. Four additions
+answer that. None needed new test execution approval except the last, which only runs on request.
+
+| Addition | What it does |
+|---|---|
+| `summary` | First field of the packet: likely failures, untested functions, reach count, and "not a run-all list". |
+| `expect` per test row | `likely_fail`, `ran_changed_lines`, or `reaches`; with `--run`: `fails` or `unchanged`. |
+| `untested[]` | Changed functions whose changed lines no test runs (`coverage`) or no test reaches at all (`static_only`). |
+| `--run` (shadow execution) | Runs up to 150 candidate tests on the code before and after the change and reports the ones that flip. |
+
+`likely_fail` is static and has three sources: the test shares a run of at least three removed word-triples
+with a literal the patch deletes; it uses a function or class the patch removes from the whole package; or it
+reaches a function and expects a warning or exception that function no longer raises.
+
+Measured on the 18 Click commits with execution ground truth, static only:
+
+| Measure | Result |
+|---|---|
+| `likely_fail` labels | 13, of which 12 truly fail |
+| Breaking tests labelled | 12 of 17 |
+| Labels on the 13 commits that break nothing | 0 |
+| Shadow execution on the five trial workspaces | 17 of 17 breaking tests named, 0 wrong, 0.5 to 1.4 s each |
+
+For comparison, the trial agents found 15 of 17 without AMU and 13 with the old packet, using 29 and 45 test
+runs. Shadow execution found the third breaking test of task 4, which neither arm found.
+
+These are development numbers. The label rules were shaped on these 18 commits (the first versions were 40%
+precise), and the five workspaces are the trial tasks. On Werkzeug and on requests plus itsdangerous, where
+there is no execution truth, the label fired once in 31 cases, so it is narrow: it speaks when a patch
+removes wording, names, warnings or exceptions, and is silent otherwise. An untouched measurement needs the
+Phase 0 holdout. The full Werkzeug suite does not finish in this environment, so it could not serve.
+
+Static ranking did not move: Werkzeug 10/16 and 16/16, holdout 2 5/8 and 7/8, holdout 3 8/8 and 8/8.
+
 ## Milestones (state at b3747c8)
 
 - **M1 harness.** `scripts/before_tests_harness.py`; protocol and manifests are hash-pinned.

@@ -11,12 +11,25 @@ Nothing is imported or executed. The default answer is one JSON object under 2 K
 
 | Field | Meaning |
 |---|---|
+| `summary` | Read this first: likely failures, untested functions, how many tests reach the change. |
 | `changed_symbols` | Declarations holding the changed lines, narrowest first. |
-| `impacted` | Non-test code that depends on them, with hop count and path. |
-| `tests` | Up to 10 existing tests to run first. `why` is the path or the matching names. |
+| `untested` | Changed functions no test exercises. `coverage` means no recorded test ran the changed lines; `static_only` means no test reaches the function at all. |
+| `tests` | Up to 10 existing tests. `expect` says what to do with each row; `why` is the path or the evidence. |
+| `predicted_failures` | Only with `--run`: tests that passed before the change and fail after it. |
 | `consequences` | A changed exception, shared attribute or used return value, and the located consumer. |
 | `gaps` | What could not be resolved. A gap never hides the results that were found. |
-| `caveats` | One sentence. The list is a priority order, not permission to skip other tests. |
+
+`expect` is `likely_fail` (the test asserts text, or uses a name, warning or exception the change removes),
+`ran_changed_lines` (a recording shows it executing them) or `reaches`. The list is not meant to be run
+top-down: run `likely_fail` rows, then choose among the rest by `why`.
+
+```sh
+amu before-tests --run                 # execute candidates before and after the change; report what flips
+amu before-tests --run --python .venv/bin/python --budget 120
+```
+
+`--run` copies the tree, builds the other side of the change in the copy, and runs up to 150 candidate tests
+on both sides with pytest. It is exact for what it runs and silent about tests outside the candidate set.
 
 `confidence` on a test is `direct` (calls the changed symbol), `transitive` (reaches it through resolved
 calls), `heuristic` (a receiver was guessed, or only the class or names match) or `observed` (a recording
