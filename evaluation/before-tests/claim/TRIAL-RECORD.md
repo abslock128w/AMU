@@ -5,8 +5,8 @@ about the product as it now exists. Rules: `../TRIAL-RULES.md`.
 
 ## What is being tested
 
-AMU at commit d2aa9dc: bare `amu` on a developer's own uncommitted change runs candidate tests before and
-after the change and prints the ones that flip. Candidates come from a stored per-test coverage recording
+AMU at commit b9123df: bare `amu` on a developer's own uncommitted change runs candidate tests on the changed
+code, confirms each failure against the code as it was, and prints the ones that flip. Candidates come from a stored per-test coverage recording
 plus static analysis.
 
 ## Tasks
@@ -55,6 +55,16 @@ parent of the oldest task's commit, so it predates every task as a CI artefact w
 (about eleven minutes) is not charged to the budget. It is charged nowhere, and that is a real cost of the
 AMU arm that this trial does not measure. The index and graph are not pre-built; AMU builds them on the clock.
 
+## Change to this record before the start
+
+This record first named commit d2aa9dc. Before any agent started, the trial mechanics were dry-run on the
+five exposed Phase 0 cases (never on the six tasks). That run showed the tool running out of budget before
+reaching a breaking test, and two general changes followed: the changed side runs first and only failures
+are confirmed on the unchanged side, and a recording's line numbers are carried through edits made after it.
+The tested commit is therefore b9123df. The dry run's output after those changes is in
+`dry-run-exposed-cases.log`: all five indirect tests found, 24 to 132 of 180 budget seconds used.
+`./amu` gives its test execution up to 110 s, or what is left of the budget minus 45 s for its own overhead.
+
 ## Ground truth and scoring
 
 Ground truth is the frozen `breaking` list: tests in the test modules the upstream commit touched that pass
@@ -96,5 +106,5 @@ AMU arm, added before "When finished":
 
 > - A tool is available: ./amu (no arguments). It runs candidate tests before and after the change and
 >   prints JSON whose first fields are `flips` and `predicted_failures`: tests that passed before the change
->   and fail after it, each as a command naming the test. Its running time, typically one to two and a half
->   minutes, is charged to the same 180 second budget, so decide whether and when to use it.
+>   and fail after it, each as a command naming the test. Its running time, typically half a minute to two and a
+>   quarter minutes, is charged to the same 180 second budget, so decide whether and when to use it.
