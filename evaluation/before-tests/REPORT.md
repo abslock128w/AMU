@@ -282,6 +282,38 @@ edit is still over the 2 s target on Django.
 Static ranking after these changes: Werkzeug 10/16 and 16/16; requests plus itsdangerous 6/8 and 8/8 (was
 5/8 and 7/8); Click holdout 3 8/8 and 8/8. All are exposed sets.
 
+## untested[] scored from history (Django, no hand labels)
+
+`scripts/score_untested.py`, static only, nothing executed. Of the 239 screened commits that broke no existing
+test, 102 change production code. AMU analysed each production-only diff on the parent tree: 282 changed
+functions, 31 of them reported untested (all `static_only`; there is no coverage recording for Django).
+
+| Score | Untested rows (31, from 16 commits) | Covered rows (251, from 85 commits) |
+|---|---:|---:|
+| (a) The same commit added or modified a test that reaches the function | 4 (13%) | 104 (41%) |
+| (b) A later bug-fix commit changed the function | 3 (10%) | 8 (3%) |
+
+- (a) Precision of an untested row against the author's own decision is 13%, and it is lower than for covered
+  rows (Fisher exact p = 0.002). Part of that is built in: a function AMU cannot connect to any test is also
+  hard to connect to the author's new test.
+- (b) 10% against 3% is 3 rows against 8 and is not significant (p = 0.11). Median exposure was 105 later
+  commits in both groups, not the 500 asked for, because the screened commits are the newest 250 and the
+  fetched history is 400 deep.
+- The rows themselves show the cause. Most are code Django does test but reaches dynamically: descriptors
+  (`SpatialProxy.__get__`), signal receivers (`reset_cache`), template tags (`now`, `items_for_result`),
+  module `__getattr__`, and constructors called through class tables (`RelatedPopulator.__init__`).
+
+**Decision, by the rule set beforehand:** untested rows are not meaningfully more likely to be fixed later, so
+the `static_only` rows are demoted. They are out of the default packet and remain in `--full-evidence`. Rows
+with basis `coverage` (a recording shows no test ran the changed lines) stay in the default packet; they were
+not scored here because no Django recording exists, and that is an open item.
+
+How (b) was computed: a commit counts as a bug fix when its message, after stripping Django's
+"Fixed #NNNN --" prefix, contains fix, bug, regression or revert (98 of 400 commits). "Changed the function"
+is function-level: the fix's diff touches lines inside the same qualified name in the same file. Line-level
+tracking across intervening edits was not attempted. The optional model judge was skipped: (a) and (b) did not
+tie, so there was nothing for it to break.
+
 ## Milestones (state at b3747c8)
 
 - **M1 harness.** `scripts/before_tests_harness.py`; protocol and manifests are hash-pinned.

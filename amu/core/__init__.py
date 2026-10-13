@@ -118,7 +118,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
             observed['files'][path] = moved
             # Lines the patch added did not exist when the recording was made; it says nothing about them.
             recorded[path] = {place(line) for line in edit['old'] | edit['anchor']}
-    scores, best, impacted, untested = {}, {}, {}, []
+    scores, best, impacted, untested, functions = {}, {}, {}, [], []
     for symbol, fallback in symbols.items():
         record = graph.records[symbol]
         names = rank.symbol_tokens(record)
@@ -136,6 +136,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         if record['kind'] == 'function' and symbol in where:
             lines = sorted(where[symbol])
             span = f'{lines[0]}-{lines[-1]}' if len(lines) > 1 else str(lines[0])
+            functions.append(dict(symbol=record['qual'], file=record['path'], lines=span))
             judged = [line for line in lines if record['path'] not in recorded or line in recorded[record['path']]]
             if observed and record['path'] in observed['files'] and judged:
                 rows_here = observed['files'][record['path']]
@@ -260,7 +261,8 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     listed = [dict(symbol=ident, depth=position[0], via=label(graph, path))
               for ident, (position, path) in sorted(impacted.items(), key=lambda item: (item[1][0], item[0]))]
     fails = sum(row['expect'] == 'likely_fail' for row in rows)
-    summary = f"{fails} likely_fail, {len(untested)} untested, {len(scores)} tests reach the change."
+    recorded_gaps = sum(row['basis'] == 'coverage' for row in untested)
+    summary = f"{fails} likely_fail, {recorded_gaps} untested, {len(scores)} tests reach the change."
     if executed is not None:
         summary = (f"EXECUTED {executed['ran']} candidate tests on both sides with {executed['runner']} in {executed['seconds']} s: "
                    f"{len(executed['predicted_failures'])} now fail. " + summary.split(', ', 1)[1])
@@ -279,6 +281,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     report['report_hash'] = hashlib.sha256(encoded([hashes, patch, report])).hexdigest()[:12]
     if full_evidence:
         report['index'] = {'parsed_files': parsed, 'files': len(facts)}
+        report['changed_functions'] = functions
         return report
     return compact(report, include_tests)
 
@@ -296,7 +299,9 @@ def compact(report, include_tests=False):
     if not include_tests:
         out['caveats'] = report['caveats'] + ' Tests that only reach the change are omitted; --tests lists them.'
         report = dict(report, caveats=out['caveats'])
-    out['untested'] = [dict(row) for row in report['untested'][:3]]
+    # Only rows backed by a recording are shown by default. Scored on Django history, a row that says no
+    # call path was found statically mostly marked dynamically reached code, so it stays in full evidence.
+    out['untested'] = [dict(row) for row in report['untested'] if row['basis'] == 'coverage'][:3]
     if 'predicted_failures' in report:
         commands = {row['id']: row.get('run') for row in report['tests']}
         out['predicted_failures'] = [(row['id'] if native else commands.get(row['id']) or row['id']) for row in report['predicted_failures'][:12]]

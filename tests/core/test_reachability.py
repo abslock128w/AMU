@@ -362,6 +362,8 @@ def test_changed_function_nothing_reaches_is_reported_untested(tmp_path):
     result = run(tmp_path, 'lib.py', source, source.replace('return 2', 'return 3'))
     assert result['untested'] == [dict(symbol='orphan', file='lib.py', lines='6', basis='static_only')]
     assert run(tmp_path, 'lib.py', source, source.replace('return 1', 'return 5'))['untested'] == []
+    default = analyze(tmp_path, patch('lib.py', source, source.replace('return 2', 'return 3')), index_dir=tmp_path/'.index')
+    assert default['untested'] == [] and default['summary'].startswith('0 likely_fail, 0 untested'), 'static-only rows stay out of the default packet'
 
 
 def test_test_expecting_a_removed_warning_is_likely_to_fail(tmp_path):

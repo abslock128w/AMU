@@ -206,6 +206,7 @@ def parse_or_none(path, data):
 
 
 RELINK_LIMIT = 25
+STATE_KEEP = 2
 PARALLEL_FROM = 300
 SLIM_DROP = ('refs', 'bindings', 'imports', 'returns', 'args', 'required_args', 'values')
 
@@ -328,7 +329,7 @@ def state(root, index_dir=None):
                                       for ident, record in fact['records'].items()}) for path, fact in facts.items()}
     try:
         cache.mkdir(parents=True, exist_ok=True)
-        for old in sorted(cache.glob('state-*.json'), key=lambda p: p.stat().st_mtime)[:-2]:
+        for old in sorted(cache.glob('state-*.json'), key=lambda p: p.stat().st_mtime)[:-STATE_KEEP]:
             old.unlink(missing_ok=True)
         temporary = dest.with_suffix('.'+str(os.getpid())+'.tmp')
         temporary.write_text(json.dumps(dict(facts=slim, hashes=hashes, gaps=sorted(g for g in set(gaps) if 'relinked' not in g),

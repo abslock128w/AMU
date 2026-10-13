@@ -13,7 +13,7 @@ Nothing is imported or executed. The default answer is one JSON object under 2 K
 |---|---|
 | `summary` | Read this first: likely failures, untested functions, how many tests reach the change. |
 | `changed_symbols` | Declarations holding the changed lines, narrowest first. |
-| `untested` | Changed functions no test exercises. `coverage` means no recorded test ran the changed lines; `static_only` means no test reaches the function at all. |
+| `untested` | Changed functions whose changed lines no recorded test ran. Needs a coverage recording. Functions with no statically visible call path are listed only in `--full-evidence`, because on Django history that mostly marked dynamically reached code. |
 | `tests` | Tests expected to fail, with the evidence in `why`. Tests that only reach the change are listed with `--tests`. |
 | `predicted_failures` | Only with `--run`: tests that passed before the change and fail after it. |
 | `consequences` | A changed exception, shared attribute or used return value, and the located consumer. |
