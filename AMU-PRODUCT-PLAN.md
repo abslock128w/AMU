@@ -1,5 +1,12 @@
 # AMU product plan v3: after the agent trial
 
+**Phase 0 outcome, 2026-10-13, commits 988b44e to b05244e.** The gate failed. Of 250 Django
+commits, 40 touched production and an existing test, 11 broke one, 5 broke one outside the
+lexical top 40. Indirect breakage is about 1 in 50. On those five cases the static packet
+found the indirect test in 2 of 5 and plain search in 3 of 5. The reach list has left the
+default packet and lives behind `--tests`. The default packet is now: summary, untested
+functions, tests expected to fail, consequences, gaps. Section 9 below is what comes next.
+
 Written 2026-10-13 against commit e6598c0. v2 was written before the ten-run agent trial
 reported. The trial lost, and it lost for a reason that changes what AMU is. v3 keeps every
 lever from v2 and reorders the product around what the trial showed a capable agent cannot
@@ -294,3 +301,39 @@ Ten developers, their own repositories, one month.
 10. `--observe`, mutation, ledger, missing-test tiers.
 11. No-argument `amu`, standard-library core, Claude Code plugin with hooks, README cut.
 12. The 12 to 20 task study, after budget approval.
+
+## 9. After Phase 0: what AMU is now
+
+The test-picking product is gone from the default. Two things remain with evidence behind
+them, and one thing has none yet.
+
+- **Shadow execution** is the only output that beat both trial arms, 17 of 17 on the Click
+  tasks. It cannot run on Django because it drives pytest and Django has its own runner.
+- **Untested functions** is the output on the 13 of 18 Click and 239 of 250 Django commits
+  that break nothing. It has not been judged by anyone yet.
+- **Static `likely_fail`** fires in 1 of the 5 Django cases even after the removed-constant
+  and inherited-test fixes. It misses a reworded message, a changed stack level, and
+  behaviour reached through a subprocess. It is a narrow label and stays narrow.
+
+### Next three pieces, in order
+
+1. **Runner adapter.** Shadow execution over `unittest`, Django's `manage.py test` and
+   `runtests.py`, and plain `python -m pytest`. Detect the runner from the tree. Accept a
+   `--runner` override. Test ids must be pasteable into that runner.
+2. **Django speed.** 16 s cold and 2.7 s warm is over budget. Profile the warm path first;
+   the cold path can parallelise parsing. Budget stays 2 s warm.
+3. **Rerun the five Django cases with shadow execution on.** These cases are exposed now,
+   so this is a debugging run for the adapter, not a claim. The claim needs a fresh freeze.
+
+### The fairness rule for any trial with shadow execution
+
+Shadow execution runs tests. If the AMU arm gets it for free, the comparison is rigged.
+Every test shadow execution runs counts against the AMU arm's 15-run budget, or both arms
+get the same wall-clock budget instead of a run count. State which in the trial record.
+
+### The untested-lines judgement
+
+Nobody has yet said whether an `untested[]` row changed what they did. Before more engine
+work on it: take ten of the non-breaking Django commits, show the row to a reviewer blind to
+the commit, and ask whether they would have asked for a test. That is a half-day and it is
+the only evidence that output deserves to be the headline.
