@@ -1,0 +1,335 @@
+* Getting build dependencies for sdist...
+running egg_info
+creating amu.egg-info
+writing amu.egg-info/PKG-INFO
+writing dependency_links to amu.egg-info/dependency_links.txt
+writing entry points to amu.egg-info/entry_points.txt
+writing requirements to amu.egg-info/requires.txt
+writing top-level names to amu.egg-info/top_level.txt
+writing manifest file 'amu.egg-info/SOURCES.txt'
+reading manifest file 'amu.egg-info/SOURCES.txt'
+reading manifest template 'MANIFEST.in'
+warning: no files found matching '*.yaml' under directory '.github/workflows'
+no previously-included directories found matching '.git'
+no previously-included directories found matching '.amu'
+no previously-included directories found matching '.entire'
+no previously-included directories found matching '.venv'
+no previously-included directories found matching '.pytest_cache'
+no previously-included directories found matching '.ruff_cache'
+no previously-included directories found matching 'web/node_modules'
+no previously-included directories found matching 'tests/_nobin'
+warning: no previously-included files matching '*.py[cod]' found anywhere in distribution
+warning: no previously-included files matching '.DS_Store' found anywhere in distribution
+warning: no previously-included files matching '*/__pycache__/*' found anywhere in distribution
+warning: no previously-included files matching '*/node_modules/*' found anywhere in distribution
+warning: no previously-included files matching '*/.amu/*' found anywhere in distribution
+warning: no previously-included files matching '*/.git/*' found anywhere in distribution
+writing manifest file 'amu.egg-info/SOURCES.txt'
+* Building sdist...
+running sdist
+running egg_info
+writing amu.egg-info/PKG-INFO
+writing dependency_links to amu.egg-info/dependency_links.txt
+writing entry points to amu.egg-info/entry_points.txt
+writing requirements to amu.egg-info/requires.txt
+writing top-level names to amu.egg-info/top_level.txt
+reading manifest file 'amu.egg-info/SOURCES.txt'
+reading manifest template 'MANIFEST.in'
+warning: no files found matching '*.yaml' under directory '.github/workflows'
+no previously-included directories found matching '.git'
+no previously-included directories found matching '.amu'
+no previously-included directories found matching '.entire'
+no previously-included directories found matching '.venv'
+no previously-included directories found matching '.pytest_cache'
+no previously-included directories found matching '.ruff_cache'
+no previously-included directories found matching 'web/node_modules'
+no previously-included directories found matching 'tests/_nobin'
+warning: no previously-included files matching '*.py[cod]' found anywhere in distribution
+warning: no previously-included files matching '.DS_Store' found anywhere in distribution
+warning: no previously-included files matching '*/__pycache__/*' found anywhere in distribution
+warning: no previously-included files matching '*/node_modules/*' found anywhere in distribution
+warning: no previously-included files matching '*/.amu/*' found anywhere in distribution
+warning: no previously-included files matching '*/.git/*' found anywhere in distribution
+writing manifest file 'amu.egg-info/SOURCES.txt'
+running check
+creating amu-0.2.0
+creating amu-0.2.0/.github/workflows
+creating amu-0.2.0/amu
+creating amu-0.2.0/amu.egg-info
+creating amu-0.2.0/amu/benchmark_data
+creating amu-0.2.0/amu/harness
+creating amu-0.2.0/amu/services
+creating amu-0.2.0/amu/skills/close-the-loop
+creating amu-0.2.0/amu/skills/doc-follow
+creating amu-0.2.0/amu/skills/feature-rollup
+creating amu-0.2.0/amu/skills/map-a-change
+creating amu-0.2.0/amu/skills/memory-renovate
+creating amu-0.2.0/amu/skills/phase-edit
+creating amu-0.2.0/amu/skills/red-triage
+creating amu-0.2.0/amu/skills/unknowns
+creating amu-0.2.0/docs
+creating amu-0.2.0/docs/evidence
+creating amu-0.2.0/scripts
+creating amu-0.2.0/tests
+creating amu-0.2.0/tests/bin
+creating amu-0.2.0/tests/fixtures
+creating amu-0.2.0/web
+creating amu-0.2.0/web/public
+creating amu-0.2.0/web/public/vendor
+creating amu-0.2.0/web/tests
+copying files to amu-0.2.0...
+copying MANIFEST.in -> amu-0.2.0
+copying README.md -> amu-0.2.0
+copying THIRD-PARTY.txt -> amu-0.2.0
+copying constraints.txt -> amu-0.2.0
+copying pyproject.toml -> amu-0.2.0
+copying .github/workflows/ci.yml -> amu-0.2.0/.github/workflows
+copying amu/__init__.py -> amu-0.2.0/amu
+copying amu/api_manifest.py -> amu-0.2.0/amu
+copying amu/api_python.py -> amu-0.2.0/amu
+copying amu/benchmark.py -> amu-0.2.0/amu
+copying amu/brand.py -> amu-0.2.0/amu
+copying amu/classify.py -> amu-0.2.0/amu
+copying amu/cli.py -> amu-0.2.0/amu
+copying amu/compatibility.py -> amu-0.2.0/amu
+copying amu/contract.py -> amu-0.2.0/amu
+copying amu/dependencies.py -> amu-0.2.0/amu
+copying amu/docgraph.py -> amu-0.2.0/amu
+copying amu/docreview.py -> amu-0.2.0/amu
+copying amu/docs.py -> amu-0.2.0/amu
+copying amu/docsave.py -> amu-0.2.0/amu
+copying amu/docstructure.py -> amu-0.2.0/amu
+copying amu/entire.py -> amu-0.2.0/amu
+copying amu/freshness.py -> amu-0.2.0/amu
+copying amu/graph.py -> amu-0.2.0/amu
+copying amu/graph_readiness.py -> amu-0.2.0/amu
+copying amu/graph_refresh.py -> amu-0.2.0/amu
+copying amu/graphview.py -> amu-0.2.0/amu
+copying amu/keys.py -> amu-0.2.0/amu
+copying amu/lifecycle.py -> amu-0.2.0/amu
+copying amu/mcp_access.py -> amu-0.2.0/amu
+copying amu/mcp_manifest.py -> amu-0.2.0/amu
+copying amu/mcp_server.py -> amu-0.2.0/amu
+copying amu/mcp_transport.py -> amu-0.2.0/amu
+copying amu/mcp_verification.py -> amu-0.2.0/amu
+copying amu/memory.py -> amu-0.2.0/amu
+copying amu/memory_commit.py -> amu-0.2.0/amu
+copying amu/outbound.py -> amu-0.2.0/amu
+copying amu/plan.py -> amu-0.2.0/amu
+copying amu/process.py -> amu-0.2.0/amu
+copying amu/relations.py -> amu-0.2.0/amu
+copying amu/render.py -> amu-0.2.0/amu
+copying amu/repository_diagnostics.py -> amu-0.2.0/amu
+copying amu/router.py -> amu-0.2.0/amu
+copying amu/source_evidence.py -> amu-0.2.0/amu
+copying amu/state.py -> amu-0.2.0/amu
+copying amu/state_io.py -> amu-0.2.0/amu
+copying amu/state_schema.py -> amu-0.2.0/amu
+copying amu/unknowns.py -> amu-0.2.0/amu
+copying amu/watch.py -> amu-0.2.0/amu
+copying amu/workspace.py -> amu-0.2.0/amu
+copying amu.egg-info/PKG-INFO -> amu-0.2.0/amu.egg-info
+copying amu.egg-info/SOURCES.txt -> amu-0.2.0/amu.egg-info
+copying amu.egg-info/dependency_links.txt -> amu-0.2.0/amu.egg-info
+copying amu.egg-info/entry_points.txt -> amu-0.2.0/amu.egg-info
+copying amu.egg-info/requires.txt -> amu-0.2.0/amu.egg-info
+copying amu.egg-info/top_level.txt -> amu-0.2.0/amu.egg-info
+copying amu/benchmark_data/public-api-v1.json -> amu-0.2.0/amu/benchmark_data
+copying amu/benchmark_data/relations-v1.json -> amu-0.2.0/amu/benchmark_data
+copying amu/harness/chat.py -> amu-0.2.0/amu/harness
+copying amu/harness/context.py -> amu-0.2.0/amu/harness
+copying amu/harness/model.py -> amu-0.2.0/amu/harness
+copying amu/harness/orchestrator.py -> amu-0.2.0/amu/harness
+copying amu/harness/prompts.py -> amu-0.2.0/amu/harness
+copying amu/harness/providers.py -> amu-0.2.0/amu/harness
+copying amu/harness/roles.py -> amu-0.2.0/amu/harness
+copying amu/harness/schema.py -> amu-0.2.0/amu/harness
+copying amu/harness/validation.py -> amu-0.2.0/amu/harness
+copying amu/services/__init__.py -> amu-0.2.0/amu/services
+copying amu/services/diagnostics.py -> amu-0.2.0/amu/services
+copying amu/services/documentation.py -> amu-0.2.0/amu/services
+copying amu/services/graph_sync.py -> amu-0.2.0/amu/services
+copying amu/services/impact.py -> amu-0.2.0/amu/services
+copying amu/services/impact_report.py -> amu-0.2.0/amu/services
+copying amu/services/mapping.py -> amu-0.2.0/amu/services
+copying amu/skills/close-the-loop/SKILL.md -> amu-0.2.0/amu/skills/close-the-loop
+copying amu/skills/doc-follow/SKILL.md -> amu-0.2.0/amu/skills/doc-follow
+copying amu/skills/feature-rollup/SKILL.md -> amu-0.2.0/amu/skills/feature-rollup
+copying amu/skills/map-a-change/SKILL.md -> amu-0.2.0/amu/skills/map-a-change
+copying amu/skills/memory-renovate/SKILL.md -> amu-0.2.0/amu/skills/memory-renovate
+copying amu/skills/phase-edit/SKILL.md -> amu-0.2.0/amu/skills/phase-edit
+copying amu/skills/red-triage/SKILL.md -> amu-0.2.0/amu/skills/red-triage
+copying amu/skills/unknowns/SKILL.md -> amu-0.2.0/amu/skills/unknowns
+copying docs/API-ACCURACY.md -> amu-0.2.0/docs
+copying docs/APPLICATION-SERVICES.md -> amu-0.2.0/docs
+copying docs/ARCHITECTURE.md -> amu-0.2.0/docs
+copying docs/DEMO.md -> amu-0.2.0/docs
+copying docs/DOC-REVIEWS.md -> amu-0.2.0/docs
+copying docs/FRESHNESS.md -> amu-0.2.0/docs
+copying docs/GRAPH-RESOURCES.md -> amu-0.2.0/docs
+copying docs/IMPACT-ANALYSIS.md -> amu-0.2.0/docs
+copying docs/IMPROVEMENT-STATUS.md -> amu-0.2.0/docs
+copying docs/MCP-SECURITY.md -> amu-0.2.0/docs
+copying docs/MODEL-CONTEXT.md -> amu-0.2.0/docs
+copying docs/RELEASE-READINESS.md -> amu-0.2.0/docs
+copying docs/STATE-RECOVERY.md -> amu-0.2.0/docs
+copying docs/TESTCASE-NUMPY.md -> amu-0.2.0/docs
+copying docs/VIEWER-ACCESSIBILITY.md -> amu-0.2.0/docs
+copying docs/anti-messup-agent-PRD-v1.9.md -> amu-0.2.0/docs
+copying docs/evidence/00-capabilities.json -> amu-0.2.0/docs/evidence
+copying docs/evidence/01-search-classifier.json -> amu-0.2.0/docs/evidence
+copying docs/evidence/11-amu-map-classify.json -> amu-0.2.0/docs/evidence
+copying docs/evidence/12-delta-brief.json -> amu-0.2.0/docs/evidence
+copying docs/evidence/documentation-services-2026-10-09.json -> amu-0.2.0/docs/evidence
+copying docs/evidence/engine-provenance-2026-10-09.json -> amu-0.2.0/docs/evidence
+copying docs/evidence/github-linux-ci-2026-10-09.json -> amu-0.2.0/docs/evidence
+copying docs/evidence/graph-resources-2026-10-09.json -> amu-0.2.0/docs/evidence
+copying docs/evidence/graph-services-2026-10-09.json -> amu-0.2.0/docs/evidence
+copying docs/evidence/numpy-v2.3.0-relations-2026-10-08-calls.json -> amu-0.2.0/docs/evidence
+copying docs/evidence/numpy-v2.3.0-relations-2026-10-08.json -> amu-0.2.0/docs/evidence
+copying docs/evidence/public-api-v1-score-2026-10-08.json -> amu-0.2.0/docs/evidence
+copying scripts/check_constraints.py -> amu-0.2.0/scripts
+copying scripts/check_source_archive.py -> amu-0.2.0/scripts
+copying scripts/install.sh -> amu-0.2.0/scripts
+copying scripts/smoke_installed.py -> amu-0.2.0/scripts
+copying scripts/smoke_mcp_inspection.py -> amu-0.2.0/scripts
+copying scripts/smoke_mcp_installed.py -> amu-0.2.0/scripts
+copying scripts/smoke_mcp_wire.py -> amu-0.2.0/scripts
+copying scripts/smoke_mcp_workflow.py -> amu-0.2.0/scripts
+copying scripts/smoke_pilot_installed.py -> amu-0.2.0/scripts
+copying tests/__init__.py -> amu-0.2.0/tests
+copying tests/conftest.py -> amu-0.2.0/tests
+copying tests/fake_entire.py -> amu-0.2.0/tests
+copying tests/test_accuracy_benchmark.py -> amu-0.2.0/tests
+copying tests/test_amu.py -> amu-0.2.0/tests
+copying tests/test_api_commands.py -> amu-0.2.0/tests
+copying tests/test_api_manifest.py -> amu-0.2.0/tests
+copying tests/test_api_python.py -> amu-0.2.0/tests
+copying tests/test_brand.py -> amu-0.2.0/tests
+copying tests/test_chat.py -> amu-0.2.0/tests
+copying tests/test_check_e2e.py -> amu-0.2.0/tests
+copying tests/test_classify.py -> amu-0.2.0/tests
+copying tests/test_cli_smoke.py -> amu-0.2.0/tests
+copying tests/test_cli_transport_bounds.py -> amu-0.2.0/tests
+copying tests/test_cli_validation.py -> amu-0.2.0/tests
+copying tests/test_compatibility.py -> amu-0.2.0/tests
+copying tests/test_configuration_resource_bounds.py -> amu-0.2.0/tests
+copying tests/test_constraints.py -> amu-0.2.0/tests
+copying tests/test_context_limits.py -> amu-0.2.0/tests
+copying tests/test_contract.py -> amu-0.2.0/tests
+copying tests/test_contract_phase.py -> amu-0.2.0/tests
+copying tests/test_credential_storage.py -> amu-0.2.0/tests
+copying tests/test_dependency_plan.py -> amu-0.2.0/tests
+copying tests/test_doc_graph.py -> amu-0.2.0/tests
+copying tests/test_doc_identity.py -> amu-0.2.0/tests
+copying tests/test_doc_queue.py -> amu-0.2.0/tests
+copying tests/test_doc_review.py -> amu-0.2.0/tests
+copying tests/test_doc_review_read_boundary.py -> amu-0.2.0/tests
+copying tests/test_doc_saves.py -> amu-0.2.0/tests
+copying tests/test_doc_structure.py -> amu-0.2.0/tests
+copying tests/test_docs.py -> amu-0.2.0/tests
+copying tests/test_docs_api_manifest.py -> amu-0.2.0/tests
+copying tests/test_docs_freshness_lifecycle.py -> amu-0.2.0/tests
+copying tests/test_docs_graph_cache.py -> amu-0.2.0/tests
+copying tests/test_doctor_diagnostics.py -> amu-0.2.0/tests
+copying tests/test_documentation_adapter.py -> amu-0.2.0/tests
+copying tests/test_documentation_service.py -> amu-0.2.0/tests
+copying tests/test_documentation_service_parity.py -> amu-0.2.0/tests
+copying tests/test_done.py -> amu-0.2.0/tests
+copying tests/test_engine_pin.py -> amu-0.2.0/tests
+copying tests/test_entire.py -> amu-0.2.0/tests
+copying tests/test_entire_stream.py -> amu-0.2.0/tests
+copying tests/test_external_graph_refresh.py -> amu-0.2.0/tests
+copying tests/test_external_numpy_graph.py -> amu-0.2.0/tests
+copying tests/test_freshness_domains.py -> amu-0.2.0/tests
+copying tests/test_graph.py -> amu-0.2.0/tests
+copying tests/test_graph_freshness_domains.py -> amu-0.2.0/tests
+copying tests/test_graph_readiness.py -> amu-0.2.0/tests
+copying tests/test_graph_refresh.py -> amu-0.2.0/tests
+copying tests/test_graph_relevant_docs.py -> amu-0.2.0/tests
+copying tests/test_graph_resource_bounds.py -> amu-0.2.0/tests
+copying tests/test_graph_service_adapters.py -> amu-0.2.0/tests
+copying tests/test_graph_service_parity.py -> amu-0.2.0/tests
+copying tests/test_graph_sync_service.py -> amu-0.2.0/tests
+copying tests/test_honesty.py -> amu-0.2.0/tests
+copying tests/test_impact_adapters.py -> amu-0.2.0/tests
+copying tests/test_impact_service.py -> amu-0.2.0/tests
+copying tests/test_installer.py -> amu-0.2.0/tests
+copying tests/test_isolated_graph.py -> amu-0.2.0/tests
+copying tests/test_key.py -> amu-0.2.0/tests
+copying tests/test_lifecycle_evidence.py -> amu-0.2.0/tests
+copying tests/test_lifecycle_gates.py -> amu-0.2.0/tests
+copying tests/test_map.py -> amu-0.2.0/tests
+copying tests/test_map_source_validation.py -> amu-0.2.0/tests
+copying tests/test_mapping_service.py -> amu-0.2.0/tests
+copying tests/test_mcp_access.py -> amu-0.2.0/tests
+copying tests/test_mcp_manifest.py -> amu-0.2.0/tests
+copying tests/test_mcp_search_inspection.py -> amu-0.2.0/tests
+copying tests/test_mcp_security_stdio.py -> amu-0.2.0/tests
+copying tests/test_mcp_server.py -> amu-0.2.0/tests
+copying tests/test_mcp_startup_contract.py -> amu-0.2.0/tests
+copying tests/test_mcp_stdio.py -> amu-0.2.0/tests
+copying tests/test_mcp_transport.py -> amu-0.2.0/tests
+copying tests/test_mcp_verification.py -> amu-0.2.0/tests
+copying tests/test_mcp_wire_protocol.py -> amu-0.2.0/tests
+copying tests/test_memory.py -> amu-0.2.0/tests
+copying tests/test_memory_commit.py -> amu-0.2.0/tests
+copying tests/test_memory_durability.py -> amu-0.2.0/tests
+copying tests/test_model_disable_switch.py -> amu-0.2.0/tests
+copying tests/test_model_guardrails.py -> amu-0.2.0/tests
+copying tests/test_nav.py -> amu-0.2.0/tests
+copying tests/test_nested_state.py -> amu-0.2.0/tests
+copying tests/test_outbound_policy.py -> amu-0.2.0/tests
+copying tests/test_pilot_test_evidence.py -> amu-0.2.0/tests
+copying tests/test_plan.py -> amu-0.2.0/tests
+copying tests/test_plan_docs_scope.py -> amu-0.2.0/tests
+copying tests/test_prd_lifecycle.py -> amu-0.2.0/tests
+copying tests/test_process.py -> amu-0.2.0/tests
+copying tests/test_provider_transport.py -> amu-0.2.0/tests
+copying tests/test_providers.py -> amu-0.2.0/tests
+copying tests/test_relation_risk.py -> amu-0.2.0/tests
+copying tests/test_repl_dispatch.py -> amu-0.2.0/tests
+copying tests/test_repl_graph_limits.py -> amu-0.2.0/tests
+copying tests/test_repl_key.py -> amu-0.2.0/tests
+copying tests/test_repl_ui.py -> amu-0.2.0/tests
+copying tests/test_repository_diagnostics.py -> amu-0.2.0/tests
+copying tests/test_roles.py -> amu-0.2.0/tests
+copying tests/test_router.py -> amu-0.2.0/tests
+copying tests/test_run_transactions.py -> amu-0.2.0/tests
+copying tests/test_runner_output_bounds.py -> amu-0.2.0/tests
+copying tests/test_snapshot_consumers.py -> amu-0.2.0/tests
+copying tests/test_source_archive.py -> amu-0.2.0/tests
+copying tests/test_source_evidence.py -> amu-0.2.0/tests
+copying tests/test_state_fingerprint.py -> amu-0.2.0/tests
+copying tests/test_state_io.py -> amu-0.2.0/tests
+copying tests/test_state_transactions.py -> amu-0.2.0/tests
+copying tests/test_unknown_answers.py -> amu-0.2.0/tests
+copying tests/test_watch.py -> amu-0.2.0/tests
+copying tests/test_watch_current_state.py -> amu-0.2.0/tests
+copying tests/test_web_card.py -> amu-0.2.0/tests
+copying tests/test_workspace.py -> amu-0.2.0/tests
+copying tests/test_worktree_resource_bounds.py -> amu-0.2.0/tests
+copying tests/bin/entire -> amu-0.2.0/tests/bin
+copying tests/fixtures/diff.json -> amu-0.2.0/tests/fixtures
+copying tests/fixtures/impact.json -> amu-0.2.0/tests/fixtures
+copying tests/fixtures/search.json -> amu-0.2.0/tests/fixtures
+copying tests/fixtures/symbols.ndjson -> amu-0.2.0/tests/fixtures
+copying web/package-lock.json -> amu-0.2.0/web
+copying web/package.json -> amu-0.2.0/web
+copying web/playwright.config.js -> amu-0.2.0/web
+copying web/public/card.html -> amu-0.2.0/web/public
+copying web/public/card.js -> amu-0.2.0/web/public
+copying web/public/graph.html -> amu-0.2.0/web/public
+copying web/public/graph.js -> amu-0.2.0/web/public
+copying web/public/index.html -> amu-0.2.0/web/public
+copying web/public/install.sh -> amu-0.2.0/web/public
+copying web/public/viewer-input.js -> amu-0.2.0/web/public
+copying web/public/viewers.css -> amu-0.2.0/web/public
+copying web/public/vendor/d3.LICENSE -> amu-0.2.0/web/public/vendor
+copying web/public/vendor/d3.min.js -> amu-0.2.0/web/public/vendor
+copying web/tests/accessibility.spec.js -> amu-0.2.0/web/tests
+copying web/tests/hardening.spec.js -> amu-0.2.0/web/tests
+Writing amu-0.2.0/setup.cfg
+Creating tar archive
+removing 'amu-0.2.0' (and everything under it)
+Successfully built amu-0.2.0.tar.gz

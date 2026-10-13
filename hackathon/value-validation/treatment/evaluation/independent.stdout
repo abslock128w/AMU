@@ -1,0 +1,59 @@
+{
+  "repository": "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/conditions/treatment/repo",
+  "requested_bug_fixed": true,
+  "protected_behavior_passed": true,
+  "checks": [
+    {
+      "name": "reported half-cent bug",
+      "category": "requested",
+      "passed": true
+    },
+    {
+      "name": "rounding boundary matrix",
+      "category": "requested",
+      "passed": true
+    },
+    {
+      "name": "large integer precision",
+      "category": "requested",
+      "passed": true
+    },
+    {
+      "name": "quote consumer",
+      "category": "requested",
+      "passed": true
+    },
+    {
+      "name": "payment consumer and single charge",
+      "category": "requested",
+      "passed": true
+    },
+    {
+      "name": "receipt consumer",
+      "category": "requested",
+      "passed": true
+    },
+    {
+      "name": "order-level rounding",
+      "category": "protected",
+      "passed": true
+    },
+    {
+      "name": "input validation and no invalid charge",
+      "category": "protected",
+      "passed": true
+    },
+    {
+      "name": "existing normal quote/payment/receipt",
+      "category": "protected",
+      "passed": true
+    },
+    {
+      "name": "default, zero and free order behavior",
+      "category": "protected",
+      "passed": true
+    }
+  ],
+  "passed": 10,
+  "failed": 0
+}

@@ -1,0 +1,19 @@
+AMU | saved actual local evidence | synthetic checkout case
+
+Actual captured treatment patch (pricing hunk):
+diff --git a/shop/pricing.py b/shop/pricing.py
+index bb50065..88f4e2c 100644
+--- a/shop/pricing.py
++++ b/shop/pricing.py
+@@ -1,7 +1,7 @@
+ def discounted_total_cents(subtotal_cents: int, discount_percent: int = 0) -> int:
+-    """Return the total after applying an order-level percentage discount."""
++    """Return the order total rounded to the nearest cent, with half cents up."""
+     if subtotal_cents < 0:
+         raise ValueError("subtotal must be nonnegative")
+     if not 0 <= discount_percent <= 100:
+         raise ValueError("discount must be between 0 and 100")
+-    return round(subtotal_cents * (100 - discount_percent) / 100)
++    return (subtotal_cents * (100 - discount_percent) + 50) // 100
+The full saved patch also adds seven regression tests.
+Disposable replay observed the corrected total: 3 cents.

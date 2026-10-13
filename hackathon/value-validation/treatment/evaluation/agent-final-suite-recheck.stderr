@@ -1,0 +1,20 @@
+test_checkout (test_orders.OrderTests.test_checkout) ... ok
+test_checkout_rounds_half_cent_up (test_orders.OrderTests.test_checkout_rounds_half_cent_up) ... ok
+test_default_price (test_orders.OrderTests.test_default_price) ... ok
+test_exact_discount (test_orders.OrderTests.test_exact_discount) ... ok
+test_free_order (test_orders.OrderTests.test_free_order) ... ok
+test_invalid_discount (test_orders.OrderTests.test_invalid_discount) ... ok
+test_invalid_input_does_not_charge (test_orders.OrderTests.test_invalid_input_does_not_charge) ... ok
+test_invalid_subtotal (test_orders.OrderTests.test_invalid_subtotal) ... ok
+test_large_integer_totals (test_orders.OrderTests.test_large_integer_totals) ... ok
+test_nearest_cent_rounding (test_orders.OrderTests.test_nearest_cent_rounding) ... ok
+test_quote (test_orders.OrderTests.test_quote) ... ok
+test_quote_rounds_order_total (test_orders.OrderTests.test_quote_rounds_order_total) ... ok
+test_receipt (test_orders.OrderTests.test_receipt) ... ok
+test_receipt_rounds_half_cent_up (test_orders.OrderTests.test_receipt_rounds_half_cent_up) ... ok
+test_zero_subtotal (test_orders.OrderTests.test_zero_subtotal) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.000s
+
+OK

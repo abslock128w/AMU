@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/frozen-source/amu-0.2.0/scripts/smoke_mcp_wire.py", line 290, in <module>
+    main()
+  File "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/frozen-source/amu-0.2.0/scripts/smoke_mcp_wire.py", line 260, in main
+    assert json.loads(denied["result"]["content"][0]["text"])["error_kind"] == "repository_not_allowed"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

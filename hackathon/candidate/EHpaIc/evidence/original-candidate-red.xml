@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="1.164" timestamp="2026-10-10T11:17:38.303796+05:30" hostname="babus-MacBook-Air.local"><testcase classname="tests.test_mcp_wire_protocol" name="test_exact_original_audit_invalid_cursor_and_150000_byte_identifier" time="0.469"><failure message="AssertionError: actual MCP frame is 150297 bytes; allowance is 131072">wire_root = PosixPath('/private/var/folders/5k/x6lj0ysn01v6lnw7kdjxph300000gp/T/pytest-of-Abslock128/pytest-143/test_exact_original_audit_inva0/allowed')
+
+    def test_exact_original_audit_invalid_cursor_and_150000_byte_identifier(wire_root):
+        with _session(wire_root) as session:
+            session.initialize()
+            params = _impact(wire_root)
+            params["arguments"]["cursor"] = "invalid!"
+            frame, packet = session.call("r" * 150_000, "tools/call", params)
+&gt;           assert_bounded(frame)
+
+tests/test_mcp_wire_protocol.py:58: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+frame = b'{"jsonrpc":"2.0","id":"rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr...Content":{"result":"{\\"error\\": \\"cursor is invalid; start a new impact request without it\\", \\"exit\\": 2}"}}}\n'
+
+    def assert_bounded(frame):
+&gt;       assert len(frame) &lt;= WIRE_LIMIT, f"actual MCP frame is {len(frame)} bytes; allowance is {WIRE_LIMIT}"
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: actual MCP frame is 150297 bytes; allowance is 131072
+
+scripts/smoke_mcp_wire.py:180: AssertionError</failure></testcase><testcase classname="tests.test_mcp_wire_protocol" name="test_oversized_sdk_unknown_method_error_is_explicitly_withheld_not_a_partial_success" time="0.357"><failure message="AssertionError: actual MCP frame is 161103 bytes; allowance is 131072">wire_root = PosixPath('/private/var/folders/5k/x6lj0ysn01v6lnw7kdjxph300000gp/T/pytest-of-Abslock128/pytest-143/test_oversized_sdk_unknown_met0/allowed')
+
+    def test_oversized_sdk_unknown_method_error_is_explicitly_withheld_not_a_partial_success(wire_root):
+        with _session(wire_root) as session:
+            session.initialize()
+            frame, packet = session.call("unknown-method", "private-unknown-method-" * 7000, {})
+&gt;           assert_bounded(frame)
+
+tests/test_mcp_wire_protocol.py:141: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+frame = b'{"jsonrpc":"2.0","id":"unknown-method","error":{"code":-32601,"message":"Method not found","data":"private-unknown-m...ivate-unknown-method-private-unknown-method-private-unknown-method-private-unknown-method-private-unknown-method-"}}\n'
+
+    def assert_bounded(frame):
+&gt;       assert len(frame) &lt;= WIRE_LIMIT, f"actual MCP frame is {len(frame)} bytes; allowance is {WIRE_LIMIT}"
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: actual MCP frame is 161103 bytes; allowance is 131072
+
+scripts/smoke_mcp_wire.py:180: AssertionError</failure></testcase></testsuite></testsuites>

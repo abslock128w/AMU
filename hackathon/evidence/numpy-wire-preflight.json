@@ -1,0 +1,775 @@
+{
+  "scope": "Local pre-cutover real NumPy four-tool raw stdio preflight; NOT authenticated ChatGPT acceptance",
+  "status": "blocked",
+  "models_used": false,
+  "live_runtime_changed": false,
+  "root": "/Users/Abslock128/Documents/Codex/2026-09-15/hey-so-this-is-a-project-2/integration-fixtures/numpy-v2.3.0",
+  "calls": [
+    {
+      "tool": "amu_search",
+      "arguments": {
+        "repo": "/Users/Abslock128/Documents/Codex/2026-09-15/hey-so-this-is-a-project-2/integration-fixtures/numpy-v2.3.0",
+        "query": "finfo.__new__"
+      },
+      "wire_bytes_including_newline": 8016,
+      "wire_sha256": "99fa7087c161f5450a96b99e7b9489012c8c75dba31d0e4ddd4df7327824fe41",
+      "response": {
+        "jsonrpc": "2.0",
+        "id": "numpy-0",
+        "result": {
+          "content": [
+            {
+              "text": "{\"query\": \"finfo.__new__\", \"hits\": [{\"rank\": 1, \"file_path\": \"numpy/_core/getlimits.py\", \"focus_line\": 494, \"symbol_name\": \"__new__\", \"kind\": \"method\", \"signals\": [\"body\", \"symbol-name\", \"all-query-terms\", \"complete-symbol\"], \"signature\": \"def __new__(cls, dtype)\"}, {\"rank\": 2, \"file_path\": \"numpy/_core/src/multiarray/arrayobject.c\", \"focus_line\": 1162, \"symbol_name\": \"array_new\", \"kind\": \"function\", \"signals\": [\"body\", \"symbol-name\", \"symbol-usage\", \"complete-symbol\"], \"signature\": \"static PyObject * array_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)\"}, {\"rank\": 3, \"file_path\": \"numpy/_core/src/multiarray/ctors.c\", \"focus_line\": 1149, \"symbol_name\": \"PyArray_NewLikeArrayWithShape\", \"kind\": \"function\", \"signals\": [\"body\", \"symbol-name\", \"symbol-usage\"], \"signature\": \"NPY_NO_EXPORT PyObject * PyArray_NewLikeArrayWithShape(PyArrayObject *prototype, NPY_ORDER order, PyArray_Descr *descr, PyArray_DTypeMeta *dtype, int ndim, npy_intp const *dims, int subok)\"}, {\"rank\": 4, \"file_path\": \"numpy/_core/src/multiarray/ctors.c\", \"focus_line\": 3062, \"symbol_name\": \"PyArray_Empty_int\", \"kind\": \"function\", \"signals\": [\"body\", \"symbol-usage\", \"complete-symbol\"], \"signature\": \"NPY_NO_EXPORT PyObject * PyArray_Empty_int(int nd, npy_intp const *dims, PyArray_Descr *descr, PyArray_DTypeMeta *dtype, int is_f_order)\"}, {\"rank\": 5, \"file_path\": \"numpy/_core/getlimits.py\", \"focus_line\": 550, \"symbol_name\": \"_init\", \"kind\": \"method\", \"signals\": [\"symbol-name\", \"same-container-neighbor\", \"complete-symbol\"], \"signature\": \"def _init(self, dtype)\"}, {\"rank\": 6, \"file_path\": \"numpy/distutils/fcompiler/__init__.py\", \"focus_line\": 873, \"symbol_name\": \"new_fcompiler\", \"kind\": \"function\", \"signals\": [\"body\", \"symbol-name\", \"graph:callers\"], \"signature\": \"def new_fcompiler(plat=None, compiler=None, verbose=0, dry_run=0, force=0, requiref90=False, c_compiler = None)\"}, {\"rank\": 7, \"file_path\": \"numpy/_core/src/multiarray/descriptor.c\", \"focus_line\": 1370, \"symbol_name\": \"PyArray_DescrNewFromType\", \"kind\": \"function\", \"signals\": [\"body\", \"symbol-name\", \"graph:callers\"], \"signature\": \"NPY_NO_EXPORT PyArray_Descr * PyArray_DescrNewFromType(int type_num)\"}, {\"rank\": 8, \"file_path\": \"numpy/_core/src/multiarray/iterators.c\", \"focus_line\": 181, \"symbol_name\": \"PyArray_IterNew\", \"kind\": \"function\", \"signals\": [\"body\", \"symbol-name\", \"graph:callers\"], \"signature\": \"NPY_NO_EXPORT PyObject * PyArray_IterNew(PyObject *obj)\"}, {\"rank\": 9, \"file_path\": \"numpy/f2py/src/fortranobject.c\", \"focus_line\": 165, \"symbol_name\": \"PyFortranObject_New\", \"kind\": \"function\", \"signals\": [\"body\", \"symbol-name\", \"symbol-usage\"], \"signature\": \"PyObject * PyFortranObject_New(FortranDataDef *defs, f2py_void_func init)\"}, {\"rank\": 10, \"file_path\": \"numpy/_core/include/numpy/ndarrayobject.h\", \"focus_line\": 119, \"symbol_name\": \"\", \"kind\": null, \"signals\": [\"body\", \"symbol-usage\"], \"signature\": null}, {\"rank\": 11, \"file_path\": \"numpy/_core/tests/test_dtype.py\", \"focus_line\": 317, \"symbol_name\": \"TestRecord.test_init_simple_structured\", \"kind\": \"method\", \"signals\": [\"related:covering-test\"], \"signature\": null}], \"verify_command\": {\"command\": \"python -m pytest numpy/_core/tests/test_dtype.py -k test_init_simple_structured\", \"targets\": \"numpy/_core/tests/test_dtype.py\", \"derived_from\": \"pytest.ini pytest config + covering test path\", \"tier\": \"narrow\", \"runner_missing\": true}, \"coverage_note\": {\"symbol\": \"_init\", \"total\": 5, \"peers\": [\"test_non_finite_scalar\", \"test_blasdot_uninitialized_memory\", \"test_int_from_infinite_longdouble\", \"test_int_from_infinite_longdouble___int__\"]}, \"error\": null}",
+              "type": "text"
+            }
+          ],
+          "isError": false,
+          "structuredContent": {
+            "result": "{\"query\": \"finfo.__new__\", \"hits\": [{\"rank\": 1, \"file_path\": \"numpy/_core/getlimits.py\", \"focus_line\": 494, \"symbol_name\": \"__new__\", \"kind\": \"method\", \"signals\": [\"body\", \"symbol-name\", \"all-query-terms\", \"complete-symbol\"], \"signature\": \"def __new__(cls, dtype)\"}, {\"rank\": 2, \"file_path\": \"numpy/_core/src/multiarray/arrayobject.c\", \"focus_line\": 1162, \"symbol_name\": \"array_new\", \"kind\": \"function\", \"signals\": [\"body\", \"symbol-name\", \"symbol-usage\", \"complete-symbol\"], \"signature\": \"static PyObject * array_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)\"}, {\"rank\": 3, \"file_path\": \"numpy/_core/src/multiarray/ctors.c\", \"focus_line\": 1149, \"symbol_name\": \"PyArray_NewLikeArrayWithShape\", \"kind\": \"function\", \"signals\": [\"body\", \"symbol-name\", \"symbol-usage\"], \"signature\": \"NPY_NO_EXPORT PyObject * PyArray_NewLikeArrayWithShape(PyArrayObject *prototype, NPY_ORDER order, PyArray_Descr *descr, PyArray_DTypeMeta *dtype, int ndim, npy_intp const *dims, int subok)\"}, {\"rank\": 4, \"file_path\": \"numpy/_core/src/multiarray/ctors.c\", \"focus_line\": 3062, \"symbol_name\": \"PyArray_Empty_int\", \"kind\": \"function\", \"signals\": [\"body\", \"symbol-usage\", \"complete-symbol\"], \"signature\": \"NPY_NO_EXPORT PyObject * PyArray_Empty_int(int nd, npy_intp const *dims, PyArray_Descr *descr, PyArray_DTypeMeta *dtype, int is_f_order)\"}, {\"rank\": 5, \"file_path\": \"numpy/_core/getlimits.py\", \"focus_line\": 550, \"symbol_name\": \"_init\", \"kind\": \"method\", \"signals\": [\"symbol-name\", \"same-container-neighbor\", \"complete-symbol\"], \"signature\": \"def _init(self, dtype)\"}, {\"rank\": 6, \"file_path\": \"numpy/distutils/fcompiler/__init__.py\", \"focus_line\": 873, \"symbol_name\": \"new_fcompiler\", \"kind\": \"function\", \"signals\": [\"body\", \"symbol-name\", \"graph:callers\"], \"signature\": \"def new_fcompiler(plat=None, compiler=None, verbose=0, dry_run=0, force=0, requiref90=False, c_compiler = None)\"}, {\"rank\": 7, \"file_path\": \"numpy/_core/src/multiarray/descriptor.c\", \"focus_line\": 1370, \"symbol_name\": \"PyArray_DescrNewFromType\", \"kind\": \"function\", \"signals\": [\"body\", \"symbol-name\", \"graph:callers\"], \"signature\": \"NPY_NO_EXPORT PyArray_Descr * PyArray_DescrNewFromType(int type_num)\"}, {\"rank\": 8, \"file_path\": \"numpy/_core/src/multiarray/iterators.c\", \"focus_line\": 181, \"symbol_name\": \"PyArray_IterNew\", \"kind\": \"function\", \"signals\": [\"body\", \"symbol-name\", \"graph:callers\"], \"signature\": \"NPY_NO_EXPORT PyObject * PyArray_IterNew(PyObject *obj)\"}, {\"rank\": 9, \"file_path\": \"numpy/f2py/src/fortranobject.c\", \"focus_line\": 165, \"symbol_name\": \"PyFortranObject_New\", \"kind\": \"function\", \"signals\": [\"body\", \"symbol-name\", \"symbol-usage\"], \"signature\": \"PyObject * PyFortranObject_New(FortranDataDef *defs, f2py_void_func init)\"}, {\"rank\": 10, \"file_path\": \"numpy/_core/include/numpy/ndarrayobject.h\", \"focus_line\": 119, \"symbol_name\": \"\", \"kind\": null, \"signals\": [\"body\", \"symbol-usage\"], \"signature\": null}, {\"rank\": 11, \"file_path\": \"numpy/_core/tests/test_dtype.py\", \"focus_line\": 317, \"symbol_name\": \"TestRecord.test_init_simple_structured\", \"kind\": \"method\", \"signals\": [\"related:covering-test\"], \"signature\": null}], \"verify_command\": {\"command\": \"python -m pytest numpy/_core/tests/test_dtype.py -k test_init_simple_structured\", \"targets\": \"numpy/_core/tests/test_dtype.py\", \"derived_from\": \"pytest.ini pytest config + covering test path\", \"tier\": \"narrow\", \"runner_missing\": true}, \"coverage_note\": {\"symbol\": \"_init\", \"total\": 5, \"peers\": [\"test_non_finite_scalar\", \"test_blasdot_uninitialized_memory\", \"test_int_from_infinite_longdouble\", \"test_int_from_infinite_longdouble___int__\"]}, \"error\": null}"
+          }
+        }
+      },
+      "payload": {
+        "query": "finfo.__new__",
+        "hits": [
+          {
+            "rank": 1,
+            "file_path": "numpy/_core/getlimits.py",
+            "focus_line": 494,
+            "symbol_name": "__new__",
+            "kind": "method",
+            "signals": [
+              "body",
+              "symbol-name",
+              "all-query-terms",
+              "complete-symbol"
+            ],
+            "signature": "def __new__(cls, dtype)"
+          },
+          {
+            "rank": 2,
+            "file_path": "numpy/_core/src/multiarray/arrayobject.c",
+            "focus_line": 1162,
+            "symbol_name": "array_new",
+            "kind": "function",
+            "signals": [
+              "body",
+              "symbol-name",
+              "symbol-usage",
+              "complete-symbol"
+            ],
+            "signature": "static PyObject * array_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)"
+          },
+          {
+            "rank": 3,
+            "file_path": "numpy/_core/src/multiarray/ctors.c",
+            "focus_line": 1149,
+            "symbol_name": "PyArray_NewLikeArrayWithShape",
+            "kind": "function",
+            "signals": [
+              "body",
+              "symbol-name",
+              "symbol-usage"
+            ],
+            "signature": "NPY_NO_EXPORT PyObject * PyArray_NewLikeArrayWithShape(PyArrayObject *prototype, NPY_ORDER order, PyArray_Descr *descr, PyArray_DTypeMeta *dtype, int ndim, npy_intp const *dims, int subok)"
+          },
+          {
+            "rank": 4,
+            "file_path": "numpy/_core/src/multiarray/ctors.c",
+            "focus_line": 3062,
+            "symbol_name": "PyArray_Empty_int",
+            "kind": "function",
+            "signals": [
+              "body",
+              "symbol-usage",
+              "complete-symbol"
+            ],
+            "signature": "NPY_NO_EXPORT PyObject * PyArray_Empty_int(int nd, npy_intp const *dims, PyArray_Descr *descr, PyArray_DTypeMeta *dtype, int is_f_order)"
+          },
+          {
+            "rank": 5,
+            "file_path": "numpy/_core/getlimits.py",
+            "focus_line": 550,
+            "symbol_name": "_init",
+            "kind": "method",
+            "signals": [
+              "symbol-name",
+              "same-container-neighbor",
+              "complete-symbol"
+            ],
+            "signature": "def _init(self, dtype)"
+          },
+          {
+            "rank": 6,
+            "file_path": "numpy/distutils/fcompiler/__init__.py",
+            "focus_line": 873,
+            "symbol_name": "new_fcompiler",
+            "kind": "function",
+            "signals": [
+              "body",
+              "symbol-name",
+              "graph:callers"
+            ],
+            "signature": "def new_fcompiler(plat=None, compiler=None, verbose=0, dry_run=0, force=0, requiref90=False, c_compiler = None)"
+          },
+          {
+            "rank": 7,
+            "file_path": "numpy/_core/src/multiarray/descriptor.c",
+            "focus_line": 1370,
+            "symbol_name": "PyArray_DescrNewFromType",
+            "kind": "function",
+            "signals": [
+              "body",
+              "symbol-name",
+              "graph:callers"
+            ],
+            "signature": "NPY_NO_EXPORT PyArray_Descr * PyArray_DescrNewFromType(int type_num)"
+          },
+          {
+            "rank": 8,
+            "file_path": "numpy/_core/src/multiarray/iterators.c",
+            "focus_line": 181,
+            "symbol_name": "PyArray_IterNew",
+            "kind": "function",
+            "signals": [
+              "body",
+              "symbol-name",
+              "graph:callers"
+            ],
+            "signature": "NPY_NO_EXPORT PyObject * PyArray_IterNew(PyObject *obj)"
+          },
+          {
+            "rank": 9,
+            "file_path": "numpy/f2py/src/fortranobject.c",
+            "focus_line": 165,
+            "symbol_name": "PyFortranObject_New",
+            "kind": "function",
+            "signals": [
+              "body",
+              "symbol-name",
+              "symbol-usage"
+            ],
+            "signature": "PyObject * PyFortranObject_New(FortranDataDef *defs, f2py_void_func init)"
+          },
+          {
+            "rank": 10,
+            "file_path": "numpy/_core/include/numpy/ndarrayobject.h",
+            "focus_line": 119,
+            "symbol_name": "",
+            "kind": null,
+            "signals": [
+              "body",
+              "symbol-usage"
+            ],
+            "signature": null
+          },
+          {
+            "rank": 11,
+            "file_path": "numpy/_core/tests/test_dtype.py",
+            "focus_line": 317,
+            "symbol_name": "TestRecord.test_init_simple_structured",
+            "kind": "method",
+            "signals": [
+              "related:covering-test"
+            ],
+            "signature": null
+          }
+        ],
+        "verify_command": {
+          "command": "python -m pytest numpy/_core/tests/test_dtype.py -k test_init_simple_structured",
+          "targets": "numpy/_core/tests/test_dtype.py",
+          "derived_from": "pytest.ini pytest config + covering test path",
+          "tier": "narrow",
+          "runner_missing": true
+        },
+        "coverage_note": {
+          "symbol": "_init",
+          "total": 5,
+          "peers": [
+            "test_non_finite_scalar",
+            "test_blasdot_uninitialized_memory",
+            "test_int_from_infinite_longdouble",
+            "test_int_from_infinite_longdouble___int__"
+          ]
+        },
+        "error": null
+      }
+    },
+    {
+      "tool": "amu_graph",
+      "arguments": {
+        "repo": "/Users/Abslock128/Documents/Codex/2026-09-15/hey-so-this-is-a-project-2/integration-fixtures/numpy-v2.3.0",
+        "target": "numpy/_core/getlimits.py#finfo.__new__",
+        "depth": 2,
+        "relation": "CALLS"
+      },
+      "wire_bytes_including_newline": 10798,
+      "wire_sha256": "0581b9c5e92c8a101f87ded348c6bb17bc8928c9075a4ccf389d29fab00db7c5",
+      "response": {
+        "jsonrpc": "2.0",
+        "id": "numpy-1",
+        "result": {
+          "content": [
+            {
+              "text": "{\"focus\": \"gh/numpy/numpy:Python:numpy/_core/getlimits.py:method:finfo.__new__\", \"symbol\": \"finfo.__new__\", \"depth\": 2, \"nodes\": [{\"id\": \"gh/numpy/numpy:Python:numpy/_core/getlimits.py:method:finfo.__new__\", \"name\": \"finfo.__new__\", \"path\": \"numpy/_core/getlimits.py\", \"kind\": \"method\", \"confidence\": \"unknown\", \"section\": \"focus\", \"reason\": \"candidate only: the target\", \"verify\": \"entire graph def finfo.__new__\"}, {\"id\": \"gh/numpy/numpy:Python:numpy/_core/numerictypes.py:function:obj2sctype\", \"name\": \"obj2sctype\", \"path\": \"numpy/_core/numerictypes.py\", \"kind\": \"function\", \"confidence\": \"unknown\", \"section\": \"callees\", \"depth\": 1, \"reason\": \"candidate only: resolved CALLS edge at depth 1\", \"verify\": \"entire graph neighbors --symbol obj2sctype --relation CALLS\"}, {\"id\": \"external:symbol:warnings.warn\", \"name\": \"warnings.warn\", \"path\": \"?\", \"kind\": \"symbol\", \"confidence\": \"unknown\", \"section\": \"callees\", \"depth\": 1, \"reason\": \"candidate only: resolved CALLS edge at depth 1\", \"verify\": \"entire graph neighbors --symbol warn --relation CALLS\"}], \"edges\": [{\"from\": \"gh/numpy/numpy:Python:numpy/_core/getlimits.py:method:finfo.__new__\", \"to\": \"external:symbol:warnings.warn\", \"relation\": \"CALLS\", \"direction\": \"out\", \"section\": \"callees\", \"depth\": 1, \"provenance\": \"unknown\", \"confidence\": \"unknown\"}, {\"from\": \"gh/numpy/numpy:Python:numpy/_core/getlimits.py:method:finfo.__new__\", \"to\": \"gh/numpy/numpy:Python:numpy/_core/numerictypes.py:function:obj2sctype\", \"relation\": \"CALLS\", \"direction\": \"out\", \"section\": \"callees\", \"depth\": 1, \"provenance\": \"unknown\", \"confidence\": \"unknown\"}], \"counts\": {\"callers\": 0, \"callees\": 2, \"type_consumers\": 0, \"data_flows\": 0, \"co_changes\": 0, \"siblings\": 0}, \"status\": \"incomplete\", \"candidates\": [], \"warnings\": [\"W_WORKTREE_SNAPSHOT\", \"W_DATA_FLOW_EVIDENCE_UNMERGED\", \"source AST could not resolve 2 direct Python CALLS edge(s) to exact endpoints; the graph is candidate-only\", \"graph evidence is not approvable: live graph completeness is degraded; live graph reported 349 partial failure(s); live graph callees edge 1 is incomplete\"], \"source_contradictions\": [], \"source_uncertainties\": [{\"target\": \"finfo.__new__\", \"section\": \"callees\", \"source_path\": \"numpy/_core/getlimits.py\", \"endpoint\": \"obj2sctype\", \"line\": null, \"evidence\": \"source:python-ast:unverified-call-identity\"}, {\"target\": \"finfo.__new__\", \"section\": \"callees\", \"source_path\": \"numpy/_core/getlimits.py\", \"endpoint\": \"warnings.warn\", \"line\": null, \"evidence\": \"source:python-ast:unresolved-endpoint-path\"}], \"graph_evidence\": {\"approvable\": false, \"stage\": \"live-refresh\", \"target\": \"numpy/_core/getlimits.py#finfo.__new__\", \"completeness_levels\": [\"degraded\"], \"partial_failures\": 349, \"semantic_edges\": 3, \"reasons\": [\"live graph completeness is degraded\", \"live graph reported 349 partial failure(s)\", \"live graph callees edge 1 is incomplete\"], \"contradicted_python_calls\": [], \"unverified_python_calls\": [{\"target\": \"finfo.__new__\", \"section\": \"callees\", \"source_path\": \"numpy/_core/getlimits.py\", \"endpoint\": \"obj2sctype\", \"line\": null, \"evidence\": \"source:python-ast:unverified-call-identity\"}, {\"target\": \"finfo.__new__\", \"section\": \"callees\", \"source_path\": \"numpy/_core/getlimits.py\", \"endpoint\": \"warnings.warn\", \"line\": null, \"evidence\": \"source:python-ast:unresolved-endpoint-path\"}], \"worktree\": {\"before\": {\"head_before\": \"0532af47d6a815298b7841de00bdbc547104b237\", \"head_after\": \"0532af47d6a815298b7841de00bdbc547104b237\", \"worktree\": {\"digest\": \"e3b0c44298fc1c149afbf4c8\", \"files\": [], \"error\": null, \"evidence_version\": 1, \"records\": [], \"head\": \"0532af47d6a815298b7841de00bdbc547104b237\", \"freshness\": {\"head\": \"0532af47d6a815298b7841de00bdbc547104b237\", \"full\": {\"digest\": \"e3b0c44298fc1c149afbf4c8\", \"files\": [], \"error\": null, \"evidence_version\": 1, \"records\": []}, \"config_hash\": \"f3fd3c17f889fc352946f03e36e8a1ee92f75eceb865c7e58f3d2a6d489d45a4\", \"error\": null, \"schema_version\": 1, \"code\": {\"digest\": \"55b34034977b1819582ef59b\", \"files\": [], \"error\": null}, \"docs\": {\"digest\": \"55b34034977b1819582ef59b\", \"files\": [], \"error\": null}}}}, \"after\": {\"head_before\": \"0532af47d6a815298b7841de00bdbc547104b237\", \"head_after\": \"0532af47d6a815298b7841de00bdbc547104b237\", \"worktree\": {\"digest\": \"e3b0c44298fc1c149afbf4c8\", \"files\": [], \"error\": null, \"evidence_version\": 1, \"records\": [], \"head\": \"0532af47d6a815298b7841de00bdbc547104b237\", \"freshness\": {\"head\": \"0532af47d6a815298b7841de00bdbc547104b237\", \"full\": {\"digest\": \"e3b0c44298fc1c149afbf4c8\", \"files\": [], \"error\": null, \"evidence_version\": 1, \"records\": []}, \"config_hash\": \"f3fd3c17f889fc352946f03e36e8a1ee92f75eceb865c7e58f3d2a6d489d45a4\", \"error\": null, \"schema_version\": 1, \"code\": {\"digest\": \"55b34034977b1819582ef59b\", \"files\": [], \"error\": null}, \"docs\": {\"digest\": \"55b34034977b1819582ef59b\", \"files\": [], \"error\": null}}}}, \"stable\": true}}}",
+              "type": "text"
+            }
+          ],
+          "isError": false,
+          "structuredContent": {
+            "result": "{\"focus\": \"gh/numpy/numpy:Python:numpy/_core/getlimits.py:method:finfo.__new__\", \"symbol\": \"finfo.__new__\", \"depth\": 2, \"nodes\": [{\"id\": \"gh/numpy/numpy:Python:numpy/_core/getlimits.py:method:finfo.__new__\", \"name\": \"finfo.__new__\", \"path\": \"numpy/_core/getlimits.py\", \"kind\": \"method\", \"confidence\": \"unknown\", \"section\": \"focus\", \"reason\": \"candidate only: the target\", \"verify\": \"entire graph def finfo.__new__\"}, {\"id\": \"gh/numpy/numpy:Python:numpy/_core/numerictypes.py:function:obj2sctype\", \"name\": \"obj2sctype\", \"path\": \"numpy/_core/numerictypes.py\", \"kind\": \"function\", \"confidence\": \"unknown\", \"section\": \"callees\", \"depth\": 1, \"reason\": \"candidate only: resolved CALLS edge at depth 1\", \"verify\": \"entire graph neighbors --symbol obj2sctype --relation CALLS\"}, {\"id\": \"external:symbol:warnings.warn\", \"name\": \"warnings.warn\", \"path\": \"?\", \"kind\": \"symbol\", \"confidence\": \"unknown\", \"section\": \"callees\", \"depth\": 1, \"reason\": \"candidate only: resolved CALLS edge at depth 1\", \"verify\": \"entire graph neighbors --symbol warn --relation CALLS\"}], \"edges\": [{\"from\": \"gh/numpy/numpy:Python:numpy/_core/getlimits.py:method:finfo.__new__\", \"to\": \"external:symbol:warnings.warn\", \"relation\": \"CALLS\", \"direction\": \"out\", \"section\": \"callees\", \"depth\": 1, \"provenance\": \"unknown\", \"confidence\": \"unknown\"}, {\"from\": \"gh/numpy/numpy:Python:numpy/_core/getlimits.py:method:finfo.__new__\", \"to\": \"gh/numpy/numpy:Python:numpy/_core/numerictypes.py:function:obj2sctype\", \"relation\": \"CALLS\", \"direction\": \"out\", \"section\": \"callees\", \"depth\": 1, \"provenance\": \"unknown\", \"confidence\": \"unknown\"}], \"counts\": {\"callers\": 0, \"callees\": 2, \"type_consumers\": 0, \"data_flows\": 0, \"co_changes\": 0, \"siblings\": 0}, \"status\": \"incomplete\", \"candidates\": [], \"warnings\": [\"W_WORKTREE_SNAPSHOT\", \"W_DATA_FLOW_EVIDENCE_UNMERGED\", \"source AST could not resolve 2 direct Python CALLS edge(s) to exact endpoints; the graph is candidate-only\", \"graph evidence is not approvable: live graph completeness is degraded; live graph reported 349 partial failure(s); live graph callees edge 1 is incomplete\"], \"source_contradictions\": [], \"source_uncertainties\": [{\"target\": \"finfo.__new__\", \"section\": \"callees\", \"source_path\": \"numpy/_core/getlimits.py\", \"endpoint\": \"obj2sctype\", \"line\": null, \"evidence\": \"source:python-ast:unverified-call-identity\"}, {\"target\": \"finfo.__new__\", \"section\": \"callees\", \"source_path\": \"numpy/_core/getlimits.py\", \"endpoint\": \"warnings.warn\", \"line\": null, \"evidence\": \"source:python-ast:unresolved-endpoint-path\"}], \"graph_evidence\": {\"approvable\": false, \"stage\": \"live-refresh\", \"target\": \"numpy/_core/getlimits.py#finfo.__new__\", \"completeness_levels\": [\"degraded\"], \"partial_failures\": 349, \"semantic_edges\": 3, \"reasons\": [\"live graph completeness is degraded\", \"live graph reported 349 partial failure(s)\", \"live graph callees edge 1 is incomplete\"], \"contradicted_python_calls\": [], \"unverified_python_calls\": [{\"target\": \"finfo.__new__\", \"section\": \"callees\", \"source_path\": \"numpy/_core/getlimits.py\", \"endpoint\": \"obj2sctype\", \"line\": null, \"evidence\": \"source:python-ast:unverified-call-identity\"}, {\"target\": \"finfo.__new__\", \"section\": \"callees\", \"source_path\": \"numpy/_core/getlimits.py\", \"endpoint\": \"warnings.warn\", \"line\": null, \"evidence\": \"source:python-ast:unresolved-endpoint-path\"}], \"worktree\": {\"before\": {\"head_before\": \"0532af47d6a815298b7841de00bdbc547104b237\", \"head_after\": \"0532af47d6a815298b7841de00bdbc547104b237\", \"worktree\": {\"digest\": \"e3b0c44298fc1c149afbf4c8\", \"files\": [], \"error\": null, \"evidence_version\": 1, \"records\": [], \"head\": \"0532af47d6a815298b7841de00bdbc547104b237\", \"freshness\": {\"head\": \"0532af47d6a815298b7841de00bdbc547104b237\", \"full\": {\"digest\": \"e3b0c44298fc1c149afbf4c8\", \"files\": [], \"error\": null, \"evidence_version\": 1, \"records\": []}, \"config_hash\": \"f3fd3c17f889fc352946f03e36e8a1ee92f75eceb865c7e58f3d2a6d489d45a4\", \"error\": null, \"schema_version\": 1, \"code\": {\"digest\": \"55b34034977b1819582ef59b\", \"files\": [], \"error\": null}, \"docs\": {\"digest\": \"55b34034977b1819582ef59b\", \"files\": [], \"error\": null}}}}, \"after\": {\"head_before\": \"0532af47d6a815298b7841de00bdbc547104b237\", \"head_after\": \"0532af47d6a815298b7841de00bdbc547104b237\", \"worktree\": {\"digest\": \"e3b0c44298fc1c149afbf4c8\", \"files\": [], \"error\": null, \"evidence_version\": 1, \"records\": [], \"head\": \"0532af47d6a815298b7841de00bdbc547104b237\", \"freshness\": {\"head\": \"0532af47d6a815298b7841de00bdbc547104b237\", \"full\": {\"digest\": \"e3b0c44298fc1c149afbf4c8\", \"files\": [], \"error\": null, \"evidence_version\": 1, \"records\": []}, \"config_hash\": \"f3fd3c17f889fc352946f03e36e8a1ee92f75eceb865c7e58f3d2a6d489d45a4\", \"error\": null, \"schema_version\": 1, \"code\": {\"digest\": \"55b34034977b1819582ef59b\", \"files\": [], \"error\": null}, \"docs\": {\"digest\": \"55b34034977b1819582ef59b\", \"files\": [], \"error\": null}}}}, \"stable\": true}}}"
+          }
+        }
+      },
+      "payload": {
+        "focus": "gh/numpy/numpy:Python:numpy/_core/getlimits.py:method:finfo.__new__",
+        "symbol": "finfo.__new__",
+        "depth": 2,
+        "nodes": [
+          {
+            "id": "gh/numpy/numpy:Python:numpy/_core/getlimits.py:method:finfo.__new__",
+            "name": "finfo.__new__",
+            "path": "numpy/_core/getlimits.py",
+            "kind": "method",
+            "confidence": "unknown",
+            "section": "focus",
+            "reason": "candidate only: the target",
+            "verify": "entire graph def finfo.__new__"
+          },
+          {
+            "id": "gh/numpy/numpy:Python:numpy/_core/numerictypes.py:function:obj2sctype",
+            "name": "obj2sctype",
+            "path": "numpy/_core/numerictypes.py",
+            "kind": "function",
+            "confidence": "unknown",
+            "section": "callees",
+            "depth": 1,
+            "reason": "candidate only: resolved CALLS edge at depth 1",
+            "verify": "entire graph neighbors --symbol obj2sctype --relation CALLS"
+          },
+          {
+            "id": "external:symbol:warnings.warn",
+            "name": "warnings.warn",
+            "path": "?",
+            "kind": "symbol",
+            "confidence": "unknown",
+            "section": "callees",
+            "depth": 1,
+            "reason": "candidate only: resolved CALLS edge at depth 1",
+            "verify": "entire graph neighbors --symbol warn --relation CALLS"
+          }
+        ],
+        "edges": [
+          {
+            "from": "gh/numpy/numpy:Python:numpy/_core/getlimits.py:method:finfo.__new__",
+            "to": "external:symbol:warnings.warn",
+            "relation": "CALLS",
+            "direction": "out",
+            "section": "callees",
+            "depth": 1,
+            "provenance": "unknown",
+            "confidence": "unknown"
+          },
+          {
+            "from": "gh/numpy/numpy:Python:numpy/_core/getlimits.py:method:finfo.__new__",
+            "to": "gh/numpy/numpy:Python:numpy/_core/numerictypes.py:function:obj2sctype",
+            "relation": "CALLS",
+            "direction": "out",
+            "section": "callees",
+            "depth": 1,
+            "provenance": "unknown",
+            "confidence": "unknown"
+          }
+        ],
+        "counts": {
+          "callers": 0,
+          "callees": 2,
+          "type_consumers": 0,
+          "data_flows": 0,
+          "co_changes": 0,
+          "siblings": 0
+        },
+        "status": "incomplete",
+        "candidates": [],
+        "warnings": [
+          "W_WORKTREE_SNAPSHOT",
+          "W_DATA_FLOW_EVIDENCE_UNMERGED",
+          "source AST could not resolve 2 direct Python CALLS edge(s) to exact endpoints; the graph is candidate-only",
+          "graph evidence is not approvable: live graph completeness is degraded; live graph reported 349 partial failure(s); live graph callees edge 1 is incomplete"
+        ],
+        "source_contradictions": [],
+        "source_uncertainties": [
+          {
+            "target": "finfo.__new__",
+            "section": "callees",
+            "source_path": "numpy/_core/getlimits.py",
+            "endpoint": "obj2sctype",
+            "line": null,
+            "evidence": "source:python-ast:unverified-call-identity"
+          },
+          {
+            "target": "finfo.__new__",
+            "section": "callees",
+            "source_path": "numpy/_core/getlimits.py",
+            "endpoint": "warnings.warn",
+            "line": null,
+            "evidence": "source:python-ast:unresolved-endpoint-path"
+          }
+        ],
+        "graph_evidence": {
+          "approvable": false,
+          "stage": "live-refresh",
+          "target": "numpy/_core/getlimits.py#finfo.__new__",
+          "completeness_levels": [
+            "degraded"
+          ],
+          "partial_failures": 349,
+          "semantic_edges": 3,
+          "reasons": [
+            "live graph completeness is degraded",
+            "live graph reported 349 partial failure(s)",
+            "live graph callees edge 1 is incomplete"
+          ],
+          "contradicted_python_calls": [],
+          "unverified_python_calls": [
+            {
+              "target": "finfo.__new__",
+              "section": "callees",
+              "source_path": "numpy/_core/getlimits.py",
+              "endpoint": "obj2sctype",
+              "line": null,
+              "evidence": "source:python-ast:unverified-call-identity"
+            },
+            {
+              "target": "finfo.__new__",
+              "section": "callees",
+              "source_path": "numpy/_core/getlimits.py",
+              "endpoint": "warnings.warn",
+              "line": null,
+              "evidence": "source:python-ast:unresolved-endpoint-path"
+            }
+          ],
+          "worktree": {
+            "before": {
+              "head_before": "0532af47d6a815298b7841de00bdbc547104b237",
+              "head_after": "0532af47d6a815298b7841de00bdbc547104b237",
+              "worktree": {
+                "digest": "e3b0c44298fc1c149afbf4c8",
+                "files": [],
+                "error": null,
+                "evidence_version": 1,
+                "records": [],
+                "head": "0532af47d6a815298b7841de00bdbc547104b237",
+                "freshness": {
+                  "head": "0532af47d6a815298b7841de00bdbc547104b237",
+                  "full": {
+                    "digest": "e3b0c44298fc1c149afbf4c8",
+                    "files": [],
+                    "error": null,
+                    "evidence_version": 1,
+                    "records": []
+                  },
+                  "config_hash": "f3fd3c17f889fc352946f03e36e8a1ee92f75eceb865c7e58f3d2a6d489d45a4",
+                  "error": null,
+                  "schema_version": 1,
+                  "code": {
+                    "digest": "55b34034977b1819582ef59b",
+                    "files": [],
+                    "error": null
+                  },
+                  "docs": {
+                    "digest": "55b34034977b1819582ef59b",
+                    "files": [],
+                    "error": null
+                  }
+                }
+              }
+            },
+            "after": {
+              "head_before": "0532af47d6a815298b7841de00bdbc547104b237",
+              "head_after": "0532af47d6a815298b7841de00bdbc547104b237",
+              "worktree": {
+                "digest": "e3b0c44298fc1c149afbf4c8",
+                "files": [],
+                "error": null,
+                "evidence_version": 1,
+                "records": [],
+                "head": "0532af47d6a815298b7841de00bdbc547104b237",
+                "freshness": {
+                  "head": "0532af47d6a815298b7841de00bdbc547104b237",
+                  "full": {
+                    "digest": "e3b0c44298fc1c149afbf4c8",
+                    "files": [],
+                    "error": null,
+                    "evidence_version": 1,
+                    "records": []
+                  },
+                  "config_hash": "f3fd3c17f889fc352946f03e36e8a1ee92f75eceb865c7e58f3d2a6d489d45a4",
+                  "error": null,
+                  "schema_version": 1,
+                  "code": {
+                    "digest": "55b34034977b1819582ef59b",
+                    "files": [],
+                    "error": null
+                  },
+                  "docs": {
+                    "digest": "55b34034977b1819582ef59b",
+                    "files": [],
+                    "error": null
+                  }
+                }
+              }
+            },
+            "stable": true
+          }
+        }
+      }
+    },
+    {
+      "tool": "amu_impact",
+      "arguments": {
+        "repo": "/Users/Abslock128/Documents/Codex/2026-09-15/hey-so-this-is-a-project-2/integration-fixtures/numpy-v2.3.0",
+        "file": "numpy/_core/getlimits.py",
+        "line": 494,
+        "proposed_change": "change when dtype-specific finfo cache entries are reused",
+        "depth": 2,
+        "page_size": 5
+      },
+      "wire_bytes_including_newline": 16166,
+      "wire_sha256": "bcc6f1ea015db5138cc3b2de30275d559f7d16bf767a5ea67d0797eeb435c6aa",
+      "response": {
+        "jsonrpc": "2.0",
+        "id": "numpy-2",
+        "result": {
+          "content": [
+            {
+              "text": "{\"schema_version\": 1, \"operation\": \"proposed-change-impact\", \"request\": {\"file\": \"numpy/_core/getlimits.py\", \"line\": 494, \"proposed_change\": \"change when dtype-specific finfo cache entries are reused\", \"depth\": 2, \"change_kind\": \"body\", \"section\": \"impact\", \"cursor\": null, \"page_size\": 5}, \"target\": {\"file\": \"numpy/_core/getlimits.py\", \"symbol\": \"numpy/_core/getlimits.py#finfo.__new__\", \"kind\": \"function\", \"range\": {\"start_line\": 494, \"definition_line\": 494, \"end_line\": 548}, \"resolution\": \"resolved\", \"source_sha256\": \"df641eeed94115dca20ef7528c6d5ca766b4349d2b48cc5e0d18a3dda8223eb8\", \"qualified_name\": \"finfo.__new__\"}, \"status\": \"uncertain\", \"report_hash\": \"37413e62ed1cdcb2b7d8cb125142efc2865669fb4d3652b5ae904d59985d87bd\", \"assessment\": {\"likely_impacted\": 7, \"provider_reported_coverage_complete\": false, \"safe_to_change\": null, \"reasons\": [\"Limitations or failures were reported; retrieve the reasons section before relying on this result.\", \"Some relationship identities are unverified in source.\", \"Target source contains dynamic or runtime-dispatch boundaries.\", \"Detailed evidence is paged; retrieve all relevant sections/fragments from the same report before relying on it.\"]}, \"impact\": {\"rows\": [{\"id\": \"n1\", \"path\": \"(re-export, no file)\", \"symbol\": \"warnings.warn\", \"confidence\": \"sound\", \"risk\": \"might_break\", \"feature\": \"Root (derived)\", \"order\": 1, \"action\": \"review\", \"via\": \"CALLS:depth1\", \"reason\": \"reported CALLS edge at depth 1; potentially affected, compatibility not assessed\", \"verify\": \"amu verify --node n1\", \"evidence\": [\"impact:callees\"], \"compatibility\": {\"status\": \"not_assessed\", \"reason\": \"potentially affected; a relationship does not prove breakage. Proposed signatures, argument binding, return behavior, and public exports have not been checked\"}, \"context_reason\": \"direct caller or callee\"}, {\"id\": \"n2\", \"path\": \"numpy/_core/numerictypes.py\", \"symbol\": \"obj2sctype\", \"confidence\": \"sound\", \"risk\": \"might_break\", \"feature\": \"Numpy (derived)\", \"order\": 1, \"action\": \"review\", \"via\": \"CALLS:depth1\", \"reason\": \"reported CALLS edge at depth 1; potentially affected, compatibility not assessed\", \"verify\": \"amu verify --node n2\", \"evidence\": [\"impact:callees\"], \"compatibility\": {\"status\": \"not_assessed\", \"reason\": \"potentially affected; a relationship does not prove breakage. Proposed signatures, argument binding, return behavior, and public exports have not been checked\"}, \"context_reason\": \"direct caller or callee\"}, {\"id\": \"n3\", \"path\": \"numpy/_core/getlimits.py\", \"symbol\": \"finfo._init\", \"confidence\": \"sound\", \"risk\": \"might_break\", \"feature\": \"Numpy (derived)\", \"order\": 1, \"action\": \"review\", \"via\": \"DATA_FLOWS:depth1\", \"reason\": \"reported DATA_FLOWS edge at depth 1; potentially affected, compatibility not assessed\", \"verify\": \"amu verify --node n3\", \"evidence\": [\"impact:data_flows\"], \"compatibility\": {\"status\": \"not_assessed\", \"reason\": \"potentially affected; a relationship does not prove breakage. Proposed signatures, argument binding, return behavior, and public exports have not been checked\"}, \"context_reason\": \"supporting relation or memory\"}, {\"id\": \"n4\", \"path\": \"numpy/_core/getlimits.py\", \"symbol\": \"finfo.__str__\", \"confidence\": \"guessed\", \"risk\": \"might_break\", \"feature\": \"Numpy (derived)\", \"order\": 3, \"action\": \"review\", \"via\": null, \"reason\": \"siblings only, no resolved edge\", \"verify\": \"amu verify --node n4\", \"evidence\": [\"impact:siblings\"], \"compatibility\": {\"status\": \"not_assessed\", \"reason\": \"potentially affected; a relationship does not prove breakage. Proposed signatures, argument binding, return behavior, and public exports have not been checked\"}, \"context_reason\": \"supporting relation or memory\"}, {\"id\": \"n5\", \"path\": \"numpy/_core/getlimits.py\", \"symbol\": \"finfo.__repr__\", \"confidence\": \"guessed\", \"risk\": \"might_break\", \"feature\": \"Numpy (derived)\", \"order\": 3, \"action\": \"review\", \"via\": null, \"reason\": \"siblings only, no resolved edge\", \"verify\": \"amu verify --node n5\", \"evidence\": [\"impact:siblings\"], \"compatibility\": {\"status\": \"not_assessed\", \"reason\": \"potentially affected; a relationship does not prove breakage. Proposed signatures, argument binding, return behavior, and public exports have not been checked\"}, \"context_reason\": \"supporting relation or memory\"}], \"omitted\": 2, \"summary\": {\"candidate_count\": 7}, \"selection\": {\"row_limit\": 100, \"page_size\": 5, \"budget_bytes\": 65536, \"order\": \"shared context relevance, with stable source order for ties\"}}, \"graph_evidence\": {\"live_worktree\": true, \"provider_reported_coverage_complete\": false, \"map_hash\": \"8f50e6f9f3db149e\", \"sha\": \"0532af47d6a815298b7841de00bdbc547104b237\", \"worktree\": {\"stable\": true, \"before\": {\"head\": \"0532af47d6a815298b7841de00bdbc547104b237\", \"relation_digest\": \"55b34034977b1819582ef59b\"}, \"after\": {\"head\": \"0532af47d6a815298b7841de00bdbc547104b237\", \"relation_digest\": \"55b34034977b1819582ef59b\"}}, \"source_contradictions_count\": 0, \"source_uncertainties_count\": 2, \"coverage_detail_count\": 10}, \"dynamic_boundaries\": [], \"dynamic_boundaries_count\": 12, \"limitations\": [\"The proposed change is intent only; it has not been applied or executed.\", \"Rows describe current source-derived dependencies, not proof that a listed caller will break.\", \"Static source analysis cannot guarantee runtime impact; reflection, dispatch, generated code, native boundaries and feature flags can hide relationships.\", \"A zero-edge query is not proof that a change is safe. This operation does not call a model, import application modules, apply the proposal or run project tests/builds. Native Git/graph tools are not an OS sandbox.\", \"The graph provider may update its local cache; this operation does not save AMU maps, plans, contracts, history or workspace registrations.\"], \"retrieval\": {\"impact\": {\"logical_items\": 7, \"entries\": 7, \"fragmented_items\": 0, \"cursor\": \"eyJvZmZzZXQiOjAsInJlcG9ydF9oYXNoIjoiMzc0MTNlNjJlZDFjZGNiMmI3ZDhjYjEyNTE0MmVmYzI4NjU2NjlmYjRkMzY1MmI1YWU5MDRkNTk5ODVkODdiZCIsInNlY3Rpb24iOiJpbXBhY3QiLCJ2IjoxfQ\"}, \"source_contradictions\": {\"logical_items\": 0, \"entries\": 0, \"fragmented_items\": 0, \"cursor\": null}, \"source_uncertainties\": {\"logical_items\": 2, \"entries\": 2, \"fragmented_items\": 0, \"cursor\": \"eyJvZmZzZXQiOjAsInJlcG9ydF9oYXNoIjoiMzc0MTNlNjJlZDFjZGNiMmI3ZDhjYjEyNTE0MmVmYzI4NjU2NjlmYjRkMzY1MmI1YWU5MDRkNTk5ODVkODdiZCIsInNlY3Rpb24iOiJzb3VyY2VfdW5jZXJ0YWludGllcyIsInYiOjF9\"}, \"dynamic_boundaries\": {\"logical_items\": 12, \"entries\": 12, \"fragmented_items\": 0, \"cursor\": \"eyJvZmZzZXQiOjAsInJlcG9ydF9oYXNoIjoiMzc0MTNlNjJlZDFjZGNiMmI3ZDhjYjEyNTE0MmVmYzI4NjU2NjlmYjRkMzY1MmI1YWU5MDRkNTk5ODVkODdiZCIsInNlY3Rpb24iOiJkeW5hbWljX2JvdW5kYXJpZXMiLCJ2IjoxfQ\"}, \"coverage\": {\"logical_items\": 10, \"entries\": 10, \"fragmented_items\": 0, \"cursor\": \"eyJvZmZzZXQiOjAsInJlcG9ydF9oYXNoIjoiMzc0MTNlNjJlZDFjZGNiMmI3ZDhjYjEyNTE0MmVmYzI4NjU2NjlmYjRkMzY1MmI1YWU5MDRkNTk5ODVkODdiZCIsInNlY3Rpb24iOiJjb3ZlcmFnZSIsInYiOjF9\"}, \"reasons\": {\"logical_items\": 5, \"entries\": 5, \"fragmented_items\": 0, \"cursor\": \"eyJvZmZzZXQiOjAsInJlcG9ydF9oYXNoIjoiMzc0MTNlNjJlZDFjZGNiMmI3ZDhjYjEyNTE0MmVmYzI4NjU2NjlmYjRkMzY1MmI1YWU5MDRkNTk5ODVkODdiZCIsInNlY3Rpb24iOiJyZWFzb25zIiwidiI6MX0\"}}, \"page\": {\"section\": \"impact\", \"offset\": 0, \"returned\": 5, \"total\": 7, \"remaining\": 2, \"fragmented_items\": 0, \"next_cursor\": \"eyJvZmZzZXQiOjUsInJlcG9ydF9oYXNoIjoiMzc0MTNlNjJlZDFjZGNiMmI3ZDhjYjEyNTE0MmVmYzI4NjU2NjlmYjRkMzY1MmI1YWU5MDRkNTk5ODVkODdiZCIsInNlY3Rpb24iOiJpbXBhY3QiLCJ2IjoxfQ\"}, \"truncated\": true}",
+              "type": "text"
+            }
+          ],
+          "isError": false,
+          "structuredContent": {
+            "result": "{\"schema_version\": 1, \"operation\": \"proposed-change-impact\", \"request\": {\"file\": \"numpy/_core/getlimits.py\", \"line\": 494, \"proposed_change\": \"change when dtype-specific finfo cache entries are reused\", \"depth\": 2, \"change_kind\": \"body\", \"section\": \"impact\", \"cursor\": null, \"page_size\": 5}, \"target\": {\"file\": \"numpy/_core/getlimits.py\", \"symbol\": \"numpy/_core/getlimits.py#finfo.__new__\", \"kind\": \"function\", \"range\": {\"start_line\": 494, \"definition_line\": 494, \"end_line\": 548}, \"resolution\": \"resolved\", \"source_sha256\": \"df641eeed94115dca20ef7528c6d5ca766b4349d2b48cc5e0d18a3dda8223eb8\", \"qualified_name\": \"finfo.__new__\"}, \"status\": \"uncertain\", \"report_hash\": \"37413e62ed1cdcb2b7d8cb125142efc2865669fb4d3652b5ae904d59985d87bd\", \"assessment\": {\"likely_impacted\": 7, \"provider_reported_coverage_complete\": false, \"safe_to_change\": null, \"reasons\": [\"Limitations or failures were reported; retrieve the reasons section before relying on this result.\", \"Some relationship identities are unverified in source.\", \"Target source contains dynamic or runtime-dispatch boundaries.\", \"Detailed evidence is paged; retrieve all relevant sections/fragments from the same report before relying on it.\"]}, \"impact\": {\"rows\": [{\"id\": \"n1\", \"path\": \"(re-export, no file)\", \"symbol\": \"warnings.warn\", \"confidence\": \"sound\", \"risk\": \"might_break\", \"feature\": \"Root (derived)\", \"order\": 1, \"action\": \"review\", \"via\": \"CALLS:depth1\", \"reason\": \"reported CALLS edge at depth 1; potentially affected, compatibility not assessed\", \"verify\": \"amu verify --node n1\", \"evidence\": [\"impact:callees\"], \"compatibility\": {\"status\": \"not_assessed\", \"reason\": \"potentially affected; a relationship does not prove breakage. Proposed signatures, argument binding, return behavior, and public exports have not been checked\"}, \"context_reason\": \"direct caller or callee\"}, {\"id\": \"n2\", \"path\": \"numpy/_core/numerictypes.py\", \"symbol\": \"obj2sctype\", \"confidence\": \"sound\", \"risk\": \"might_break\", \"feature\": \"Numpy (derived)\", \"order\": 1, \"action\": \"review\", \"via\": \"CALLS:depth1\", \"reason\": \"reported CALLS edge at depth 1; potentially affected, compatibility not assessed\", \"verify\": \"amu verify --node n2\", \"evidence\": [\"impact:callees\"], \"compatibility\": {\"status\": \"not_assessed\", \"reason\": \"potentially affected; a relationship does not prove breakage. Proposed signatures, argument binding, return behavior, and public exports have not been checked\"}, \"context_reason\": \"direct caller or callee\"}, {\"id\": \"n3\", \"path\": \"numpy/_core/getlimits.py\", \"symbol\": \"finfo._init\", \"confidence\": \"sound\", \"risk\": \"might_break\", \"feature\": \"Numpy (derived)\", \"order\": 1, \"action\": \"review\", \"via\": \"DATA_FLOWS:depth1\", \"reason\": \"reported DATA_FLOWS edge at depth 1; potentially affected, compatibility not assessed\", \"verify\": \"amu verify --node n3\", \"evidence\": [\"impact:data_flows\"], \"compatibility\": {\"status\": \"not_assessed\", \"reason\": \"potentially affected; a relationship does not prove breakage. Proposed signatures, argument binding, return behavior, and public exports have not been checked\"}, \"context_reason\": \"supporting relation or memory\"}, {\"id\": \"n4\", \"path\": \"numpy/_core/getlimits.py\", \"symbol\": \"finfo.__str__\", \"confidence\": \"guessed\", \"risk\": \"might_break\", \"feature\": \"Numpy (derived)\", \"order\": 3, \"action\": \"review\", \"via\": null, \"reason\": \"siblings only, no resolved edge\", \"verify\": \"amu verify --node n4\", \"evidence\": [\"impact:siblings\"], \"compatibility\": {\"status\": \"not_assessed\", \"reason\": \"potentially affected; a relationship does not prove breakage. Proposed signatures, argument binding, return behavior, and public exports have not been checked\"}, \"context_reason\": \"supporting relation or memory\"}, {\"id\": \"n5\", \"path\": \"numpy/_core/getlimits.py\", \"symbol\": \"finfo.__repr__\", \"confidence\": \"guessed\", \"risk\": \"might_break\", \"feature\": \"Numpy (derived)\", \"order\": 3, \"action\": \"review\", \"via\": null, \"reason\": \"siblings only, no resolved edge\", \"verify\": \"amu verify --node n5\", \"evidence\": [\"impact:siblings\"], \"compatibility\": {\"status\": \"not_assessed\", \"reason\": \"potentially affected; a relationship does not prove breakage. Proposed signatures, argument binding, return behavior, and public exports have not been checked\"}, \"context_reason\": \"supporting relation or memory\"}], \"omitted\": 2, \"summary\": {\"candidate_count\": 7}, \"selection\": {\"row_limit\": 100, \"page_size\": 5, \"budget_bytes\": 65536, \"order\": \"shared context relevance, with stable source order for ties\"}}, \"graph_evidence\": {\"live_worktree\": true, \"provider_reported_coverage_complete\": false, \"map_hash\": \"8f50e6f9f3db149e\", \"sha\": \"0532af47d6a815298b7841de00bdbc547104b237\", \"worktree\": {\"stable\": true, \"before\": {\"head\": \"0532af47d6a815298b7841de00bdbc547104b237\", \"relation_digest\": \"55b34034977b1819582ef59b\"}, \"after\": {\"head\": \"0532af47d6a815298b7841de00bdbc547104b237\", \"relation_digest\": \"55b34034977b1819582ef59b\"}}, \"source_contradictions_count\": 0, \"source_uncertainties_count\": 2, \"coverage_detail_count\": 10}, \"dynamic_boundaries\": [], \"dynamic_boundaries_count\": 12, \"limitations\": [\"The proposed change is intent only; it has not been applied or executed.\", \"Rows describe current source-derived dependencies, not proof that a listed caller will break.\", \"Static source analysis cannot guarantee runtime impact; reflection, dispatch, generated code, native boundaries and feature flags can hide relationships.\", \"A zero-edge query is not proof that a change is safe. This operation does not call a model, import application modules, apply the proposal or run project tests/builds. Native Git/graph tools are not an OS sandbox.\", \"The graph provider may update its local cache; this operation does not save AMU maps, plans, contracts, history or workspace registrations.\"], \"retrieval\": {\"impact\": {\"logical_items\": 7, \"entries\": 7, \"fragmented_items\": 0, \"cursor\": \"eyJvZmZzZXQiOjAsInJlcG9ydF9oYXNoIjoiMzc0MTNlNjJlZDFjZGNiMmI3ZDhjYjEyNTE0MmVmYzI4NjU2NjlmYjRkMzY1MmI1YWU5MDRkNTk5ODVkODdiZCIsInNlY3Rpb24iOiJpbXBhY3QiLCJ2IjoxfQ\"}, \"source_contradictions\": {\"logical_items\": 0, \"entries\": 0, \"fragmented_items\": 0, \"cursor\": null}, \"source_uncertainties\": {\"logical_items\": 2, \"entries\": 2, \"fragmented_items\": 0, \"cursor\": \"eyJvZmZzZXQiOjAsInJlcG9ydF9oYXNoIjoiMzc0MTNlNjJlZDFjZGNiMmI3ZDhjYjEyNTE0MmVmYzI4NjU2NjlmYjRkMzY1MmI1YWU5MDRkNTk5ODVkODdiZCIsInNlY3Rpb24iOiJzb3VyY2VfdW5jZXJ0YWludGllcyIsInYiOjF9\"}, \"dynamic_boundaries\": {\"logical_items\": 12, \"entries\": 12, \"fragmented_items\": 0, \"cursor\": \"eyJvZmZzZXQiOjAsInJlcG9ydF9oYXNoIjoiMzc0MTNlNjJlZDFjZGNiMmI3ZDhjYjEyNTE0MmVmYzI4NjU2NjlmYjRkMzY1MmI1YWU5MDRkNTk5ODVkODdiZCIsInNlY3Rpb24iOiJkeW5hbWljX2JvdW5kYXJpZXMiLCJ2IjoxfQ\"}, \"coverage\": {\"logical_items\": 10, \"entries\": 10, \"fragmented_items\": 0, \"cursor\": \"eyJvZmZzZXQiOjAsInJlcG9ydF9oYXNoIjoiMzc0MTNlNjJlZDFjZGNiMmI3ZDhjYjEyNTE0MmVmYzI4NjU2NjlmYjRkMzY1MmI1YWU5MDRkNTk5ODVkODdiZCIsInNlY3Rpb24iOiJjb3ZlcmFnZSIsInYiOjF9\"}, \"reasons\": {\"logical_items\": 5, \"entries\": 5, \"fragmented_items\": 0, \"cursor\": \"eyJvZmZzZXQiOjAsInJlcG9ydF9oYXNoIjoiMzc0MTNlNjJlZDFjZGNiMmI3ZDhjYjEyNTE0MmVmYzI4NjU2NjlmYjRkMzY1MmI1YWU5MDRkNTk5ODVkODdiZCIsInNlY3Rpb24iOiJyZWFzb25zIiwidiI6MX0\"}}, \"page\": {\"section\": \"impact\", \"offset\": 0, \"returned\": 5, \"total\": 7, \"remaining\": 2, \"fragmented_items\": 0, \"next_cursor\": \"eyJvZmZzZXQiOjUsInJlcG9ydF9oYXNoIjoiMzc0MTNlNjJlZDFjZGNiMmI3ZDhjYjEyNTE0MmVmYzI4NjU2NjlmYjRkMzY1MmI1YWU5MDRkNTk5ODVkODdiZCIsInNlY3Rpb24iOiJpbXBhY3QiLCJ2IjoxfQ\"}, \"truncated\": true}"
+          }
+        }
+      },
+      "payload": {
+        "schema_version": 1,
+        "operation": "proposed-change-impact",
+        "request": {
+          "file": "numpy/_core/getlimits.py",
+          "line": 494,
+          "proposed_change": "change when dtype-specific finfo cache entries are reused",
+          "depth": 2,
+          "change_kind": "body",
+          "section": "impact",
+          "cursor": null,
+          "page_size": 5
+        },
+        "target": {
+          "file": "numpy/_core/getlimits.py",
+          "symbol": "numpy/_core/getlimits.py#finfo.__new__",
+          "kind": "function",
+          "range": {
+            "start_line": 494,
+            "definition_line": 494,
+            "end_line": 548
+          },
+          "resolution": "resolved",
+          "source_sha256": "df641eeed94115dca20ef7528c6d5ca766b4349d2b48cc5e0d18a3dda8223eb8",
+          "qualified_name": "finfo.__new__"
+        },
+        "status": "uncertain",
+        "report_hash": "37413e62ed1cdcb2b7d8cb125142efc2865669fb4d3652b5ae904d59985d87bd",
+        "assessment": {
+          "likely_impacted": 7,
+          "provider_reported_coverage_complete": false,
+          "safe_to_change": null,
+          "reasons": [
+            "Limitations or failures were reported; retrieve the reasons section before relying on this result.",
+            "Some relationship identities are unverified in source.",
+            "Target source contains dynamic or runtime-dispatch boundaries.",
+            "Detailed evidence is paged; retrieve all relevant sections/fragments from the same report before relying on it."
+          ]
+        },
+        "impact": {
+          "rows": [
+            {
+              "id": "n1",
+              "path": "(re-export, no file)",
+              "symbol": "warnings.warn",
+              "confidence": "sound",
+              "risk": "might_break",
+              "feature": "Root (derived)",
+              "order": 1,
+              "action": "review",
+              "via": "CALLS:depth1",
+              "reason": "reported CALLS edge at depth 1; potentially affected, compatibility not assessed",
+              "verify": "amu verify --node n1",
+              "evidence": [
+                "impact:callees"
+              ],
+              "compatibility": {
+                "status": "not_assessed",
+                "reason": "potentially affected; a relationship does not prove breakage. Proposed signatures, argument binding, return behavior, and public exports have not been checked"
+              },
+              "context_reason": "direct caller or callee"
+            },
+            {
+              "id": "n2",
+              "path": "numpy/_core/numerictypes.py",
+              "symbol": "obj2sctype",
+              "confidence": "sound",
+              "risk": "might_break",
+              "feature": "Numpy (derived)",
+              "order": 1,
+              "action": "review",
+              "via": "CALLS:depth1",
+              "reason": "reported CALLS edge at depth 1; potentially affected, compatibility not assessed",
+              "verify": "amu verify --node n2",
+              "evidence": [
+                "impact:callees"
+              ],
+              "compatibility": {
+                "status": "not_assessed",
+                "reason": "potentially affected; a relationship does not prove breakage. Proposed signatures, argument binding, return behavior, and public exports have not been checked"
+              },
+              "context_reason": "direct caller or callee"
+            },
+            {
+              "id": "n3",
+              "path": "numpy/_core/getlimits.py",
+              "symbol": "finfo._init",
+              "confidence": "sound",
+              "risk": "might_break",
+              "feature": "Numpy (derived)",
+              "order": 1,
+              "action": "review",
+              "via": "DATA_FLOWS:depth1",
+              "reason": "reported DATA_FLOWS edge at depth 1; potentially affected, compatibility not assessed",
+              "verify": "amu verify --node n3",
+              "evidence": [
+                "impact:data_flows"
+              ],
+              "compatibility": {
+                "status": "not_assessed",
+                "reason": "potentially affected; a relationship does not prove breakage. Proposed signatures, argument binding, return behavior, and public exports have not been checked"
+              },
+              "context_reason": "supporting relation or memory"
+            },
+            {
+              "id": "n4",
+              "path": "numpy/_core/getlimits.py",
+              "symbol": "finfo.__str__",
+              "confidence": "guessed",
+              "risk": "might_break",
+              "feature": "Numpy (derived)",
+              "order": 3,
+              "action": "review",
+              "via": null,
+              "reason": "siblings only, no resolved edge",
+              "verify": "amu verify --node n4",
+              "evidence": [
+                "impact:siblings"
+              ],
+              "compatibility": {
+                "status": "not_assessed",
+                "reason": "potentially affected; a relationship does not prove breakage. Proposed signatures, argument binding, return behavior, and public exports have not been checked"
+              },
+              "context_reason": "supporting relation or memory"
+            },
+            {
+              "id": "n5",
+              "path": "numpy/_core/getlimits.py",
+              "symbol": "finfo.__repr__",
+              "confidence": "guessed",
+              "risk": "might_break",
+              "feature": "Numpy (derived)",
+              "order": 3,
+              "action": "review",
+              "via": null,
+              "reason": "siblings only, no resolved edge",
+              "verify": "amu verify --node n5",
+              "evidence": [
+                "impact:siblings"
+              ],
+              "compatibility": {
+                "status": "not_assessed",
+                "reason": "potentially affected; a relationship does not prove breakage. Proposed signatures, argument binding, return behavior, and public exports have not been checked"
+              },
+              "context_reason": "supporting relation or memory"
+            }
+          ],
+          "omitted": 2,
+          "summary": {
+            "candidate_count": 7
+          },
+          "selection": {
+            "row_limit": 100,
+            "page_size": 5,
+            "budget_bytes": 65536,
+            "order": "shared context relevance, with stable source order for ties"
+          }
+        },
+        "graph_evidence": {
+          "live_worktree": true,
+          "provider_reported_coverage_complete": false,
+          "map_hash": "8f50e6f9f3db149e",
+          "sha": "0532af47d6a815298b7841de00bdbc547104b237",
+          "worktree": {
+            "stable": true,
+            "before": {
+              "head": "0532af47d6a815298b7841de00bdbc547104b237",
+              "relation_digest": "55b34034977b1819582ef59b"
+            },
+            "after": {
+              "head": "0532af47d6a815298b7841de00bdbc547104b237",
+              "relation_digest": "55b34034977b1819582ef59b"
+            }
+          },
+          "source_contradictions_count": 0,
+          "source_uncertainties_count": 2,
+          "coverage_detail_count": 10
+        },
+        "dynamic_boundaries": [],
+        "dynamic_boundaries_count": 12,
+        "limitations": [
+          "The proposed change is intent only; it has not been applied or executed.",
+          "Rows describe current source-derived dependencies, not proof that a listed caller will break.",
+          "Static source analysis cannot guarantee runtime impact; reflection, dispatch, generated code, native boundaries and feature flags can hide relationships.",
+          "A zero-edge query is not proof that a change is safe. This operation does not call a model, import application modules, apply the proposal or run project tests/builds. Native Git/graph tools are not an OS sandbox.",
+          "The graph provider may update its local cache; this operation does not save AMU maps, plans, contracts, history or workspace registrations."
+        ],
+        "retrieval": {
+          "impact": {
+            "logical_items": 7,
+            "entries": 7,
+            "fragmented_items": 0,
+            "cursor": "eyJvZmZzZXQiOjAsInJlcG9ydF9oYXNoIjoiMzc0MTNlNjJlZDFjZGNiMmI3ZDhjYjEyNTE0MmVmYzI4NjU2NjlmYjRkMzY1MmI1YWU5MDRkNTk5ODVkODdiZCIsInNlY3Rpb24iOiJpbXBhY3QiLCJ2IjoxfQ"
+          },
+          "source_contradictions": {
+            "logical_items": 0,
+            "entries": 0,
+            "fragmented_items": 0,
+            "cursor": null
+          },
+          "source_uncertainties": {
+            "logical_items": 2,
+            "entries": 2,
+            "fragmented_items": 0,
+            "cursor": "eyJvZmZzZXQiOjAsInJlcG9ydF9oYXNoIjoiMzc0MTNlNjJlZDFjZGNiMmI3ZDhjYjEyNTE0MmVmYzI4NjU2NjlmYjRkMzY1MmI1YWU5MDRkNTk5ODVkODdiZCIsInNlY3Rpb24iOiJzb3VyY2VfdW5jZXJ0YWludGllcyIsInYiOjF9"
+          },
+          "dynamic_boundaries": {
+            "logical_items": 12,
+            "entries": 12,
+            "fragmented_items": 0,
+            "cursor": "eyJvZmZzZXQiOjAsInJlcG9ydF9oYXNoIjoiMzc0MTNlNjJlZDFjZGNiMmI3ZDhjYjEyNTE0MmVmYzI4NjU2NjlmYjRkMzY1MmI1YWU5MDRkNTk5ODVkODdiZCIsInNlY3Rpb24iOiJkeW5hbWljX2JvdW5kYXJpZXMiLCJ2IjoxfQ"
+          },
+          "coverage": {
+            "logical_items": 10,
+            "entries": 10,
+            "fragmented_items": 0,
+            "cursor": "eyJvZmZzZXQiOjAsInJlcG9ydF9oYXNoIjoiMzc0MTNlNjJlZDFjZGNiMmI3ZDhjYjEyNTE0MmVmYzI4NjU2NjlmYjRkMzY1MmI1YWU5MDRkNTk5ODVkODdiZCIsInNlY3Rpb24iOiJjb3ZlcmFnZSIsInYiOjF9"
+          },
+          "reasons": {
+            "logical_items": 5,
+            "entries": 5,
+            "fragmented_items": 0,
+            "cursor": "eyJvZmZzZXQiOjAsInJlcG9ydF9oYXNoIjoiMzc0MTNlNjJlZDFjZGNiMmI3ZDhjYjEyNTE0MmVmYzI4NjU2NjlmYjRkMzY1MmI1YWU5MDRkNTk5ODVkODdiZCIsInNlY3Rpb24iOiJyZWFzb25zIiwidiI6MX0"
+          }
+        },
+        "page": {
+          "section": "impact",
+          "offset": 0,
+          "returned": 5,
+          "total": 7,
+          "remaining": 2,
+          "fragmented_items": 0,
+          "next_cursor": "eyJvZmZzZXQiOjUsInJlcG9ydF9oYXNoIjoiMzc0MTNlNjJlZDFjZGNiMmI3ZDhjYjEyNTE0MmVmYzI4NjU2NjlmYjRkMzY1MmI1YWU5MDRkNTk5ODVkODdiZCIsInNlY3Rpb24iOiJpbXBhY3QiLCJ2IjoxfQ"
+        },
+        "truncated": true
+      }
+    },
+    {
+      "tool": "amu_docs_reviews",
+      "arguments": {
+        "repo": "/Users/Abslock128/Documents/Codex/2026-09-15/hey-so-this-is-a-project-2/integration-fixtures/numpy-v2.3.0",
+        "preview": false
+      },
+      "wire_bytes_including_newline": 364,
+      "wire_sha256": "95798de543c0419af991ebee50f85fb8b65f912d9cc9cb905ed365e77c5624f1",
+      "response": {
+        "jsonrpc": "2.0",
+        "id": "numpy-3",
+        "result": {
+          "content": [
+            {
+              "text": "Error executing tool amu_docs_reviews: 1 validation error for amu_docs_reviewsArguments\npreview\n  Input should be a valid string [type=string_type, input_value=False, input_type=bool]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type",
+              "type": "text"
+            }
+          ],
+          "isError": true
+        }
+      }
+    }
+  ],
+  "frames": [
+    {
+      "bytes": 1493,
+      "sha256": "b884172974100972e9570fffb2e04d1c5cabebc4c61c934e075ada7b121e49b4",
+      "response_kind": "result"
+    },
+    {
+      "bytes": 3188,
+      "sha256": "0347faccab36ea4c1ec9c297517e71d946ceef77b1265bec83566e38e2d9a2fe",
+      "response_kind": "result"
+    },
+    {
+      "bytes": 8016,
+      "sha256": "99fa7087c161f5450a96b99e7b9489012c8c75dba31d0e4ddd4df7327824fe41",
+      "response_kind": "result"
+    },
+    {
+      "bytes": 10798,
+      "sha256": "0581b9c5e92c8a101f87ded348c6bb17bc8928c9075a4ccf389d29fab00db7c5",
+      "response_kind": "result"
+    },
+    {
+      "bytes": 16166,
+      "sha256": "bcc6f1ea015db5138cc3b2de30275d559f7d16bf767a5ea67d0797eeb435c6aa",
+      "response_kind": "result"
+    },
+    {
+      "bytes": 364,
+      "sha256": "95798de543c0419af991ebee50f85fb8b65f912d9cc9cb905ed365e77c5624f1",
+      "response_kind": "result"
+    }
+  ],
+  "initialize_identity": {
+    "amu_version": "0.2.0",
+    "build_sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+    "distribution_version": "0.2.0",
+    "manifest_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761",
+    "manifest_version": "amu-inspection-v1"
+  },
+  "manifest": {
+    "match": true,
+    "expected_version": "amu-inspection-v1",
+    "expected_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761",
+    "observed_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761",
+    "missing_tools": [],
+    "unexpected_tools": [],
+    "schema_mismatches": []
+  },
+  "failed_tool": "amu_docs_reviews",
+  "error": {
+    "content": [
+      {
+        "text": "Error executing tool amu_docs_reviews: 1 validation error for amu_docs_reviewsArguments\npreview\n  Input should be a valid string [type=string_type, input_value=False, input_type=bool]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type",
+        "type": "text"
+      }
+    ],
+    "isError": true
+  },
+  "maximum_frame_bytes": 16166
+}

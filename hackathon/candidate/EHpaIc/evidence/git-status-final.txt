@@ -1,0 +1,221 @@
+## main...origin/main
+ M .gitignore
+ M BUILDATHON.md
+ M BUILD_PLAN.md
+ M README.md
+ M amu/brand.py
+ M amu/classify.py
+ M amu/cli.py
+ M amu/contract.py
+ M amu/docs.py
+ M amu/entire.py
+ M amu/graph.py
+ M amu/graphview.py
+ M amu/harness/chat.py
+ M amu/harness/model.py
+ M amu/harness/orchestrator.py
+ M amu/harness/providers.py
+ M amu/harness/roles.py
+ M amu/keys.py
+ M amu/mcp_server.py
+ M amu/memory.py
+ M amu/plan.py
+ M amu/render.py
+ M amu/router.py
+ M amu/skills/close-the-loop/SKILL.md
+ M amu/skills/doc-follow/SKILL.md
+ M amu/skills/map-a-change/SKILL.md
+ M amu/skills/phase-edit/SKILL.md
+ M amu/skills/red-triage/SKILL.md
+ M amu/state.py
+ M amu/watch.py
+ M amu/workspace.py
+ M docs/ARCHITECTURE.md
+ M docs/DEMO.md
+ M docs/TESTCASE-NUMPY.md
+ M pyproject.toml
+ M scripts/install.sh
+ M tests/conftest.py
+ M tests/test_amu.py
+ M tests/test_chat.py
+ M tests/test_classify.py
+ M tests/test_cli_smoke.py
+ M tests/test_contract_phase.py
+ M tests/test_docs.py
+ M tests/test_done.py
+ M tests/test_graph.py
+ M tests/test_key.py
+ M tests/test_map.py
+ M tests/test_memory.py
+ M tests/test_plan.py
+ M tests/test_providers.py
+ M tests/test_repl_key.py
+ M tests/test_roles.py
+ M tests/test_watch.py
+ M tests/test_workspace.py
+ M web/public/card.html
+ M web/public/graph.html
+ M web/public/index.html
+ M web/public/install.sh
+?? .github/
+?? MANIFEST.in
+?? THIRD-PARTY.txt
+?? amu/api_manifest.py
+?? amu/api_python.py
+?? amu/benchmark.py
+?? amu/benchmark_data/
+?? amu/compatibility.py
+?? amu/dependencies.py
+?? amu/docgraph.py
+?? amu/docreview.py
+?? amu/docsave.py
+?? amu/docstructure.py
+?? amu/freshness.py
+?? amu/graph_readiness.py
+?? amu/graph_refresh.py
+?? amu/harness/context.py
+?? amu/harness/schema.py
+?? amu/harness/validation.py
+?? amu/lifecycle.py
+?? amu/mcp_access.py
+?? amu/mcp_manifest.py
+?? amu/mcp_transport.py
+?? amu/mcp_verification.py
+?? amu/memory_commit.py
+?? amu/outbound.py
+?? amu/process.py
+?? amu/relations.py
+?? amu/repository_diagnostics.py
+?? amu/services/
+?? amu/source_evidence.py
+?? amu/state_io.py
+?? amu/state_schema.py
+?? amu/unknowns.py
+?? constraints.txt
+?? docs/API-ACCURACY.md
+?? docs/APPLICATION-SERVICES.md
+?? docs/DOC-REVIEWS.md
+?? docs/FRESHNESS.md
+?? docs/GRAPH-RESOURCES.md
+?? docs/IMPACT-ANALYSIS.md
+?? docs/IMPROVEMENT-STATUS.md
+?? docs/MCP-SECURITY.md
+?? docs/MODEL-CONTEXT.md
+?? docs/RELEASE-READINESS.md
+?? docs/STATE-RECOVERY.md
+?? docs/VIEWER-ACCESSIBILITY.md
+?? docs/evidence/documentation-services-2026-10-09.json
+?? docs/evidence/engine-provenance-2026-10-09.json
+?? docs/evidence/github-linux-ci-2026-10-09.json
+?? docs/evidence/graph-resources-2026-10-09.json
+?? docs/evidence/graph-services-2026-10-09.json
+?? docs/evidence/numpy-v2.3.0-relations-2026-10-08-calls.json
+?? docs/evidence/numpy-v2.3.0-relations-2026-10-08.json
+?? docs/evidence/public-api-v1-score-2026-10-08.json
+?? docs/evidence/release-candidate-2026-10-09.json
+?? docs/evidence/release-candidate-mcp-2026-10-09.json
+?? scripts/check_constraints.py
+?? scripts/check_source_archive.py
+?? scripts/smoke_installed.py
+?? scripts/smoke_mcp_inspection.py
+?? scripts/smoke_mcp_installed.py
+?? scripts/smoke_mcp_wire.py
+?? scripts/smoke_mcp_workflow.py
+?? scripts/smoke_pilot_installed.py
+?? tests/test_accuracy_benchmark.py
+?? tests/test_api_commands.py
+?? tests/test_api_manifest.py
+?? tests/test_api_python.py
+?? tests/test_check_e2e.py
+?? tests/test_cli_transport_bounds.py
+?? tests/test_cli_validation.py
+?? tests/test_compatibility.py
+?? tests/test_configuration_resource_bounds.py
+?? tests/test_constraints.py
+?? tests/test_context_limits.py
+?? tests/test_credential_storage.py
+?? tests/test_dependency_plan.py
+?? tests/test_doc_graph.py
+?? tests/test_doc_identity.py
+?? tests/test_doc_queue.py
+?? tests/test_doc_review.py
+?? tests/test_doc_review_read_boundary.py
+?? tests/test_doc_saves.py
+?? tests/test_doc_structure.py
+?? tests/test_docs_api_manifest.py
+?? tests/test_docs_freshness_lifecycle.py
+?? tests/test_docs_graph_cache.py
+?? tests/test_doctor_diagnostics.py
+?? tests/test_documentation_adapter.py
+?? tests/test_documentation_service.py
+?? tests/test_documentation_service_parity.py
+?? tests/test_engine_pin.py
+?? tests/test_entire.py
+?? tests/test_entire_stream.py
+?? tests/test_external_graph_refresh.py
+?? tests/test_external_numpy_graph.py
+?? tests/test_freshness_domains.py
+?? tests/test_graph_freshness_domains.py
+?? tests/test_graph_readiness.py
+?? tests/test_graph_refresh.py
+?? tests/test_graph_relevant_docs.py
+?? tests/test_graph_resource_bounds.py
+?? tests/test_graph_service_adapters.py
+?? tests/test_graph_service_parity.py
+?? tests/test_graph_sync_service.py
+?? tests/test_impact_adapters.py
+?? tests/test_impact_service.py
+?? tests/test_installer.py
+?? tests/test_isolated_graph.py
+?? tests/test_lifecycle_evidence.py
+?? tests/test_lifecycle_gates.py
+?? tests/test_map_source_validation.py
+?? tests/test_mapping_service.py
+?? tests/test_mcp_access.py
+?? tests/test_mcp_manifest.py
+?? tests/test_mcp_search_inspection.py
+?? tests/test_mcp_security_stdio.py
+?? tests/test_mcp_server.py
+?? tests/test_mcp_startup_contract.py
+?? tests/test_mcp_stdio.py
+?? tests/test_mcp_transport.py
+?? tests/test_mcp_verification.py
+?? tests/test_mcp_wire_protocol.py
+?? tests/test_memory_commit.py
+?? tests/test_memory_durability.py
+?? tests/test_model_disable_switch.py
+?? tests/test_model_guardrails.py
+?? tests/test_nested_state.py
+?? tests/test_outbound_policy.py
+?? tests/test_pilot_test_evidence.py
+?? tests/test_plan_docs_scope.py
+?? tests/test_prd_lifecycle.py
+?? tests/test_process.py
+?? tests/test_provider_transport.py
+?? tests/test_relation_risk.py
+?? tests/test_repl_dispatch.py
+?? tests/test_repl_graph_limits.py
+?? tests/test_repl_ui.py
+?? tests/test_repository_diagnostics.py
+?? tests/test_run_transactions.py
+?? tests/test_runner_output_bounds.py
+?? tests/test_snapshot_consumers.py
+?? tests/test_source_archive.py
+?? tests/test_source_evidence.py
+?? tests/test_state_fingerprint.py
+?? tests/test_state_io.py
+?? tests/test_state_transactions.py
+?? tests/test_unknown_answers.py
+?? tests/test_watch_current_state.py
+?? tests/test_web_card.py
+?? tests/test_worktree_resource_bounds.py
+?? tmp/
+?? web/package-lock.json
+?? web/package.json
+?? web/playwright.config.js
+?? web/public/card.js
+?? web/public/graph.js
+?? web/public/vendor/
+?? web/public/viewer-input.js
+?? web/public/viewers.css
+?? web/tests/

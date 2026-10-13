@@ -1,0 +1,42 @@
+Changing one function can affect code in files an agent has not opened yet.
+AMU helps the agent investigate those relationships before choosing a patch
+and deciding what to test.
+
+Here is a small, synthetic checkout service. A fifty percent discount on five
+cents should produce three cents when exact halves round up. The original
+calculation produces two. All eight existing tests pass, so a green starting
+suite does not catch this bug.
+
+AMU searches the source and asks the graph provider about the shared pricing
+function. This actual result identifies quote and checkout as direct callers,
+and receipt text as an indirect caller. The source confirms that receipts use
+quote, which uses pricing. Tests appear in the result too. The raw edge
+provenance is marked unknown, so these relationships still need scrutiny.
+
+The impact tool accepts a proposed intent. It returns potential impacts,
+coverage and explicit limits. We retrieved every section of the report, and
+an old cursor was refused after the source changed. Behavioral safety remains
+unknown. This packet does not execute a patch or prove that a change is safe.
+
+The coding agent reads the source, chooses integer arithmetic and adds
+regression tests for rounding, large values and downstream behavior. This is
+the patch it actually produced. Our disposable replay applies that saved
+patch and observes the corrected total of three cents.
+
+All fifteen agent-selected tests pass. A separate evaluator, frozen before
+either agent ran, also passes six requested-fix groups and four protected
+behavior groups. Those checks cover the bug, quote, payment, receipts and
+existing validation and free-order behavior.
+
+We also ran a fair comparison with two fresh agent contexts on the same
+starting source and task. Both fixed the bug. Ordinary exploration took
+about one hundred seconds; the AMU run took about one hundred forty-three.
+AMU added structured dependency and coverage evidence, but this case showed
+no speed or correctness advantage. One case cannot establish general superiority.
+This was a small repository. Our hypothesis is that dependency evidence may help
+more in larger, interconnected projects; that still needs a controlled test.
+
+The repository includes both traces, both patches, the frozen checks and this
+actual local replay. Graph evidence identifies relationships; the agent reasons
+about edits; tests verify the behavior they cover. The frozen local candidate
+is preserved, and authenticated ChatGPT acceptance remains an open gate.

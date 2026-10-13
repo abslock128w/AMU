@@ -1,0 +1,64 @@
+{
+  "started_at_utc": "2026-10-10T06:26:27.565772+00:00",
+  "scope": "Authorized offline persistent install and isolated inspection preflight; no live cutover",
+  "environment": "/Users/Abslock128/Documents/Codex/2026-09-13/hey/TWC-Thugs/.venv-phase1-wire-2026-10-10",
+  "steps": [
+    {
+      "label": "persistent-venv",
+      "exit_code": 0
+    },
+    {
+      "label": "persistent-offline-install",
+      "exit_code": 0
+    },
+    {
+      "label": "persistent-dependencies",
+      "exit_code": 0
+    },
+    {
+      "label": "persistent-constraints",
+      "exit_code": 0
+    },
+    {
+      "label": "persistent-identity",
+      "exit_code": 0
+    },
+    {
+      "label": "persistent-environment-raw",
+      "exit_code": 0
+    },
+    {
+      "label": "persistent-environment-native",
+      "exit_code": 0
+    }
+  ],
+  "status": "passed",
+  "live_runtime_changed": false,
+  "identity": {
+    "amu_version": "0.2.0",
+    "version": "0.2.0",
+    "distribution_version": "0.2.0",
+    "python_version": "3.14.6",
+    "executable": "/Users/Abslock128/Documents/Codex/2026-09-13/hey/TWC-Thugs/.venv-phase1-wire-2026-10-10/bin/python",
+    "module": "/Users/Abslock128/Documents/Codex/2026-09-13/hey/TWC-Thugs/.venv-phase1-wire-2026-10-10/lib/python3.14/site-packages/amu/mcp_server.py",
+    "build_sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+    "build": {
+      "sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+      "complete": true,
+      "files": 60,
+      "bytes": 909981,
+      "scope": "actual AMU Python payload only; not a wheel signature or provider identity"
+    },
+    "manifest_version": "amu-inspection-v1",
+    "manifest_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761"
+  },
+  "raw": {
+    "calls": 29,
+    "frames": 31,
+    "maximum_frame_bytes": 13532,
+    "all_sections_complete": true
+  },
+  "finished_at_utc": "2026-10-10T06:26:47.766511+00:00",
+  "native_schema_annotations_match": true,
+  "doctor_behavior_verified": true
+}

@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="19" skipped="0" tests="105" time="63.498" timestamp="2026-10-09T22:27:43.341976+05:30" hostname="babus-MacBook-Air.local"><testcase classname="tests.test_graph_service_parity" name="test_exact_map_payload_is_identical_for_all_adapters" time="1.241"><failure message="assert (1 == 0)">tmp_path = PosixPath('/private/var/folders/5k/x6lj0ysn01v6lnw7kdjxph300000gp/T/pytest-of-Abslock128/pytest-38/test_exact_map_payload_is_iden0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x107c90b50&gt;
+provider = {'impact': {'focus': {'id': 'fixture-target', 'name': 'target', 'qualified_name': 'target', 'kind': 'function', ...}, ...', 'qualified_name': 'target', ...}], 'capabilities': {'unresolved_patterns': ['reflection', 'dynamic_dispatch']}, ...}
+
+    def test_exact_map_payload_is_identical_for_all_adapters(tmp_path, monkeypatch, provider):
+        repo = _repo(tmp_path)
+        expected_code, expected = _Adapter("service", repo, monkeypatch).map(depth=3, change="body")
+        assert expected_code == 0 and expected["graph_evidence"]["approvable"] is True
+        assert expected["graph_evidence"]["baseline_ready"] is True
+        assert expected["graph_evidence"]["unverified_python_calls"] == []
+        assert expected["graph_evidence"]["impact_coverage"][TARGET]["depth"] == 3
+        assert expected["resolution"]["limitations"]
+        for kind in MAP_ADAPTERS[1:]:
+            code, actual = _Adapter(kind, repo, monkeypatch).map(depth=3, change="body")
+&gt;           assert code == expected_code and actual == expected
+E           assert (1 == 0)
+
+tests/test_graph_service_parity.py:173: AssertionError</failure></testcase><testcase classname="tests.test_graph_service_parity" name="test_empty_file_inventory_is_explicit_unapprovable_inspection[service]" time="0.462" /><testcase classname="tests.test_graph_service_parity" name="test_empty_file_inventory_is_explicit_unapprovable_inspection[cli]" time="0.486" /><testcase classname="tests.test_graph_service_parity" name="test_empty_file_inventory_is_explicit_unapprovable_inspection[repl]" time="0.418" /><testcase classname="tests.test_graph_service_parity" name="test_empty_file_inventory_is_explicit_unapprovable_inspection[mcp]" time="0.230"><failure message="assert 1 == 0">kind = 'mcp'
+tmp_path = PosixPath('/private/var/folders/5k/x6lj0ysn01v6lnw7kdjxph300000gp/T/pytest-of-Abslock128/pytest-38/test_empty_file_inventory_is_e3')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x107c1f8d0&gt;
+provider = {'impact': {'focus': {'id': 'fixture-target', 'name': 'target', 'qualified_name': 'target', 'kind': 'function', ...}, ...nventory_error': None, 'symbols': [], 'capabilities': {'unresolved_patterns': ['reflection', 'dynamic_dispatch']}, ...}
+
+    @pytest.mark.parametrize("kind", MAP_ADAPTERS)
+    def test_empty_file_inventory_is_explicit_unapprovable_inspection(kind, tmp_path, monkeypatch, provider):
+        repo = _repo(tmp_path)
+        provider["symbols"] = []
+        code, payload = _Adapter(kind, repo, monkeypatch).map(file="target.py")
+&gt;       assert code == 0
+E       assert 1 == 0
+
+tests/test_graph_service_parity.py:184: AssertionError</failure></testcase><testcase classname="tests.test_graph_service_parity" name="test_failed_inventory_preserves_previous_map[service]" time="0.463" /><testcase classname="tests.test_graph_service_parity" name="test_failed_inventory_preserves_previous_map[cli]" time="0.606" /><testcase classname="tests.test_graph_service_parity" name="test_failed_inventory_preserves_previous_map[repl]" time="0.588" /><testcase classname="tests.test_graph_service_parity" name="test_failed_inventory_preserves_previous_map[mcp]" time="0.237"><failure message="assert 1 == 0">kind = 'mcp'
+tmp_path = PosixPath('/private/var/folders/5k/x6lj0ysn01v6lnw7kdjxph300000gp/T/pytest-of-Abslock128/pytest-38/test_failed_inventory_preserve3')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x107baca10&gt;
+provider = {'impact': {'focus': {'id': 'fixture-target', 'name': 'target', 'qualified_name': 'target', 'kind': 'function', ...}, ...', 'qualified_name': 'target', ...}], 'capabilities': {'unresolved_patterns': ['reflection', 'dynamic_dispatch']}, ...}
+
+    @pytest.mark.parametrize("kind", MAP_ADAPTERS)
+    def test_failed_inventory_preserves_previous_map(kind, tmp_path, monkeypatch, provider):
+        repo = _repo(tmp_path)
+        adapter = _Adapter(kind, repo, monkeypatch)
+&gt;       assert adapter.map()[0] == 0
+E       assert 1 == 0
+
+tests/test_graph_service_parity.py:195: AssertionError</failure></testcase><testcase classname="tests.test_graph_service_parity" name="test_provider_uncertainty_cannot_be_promoted_to_exact_baseline[ambiguous-service]" time="0.423" /><testcase classname="tests.test_graph_service_parity" name="test_provider_uncertainty_cannot_be_promoted_to_exact_baseline[ambiguous-cli]" time="0.461" /><testcase classname="tests.test_graph_service_parity" name="test_provider_uncertainty_cannot_be_promoted_to_exact_baseline[ambiguous-repl]" time="0.516" /><testcase classname="tests.test_graph_service_parity" name="test_provider_uncertainty_cannot_be_promoted_to_exact_baseline[ambiguous-mcp]" time="0.228"><failure message="assert (1 == 0)">kind = 'mcp', defect = 'ambiguous'
+tmp_path = PosixPath('/private/var/folders/5k/x6lj0ysn01v6lnw7kdjxph300000gp/T/pytest-of-Abslock128/pytest-38/test_provider_uncertainty_cann3')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x107c16010&gt;
+provider = {'impact': {'focus': {'id': 'fixture-target', 'name': 'target', 'qualified_name': 'target', 'kind': 'function', ...}, ...', 'qualified_name': 'target', ...}], 'capabilities': {'unresolved_patterns': ['reflection', 'dynamic_dispatch']}, ...}
+
+    @pytest.mark.parametrize("kind", MAP_ADAPTERS)
+    @pytest.mark.parametrize("defect", ["ambiguous", "wrong_focus", "truncated", "capabilities"])
+    def test_provider_uncertainty_cannot_be_promoted_to_exact_baseline(
+        kind, defect, tmp_path, monkeypatch, provider,
+    ):
+        repo = _repo(tmp_path)
+        if defect == "ambiguous":
+            provider["impact"].update(disambiguation_required=True,
+                                      definitions=[{"file_path": "a.py"}, {"file_path": "b.py"}])
+        elif defect == "wrong_focus":
+            provider["impact"]["focus"]["file_path"] = "other.py"
+        elif defect == "truncated":
+            provider["impact"]["callers"]["total"] = 2
+        else:
+            provider["capabilities"] = {"error": "capability output exceeded limit", "error_type": "output_limit"}
+        code, payload = _Adapter(kind, repo, monkeypatch).map()
+&gt;       assert code == 0 and payload["graph_evidence"]["approvable"] is False
+E       assert (1 == 0)
+
+tests/test_graph_service_parity.py:222: AssertionError</failure></testcase><testcase classname="tests.test_graph_service_parity" name="test_provider_uncertainty_cannot_be_promoted_to_exact_baseline[wrong_focus-service]" time="0.451" /><testcase classname="tests.test_graph_service_parity" name="test_provider_uncertainty_cannot_be_promoted_to_exact_baseline[wrong_focus-cli]" time="0.418" /><testcase classname="tests.test_graph_service_parity" name="test_provider_uncertainty_cannot_be_promoted_to_exact_baseline[wrong_focus-repl]" time="0.466" /><testcase classname="tests.test_graph_service_parity" name="test_provider_uncertainty_cannot_be_promoted_to_exact_baseline[wrong_focus-mcp]" time="0.228"><failure message="assert (1 == 0)">kind = 'mcp', defect = 'wrong_focus'
+tmp_path = PosixPath('/private/var/folders/5k/x6lj0ysn01v6lnw7kdjxph300000gp/T/pytest-of-Abslock128/pytest-38/test_provider_uncertainty_cann7')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x107af7d10&gt;
+provider = {'impact': {'focus': {'id': 'fixture-target', 'name': 'target', 'qualified_name': 'target', 'kind': 'function', ...}, ...', 'qualified_name': 'target', ...}], 'capabilities': {'unresolved_patterns': ['reflection', 'dynamic_dispatch']}, ...}
+
+    @pytest.mark.parametrize("kind", MAP_ADAPTERS)
+    @pytest.mark.parametrize("defect", ["ambiguous", "wrong_focus", "truncated", "capabilities"])
+    def test_provider_uncertainty_cannot_be_promoted_to_exact_baseline(
+        kind, defect, tmp_path, monkeypatch, provider,
+    ):
+        repo = _repo(tmp_path)
+        if defect == "ambiguous":
+            provider["impact"].update(disambiguation_required=True,
+                                      definitions=[{"file_path": "a.py"}, {"file_path": "b.py"}])
+        elif defect == "wrong_focus":
+            provider["impact"]["focus"]["file_path"] = "other.py"
+        elif defect == "truncated":
+            provider["impact"]["callers"]["total"] = 2
+        else:
+            provider["capabilities"] = {"error": "capability output exceeded limit", "error_type": "output_limit"}
+        code, payload = _Adapter(kind, repo, monkeypatch).map()
+&gt;       assert code == 0 and payload["graph_evidence"]["approvable"] is False
+E       assert (1 == 0)
+
+tests/test_graph_service_parity.py:222: AssertionError</failure></testcase><testcase classname="tests.test_graph_service_parity" name="test_provider_uncertainty_cannot_be_promoted_to_exact_baseline[truncated-service]" time="0.439" /><testcase classname="tests.test_graph_service_parity" name="test_provider_uncertainty_cannot_be_promoted_to_exact_baseline[truncated-cli]" time="0.486" /><testcase classname="tests.test_graph_service_parity" name="test_provider_uncertainty_cannot_be_promoted_to_exact_baseline[truncated-repl]" time="0.480" /><testcase classname="tests.test_graph_service_parity" name="test_provider_uncertainty_cannot_be_promoted_to_exact_baseline[truncated-mcp]" time="0.180"><failure message="assert (1 == 0)">kind = 'mcp', defect = 'truncated'
+tmp_path = PosixPath('/private/var/folders/5k/x6lj0ysn01v6lnw7kdjxph300000gp/T/pytest-of-Abslock128/pytest-38/test_provider_uncertainty_cann11')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x107c02b10&gt;
+provider = {'impact': {'focus': {'id': 'fixture-target', 'name': 'target', 'qualified_name': 'target', 'kind': 'function', ...}, ...', 'qualified_name': 'target', ...}], 'capabilities': {'unresolved_patterns': ['reflection', 'dynamic_dispatch']}, ...}
+
+    @pytest.mark.parametrize("kind", MAP_ADAPTERS)
+    @pytest.mark.parametrize("defect", ["ambiguous", "wrong_focus", "truncated", "capabilities"])
+    def test_provider_uncertainty_cannot_be_promoted_to_exact_baseline(
+        kind, defect, tmp_path, monkeypatch, provider,
+    ):
+        repo = _repo(tmp_path)
+        if defect == "ambiguous":
+            provider["impact"].update(disambiguation_required=True,
+                                      definitions=[{"file_path": "a.py"}, {"file_path": "b.py"}])
+        elif defect == "wrong_focus":
+            provider["impact"]["focus"]["file_path"] = "other.py"
+        elif defect == "truncated":
+            provider["impact"]["callers"]["total"] = 2
+        else:
+            provider["capabilities"] = {"error": "capability output exceeded limit", "error_type": "output_limit"}
+        code, payload = _Adapter(kind, repo, monkeypatch).map()
+&gt;       assert code == 0 and payload["graph_evidence"]["approvable"] is False
+E       assert (1 == 0)
+
+tests/test_graph_service_parity.py:222: AssertionError</failure></testcase><testcase classname="tests.test_graph_service_parity" name="test_provider_uncertainty_cannot_be_promoted_to_exact_baseline[capabilities-service]" time="0.365" /><testcase classname="tests.test_graph_service_parity" name="test_provider_uncertainty_cannot_be_promoted_to_exact_baseline[capabilities-cli]" time="0.419" /><testcase classname="tests.test_graph_service_parity" name="test_provider_uncertainty_cannot_be_promoted_to_exact_baseline[capabilities-repl]" time="0.417" /><testcase classname="tests.test_graph_service_parity" name="test_provider_uncertainty_cannot_be_promoted_to_exact_baseline[capabilities-mcp]" time="0.185"><failure message="assert (1 == 0)">kind = 'mcp', defect = 'capabilities'
+tmp_path = PosixPath('/private/var/folders/5k/x6lj0ysn01v6lnw7kdjxph300000gp/T/pytest-of-Abslock128/pytest-38/test_provider_uncertainty_cann15')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1072b14d0&gt;
+provider = {'impact': {'focus': {'id': 'fixture-target', 'name': 'target', 'qualified_name': 'target', 'kind': 'function', ...}, ...me': 'target', ...}], 'capabilities': {'error': 'capability output exceeded limit', 'error_type': 'output_limit'}, ...}
+
+    @pytest.mark.parametrize("kind", MAP_ADAPTERS)
+    @pytest.mark.parametrize("defect", ["ambiguous", "wrong_focus", "truncated", "capabilities"])
+    def test_provider_uncertainty_cannot_be_promoted_to_exact_baseline(
+        kind, defect, tmp_path, monkeypatch, provider,
+    ):
+        repo = _repo(tmp_path)
+        if defect == "ambiguous":
+            provider["impact"].update(disambiguation_required=True,
+                                      definitions=[{"file_path": "a.py"}, {"file_path": "b.py"}])
+        elif defect == "wrong_focus":
+            provider["impact"]["focus"]["file_path"] = "other.py"
+        elif defect == "truncated":
+            provider["impact"]["callers"]["total"] = 2
+        else:
+            provider["capabilities"] = {"error": "capability output exceeded limit", "error_type": "output_limit"}
+        code, payload = _Adapter(kind, repo, monkeypatch).map()
+&gt;       assert code == 0 and payload["graph_evidence"]["approvable"] is False
+E       assert (1 == 0)
+
+tests/test_graph_service_parity.py:222: AssertionError</failure></testcase><testcase classname="tests.test_graph_service_parity" name="test_source_evidence_policy_stays_the_same_in_every_adapter[contradicted-service]" time="0.446" /><testcase classname="tests.test_graph_service_parity" name="test_source_evidence_policy_stays_the_same_in_every_adapter[contradicted-cli]" time="0.516" /><testcase classname="tests.test_graph_service_parity" name="test_source_evidence_policy_stays_the_same_in_every_adapter[contradicted-repl]" time="0.489" /><testcase classname="tests.test_graph_service_parity" name="test_source_evidence_policy_stays_the_same_in_every_adapter[contradicted-mcp]" time="0.243"><failure message="assert 1 == 0">kind = 'mcp', evidence = 'contradicted'
+tmp_path = PosixPath('/private/var/folders/5k/x6lj0ysn01v6lnw7kdjxph300000gp/T/pytest-of-Abslock128/pytest-38/test_source_evidence_policy_st3')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x107b54450&gt;
+provider = {'impact': {'focus': {'id': 'fixture-target', 'name': 'target', 'qualified_name': 'target', 'kind': 'function', ...}, ...', 'qualified_name': 'target', ...}], 'capabilities': {'unresolved_patterns': ['reflection', 'dynamic_dispatch']}, ...}
+
+    @pytest.mark.parametrize("kind", MAP_ADAPTERS)
+    @pytest.mark.parametrize("evidence", ["contradicted", "uncertain"])
+    def test_source_evidence_policy_stays_the_same_in_every_adapter(
+        kind, evidence, tmp_path, monkeypatch, provider,
+    ):
+        repo = _repo(tmp_path)
+        source = ('def consumer():\n    """Example only: target()."""\n    return 0\n'
+                  if evidence == "contradicted" else
+                  "def consumer(callback):\n    return callback.target()\n")
+        (repo / "consumer.py").write_text(source, encoding="utf-8")
+        _commit(repo, "consumer.py")
+        site = 2
+        entry = provider["impact"]["callers"]["entries"][0]
+        entry["call_site"]["line"] = site
+        entry["endpoint"].update(start_line=1, end_line=3 if evidence == "contradicted" else 2)
+        code, payload = _Adapter(kind, repo, monkeypatch).map()
+&gt;       assert code == 0
+E       assert 1 == 0
+
+tests/test_graph_service_parity.py:244: AssertionError</failure></testcase><testcase classname="tests.test_graph_service_parity" name="test_source_evidence_policy_stays_the_same_in_every_adapter[uncertain-service]" time="0.303" /><testcase classname="tests.test_graph_service_parity" name="test_source_evidence_policy_stays_the_same_in_every_adapter[uncertain-cli]" time="0.408" /><testcase classname="tests.test_graph_service_parity" name="test_source_evidence_policy_stays_the_same_in_every_adapter[uncertain-repl]" time="0.398" /><testcase classname="tests.test_graph_service_parity" name="test_source_evidence_policy_stays_the_same_in_every_adapter[uncertain-mcp]" time="0.250"><failure message="assert 1 == 0">kind = 'mcp', evidence = 'uncertain'
+tmp_path = PosixPath('/private/var/folders/5k/x6lj0ysn01v6lnw7kdjxph300000gp/T/pytest-of-Abslock128/pytest-38/test_source_evidence_policy_st7')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x10728b3d0&gt;
+provider = {'impact': {'focus': {'id': 'fixture-target', 'name': 'target', 'qualified_name': 'target', 'kind': 'function', ...}, ...', 'qualified_name': 'target', ...}], 'capabilities': {'unresolved_patterns': ['reflection', 'dynamic_dispatch']}, ...}
+
+    @pytest.mark.parametrize("kind", MAP_ADAPTERS)
+    @pytest.mark.parametrize("evidence", ["contradicted", "uncertain"])
+    def test_source_evidence_policy_stays_the_same_in_every_adapter(
+        kind, evidence, tmp_path, monkeypatch, provider,
+    ):
+        repo = _repo(tmp_path)
+        source = ('def consumer():\n    """Example only: target()."""\n    return 0\n'
+                  if evidence == "contradicted" else
+                  "def consumer(callback):\n    return callback.target()\n")
+        (repo / "consumer.py").write_text(source, encoding="utf-8")
+        _commit(repo, "consumer.py")
+        site = 2
+        entry = provider["impact"]["callers"]["entries"][0]
+        entry["call_site"]["line"] = site
+        entry["endpoint"].update(start_line=1, end_line=3 if evidence == "contradicted" else 2)
+        code, payload = _Adapter(kind, repo, monkeypatch).map()
+&gt;       assert code == 0
+E       assert 1 == 0
+
+tests/test_graph_service_parity.py:244: AssertionError</failure></testcase><testcase classname="tests.test_graph_service_parity" name="test_source_mutation_during_query_never_overwrites_stable_map[service]" time="0.541" /><testcase classname="tests.test_graph_service_parity" name="test_source_mutation_during_query_never_overwrites_stable_map[cli]" time="0.678" /><testcase classname="tests.test_graph_service_parity" name="test_source_mutation_during_query_never_overwrites_stable_map[repl]" time="0.609" /><testcase classname="tests.test_graph_service_parity" name="test_source_mutation_during_query_never_overwrites_stable_map[mcp]" time="0.201"><failure message="assert 1 == 0">kind = 'mcp'
+tmp_path = PosixPath('/private/var/folders/5k/x6lj0ysn01v6lnw7kdjxph300000gp/T/pytest-of-Abslock128/pytest-38/test_source_mutation_during_qu3')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x107c61e10&gt;
+provider = {'impact': {'focus': {'id': 'fixture-target', 'name': 'target', 'qualified_name': 'target', 'kind': 'function', ...}, ...', 'qualified_name': 'target', ...}], 'capabilities': {'unresolved_patterns': ['reflection', 'dynamic_dispatch']}, ...}
+
+    @pytest.mark.parametrize("kind", MAP_ADAPTERS)
+    def test_source_mutation_during_query_never_overwrites_stable_map(kind, tmp_path, monkeypatch, provider):
+        repo = _repo(tmp_path)
+        adapter = _Adapter(kind, repo, monkeypatch)
+&gt;       assert adapter.map()[0] == 0
+E       assert 1 == 0
+
+tests/test_graph_service_parity.py:264: AssertionError</failure></testcase><testcase classname="tests.test_graph_service_parity" name="test_dirty_code_is_inspectable_but_only_inert_prose_preserves_baseline[target.py-service]" time="0.422" /><testcase classname="tests.test_graph_service_parity" name="test_dirty_code_is_inspectable_but_only_inert_prose_preserves_baseline[target.py-cli]" time="0.414" /><testcase classname="tests.test_graph_service_parity" name="test_dirty_code_is_inspectable_but_only_inert_prose_preserves_baseline[target.py-repl]" time="0.353" /><testcase classname="tests.test_graph_service_parity" name="test_dirty_code_is_inspectable_but_only_inert_prose_preserves_baseline[target.py-mcp]" time="0.263"><failure message="assert (1 == 0)">kind = 'mcp', path = 'target.py'
+tmp_path = PosixPath('/private/var/folders/5k/x6lj0ysn01v6lnw7kdjxph300000gp/T/pytest-of-Abslock128/pytest-38/test_dirty_code_is_inspectable3')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1072b31d0&gt;
+provider = {'impact': {'focus': {'id': 'fixture-target', 'name': 'target', 'qualified_name': 'target', 'kind': 'function', ...}, ...', 'qualified_name': 'target', ...}], 'capabilities': {'unresolved_patterns': ['reflection', 'dynamic_dispatch']}, ...}
+
+    @pytest.mark.parametrize("kind", MAP_ADAPTERS)
+    @pytest.mark.parametrize("path", ["target.py", "docs/example.py", "docs/guide.md"])
+    def test_dirty_code_is_inspectable_but_only_inert_prose_preserves_baseline(
+        kind, path, tmp_path, monkeypatch, provider,
+    ):
+        repo = _repo(tmp_path)
+        original = (repo / path).read_text() if (repo / path).exists() else "value = 1\n"
+        (repo / path).write_text(original + "\n# revised input\n", encoding="utf-8")
+        code, payload = _Adapter(kind, repo, monkeypatch).map()
+&gt;       assert code == 0 and payload["graph_evidence"]["worktree"]["stable"] is True
+E       assert (1 == 0)
+
+tests/test_graph_service_parity.py:284: AssertionError</failure></testcase><testcase classname="tests.test_graph_service_parity" name="test_dirty_code_is_inspectable_but_only_inert_prose_preserves_baseline[docs/example.py-service]" time="0.368" /><testcase classname="tests.test_graph_service_parity" name="test_dirty_code_is_inspectable_but_only_inert_prose_preserves_baseline[docs/example.py-cli]" time="0.394" /><testcase classname="tests.test_graph_service_parity" name="test_dirty_code_is_inspectable_but_only_inert_prose_preserves_baseline[docs/example.py-repl]" time="0.343" /><testcase classname="tests.test_graph_service_parity" name="test_dirty_code_is_inspectable_but_only_inert_prose_preserves_baseline[docs/example.py-mcp]" time="0.176"><failure message="assert (1 == 0)">kind = 'mcp', path = 'docs/example.py'
+tmp_path = PosixPath('/private/var/folders/5k/x6lj0ysn01v6lnw7kdjxph300000gp/T/pytest-of-Abslock128/pytest-38/test_dirty_code_is_inspectable7')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x10795bf10&gt;
+provider = {'impact': {'focus': {'id': 'fixture-target', 'name': 'target', 'qualified_name': 'target', 'kind': 'function', ...}, ...', 'qualified_name': 'target', ...}], 'capabilities': {'unresolved_patterns': ['reflection', 'dynamic_dispatch']}, ...}
+
+    @pytest.mark.parametrize("kind", MAP_ADAPTERS)
+    @pytest.mark.parametrize("path", ["target.py", "docs/example.py", "docs/guide.md"])
+    def test_dirty_code_is_inspectable_but_only_inert_prose_preserves_baseline(
+        kind, path, tmp_path, monkeypatch, provider,
+    ):
+        repo = _repo(tmp_path)
+        original = (repo / path).read_text() if (repo / path).exists() else "value = 1\n"
+        (repo / path).write_text(original + "\n# revised input\n", encoding="utf-8")
+        code, payload = _Adapter(kind, repo, monkeypatch).map()
+&gt;       assert code == 0 and payload["graph_evidence"]["worktree"]["stable"] is True
+E       assert (1 == 0)
+
+tests/test_graph_service_parity.py:284: AssertionError</failure></testcase><testcase classname="tests.test_graph_service_parity" name="test_dirty_code_is_inspectable_but_only_inert_prose_preserves_baseline[docs/guide.md-service]" time="0.387" /><testcase classname="tests.test_graph_service_parity" name="test_dirty_code_is_inspectable_but_only_inert_prose_preserves_baseline[docs/guide.md-cli]" time="0.446" /><testcase classname="tests.test_graph_service_parity" name="test_dirty_code_is_inspectable_but_only_inert_prose_preserves_baseline[docs/guide.md-repl]" time="0.465" /><testcase classname="tests.test_graph_service_parity" name="test_dirty_code_is_inspectable_but_only_inert_prose_preserves_baseline[docs/guide.md-mcp]" time="0.196"><failure message="assert (1 == 0)">kind = 'mcp', path = 'docs/guide.md'
+tmp_path = PosixPath('/private/var/folders/5k/x6lj0ysn01v6lnw7kdjxph300000gp/T/pytest-of-Abslock128/pytest-38/test_dirty_code_is_inspectable11')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x107c54910&gt;
+provider = {'impact': {'focus': {'id': 'fixture-target', 'name': 'target', 'qualified_name': 'target', 'kind': 'function', ...}, ...', 'qualified_name': 'target', ...}], 'capabilities': {'unresolved_patterns': ['reflection', 'dynamic_dispatch']}, ...}
+
+    @pytest.mark.parametrize("kind", MAP_ADAPTERS)
+    @pytest.mark.parametrize("path", ["target.py", "docs/example.py", "docs/guide.md"])
+    def test_dirty_code_is_inspectable_but_only_inert_prose_preserves_baseline(
+        kind, path, tmp_path, monkeypatch, provider,
+    ):
+        repo = _repo(tmp_path)
+        original = (repo / path).read_text() if (repo / path).exists() else "value = 1\n"
+        (repo / path).write_text(original + "\n# revised input\n", encoding="utf-8")
+        code, payload = _Adapter(kind, repo, monkeypatch).map()
+&gt;       assert code == 0 and payload["graph_evidence"]["worktree"]["stable"] is True
+E       assert (1 == 0)
+
+tests/test_graph_service_parity.py:284: AssertionError</failure></testcase><testcase classname="tests.test_graph_service_parity" name="test_saved_baseline_requires_exact_symbol_and_depth_after_extraction" time="0.310" /><testcase classname="tests.test_graph_service_parity" name="test_sync_payload_is_identical_across_shared_service_and_parsers" time="0.553" /><testcase classname="tests.test_graph_service_parity" name="test_failed_sync_preserves_prior_snapshot_without_claiming_current_evidence[index-service]" time="0.339" /><testcase classname="tests.test_graph_service_parity" name="test_failed_sync_preserves_prior_snapshot_without_claiming_current_evidence[index-cli]" time="0.442" /><testcase classname="tests.test_graph_service_parity" name="test_failed_sync_preserves_prior_snapshot_without_claiming_current_evidence[index-repl]" time="0.396" /><testcase classname="tests.test_graph_service_parity" name="test_failed_sync_preserves_prior_snapshot_without_claiming_current_evidence[snapshot-service]" time="0.345" /><testcase classname="tests.test_graph_service_parity" name="test_failed_sync_preserves_prior_snapshot_without_claiming_current_evidence[snapshot-cli]" time="0.397" /><testcase classname="tests.test_graph_service_parity" name="test_failed_sync_preserves_prior_snapshot_without_claiming_current_evidence[snapshot-repl]" time="0.419" /><testcase classname="tests.test_graph_service_parity" name="test_completion_cache_only_reuses_unchanged_code_configuration_and_snapshot[prose]" time="0.288" /><testcase classname="tests.test_graph_service_parity" name="test_completion_cache_only_reuses_unchanged_code_configuration_and_snapshot[source]" time="0.382" /><testcase classname="tests.test_graph_service_parity" name="test_completion_cache_only_reuses_unchanged_code_configuration_and_snapshot[executable_doc]" time="0.326" /><testcase classname="tests.test_graph_service_parity" name="test_completion_cache_only_reuses_unchanged_code_configuration_and_snapshot[provider]" time="0.286" /><testcase classname="tests.test_graph_service_parity" name="test_completion_cache_only_reuses_unchanged_code_configuration_and_snapshot[depth]" time="0.279" /><testcase classname="tests.test_graph_service_parity" name="test_completion_cache_only_reuses_unchanged_code_configuration_and_snapshot[snapshot]" time="0.301" /><testcase classname="tests.test_graph_service_parity" name="test_explicit_sync_after_prose_edit_never_silently_uses_completion_cache" time="0.296" /><testcase classname="tests.test_documentation_service_parity" name="test_all_adapters_return_the_same_stable_listing_payload" time="1.941"><failure message="assert (1 == 0)">tmp_path = PosixPath('/private/var/folders/5k/x6lj0ysn01v6lnw7kdjxph300000gp/T/pytest-of-Abslock128/pytest-38/test_all_adapters_return_the_s0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x10797a9d0&gt;
+evidence = None
+
+    def test_all_adapters_return_the_same_stable_listing_payload(tmp_path, monkeypatch, evidence):
+        repo = _repo(tmp_path)
+        # Warm the graph so first-generation delta does not make equivalent reads
+        # appear different. Timestamp generation is frozen; ids are source-bound.
+        service = _Adapter("service", repo, monkeypatch)
+        service.call(mode="flag")
+        code, expected = service.call(mode="flag")
+        assert code == 0
+        for kind in ["cli", "repl", "mcp"]:
+            actual_code, actual = _Adapter(kind, repo, monkeypatch).call(mode="flag")
+&gt;           assert actual_code == code and actual == expected
+E           assert (1 == 0)
+
+tests/test_documentation_service_parity.py:148: AssertionError</failure></testcase><testcase classname="tests.test_documentation_service_parity" name="test_auto_mode_keeps_worktree_shadowed_candidates_manual[service]" time="0.620" /><testcase classname="tests.test_documentation_service_parity" name="test_auto_mode_keeps_worktree_shadowed_candidates_manual[cli]" time="0.579" /><testcase classname="tests.test_documentation_service_parity" name="test_auto_mode_keeps_worktree_shadowed_candidates_manual[repl]" time="0.515" /><testcase classname="tests.test_documentation_service_parity" name="test_list_prepare_edit_save_graph_history_and_undo_are_consistent[service]" time="1.675" /><testcase classname="tests.test_documentation_service_parity" name="test_list_prepare_edit_save_graph_history_and_undo_are_consistent[cli]" time="1.819" /><testcase classname="tests.test_documentation_service_parity" name="test_list_prepare_edit_save_graph_history_and_undo_are_consistent[repl]" time="1.763" /><testcase classname="tests.test_documentation_service_parity" name="test_list_prepare_edit_save_graph_history_and_undo_are_consistent[mcp]" time="0.205"><failure message="assert (1 == 0)">kind = 'mcp'
+tmp_path = PosixPath('/private/var/folders/5k/x6lj0ysn01v6lnw7kdjxph300000gp/T/pytest-of-Abslock128/pytest-38/test_list_prepare_edit_save_gr3')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x107b9ef90&gt;
+evidence = None
+
+    @pytest.mark.parametrize("kind", ADAPTERS)
+    def test_list_prepare_edit_save_graph_history_and_undo_are_consistent(kind, tmp_path, monkeypatch, evidence):
+        repo = _repo(tmp_path)
+        adapter = _Adapter(kind, repo, monkeypatch)
+        original = (repo / "docs/a.md").read_text()
+    
+        code, listing = adapter.call(mode="flag")
+&gt;       assert code == 0 and listing["applied"] == []
+E       assert (1 == 0)
+
+tests/test_documentation_service_parity.py:173: AssertionError</failure></testcase><testcase classname="tests.test_documentation_service_parity" name="test_multiple_targets_require_selection_and_only_selected_document_changes[service]" time="1.660" /><testcase classname="tests.test_documentation_service_parity" name="test_multiple_targets_require_selection_and_only_selected_document_changes[cli]" time="1.935" /><testcase classname="tests.test_documentation_service_parity" name="test_multiple_targets_require_selection_and_only_selected_document_changes[repl]" time="2.095" /><testcase classname="tests.test_documentation_service_parity" name="test_multiple_targets_require_selection_and_only_selected_document_changes[mcp]" time="0.415"><failure message="assert (1 == 0)">kind = 'mcp'
+tmp_path = PosixPath('/private/var/folders/5k/x6lj0ysn01v6lnw7kdjxph300000gp/T/pytest-of-Abslock128/pytest-38/test_multiple_targets_require_3')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x107b18bd0&gt;
+evidence = None
+
+    @pytest.mark.parametrize("kind", ADAPTERS)
+    def test_multiple_targets_require_selection_and_only_selected_document_changes(kind, tmp_path, monkeypatch, evidence):
+        repo = _repo(tmp_path, multiple=True)
+        adapter = _Adapter(kind, repo, monkeypatch)
+        original_a = (repo / "docs/a.md").read_text()
+        adapter.call(mode="flag")
+        code, unselected = adapter.call(prepare="d1")
+&gt;       assert code == 0 and "choose one mapped section" in unselected["not_applied"][0]["why"]
+E       assert (1 == 0)
+
+tests/test_documentation_service_parity.py:217: AssertionError</failure></testcase><testcase classname="tests.test_documentation_service_parity" name="test_stale_ids_and_document_conflicts_never_overwrite_newer_work[service]" time="2.535" /><testcase classname="tests.test_documentation_service_parity" name="test_stale_ids_and_document_conflicts_never_overwrite_newer_work[cli]" time="3.783" /><testcase classname="tests.test_documentation_service_parity" name="test_stale_ids_and_document_conflicts_never_overwrite_newer_work[repl]" time="2.919" /><testcase classname="tests.test_documentation_service_parity" name="test_stale_ids_and_document_conflicts_never_overwrite_newer_work[mcp]" time="0.663"><failure message="KeyError: 'prepared'">kind = 'mcp'
+tmp_path = PosixPath('/private/var/folders/5k/x6lj0ysn01v6lnw7kdjxph300000gp/T/pytest-of-Abslock128/pytest-38/test_stale_ids_and_document_co3')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1079f1590&gt;
+evidence = None
+
+    @pytest.mark.parametrize("kind", ADAPTERS)
+    def test_stale_ids_and_document_conflicts_never_overwrite_newer_work(kind, tmp_path, monkeypatch, evidence):
+        repo = _repo(tmp_path)
+        adapter = _Adapter(kind, repo, monkeypatch)
+        adapter.call(mode="flag")
+&gt;       prepared = adapter.call(prepare="d1")[1]["prepared"]
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'prepared'
+
+tests/test_documentation_service_parity.py:234: KeyError</failure></testcase><testcase classname="tests.test_documentation_service_parity" name="test_discard_preserves_edited_prose_and_does_not_need_a_graph[service]" time="1.538" /><testcase classname="tests.test_documentation_service_parity" name="test_discard_preserves_edited_prose_and_does_not_need_a_graph[cli]" time="1.253" /><testcase classname="tests.test_documentation_service_parity" name="test_discard_preserves_edited_prose_and_does_not_need_a_graph[repl]" time="1.294" /><testcase classname="tests.test_documentation_service_parity" name="test_discard_preserves_edited_prose_and_does_not_need_a_graph[mcp]" time="0.587"><failure message="KeyError: 'prepared'">kind = 'mcp'
+tmp_path = PosixPath('/private/var/folders/5k/x6lj0ysn01v6lnw7kdjxph300000gp/T/pytest-of-Abslock128/pytest-38/test_discard_preserves_edited_3')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x107b1bbd0&gt;
+evidence = None
+
+    @pytest.mark.parametrize("kind", ADAPTERS)
+    def test_discard_preserves_edited_prose_and_does_not_need_a_graph(kind, tmp_path, monkeypatch, evidence):
+        repo = _repo(tmp_path)
+        adapter = _Adapter(kind, repo, monkeypatch)
+        original = (repo / "docs/a.md").read_text()
+        adapter.call(mode="flag")
+&gt;       prepared = adapter.call(prepare="d1")[1]["prepared"]
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'prepared'
+
+tests/test_documentation_service_parity.py:262: KeyError</failure></testcase><testcase classname="tests.test_documentation_service_parity" name="test_invalid_requests_fail_before_graph_or_document_work[options0-invalid docs mode-service]" time="0.189" /><testcase classname="tests.test_documentation_service_parity" name="test_invalid_requests_fail_before_graph_or_document_work[options0-invalid docs mode-cli]" time="0.219" /><testcase classname="tests.test_documentation_service_parity" name="test_invalid_requests_fail_before_graph_or_document_work[options0-invalid docs mode-repl]" time="0.191" /><testcase classname="tests.test_documentation_service_parity" name="test_invalid_requests_fail_before_graph_or_document_work[options1-use --prepare-service]" time="0.159" /><testcase classname="tests.test_documentation_service_parity" name="test_invalid_requests_fail_before_graph_or_document_work[options1-use --prepare-cli]" time="0.241" /><testcase classname="tests.test_documentation_service_parity" name="test_invalid_requests_fail_before_graph_or_document_work[options1-use --prepare-repl]" time="0.257" /><testcase classname="tests.test_documentation_service_parity" name="test_invalid_requests_fail_before_graph_or_document_work[options2-use --prepare-service]" time="0.186" /><testcase classname="tests.test_documentation_service_parity" name="test_invalid_requests_fail_before_graph_or_document_work[options2-use --prepare-cli]" time="0.222" /><testcase classname="tests.test_documentation_service_parity" name="test_invalid_requests_fail_before_graph_or_document_work[options2-use --prepare-repl]" time="0.224" /><testcase classname="tests.test_documentation_service_parity" name="test_invalid_requests_fail_before_graph_or_document_work[options3---target-index requires-service]" time="0.177" /><testcase classname="tests.test_documentation_service_parity" name="test_invalid_requests_fail_before_graph_or_document_work[options3---target-index requires-cli]" time="0.227" /><testcase classname="tests.test_documentation_service_parity" name="test_invalid_requests_fail_before_graph_or_document_work[options3---target-index requires-repl]" time="0.259" /><testcase classname="tests.test_documentation_service_parity" name="test_graph_transport_limit_does_not_become_an_empty_listing[service]" time="0.488" /><testcase classname="tests.test_documentation_service_parity" name="test_graph_transport_limit_does_not_become_an_empty_listing[cli]" time="0.257" /><testcase classname="tests.test_documentation_service_parity" name="test_graph_transport_limit_does_not_become_an_empty_listing[repl]" time="0.230" /><testcase classname="tests.test_documentation_service_parity" name="test_graph_transport_limit_does_not_become_an_empty_listing[mcp]" time="0.340" /><testcase classname="tests.test_documentation_service_parity" name="test_graph_failure_after_document_write_reports_saved_and_recoverable[service]" time="1.185" /><testcase classname="tests.test_documentation_service_parity" name="test_graph_failure_after_document_write_reports_saved_and_recoverable[cli]" time="0.837" /><testcase classname="tests.test_documentation_service_parity" name="test_graph_failure_after_document_write_reports_saved_and_recoverable[repl]" time="0.873" /><testcase classname="tests.test_documentation_service_parity" name="test_graph_failure_after_document_write_reports_saved_and_recoverable[mcp]" time="0.335"><failure message="KeyError: 'prepared'">kind = 'mcp'
+tmp_path = PosixPath('/private/var/folders/5k/x6lj0ysn01v6lnw7kdjxph300000gp/T/pytest-of-Abslock128/pytest-38/test_graph_failure_after_docum3')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x107c60c50&gt;
+evidence = None
+
+    @pytest.mark.parametrize("kind", ADAPTERS)
+    def test_graph_failure_after_document_write_reports_saved_and_recoverable(kind, tmp_path, monkeypatch, evidence):
+        repo = _repo(tmp_path)
+        adapter = _Adapter(kind, repo, monkeypatch)
+        adapter.call(mode="flag")
+&gt;       prepared = adapter.call(prepare="d1")[1]["prepared"]
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'prepared'
+
+tests/test_documentation_service_parity.py:314: KeyError</failure></testcase><testcase classname="tests.test_documentation_service_parity" name="test_mcp_confirmation_guards_never_enter_the_shared_service" time="0.133" /></testsuite></testsuites>

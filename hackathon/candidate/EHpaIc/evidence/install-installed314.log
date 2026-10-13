@@ -1,0 +1,6 @@
+Using Python 3.14.6 environment at: phase1-continuation-2026-10-10/environments/installed314
+error: No solution found when resolving dependencies
+  cause: Because typer was not found in the cache and amu==0.2.0 depends on typer==0.27.2, we can conclude that amu==0.2.0 cannot be used.
+         And because only amu[dev]==0.2.0 is available and you require amu[dev], we can conclude that your requirements are unsatisfiable.
+
+hint: Packages were unavailable because the network was disabled. When the network is disabled, registry packages may only be read from the cache.

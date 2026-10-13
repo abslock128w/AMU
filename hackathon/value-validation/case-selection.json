@@ -1,0 +1,76 @@
+{
+  "created_at_utc": "2026-10-10T06:56:53.111356+00:00",
+  "case": "Synthetic integer-cent checkout discount rounding",
+  "synthetic": true,
+  "selection_reason": "Small, realistic cross-file order-pricing change; Python call relationships are supported by the same native provider used by the verified demo. No search for a winning scenario.",
+  "problem": "Bankers rounding and binary floating-point loss violate nearest-cent half-up order discount behavior.",
+  "original_behavior": {
+    "discounted_total_cents(5,50)": 2,
+    "existing_public_tests": 8
+  },
+  "requested_behavior": {
+    "discounted_total_cents(5,50)": 3,
+    "large_integer_precision": "exact",
+    "protected": "input validation; undiscounted/free orders; quote/charge/receipt APIs"
+  },
+  "evaluator_only_dependency_explanation": [
+    "shop.quote.quote -> shop.pricing.discounted_total_cents",
+    "shop.checkout.checkout -> shop.pricing.discounted_total_cents",
+    "shop.receipts.receipt_text -> shop.quote.quote -> shop.pricing.discounted_total_cents"
+  ],
+  "starting_revision": "311d3bf49836bca7cec7ef30d8f01f485d2c6a9d",
+  "starting_tree": "223f756634e68d07b4f75c555be9a751e76c911c",
+  "source_files": {
+    "AGENTS.md": {
+      "bytes": 464,
+      "sha256": "c9fe25154961b7fceba54e22766c79e1bb43d34fb5d3b2c32c0701586fc532ad"
+    },
+    "README.md": {
+      "bytes": 382,
+      "sha256": "ab0db7a11523da1737310781dc25b13e4bcc5d862a83e3e83dbefb1040aa1a6a"
+    },
+    "TASK.txt": {
+      "bytes": 519,
+      "sha256": "effd470ca8e9189c14d0299a11666720ccbb5b4c52cef645e74b321340b226ed"
+    },
+    ".gitignore": {
+      "bytes": 19,
+      "sha256": "862263fa1f46c20f0d1e4dac5ffcc75abd55c08211b2c3864c5f8764b9d87793"
+    },
+    "shop/__init__.py": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "shop/pricing.py": {
+      "bytes": 415,
+      "sha256": "3908d80076b47216f172d7f760383489a8626f226a13803cf36d480799d9406c"
+    },
+    "shop/cart.py": {
+      "bytes": 382,
+      "sha256": "280ae82507793fcc288e288e152db114fc9d997e115468b1511ac7844b7f58e4"
+    },
+    "shop/quote.py": {
+      "bytes": 312,
+      "sha256": "e8c92d94a8ec1dd66cd723e96ce054fc09df96573592b5c0a9baf538ceeada21"
+    },
+    "shop/checkout.py": {
+      "bytes": 339,
+      "sha256": "5dc9496d7a0055aef566f45a8f8abbae60debd2823ed2d2a4134c1b61cdae163"
+    },
+    "shop/receipts.py": {
+      "bytes": 219,
+      "sha256": "a538385c0b55105e89e188d3f58c5fe97849ef2766fb1e7fab782dc23e22cabd"
+    },
+    "tests/test_orders.py": {
+      "bytes": 1565,
+      "sha256": "c078d22c814e1c463fc4a35ea141f460365658b2b181616a147615c783d46d8f"
+    }
+  },
+  "task_sha256": "effd470ca8e9189c14d0299a11666720ccbb5b4c52cef645e74b321340b226ed",
+  "condition_roots_are_separate_git_copies": true,
+  "parent_reports_and_evaluator_outside_condition_roots": true,
+  "model_policy": "Both fresh-context collaboration agents inherit the same parent model and reasoning settings; exact backend model identifier/token usage may be unavailable.",
+  "case_python": "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+  "total_comparison_deadline_utc": "2026-10-10T07:18:09Z",
+  "agent_task_budget_seconds": 480
+}

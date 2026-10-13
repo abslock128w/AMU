@@ -1,0 +1,15 @@
+{
+  "label": "reproduce-rounding",
+  "started_at_utc": "2026-10-10T07:01:41.905796+00:00",
+  "command": [
+    "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "-B",
+    "-c",
+    "from shop.pricing import discounted_total_cents; print(\"5 cents, 50%:\", discounted_total_cents(5, 50)); print(\"large odd subtotal, no discount:\", discounted_total_cents(2**53 + 1)); print(\"large odd subtotal, 50%:\", discounted_total_cents(2**53 + 1, 50))"
+  ],
+  "cwd": "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/conditions/treatment/repo",
+  "elapsed_seconds": 0.017617333003727254,
+  "exit_code": 0,
+  "stdout": "5 cents, 50%: 2\nlarge odd subtotal, no discount: 9007199254740992\nlarge odd subtotal, 50%: 4503599627370496\n",
+  "stderr": ""
+}

@@ -1,0 +1,34 @@
+{
+  "exit": 0,
+  "engine": {
+    "dispatcher": {
+      "path": "/opt/homebrew/Caskroom/entire/0.10.5/entire",
+      "sha256": "b8cfe20381338a7c9f5bc53b4d824a34548d29385381eae8f8c93541ee56b262",
+      "bytes": 45162966
+    },
+    "graph_plugin": {
+      "path": "/Users/Abslock128/go/bin/entire-graph",
+      "sha256": "d6a07d96d5306e3aa5c2db6047dce7cf6cb72c19030cfb8ca37e2a283c39954e",
+      "bytes": 85266466
+    }
+  },
+  "isolation": {
+    "temporary_home": true,
+    "credentials_inherited": false,
+    "outbound_enabled": false,
+    "original_installation_modified": false,
+    "fixture_only": true
+  },
+  "scope": "four opt-in tiny-fixture native refresh tests; no NumPy or live client",
+  "command": [
+    "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/environments/final314/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_external_graph_refresh.py",
+    "--junitxml=/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/evidence/final-real-refresh.xml"
+  ]
+}

@@ -1,0 +1,312 @@
+{
+  "completed_at_utc": "2026-10-10T07:04:43.138714+00:00",
+  "single_illustrative_synthetic_case": true,
+  "both_evaluated_with_same_frozen_checks": true,
+  "same_inherited_parent_model_and_reasoning_settings": true,
+  "actual_backend_identifier_and_token_usage": "unavailable",
+  "runs": {
+    "baseline": {
+      "independent": {
+        "command": [
+          "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+          "-I",
+          "-B",
+          "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/frozen-evaluator.py",
+          "--repo",
+          "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/conditions/baseline/repo"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.03482991700002458,
+        "stdout": "independent.stdout",
+        "stderr": "independent.stderr"
+      },
+      "agent-final-suite-recheck": {
+        "command": [
+          "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+          "-B",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests",
+          "-v"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.03915012500510784,
+        "stdout": "agent-final-suite-recheck.stdout",
+        "stderr": "agent-final-suite-recheck.stderr"
+      },
+      "whitespace": {
+        "command": [
+          "git",
+          "-C",
+          "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/conditions/baseline/repo",
+          "diff",
+          "--check",
+          "311d3bf49836bca7cec7ef30d8f01f485d2c6a9d"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.006159333999676164,
+        "stdout": "whitespace.stdout",
+        "stderr": "whitespace.stderr"
+      },
+      "independent_result": {
+        "repository": "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/conditions/baseline/repo",
+        "requested_bug_fixed": true,
+        "protected_behavior_passed": true,
+        "checks": [
+          {
+            "name": "reported half-cent bug",
+            "category": "requested",
+            "passed": true
+          },
+          {
+            "name": "rounding boundary matrix",
+            "category": "requested",
+            "passed": true
+          },
+          {
+            "name": "large integer precision",
+            "category": "requested",
+            "passed": true
+          },
+          {
+            "name": "quote consumer",
+            "category": "requested",
+            "passed": true
+          },
+          {
+            "name": "payment consumer and single charge",
+            "category": "requested",
+            "passed": true
+          },
+          {
+            "name": "receipt consumer",
+            "category": "requested",
+            "passed": true
+          },
+          {
+            "name": "order-level rounding",
+            "category": "protected",
+            "passed": true
+          },
+          {
+            "name": "input validation and no invalid charge",
+            "category": "protected",
+            "passed": true
+          },
+          {
+            "name": "existing normal quote/payment/receipt",
+            "category": "protected",
+            "passed": true
+          },
+          {
+            "name": "default, zero and free order behavior",
+            "category": "protected",
+            "passed": true
+          }
+        ],
+        "passed": 10,
+        "failed": 0
+      },
+      "task_elapsed_seconds": 100.22441016700031,
+      "agent_task_lifecycle": {
+        "started_at_utc": "2026-10-10T07:00:47.296577+00:00",
+        "monotonic_start": 53734.439443041,
+        "finished_at_utc": "2026-10-10T07:02:27.521249+00:00",
+        "task_elapsed_seconds": 100.22441016700031
+      },
+      "patch_sha256": "d68a095b072dc4239586ea82320f3e451f1383fd6833d913b50be64768e9b4e1",
+      "amu_calls": [],
+      "amu_analysis_seconds": 0,
+      "amu_adapter_elapsed_seconds": 0,
+      "evaluated_at_utc": "2026-10-10T07:04:43.036325+00:00"
+    },
+    "treatment": {
+      "independent": {
+        "command": [
+          "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+          "-I",
+          "-B",
+          "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/frozen-evaluator.py",
+          "--repo",
+          "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/conditions/treatment/repo"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.03334670800541062,
+        "stdout": "independent.stdout",
+        "stderr": "independent.stderr"
+      },
+      "agent-final-suite-recheck": {
+        "command": [
+          "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+          "-B",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests",
+          "-v"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.030096208000031766,
+        "stdout": "agent-final-suite-recheck.stdout",
+        "stderr": "agent-final-suite-recheck.stderr"
+      },
+      "whitespace": {
+        "command": [
+          "git",
+          "-C",
+          "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/conditions/treatment/repo",
+          "diff",
+          "--check",
+          "311d3bf49836bca7cec7ef30d8f01f485d2c6a9d"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.005538000004889909,
+        "stdout": "whitespace.stdout",
+        "stderr": "whitespace.stderr"
+      },
+      "independent_result": {
+        "repository": "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/conditions/treatment/repo",
+        "requested_bug_fixed": true,
+        "protected_behavior_passed": true,
+        "checks": [
+          {
+            "name": "reported half-cent bug",
+            "category": "requested",
+            "passed": true
+          },
+          {
+            "name": "rounding boundary matrix",
+            "category": "requested",
+            "passed": true
+          },
+          {
+            "name": "large integer precision",
+            "category": "requested",
+            "passed": true
+          },
+          {
+            "name": "quote consumer",
+            "category": "requested",
+            "passed": true
+          },
+          {
+            "name": "payment consumer and single charge",
+            "category": "requested",
+            "passed": true
+          },
+          {
+            "name": "receipt consumer",
+            "category": "requested",
+            "passed": true
+          },
+          {
+            "name": "order-level rounding",
+            "category": "protected",
+            "passed": true
+          },
+          {
+            "name": "input validation and no invalid charge",
+            "category": "protected",
+            "passed": true
+          },
+          {
+            "name": "existing normal quote/payment/receipt",
+            "category": "protected",
+            "passed": true
+          },
+          {
+            "name": "default, zero and free order behavior",
+            "category": "protected",
+            "passed": true
+          }
+        ],
+        "passed": 10,
+        "failed": 0
+      },
+      "task_elapsed_seconds": 143.35329262499727,
+      "agent_task_lifecycle": {
+        "started_at_utc": "2026-10-10T07:01:00.730389+00:00",
+        "monotonic_start": 53747.873178333,
+        "finished_at_utc": "2026-10-10T07:03:24.084126+00:00",
+        "task_elapsed_seconds": 143.35329262499727
+      },
+      "patch_sha256": "d6ae6b84381799882913096ccc1a2cf69bdf6b1de785354240b42cd9c19e9e07",
+      "amu_calls": [
+        {
+          "tool": "--schema",
+          "analysis_seconds": 0,
+          "total_elapsed_seconds": 0.4216479579990846,
+          "wire_maximum": 3187,
+          "receipt": "conditions/treatment/artifacts/amu-1791615672363705000.json"
+        },
+        {
+          "tool": "amu_search",
+          "analysis_seconds": 0.4975589579989901,
+          "total_elapsed_seconds": 0.8416101250040811,
+          "wire_maximum": 6930,
+          "receipt": "conditions/treatment/artifacts/amu-1791615684156517000.json"
+        },
+        {
+          "tool": "amu_graph",
+          "analysis_seconds": 0.3155983750039013,
+          "total_elapsed_seconds": 0.734549832995981,
+          "wire_maximum": 6370,
+          "receipt": "conditions/treatment/artifacts/amu-1791615701958055000.json"
+        },
+        {
+          "tool": "amu_impact",
+          "analysis_seconds": 0.4294010830053594,
+          "total_elapsed_seconds": 0.8528044589984347,
+          "wire_maximum": 9696,
+          "receipt": "conditions/treatment/artifacts/amu-1791615701958119000.json"
+        },
+        {
+          "tool": "amu_impact",
+          "analysis_seconds": 0.4218356249984936,
+          "total_elapsed_seconds": 0.7936380829996779,
+          "wire_maximum": 22408,
+          "receipt": "conditions/treatment/artifacts/amu-1791615714068437000.json"
+        },
+        {
+          "tool": "amu_graph",
+          "analysis_seconds": 0.2865748749973136,
+          "total_elapsed_seconds": 0.6570438749986351,
+          "wire_maximum": 19816,
+          "receipt": "conditions/treatment/artifacts/amu-1791615714068848000.json"
+        },
+        {
+          "tool": "amu_impact",
+          "analysis_seconds": 0.573543916005292,
+          "total_elapsed_seconds": 0.9714755829991191,
+          "wire_maximum": 18034,
+          "receipt": "conditions/treatment/artifacts/amu-1791615748087747000.json"
+        }
+      ],
+      "amu_analysis_seconds": 2.52451283200935,
+      "amu_adapter_elapsed_seconds": 5.272769915995013,
+      "evaluated_at_utc": "2026-10-10T07:04:43.127866+00:00"
+    }
+  },
+  "metrics": {
+    "baseline_task_seconds": 100.22441016700031,
+    "treatment_task_seconds": 143.35329262499727,
+    "difference_seconds": 43.12888245799695,
+    "index_setup_seconds": 0.2968922500003828,
+    "treatment_amu_process_command_wall_seconds": 5.974615793005796,
+    "treatment_amu_analysis_roundtrip_seconds": 2.52451283200935,
+    "treatment_amu_adapter_window_seconds": 5.272769915995013
+  },
+  "comparison_stopped_at_utc": "2026-10-10T07:04:43Z",
+  "total_comparison_seconds": 694,
+  "known_differences": [
+    "Treatment alone read the generic systematic-debugging skill; this was not evaluator/peer evidence and was disclosed.",
+    "Treatment made two unsuccessful initial AMU queries: a not_found graph packet and an uncertain impact packet at unsupported native-provider depth 3; both were preserved and corrected within the single run.",
+    "Treatment first tried macOS nl with multiple files, which failed; its next normal source read succeeded.",
+    "Same parent model/effort were inherited, but exact backend model identifier, temperature, token usage, scheduling latency and hardware contention were not exposed.",
+    "Isolation was enforced by separate Git copies, HOME/cache/tool directories, fresh contexts and path-scoped instructions; the underlying filesystem was shared, not an OS security boundary. Available command traces show no peer or evaluator access.",
+    "Both agents inspected the source before successful AMU relationship queries. AMU corroborated/structured information; unique discovery or a causal speed gain was not demonstrated."
+  ]
+}

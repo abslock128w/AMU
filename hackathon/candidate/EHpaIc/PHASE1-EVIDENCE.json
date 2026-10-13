@@ -1,0 +1,320 @@
+{
+  "schema_version": 2,
+  "assessment_date": "2026-10-10",
+  "phase1_status": "PARTIAL",
+  "phase1_complete": false,
+  "local_phase1_engineering": "VERIFIED",
+  "local_verification_completed_utc": "2026-10-10T06:06:02.205996+00:00",
+  "timebox_started_utc": "2026-10-10T05:45:47+00:00",
+  "project": "/Users/Abslock128/Documents/Codex/2026-09-13/hey/TWC-Thugs",
+  "candidate": "/Users/Abslock128/Documents/Codex/2026-09-13/hey/TWC-Thugs/dist/phase1-wire-2026-10-10.EHpaIc",
+  "git_head": "73aa0f609406dfb23a31f0639cba4f5c0aed7383",
+  "working_tree_already_dirty": true,
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "amu_version": "0.2.0",
+  "artifacts": [
+    {
+      "path": "amu-0.2.0.tar.gz",
+      "bytes": 719534,
+      "sha256": "921c134206829cad25401ae27e092e1bc8b20a499b2a792258c507fad11c4d0c"
+    },
+    {
+      "path": "amu-0.2.0-py3-none-any.whl",
+      "bytes": 286141,
+      "sha256": "1d1e5e8f28a288f9e8bf2df73af907a1d97b0babae7769e4bd8c0747e62c72d5"
+    },
+    {
+      "path": "constraints.txt",
+      "bytes": 1517,
+      "sha256": "1b690bf85bc17de94af15558f9fc5e5d3560f394e9f00e7b7fca4d3c8f2a6429"
+    }
+  ],
+  "python_payload": {
+    "sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+    "complete": true,
+    "files": 60,
+    "bytes": 909981,
+    "scope": "actual AMU Python payload only; not a wheel signature or provider identity"
+  },
+  "identity_receipt": "evidence/final-candidate-identities.json",
+  "manifest": {
+    "version": "amu-inspection-v1",
+    "sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761",
+    "tools": [
+      "amu_search",
+      "amu_graph",
+      "amu_impact",
+      "amu_docs_reviews"
+    ],
+    "full_semantic_schema_and_annotation_match": true
+  },
+  "source_suites": [
+    {
+      "tests": 2077,
+      "passed": 2065,
+      "skipped": 12,
+      "failed": 0,
+      "exit": 0,
+      "receipt": "evidence/final-full-python314.xml",
+      "sha256": "ba3b7521a877a4d5b684d21012dce4d69d46da033feecc08283556b952abc3eb",
+      "python": "3.14.6",
+      "seconds": 148.07,
+      "source": "final-frozen-source/amu-0.2.0; exact final source archive"
+    },
+    {
+      "tests": 2077,
+      "passed": 2065,
+      "skipped": 12,
+      "failed": 0,
+      "exit": 0,
+      "receipt": "evidence/final-full-python311.xml",
+      "sha256": "60449b9b63845e1a40ddc91cf82566177372b78b6a4fd2b96c5db9fa4013dfb0",
+      "python": "3.11.16",
+      "seconds": 140.26,
+      "source": "final-frozen-source/amu-0.2.0; exact final source archive"
+    }
+  ],
+  "focused_regressions": {
+    "tests": 299,
+    "passed": 299,
+    "skipped": 0,
+    "failed": 0,
+    "exit": 0,
+    "receipt": "evidence/transport-focused-final.xml",
+    "sha256": "36f6fc1152675f20da649f0573a58f697bbf5b91c287a828521196ee1f0bb6dd"
+  },
+  "doctor_model_policy_regressions": {
+    "tests": 95,
+    "passed": 95,
+    "skipped": 0,
+    "failed": 0,
+    "exit": 0,
+    "receipt": "evidence/doctor-and-model-policy.xml",
+    "sha256": "36b42f59c160c46dccee6d11f7d9920826a5c462dfe863058c36acf230252f93"
+  },
+  "original_failure_coverage": {
+    "314": {
+      "original_failed_nodes": 19,
+      "retained_and_passed": 19,
+      "not_passed": [],
+      "wire_regressions": 35,
+      "codec_regressions": 14
+    },
+    "311": {
+      "original_failed_nodes": 19,
+      "retained_and_passed": 19,
+      "not_passed": [],
+      "wire_regressions": 35,
+      "codec_regressions": 14
+    }
+  },
+  "wire_boundary": {
+    "response_bytes_including_newline": 131072,
+    "incoming_frame_bytes": 262144,
+    "string_id_utf8_bytes": 1024,
+    "strict_integer_id_json_bytes": 1024,
+    "raw_protocol_tests_per_python": 35,
+    "codec_tests_per_python": 14,
+    "exact_131072_acceptance_and_131073_refusal": "passed on actual pipe on both versions",
+    "sdk_generated_errors_and_serializer_exceptions": "passed",
+    "oversized_ids_rejected_before_dispatch_without_truncation": true,
+    "oversized_responses_explicitly_withheld_not_partial_success": true,
+    "original_frozen_candidate_red_frames": [
+      150297,
+      161103
+    ],
+    "red_receipt": "evidence/original-candidate-red.xml",
+    "installed_raw_runs": [
+      {
+        "python": "3.14.6",
+        "frames": 13,
+        "maximum_frame_bytes": 6574,
+        "exit": 0,
+        "receipt": "evidence/final-installed-wire314.json"
+      },
+      {
+        "python": "3.11.16",
+        "frames": 13,
+        "maximum_frame_bytes": 6574,
+        "exit": 0,
+        "receipt": "evidence/final-installed-wire311.json"
+      }
+    ]
+  },
+  "native_lanes": [
+    {
+      "python": "3.14.6",
+      "calls": 12,
+      "complete": true,
+      "receipt": "evidence/final-native-inspection314.json"
+    },
+    {
+      "python": "3.11.16",
+      "calls": 12,
+      "complete": true,
+      "receipt": "evidence/final-native-inspection311.json"
+    }
+  ],
+  "independent_raw_paging": {
+    "receipt": "evidence/final-independent-raw-pagination.json",
+    "tool_calls": 29,
+    "frames": 31,
+    "maximum_frame_bytes": 13532,
+    "sections": {
+      "coverage": {
+        "complete": true,
+        "entries": 10,
+        "entries_sha256": "9fe41663b89d3984f015d6cda32ddd8befc8df60733804327b27a0e8fc67f058",
+        "fragmented_items": 0,
+        "logical_items": 10,
+        "pages": 10
+      },
+      "dynamic_boundaries": {
+        "complete": true,
+        "entries": 0,
+        "entries_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "fragmented_items": 0,
+        "logical_items": 0,
+        "pages": 1
+      },
+      "impact": {
+        "complete": true,
+        "entries": 3,
+        "entries_sha256": "74f00f020b06b123a50743cab6d7011c3986edec2b4242f9caf3d0f3813fab62",
+        "fragmented_items": 0,
+        "logical_items": 3,
+        "pages": 3
+      },
+      "reasons": {
+        "complete": true,
+        "entries": 0,
+        "entries_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "fragmented_items": 0,
+        "logical_items": 0,
+        "pages": 1
+      },
+      "source_contradictions": {
+        "complete": true,
+        "entries": 0,
+        "entries_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "fragmented_items": 0,
+        "logical_items": 0,
+        "pages": 1
+      },
+      "source_uncertainties": {
+        "complete": true,
+        "entries": 0,
+        "entries_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "fragmented_items": 0,
+        "logical_items": 0,
+        "pages": 1
+      }
+    },
+    "all_six_sections_complete": true,
+    "fragment_scope": "native sections have no fragmented rows; oversized row hash reconstruction is separately covered by executed service regressions"
+  },
+  "native_workflow": {
+    "calls": 16,
+    "complete": true,
+    "receipt": "evidence/final-native-workflow.json"
+  },
+  "real_refresh": {
+    "tests": 4,
+    "passed": 4,
+    "skipped": 0,
+    "failed": 0,
+    "exit": 0,
+    "receipt": "evidence/final-real-refresh.xml",
+    "sha256": "e544d274a9110ce825768814f4516893c5b0a931d5f54770d6f558f805f1466c"
+  },
+  "doctor": {
+    "native_provider_health": "passed",
+    "fixture_freshness": "GRAPH_FRESHNESS_UNKNOWN",
+    "fixture_ready": false,
+    "exit": 3,
+    "missing_provider_base_smoke": "passed; expected nonzero"
+  },
+  "selected_protocol_probe": {
+    "status": "matched",
+    "exit": 0,
+    "receipt": "evidence/final-selected-protocol-probe.json"
+  },
+  "old_pilot_probe": {
+    "status": "mismatch",
+    "exit": 2,
+    "tools": 3,
+    "receipt": "evidence/final-old-pilot-protocol-probe.json",
+    "live_attestation": false
+  },
+  "base_optional_mcp_and_pydantic_absent": true,
+  "dependency_checks": "all three final environments passed",
+  "installed_sdk_smokes": [
+    "evidence/final-smoke-mcp314.log",
+    "evidence/final-smoke-mcp311.log"
+  ],
+  "base_smoke": "evidence/final-smoke-base.log",
+  "archive_check": {
+    "archive": "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/artifacts/amu-0.2.0.tar.gz",
+    "constraints_sha256": "1b690bf85bc17de94af15558f9fc5e5d3560f394e9f00e7b7fca4d3c8f2a6429",
+    "content_bytes": 2681151,
+    "files": 253,
+    "members": 280,
+    "required_files": 76,
+    "root": "amu-0.2.0"
+  },
+  "preservation": {
+    "unchanged": {
+      ".amu": true,
+      ".entire": true,
+      "dist/mcp-hardened-2026-10-09.7SsvDG": true,
+      "dist/phase1-candidate-2026-10-10.AHBtS2": true,
+      "live_profile": true,
+      "acceptance_audit": true
+    },
+    "git_head": "73aa0f609406dfb23a31f0639cba4f5c0aed7383",
+    "git_status_unchanged": true,
+    "staged_changes": false,
+    "existing_files": 299,
+    "unchanged_existing_files": 296,
+    "intentional_edits": [
+      "docs/MCP-SECURITY.md",
+      "scripts/smoke_mcp_wire.py",
+      "tests/test_mcp_wire_protocol.py"
+    ],
+    "existing_file_modes_preserved": true,
+    "source_files_removed": [],
+    "live_configuration_changed": false,
+    "live_grants_changed": false,
+    "rejected_numpy_paths_accessed": false
+  },
+  "verification_history": {
+    "final_prefix": "Fresh executions of the accepted final archive/wheel.",
+    "unprefixed_full_suites_and_native_receipts": "Provisional build before correcting only the raw smoke fixture; not final archive certification.",
+    "installed_wire_empty_json_and_stderr": "Failed provisional smoke: nonexistent unauthorized fixture produced invalid_repository; failure retained.",
+    "transport_focused_xml": "Initial 10 doctor failures came from launching with AMU_DISABLE_MODELS=1; prescribed-environment rerun passed; failure retained.",
+    "original_candidate_red": "New independent execution deliberately reproduces the earlier frozen wire defects.",
+    "baseline": "Copied unchanged historical baseline receipts; not new executions."
+  },
+  "remaining_acceptance": [
+    {
+      "name": "official_numpy_getlimits_finfo_cache",
+      "status": "NOT_EXECUTED",
+      "required_authorization": "Exact official local checkout/preparation/cache writes and only that exact-root inspection grant; see PHASE1-REPORT.md."
+    },
+    {
+      "name": "authenticated_chatgpt_four_tool_acceptance",
+      "status": "NOT_EXECUTED",
+      "required_authorization": "New persistent candidate environment, one reversible foreground tunnel command cutover, metadata refresh, and genuine connected-client checks; see PHASE1-REPORT.md."
+    }
+  ],
+  "live_configuration_changed": false,
+  "live_repository_grants_changed": false,
+  "credentials_changed": false,
+  "phase2_started": false,
+  "models_exercised": false,
+  "linux_changed_codec_executed": false,
+  "windows_bounded_transport_supported": false,
+  "report": "PHASE1-REPORT.md",
+  "freeze_inventory": "FROZEN.json",
+  "demo_runbook": "DEMO-RUNBOOK.md"
+}

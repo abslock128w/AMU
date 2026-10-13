@@ -1,0 +1,57 @@
+{
+  "started_at_utc": "2026-10-10T06:59:41.983731+00:00",
+  "command": [
+    "/opt/homebrew/Caskroom/entire/0.10.5/entire",
+    "graph",
+    "index",
+    "--repo",
+    "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/conditions/treatment/repo",
+    "--profile",
+    "full",
+    "--format",
+    "json"
+  ],
+  "elapsed_seconds": 0.2968922500003828,
+  "exit_code": 0,
+  "graph_prepared_before_agent_task": true,
+  "cache": "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/conditions/treatment/cache",
+  "source_snapshot": "Synthetic common start; no agent changes",
+  "provider_counts": {
+    "files": 10,
+    "parsed_files": 10,
+    "symbols": 22,
+    "relations": 79,
+    "partial_failures": 0,
+    "completeness_level": "ok"
+  },
+  "provider_completeness": {
+    "languages": {
+      "Git Ignore": {
+        "files": 1,
+        "symbols": 1
+      },
+      "Markdown": {
+        "files": 2,
+        "symbols": 3
+      },
+      "Python": {
+        "files": 7,
+        "symbols": 18
+      }
+    },
+    "relations": {
+      "CALLS": 13,
+      "CONSTRUCTS": 4,
+      "CONTAINS": 10,
+      "DATA_FLOWS": 4,
+      "DEFINES": 22,
+      "EXTENDS": 1,
+      "IMPORTS": 14,
+      "INHERITS": 1,
+      "PARAM_TYPE": 4,
+      "TESTS": 2,
+      "USES_TYPE": 4
+    }
+  },
+  "partial_failures_count": 0
+}

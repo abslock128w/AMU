@@ -1,0 +1,65 @@
+{
+  "repository": "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/case-source",
+  "requested_bug_fixed": false,
+  "protected_behavior_passed": true,
+  "checks": [
+    {
+      "name": "reported half-cent bug",
+      "category": "requested",
+      "passed": false,
+      "error": "AssertionError: expected 3, observed 2"
+    },
+    {
+      "name": "rounding boundary matrix",
+      "category": "requested",
+      "passed": false,
+      "error": "AssertionError: expected 1, observed 0"
+    },
+    {
+      "name": "large integer precision",
+      "category": "requested",
+      "passed": false,
+      "error": "AssertionError: expected 1000000000000000005, observed 1000000000000000000"
+    },
+    {
+      "name": "quote consumer",
+      "category": "requested",
+      "passed": false,
+      "error": "AssertionError: expected {'subtotal_cents': 5, 'total_cents': 3}, observed {'subtotal_cents': 5, 'total_cents': 2}"
+    },
+    {
+      "name": "payment consumer and single charge",
+      "category": "requested",
+      "passed": false,
+      "error": "AssertionError: expected {'charged_cents': 3, 'payment_id': 'evaluation-payment'}, observed {'charged_cents': 2, 'payment_id': 'evaluation-payment'}"
+    },
+    {
+      "name": "receipt consumer",
+      "category": "requested",
+      "passed": false,
+      "error": "AssertionError: expected 'Total: $0.03', observed 'Total: $0.02'"
+    },
+    {
+      "name": "order-level rounding",
+      "category": "protected",
+      "passed": true
+    },
+    {
+      "name": "input validation and no invalid charge",
+      "category": "protected",
+      "passed": true
+    },
+    {
+      "name": "existing normal quote/payment/receipt",
+      "category": "protected",
+      "passed": true
+    },
+    {
+      "name": "default, zero and free order behavior",
+      "category": "protected",
+      "passed": true
+    }
+  ],
+  "passed": 4,
+  "failed": 6
+}

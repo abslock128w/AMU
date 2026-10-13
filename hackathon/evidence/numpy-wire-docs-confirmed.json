@@ -1,0 +1,314 @@
+{
+  "scope": "Local pre-cutover real NumPy four-tool raw stdio preflight; NOT authenticated ChatGPT acceptance",
+  "status": "docs_tool_passed_local_preflight",
+  "models_used": false,
+  "live_runtime_changed": false,
+  "root": "/Users/Abslock128/Documents/Codex/2026-09-15/hey-so-this-is-a-project-2/integration-fixtures/numpy-v2.3.0",
+  "calls": [
+    {
+      "tool": "amu_docs_reviews",
+      "arguments": {
+        "repo": "/Users/Abslock128/Documents/Codex/2026-09-15/hey-so-this-is-a-project-2/integration-fixtures/numpy-v2.3.0"
+      },
+      "wire_bytes_including_newline": 166,
+      "wire_sha256": "d04ba116d07d77c9dab2773ff2ea51d94add6c758c164494ec16218da7da4036",
+      "response": {
+        "jsonrpc": "2.0",
+        "id": "numpy-0",
+        "result": {
+          "content": [
+            {
+              "text": "{\"reviews\": []}",
+              "type": "text"
+            }
+          ],
+          "isError": false,
+          "structuredContent": {
+            "result": "{\"reviews\": []}"
+          }
+        }
+      },
+      "payload": {
+        "reviews": []
+      }
+    }
+  ],
+  "frames": [
+    {
+      "bytes": 1493,
+      "sha256": "b884172974100972e9570fffb2e04d1c5cabebc4c61c934e075ada7b121e49b4",
+      "response_kind": "result"
+    },
+    {
+      "bytes": 3188,
+      "sha256": "0347faccab36ea4c1ec9c297517e71d946ceef77b1265bec83566e38e2d9a2fe",
+      "response_kind": "result"
+    },
+    {
+      "bytes": 166,
+      "sha256": "d04ba116d07d77c9dab2773ff2ea51d94add6c758c164494ec16218da7da4036",
+      "response_kind": "result"
+    }
+  ],
+  "preview_parameter_omitted": true,
+  "initialize_identity": {
+    "amu_version": "0.2.0",
+    "build_sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+    "distribution_version": "0.2.0",
+    "manifest_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761",
+    "manifest_version": "amu-inspection-v1"
+  },
+  "manifest": {
+    "match": true,
+    "expected_version": "amu-inspection-v1",
+    "expected_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761",
+    "observed_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761",
+    "missing_tools": [],
+    "unexpected_tools": [],
+    "schema_mismatches": []
+  },
+  "advertised_tools": [
+    {
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true,
+        "readOnlyHint": false
+      },
+      "description": "Semantic search in required absolute `repo`; use before mapping an unfamiliar issue.",
+      "inputSchema": {
+        "properties": {
+          "query": {
+            "title": "Query",
+            "type": "string"
+          },
+          "repo": {
+            "title": "Repo",
+            "type": "string"
+          }
+        },
+        "required": [
+          "query",
+          "repo"
+        ],
+        "type": "object",
+        "title": "amu_searchArguments"
+      },
+      "name": "amu_search",
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "title": "Result",
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object",
+        "title": "amu_searchOutput"
+      }
+    },
+    {
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true,
+        "readOnlyHint": false
+      },
+      "description": "Relation graph in required absolute `repo`: callers, callees, types, and data flow.",
+      "inputSchema": {
+        "properties": {
+          "target": {
+            "title": "Target",
+            "type": "string"
+          },
+          "depth": {
+            "default": 2,
+            "title": "Depth",
+            "type": "integer"
+          },
+          "relation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Relation"
+          },
+          "repo": {
+            "title": "Repo",
+            "type": "string"
+          }
+        },
+        "required": [
+          "target",
+          "repo"
+        ],
+        "type": "object",
+        "title": "amu_graphArguments"
+      },
+      "name": "amu_graph",
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "title": "Result",
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object",
+        "title": "amu_graphOutput"
+      }
+    },
+    {
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true,
+        "readOnlyHint": false
+      },
+      "description": "Potential impact at required current-worktree file/line with required proposed_change intent. Static evidence, never a safe-edit guarantee; does not execute the proposal or save a map/plan.",
+      "inputSchema": {
+        "properties": {
+          "file": {
+            "title": "File",
+            "type": "string"
+          },
+          "line": {
+            "title": "Line",
+            "type": "integer"
+          },
+          "proposed_change": {
+            "title": "Proposed Change",
+            "type": "string"
+          },
+          "depth": {
+            "default": 2,
+            "title": "Depth",
+            "type": "integer"
+          },
+          "change_kind": {
+            "default": "body",
+            "title": "Change Kind",
+            "type": "string"
+          },
+          "section": {
+            "default": "impact",
+            "enum": [
+              "impact",
+              "source_contradictions",
+              "source_uncertainties",
+              "dynamic_boundaries",
+              "coverage",
+              "reasons"
+            ],
+            "title": "Section",
+            "type": "string"
+          },
+          "cursor": {
+            "anyOf": [
+              {
+                "maxLength": 1024,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Cursor"
+          },
+          "page_size": {
+            "default": 50,
+            "maximum": 100,
+            "minimum": 1,
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "repo": {
+            "title": "Repo",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file",
+          "line",
+          "proposed_change",
+          "repo"
+        ],
+        "type": "object",
+        "title": "amu_impactArguments"
+      },
+      "name": "amu_impact",
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "title": "Result",
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object",
+        "title": "amu_impactOutput"
+      }
+    },
+    {
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true,
+        "readOnlyHint": false
+      },
+      "description": "List draft statuses or preview a diff in required absolute `repo`.",
+      "inputSchema": {
+        "properties": {
+          "preview": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Preview"
+          },
+          "repo": {
+            "title": "Repo",
+            "type": "string"
+          }
+        },
+        "required": [
+          "repo"
+        ],
+        "type": "object",
+        "title": "amu_docs_reviewsArguments"
+      },
+      "name": "amu_docs_reviews",
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "title": "Result",
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object",
+        "title": "amu_docs_reviewsOutput"
+      }
+    }
+  ],
+  "maximum_frame_bytes": 3188
+}

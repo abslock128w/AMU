@@ -1,0 +1,100 @@
+{
+  "frozen_at_utc": "2026-10-10T06:58:26.776501+00:00",
+  "before_agent_runs": true,
+  "checks": [
+    {
+      "name": "reported half-cent bug",
+      "category": "requested"
+    },
+    {
+      "name": "rounding boundary matrix",
+      "category": "requested"
+    },
+    {
+      "name": "large integer precision",
+      "category": "requested"
+    },
+    {
+      "name": "quote consumer",
+      "category": "requested"
+    },
+    {
+      "name": "payment consumer and single charge",
+      "category": "requested"
+    },
+    {
+      "name": "receipt consumer",
+      "category": "requested"
+    },
+    {
+      "name": "order-level rounding",
+      "category": "protected"
+    },
+    {
+      "name": "input validation and no invalid charge",
+      "category": "protected"
+    },
+    {
+      "name": "existing normal quote/payment/receipt",
+      "category": "protected"
+    },
+    {
+      "name": "default, zero and free order behavior",
+      "category": "protected"
+    }
+  ],
+  "original_results": {
+    "original-public": {
+      "command": [
+        "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "exit_code": 0,
+      "stdout_file": "original-public.stdout",
+      "stderr_file": "original-public.stderr"
+    },
+    "original-evaluator": {
+      "command": [
+        "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+        "-I",
+        "-B",
+        "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/frozen-evaluator.py",
+        "--repo",
+        "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/case-source"
+      ],
+      "exit_code": 1,
+      "stdout_file": "original-evaluator.stdout",
+      "stderr_file": "original-evaluator.stderr"
+    }
+  },
+  "original_requested_passed": false,
+  "original_protected_passed": true,
+  "files": {
+    "frozen-evaluator.py": {
+      "bytes": 5000,
+      "sha256": "a8932e6fef4bbc95a1072037268366bb396c720d7f883296cc13f443264e98b9"
+    },
+    "case-selection.json": {
+      "bytes": 3244,
+      "sha256": "10f2f1080047cd3e31ed7f35a5d3d1de158ea02231d7b2c2f7942990bac90680"
+    },
+    "case-source/TASK.txt": {
+      "bytes": 519,
+      "sha256": "effd470ca8e9189c14d0299a11666720ccbb5b4c52cef645e74b321340b226ed"
+    },
+    "trace-command-template.py": {
+      "bytes": 2270,
+      "sha256": "91e03841868d02cbb9f1d207e3e2ed54c78405a1c41721ac2c472f8f6bb0b2e3"
+    },
+    "amu-inspect-template.py": {
+      "bytes": 3737,
+      "sha256": "ec694158715f17e73272d2c7375b227c6c29e3d84eb33501c5652fc74a9b5e16"
+    }
+  }
+}

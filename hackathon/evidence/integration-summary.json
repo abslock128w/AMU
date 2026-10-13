@@ -1,0 +1,148 @@
+{
+  "recorded_at_utc": "2026-10-10T06:49:18.435717+00:00",
+  "candidate": "EHpaIc",
+  "local_phase1_engineering": "verified; unchanged",
+  "overall_phase1_complete": false,
+  "freeze_inventory_sha256": "00d8a0c835156dae7d02834e04fe4960f3fbd07dec8ceabd2d82f77fd65178cd",
+  "build_identity": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+  "manifest_identity": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761",
+  "fresh_demo": {
+    "status": "passed",
+    "tool_calls": 29,
+    "actual_transport_frames": 31,
+    "maximum_frame_bytes": 13532,
+    "all_six_sections_complete": true,
+    "exact_root_denial": "REPOSITORY_NOT_AUTHORIZED",
+    "stale_cursor_refused": true
+  },
+  "new_persistent_install": {
+    "environment": "/Users/Abslock128/Documents/Codex/2026-09-13/hey/TWC-Thugs/.venv-phase1-wire-2026-10-10",
+    "status": "passed",
+    "full_tool_schema_annotations_match": true,
+    "doctor_behavior_verified": true,
+    "raw_probe": {
+      "calls": 29,
+      "frames": 31,
+      "maximum_frame_bytes": 13532,
+      "all_sections_complete": true
+    }
+  },
+  "official_numpy_preparation": {
+    "root": "/Users/Abslock128/Documents/Codex/2026-09-15/hey-so-this-is-a-project-2/integration-fixtures/numpy-v2.3.0",
+    "commit": "0532af47d6a815298b7841de00bdbc547104b237",
+    "source": "numpy/_core/getlimits.py",
+    "source_sha256": "df641eeed94115dca20ef7528c6d5ca766b4349d2b48cc5e0d18a3dda8223eb8",
+    "verified_finfo_line": 494,
+    "all_four_tools_passed_local_preflight": true,
+    "report_hash": "37413e62ed1cdcb2b7d8cb125142efc2865669fb4d3652b5ae904d59985d87bd",
+    "all_six_sections_complete": true,
+    "section_counts": {
+      "impact": 7,
+      "source_contradictions": 0,
+      "source_uncertainties": 2,
+      "dynamic_boundaries": 12,
+      "coverage": 10,
+      "reasons": 5
+    },
+    "pagination_actual_frames": 8,
+    "pagination_maximum_frame_bytes": 18421,
+    "safe_to_change": null,
+    "head_cache_completeness": "unsafe; getlimits.py omitted",
+    "repository_readiness": "REPOSITORY_NOT_INDEXED; initialization excluded"
+  },
+  "preservation": {
+    "status": "passed",
+    "candidate_files": 92,
+    "existing_work_files": 299,
+    "managed_state_files": 12,
+    "old_pilot_python_files": 53,
+    "numpy_tracked_records": 2324,
+    "head_status_profile_bytes_and_mode_unchanged": true
+  },
+  "external_acceptance": {
+    "official_numpy_connected_client_scenario": "not executed; local preparation and probes passed",
+    "authenticated_chatgpt_four_tools": "not executed",
+    "operator_status": "I have not restarted it yet",
+    "live_cutover_executed_by_agent": false,
+    "chatgpt_connection_refreshed": false,
+    "actual_authenticated_tool_calls_executed": false
+  },
+  "next_operator_action": "Original credential-equipped terminal: follow RESTART-NOW.md, confirm doctor replaces exactly one main command, gracefully stop only the identified old job, run the prepared override, report sanitized doctor/replacement and health/polling status. Then execute already-authorized connected-client checks.",
+  "additional_authorization_needed_for_documented_next_action": false,
+  "demo_fallback": "HACKATHON-DEMO.md and replay-demo.sh; use saved receipts immediately",
+  "phase2_or_unrelated_engineering_started": false,
+  "evidence": {
+    "baseline.json": {
+      "bytes": 70486,
+      "sha256": "a639dc4ae7627578ea57d1156494ac790c969d43b09069935992f37af792d54e"
+    },
+    "demo-receipt.json": {
+      "bytes": 9714,
+      "sha256": "91c41644734431b63c26cd8537242806e3b1538aaacafac290ee7df856d65f4d"
+    },
+    "demo-summary.json": {
+      "bytes": 3637,
+      "sha256": "5ac309e5fa18908fbc7f83ed5f0b1c36ea30c052714a266d5edeb9d932186814"
+    },
+    "persistent-install.json": {
+      "bytes": 2029,
+      "sha256": "6d4abdaabc7b3b110a8a04c304338201c9eade318ac639a35b15f7bf3bf5d22f"
+    },
+    "persistent-environment-native.stdout": {
+      "bytes": 29535,
+      "sha256": "5c14e4745ec7145d1b8931c11040134cdebc1a926c37ca1683d545fa444e4c22"
+    },
+    "persistent-environment-raw.stdout": {
+      "bytes": 9704,
+      "sha256": "5a8666e23901face8094a62a8ad3d37946e125c79c7caeeea29f8b03b85bc14b"
+    },
+    "numpy-source-baseline.json": {
+      "bytes": 470076,
+      "sha256": "8d8cc27c58d1a2c93873316122407f028673af7b562900ed29fa1592f04ebb2b"
+    },
+    "numpy-native-index-summary.json": {
+      "bytes": 1269,
+      "sha256": "6b1a4cedc25cf0657450aec0c7fafe5b37927b8995427a5788e0a93c95433c9b"
+    },
+    "numpy-worktree-target-search.json": {
+      "bytes": 78386,
+      "sha256": "a36ebea34948d63a857ab0c89d7171530b2f18e32d9c0df6553d07c9487b1261"
+    },
+    "numpy-repository-inspect-post-cache.json": {
+      "bytes": 1756,
+      "sha256": "548d29eb8139198f2a4ab910276edc3549d8f5e581fa5d71778b7a9d2fb8b1d5"
+    },
+    "numpy-wire-preflight.json": {
+      "bytes": 63720,
+      "sha256": "1521aea2ecf1bcd68eecb3276322bf16f3829f29181760636027377f5828bf11"
+    },
+    "harness-request-correction.json": {
+      "bytes": 406,
+      "sha256": "5668e875ef9fe67dd8fe3e0df037b5ea65b80f6ef421471563b13fb77b193539"
+    },
+    "numpy-wire-docs-confirmed.json": {
+      "bytes": 8183,
+      "sha256": "519220d872228daf247ea2ba573294553346ed01cbe65d79eeb6960072ea8c9d"
+    },
+    "numpy-pages-preflight.json": {
+      "bytes": 83917,
+      "sha256": "e04d843bdcd9180d0bcf381797bd82965cddc30b749c8820590022eea5e63107"
+    },
+    "preservation-final.json": {
+      "bytes": 782,
+      "sha256": "e70bcd4cba811522ea9fdd9fe126eb1f363e0f3b9267db65cd08067761bb279e"
+    },
+    "client-denial-fixture.json": {
+      "bytes": 782,
+      "sha256": "3b684ee928995e62a22cac68d0f2086a5c6e2bd12f64a2da1a57c097d71f0c3a"
+    },
+    "authorization.json": {
+      "bytes": 838,
+      "sha256": "0de6463336e777e03c9a7d358cbfc825f4c984bfe8098ade41af7b7dc68b6f88"
+    },
+    "preservation-after-all-probes.json": {
+      "bytes": 782,
+      "sha256": "eebab9230aa31a89668649d7f3c2392090406678c5fe268e1f8ec4499dd50c75"
+    }
+  }
+}

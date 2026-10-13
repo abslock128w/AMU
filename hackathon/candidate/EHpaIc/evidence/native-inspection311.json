@@ -1,0 +1,909 @@
+{
+  "schema_version": 1,
+  "complete": true,
+  "steps": [
+    {
+      "tool": "amu_search",
+      "status": "passed",
+      "expected_error": false,
+      "sdk_result_bytes": 4479
+    },
+    {
+      "tool": "amu_graph",
+      "status": "passed",
+      "expected_error": false,
+      "sdk_result_bytes": 13569
+    },
+    {
+      "tool": "amu_graph",
+      "status": "passed",
+      "expected_error": false,
+      "sdk_result_bytes": 9647
+    },
+    {
+      "tool": "amu_docs_reviews",
+      "status": "passed",
+      "expected_error": false,
+      "sdk_result_bytes": 209
+    },
+    {
+      "tool": "amu_impact",
+      "status": "passed",
+      "expected_error": false,
+      "sdk_result_bytes": 9213
+    },
+    {
+      "tool": "amu_impact",
+      "status": "passed",
+      "expected_error": false,
+      "sdk_result_bytes": 9543
+    },
+    {
+      "tool": "amu_impact",
+      "status": "passed",
+      "expected_error": false,
+      "sdk_result_bytes": 9511
+    },
+    {
+      "tool": "amu_impact",
+      "status": "passed",
+      "expected_error": false,
+      "sdk_result_bytes": 11969
+    },
+    {
+      "tool": "amu_impact",
+      "status": "passed",
+      "expected_error": false,
+      "sdk_result_bytes": 12619
+    },
+    {
+      "tool": "amu_impact",
+      "status": "passed",
+      "expected_error": true,
+      "sdk_result_bytes": 397
+    },
+    {
+      "tool": "amu_impact",
+      "status": "passed",
+      "expected_error": false,
+      "sdk_result_bytes": 11051
+    },
+    {
+      "tool": "amu_impact",
+      "status": "passed",
+      "expected_error": true,
+      "sdk_result_bytes": 841
+    }
+  ],
+  "failures": [],
+  "scope": "installed SDK inspection-only server and tiny trusted fixture; not a live AI client or NumPy",
+  "models_used": false,
+  "live_configuration_changed": false,
+  "engine": {
+    "dispatcher": {
+      "path": "/opt/homebrew/Caskroom/entire/0.10.5/entire",
+      "sha256": "b8cfe20381338a7c9f5bc53b4d824a34548d29385381eae8f8c93541ee56b262",
+      "bytes": 45162966,
+      "version": "Entire CLI 0.10.5\nGo version: go1.26.6\nOS/Arch: darwin/arm64"
+    },
+    "graph_plugin": {
+      "path": "/Users/Abslock128/go/bin/entire-graph",
+      "sha256": "d6a07d96d5306e3aa5c2db6047dce7cf6cb72c19030cfb8ca37e2a283c39954e",
+      "bytes": 85266466,
+      "version": "dev"
+    }
+  },
+  "application": {
+    "amu_version": "0.2.0",
+    "version": "0.2.0",
+    "distribution_version": "0.2.0",
+    "python_version": "3.11.16",
+    "executable": "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/environments/installed311/bin/python",
+    "module": "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/environments/installed311/lib/python3.11/site-packages/amu/mcp_server.py",
+    "build_sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+    "build": {
+      "sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+      "complete": true,
+      "files": 60,
+      "bytes": 909981,
+      "scope": "actual AMU Python payload only; not a wheel signature or provider identity"
+    },
+    "manifest_version": "amu-inspection-v1",
+    "manifest_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761"
+  },
+  "isolation": {
+    "temporary_home": true,
+    "credentials_inherited": false,
+    "outbound_enabled": false,
+    "original_installation_modified": false,
+    "fixture_only": true
+  },
+  "setup_steps": [
+    {
+      "step": "dispatcher-version",
+      "command": [
+        "entire",
+        "version"
+      ],
+      "returncode": 0,
+      "duration_seconds": 0.064,
+      "status": "passed",
+      "summary": "Entire CLI 0.10.5\nGo version: go1.26.6\nOS/Arch: darwin/arm64"
+    },
+    {
+      "step": "graph-version",
+      "command": [
+        "entire",
+        "graph",
+        "version"
+      ],
+      "returncode": 0,
+      "duration_seconds": 0.03,
+      "status": "passed",
+      "summary": "dev"
+    },
+    {
+      "step": "real-engine",
+      "status": "passed",
+      "detail": "The explicitly supplied graph executable must not identify itself as a recorded fake."
+    },
+    {
+      "step": "git-init",
+      "command": [
+        "/opt/homebrew/Cellar/git/2.55.0/bin/git",
+        "init",
+        "-q"
+      ],
+      "returncode": 0,
+      "duration_seconds": 0.012,
+      "status": "passed",
+      "summary": ""
+    },
+    {
+      "step": "git-config-user.name",
+      "command": [
+        "/opt/homebrew/Cellar/git/2.55.0/bin/git",
+        "config",
+        "--local",
+        "user.name",
+        "AMU pilot drill"
+      ],
+      "returncode": 0,
+      "duration_seconds": 0.005,
+      "status": "passed",
+      "summary": ""
+    },
+    {
+      "step": "git-config-user.email",
+      "command": [
+        "/opt/homebrew/Cellar/git/2.55.0/bin/git",
+        "config",
+        "--local",
+        "user.email",
+        "pilot@example.invalid"
+      ],
+      "returncode": 0,
+      "duration_seconds": 0.005,
+      "status": "passed",
+      "summary": ""
+    },
+    {
+      "step": "git-config-core.hooksPath",
+      "command": [
+        "/opt/homebrew/Cellar/git/2.55.0/bin/git",
+        "config",
+        "--local",
+        "core.hooksPath",
+        "/dev/null"
+      ],
+      "returncode": 0,
+      "duration_seconds": 0.005,
+      "status": "passed",
+      "summary": ""
+    },
+    {
+      "step": "git-config-commit.gpgsign",
+      "command": [
+        "/opt/homebrew/Cellar/git/2.55.0/bin/git",
+        "config",
+        "--local",
+        "commit.gpgsign",
+        "false"
+      ],
+      "returncode": 0,
+      "duration_seconds": 0.005,
+      "status": "passed",
+      "summary": ""
+    },
+    {
+      "step": "git-add-fixture",
+      "command": [
+        "/opt/homebrew/Cellar/git/2.55.0/bin/git",
+        "add",
+        "--",
+        "pilotpkg",
+        "tests",
+        "docs",
+        ".gitignore",
+        "pyproject.toml"
+      ],
+      "returncode": 0,
+      "duration_seconds": 0.009,
+      "status": "passed",
+      "summary": ""
+    },
+    {
+      "step": "git-baseline",
+      "command": [
+        "/opt/homebrew/Cellar/git/2.55.0/bin/git",
+        "commit",
+        "-qm",
+        "trusted disposable pilot baseline"
+      ],
+      "returncode": 0,
+      "duration_seconds": 0.014,
+      "status": "passed",
+      "summary": ""
+    },
+    {
+      "step": "initialize",
+      "command": [
+        "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/environments/installed311/bin/python",
+        "-I",
+        "-m",
+        "amu.cli",
+        "init",
+        "--repo",
+        "/private/var/folders/5k/x6lj0ysn01v6lnw7kdjxph300000gp/T/amu-mcp-inspection-dl80kiyi/repo",
+        "--json"
+      ],
+      "returncode": 0,
+      "duration_seconds": 0.537,
+      "status": "passed",
+      "summary": {
+        "next": "amu map --file <path>"
+      }
+    },
+    {
+      "step": "outbound-blocked",
+      "status": "passed",
+      "detail": "Repository model requests are disabled, and the subprocess environment inherits no credentials/endpoints."
+    },
+    {
+      "step": "installed-doctor-and-protocol",
+      "command": [
+        "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/environments/installed311/bin/python",
+        "-I",
+        "-m",
+        "amu.cli",
+        "doctor",
+        "--mcp",
+        "--repo",
+        "/private/var/folders/5k/x6lj0ysn01v6lnw7kdjxph300000gp/T/amu-mcp-inspection-dl80kiyi/repo",
+        "--json"
+      ],
+      "returncode": 3,
+      "duration_seconds": 0.862,
+      "status": "passed",
+      "summary": {}
+    }
+  ],
+  "doctor": {
+    "schema_version": 1,
+    "ready": false,
+    "status": "not_ready",
+    "exit": 3,
+    "readiness_scope": "Executed local diagnostic prerequisites; not runtime-impact or live MCP-client access certification.",
+    "identity": {
+      "amu_version": "0.2.0",
+      "version": "0.2.0",
+      "distribution_version": "0.2.0",
+      "python_version": "3.11.16",
+      "executable": "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/environments/installed311/bin/python",
+      "module": "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/environments/installed311/lib/python3.11/site-packages/amu/mcp_server.py",
+      "build_sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+      "build": {
+        "sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+        "complete": true,
+        "files": 60,
+        "bytes": 909981,
+        "scope": "actual AMU Python payload only; not a wheel signature or provider identity"
+      },
+      "manifest_version": "amu-inspection-v1",
+      "manifest_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761"
+    },
+    "checks": [
+      {
+        "name": "package_identity",
+        "required": true,
+        "status": "passed",
+        "ready": true,
+        "message": "Current package/runtime build identity collected."
+      },
+      {
+        "name": "entire_availability",
+        "required": true,
+        "status": "passed",
+        "ready": true,
+        "message": "Entire executable/version detected."
+      },
+      {
+        "name": "graph_availability",
+        "required": true,
+        "status": "passed",
+        "ready": true,
+        "message": "Graph plugin/version detected."
+      },
+      {
+        "name": "graph_health",
+        "required": true,
+        "status": "passed",
+        "ready": true,
+        "message": "Graph health probe completed."
+      },
+      {
+        "name": "repository_access",
+        "status": "passed",
+        "ready": true,
+        "required": true,
+        "message": "Repository directory is accessible in the server filesystem."
+      },
+      {
+        "name": "repository_authorization",
+        "status": "operator_selected",
+        "ready": true,
+        "required": false,
+        "message": "Local operator selection; this does not establish or expand an MCP grant."
+      },
+      {
+        "name": "git_repository",
+        "status": "passed",
+        "ready": true,
+        "required": true,
+        "message": "Exact local Git worktree root is available."
+      },
+      {
+        "name": "git_configuration",
+        "status": "passed",
+        "ready": true,
+        "required": true,
+        "message": "No repository-configured executable Git filters or fsmonitor helpers were found."
+      },
+      {
+        "name": "graph_provider",
+        "status": "passed",
+        "ready": true,
+        "required": true,
+        "message": "Graph provider is available."
+      },
+      {
+        "name": "graph_index",
+        "status": "passed",
+        "ready": true,
+        "required": true,
+        "message": "Recorded semantic HEAD-index readiness is available."
+      },
+      {
+        "name": "graph_freshness",
+        "status": "current_head",
+        "ready": false,
+        "required": true,
+        "message": "HEAD-index revision matches; uncommitted worktree freshness was not checked by metadata-only onboarding.",
+        "scope": "HEAD"
+      },
+      {
+        "name": "repository_readiness",
+        "required": true,
+        "status": "failed",
+        "ready": false,
+        "message": "Repository index/worktree prerequisites are not established; inspect the repository diagnostics."
+      },
+      {
+        "name": "mcp_inspection_manifest",
+        "required": true,
+        "status": "passed",
+        "ready": true,
+        "message": "Selected MCP runtime/protocol/inspection manifest matched."
+      }
+    ],
+    "repository": {
+      "schema_version": 1,
+      "ready": false,
+      "category": "GRAPH_FRESHNESS_UNKNOWN",
+      "error_kind": "graph_freshness_unknown",
+      "hint": "Use live worktree inspection for the selected target. Matching HEAD metadata alone cannot establish current worktree relationships.",
+      "checks": [
+        {
+          "name": "repository_access",
+          "status": "passed",
+          "ready": true,
+          "required": true,
+          "message": "Repository directory is accessible in the server filesystem."
+        },
+        {
+          "name": "repository_authorization",
+          "status": "operator_selected",
+          "ready": true,
+          "required": false,
+          "message": "Local operator selection; this does not establish or expand an MCP grant."
+        },
+        {
+          "name": "git_repository",
+          "status": "passed",
+          "ready": true,
+          "required": true,
+          "message": "Exact local Git worktree root is available."
+        },
+        {
+          "name": "git_configuration",
+          "status": "passed",
+          "ready": true,
+          "required": true,
+          "message": "No repository-configured executable Git filters or fsmonitor helpers were found."
+        },
+        {
+          "name": "graph_provider",
+          "status": "passed",
+          "ready": true,
+          "required": true,
+          "message": "Graph provider is available."
+        },
+        {
+          "name": "graph_index",
+          "status": "passed",
+          "ready": true,
+          "required": true,
+          "message": "Recorded semantic HEAD-index readiness is available."
+        },
+        {
+          "name": "graph_freshness",
+          "status": "current_head",
+          "ready": false,
+          "required": true,
+          "message": "HEAD-index revision matches; uncommitted worktree freshness was not checked by metadata-only onboarding.",
+          "scope": "HEAD"
+        }
+      ],
+      "initialization_required": false,
+      "next_actions": [
+        "Use live worktree inspection for the selected target. Matching HEAD metadata alone cannot establish current worktree relationships."
+      ]
+    },
+    "mcp": {
+      "requested": true,
+      "status": "matched",
+      "repository_allowlist_checked": false,
+      "selected_executable": "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/environments/installed311/bin/python",
+      "schema_version": 1,
+      "exit": 0,
+      "error_kind": null,
+      "reasons": [],
+      "runtime": {
+        "amu_version": "0.2.0",
+        "version": "0.2.0",
+        "python_version": "3.11.16",
+        "executable": "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/environments/installed311/bin/python",
+        "module": "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/environments/installed311/lib/python3.11/site-packages/amu/mcp_server.py",
+        "distribution_version": "0.2.0",
+        "mcp_version": "2.2.0",
+        "pydantic_version": "2.13.5",
+        "build_sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+        "build": {
+          "sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+          "complete": true,
+          "files": 60,
+          "bytes": 909981,
+          "scope": "actual AMU Python payload only; not a wheel signature or provider identity"
+        }
+      },
+      "source_runtime": {
+        "amu_version": "0.2.0",
+        "version": "0.2.0",
+        "distribution_version": "0.2.0",
+        "python_version": "3.11.16",
+        "executable": "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/environments/installed311/bin/python",
+        "module": "/Users/Abslock128/Documents/ChatGPT/AMU/phase1-continuation-2026-10-10/environments/installed311/lib/python3.11/site-packages/amu/mcp_server.py",
+        "build_sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+        "build": {
+          "sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+          "complete": true,
+          "files": 60,
+          "bytes": 909981,
+          "scope": "actual AMU Python payload only; not a wheel signature or provider identity"
+        },
+        "manifest_version": "amu-inspection-v1",
+        "manifest_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761"
+      },
+      "manifest": {
+        "match": true,
+        "expected_version": "amu-inspection-v1",
+        "expected_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761",
+        "observed_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761",
+        "missing_tools": [],
+        "unexpected_tools": [],
+        "schema_mismatches": []
+      },
+      "protocol": {
+        "initialized": true,
+        "server_info": {
+          "name": "TWC Thugs \u00b7 amu",
+          "title": null,
+          "version": "amu/0.2.0 manifest/amu-inspection-v1:794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761 build/880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+          "description": null,
+          "websiteUrl": null,
+          "icons": null
+        },
+        "reported_identity": {
+          "amu_version": "0.2.0",
+          "build_sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+          "distribution_version": "0.2.0",
+          "manifest_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761",
+          "manifest_version": "amu-inspection-v1"
+        },
+        "tool_names": [
+          "amu_docs_reviews",
+          "amu_graph",
+          "amu_impact",
+          "amu_search"
+        ],
+        "tool_count": 4,
+        "inspection_only": true,
+        "checks": [
+          "initialize",
+          "tools/list"
+        ]
+      },
+      "authority": {
+        "profile": "inspection",
+        "repository_authorization_certified": false,
+        "live_client_configuration_changed": false,
+        "tool_calls_executed": false
+      }
+    },
+    "entire": "0.10.5",
+    "graph": "dev",
+    "doctor": {
+      "environment": {
+        "ENTIRE_CLI_VERSION": "0.10.5",
+        "ENTIRE_PLUGIN_DATA_DIR": "/private/var/folders/5k/x6lj0ysn01v6lnw7kdjxph300000gp/T/amu-mcp-inspection-dl80kiyi/home/.local/share/entire/plugins/data/graph",
+        "ENTIRE_REPO_ROOT": "/private/var/folders/5k/x6lj0ysn01v6lnw7kdjxph300000gp/T/amu-mcp-inspection-dl80kiyi/repo"
+      },
+      "no_egress": true,
+      "phase_1_local_only": {
+        "call_hosted_model_apis": false,
+        "call_remote_embedding_provider": false,
+        "download_grammars_or_assets": false,
+        "fetch_remote_code": false,
+        "perform_network_discovery": false,
+        "upload_telemetry": false
+      },
+      "plugin_data_dir": "writable",
+      "provider": "entire-graph",
+      "repo_key": "local/repo",
+      "repo_root": "/private/var/folders/5k/x6lj0ysn01v6lnw7kdjxph300000gp/T/amu-mcp-inspection-dl80kiyi/repo",
+      "schema_version": "1.1",
+      "version": "dev"
+    },
+    "anthropic_key_present": false,
+    "anthropic_key_source": "disabled",
+    "provider": null,
+    "model": null,
+    "unparsed": [],
+    "install": null,
+    "notes": [
+      "Local CLI repository selection does not establish or expand an MCP server grant.",
+      "MCP protocol verification lists tools only; it does not test actual server repository authorization.",
+      "No project tests/builds/imports, proposed code, or model API requests are executed by these diagnostics.",
+      "Native provider health checks remain trusted external programs; no sandbox guarantee is made."
+    ]
+  },
+  "initialize": {
+    "server_info": {
+      "name": "TWC Thugs \u00b7 amu",
+      "title": null,
+      "version": "amu/0.2.0 manifest/amu-inspection-v1:794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761 build/880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+      "description": null,
+      "websiteUrl": null,
+      "icons": null
+    },
+    "identity": {
+      "amu_version": "0.2.0",
+      "build_sha256": "880131726cdfd53d8d572a4ebb2ccfcba278179a7ceee5136a2c33c19d415f0e",
+      "distribution_version": "0.2.0",
+      "manifest_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761",
+      "manifest_version": "amu-inspection-v1"
+    }
+  },
+  "manifest": {
+    "match": true,
+    "expected_version": "amu-inspection-v1",
+    "expected_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761",
+    "observed_sha256": "794e41ef7de201f34831a7f15f126c2cbd31257e7a290ebfb5c9b81bc883f761",
+    "missing_tools": [],
+    "unexpected_tools": [],
+    "schema_mismatches": []
+  },
+  "search_hits": 8,
+  "graph_warnings": [
+    "W_WORKTREE_SNAPSHOT"
+  ],
+  "isolated_observation": {
+    "warnings": [
+      "W_WORKTREE_SNAPSHOT"
+    ],
+    "resolution": null,
+    "graph_evidence": {
+      "approvable": true,
+      "stage": "live-refresh",
+      "target": "pilotpkg/api.py#isolated",
+      "completeness_levels": [
+        "ok"
+      ],
+      "partial_failures": 0,
+      "semantic_edges": 0,
+      "reasons": [],
+      "contradicted_python_calls": [],
+      "unverified_python_calls": [],
+      "worktree": {
+        "before": {
+          "head_before": "d59034e83d00acd895a678a983bb3d2619bab02b",
+          "head_after": "d59034e83d00acd895a678a983bb3d2619bab02b",
+          "worktree": {
+            "digest": "15125e7ae17da56356f7659a",
+            "files": [
+              "AGENTS.md",
+              "CLAUDE.md"
+            ],
+            "error": null,
+            "evidence_version": 1,
+            "records": [
+              {
+                "path": "AGENTS.md",
+                "status": "??",
+                "old_path": null,
+                "paths": [
+                  "AGENTS.md"
+                ],
+                "kind": "file",
+                "content_hash": "a1adec5eff8a3b347a4cac2938c8431684f9b9272a246c6c2d6ca92987d6aa86",
+                "mode": 420,
+                "resolved_mode": 420
+              },
+              {
+                "path": "CLAUDE.md",
+                "status": "??",
+                "old_path": null,
+                "paths": [
+                  "CLAUDE.md"
+                ],
+                "kind": "file",
+                "content_hash": "a1adec5eff8a3b347a4cac2938c8431684f9b9272a246c6c2d6ca92987d6aa86",
+                "mode": 420,
+                "resolved_mode": 420
+              }
+            ],
+            "head": "d59034e83d00acd895a678a983bb3d2619bab02b",
+            "freshness": {
+              "head": "d59034e83d00acd895a678a983bb3d2619bab02b",
+              "full": {
+                "digest": "15125e7ae17da56356f7659a",
+                "files": [
+                  "AGENTS.md",
+                  "CLAUDE.md"
+                ],
+                "error": null,
+                "evidence_version": 1,
+                "records": [
+                  {
+                    "path": "AGENTS.md",
+                    "status": "??",
+                    "old_path": null,
+                    "paths": [
+                      "AGENTS.md"
+                    ],
+                    "kind": "file",
+                    "content_hash": "a1adec5eff8a3b347a4cac2938c8431684f9b9272a246c6c2d6ca92987d6aa86",
+                    "mode": 420,
+                    "resolved_mode": 420
+                  },
+                  {
+                    "path": "CLAUDE.md",
+                    "status": "??",
+                    "old_path": null,
+                    "paths": [
+                      "CLAUDE.md"
+                    ],
+                    "kind": "file",
+                    "content_hash": "a1adec5eff8a3b347a4cac2938c8431684f9b9272a246c6c2d6ca92987d6aa86",
+                    "mode": 420,
+                    "resolved_mode": 420
+                  }
+                ]
+              },
+              "config_hash": "2303cfca9614329e2aa9c1e339fa0bafdb40fbf87ab4a271914b94fb6058e174",
+              "error": null,
+              "schema_version": 1,
+              "code": {
+                "digest": "d9c394c3b5b1d9b3d5af7021",
+                "files": [],
+                "error": null
+              },
+              "docs": {
+                "digest": "26ee2a407149ebb284068b47",
+                "files": [
+                  "AGENTS.md",
+                  "CLAUDE.md"
+                ],
+                "error": null
+              }
+            }
+          }
+        },
+        "after": {
+          "head_before": "d59034e83d00acd895a678a983bb3d2619bab02b",
+          "head_after": "d59034e83d00acd895a678a983bb3d2619bab02b",
+          "worktree": {
+            "digest": "15125e7ae17da56356f7659a",
+            "files": [
+              "AGENTS.md",
+              "CLAUDE.md"
+            ],
+            "error": null,
+            "evidence_version": 1,
+            "records": [
+              {
+                "path": "AGENTS.md",
+                "status": "??",
+                "old_path": null,
+                "paths": [
+                  "AGENTS.md"
+                ],
+                "kind": "file",
+                "content_hash": "a1adec5eff8a3b347a4cac2938c8431684f9b9272a246c6c2d6ca92987d6aa86",
+                "mode": 420,
+                "resolved_mode": 420
+              },
+              {
+                "path": "CLAUDE.md",
+                "status": "??",
+                "old_path": null,
+                "paths": [
+                  "CLAUDE.md"
+                ],
+                "kind": "file",
+                "content_hash": "a1adec5eff8a3b347a4cac2938c8431684f9b9272a246c6c2d6ca92987d6aa86",
+                "mode": 420,
+                "resolved_mode": 420
+              }
+            ],
+            "head": "d59034e83d00acd895a678a983bb3d2619bab02b",
+            "freshness": {
+              "head": "d59034e83d00acd895a678a983bb3d2619bab02b",
+              "full": {
+                "digest": "15125e7ae17da56356f7659a",
+                "files": [
+                  "AGENTS.md",
+                  "CLAUDE.md"
+                ],
+                "error": null,
+                "evidence_version": 1,
+                "records": [
+                  {
+                    "path": "AGENTS.md",
+                    "status": "??",
+                    "old_path": null,
+                    "paths": [
+                      "AGENTS.md"
+                    ],
+                    "kind": "file",
+                    "content_hash": "a1adec5eff8a3b347a4cac2938c8431684f9b9272a246c6c2d6ca92987d6aa86",
+                    "mode": 420,
+                    "resolved_mode": 420
+                  },
+                  {
+                    "path": "CLAUDE.md",
+                    "status": "??",
+                    "old_path": null,
+                    "paths": [
+                      "CLAUDE.md"
+                    ],
+                    "kind": "file",
+                    "content_hash": "a1adec5eff8a3b347a4cac2938c8431684f9b9272a246c6c2d6ca92987d6aa86",
+                    "mode": 420,
+                    "resolved_mode": 420
+                  }
+                ]
+              },
+              "config_hash": "2303cfca9614329e2aa9c1e339fa0bafdb40fbf87ab4a271914b94fb6058e174",
+              "error": null,
+              "schema_version": 1,
+              "code": {
+                "digest": "d9c394c3b5b1d9b3d5af7021",
+                "files": [],
+                "error": null
+              },
+              "docs": {
+                "digest": "26ee2a407149ebb284068b47",
+                "files": [
+                  "AGENTS.md",
+                  "CLAUDE.md"
+                ],
+                "error": null
+              }
+            }
+          }
+        },
+        "stable": true
+      }
+    }
+  },
+  "review_queue_keys": [
+    "reviews"
+  ],
+  "direct_callers": [
+    "pilotpkg/api.py#same_file_caller",
+    "pilotpkg/caller.py#cross_file_caller",
+    "tests/test_api.py#test_required_behavior"
+  ],
+  "impact": {
+    "status": "inspectable",
+    "report_hash": "8d0e18d83908b1f41d4f9277c0cdbbb35541b96567cd3d8c5f8649a9729c43d1",
+    "rows_received": 3,
+    "retrieval": {
+      "impact": {
+        "logical_items": 3,
+        "entries": 3,
+        "fragmented_items": 0,
+        "cursor": "eyJvZmZzZXQiOjAsInJlcG9ydF9oYXNoIjoiOGQwZTE4ZDgzOTA4YjFmNDFkNGY5Mjc3YzBjZGJiYjM1NTQxYjk2NTY3Y2QzZDhjNWY4NjQ5YTk3MjljNDNkMSIsInNlY3Rpb24iOiJpbXBhY3QiLCJ2IjoxfQ"
+      },
+      "source_contradictions": {
+        "logical_items": 0,
+        "entries": 0,
+        "fragmented_items": 0,
+        "cursor": null
+      },
+      "source_uncertainties": {
+        "logical_items": 0,
+        "entries": 0,
+        "fragmented_items": 0,
+        "cursor": null
+      },
+      "dynamic_boundaries": {
+        "logical_items": 0,
+        "entries": 0,
+        "fragmented_items": 0,
+        "cursor": null
+      },
+      "coverage": {
+        "logical_items": 10,
+        "entries": 10,
+        "fragmented_items": 0,
+        "cursor": "eyJvZmZzZXQiOjAsInJlcG9ydF9oYXNoIjoiOGQwZTE4ZDgzOTA4YjFmNDFkNGY5Mjc3YzBjZGJiYjM1NTQxYjk2NTY3Y2QzZDhjNWY4NjQ5YTk3MjljNDNkMSIsInNlY3Rpb24iOiJjb3ZlcmFnZSIsInYiOjF9"
+      },
+      "reasons": {
+        "logical_items": 0,
+        "entries": 0,
+        "fragmented_items": 0,
+        "cursor": null
+      }
+    }
+  },
+  "inspection_state_changes": {},
+  "stale_cursor_error": {
+    "error": "cursor is stale or belongs to a different analysis or section; restart inspection",
+    "exit": 2
+  },
+  "updated_direct_callers": [
+    "pilotpkg/caller.py#cross_file_caller",
+    "tests/test_api.py#test_required_behavior"
+  ],
+  "authorization_negative": {
+    "error": "repository is not authorized for this MCP server",
+    "exit": 2,
+    "error_kind": "repository_not_allowed",
+    "category": "REPOSITORY_NOT_AUTHORIZED",
+    "hint": "Choose an explicitly authorized repository. Only the operator can review and change the server's exact-root grants; a tool request cannot expand them."
+  },
+  "inspection_preserved_source_docs_and_amu_state": true,
+  "temporary_fixture_removed_after_run": true
+}

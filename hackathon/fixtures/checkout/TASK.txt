@@ -1,0 +1,7 @@
+Fix discount rounding for integer-cent order amounts. A 50% discount on a
+5-cent order should produce a 3-cent total; today it produces 2 cents.
+The rule is nearest whole cent, with an exact half cent rounded upward.
+Compute the order-level discount without losing precision for large integer
+amounts. Preserve existing valid undiscounted/free-order behavior and invalid
+input validation. Make the smallest complete fix, add appropriate regression
+tests, and run the checks you consider necessary. Do not add features.

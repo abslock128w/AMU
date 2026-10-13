@@ -1,0 +1,42 @@
+{
+  "scope": "Fresh isolated offline wheel installation and actual local demo replay; no fresh agent comparison",
+  "started_at_utc": "2026-10-10T07:22:49.067395+00:00",
+  "environment": "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/submission-repository/.venv-demo",
+  "candidate": "EHpaIc",
+  "commands": [
+    {
+      "label": "submission-venv",
+      "arguments": [
+        "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+        "-B",
+        "-m",
+        "venv",
+        "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/submission-repository/.venv-demo"
+      ],
+      "exit_code": 0,
+      "stdout": "submission-venv.stdout",
+      "stderr": "submission-venv.stderr"
+    },
+    {
+      "label": "submission-offline-install",
+      "arguments": [
+        "/private/tmp/amu-production-hardening.bergOD/uvtool/bin/uv",
+        "pip",
+        "install",
+        "--offline",
+        "--python",
+        "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/submission-repository/.venv-demo/bin/python",
+        "--constraint",
+        "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/submission-repository/hackathon/candidate/EHpaIc/constraints.txt",
+        "/Users/Abslock128/Documents/ChatGPT/AMU/value-validation-2026-10-10.cn6u7g7p/submission-repository/hackathon/candidate/EHpaIc/amu-0.2.0-py3-none-any.whl[mcp]"
+      ],
+      "exit_code": 2,
+      "stdout": "submission-offline-install.stdout",
+      "stderr": "submission-offline-install.stderr"
+    }
+  ],
+  "status": "failed",
+  "live_configuration_changed": false,
+  "network_access_requested": false,
+  "failed_step": "submission-offline-install"
+}

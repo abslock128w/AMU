@@ -1,0 +1,17 @@
+AMU | saved actual local evidence | synthetic checkout case
+
+Actual amu_graph result: 11 nodes, 10 edges.
+  shop/pricing.py#discounted_total_cents | focus | depth 0
+  shop/checkout.py#checkout | callers | depth 1
+  shop/quote.py#quote | callers | depth 1
+  shop/receipts.py#receipt_text | callers | depth 2
+
+Graph caller depth is relative to the shared pricing function.
+Source corroboration of the indirect receipt path:
+  shop/receipts.py:6  total = quote(items, discount_percent)["total_cents"]
+  shop/quote.py:5  def quote(items: list[Item], discount_percent: int = 0) -> dict:
+  shop/quote.py:7  total = discounted_total_cents(subtotal, discount_percent)
+  shop/checkout.py:6  total = discounted_total_cents(subtotal_cents(items), discount_percent)
+
+Raw edge provenance labels: unknown
+Static relationships identify places to investigate; they do not prove breakage.

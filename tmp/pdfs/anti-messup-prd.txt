@@ -1,0 +1,923 @@
+--- PAGE 1 ---
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+       Anti-Messup           (    ) —   Product                                   
+                               amu                                                
+       Requirements                                                               
+                                                                                  
+                                                                                  
+       One line. A CLI that builds a graph of how your whole codebase relates, shows you and your coding
+       agent everything a change could break before you touch it, keeps those risks in the agent's head
+       while it works, and after the work is done updates the graph and the docs and tells you what else got
+       disturbed.                                                                 
+       What we are actually building. Glue and intelligence. The graph is open source (entire-graph, via
+       the entire CLI). The coding agent is whatever the dev already runs — Claude Code, Cursor, Codex —
+       or amu's own Claude-powered session. Our part is the layer between them: the map, the plan, the
+                                                                                  
+       checks, the documentation, the harness that keeps it all honest, and the interface that both a
+       developer and an agent can use.                                            
+       Who uses it. A developer, in a terminal or a coding-agent chat. An agent, through the same
+       commands with --json. Both see the same thing, because both read the same graph.
+                                                                                  
+                                                                                  
+                                                                                  
+       1. Workflow    — S1  to S4                                                 
+                                                                                  
+                                                                                  
+         S1 index   amu init     open the repo · connect the CLI · build the graph · store it
+            │                                                                     
+         S2 map     amu map <file|sym> dev asks about a file or function · graph finds everything
+            │                    related · UI shows the tree, features, and how sure we are
+            │                                                                     
+         S3 plan    amu plan     show what could break if this is done wrong · build an
+            │                    ordered fix plan around it · keep the risks in the agent's
+         mind                                                                     
+            │                                                                     
+            ├────────── the coding agent works ─────────────────────────────────────────────────────
+            │       normal agent loop (read, edit, test) but with the map in context, one phase at a
+            │       time, amu check after each phase, and the harness watching scope and frozen APIs
+            │                                                                     
+         S4 close   amu done     after the code is written: update the graph · find any new
+                                 messups the fix caused · update the docs · show the user
+       That is the whole product. Everything below is how each step is made real. 
+       2. Feature   1 —  the anti-messup    loop  (S1  → S4)                      
+                                                                                  
+                                                                                  
+       S1 · amu init                                                              
+                                                                                  
+       Opens the repo, installs or verifies the entire CLI and entire-graph, indexes the repo, stores the
+       graph and a fast snapshot under .amu/, and writes .amu/config.json (language, test command,
+       build command, docs folder, feature map). Runs once; amu done keeps it fresh afterwards.
+                                                                                  
+       Output: how many files, symbols, and relations were indexed; what the graph could not parse (that
+       list is the first honesty line the user ever sees).                        
+                                                                                  
+       S2 · amu map                                                               
+       Dev names a file or a function. The graph returns everything that touches it: callers, callees, type
+       consumers, re-exports, co-change partners, tests. amu classifies every node on three axes and
+       renders the tree.                                                          
+                                                                                  
+                                                                                  
+                                                                                  
+                                                              AAnntit-iM-Mesessuspu pP RPDR D· 1· /1 1 /4 12
+
+--- PAGE 2 ---
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+        Axis                  Values                 Meaning                      
+                                                                                  
+        confidence            ● sound · ◐ guessed · ○ unknown resolved edge · heuristic (name /
+                                                     co-change) · graph could not 
+                                                     resolve                      
+        risk                  will_break · might_break · how likely it breaks if the target
+                              unknown                changes                      
+                                                                                  
+        feature               from .amu/feature_map.json, which product feature this node
+                              else derived from path belongs to                   
+                                                                                  
+       Every non-sound node carries a verify line: a test to run, a fallback resolver to try, or a question for
+       a human. A reason is not enough; there is always a next action.            
+                                                                                  
+       Output is the tree in the screenshot (§7): exports → consumers, internal helpers, the agent's ripple
+       review, then features / radius / resolution / next.                        
+                                                                                  
+       S3 · amu plan                                                              
+       From the map: an ordered plan that never leaves the build red. Additive (introduce the new thing) →
+       Leaves (update consumers with no dependents) → Interior (the rest, dependency order) → Removal
+       (delete the old contract only when nothing depends on it). Each phase lists exactly which nodes to
+       edit and why they are at risk.                                             
+                                                                                  
+       amu plan --approve freezes the map + plan as the contract: the files the agent may edit, the order,
+       and the signatures it must not change. This is what "keeping the messups in mind" means
+       mechanically — the contract is in the agent's context for every edit.      
+                                                                                  
+       S3 → S4 · the coding agent works                                           
+                                                                                  
+       This is a normal coding agent doing normal work: it reads, edits, runs tests. Three things are different:
+        1. The map, plan, and contract are in its context the whole time, per phase, with the reason each
+          node is at risk.                                                        
+                                                                                  
+        2. It edits one phase at a time and runs amu check --phase N before moving on. Red → it gets a
+          delta brief (which node, which consumers, why) and fixes in place. Out of scope → it stops and re-
+          maps wider. Frozen signature touched → it stops for a human.            
+        3. It may not edit a file outside the contract, edit ahead of its phase, or touch an unknown file
+          without a human answer.                                                 
+       amu never writes code. The agent does. amu maps, gates, and verifies.      
+                                                                                  
+                                                                                  
+       S4 · amu done                                                              
+       One command, four things, in order:                                        
+                                                                                  
+        1. Sync — re-index what changed, refresh the snapshot. The next amu map sees the code as it is
+          now.                                                                    
+        2. Sweep — re-check the radius of the change against the old contract. Anything the fix reached
+          that the plan never listed is a finding: sound / guessed / unknown, with a verify line. Never a clean
+          verdict.                                                                
+        3. Docs — Feature 2, below.                                               
+        4. Show the user — one report: what was declared vs what changed, what the sweep found, which
+          docs were updated or flagged, and the next command.                     
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                              AAnntit-iM-Mesessuspu pP RPDR D· 2· /2 1 /4 12
+
+--- PAGE 3 ---
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+       3. Feature   2 —  documentation     that  follows  the graph               
+                                                                                  
+                                                                                  
+       Docs go stale when an interface changes and nobody notices. The graph knows when an interface
+       changed. So docs update when the graph updates.                            
+       How it works. .amu/doc-map.json maps symbols to doc files and sections (maintainer-owned; amu
+       init drafts a first version from docs/ headings). When amu done syncs the graph, every public
+       export that changed class (add_export, remove, rename, signature, move) becomes a doc
+       candidate. A body change on a public export is a candidate marked unknown — the graph cannot tell
+       if behaviour changed, so it says so.                                       
+                                                                                  
+       Modes (.amu/config.json → docs.mode):                                      
+                                                                                  
+        Mode                              What happens                            
+        flag                              List stale candidates with the doc file and section.
+                                          No drafting, no writing.                
+                                                                                  
+        draft (default)                   For mapped candidates, draft the replacement
+                                          paragraph from the old and new signature. Show
+                                          old/new. Human confirms per file (y / n / e to
+                                          edit).                                  
+        auto                              Apply drafts for candidates that are sound and
+                                          mapped, in one commit labelled docs: amu auto-
+                                          update, so it is reviewable and revertible as a unit.
+                                          unknown and unmapped candidates are still only
+                                          flagged.                                
+                                                                                  
+       Every draft is labelled SUGGESTED until a human or auto mode commits it. Docs are never described
+       as "up to date" — only "no flagged change touched this section."           
+                                                                                  
+       Doc agent (harness role, §5): reads the doc file, runs the draft, checks the draft says nothing the diff
+       does not, lists other places the symbol appears in the docs, and hands the human a packet. In auto
+       mode it also commits.                                                      
+                                                                                  
+                                                                                  
+       4. Commands      — for users   and  agents                                 
+                                                                                  
+                                                                                  
+       Every command takes --json (agents) and prints the same facts as the terminal view (users). Agents
+       never parse the tree; users never need the JSON.                           
+                                                                                  
+        Command          Step             Does             Writes                 
+        amu init         S1               install/verify graph, .amu/*            
+                                          index, snapshot, write                  
+                                          config, draft doc-map                   
+                                                                                  
+        amu              —                interactive session: chat —             
+                                          with the graph and the                  
+                                          agent, slash commands                   
+                                          below                                   
+        amu map --file F / -- S2          the tree         —                      
+        symbol path#name [--                                                      
+        depth 1|2] [--change                                                      
+        C]                                                                        
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                              AAnntit-iM-Mesessuspu pP RPDR D· 3· /3 1 /4 12
+
+--- PAGE 4 ---
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+        Command          Step             Does             Writes                 
+                                                                                  
+        amu plan [--targets S3            ordered plan;    contract.json          
+        sym:class,…] [--                  --approve writes the                    
+        approve]                          contract                                
+        amu check --phase N / S3→S4       live scope + build check state.json     
+        amu check                         per phase; final report                 
+                                                                                  
+        amu verify --node N any           the verify path for a —                 
+        [--attempt-fallback]              guessed/unknown node;                   
+                                          fallback resolver (never                
+                                          changes the contract)                   
+        amu shadow       S4               what the same task shadow.json          
+                                          would have broken                       
+                                          without the plan                        
+                                          (worktree, never touches                
+                                          the tree)                               
+                                                                                  
+        amu done         S4               sync + sweep + docs + .amu/*, docs (in auto
+                                          report           mode)                  
+        amu docs [--mode 2                Feature 2 standalone docs (apply/auto)  
+        flag|draft|auto] [--                                                      
+        apply id]                                                                 
+                                                                                  
+        amu sync / amu sweep S4           the two halves of done, sync-state.json / —
+                                          standalone                              
+        amu skills list|add| —            manage skills (§6) .amu/skills/         
+        run                                                                       
+                                                                                  
+        amu doctor       —                is the graph healthy, is a —            
+                                          model key present, what                 
+                                          can't it parse                          
+                                                                                  
+       Slash commands in the interactive session (and in Claude Code / Cursor via the MCP server): /
+       map, /plan, /approve, /fix, /check, /done, /docs, /verify n5, /why n4, /feature Liked, /
+       skills. Each maps to one command above with the current file as default.   
+       Exit codes. 0 ok · 1 blocking violation (check only) · 2 bad input or stale contract · 3 graph error.
+       done, sweep, docs --mode flag never exit 1 — they report, they do not block.
+                                                                                  
+                                                                                  
+                                                                                  
+       5. Intents  —  what  a user  says,  what  runs                             
+                                                                                  
+       The intent router turns natural language into one of these. It is the only classifier that runs before the
+                                                                                  
+       graph is consulted; everything after it has graph facts to work with.      
+        Intent                Example phrasing       Resolves to                  
+                                                                                  
+        explore               "what does this file touch", "who amu map --file/--symbol
+                              uses formatDuration"                                
+        assess                "will changing this break amu map + risk summary, no plan
+                              anything", "how risky is this"                      
+                                                                                  
+        change                "rename useAuth to useSession", amu map --change C → amu
+                              "add pagination to getUserData" plan                
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                              AAnntit-iM-Mesessuspu pP RPDR D· 4· /4 1 /4 12
+
+--- PAGE 5 ---
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+        Intent                Example phrasing       Resolves to                  
+                                                                                  
+        fix                   "fix the rounding bug in amu map --change signature 
+                              formatDuration"        (bias) → amu plan → builder  
+                                                                                  
+        approve               "go ahead", "looks good, start" amu plan --approve  
+        status                "where are we", "what's red" amu check --phase state
+                                                                                  
+        explain               "why is n4 guessed", "what's node detail + verify path
+                              unknown here"                                       
+        close                 "we're done", "wrap up", "update amu done           
+                              the docs"                                           
+                                                                                  
+        docs                  "which docs are stale", "update amu docs            
+                              the docs for this"                                  
+        verify                "check n5", "is registry.ts really amu verify --node
+                              affected"                                           
+                                                                                  
+       Rules the router follows: never invent a symbol (it must come from entire graph search); when a
+       fix/change is ambiguous about whether the interface changes, classify as signature (the safe
+       direction — body silently hides will_break); if the task names two targets, split it and ask.
+                                                                                  
+                                                                                  
+                                                                                  
+       6. Multi-agent   harness                                                   
+                                                                                  
+       One orchestrator, six roles, one shared state directory. Each role has a fixed tool set; a role cannot
+       call a tool it is not given.                                               
+                                                                                  
+                          ┌──────────── orchestrator ────────────┐                
+                          │ intent router · phase loop · budgets │                
+                          └──┬─────┬─────┬─────┬──────┬──────┬───┘                
+                            │   │   │  │    │    │                                
+                          mapper planner builder checker sweeper doc-agent        
+         tools: graph read ✓   ✓    ✓   ✓    ✓     ✓                              
+              source read  ✓   ✓    ✓   ✓    ✓     ✓                              
+              source write ·   ·    ✓   ·    ·     docs only                      
+              amu map/plan ✓   ✓    ·   ·    ·     ·                              
+              amu check    ·   ·    ✓   ✓    ·     ·                              
+              amu verify   ✓   ·    ✓   ✓    ✓     ·                              
+              amu sync/sweep · ·    ·   ·    ✓     ·                              
+              amu docs     ·   ·    ·   ·    ·     ✓                              
+              run tests/build · ·   ✓   ✓    ✓     ·                              
+              model call   ✓   ✓    ✓   ✓    ✓     ✓                              
+              approve contract · ·  ·   ·    ·     · ← only the orchestrator, only
+         after planner says proceed                                               
+              docs --apply ·   ·    ·   ·    ·     · ← only a human, or auto mode 
+        Role         Runs at       Reads         Produces     Must never          
+        orchestrator always        intents, all outputs the loop; approves write code or docs;
+                                                 the contract; skip a check       
+                                                 spawns roles; stops              
+                                                 on budget or                     
+                                                 human-required                   
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                              AAnntit-iM-Mesessuspu pP RPDR D· 5· /5 1 /4 12
+
+--- PAGE 6 ---
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+        Role         Runs at       Reads         Produces     Must never          
+                                                                                  
+        mapper       S2            map JSON, source ripple review: mark anything  
+                                   of nodes (read- behavioural sound; add a node  
+                                   only)         couplings the to the map         
+                                                 graph can't see,                 
+                                                 tiered heuristic /               
+                                                 requires_verificatio             
+                                                 n, plus feature                  
+                                                 rollup                           
+        planner      S3            map + ripple  proceed / narrow / approve; invent
+                                                 escalate; human scope            
+                                                 questions;                       
+                                                 conditions for the               
+                                                 builder                          
+                                                                                  
+        builder      S3→S4         contract, current edits in the phase's edit outside the
+                                   phase, delta briefs, files; tests phase; touch 
+                                   source                     unknown files;      
+                                                              change a frozen     
+                                                              signature           
+        checker      after each phase check JSON fix-in-place / downgrade a       
+                                                 widen / escalate / blocking violation
+                                                 abort; retry hint for to a retry; more
+                                                 the builder  than 2 retries per  
+                                                              phase               
+        sweeper      S4            sync + sweep JSON findings with verify fix anything; treat a
+                                                 paths; next-task finding as sound by
+                                                 suggestion   fiat                
+                                                                                  
+        doc-agent    S4            doc candidates, review packet; draft for unmapped
+                                   doc files     drafts; commits in candidates; claim a
+                                                 auto mode    doc is current      
+                                                                                  
+       Handoff protocol. Every role returns one JSON object with decision, confidence, escalate,
+       evidence[] (file:line or node id), next. The orchestrator writes it to .amu/run/<role>-<n>.json and
+       passes only the fields the next role is allowed to see. Nothing is passed by prose.
+                                                                                  
+       Budgets. Per task: 2 map widenings, 2 retries per phase, 1 sweep. Exceeding any → human. Per role:
+       token and wall-clock caps from config. The orchestrator prints the running spend in the status line.
+       Parallelism. Mapper's ripple review runs in parallel with the graph map. Doc-agent runs in parallel
+       with sweeper. Builder is always alone — one writer at a time, always.      
+                                                                                  
+       Memory. .amu/checkpoint.json — node ids, hashes, decisions, open questions. Never source text. A
+       new session rehydrates from it in a few hundred tokens and amu stale says which decisions are no
+       longer valid.                                                              
+                                                                                  
+                                                                                  
+       7. Skills                                                                  
+                                                                                  
+                                                                                  
+       Skills are what make the CLI as good as Claude Code on this repo instead of generic. A skill is a folder
+       with a SKILL.md (when to use it, steps, commands, done-criteria) plus optional scripts and fixtures.
+       Roles load skills by name; users invoke them with /skill-name.             
+       Built-in skills (ship with amu).                                           
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                              AAnntit-iM-Mesessuspu pP RPDR D· 6· /6 1 /4 12
+
+--- PAGE 7 ---
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+        Skill                 Used by                What it encodes              
+                                                                                  
+        map-a-change          orchestrator, mapper   how to root a map, when to   
+                                                     widen, how to read the tree, what
+                                                     each glyph licenses          
+        phase-edit            builder                edit one phase, run the phase's
+                                                     tests, call check, read a delta
+                                                     brief, when to stop          
+                                                                                  
+        red-triage            checker                violation → decision table; retry
+                                                     hints; the 2-retry cap       
+        close-the-loop        sweeper                sync, sweep, how to write a  
+                                                     finding, what "0 findings" must
+                                                     say                          
+                                                                                  
+        doc-follow            doc-agent              doc-map format, draft rules (say
+                                                     nothing the diff doesn't), packet
+                                                     format, auto-mode commit rules
+        unknowns              all                    what unknown means, the three
+                                                     verify methods, when to ask a
+                                                     human, how to ask well       
+                                                                                  
+        feature-rollup        mapper                 path → feature mapping, deriving
+                                                     when no map exists, labelling
+                                                     derived                      
+                                                                                  
+       Repo skills (generated or written per repo, live in .amu/skills/). amu init drafts three: run-
+       tests (the exact commands), build (build + typecheck), conventions (lint, import style, barrel files,
+       where tests live — read from the repo). Teams add their own: release-checklist, api-change-review,
+       migration-playbook.                                                        
+                                                                                  
+       Skill rules. A skill never grants a tool a role doesn't have. A skill can tighten a rule, never loosen
+       one. Skills are versioned files in the repo, reviewed like code.           
+                                                                                  
+                                                                                  
+       8. System   prompts                                                        
+                                                                                  
+                                                                                  
+       These make every role live. Shared preamble first, then one block per role. All prompts end with the
+       same three lines: output one JSON object; cite evidence by file:line or node id; never call anything
+       sound that the graph did not.                                              
+                                                                                  
+       8.0 Shared preamble                                                        
+                                                                                  
+         You are part of Anti-Messup (amu), a harness around a code graph. The graph is
+         evidence, not an oracle. Three confidence levels exist and you must keep them
+         apart: sound (a resolved graph edge), guessed (name match or co-change), 
+         unknown (the graph could not resolve it). You may add heuristic findings; you
+         may never promote anything to sound. Every non-sound claim you make carries a
+         way to check it: a test, a fallback resolver, or a question for a human. 
+         You never print the words safe, clean, verified, or OK as a summary.     
+         You act only through the tools you were given for this role.             
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                              AAnntit-iM-Mesessuspu pP RPDR D· 7· /7 1 /4 12
+
+--- PAGE 8 ---
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+       8.1 Orchestrator                                                           
+                                                                                  
+         Role: orchestrator. You run the S1→S4 loop for one task.                 
+         Inputs: the user's message, .amu/config.json, .amu/contract.json if present,
+              role outputs in .amu/run/.                                          
+         Do:                                                                      
+         1. Route intent (§5). Never invent a symbol; use entire graph search results.
+         2. S2: run amu map; spawn mapper for ripple review in parallel.          
+         3. S3: spawn planner with map + ripple. proceed → amu plan --approve.    
+           narrow → re-map with the option the planner chose. escalate → stop, ask
+           the human the planner's questions, resume with their answers.          
+         4. For each phase in the contract: spawn builder with only that phase's  
+           nodes, reasons, and frozen signatures; after it returns, run amu check 
+           --phase N; spawn checker on red. fix_in_place → builder again with the 
+           retry hint (max 2). widen → back to S2 with the wider intent (max 2).  
+           escalate/abort → stop for the human.                                   
+         5. Final amu check. Then amu done: spawn sweeper and doc-agent in parallel.
+         6. Print the report: declared vs actual, sweep findings, docs, next command.
+         7. amu checkpoint write.                                                 
+         Never: write code or docs yourself; approve without the planner's proceed;
+         skip a check; exceed a budget silently.                                  
+         Status line every step: phase, spend, open questions.                    
+       8.2 Mapper (ripple review)                                                 
+         Role: mapper. You read source to find behavioural coupling the graph cannot
+         see: shared state, string keys and event names callers match on, positional
+         destructures of a return shape, defaults callers rely on, fixtures that pin
+         the old shape. Bounded reading: the root file, files in nodes[], one hop of
+         imports, tests in scope. No crawling.                                    
+         Output: ripples[] {id r1…, kind, tier heuristic|requires_verification,   
+         from, to (node id or file:line), evidence (quoted line), would_change,   
+         verification}, features_at_risk[], suggested_targets[], questions_for_human[].
+         Tier requires_verification only for a literal dependency you read.       
+         A file you found that is not a node is a finding, not a node; route it to
+         widen. Never edit. Never mark sound.                                     
+       8.3 Planner (scope decision)                                               
+         Role: planner. Decide proceed | narrow_scope | escalate_to_human for one 
+         unapproved map, from JSON only.                                          
+         Unknown nodes: block only if a planned edit touches or depends on them   
+         (role consumer of a target whose signature changes, or action edit). A   
+         read-only unknown does not block; it becomes a human question at approve.
+         Guessed nodes with a covering test: proceed at low confidence with the test
+         as a condition. Guessed with no test and action edit: narrow if a supplied
+         scope option removes it, else escalate.                                  
+         Radius and history are attention, never proof. Never invent scope; copy  
+         from scope_options. Output: decision, confidence, blocking_node_ids,     
+         conditions[], required_verifications[] (copied verbatim), questions_for_human[],
+         recommended_scope_option, reasoning.                                     
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                              AAnntit-iM-Mesessuspu pP RPDR D· 8· /8 1 /4 12
+
+--- PAGE 9 ---
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+       8.4 Builder (the coding agent)                                             
+                                                                                  
+         Role: builder. You are a normal coding agent with three extra rules.     
+         You receive: the contract, THIS phase's node ids with their file, reason,
+         and verify line, the frozen signatures, the repo skills (run-tests, build,
+         conventions), and — on retry — a delta brief.                            
+         Rules:                                                                   
+         1. Edit only the files in this phase. Not the next phase's, not anything 
+           outside the contract. If the fix needs a file you were not given, stop 
+           and return needs_widen with the file and why.                          
+         2. Never change a frozen signature. If the fix seems to require it, stop 
+           and return needs_human.                                                
+         3. Never edit a file marked unknown. Ask instead.                        
+         Work: read the phase's files and their reasons; make the change; run the 
+         phase's tests via the run-tests skill; return {status done|needs_widen|  
+         needs_human, files_changed[], tests_run[], notes}. Keep the reasons in mind
+         while editing — they say what will break and why; write the change so it 
+         doesn't. Do not "helpfully" fix a downstream consumer early; that is a   
+         later phase, and touching it now trips PHASE_DRIFT.                      
+       8.5 Checker (red triage)                                                   
+         Role: checker. One red amu check --phase result → fix_in_place |         
+         widen_scope | escalate_to_human | abort_phase.                           
+         Exit 2/3 → abort. FROZEN_SIGNATURE, UNDECLARED_REMOVAL, UNKNOWN_TOUCHED →
+         escalate. OUT_OF_SCOPE, PHASE_DRIFT → widen. Otherwise, red nodes inside 
+         this phase → fix_in_place with a retry_hint from the delta brief's reason;
+         if any red node's consumers include an unknown node → escalate; if attempt
+         >= 2 → escalate. Never turn a blocking violation into a retry.           
+       8.6 Sweeper (close the loop)                                               
+                                                                                  
+         Role: sweeper. After amu sync, read amu sweep JSON. For each finding     
+         outside the old contract: keep its bucket, confidence, reason, verify —  
+         do not re-grade. Group by feature. Write the next-task suggestion: the map
+         command that would bring the finding under a contract. If findings is    
+         empty, say what was swept and at what depth; never "nothing found."      
+         Never fix. Never approve.                                                
+       8.7 Doc-agent                                                              
+                                                                                  
+                                                                                  
+         Role: doc-agent. Input: doc candidates from amu done. For mapped         
+         candidates only: read the doc section, run amu docs --mode draft, check the
+         draft states exactly the new signature and nothing the diff does not show,
+         grep the doc files for other mentions of the symbol, produce a packet    
+         {candidate, doc_file, section, old, new, consistent_with_diff, concerns[],
+         other_mentions[], next}. In draft mode the human applies. In auto mode,  
+         apply only candidates that are sound and mapped, one commit "docs: amu   
+         auto-update", and list what you did not apply and why. Unmapped and      
+         unknown candidates: flag with the question a human must answer. Never say
+         a doc is up to date.                                                     
+       8.8 Intent router                                                          
+         Role: intent router. Map the user's message to one intent in §5 and, for 
+         explore/assess/change/fix, a {symbol, change_class}. symbol comes verbatim
+         from entire graph search results or is null with status not_found /      
+         ambiguous / multi_target. change_class ∈ add_export|remove|rename|signature|
+         move|body; when the message is silent about params, returns, defaults, or
+         errors, choose signature. body and rename need an explicit statement that
+         the interface is unchanged. Output: {intent, status, symbol, change_class,
+         confidence, clarification|null, candidates[]}.                           
+                                                                                  
+                                                                                  
+                                                              AAnntit-iM-Mesessuspu pP RPDR D· 9· /9 1 /4 12
+
+--- PAGE 10 ---
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+       9. UI —  terminal   and  agent  card                                       
+                                                                                  
+       Both render the same JSON. Neither computes anything.                      
+                                                                                  
+       Terminal (screenshot 1). Header line: file, exports, internal count, feature. Then per export:
+       consumers as a tree, each line id · path · ● glyph confidence · risk · feature · #order action ·
+       via. Non-sound nodes get an indented reason line and a verify line. Then internal (helpers →
+       which exports they reach), then ripple with the caption agent review · heuristic, not graph evidence,
+       then four summary lines: features, radius, resolution, next. Sort within a level: unknown →
+       guessed → sound. Colour is redundant with the glyph, so NO_COLOR still reads. Under 100 columns
+       drop feature and via, never the glyph or verify. next is always the last line and always a
+       runnable command.                                                          
+                                                                                  
+       Agent card (screenshot 2, for Claude Code / Cursor via MCP). Header with file and contract state.
+       Four tiles: sound, guessed, unknown, ripples. One row per node with badges for confidence, risk,
+       feature; ripple rows tinted with an agent badge. Buttons map to the loop, not to raw commands:
+       View JSON, Answer nX question, Approve with targets — the last enabled only after the planner
+       returns proceed. Live state after approval: green / red per node from state.json.
+       During the phase loop. The same tree, with a state column: · planned, ▸ editing, ✓ green, ✗
+       red, ↯ drift. The report at done is the tree one last time with sweep findings appended under a
+       sweep section and docs under docs.                                         
+                                                                                  
+                                                                                  
+                                                                                  
+       10. Honesty    rules                                                       
+                                                                                  
+       Five, non-negotiable, enforced by schema checks not by prose.              
+                                                                                  
+        1. Nothing is sound without a resolved graph edge. Not a name match, not a fallback resolver's
+          opinion, not an agent's reading.                                        
+        2. Every guessed and unknown node has a reason and a verify action.       
+        3. No output ever summarises with safe, clean, verified, OK. Counts and buckets only. "0 unknown"
+          always carries the qualifier that makes it true.                        
+        4. amu never writes code. Docs are written only by a human confirming a labelled draft, or by auto
+                                                                                  
+          mode in a single labelled, revertible commit for sound mapped candidates.
+        5. What an agent reads in source is heuristic or requires-verification, never confirmed. It can widen a
+          map or ask a question; it cannot enlarge a contract.                    
+                                                                                  
+                                                                                  
+       11. State                                                                  
+                                                                                  
+                                                                                  
+       All under .amu/, git-ignored except config.json, doc-map.json, feature_map.json, skills/.
+                                                                                  
+        File                  Written by             Trust                        
+        config.json            init, humans          human-owned                  
+                                                                                  
+        graph/, snapshot.ndjson init, done/sync      graph cache                  
+        contract.json          plan --approve        ground truth for one task    
+                                                                                  
+        state.json             check --phase         ground truth, per-node state 
+        shadow.json, sync-state.json shadow, sync    ground truth                 
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                             AAnntti-iM-Meesssuspu pP RPDRD · 1· 01 /0 1 /4 12
+
+--- PAGE 11 ---
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+        9. UI — terminal and agent card · screenshot 1                            
+                                                                                  
+        Terminal view — amu map                                                   
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+        amu map --file src/hooks/useLikedSongs.ts --radius --history              
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                             Anti-Messup PRD · 11 / 14
+
+--- PAGE 12 ---
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+        9. UI — terminal and agent card · screenshot 2                            
+                                                                                  
+        Agent card — Claude Code / Cursor (via MCP)                               
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+        Same blast-map data as the terminal view, rendered as tiles and rows for an in-editor agent chat.
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                             Anti-Messup PRD · 12 / 14
+
+--- PAGE 13 ---
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+        File                  Written by             Trust                        
+                                                                                  
+        checkpoint.json        checkpoint write      metadata (pointers + hashes) 
+                                                                                  
+        run/*.json            orchestrator           role handoffs, per task      
+        suggestions.json, docs- docs                 metadata, never read by a verdict
+        state.json                                                                
+                                                                                  
+        doc-map.json,         humans (drafted by init) human-owned                
+        feature_map.json, skills/                                                 
+                                                                                  
+                                                                                  
+                                                                                  
+       12. What   ships  first                                                    
+                                                                                  
+       MVP (the demo): init, map --file, plan --approve, check --phase, done with sync + sweep,
+       docs --mode draft, the terminal tree, the orchestrator + builder + checker roles, the seven built-in
+       skills. shadow, verify --attempt-fallback, docs --mode auto, the agent card via MCP, and the
+       mapper's ripple review come next — each is additive and none is needed for the loop to close.
+                                                                                  
+       Open source we depend on: entire CLI and entire-graph (the graph); scip-typescript (fallback
+       resolver); Typer + Rich (CLI and rendering); the model API for the roles. Ours: everything in §2–§9.
+                                                                                  
+                                                                                  
+       13. Terms                                                                  
+                                                                                  
+                                                                                  
+        Term                              Meaning                                 
+        graph                             entire-graph's index of files, symbols, and 30
+                                          relation types, stored under .amu/      
+                                                                                  
+        map                               the subgraph around a file or symbol, classified and
+                                          rendered                                
+        node                              one file or symbol in a map, with id n1…
+                                                                                  
+        sound / guessed / unknown         confidence: resolved edge / heuristic / unresolved
+                                                                                  
+        will_break / might_break / unknown risk if the target changes             
+        verify                            the action that would confirm a non-sound node:
+                                          test, fallback resolver, or human question
+                                                                                  
+        radius                            files, packages, exports, consumers, tests a change
+                                          reaches                                 
+        history                           how often a file went red in past changes of the
+                                          same class                              
+                                                                                  
+        feature                           product area a node belongs to, from    
+                                          feature_map.json or derived from its path
+        ripple                            behavioural coupling an agent read in source;
+                                          heuristic or requires_verification, never sound
+                                                                                  
+        plan / phase                      ordered edit sequence: additive → leaves → interior
+                                          → removal                               
+        contract                          the approved map + plan: what may be edited, in
+                                          what order, what is frozen              
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                             AAnntti-iM-Meesssuspu pP RPDRD · 1· 31 /1 1 /4 12
+
+--- PAGE 14 ---
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+        Term                              Meaning                                 
+                                                                                  
+        frozen signature                  an export whose interface must not change during
+                                          this task                               
+                                                                                  
+        check / delta brief               per-phase scope + build verification; on red, the
+                                          node, its consumers, and why            
+        violation                         FROZEN_SIGNATURE · OUT_OF_SCOPE ·       
+                                          UNDECLARED_REMOVAL · PHASE_DRIFT (blocking) ·
+                                          UNGUARDED_CHANGE · UNKNOWN_TOUCHED      
+                                          (warning)                               
+        shadow                            the same task run without the plan, in a worktree, to
+                                          show what would have broken             
+                                                                                  
+        sync                              re-index + snapshot refresh after a task
+                                                                                  
+        sweep                             post-sync check for what the fix reached outside the
+                                          contract                                
+        doc candidate / doc-map           a public export whose change may have staled a
+                                          doc / the symbol → doc file mapping     
+                                                                                  
+        SUGGESTED                         the label on every drafted doc text until it is
+                                          confirmed or auto-committed             
+        harness                           the orchestrator + roles + budgets + handoff
+                                          protocol                                
+                                                                                  
+        role                              mapper, planner, builder, checker, sweeper, doc-
+                                          agent — each with a fixed tool set      
+        skill                             a SKILL.md folder that teaches a role how this repo,
+                                          or this kind of task, works             
+                                                                                  
+        intent                            what the user is asking for, routed to one command
+        checkpoint / stale                session memory as pointers + hashes / which
+                                          remembered decisions are no longer valid
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                             AAnntti-iM-Meesssuspu pP RPDRD · 1· 41 /2 1 /4 12
