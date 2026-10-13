@@ -1150,8 +1150,12 @@ def bind_test_fixtures(scan):
 
     index = scan.r.fixtures
     names = set().union(*(case.keys() for case in parameter_cases(scan.r, scan.path + "::" + scan.name)))
+    positional = [*scan.node.args.posonlyargs, *scan.node.args.args]
+    defaults = {a.arg for a in positional[len(positional) - len(scan.node.args.defaults):]} if scan.node.args.defaults else set()
+    required = [a for a in scan.node.args.args if a.arg not in defaults]
+    required.extend(a for a, default in zip(scan.node.args.kwonlyargs, scan.node.args.kw_defaults) if default is None)
     requested = [
-        a.arg for a in [*scan.node.args.args, *scan.node.args.kwonlyargs]
+        a.arg for a in required
         if a.arg not in names and not (a.arg == "self" and "::" in scan.name)
     ]
     if not requested:

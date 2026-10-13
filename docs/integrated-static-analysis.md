@@ -27,7 +27,8 @@ Simple source-declared pytest return fixtures can bind test arguments to exact
 constructed receivers, supported returned values, and other return fixtures.
 Module-local declarations precede ancestor conftest declarations. Unsupported
 nearest declarations and imported aliases block fallback. Direct parametrized
-arguments override fixtures. Dependencies share an allocation within one test,
+arguments override fixtures; arguments with defaults are not fixture requests.
+Dependencies share an allocation within one test,
 so escape through an alias invalidates the same receiver. Factory and initializer
 dependencies participate in summary recomputation, with located constructor,
 factory and fixture-binding provenance attached to receiver evidence.

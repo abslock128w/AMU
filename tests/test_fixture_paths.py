@@ -113,6 +113,12 @@ def test_imported_fixture_override_does_not_fall_through_to_conftest():
     assert not analyze({"api.py": SOURCE, "tests/conftest.py": FIXTURE, "tests/test_api.py": test})["assertions"]
 
 
+@pytest.mark.parametrize("signature", ["api=None", "*, api=None"])
+def test_default_test_argument_is_not_a_requested_fixture(signature):
+    test = f'def test_value({signature}):\n    assert api.result()["value"] == 1\n'
+    assert not analyze({"api.py": SOURCE, "tests/conftest.py": FIXTURE, "tests/test_api.py": test})["assertions"]
+
+
 def test_fixture_property_stored_field_and_unrelated_assertion():
     source = "class API:\n    def __init__(self):\n        self.value=1\n        self.other=9\n    @property\n    def result(self):\n        return self.value\n"
     test = "def test_value(api):\n    assert api.result == 1\n    assert api.other == 9\n"
