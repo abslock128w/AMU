@@ -55,6 +55,10 @@ def fingerprint(root, request):
     names.update(f.path for f in parse_diff(request.patch))
     names.update({"pyproject.toml", ".amu/config.json", ".amu/feature_map.json", ".entire/settings.json"})
     names.update(pytest_fixtures.CONFIG_FILES)
+    if request.coverage_evidence is not None:
+        from .observed_tests import CONFIG_FILES
+        names.update(CONFIG_FILES)
+        names.add(request.coverage_evidence)
     files = []
     for name in sorted(names):
         if impact._source_path_present_or_unsafe(root, name):

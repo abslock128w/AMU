@@ -62,6 +62,7 @@ class PatchRequest:
     cursor: str | None = None
     page_size: int = 20
     check_spec: dict | None = None
+    coverage_evidence: str | None = None
 
 
 def validate_patch_request(request: PatchRequest) -> None:
@@ -90,6 +91,9 @@ def validate_patch_request(request: PatchRequest) -> None:
             impact_report.decode_cursor(request.cursor, sections=impact_report.PATCH_SECTIONS)
         except impact_report.ReportError as exc:
             raise ImpactInputError(str(exc)) from exc
+    if request.coverage_evidence is not None:
+        from amu.observed_tests import relative_path
+        relative_path(request.coverage_evidence)
     try:
         validate_check_spec(request.check_spec)
     except CheckSpecError as exc:
@@ -647,6 +651,11 @@ def _compute_patch(repo: str, request: PatchRequest, *, snapshot_key=None) -> di
     if request.base != "worktree" and (head == "no-git" or request.base not in {"HEAD", head}):
         raise ImpactInputError("base does not identify the current Git HEAD; use worktree for a source-only baseline")
     files = parse_diff(request.patch)
+    observed_status = None
+    observed_data, observed_source = {}, {}
+    if request.coverage_evidence is not None:
+        from amu import observed_tests
+        observed_data, observed_source, observed_status = observed_tests.load(root, request.coverage_evidence)
     groups = {section: [] for section in sorted(impact_report.PATCH_SECTIONS)}
     snapshots, file_identities, affected, graph_targets, declarations = {}, [], {}, [], {}
     source_trees, file_coverage, candidate_trees = {}, [], {}
@@ -961,6 +970,14 @@ def _compute_patch(repo: str, request: PatchRequest, *, snapshot_key=None) -> di
                     "assertion": "supported-behavior-related-assertion", "input": "supported-input",
                     "unresolved": "unresolved-relationship",
                 }.get(evidence["level"], "supported-source-path-only" if association.get("resolution") == "resolved" else "broad-reference")
+    if observed_status is not None:
+        observed, unobserved = observed_tests.recommendations(
+            observed_data, observed_source, groups["changes"],
+            aggregate_classes=observed_tests.aggregate_class_changes(source_trees, candidate_trees, groups["changes"]))
+        observed_tests.merge(groups["recommended_checks"], observed)
+        observed_status.update(prioritized_tests=len(observed), unobserved_entities=unobserved)
+        groups["uncertainties"].append({"kind": "observed-execution-limit", "reason": observed_tests.LIMITATION,
+                                      "status": observed_status["status"]})
     groups["uncertainties"].extend({"path": row["path"], "test_id": row["test_id"],
                                    "reason": row["behavioral_analysis_limit"]}
                                   for row in groups["recommended_checks"] if row.get("behavioral_analysis_limit"))
@@ -1061,6 +1078,10 @@ def _compute_patch(repo: str, request: PatchRequest, *, snapshot_key=None) -> di
     final_production, final_production_complete = _python_inventory(root, production=True)
     if production_inventory != final_production or production_complete and not final_production_complete:
         raise ImpactInputError("production dependency inventory changed during inspection; retry")
+    if observed_status is not None:
+        _, _, final_observed = observed_tests.load(root, request.coverage_evidence)
+        if any(final_observed[key] != observed_status[key] for key in ("artifact_sha256", "status")):
+            raise ImpactInputError("coverage evidence or bound source changed during inspection; retry")
     identity = {"repository": {"path": str(root), "device": root_identity[0], "inode": root_identity[1]},
                 "baseline_kind": "live-worktree", "git_head": None if head == "no-git" else head, "files": file_identities,
                 "file_coverage": file_coverage, "test_sources": test_hashes,
@@ -1093,6 +1114,8 @@ def _compute_patch(repo: str, request: PatchRequest, *, snapshot_key=None) -> di
                                   "recommendation_evidence": "behavioral-test-evidence-v6",
                                   "input_suggestions": "bounded-input-probes-v1",
                                   "max_graph_targets": MAX_GRAPH_TARGETS, "max_ast_nodes": MAX_AST_NODES, "max_ast_depth": MAX_AST_DEPTH}}
+    if observed_status is not None:
+        identity["observed_execution"] = observed_status
     from amu import report_store
     report_store.save(snapshot_key, identity=identity, groups=groups, limitations=_PATCH_LIMITATIONS,
                       max_bytes=MAX_PACKET_BYTES, max_rows=MAX_ROWS)

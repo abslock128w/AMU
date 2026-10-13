@@ -71,6 +71,7 @@ _REVIEWED_PATCH_TOOL = {
         "section": {"type": "string", "enum": list(PATCH_SECTIONS), "default": "summary"},
         "cursor": {"anyOf": [{"type": "string", "maxLength": 1024}, {"type": "null"}], "default": None},
         "page_size": {"type": "integer", "minimum": 1, "maximum": 100, "default": 20},
+        "coverage_evidence": {"anyOf": [{"type": "string", "maxLength": 4096}, {"type": "null"}], "default": None},
         "check_spec": {"anyOf": [{"type": "object", "additionalProperties": True}, {"type": "null"}], "default": None},
     }, ["patch", "repo"]), "outputSchema": _OUTPUT, "annotations": _ANNOTATIONS,
 }

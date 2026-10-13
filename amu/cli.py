@@ -575,6 +575,7 @@ def analyze_patch_cmd(
     cursor: str | None = typer.Option(None, "--cursor", help="opaque patch/evidence-bound cursor; stale cursors are refused"),
     page_size: int = typer.Option(20, "--page-size", help="page entries, 1–100"),
     check_spec: str | None = typer.Option(None, "--check-spec", help="bounded JSON check input and explicit expectation; review required"),
+    coverage_evidence: str | None = typer.Option(None, "--coverage-evidence", help="repository-relative imported per-test coverage artifact; priority only"),
     repo: str = REPO_OPT,
     json_output: bool = JSON_OPT,
 ):
@@ -611,7 +612,7 @@ def analyze_patch_cmd(
                 raise impact_service.ImpactInputError(str(exc)) from exc
         result = impact_service.execute_patch(repo, impact_service.PatchRequest(
             patch=literal, base=base, depth=depth, include_graph=include_graph,
-            section=section, cursor=cursor, page_size=page_size, check_spec=parsed_check,
+            section=section, cursor=cursor, page_size=page_size, check_spec=parsed_check, coverage_evidence=coverage_evidence,
         ))
     except impact_service.ImpactInputError as exc:
         _out(exc.payload, json_output)
@@ -3507,6 +3508,46 @@ def _repl(repo: str | None = None):
             brand.err_console().print(
                 "[conf.unknown]○ model off[/] — free-text questions need a model: type [brand]/key add[/] to connect one (Anthropic, Gemini, Ollama, …); slash commands and change requests work without it"
             )
+
+
+@app.command(name="coverage-snapshot")
+def coverage_snapshot_cmd(
+    environment: str = typer.Option(..., help="identifier of the collection environment, e.g. CI image digest"),
+    command: str = typer.Option(..., help="baseline test command that the operator will run separately"),
+    repo: str = REPO_OPT,
+    json_output: bool = JSON_OPT,
+):
+    """Print source identity before collecting per-test coverage; executes no tests."""
+    from amu import observed_tests
+    from amu.services.impact import ImpactInputError, _repo
+    try:
+        result = observed_tests.snapshot(_repo(repo), environment=environment, command=command)
+    except ImpactInputError as exc:
+        _out(exc.payload, json_output)
+        raise typer.Exit(code=2) from exc
+    _out(result, json_output)
+
+
+@app.command(name="coverage-import")
+def coverage_import_cmd(
+    snapshot: str = typer.Option(..., help="repository-relative pre-run snapshot JSON"),
+    coverage_json: str | None = typer.Option(None, help="repository-relative Coverage.py JSON with contexts"),
+    coverage_data: str | None = typer.Option(None, help="repository-relative Coverage.py data file; requires coverage extra"),
+    repo: str = REPO_OPT,
+    json_output: bool = JSON_OPT,
+):
+    """Print source-bound observed-test evidence; reads artifacts and executes no tests."""
+    from amu import observed_tests
+    from amu.services.impact import ImpactInputError, _repo
+    try:
+        result = observed_tests.import_report(_repo(repo), snapshot, coverage_json, data_path=coverage_data)
+    except ImpactInputError as exc:
+        _out(exc.payload, json_output)
+        raise typer.Exit(code=2) from exc
+    if json_output:
+        typer.echo(json.dumps(result, ensure_ascii=False, separators=(",", ":")))
+    else:
+        _out(result, False)
 
 
 if __name__ == "__main__":

@@ -353,7 +353,7 @@ def _patch_summary(identity: dict, groups: dict) -> dict:
     ranked_checks = []
     broad_check_count = 0
     for row in groups["recommended_checks"]:
-        if row.get("verification_category") == "broad-source-reference":
+        if row.get("verification_category") == "broad-source-reference" and not row.get("observed_execution"):
             broad_check_count += 1
             continue
         associations = sorted(row.get("associations", []), key=lambda item: (
@@ -366,24 +366,27 @@ def _patch_summary(identity: dict, groups: dict) -> dict:
         rank = relationship_rank.get(best.get("relationship"), 2)
         behavioral_rank = row.get("behavioral_rank", 4)
         ranked_checks.append((behavioral_rank, rank, row.get("test_id", ""), row, best))
-    ranked_checks.sort(key=lambda item: (item[0], item[1], item[2]))
+    ranked_checks.sort(key=lambda item: (not bool(item[3].get("observed_execution")), item[0], item[1], item[2]))
     check_preview = [{"test_id": row.get("test_id"),
-                      "kind": ("assertion-relevant-to-changed-condition" if behavioral_rank == 0 else
+                      "kind": ("observed-baseline-execution" if row.get("observed_execution") else
+                               "assertion-relevant-to-changed-condition" if behavioral_rank == 0 else
                                "related-result-assertion" if behavioral_rank < 2 else
                                "supported-input" if behavioral_rank == 2 else
                                "related-result-assertion" if best.get("result_assertion") else
                                "supported-source-path" if rank == 0 else "broad-candidate" if rank == 1 else "unresolved"),
-                      "relationship": best.get("relationship"), "entity_id": best.get("entity_id"),
+                      "relationship": ("observed-baseline-execution" if row.get("observed_execution") else best.get("relationship")),
+                      "entity_id": (row["observed_execution"][0]["entity_id"] if row.get("observed_execution") else best.get("entity_id")),
                       "behavioral_rank": behavioral_rank,
                       "result_assertion": ({"line": best["result_assertion"]["assertion"]["location"]["line"],
                                             "changed_behavior_established": False,
                                             "changed_condition_related": bool(best["result_assertion"].get("changed_condition_related"))}
-                                           if best.get("result_assertion") else None),
+                                           if best.get("result_assertion") and not row.get("observed_execution") else None),
                       "test_status": row.get("test_provenance", {}).get("status", "unknown"),
                       "obligation_evidence": [{"evidence_category": evidence.get("evidence_category"),
                                                "level": evidence.get("level")}
                                               for evidence in best.get("obligation_evidence", [])[:1]],
-                      "coverage_proven": False}
+                      "coverage_proven": False,
+                      "observed_baseline_execution": bool(row.get("observed_execution"))}
                      for behavioral_rank, rank, _, row, best in ranked_checks[:PATCH_SUMMARY_CHECK_LIMIT]]
 
     uncertainty_buckets = defaultdict(list)
@@ -455,11 +458,16 @@ def _patch_summary(identity: dict, groups: dict) -> dict:
             search += " The test inventory was incomplete."
     if not any(check.get("behavioral_rank", 4) < 2 for check in groups["recommended_checks"]):
         search += " No behavior-related baseline assertion was established; this does not prove that no suitable test exists."
+    if identity.get("observed_execution"):
+        status = identity["observed_execution"]
+        search += (f" Recorded execution evidence: {status['status']}; {status['prioritized_tests']} tests prioritized. "
+                   "Other tests are not excluded; observed execution does not prove assertion relevance.")
     added_tests = identity.get("candidate_added_test_files") or []
     if added_tests:
         search += f" {len(added_tests)} candidate-added test file(s) were excluded from baseline discovery."
 
-    return {"changed_files": files, "changed_entities": entity_preview,
+    return {**({"observed_execution": identity["observed_execution"]} if identity.get("observed_execution") else {}),
+            "changed_files": files, "changed_entities": entity_preview,
             "omitted_changed_entities": len(changed_entities) - len(entity_preview),
             "obligations": obligation_preview,
             "input_suggestions": suggestion_preview,

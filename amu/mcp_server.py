@@ -189,13 +189,13 @@ def amu_impact(
 
 def amu_analyze_patch(
     patch: str, base: str = "HEAD", depth: int = 1, include_graph: bool = False,
-    section: str = "summary", cursor: str | None = None, page_size: int = 20, check_spec: dict | None = None, *, repo: str,
+    section: str = "summary", cursor: str | None = None, page_size: int = 20, check_spec: dict | None = None, coverage_evidence: str | None = None, *, repo: str,
 ) -> str:
     """Inspect a bounded concrete diff in memory; never applies or executes candidate code."""
     from amu.services.impact import ImpactInputError, PatchRequest, validate_patch_request
 
     request = PatchRequest(patch=patch, base=base, depth=depth, include_graph=include_graph,
-                           section=section, cursor=cursor, page_size=page_size, check_spec=check_spec)
+                           section=section, cursor=cursor, page_size=page_size, check_spec=check_spec, coverage_evidence=coverage_evidence)
     try:
         validate_patch_request(request)
     except ImpactInputError as exc:
@@ -204,6 +204,8 @@ def amu_analyze_patch(
                  f"--section={section}", "--page-size", str(page_size)]
     if include_graph:
         arguments.append("--include-graph")
+    if coverage_evidence is not None:
+        arguments.append("--coverage-evidence=" + coverage_evidence)
     if check_spec is not None:
         arguments.append("--check-spec=" + json.dumps(check_spec, ensure_ascii=False, separators=(",", ":")))
     if cursor is not None:
@@ -398,6 +400,7 @@ def _strict_mcp_tool(fn, policy: mcp_access.MCPAccessPolicy | None = None):
     } if fn.__name__ == "amu_impact" else {}
     if fn.__name__ == "amu_analyze_patch":
         impact_annotations = {
+            "coverage_evidence": Annotated[StrictStr, Field(max_length=4096)] | None,
             "section": Literal[tuple(mcp_manifest.PATCH_SECTIONS)],
             "cursor": Annotated[StrictStr, Field(max_length=1024)] | None,
             "page_size": Annotated[StrictInt, Field(ge=1, le=100)],

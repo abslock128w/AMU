@@ -14,6 +14,7 @@ dependencies = [
 [project.optional-dependencies]
 model = ["anthropic"]
 mcp = ["mcp"]
+coverage = ["coverage>=7.16,<8"]
 dev = ["pytest>=8.0", "pytest-cov", "ruff", "anthropic", "mcp", "build", "setuptools==84.0.0"]
 
 [project.scripts]
