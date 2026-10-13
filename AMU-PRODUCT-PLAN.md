@@ -1,278 +1,296 @@
-# AMU product plan v2: use everything
+# AMU product plan v3: after the agent trial
 
-Written 2026-10-13 against commit b3747c8 plus the uncommitted line-aware coverage work.
-v1 used only what the repo already had. v2 uses every signal and every technique that can
-move the four adoption conditions, ordered by evidence per hour of work. Every phase still
-has a gate that can fail, and no number counts unless it comes from a holdout frozen by a
-script and run once.
+Written 2026-10-13 against commit e6598c0. v2 was written before the ten-run agent trial
+reported. The trial lost, and it lost for a reason that changes what AMU is. v3 keeps every
+lever from v2 and reorders the product around what the trial showed a capable agent cannot
+do on its own.
 
-## 0. Where AMU stands
+## 0. What the trial proved
 
-| Evidence | Number | Meaning |
-|---|---|---|
-| Werkzeug dev set, 16 cases | 10/16 function, 16/16 file | Development set, exposed |
-| Click holdout 1, 10 cases | 1/10 function (ceiling 5), 9/10 file | Hub classes defeat static ranking |
-| requests + itsdangerous holdout 2, 8 cases | 5/8 function, 7/8 file | Only untouched number |
-| Packet, latency | under 2 KB, under 1 s warm | Budgets met |
-| M5 Werkzeug routing coverage | 44 observed tests outrank 320 static | Plumbing works |
+Five Click changes that break existing tests, ten agents, same model, same instructions,
+15-test budget, half with AMU as a tool.
 
-Not yet real: any evidence a person or agent made fewer mistakes with AMU. That is Phase 4.
+| Arm | Breaking tests found of 17 | Test runs used |
+|---|---:|---:|
+| Without AMU | 15 | 29 |
+| With AMU | 13 | 45 |
 
-Debt: 55 commands, 3,578-line `cli.py`, 27.5k lines, 1,645 refusal-pinning tests, a
-three-part install, a README that sells ceremony. The core under `amu/core/` is under 5k
-lines and does everything that matters.
+Beside it, the engine's own numbers, so the two are not confused:
 
-## 1. The adoption thesis
+| Set | Legacy 68d82c8 | Core | Role |
+|---|---:|---:|---|
+| Werkzeug, 16 scorable | 5/16 function, 8/16 file | 10/16, 16/16 | development |
+| Click holdout 1 | 0/10, 0/10 | 1/10 (ceiling 5), 9/10 | development now |
+| requests + itsdangerous holdout 2 | 2/8, 2/8 | 5/8, 7/8 | run once |
+| Click holdout 3, unseen | 1/8, 2/8 | 8/8, 8/8 | run once |
 
-A developer uses a tool every time only when all four hold:
+The engine is not the problem. The trial is about what to show and when.
+
+Three facts come out of it, and each one is a design constraint from now on:
+
+1. **An agent handed the diff searches the tests for the removed or reworded text and
+   wins.** A ranked list of tests that reach the code cannot beat that on a small,
+   searchable change, because tests that reach the code outnumber tests that fail. "Run
+   these first" is not the product. It is an internal step.
+2. **The one test neither arm found sits in another file with no wording in common with
+   the diff.** That is indirect breakage, and it is the only place a reachability tool can
+   win. The product must be built around that case and measured on it.
+3. **Only 5 of 18 Click commits break any existing test.** On the other 13 the right output
+   is not a test list. It is "no existing test runs these changed lines", and the agents'
+   own search had no answer to that. The trial's own author called it the one output search
+   did not replace.
+
+Four more findings from the full report, each with a consequence:
+
+4. **The indirect test was findable and got crowded out.** AMU ranked task 4's third test
+   tenth on the unedited tree, but the trial packet did not show it because a consequence
+   row took the space. Packet layout is a product defect, not a cosmetic one. Rule: the JSON
+   packet carries all 40 ranked candidates; the 2 KB budget applies to the human summary,
+   and no row type may displace another.
+5. **Coverage ranking is not shown to beat static.** Tuned on holdout 1 it won; on unseen
+   holdout 3 it was worse in one of two cases, with breaking tests at ranks 9, 14 and 17
+   behind siblings that ran the same lines. Coverage stays as the "no recorded test ran
+   these changed lines" gap and as one feature for the learned ranker, never as the default
+   order. The M5 Werkzeug check still holds: 44 observed tests above 320 static.
+6. **Eleven cases have only new tests.** Six Werkzeug and five Click commits add tests that
+   no existing-test recommender can find. That is a quarter of the cases, and it is the
+   reason `missing_tests[]` is a first-class output rather than a nicety.
+7. **Harness defects were silent.** `git apply` inside a subdirectory exited 0 and changed
+   nothing, so a whole execution run reported no outcome changes. A 92 MB coverage file hit a
+   guard. Pre-edit recordings were compared against post-edit line numbers. Rule: every
+   execution harness step asserts its effect (files differ, tests collected, outcome count
+   non-zero where expected) and fails loudly otherwise.
+
+Built after the trial, at commit 5b0a4e9, on the 18 Click commits with execution ground truth:
+
+| Measure | Result |
+|---|---|
+| `likely_fail` static labels | 13, of which 12 truly fail |
+| Breaking tests labelled statically | 12 of 17 |
+| Labels on the 13 non-breaking commits | 0 |
+| Shadow execution, five trial tasks | 17 of 17 named, 0 wrong, about 1 s each |
+| Agents in the trial, for comparison | 15 of 17 without AMU, 13 of 17 with the old packet |
+
+Shadow execution found the task 4 test neither agent arm found. These are development
+numbers: the label rules were shaped on these commits, the first version was 40 percent
+precise, and on Werkzeug, requests and itsdangerous the label fired once in 31 cases. It is
+narrow by design: it speaks when a patch removes something and is silent otherwise.
+
+Everything in v2 that still stands is kept below. What moves: the test list stops being the
+headline, exact failure prediction and uncovered-line reporting become the headline, and
+AMU absorbs the agent's winning strategy so it is never worse than plain search.
+
+## 1. The adoption thesis, corrected
+
+A developer or agent uses the tool every time only when all four hold:
 
 1. **It is already there.** Runs from the diff they have, inside the tool they use.
-2. **It is right often enough to trust.** Failing test in the top ten four times in five.
-   An `untested` claim that is never wrong on the static side.
-3. **It is faster than the alternative.** AMU plus its ten tests beats the whole suite.
-4. **It shows them something they did not know.** A test they would not have run, a line
-   nothing exercises, an exception that reaches another module, a test that would fail
-   before they run anything.
+2. **It is never worse than what they would do by hand.** The trial shows the hand method
+   is lexical search of the test tree. AMU must include that search as a signal, so its
+   list is a superset of the agent's own list, ordered better.
+3. **It answers a question search cannot.** Which reachable test will actually fail. Which
+   changed line nothing exercises. Which test in another file breaks through three hops
+   with no shared words.
+4. **It is faster than running the suite.** Including the time it costs to read the packet.
 
-The fourth condition is where "god tier" lives. v1 stopped at recommending tests. v2 goes
-to predicting which test fails, saying why, and writing the test that is missing.
+## 2. The four outputs, re-ranked by what the trial showed
 
-## 2. The signal stack
+### 2a. `predicted_failures[]`: this test fails after your change
 
-Every signal is a ranked, labelled evidence source. None is a gate. The packet shows the
-best label for each row. Signals in order of cost, cheapest first.
+The headline. Three mechanisms, exact first.
 
-| Label | Signal | Cost | Status |
-|---|---|---|---|
-| `direct` | Import, call, re-export, fixture reachability | static, built | done |
-| `transitive` | Five-hop call graph with decay, nested defs free | static, built | done |
-| `lexical` | Changed-line words against test names, ids, literals, assertion strings | static, partly built | widen |
-| `historical` | Co-change mining from git log: which tests changed with which symbols | one git pass | new |
-| `failed_before` | pytest `lastfailed` cache, CI failure history per test | read cache | new |
-| `observed` | Coverage contexts from existing `.coverage`, CI artefacts, or `--observe` | read or opt-in run | built, extend sources |
-| `typed` | Pyright/mypy call resolution for attribute calls, protocols, overloads | one pyright run, cached | new |
-| `traced` | `sys.monitoring` call trace from `--observe`, exact call chains per test | opt-in run | new |
-| `mutated` | Mutation of the changed lines: which tests kill the mutant | opt-in run, bounded | new |
-| `learned` | Local ledger of which recommended tests failed on which symbols | free after `--run` | new |
-| `model` | LLM re-rank of the top 40 with the diff and test bodies, cached by hash | one API call, opt-in | new |
+- **Shadow execution.** When execution is allowed, run the candidate tests on the parent
+  tree and the patched tree in two subprocesses and diff the outcomes. This is exact, it
+  needs no ranking to be right, and it replaces "run these first" with "these fail". Budget:
+  up to 150 candidates from the union of reachability and lexical, under 60 s. Label
+  `executed`. On a suite that runs in seconds this is "run everything" and that is fine;
+  it only earns its place over the whole suite when the suite is slow, which is one more
+  reason Phase 0 is a large repository. The candidate cap is a budget, not a ranking claim:
+  a cap of 40 missed two of task 2's eleven failures.
+- **Assertion matching.** A test asserts a literal that the diff removes or changes. Static.
+  Label `assertion`. This is the agent's search strategy, made systematic.
+- **Consequence paths.** Changed raise or return reaches an assertion through located hops.
+  Label `consequence`. Already built.
 
-Rank by a learned combination, not hand weights. Train a small gradient-boosted ranker
-on the development sets with the holdout script providing features and labels; evaluate on
-fresh holdouts only. Fall back to the hand-weighted sum when the model file is absent.
+### 2b. `untested[]`: these changed lines have no test
 
-## 3. The four products inside the one command
+For every changed line: reached by a test statically, historically, by observation, or by
+nothing. Thirteen of eighteen real commits need this row and nothing else. Sound when it says
+something reaches; confirmed by coverage when available, else `static_only`.
 
-### 3a. `tests[]`: run these first
+### 2c. `indirect[]`: tests that break with no shared wording
 
-What exists today, plus the signal stack. Target on fresh holdouts: function recall@10
-above 70 percent, file recall@10 above 90 percent.
+The case neither arm found. A test in another file, reaching the change through hops, with
+no identifier or literal from the diff in its body. This is the reachability graph's whole
+reason to exist, so it gets its own row with the full path, and the holdout script gets a
+filter that selects exactly these cases so the number is measured on its own.
 
-### 3b. `untested[]`: these changed lines have no test
+### 2d. `tests[]`: run these first
 
-For every changed line: reached statically, historically, by observation, or by nothing.
-"Nothing" is the row that makes a developer stop. Static reachability is sound for this
-purpose when it says "something reaches it"; when it says nothing reaches it, confirm with
-coverage if available, else label `static_only`.
+Still emitted, now as the fallback when execution is not allowed, and as the candidate set
+for shadow execution. Ranked by the learned combination of every signal in section 3. The
+packet labels each row `will_fail`, `reaches_changed_lines` or `reaches_symbol` so an agent
+does not run the list top-down. That top-down behaviour is why the AMU arm used 45 runs.
 
-### 3c. `predicted_failures[]`: this test will fail, here is why
+### 2e. `missing_tests[]`: the test you should write
 
-The step from recommender to oracle. Three mechanisms, each labelled:
+For every `untested` line: sibling-template, Hypothesis skeleton from annotations, then a
+model draft. Executed before emission, kept only if it exercises the line under coverage or
+fails on the parent and passes on the patch. Never emitted unexecuted.
 
-- **Consequence paths**, already built: changed raise or return reaches a caller that a
-  test asserts on. Label `consequence`.
-- **Assertion matching**: a test asserts a literal that the diff removes or changes
-  (status code, message, default value, key name). Pure static diff-versus-assertion. Label
-  `assertion`.
-- **Shadow execution**: with `--observe`, run the top ten tests on the parent tree and the
-  patched tree in two subprocesses, diff outcomes. Exact. Label `executed`. This is what
-  `--run` does anyway; it just does it on both sides so the packet can say "fails after
-  your change, passed before".
+## 3. The signal stack
 
-### 3d. `missing_tests[]`: the test you should write
+Unchanged from v2, with one addition at the top because the trial showed it is the one the
+agents actually use.
 
-For every `untested` line or new function with no reaching test: generate a candidate
-test. Three tiers, in order:
+| Label | Signal | Cost |
+|---|---|---|
+| `lexical` | Removed and changed tokens, literals, message strings from the diff against every test body, name, parametrize id and assertion | static |
+| `direct` | Import, call, re-export, fixture reachability | static, built |
+| `transitive` | Five-hop call graph with decay | static, built |
+| `historical` | Co-change mining from git log | one git pass |
+| `failed_before` | pytest `lastfailed`, CI failure history | read cache |
+| `observed` | Coverage contexts from `.coverage`, CI artefacts, Codecov, or `--observe`; a gap signal and a ranker feature, not the default order (holdout 3) | read or opt-in |
+| `typed` | Pyright-resolved call targets for attribute calls, protocols, overloads | one run, cached |
+| `traced` | `sys.monitoring` call chains from `--observe` | opt-in run |
+| `mutated` | Mutants on the changed lines, which tests kill them | opt-in, bounded |
+| `learned` | Local ledger of what failed for which symbols | free after `--run` |
+| `model` | LLM re-rank of the candidate set with diff and test bodies | opt-in, cached |
 
-- **Template from siblings**: find the nearest test of a sibling symbol in the same module
-  and rewrite the target name and literals. Static, no model.
-- **Property-based**: for a function with type annotations, emit a Hypothesis test skeleton
-  with strategies from the types. Static, no model.
-- **Model-drafted**: with the diff, the sibling tests and the consequence path as context,
-  ask the model for one test. Run it on both trees. Keep it only if it passes on the patched
-  tree, fails on the parent tree, or exercises the untested line under coverage. Label
-  `model`, show the evidence. Never emit a draft that was not executed.
-
-The last tier is the moment where a developer says the tool wrote the test they were about
-to skip. It is also the easiest place to ship garbage, so the execution filter is mandatory.
+Combined by hand weights until there are hundreds of labelled commits. A learned ranker on
+a few dozen cases overfits; it is listed for later, not for Phase 1. The holdout script
+accumulates labelled commits toward that threshold as a side effect of every run.
 
 ## 4. Phases and gates
 
-### Phase 0: close the cycle (this week)
+### Phase 0: the experiment the trial asked for (this week)
 
-- Record the Click execution result: static versus coverage-assisted on outcome-changing tests.
-- Run holdout 3 once with line-aware coverage. Record. Commit everything.
-- Six-task M7 smoke trial to debug the harness.
+Before any product work: one trial on a large repository with changes that break tests the
+diff's wording does not point to. This is the kill test for the test-picking half.
 
-Gate: four tables recorded. Holdout 3 below 5/8 means root-cause first.
+- Freeze a holdout with `scripts/freeze_holdout.py` from a large repository (Django,
+  pandas, or Home Assistant), filtered to commits where the upstream test that fails on the
+  parent tree shares no identifier or literal with the production diff. Run the full suite
+  on parent and patch to establish ground truth, with your per-repository yes first.
+- Run the same ten-agent design on six of those cases.
+- Record indirect recall for both arms.
 
-### Phase 1: the signal stack, static half (weeks 1 to 4)
+Gate: if the AMU arm finds indirect breakage the plain-search arm misses on at least half
+the cases, `indirect[]` and `tests[]` stay. If not, `tests[]` is dropped from the default
+packet and AMU ships as `untested[]` plus `predicted_failures[]` plus `missing_tests[]`.
+Either outcome is a product. Neither is a failure of the engine, which is already far ahead
+of the old build on every holdout.
 
-In order, each measured on the dev sets, then all together on three fresh holdouts.
+### Phase 1: exact over ranked (weeks 1 to 4)
 
-1. `scripts/freeze_holdout.py`: N recent qualifying commits from a named repo after a
-   date, hash-pinned, no analyzer run before selection. Every number from here cites it.
-2. Co-change mining, `historical`. Weight by inverse commit size. Store under
-   `.amu/index/cochange.json` keyed by HEAD.
-3. `lastfailed` and CI history, `failed_before`. GitHub Actions log parsing for the
-   repository's last 50 runs when a token is present, else the local cache only.
-4. Existing coverage sources, `observed`: `.coverage` with contexts, `coverage.xml`,
-   Codecov and Coveralls API when configured. Per-file staleness as today.
-5. Pyright-backed resolution, `typed`: run pyright once in library mode, cache the
-   resolved call targets per file sha. This is what turns attribute calls on typed objects
-   into edges, which the AST graph cannot do, and it is what makes hub classes smaller.
-6. Lexical widening: parametrize ids, assertion strings, fixture names, docstrings.
-7. `untested[]` with `static_only` and confirmed labels.
-8. Assertion matching for `predicted_failures[]`.
-9. Learned ranker: features from the signals, labels from the dev-set truth. Fresh
-   holdouts only for evaluation.
+1. `lexical` as a first-class signal, so AMU's candidate set always contains what the agent
+   would have found by hand.
+2. Assertion matching for `predicted_failures[]`, static.
+3. Shadow execution: parent and patch, outcome diff, 60 s budget, candidate set from the
+   union of reachability and lexical. `--run` becomes shadow execution with stop-on-first.
+4. `untested[]` with `static_only` and coverage-confirmed labels. Spot check 30 lines.
+5. Row labels `will_fail`, `reaches_changed_lines`, `reaches_symbol` in the packet, and a
+   one-line instruction at the top telling an agent not to run the list top-down. All 40
+   candidates in the JSON; no row type displaces another (the task 4 defect).
+6. Co-change, `lastfailed`, existing coverage readers, pyright edges, as in v2.
 
-Pool: Flask, Jinja, httpx, attrs, rich, pydantic, a Django app, a monorepo. Werkzeug,
-Click, requests, itsdangerous are development sets from here on.
+Gate on three fresh holdouts: on commits that break a test, shadow execution names it in 9
+of 10 cases within budget. On commits that break nothing, `untested[]` is non-empty and has
+zero wrong claims on a hand sample. `indirect[]` is measured separately on the filtered set.
 
-Gate: three fresh holdouts, 10 cases each, function recall@10 at or above 7/10 on each,
-file at or above 9/10, under 2 KB, under 2 s warm, zero wrong `untested` claims on a
-30-line hand sample against full coverage.
+### Phase 2: dynamic signals (weeks 3 to 6)
 
-### Phase 2: the signal stack, dynamic half (weeks 3 to 6)
+`--observe` with coverage contexts and a `sys.monitoring` tracer. Bounded mutation on the
+changed lines. The local ledger. Missing-test tiers one and two with the execution filter.
+As in v2.
 
-All opt-in, all on the developer's own tree.
+Gate: mutation-labelled tests are the failing test in 8 of 10 breaking cases on a fresh
+holdout. Missing-test drafts pass the filter on at least half of `untested` lines.
 
-1. `--observe`: run the top 40 under per-test coverage contexts and a `sys.monitoring`
-   call tracer, re-rank, record `traced` chains.
-2. `--run`: execute recommended tests in rank order on the patched tree, stop on first
-   failure, print the consequence path beside the failure.
-3. Shadow execution for `predicted_failures[]`: parent and patched tree, outcome diff.
-4. Bounded mutation on the changed lines: mutmut-style operators on only those lines,
-   top 20 tests, 60-second budget. Tests that kill mutants rank first and are labelled
-   `mutated`. This is the strongest possible "this test actually guards your change".
-5. `missing_tests[]` tiers one and two: sibling template, Hypothesis skeleton. Executed
-   under coverage before emission.
-6. The local ledger, `learned`: every `--run` records (changed symbols, recommended test,
-   outcome). Feeds the ranker. Private, never leaves the machine.
+### Phase 3: presence (weeks 5 to 8)
 
-Gate: on a fresh holdout with `--observe`, function recall@10 above 8/10. Shadow execution
-names the upstream commit's failing test in at least 7/10 cases where the commit's own test
-fails on the parent tree.
+As in v2: no-argument `amu`, `pipx`/`uvx` install with a standard-library core, Claude Code
+plugin with a `PostToolUse` hook on Python edits and a `PreToolUse` hook on unscoped pytest,
+pre-commit, PR-commenting Action, watch mode under one second, thin VS Code client, legacy
+surface deleted.
 
-### Phase 3: presence everywhere (weeks 5 to 8)
+One change from the trial: the hook injects the packet before the agent decides what to run,
+and the packet's first line is the `predicted_failures[]` count and the `untested[]` count,
+not the test list. The trial's AMU arm lost runs because the list was the first thing it saw.
 
-1. `amu` with no arguments: working tree, staged, or `HEAD~1`. Human output on a TTY, JSON
-   when piped. Flags: `--json`, `--full`, `--observe`, `--run`, `--model`, `--write-tests`.
-2. `pipx install amu` or `uvx amu`, standard library only on the core path. Entire plugin,
-   pyright, coverage, hypothesis, anthropic all optional extras that unlock labels.
-3. Claude Code plugin: one MCP tool `before_tests`; a `PostToolUse` hook on Python edits
-   that injects the packet; a `PreToolUse` hook on unscoped `pytest` calls that prefixes the
-   selection; a `Stop` hook that refuses nothing but prints `untested[]` and
-   `predicted_failures[]`. Same for Cursor rules, Codex skills, Aider.
-4. Pre-commit hook. GitHub Action that comments once per PR with tests to run, untested
-   lines, predicted failures and the missing-test drafts, using the workflow's own coverage
-   artefact. Watch mode: `amu watch` re-runs on save, under one second, in the terminal
-   beside the editor.
-5. VS Code extension: gutter marks for `untested` lines, a code lens on changed functions
-   with "run 7 tests", inline predicted failure. Thin client over `amu --json`.
-6. Delete the legacy surface: `amu legacy` for one release, then gone. Under 8k lines,
-   under 400 tests, every test pins a developer-visible behaviour. README leads with the
-   sentence and a 20-line transcript.
+Gate: three strangers, five minutes, useful packet on their own repository.
 
-Gate: three strangers install and get a useful packet on their own repo in five minutes.
-The watch loop is under one second on Werkzeug.
+### Phase 4: prove it (weeks 7 to 11)
 
-### Phase 4: prove it changes outcomes (weeks 7 to 11)
+The 12 to 20 task study, two arms, hidden upstream tests, with the Phase 3 hook and packet
+layout. Tasks drawn half from breaking commits and half from non-breaking ones, so the
+`untested[]` output is measured as well as the failure prediction. The would-have-caught
+ledger. The model tier behind `--model`, kept only if a fresh holdout shows it beats the
+hand-weighted order.
 
-1. Agent study, 12 to 20 tasks, two arms, two trials, hidden upstream tests, AMU as one
-   MCP tool with hooks. Record solved, regressions, tests chosen, time, tokens. Needs budget
-   approval.
-2. Would-have-caught ledger: after every full CI run, which failing tests were in the top
-   ten, which `untested` lines later got a bug fix, which predicted failures were real.
-   The developer sees "contained the failing test in 23 of your last 27 runs".
-3. Model re-rank and model-drafted tests, `--model`, behind an explicit flag with the
-   execution filter. Measure on a fresh holdout whether the model tier beats the learned
-   ranker. If it does not, it stays off by default.
+Gate: fewer regressions in the AMU arm on hidden tests, and fewer test runs, reported with
+sample size. The trial already showed what losing looks like, so the comparison is honest.
 
-Gate: fewer regressions in the AMU arm on hidden tests, reported with sample size. If not,
-root-cause which tasks ignored the packet and fix the hook timing before anything else.
+### Phase 5: hardening, Phase 6: breadth
 
-### Phase 5: hardening (weeks 10 to 14)
-
-- Scale: 50k-file monorepo, cold under 30 s, warm under 2 s, parallel parse, shareable
-  committed index cache.
-- Dynamic Python: `getattr`, registries, `importlib`, signal frameworks, pytest plugins.
-  Each a `gap` row with the exact site. Pyright and `traced` chains close most of them.
-- Frameworks: unittest, doctest, `src/` layouts, namespace packages, Django test runner.
-- Test ids: every printed id pasteable into pytest and selects exactly one test, checked on
-  every holdout run.
-- Platforms: Windows, CRLF, non-UTF-8, submodules, shallow clones.
-- Schema v1 frozen with `schema_version`, one-page spec, major version to break.
-- Weekly fresh-holdout CI on eight repositories; a drop blocks merge.
-
-### Phase 6: breadth (quarter 2)
-
-TypeScript with the same stack: import and call graph from the TS compiler API, co-change,
-`c8` coverage, `vitest`/`jest` ids, mutation via Stryker. Then Go. Only after the Phase 4
-gate passes in Python.
+As in v2. Monorepo scale, dynamic Python as `gap` rows, unittest and `src/` layouts,
+pasteable test ids, Windows, frozen schema v1, weekly fresh-holdout CI that blocks merge.
+TypeScript only after Phase 4 passes.
 
 ## 5. Standing rules
 
-- Recall first, rank, label. No refusal path, ever. Unknowns are low-confidence rows or `gaps`.
-- Never run an upstream repository's tests without a per-repository yes. `--observe`,
-  `--run`, mutation and shadow execution are the developer's call on their own tree.
-- Never report accuracy from AMU's own suite or fixtures. Holdouts frozen by the script,
-  run once. A number that did not move is reported as not moving.
+- Recall first, rank, label. No refusal path. Unknowns are low-confidence rows or `gaps`.
+- Never run an upstream repository's tests without a per-repository yes. Shadow execution,
+  `--observe`, `--run` and mutation are the developer's call on their own tree.
+- Never report accuracy from AMU's own suite or fixtures. Fresh holdouts, frozen by script,
+  run once. A number that did not move is reported as not moving. A trial that lost is
+  reported as lost, as this one was.
 - Never emit a generated test that was not executed. Never emit a predicted failure without
   its label and evidence.
-- Model calls are opt-in, cached by content hash, and the packet works without them.
-- Budgets are tests: over 2 KB, over 2 s warm, over 10 s cold on Werkzeug fails the suite.
-- Dogfood: AMU runs on every AMU commit through its own pre-commit hook.
-- Every milestone report: table before and after, files changed, tried and rejected, what
-  executed upstream code.
+- AMU's candidate set always includes what lexical search would find. It is never worse than
+  the hand method.
+- Model calls opt-in, cached, off by default unless a holdout shows they help.
+- Budgets are tests: over 2 KB for the summary, over 2 s warm, over 10 s cold on Werkzeug
+  fails the suite. The JSON carries the full candidate set.
+- Every harness step asserts its own effect and fails loudly. No silent zero.
+- Dogfood through AMU's own pre-commit hook.
 
 ## 6. Risks
 
 | Risk | Signal | Response |
 |---|---|---|
-| Hub classes still unrankable statically | Phase 1 gate misses | Pyright edges and co-change are primary; static is recall only |
-| Co-change noisy on squash merges | One commit touches 40 tests | Inverse size weight, low confidence |
-| Nobody runs `--observe` | Phase 3 watch sessions skip it | Lean on CI artefacts, Codecov, GitHub Action |
-| Mutation too slow | Over 60 s on a small repo | Cap operators and tests; it is a label, not a requirement |
-| Generated tests are wrong | Any emitted draft fails the execution filter | The filter is mandatory; drafts never bypass it |
-| Model re-rank hurts | Fresh holdout worse with `--model` | Off by default, documented |
-| Agent study shows nothing | Phase 4 gate | Fix hook timing; the packet must arrive before the agent decides what to run |
-| Scope creep to ceremony | A PR adds a non-`before-tests` command | Reject |
+| Indirect breakage is rare enough not to matter | Phase 0 holdout filter finds under 1 in 20 commits | Drop `tests[]` from the default packet; ship the other three outputs |
+| Shadow execution too slow on big suites | Over 60 s on the candidate set | Shrink the candidate set with the ranker; it is still exact on what it runs |
+| Agents ignore the packet | Phase 4 arm uses as many runs as control | Hook timing and packet layout, measured again |
+| Hub classes stay unrankable | Phase 1 `tests[]` recall flat | Irrelevant once shadow execution is the headline |
+| Generated tests are wrong | Any draft fails the filter | Filter is mandatory |
 | Reused holdout | Number without a freeze record | Invalid |
+| Hub classes make the top 10 a guess | Hundreds of tests reach one symbol | Shadow execution on the candidate set; pyright edges; hub cases get their own holdout filter |
 
 ## 7. What "never codes without it" means, measurably
 
-- Share of commits where AMU ran before tests, from the ledger, above 90 percent.
-- Would-have-caught rate above 80 percent.
-- Edit to first relevant test result under 30 s.
-- One `untested`, predicted failure or accepted missing-test draft acted on per week.
+- Share of commits where AMU ran before tests above 90 percent, from the ledger.
+- Predicted failures confirmed by the full suite above 90 percent of the time.
+- An `untested[]` row acted on, or a missing-test draft accepted, once a week.
+- Edit to first confirmed failure or confirmed "nothing fails, these lines are uncovered"
+  under 30 s.
 
-Ten developers, their own repositories, one month. Then the title is true.
+Ten developers, their own repositories, one month.
 
-## 8. First fifteen actions
+## 8. First twelve actions
 
-1. Record the Click execution table.
-2. Run holdout 3 once. Commit everything.
-3. `scripts/freeze_holdout.py`; freeze Flask, Jinja, httpx.
-4. Co-change mining, `historical`.
-5. `lastfailed` and `.coverage` readers, `failed_before` and `observed`.
-6. Pyright-backed call resolution, `typed`, cached per file sha.
-7. `untested[]` with spot check.
-8. Assertion matching, `predicted_failures[]`.
-9. Learned ranker over the signals. Run the three fresh holdouts once. Phase 1 gate.
-10. `--observe` with coverage contexts and `sys.monitoring` trace.
-11. `--run` and shadow execution.
-12. Bounded mutation on changed lines.
-13. Sibling-template and Hypothesis missing-test tiers with the execution filter.
-14. `amu` no-arg, argparse core, optional extras, Claude Code plugin with hooks, README cut.
-15. M7 smoke trial, then budget request for the full study.
+1. Push the branch so e6598c0 is not only local.
+2. `scripts/freeze_holdout.py` with the indirect-breakage filter. Freeze six cases from a
+   large repository. Ask for the per-repository yes to run its suite on parent and patch.
+3. Run the ten-agent design on them. Phase 0 gate decision.
+4. Done at 5b0a4e9: `likely_fail` from removed wording, removed package names, removed
+   warnings and exceptions.
+5. Done at 5b0a4e9: shadow execution under `--run`, 150-candidate cap.
+6. Done at 5b0a4e9: untested functions by changed lines and by reach. Still to do: the
+   30-line hand spot check against full coverage, and the `static_only` label.
+7. Done at 5b0a4e9: one-line summary first, per-row expectation labels.
+8. Co-change, `lastfailed`, coverage readers, pyright edges.
+9. Hand-weighted combination; three fresh holdouts; Phase 1 gate.
+10. `--observe`, mutation, ledger, missing-test tiers.
+11. No-argument `amu`, standard-library core, Claude Code plugin with hooks, README cut.
+12. The 12 to 20 task study, after budget approval.
