@@ -1,0 +1,23 @@
+{
+  "case_id": "15-ab16e62d",
+  "function_recall10": 0.0,
+  "file_recall10": 1.0,
+  "function_hits": [],
+  "missing_from_parent": [
+    "tests/test_routing.py::test_int_converter_404"
+  ],
+  "recommended": 8,
+  "top10": [
+    "tests/test_routing.py::test_basic_routing",
+    "tests/test_routing.py::test_merge_slashes_match",
+    "tests/test_routing.py::test_strict_slashes_redirect",
+    "tests/test_routing.py::test_converter_with_tuples",
+    "tests/test_routing.py::test_adapter_match_return_rule",
+    "tests/test_routing.py::test_both_bind_and_match_path_info_are_none",
+    "tests/test_routing.py::test_newline_match",
+    "tests/test_routing.py::test_server_name_match_default_port"
+  ],
+  "seconds": 0.52571029200044,
+  "bytes": 1966,
+  "noise10": 8
+}

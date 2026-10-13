@@ -247,7 +247,7 @@ def test_default_packet_stays_under_two_kilobytes_and_keeps_ten_tests(tmp_path):
                           'tests/integration/test_library_module_operations.py': tests})
     result = analyze(tmp_path, patch('package_with_long_name/library_module.py', source, source.replace('return 1', 'return 2')), index_dir=tmp_path/'.index', include_tests=True)
     assert len(encoded(result)) < LIMIT and len(json.dumps(result, separators=(',', ':')).encode()) < LIMIT
-    assert len(result['tests']) == 10 and set(result) >= {'summary', 'changed_symbols', 'untested', 'tests', 'consequences', 'gaps', 'caveats', 'report_hash'}
+    assert len(result['tests']) == 10 and set(result) >= {'summary', 'changed_symbols', 'tests', 'consequences', 'gaps', 'caveats', 'report_hash'}
     assert list(result)[0] == 'summary'
 
 
@@ -363,7 +363,7 @@ def test_changed_function_nothing_reaches_is_reported_untested(tmp_path):
     assert result['untested'] == [dict(symbol='orphan', file='lib.py', lines='6', basis='static_only')]
     assert run(tmp_path, 'lib.py', source, source.replace('return 1', 'return 5'))['untested'] == []
     default = analyze(tmp_path, patch('lib.py', source, source.replace('return 2', 'return 3')), index_dir=tmp_path/'.index')
-    assert default['untested'] == [] and default['summary'].startswith('0 likely_fail, 0 untested'), 'static-only rows stay out of the default packet'
+    assert 'untested' not in default and default['summary'].startswith('0 likely_fail, '), 'untested rows stay out of the default packet'
 
 
 def test_test_expecting_a_removed_warning_is_likely_to_fail(tmp_path):
@@ -508,3 +508,29 @@ def test_nothing_executed_is_not_reported_as_zero_failures(tmp_path):
     repository(tmp_path, {'lib.py': source, 'tests/test_lib.py': 'from lib import work\ndef test_exact():\n    assert work() == 1\n'})
     result = analyze(tmp_path, patch('lib.py', source, source.replace('1', '2')), index_dir=tmp_path/'.index', run=True, python='/nonexistent/python')
     assert result['flips'] is None and result['summary'].startswith('NOT EXECUTED') and any('shadow run' in gap for gap in result['gaps'])
+
+
+def test_recording_attributes_inherited_tests_and_child_processes(tmp_path):
+    import sys
+
+    import pytest
+    pytest.importorskip('coverage')
+    from amu.core import observe
+    source = 'def direct():\n    return 1\n\n\ndef from_child():\n    return 2\n\n\ndef orphan():\n    return 3\n'
+    tests = ('import subprocess, sys, unittest\nimport lib\n'
+             'class Base(unittest.TestCase):\n    def test_direct(self):\n        self.assertEqual(lib.direct(), 1)\n'
+             'class Variant(Base):\n    pass\n'
+             'class Spawns(unittest.TestCase):\n    def test_child(self):\n'
+             '        out = subprocess.run([sys.executable, "-c", "import lib; print(lib.from_child())"], capture_output=True, text=True)\n'
+             '        self.assertEqual(out.stdout.strip(), "2")\n')
+    repository(tmp_path, {'lib.py': source, 'tests/__init__.py': '', 'tests/test_a.py': tests})
+    info = observe.record(tmp_path, sys.executable, index_dir=tmp_path/'.index')
+    assert not info['gaps'] and info['tests'] >= 2 and info['links_only_through_child_processes'] >= 1, info
+    changed = source.replace('return 2', 'return 20').replace('return 3', 'return 30')
+    result = analyze(tmp_path, patch('lib.py', source, changed), index_dir=tmp_path/'.index', full_evidence=True)
+    assert result['coverage']['evidence'] == 'recording'
+    by_id = {r['id']: r for r in result['tests']}
+    assert by_id['tests/test_a.py::Spawns::test_child']['confidence'] == 'observed', 'a test that only reaches the code through a child process'
+    assert result['untested'] == [dict(symbol='orphan', file='lib.py', lines='10', basis='coverage')]
+    flips = analyze(tmp_path, patch('lib.py', source, source.replace('return 1', 'return 9')), index_dir=tmp_path/'.index', run=True, python=sys.executable)
+    assert sorted(flips['predicted_failures']) == ['python -m unittest tests.test_a.Base.test_direct', 'python -m unittest tests.test_a.Variant.test_direct']

@@ -14,6 +14,7 @@ from pathlib import Path
 from . import runners
 from .patch import applied, candidate, original
 
+CHUNK = 40
 IGNORED = ('.git', '.amu', '.amu-index', '.venv', 'venv', 'node_modules', '__pycache__', '.tox', '.nox',
            '.mypy_cache', '.pytest_cache', '.ruff_cache', 'dist', 'build', '*.egg-info', '.coverage', 'coverage.json')
 
@@ -38,11 +39,27 @@ def run(root, edits, ids, python=None, budget=60, runner=None):
         # Whichever side the working tree holds, the copy holds the other one.
         live_is_after = any(on_disk.values())
         trees = dict(after=root if live_is_after else other, before=other if live_is_after else root)
-        states = {}
-        for side in ('after', 'before'):
-            states[side], problem = runners.execute(runner, python, trees[side], ids, Path(scratch)/(side + '.xml'), budget)
-            if problem:
-                gaps.append(f'shadow run ({side} the change, {runner.name}): {problem}')
+        states = dict(after={}, before={})
+        # Most promising candidates first, in chunks, each chunk on both sides before the next. When the
+        # budget runs out, everything already compared still counts and the rest is reported as not run.
+        deadline = {side: budget for side in states}
+        done = 0
+        for start in range(0, len(ids), CHUNK):
+            chunk = ids[start:start + CHUNK]
+            if min(deadline.values()) <= 1:
+                break
+            for side in ('after', 'before'):
+                began = time.perf_counter()
+                found, problem = runners.execute(runner, python, trees[side], chunk, Path(scratch)/(side + '.xml'), max(deadline[side], 1))
+                deadline[side] -= time.perf_counter() - began
+                states[side].update(found)
+                if problem and problem != 'timed out':
+                    gaps.append(f'shadow run ({side} the change, {runner.name}): {problem}')
+            done = start + len(chunk)
+            if any('timed out' in gap or 'could not start' in gap or 'did not run' in gap for gap in gaps):
+                break
+        if done < len(ids):
+            gaps.append(f'shadow run stopped at its {budget} s budget per side: {done} of {len(ids)} candidates compared')
     rows = []
     for ident in ids:
         before, after = states['before'].get(ident), states['after'].get(ident)

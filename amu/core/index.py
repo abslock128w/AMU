@@ -5,11 +5,12 @@ import ast
 import hashlib
 import json
 import os
+import time
 from pathlib import Path
 
 from .rank import tokens
 
-VERSION = '6'
+VERSION = '7'
 FUNCTIONS = (ast.FunctionDef, ast.AsyncFunctionDef)
 SKIP = {'.git', '.amu', '.entire', '.venv', 'venv', 'node_modules', '__pycache__', 'build', 'dist', 'site-packages'}
 
@@ -73,6 +74,8 @@ def parse(path, data):
                           fixture=False, autouse=False, raises=[], handlers=[], return_lines=[], writes=[], unused=[])
             records[ident] = record
         if isinstance(node, FUNCTIONS):
+            # First line of the body: lines before it run when the module is imported, not when a test calls in.
+            record['body'] = min(record.get('body', node.body[0].lineno), node.body[0].lineno) if previous is not None and previous['kind'] == kind else node.body[0].lineno
             record['args'] = [a.arg for a in [*node.args.posonlyargs, *node.args.args, *node.args.kwonlyargs]]
             record['required_args'] = [a.arg for a in node.args.args[:len(node.args.args)-len(node.args.defaults)]]
             record['required_args'] += [a.arg for a, default in zip(node.args.kwonlyargs, node.args.kw_defaults) if default is None]
@@ -212,41 +215,41 @@ SLIM_DROP = ('refs', 'bindings', 'imports', 'returns', 'args', 'required_args', 
 
 
 def _sources(root):
-    """Every Python file of the tree as (relative path, bytes), in a stable order."""
+    """Every Python file of the tree as an absolute path with its relative name, in a stable order."""
     for directory, dirs, files in os.walk(root, followlinks=False):
         dirs[:] = sorted(d for d in dirs if d not in SKIP and not d.startswith('.') and not Path(directory, d).is_symlink())
         for filename in sorted(files):
-            if not filename.endswith(('.py', '.pyi')):
-                continue
-            source = Path(directory, filename)
-            if source.is_symlink():
-                continue
-            try:
-                yield source.relative_to(root).as_posix(), source.read_bytes()
-            except OSError:
-                yield source.relative_to(root).as_posix(), None
+            if filename.endswith(('.py', '.pyi')):
+                source = os.path.join(directory, filename)
+                if not os.path.islink(source):
+                    yield os.path.relpath(source, root).replace(os.sep, '/'), source
 
 
 def _parse_job(job):
-    path, data = job
+    path, source = job
     try:
-        return path, parse(path, data), None
-    except (SyntaxError, UnicodeError, RecursionError, ValueError) as exc:
+        with open(source, 'rb') as handle:
+            return path, parse(path, handle.read()), None
+    except (SyntaxError, UnicodeError, RecursionError, ValueError, OSError) as exc:
         return path, None, type(exc).__name__
+
+
+def _fact_file(cache, path, digest):
+    return cache/(hashlib.sha256((path+'\0'+digest).encode()).hexdigest()+'.json')
 
 
 def _facts(cache, sources, gaps):
     facts, missing = {}, []
-    for path, data, digest in sources:
-        dest = cache/(hashlib.sha256((path+'\0'+digest).encode()).hexdigest()+'.json')
+    for path, source, digest in sources:
+        dest = _fact_file(cache, path, digest)
         try:
             fact = json.loads(dest.read_text())
             if fact.get('path') != path:
                 raise ValueError('cache identity mismatch')
             facts[path] = fact
         except (OSError, ValueError):
-            missing.append((path, data, dest))
-    jobs = [(path, data) for path, data, _ in missing]
+            missing.append((path, source, dest))
+    jobs = [(path, source) for path, source, _ in missing]
     results = None
     if len(jobs) >= PARALLEL_FROM and (os.cpu_count() or 1) > 1:
         # A cold index of a large tree is parsing-bound; parsing is independent per file.
@@ -276,16 +279,46 @@ def _facts(cache, sources, gaps):
     return {path: facts[path] for path, _, _ in sources if path in facts}, len(missing)
 
 
+def cache_dir(root, index_dir=None):
+    return Path(index_dir or os.environ.get('AMU_INDEX_DIR') or Path(root).resolve()/'.amu/index')/VERSION
+
+
 def _scan(root, index_dir):
+    """Hash every Python file. A file whose size and modification time match the last scan is not read again."""
     root = Path(root).resolve()
-    cache = Path(index_dir or os.environ.get('AMU_INDEX_DIR') or root/'.amu/index')/VERSION
-    sources, hashes, gaps = [], {}, []
-    for path, data in _sources(root):
-        if data is None:
+    cache = cache_dir(root, index_dir)
+    ledger = cache/('stat-' + hashlib.sha256(str(root).encode()).hexdigest()[:16] + '.json')
+    try:
+        known = json.loads(ledger.read_text())
+    except (OSError, ValueError):
+        known = {}
+    sources, hashes, gaps, seen, dirty = [], {}, [], {}, False
+    # As git does: a file modified within two seconds of the last scan may have changed again unseen.
+    settled = known.pop('__scanned__', 0) - 2_000_000_000
+    for path, source in _sources(root):
+        try:
+            status = os.stat(source)
+            stamp = [status.st_mtime_ns, status.st_size]
+            if known.get(path, [None])[:2] == stamp and status.st_mtime_ns < settled:
+                digest = known[path][2]
+            else:
+                with open(source, 'rb') as handle:
+                    digest = hashlib.sha256(handle.read()).hexdigest()
+                dirty = True
+        except OSError:
             gaps.append(f'{path}: OSError')
             continue
-        hashes[path] = hashlib.sha256(data).hexdigest()
-        sources.append((path, data, hashes[path]))
+        seen[path] = [*stamp, digest]
+        hashes[path] = digest
+        sources.append((path, source, digest))
+    if dirty or len(seen) != len(known):
+        try:
+            cache.mkdir(parents=True, exist_ok=True)
+            temporary = ledger.with_suffix('.' + str(os.getpid()) + '.tmp')
+            temporary.write_text(json.dumps(dict(seen, __scanned__=time.time_ns()), separators=(',', ':')))
+            temporary.replace(ledger)
+        except OSError:
+            pass
     return cache, sources, hashes, gaps
 
 
@@ -311,19 +344,29 @@ def state(root, index_dir=None):
         return saved['facts'], hashes, sorted(set(gaps) | set(saved['gaps'])), 0, Graph(saved['facts'], saved['graph'])
     except (OSError, ValueError, KeyError, TypeError):
         pass
-    facts, parsed = _facts(cache, sources, gaps)
-    built = None
+    built, facts, parsed = None, None, 0
     for earlier in sorted(cache.glob('state-*.json'), key=lambda p: p.stat().st_mtime, reverse=True)[:1]:
-        # An edited tree: reuse the latest snapshot's graph and relink only the files that differ.
+        # An edited tree: reuse the latest snapshot's graph and facts, and relink only the files that differ.
         try:
             saved = json.loads(earlier.read_text())
             differs = {path for path in set(hashes) | set(saved['hashes']) if hashes.get(path) != saved['hashes'].get(path)}
             if len(differs) <= RELINK_LIMIT:
-                built = Graph(facts, saved['graph'], relink=differs)
+                fresh, parsed = _facts(cache, [row for row in sources if row[0] in differs], gaps)
+                facts = {path: fresh.get(path) or saved['facts'].get(path) for path, _, _ in sources}
+                facts = {path: fact for path, fact in facts.items() if fact}
+
+                def complete(path):
+                    # Untouched files stay in their slim form until the changed code refers into them.
+                    try:
+                        return json.loads(_fact_file(cache, path, hashes[path]).read_text())
+                    except (OSError, ValueError, KeyError):
+                        return None
+                built = Graph(facts, saved['graph'], relink=differs, loader=complete)
                 gaps.append(f'graph reused from the previous state; {len(differs)} changed file(s) relinked')
         except (OSError, ValueError, KeyError, TypeError):
             built = None
     if built is None:
+        facts, parsed = _facts(cache, sources, gaps)
         built = Graph(facts)
     slim = {path: dict(fact, records={ident: {k: v for k, v in record.items() if k not in SLIM_DROP}
                                       for ident, record in fact['records'].items()}) for path, fact in facts.items()}

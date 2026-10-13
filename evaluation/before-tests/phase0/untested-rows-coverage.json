@@ -1,0 +1,4371 @@
+{
+ "rows": [
+  {
+   "commit": "7b8504eaabea6c70195baa3c02155c24a6e270c6",
+   "symbol": "MigrationAutodetector._detect_changes",
+   "file": "django/db/migrations/autodetector.py",
+   "lines": "155-171",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 7,
+   "followers": 245,
+   "later_fix": []
+  },
+  {
+   "commit": "7b8504eaabea6c70195baa3c02155c24a6e270c6",
+   "symbol": "MigrationAutodetector._prepare_field_lists",
+   "file": "django/db/migrations/autodetector.py",
+   "lines": "241",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 7,
+   "followers": 245,
+   "later_fix": []
+  },
+  {
+   "commit": "7b8504eaabea6c70195baa3c02155c24a6e270c6",
+   "symbol": "MigrationAutodetector.generate_created_models",
+   "file": "django/db/migrations/autodetector.py",
+   "lines": "651-762",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 7,
+   "followers": 245,
+   "later_fix": []
+  },
+  {
+   "commit": "7b8504eaabea6c70195baa3c02155c24a6e270c6",
+   "symbol": "MigrationAutodetector.generate_deleted_models",
+   "file": "django/db/migrations/autodetector.py",
+   "lines": "916-929",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 7,
+   "followers": 245,
+   "later_fix": []
+  },
+  {
+   "commit": "7b8504eaabea6c70195baa3c02155c24a6e270c6",
+   "symbol": "MigrationAutodetector.generate_altered_db_table",
+   "file": "django/db/migrations/autodetector.py",
+   "lines": "1843-1845",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 7,
+   "followers": 245,
+   "later_fix": []
+  },
+  {
+   "commit": "7b8504eaabea6c70195baa3c02155c24a6e270c6",
+   "symbol": "MigrationAutodetector.generate_altered_db_table_comment",
+   "file": "django/db/migrations/autodetector.py",
+   "lines": "1864-1866",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 7,
+   "followers": 245,
+   "later_fix": []
+  },
+  {
+   "commit": "7b8504eaabea6c70195baa3c02155c24a6e270c6",
+   "symbol": "MigrationAutodetector.generate_altered_options",
+   "file": "django/db/migrations/autodetector.py",
+   "lines": "1893-1897",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 7,
+   "followers": 245,
+   "later_fix": []
+  },
+  {
+   "commit": "bdbda29c3e126754c3ae04ceb5c5d35d49aae01c",
+   "symbol": "_non_atomic_requests",
+   "file": "django/db/transaction.py",
+   "lines": "340-343",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 1,
+   "followers": 239,
+   "later_fix": [
+    "93d7e82b6a"
+   ]
+  },
+  {
+   "commit": "5f90dc2468bc52373efe4b231c4eb383b3f1edd2",
+   "symbol": "MiddlewareMixin.__init__",
+   "file": "django/utils/deprecation.py",
+   "lines": "350-361",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 238,
+   "later_fix": []
+  },
+  {
+   "commit": "5f90dc2468bc52373efe4b231c4eb383b3f1edd2",
+   "symbol": "MiddlewareMixin.__repr__",
+   "file": "django/utils/deprecation.py",
+   "lines": "363-371",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 238,
+   "later_fix": []
+  },
+  {
+   "commit": "5f90dc2468bc52373efe4b231c4eb383b3f1edd2",
+   "symbol": "MiddlewareMixin.__call__",
+   "file": "django/utils/deprecation.py",
+   "lines": "373-383",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 238,
+   "later_fix": []
+  },
+  {
+   "commit": "5f90dc2468bc52373efe4b231c4eb383b3f1edd2",
+   "symbol": "MiddlewareMixin.__acall__",
+   "file": "django/utils/deprecation.py",
+   "lines": "385-402",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 238,
+   "later_fix": []
+  },
+  {
+   "commit": "2e48636c54910e435eb31e1b7d8a8089c84233ad",
+   "symbol": "ModelAdmin.get_changelist_instance",
+   "file": "django/contrib/admin/options.py",
+   "lines": "931",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 3,
+   "followers": 236,
+   "later_fix": []
+  },
+  {
+   "commit": "2e48636c54910e435eb31e1b7d8a8089c84233ad",
+   "symbol": "ModelAdmin._get_actions_with_action_location",
+   "file": "django/contrib/admin/options.py",
+   "lines": "1135-1140",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 3,
+   "followers": 236,
+   "later_fix": []
+  },
+  {
+   "commit": "2e48636c54910e435eb31e1b7d8a8089c84233ad",
+   "symbol": "ModelAdmin._get_action_choices_with_action_location",
+   "file": "django/contrib/admin/options.py",
+   "lines": "1175-1181",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 3,
+   "followers": 236,
+   "later_fix": []
+  },
+  {
+   "commit": "a486b48d4ea0d34babe58cae215b2123748aacbd",
+   "symbol": "SessionStore.delete",
+   "file": "django/contrib/sessions/backends/cached_db.py",
+   "lines": "112",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 2,
+   "followers": 233,
+   "later_fix": []
+  },
+  {
+   "commit": "a486b48d4ea0d34babe58cae215b2123748aacbd",
+   "symbol": "SessionStore.adelete",
+   "file": "django/contrib/sessions/backends/cached_db.py",
+   "lines": "120",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 2,
+   "followers": 233,
+   "later_fix": []
+  },
+  {
+   "commit": "76e1bca1311ae7073a1fa4add6f9d19d709f0f09",
+   "symbol": "PostGISSchemaEditor._create_spatial_index_sql",
+   "file": "django/contrib/gis/db/backends/postgis/schema.py",
+   "lines": "99-118",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 6,
+   "followers": 217,
+   "later_fix": []
+  },
+  {
+   "commit": "d8cedcab5241725003eef059dd76c533f24c5430",
+   "symbol": "Command.handle_inspection",
+   "file": "django/core/management/commands/inspectdb.py",
+   "lines": "126-127",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 212,
+   "later_fix": []
+  },
+  {
+   "commit": "2a5da9d00555beef8e5f6307cfcbfc029d45491e",
+   "symbol": "Command.handle_inspection",
+   "file": "django/core/management/commands/inspectdb.py",
+   "lines": "136-255",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 211,
+   "later_fix": []
+  },
+  {
+   "commit": "6fc8150005256db2052b01812d65dff737563a1b",
+   "symbol": "StaticFilesHandlerMixin.get_response_async",
+   "file": "django/contrib/staticfiles/handlers.py",
+   "lines": "62",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": true,
+   "commit_changed_tests": 2,
+   "followers": 210,
+   "later_fix": []
+  },
+  {
+   "commit": "6fc8150005256db2052b01812d65dff737563a1b",
+   "symbol": "convert_exception_to_response.inner",
+   "file": "django/core/handlers/exception.py",
+   "lines": "46",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 2,
+   "followers": 210,
+   "later_fix": []
+  },
+  {
+   "commit": "6fc8150005256db2052b01812d65dff737563a1b",
+   "symbol": "convert_exception_to_response",
+   "file": "django/core/handlers/exception.py",
+   "lines": "46",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 2,
+   "followers": 210,
+   "later_fix": []
+  },
+  {
+   "commit": "9ea5f4facca9931519109ae5d3646d3077da3e5f",
+   "symbol": "delete_selected",
+   "file": "django/contrib/admin/actions.py",
+   "lines": "25",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 207,
+   "later_fix": []
+  },
+  {
+   "commit": "9ea5f4facca9931519109ae5d3646d3077da3e5f",
+   "symbol": "SpatiaLiteOperations.geom_lib_version",
+   "file": "django/contrib/gis/db/backends/spatialite/operations.py",
+   "lines": "185",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 207,
+   "later_fix": []
+  },
+  {
+   "commit": "9ea5f4facca9931519109ae5d3646d3077da3e5f",
+   "symbol": "SpatialProxy.__set__",
+   "file": "django/contrib/gis/db/models/proxy.py",
+   "lines": "82",
+   "untested": true,
+   "basis": "static_only",
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 207,
+   "later_fix": []
+  },
+  {
+   "commit": "9ea5f4facca9931519109ae5d3646d3077da3e5f",
+   "symbol": "SpatialReference.__getitem__",
+   "file": "django/contrib/gis/gdal/srs.py",
+   "lines": "135",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 207,
+   "later_fix": []
+  },
+  {
+   "commit": "9ea5f4facca9931519109ae5d3646d3077da3e5f",
+   "symbol": "LayerMapping.save",
+   "file": "django/contrib/gis/utils/layermapping.py",
+   "lines": "593",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 207,
+   "later_fix": []
+  },
+  {
+   "commit": "9ea5f4facca9931519109ae5d3646d3077da3e5f",
+   "symbol": "SessionStore.asave",
+   "file": "django/contrib/sessions/backends/db.py",
+   "lines": "147",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 207,
+   "later_fix": []
+  },
+  {
+   "commit": "9ea5f4facca9931519109ae5d3646d3077da3e5f",
+   "symbol": "DatabaseOperations.date_extract_sql",
+   "file": "django/db/backends/mysql/operations.py",
+   "lines": "64",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 207,
+   "later_fix": []
+  },
+  {
+   "commit": "9ea5f4facca9931519109ae5d3646d3077da3e5f",
+   "symbol": "FormatStylePlaceholderCursor._output_type_handler",
+   "file": "django/db/backends/oracle/base.py",
+   "lines": "549",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 207,
+   "later_fix": []
+  },
+  {
+   "commit": "9ea5f4facca9931519109ae5d3646d3077da3e5f",
+   "symbol": "DatabaseOperations.date_extract_sql",
+   "file": "django/db/backends/oracle/operations.py",
+   "lines": "100",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 207,
+   "later_fix": []
+  },
+  {
+   "commit": "9ea5f4facca9931519109ae5d3646d3077da3e5f",
+   "symbol": "DatabaseOperations.time_trunc_sql",
+   "file": "django/db/backends/oracle/operations.py",
+   "lines": "201",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 207,
+   "later_fix": []
+  },
+  {
+   "commit": "9ea5f4facca9931519109ae5d3646d3077da3e5f",
+   "symbol": "DatabaseWrapper.pool",
+   "file": "django/db/backends/postgresql/base.py",
+   "lines": "231",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 207,
+   "later_fix": []
+  },
+  {
+   "commit": "9ea5f4facca9931519109ae5d3646d3077da3e5f",
+   "symbol": "DatabaseSchemaEditor._remake_table",
+   "file": "django/db/backends/sqlite3/schema.py",
+   "lines": "269",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 207,
+   "later_fix": []
+  },
+  {
+   "commit": "9ea5f4facca9931519109ae5d3646d3077da3e5f",
+   "symbol": "MigrationRecorder.has_table",
+   "file": "django/db/migrations/recorder.py",
+   "lines": "59",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 207,
+   "later_fix": []
+  },
+  {
+   "commit": "9ea5f4facca9931519109ae5d3646d3077da3e5f",
+   "symbol": "Model._perform_date_checks",
+   "file": "django/db/models/base.py",
+   "lines": "1596",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 207,
+   "later_fix": []
+  },
+  {
+   "commit": "9ea5f4facca9931519109ae5d3646d3077da3e5f",
+   "symbol": "Options.contribute_to_class",
+   "file": "django/db/models/options.py",
+   "lines": "229",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 207,
+   "later_fix": []
+  },
+  {
+   "commit": "9ea5f4facca9931519109ae5d3646d3077da3e5f",
+   "symbol": "SQLCompiler._order_by_pairs",
+   "file": "django/db/models/sql/compiler.py",
+   "lines": "469",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 207,
+   "later_fix": [
+    "00dca6f097"
+   ]
+  },
+  {
+   "commit": "9ea5f4facca9931519109ae5d3646d3077da3e5f",
+   "symbol": "Join.__init__",
+   "file": "django/db/models/sql/datastructures.py",
+   "lines": "72",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 207,
+   "later_fix": []
+  },
+  {
+   "commit": "9ea5f4facca9931519109ae5d3646d3077da3e5f",
+   "symbol": "WhereNode.split_having_qualify",
+   "file": "django/db/models/sql/where.py",
+   "lines": "62",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 207,
+   "later_fix": []
+  },
+  {
+   "commit": "9ea5f4facca9931519109ae5d3646d3077da3e5f",
+   "symbol": "InlineForeignKeyField.clean",
+   "file": "django/forms/models.py",
+   "lines": "1405",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 207,
+   "later_fix": []
+  },
+  {
+   "commit": "9ea5f4facca9931519109ae5d3646d3077da3e5f",
+   "symbol": "LazyStream._update_unget_history",
+   "file": "django/http/multipartparser.py",
+   "lines": "520",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 207,
+   "later_fix": []
+  },
+  {
+   "commit": "9ea5f4facca9931519109ae5d3646d3077da3e5f",
+   "symbol": "BaseContext.__eq__",
+   "file": "django/template/context.py",
+   "lines": "133",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 207,
+   "later_fix": []
+  },
+  {
+   "commit": "9ea5f4facca9931519109ae5d3646d3077da3e5f",
+   "symbol": "do_timezone",
+   "file": "django/templatetags/tz.py",
+   "lines": "54",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 207,
+   "later_fix": []
+  },
+  {
+   "commit": "9ea5f4facca9931519109ae5d3646d3077da3e5f",
+   "symbol": "WatchmanReloader._watch_root",
+   "file": "django/utils/autoreload.py",
+   "lines": "467",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 207,
+   "later_fix": []
+  },
+  {
+   "commit": "9ea5f4facca9931519109ae5d3646d3077da3e5f",
+   "symbol": "WatchmanReloader._watch_glob",
+   "file": "django/utils/autoreload.py",
+   "lines": "534-535",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 207,
+   "later_fix": []
+  },
+  {
+   "commit": "9ea5f4facca9931519109ae5d3646d3077da3e5f",
+   "symbol": "get_system_encoding",
+   "file": "django/utils/encoding.py",
+   "lines": "251",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 207,
+   "later_fix": []
+  },
+  {
+   "commit": "9ea5f4facca9931519109ae5d3646d3077da3e5f",
+   "symbol": "normalize",
+   "file": "django/utils/regex_helper.py",
+   "lines": "138",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 207,
+   "later_fix": []
+  },
+  {
+   "commit": "9ea5f4facca9931519109ae5d3646d3077da3e5f",
+   "symbol": "all_locale_paths",
+   "file": "django/utils/translation/trans_real.py",
+   "lines": "452",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 207,
+   "later_fix": []
+  },
+  {
+   "commit": "4ea38d54c10e0f44e189605c217a55cdfe9fdde8",
+   "symbol": "ModelAdmin.history_view",
+   "file": "django/contrib/admin/options.py",
+   "lines": "2565-2573",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 6,
+   "followers": 203,
+   "later_fix": []
+  },
+  {
+   "commit": "4ea38d54c10e0f44e189605c217a55cdfe9fdde8",
+   "symbol": "AdminSite.get_urls",
+   "file": "django/contrib/admin/sites.py",
+   "lines": "259-293",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 6,
+   "followers": 203,
+   "later_fix": []
+  },
+  {
+   "commit": "c2517faff335f683e1cbe55d9844910b3fb40670",
+   "symbol": "content_disposition_header",
+   "file": "django/utils/http.py",
+   "lines": "423",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 1,
+   "followers": 199,
+   "later_fix": []
+  },
+  {
+   "commit": "92470ad3742524902b29769d2c822dbe791630db",
+   "symbol": "items_for_result",
+   "file": "django/contrib/admin/templatetags/admin_list.py",
+   "lines": "228",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 195,
+   "later_fix": [
+    "082b3df406"
+   ]
+  },
+  {
+   "commit": "92470ad3742524902b29769d2c822dbe791630db",
+   "symbol": "lookup_field",
+   "file": "django/contrib/admin/utils.py",
+   "lines": "317-319",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 1,
+   "followers": 195,
+   "later_fix": []
+  },
+  {
+   "commit": "92e1d9e3619ae5274a64b38f26177064486892f2",
+   "symbol": "result_headers",
+   "file": "django/contrib/admin/templatetags/admin_list.py",
+   "lines": "119",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 3,
+   "followers": 193,
+   "later_fix": []
+  },
+  {
+   "commit": "2936a0a99719e3c3777039a0d6968deecb55c752",
+   "symbol": "label_for_field",
+   "file": "django/contrib/admin/utils.py",
+   "lines": "375",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 2,
+   "followers": 190,
+   "later_fix": []
+  },
+  {
+   "commit": "2936a0a99719e3c3777039a0d6968deecb55c752",
+   "symbol": "ChangeList.get_ordering_field",
+   "file": "django/contrib/admin/views/main.py",
+   "lines": "362",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 2,
+   "followers": 190,
+   "later_fix": []
+  },
+  {
+   "commit": "c9ff757a55392b1f50968eb89fe775f6155168d8",
+   "symbol": "QuerySet._prepare_for_bulk_create",
+   "file": "django/db/models/query.py",
+   "lines": "749-760",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 1,
+   "followers": 189,
+   "later_fix": []
+  },
+  {
+   "commit": "ca14173f968cf36115f22d6c6785f738de4391ed",
+   "symbol": "replace_unnamed_groups",
+   "file": "django/urls/utils.py",
+   "lines": "138-144",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 1,
+   "followers": 182,
+   "later_fix": []
+  },
+  {
+   "commit": "8c83e9c0ea39099b213478a893cbebe9faa837ba",
+   "symbol": "BaseDatabaseOperations.format_debug_sql",
+   "file": "django/db/backends/base/operations.py",
+   "lines": "876",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 0,
+   "followers": 181,
+   "later_fix": []
+  },
+  {
+   "commit": "9465349120ef8a0b0689e12bcbfd05f3d173ebdf",
+   "symbol": "Model._save_table",
+   "file": "django/db/models/base.py",
+   "lines": "1097",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 1,
+   "followers": 180,
+   "later_fix": []
+  },
+  {
+   "commit": "ea303dee45f4b703b31f73ceb235f11742d3c518",
+   "symbol": "PostGISSchemaEditor._alter_field",
+   "file": "django/contrib/gis/db/backends/postgis/schema.py",
+   "lines": "85-88",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 2,
+   "followers": 176,
+   "later_fix": []
+  },
+  {
+   "commit": "60121939f6b225c7a719dd561e372e1d8e5e2c4a",
+   "symbol": "Field.as_datetime",
+   "file": "django/contrib/gis/gdal/field.py",
+   "lines": "76-77",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 175,
+   "later_fix": []
+  },
+  {
+   "commit": "60121939f6b225c7a719dd561e372e1d8e5e2c4a",
+   "symbol": "OFTDateTime.value",
+   "file": "django/contrib/gis/gdal/field.py",
+   "lines": "195",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 175,
+   "later_fix": []
+  },
+  {
+   "commit": "60121939f6b225c7a719dd561e372e1d8e5e2c4a",
+   "symbol": "OFTTime.value",
+   "file": "django/contrib/gis/gdal/field.py",
+   "lines": "206",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 175,
+   "later_fix": [
+    "2cace96be6"
+   ]
+  },
+  {
+   "commit": "2cace96be6d64b7dde7eb66d3ffc2c7f08ef644f",
+   "symbol": "OFTTime.value",
+   "file": "django/contrib/gis/gdal/field.py",
+   "lines": "220",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 0,
+   "followers": 174,
+   "later_fix": []
+  },
+  {
+   "commit": "f1949c1f9758947ade984c895ff16bef46f56520",
+   "symbol": "BaseSpatialField.get_raster_prep_value",
+   "file": "django/contrib/gis/db/models/fields.py",
+   "lines": "172-187",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 9,
+   "followers": 169,
+   "later_fix": []
+  },
+  {
+   "commit": "f1949c1f9758947ade984c895ff16bef46f56520",
+   "symbol": "BaseSpatialField.get_prep_value",
+   "file": "django/contrib/gis/db/models/fields.py",
+   "lines": "204-216",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 9,
+   "followers": 169,
+   "later_fix": [
+    "ebcb13b327",
+    "d2e59b77fe"
+   ]
+  },
+  {
+   "commit": "f1949c1f9758947ade984c895ff16bef46f56520",
+   "symbol": "GDALRaster.__init__",
+   "file": "django/contrib/gis/gdal/raster/source.py",
+   "lines": "80-87",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 9,
+   "followers": 169,
+   "later_fix": []
+  },
+  {
+   "commit": "27137e655e442e81095f1f8f77ff3870d9fdf169",
+   "symbol": "language_changed",
+   "file": "django/test/signals.py",
+   "lines": "156",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 168,
+   "later_fix": []
+  },
+  {
+   "commit": "27137e655e442e81095f1f8f77ff3870d9fdf169",
+   "symbol": "reset_cache",
+   "file": "django/utils/translation/trans_real.py",
+   "lines": "68",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 168,
+   "later_fix": [
+    "c88b304cc2"
+   ]
+  },
+  {
+   "commit": "27137e655e442e81095f1f8f77ff3870d9fdf169",
+   "symbol": "check_for_language",
+   "file": "django/utils/translation/trans_real.py",
+   "lines": "465-477",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 168,
+   "later_fix": []
+  },
+  {
+   "commit": "d2e59b77fe18de318a8272c2a7bbc798d84d1d0d",
+   "symbol": "DatabaseFeatures.supports_geometry_field_unique_index",
+   "file": "django/contrib/gis/db/backends/mysql/features.py",
+   "lines": "22",
+   "untested": true,
+   "basis": "static_only",
+   "author_test": false,
+   "commit_changed_tests": 20,
+   "followers": 167,
+   "later_fix": []
+  },
+  {
+   "commit": "d2e59b77fe18de318a8272c2a7bbc798d84d1d0d",
+   "symbol": "MySQLOperations.get_geometry_converter.converter",
+   "file": "django/contrib/gis/db/backends/mysql/operations.py",
+   "lines": "144",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 20,
+   "followers": 167,
+   "later_fix": []
+  },
+  {
+   "commit": "d2e59b77fe18de318a8272c2a7bbc798d84d1d0d",
+   "symbol": "MySQLOperations.get_geometry_converter",
+   "file": "django/contrib/gis/db/backends/mysql/operations.py",
+   "lines": "144",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 20,
+   "followers": 167,
+   "later_fix": []
+  },
+  {
+   "commit": "d2e59b77fe18de318a8272c2a7bbc798d84d1d0d",
+   "symbol": "DatabaseFeatures.django_test_skips",
+   "file": "django/contrib/gis/db/backends/oracle/features.py",
+   "lines": "25",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 20,
+   "followers": 167,
+   "later_fix": []
+  },
+  {
+   "commit": "d2e59b77fe18de318a8272c2a7bbc798d84d1d0d",
+   "symbol": "OracleOperations.get_geometry_converter.converter",
+   "file": "django/contrib/gis/db/backends/oracle/operations.py",
+   "lines": "247",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 20,
+   "followers": 167,
+   "later_fix": []
+  },
+  {
+   "commit": "d2e59b77fe18de318a8272c2a7bbc798d84d1d0d",
+   "symbol": "OracleOperations.get_geometry_converter",
+   "file": "django/contrib/gis/db/backends/oracle/operations.py",
+   "lines": "247",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 20,
+   "followers": 167,
+   "later_fix": []
+  },
+  {
+   "commit": "d2e59b77fe18de318a8272c2a7bbc798d84d1d0d",
+   "symbol": "PostGISOperations.get_geometry_converter.converter",
+   "file": "django/contrib/gis/db/backends/postgis/operations.py",
+   "lines": "425-427",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 20,
+   "followers": 167,
+   "later_fix": []
+  },
+  {
+   "commit": "d2e59b77fe18de318a8272c2a7bbc798d84d1d0d",
+   "symbol": "PostGISOperations.get_geometry_converter",
+   "file": "django/contrib/gis/db/backends/postgis/operations.py",
+   "lines": "425-427",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 20,
+   "followers": 167,
+   "later_fix": []
+  },
+  {
+   "commit": "d2e59b77fe18de318a8272c2a7bbc798d84d1d0d",
+   "symbol": "SpatiaLiteOperations.get_geometry_converter.converter",
+   "file": "django/contrib/gis/db/backends/spatialite/operations.py",
+   "lines": "233",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 20,
+   "followers": 167,
+   "later_fix": []
+  },
+  {
+   "commit": "d2e59b77fe18de318a8272c2a7bbc798d84d1d0d",
+   "symbol": "SpatiaLiteOperations.get_geometry_converter",
+   "file": "django/contrib/gis/db/backends/spatialite/operations.py",
+   "lines": "233",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 20,
+   "followers": 167,
+   "later_fix": []
+  },
+  {
+   "commit": "d2e59b77fe18de318a8272c2a7bbc798d84d1d0d",
+   "symbol": "BaseSpatialField.get_prep_value",
+   "file": "django/contrib/gis/db/models/fields.py",
+   "lines": "216-218",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 20,
+   "followers": 167,
+   "later_fix": [
+    "ebcb13b327"
+   ]
+  },
+  {
+   "commit": "d2e59b77fe18de318a8272c2a7bbc798d84d1d0d",
+   "symbol": "GeometryField.__init__",
+   "file": "django/contrib/gis/db/models/fields.py",
+   "lines": "261-291",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 20,
+   "followers": 167,
+   "later_fix": [
+    "62ef9d40cf"
+   ]
+  },
+  {
+   "commit": "d2e59b77fe18de318a8272c2a7bbc798d84d1d0d",
+   "symbol": "GeometryField.deconstruct",
+   "file": "django/contrib/gis/db/models/fields.py",
+   "lines": "304",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 20,
+   "followers": 167,
+   "later_fix": []
+  },
+  {
+   "commit": "d2e59b77fe18de318a8272c2a7bbc798d84d1d0d",
+   "symbol": "GeometryField.formfield",
+   "file": "django/contrib/gis/db/models/fields.py",
+   "lines": "321",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 20,
+   "followers": 167,
+   "later_fix": []
+  },
+  {
+   "commit": "d2e59b77fe18de318a8272c2a7bbc798d84d1d0d",
+   "symbol": "SpatialProxy.__get__",
+   "file": "django/contrib/gis/db/models/proxy.py",
+   "lines": "46",
+   "untested": true,
+   "basis": "static_only",
+   "author_test": false,
+   "commit_changed_tests": 20,
+   "followers": 167,
+   "later_fix": []
+  },
+  {
+   "commit": "d2e59b77fe18de318a8272c2a7bbc798d84d1d0d",
+   "symbol": "GeometryField.__init__",
+   "file": "django/contrib/gis/forms/fields.py",
+   "lines": "29",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 20,
+   "followers": 167,
+   "later_fix": []
+  },
+  {
+   "commit": "d2e59b77fe18de318a8272c2a7bbc798d84d1d0d",
+   "symbol": "GeometryField.to_python",
+   "file": "django/contrib/gis/forms/fields.py",
+   "lines": "46",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 20,
+   "followers": 167,
+   "later_fix": []
+  },
+  {
+   "commit": "d2e59b77fe18de318a8272c2a7bbc798d84d1d0d",
+   "symbol": "BaseGeometryWidget.deserialize",
+   "file": "django/contrib/gis/forms/widgets.py",
+   "lines": "39",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 20,
+   "followers": 167,
+   "later_fix": []
+  },
+  {
+   "commit": "d2e59b77fe18de318a8272c2a7bbc798d84d1d0d",
+   "symbol": "GEOSGeometryBase._from_wkb",
+   "file": "django/contrib/gis/geos/geometry.py",
+   "lines": "117-118",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 20,
+   "followers": 167,
+   "later_fix": []
+  },
+  {
+   "commit": "d2e59b77fe18de318a8272c2a7bbc798d84d1d0d",
+   "symbol": "GEOSGeometryBase._from_wkt",
+   "file": "django/contrib/gis/geos/geometry.py",
+   "lines": "138-139",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 20,
+   "followers": 167,
+   "later_fix": []
+  },
+  {
+   "commit": "d2e59b77fe18de318a8272c2a7bbc798d84d1d0d",
+   "symbol": "GEOSGeometry.__init__",
+   "file": "django/contrib/gis/geos/geometry.py",
+   "lines": "742-782",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 20,
+   "followers": 167,
+   "later_fix": [
+    "62ef9d40cf"
+   ]
+  },
+  {
+   "commit": "d2e59b77fe18de318a8272c2a7bbc798d84d1d0d",
+   "symbol": "_WKTReader.read",
+   "file": "django/contrib/gis/geos/prototypes/io.py",
+   "lines": "157",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 20,
+   "followers": 167,
+   "later_fix": []
+  },
+  {
+   "commit": "d2e59b77fe18de318a8272c2a7bbc798d84d1d0d",
+   "symbol": "_WKBReader.read",
+   "file": "django/contrib/gis/geos/prototypes/io.py",
+   "lines": "168-178",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 20,
+   "followers": 167,
+   "later_fix": [
+    "62ef9d40cf"
+   ]
+  },
+  {
+   "commit": "47511a21026cdd721d8fbf8571cc079bc38bb46d",
+   "symbol": "display_for_field",
+   "file": "django/contrib/admin/utils.py",
+   "lines": "466",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 1,
+   "followers": 166,
+   "later_fix": []
+  },
+  {
+   "commit": "cef2346abf8d6e9e61a5a3599fbcf72163e6a6e5",
+   "symbol": "Model._prepare_related_fields_for_save",
+   "file": "django/db/models/base.py",
+   "lines": "1298",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 1,
+   "followers": 163,
+   "later_fix": []
+  },
+  {
+   "commit": "8f52e9199b260cdacc5ad372692cddf2dcf76558",
+   "symbol": "MigrationAutodetector._generate_added_field",
+   "file": "django/db/migrations/autodetector.py",
+   "lines": "1157-1177",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 2,
+   "followers": 161,
+   "later_fix": []
+  },
+  {
+   "commit": "8f52e9199b260cdacc5ad372692cddf2dcf76558",
+   "symbol": "MigrationAutodetector.generate_altered_fields",
+   "file": "django/db/migrations/autodetector.py",
+   "lines": "1324-1333",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 2,
+   "followers": 161,
+   "later_fix": []
+  },
+  {
+   "commit": "89e82866dc2746383c336c7b10e050b9da3ae1ef",
+   "symbol": "ModelAdmin._create_formsets",
+   "file": "django/contrib/admin/options.py",
+   "lines": "2648",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 156,
+   "later_fix": []
+  },
+  {
+   "commit": "c9eb16a87e60c305fb3651459639f647cce498db",
+   "symbol": "JsonResponse.__init__",
+   "file": "django/http/response.py",
+   "lines": "760",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": false,
+   "commit_changed_tests": 0,
+   "followers": 153,
+   "later_fix": []
+  },
+  {
+   "commit": "b5388a3a80cafcce2e34196d8e81cf5b48eb33bb",
+   "symbol": "Parser.parse",
+   "file": "django/template/base.py",
+   "lines": "559",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 1,
+   "followers": 152,
+   "later_fix": []
+  },
+  {
+   "commit": "616e8c52ded7f4c7b00cae5a95f5a5d12a6a39b9",
+   "symbol": "ModelAdmin.response_add",
+   "file": "django/contrib/admin/options.py",
+   "lines": "1597-1600",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 150,
+   "later_fix": []
+  },
+  {
+   "commit": "082b3df4067c3899dd4d57e8c2eca5baea9d07bb",
+   "symbol": "items_for_result",
+   "file": "django/contrib/admin/templatetags/admin_list.py",
+   "lines": "231-253",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 2,
+   "followers": 148,
+   "later_fix": []
+  },
+  {
+   "commit": "c6be0bf3bb744d234947cefd6def9f31d9655800",
+   "symbol": "ManyToManyField.check",
+   "file": "django/db/models/fields/related.py",
+   "lines": "1535",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 147,
+   "later_fix": []
+  },
+  {
+   "commit": "99d56e5cf15839995f62f24294584f1e2976b1ea",
+   "symbol": "Media._normalize_js",
+   "file": "django/forms/widgets.py",
+   "lines": "155",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 4,
+   "followers": 146,
+   "later_fix": []
+  },
+  {
+   "commit": "99d56e5cf15839995f62f24294584f1e2976b1ea",
+   "symbol": "Media._normalize_css",
+   "file": "django/forms/widgets.py",
+   "lines": "161",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 4,
+   "followers": 146,
+   "later_fix": []
+  },
+  {
+   "commit": "812c08bd4e9da7b74ab9ee0db83da58a6da48d19",
+   "symbol": "TupleLookupMixin.check_rhs_is_supported_expression",
+   "file": "django/db/models/fields/tuple_lookups.py",
+   "lines": "77",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 144,
+   "later_fix": []
+  },
+  {
+   "commit": "febefb175e03352e5aeb2ed827024bacab96cf16",
+   "symbol": "Model._perform_unique_checks",
+   "file": "django/db/models/base.py",
+   "lines": "1565-1567",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 3,
+   "followers": 143,
+   "later_fix": []
+  },
+  {
+   "commit": "febefb175e03352e5aeb2ed827024bacab96cf16",
+   "symbol": "UniqueConstraint.validate",
+   "file": "django/db/models/constraints.py",
+   "lines": "607",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 3,
+   "followers": 143,
+   "later_fix": []
+  },
+  {
+   "commit": "1a001208b0b9d79b15b27ca04d94f31f3d55d5ea",
+   "symbol": "QuerySet.totally_ordered",
+   "file": "django/db/models/query.py",
+   "lines": "2051-2100",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 4,
+   "followers": 139,
+   "later_fix": []
+  },
+  {
+   "commit": "a3e6e7d3aa6e2aa793ba1d122a76cb007727197c",
+   "symbol": "DatabaseOperations.get_decimalfield_converter",
+   "file": "django/db/backends/sqlite3/operations.py",
+   "lines": "318",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 138,
+   "later_fix": []
+  },
+  {
+   "commit": "be6cf832293779d8aeaeddca8c47a37ba1530898",
+   "symbol": "SQLCompiler.get_distinct",
+   "file": "django/db/models/sql/compiler.py",
+   "lines": "1054",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 2,
+   "followers": 135,
+   "later_fix": []
+  },
+  {
+   "commit": "be6cf832293779d8aeaeddca8c47a37ba1530898",
+   "symbol": "Query.names_to_path",
+   "file": "django/db/models/sql/query.py",
+   "lines": "1803-1804",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 2,
+   "followers": 135,
+   "later_fix": []
+  },
+  {
+   "commit": "d992705f9eb56199dc474b77af16474e5ce3d2ab",
+   "symbol": "ModelIterable.__iter__",
+   "file": "django/db/models/query.py",
+   "lines": "125-149",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 6,
+   "followers": 131,
+   "later_fix": []
+  },
+  {
+   "commit": "d992705f9eb56199dc474b77af16474e5ce3d2ab",
+   "symbol": "RawModelIterable.__iter__",
+   "file": "django/db/models/query.py",
+   "lines": "215-222",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 6,
+   "followers": 131,
+   "later_fix": []
+  },
+  {
+   "commit": "d992705f9eb56199dc474b77af16474e5ce3d2ab",
+   "symbol": "RelatedPopulator.__init__",
+   "file": "django/db/models/query.py",
+   "lines": "3046",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 6,
+   "followers": 131,
+   "later_fix": []
+  },
+  {
+   "commit": "d992705f9eb56199dc474b77af16474e5ce3d2ab",
+   "symbol": "RelatedPopulator.populate",
+   "file": "django/db/models/query.py",
+   "lines": "3066-3070",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 6,
+   "followers": 131,
+   "later_fix": []
+  },
+  {
+   "commit": "cccc004b46f71b4e54d87b376be691a17de6b903",
+   "symbol": "DatabaseFeatures.django_test_skips",
+   "file": "django/contrib/gis/db/backends/oracle/features.py",
+   "lines": "31",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 0,
+   "followers": 129,
+   "later_fix": []
+  },
+  {
+   "commit": "439b936753e5a679ffcf40cff5918c5637f7c72b",
+   "symbol": "DatabaseFeatures.django_test_skips",
+   "file": "django/contrib/gis/db/backends/oracle/features.py",
+   "lines": "35",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 0,
+   "followers": 122,
+   "later_fix": []
+  },
+  {
+   "commit": "73cc09f14f13fedddc14d6ba5b287cb33c24e4a4",
+   "symbol": "SQLCompiler.find_ordering_name",
+   "file": "django/db/models/sql/compiler.py",
+   "lines": "1076",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 2,
+   "followers": 121,
+   "later_fix": []
+  },
+  {
+   "commit": "73cc09f14f13fedddc14d6ba5b287cb33c24e4a4",
+   "symbol": "Query.add_fields",
+   "file": "django/db/models/sql/query.py",
+   "lines": "2278-2282",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 2,
+   "followers": 121,
+   "later_fix": []
+  },
+  {
+   "commit": "73cc09f14f13fedddc14d6ba5b287cb33c24e4a4",
+   "symbol": "Query.add_ordering",
+   "file": "django/db/models/sql/query.py",
+   "lines": "2345-2348",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 2,
+   "followers": 121,
+   "later_fix": []
+  },
+  {
+   "commit": "fe81969e83d03b61e587a28ddebb92b9fca2b441",
+   "symbol": "ModelAdmin.get_search_results",
+   "file": "django/contrib/admin/options.py",
+   "lines": "1359-1371",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 6,
+   "followers": 120,
+   "later_fix": []
+  },
+  {
+   "commit": "60a17fccf4f2fa31b823b0f938005897f2f3ef16",
+   "symbol": "ForwardManyToOneDescriptor.get_prefetch_querysets",
+   "file": "django/db/models/fields/related_descriptors.py",
+   "lines": "182",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 2,
+   "followers": 118,
+   "later_fix": []
+  },
+  {
+   "commit": "60a17fccf4f2fa31b823b0f938005897f2f3ef16",
+   "symbol": "ReverseOneToOneDescriptor.get_prefetch_querysets",
+   "file": "django/db/models/fields/related_descriptors.py",
+   "lines": "482",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 2,
+   "followers": 118,
+   "later_fix": []
+  },
+  {
+   "commit": "5babd2e21ac0877d66c5452da17b97608b337fba",
+   "symbol": "RelatedIn.get_prep_lookup",
+   "file": "django/db/models/fields/related_lookups.py",
+   "lines": "68",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 0,
+   "followers": 117,
+   "later_fix": []
+  },
+  {
+   "commit": "8d1c673466bcabff500edc6c7724e5a20f6df3de",
+   "symbol": "Model.__eq__",
+   "file": "django/db/models/base.py",
+   "lines": "650-653",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 2,
+   "followers": 116,
+   "later_fix": []
+  },
+  {
+   "commit": "6126f5d2fe0f22c0d2d4888de8c94b91a9795bb6",
+   "symbol": "Serializer.start_object",
+   "file": "django/core/serializers/xml_serializer.py",
+   "lines": "62-63",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 115,
+   "later_fix": []
+  },
+  {
+   "commit": "0751d5fed159fd9ff7edba522ece13c8c9d2a0d0",
+   "symbol": "FieldGetDbPrepValueIterableMixin.get_prep_lookup",
+   "file": "django/db/models/lookups.py",
+   "lines": "295-309",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 2,
+   "followers": 114,
+   "later_fix": []
+  },
+  {
+   "commit": "f14e293cd7444e064b9c9ba471fd5aa7e6132ea6",
+   "symbol": "QuerySet.in_bulk",
+   "file": "django/db/models/query.py",
+   "lines": "1305-1344",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 7,
+   "followers": 110,
+   "later_fix": []
+  },
+  {
+   "commit": "00dca6f097f443de7a24c04bc133f98c83c632aa",
+   "symbol": "SQLCompiler._order_by_pairs",
+   "file": "django/db/models/sql/compiler.py",
+   "lines": "359-364",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 8,
+   "followers": 109,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "LazySettings.__getattr__",
+   "file": "django/conf/__init__.py",
+   "lines": "126-133",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "LazySettings.__setattr__",
+   "file": "django/conf/__init__.py",
+   "lines": "157-176",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "LazySettings.configure",
+   "file": "django/conf/__init__.py",
+   "lines": "209",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "Settings.__init__",
+   "file": "django/conf/__init__.py",
+   "lines": "281-300",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "UserSettingsHolder.__setattr__",
+   "file": "django/conf/__init__.py",
+   "lines": "346-360",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "ModelAdminChecks._check_list_select_related",
+   "file": "django/contrib/admin/checks.py",
+   "lines": "1104",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": false,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "Action.__iter__",
+   "file": "django/contrib/admin/options.py",
+   "lines": "118",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "Action.__getitem__",
+   "file": "django/contrib/admin/options.py",
+   "lines": "128",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "ModelAdmin.__init_subclass__",
+   "file": "django/contrib/admin/options.py",
+   "lines": "727-732",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "ModelAdmin.get_changelist_instance",
+   "file": "django/contrib/admin/options.py",
+   "lines": "916-935",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "ModelAdmin._get_actions_with_action_location",
+   "file": "django/contrib/admin/options.py",
+   "lines": "1140",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "ModelAdmin._get_action_choices_with_action_location",
+   "file": "django/contrib/admin/options.py",
+   "lines": "1181",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "ModelAdmin.get_action_choices",
+   "file": "django/contrib/admin/options.py",
+   "lines": "1204",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "ModelAdmin.response_action",
+   "file": "django/contrib/admin/options.py",
+   "lines": "1861-1877",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "ModelAdmin._changeform_view",
+   "file": "django/contrib/admin/options.py",
+   "lines": "2093-2103",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "ModelAdmin.changelist_view",
+   "file": "django/contrib/admin/options.py",
+   "lines": "2354-2442",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "BitAnd.__init__",
+   "file": "django/contrib/postgres/aggregates/general.py",
+   "lines": "40",
+   "untested": true,
+   "basis": "static_only",
+   "author_test": false,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "BitOr.__init__",
+   "file": "django/contrib/postgres/aggregates/general.py",
+   "lines": "51",
+   "untested": true,
+   "basis": "static_only",
+   "author_test": false,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "BitXor.__init__",
+   "file": "django/contrib/postgres/aggregates/general.py",
+   "lines": "62",
+   "untested": true,
+   "basis": "static_only",
+   "author_test": false,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "StringAgg.__init__",
+   "file": "django/contrib/postgres/aggregates/general.py",
+   "lines": "92-103",
+   "untested": true,
+   "basis": "static_only",
+   "author_test": false,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "OrderableAggMixin.__init_subclass__",
+   "file": "django/contrib/postgres/aggregates/mixins.py",
+   "lines": "15",
+   "untested": true,
+   "basis": "static_only",
+   "author_test": false,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "get_connection",
+   "file": "django/core/mail/__init__.py",
+   "lines": "72-85",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "send_mail",
+   "file": "django/core/mail/__init__.py",
+   "lines": "104-152",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "send_mass_mail",
+   "file": "django/core/mail/__init__.py",
+   "lines": "187-227",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "_send_server_message",
+   "file": "django/core/mail/__init__.py",
+   "lines": "271-300",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "mail_admins",
+   "file": "django/core/mail/__init__.py",
+   "lines": "326",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "mail_managers",
+   "file": "django/core/mail/__init__.py",
+   "lines": "351",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "__getattr__",
+   "file": "django/core/mail/__init__.py",
+   "lines": "398",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "BaseEmailBackend.__init__",
+   "file": "django/core/mail/backends/base.py",
+   "lines": "38-65",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "BaseEmailBackend.__getattr__",
+   "file": "django/core/mail/backends/base.py",
+   "lines": "79",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "EmailBackend.__init__",
+   "file": "django/core/mail/backends/filebased.py",
+   "lines": "20",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": false,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "EmailBackend.__init__",
+   "file": "django/core/mail/backends/smtp.py",
+   "lines": "37-51",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "warn_about_default_mailers_if_needed",
+   "file": "django/core/mail/deprecation.py",
+   "lines": "47-54",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "MailersHandler.settings",
+   "file": "django/core/mail/handler.py",
+   "lines": "33",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "MailersHandler.create_connection",
+   "file": "django/core/mail/handler.py",
+   "lines": "45-62",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "forbid_multi_line_headers",
+   "file": "django/core/mail/message.py",
+   "lines": "82",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "sanitize_address",
+   "file": "django/core/mail/message.py",
+   "lines": "117",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "EmailMessage.__init__",
+   "file": "django/core/mail/message.py",
+   "lines": "250-319",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "EmailMessage.connection",
+   "file": "django/core/mail/message.py",
+   "lines": "327-336",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "EmailMessage.send",
+   "file": "django/core/mail/message.py",
+   "lines": "389-397",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "EmailMessage.attach",
+   "file": "django/core/mail/message.py",
+   "lines": "442",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "EmailMessage._add_attachments",
+   "file": "django/core/mail/message.py",
+   "lines": "498-508",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "EmailMultiAlternatives.__init__",
+   "file": "django/core/mail/message.py",
+   "lines": "608",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "EmailMultiAlternatives._add_bodies",
+   "file": "django/core/mail/message.py",
+   "lines": "665",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "BasePaginator.__init__",
+   "file": "django/core/paginator.py",
+   "lines": "59-70",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "base64_hmac",
+   "file": "django/core/signing.py",
+   "lines": "107-109",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "_unsign_cookie",
+   "file": "django/core/signing.py",
+   "lines": "135",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "BaseDatabaseCreation.create_test_db",
+   "file": "django/db/backends/base/creation.py",
+   "lines": "113",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "Field.__init_subclass__",
+   "file": "django/db/models/fields/__init__.py",
+   "lines": "195-206",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "JSONExact.process_rhs",
+   "file": "django/db/models/fields/json.py",
+   "lines": "327-333",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "_get_from_db",
+   "file": "django/db/models/query.py",
+   "lines": "89",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "ModelIterable.__iter__",
+   "file": "django/db/models/query.py",
+   "lines": "155",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "RawModelIterable.__iter__",
+   "file": "django/db/models/query.py",
+   "lines": "248",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "QuerySet._values",
+   "file": "django/db/models/query.py",
+   "lines": "1577-1580",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "QuerySet.values_list",
+   "file": "django/db/models/query.py",
+   "lines": "1603-1613",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "QuerySet.select_related",
+   "file": "django/db/models/query.py",
+   "lines": "1853-1858",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "RelatedPopulator.__init__",
+   "file": "django/db/models/query.py",
+   "lines": "3091",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "SQLCompiler.quote_name_unless_alias",
+   "file": "django/db/models/sql/compiler.py",
+   "lines": "588",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "Query.check_alias",
+   "file": "django/db/models/sql/query.py",
+   "lines": "1223-1234",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "savepoint",
+   "file": "django/db/transaction.py",
+   "lines": "55",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "BrokenLinkEmailsMiddleware.send_mail",
+   "file": "django/middleware/common.py",
+   "lines": "150",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "Parser.parse",
+   "file": "django/template/base.py",
+   "lines": "565-569",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "setup_test_environment",
+   "file": "django/test/utils.py",
+   "lines": "145",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "teardown_test_environment",
+   "file": "django/test/utils.py",
+   "lines": "176",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "salted_hmac",
+   "file": "django/utils/crypto.py",
+   "lines": "29-39",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "__getattr__",
+   "file": "django/utils/deprecation.py",
+   "lines": "33",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "Urlizer.handle_word",
+   "file": "django/utils/html.py",
+   "lines": "363-377",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "AdminEmailHandler.__init__",
+   "file": "django/utils/log.py",
+   "lines": "94-107",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "0d0e7f15038360c158b6d22c679b47b21557fa1f",
+   "symbol": "AdminEmailHandler.send_mail",
+   "file": "django/utils/log.py",
+   "lines": "167",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": true,
+   "commit_changed_tests": 113,
+   "followers": 105,
+   "later_fix": []
+  },
+  {
+   "commit": "52abe52bec23df6523aff492364f4f1b049c9572",
+   "symbol": "QuerySet.aiterator",
+   "file": "django/db/models/query.py",
+   "lines": "635-647",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 3,
+   "followers": 104,
+   "later_fix": []
+  },
+  {
+   "commit": "52abe52bec23df6523aff492364f4f1b049c9572",
+   "symbol": "JsonResponse.__init__",
+   "file": "django/http/response.py",
+   "lines": "760-775",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 3,
+   "followers": 104,
+   "later_fix": []
+  },
+  {
+   "commit": "52abe52bec23df6523aff492364f4f1b049c9572",
+   "symbol": "__getattr__",
+   "file": "django/utils/deprecation.py",
+   "lines": "30",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 3,
+   "followers": 104,
+   "later_fix": []
+  },
+  {
+   "commit": "026b005f3dc43a98557ce5a546b5e4938d06fed1",
+   "symbol": "deprecate_posargs",
+   "file": "django/utils/deprecation.py",
+   "lines": "249-288",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 0,
+   "followers": 103,
+   "later_fix": []
+  },
+  {
+   "commit": "aca5b3f694cdabaee8d9accbb0c6fcd01839e9f3",
+   "symbol": "__getattr__",
+   "file": "django/utils/deprecation.py",
+   "lines": "25-33",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 0,
+   "followers": 102,
+   "later_fix": []
+  },
+  {
+   "commit": "cc933385e75172cabacb49cfb9fe3571845cb216",
+   "symbol": "get_version",
+   "file": "django/utils/version.py",
+   "lines": "29-43",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 22,
+   "followers": 101,
+   "later_fix": []
+  },
+  {
+   "commit": "cc933385e75172cabacb49cfb9fe3571845cb216",
+   "symbol": "get_main_version",
+   "file": "django/utils/version.py",
+   "lines": "49-52",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 22,
+   "followers": 101,
+   "later_fix": []
+  },
+  {
+   "commit": "cc933385e75172cabacb49cfb9fe3571845cb216",
+   "symbol": "get_complete_version",
+   "file": "django/utils/version.py",
+   "lines": "62-64",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 22,
+   "followers": 101,
+   "later_fix": []
+  },
+  {
+   "commit": "cc933385e75172cabacb49cfb9fe3571845cb216",
+   "symbol": "get_docs_version",
+   "file": "django/utils/version.py",
+   "lines": "71-74",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 22,
+   "followers": 101,
+   "later_fix": []
+  },
+  {
+   "commit": "0398417c503e9f32674b36865abc54e575e8bcd7",
+   "symbol": "BaseEmailBackend.__init__",
+   "file": "django/core/mail/backends/base.py",
+   "lines": "60",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 2,
+   "followers": 100,
+   "later_fix": []
+  },
+  {
+   "commit": "0398417c503e9f32674b36865abc54e575e8bcd7",
+   "symbol": "FunctionTypeSerializer.serialize",
+   "file": "django/db/migrations/serializer.py",
+   "lines": "205-212",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 2,
+   "followers": 100,
+   "later_fix": []
+  },
+  {
+   "commit": "0398417c503e9f32674b36865abc54e575e8bcd7",
+   "symbol": "TypeSerializer.serialize",
+   "file": "django/db/migrations/serializer.py",
+   "lines": "345-347",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 2,
+   "followers": 100,
+   "later_fix": []
+  },
+  {
+   "commit": "0398417c503e9f32674b36865abc54e575e8bcd7",
+   "symbol": "ImmediateBackend._execute_task",
+   "file": "django/tasks/backends/immediate.py",
+   "lines": "62-64",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 2,
+   "followers": 100,
+   "later_fix": []
+  },
+  {
+   "commit": "0398417c503e9f32674b36865abc54e575e8bcd7",
+   "symbol": "Task.module_path",
+   "file": "django/tasks/base.py",
+   "lines": "148",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 2,
+   "followers": 100,
+   "later_fix": []
+  },
+  {
+   "commit": "0398417c503e9f32674b36865abc54e575e8bcd7",
+   "symbol": "URLPattern.lookup_str",
+   "file": "django/urls/resolvers.py",
+   "lines": "498-500",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 2,
+   "followers": 100,
+   "later_fix": []
+  },
+  {
+   "commit": "0398417c503e9f32674b36865abc54e575e8bcd7",
+   "symbol": "module_dir",
+   "file": "django/utils/module_loading.py",
+   "lines": "120",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 2,
+   "followers": 100,
+   "later_fix": []
+  },
+  {
+   "commit": "be6a149de8f85fb8f858680f721dbaadd182f1d8",
+   "symbol": "BaseModelFormSet._construct_form",
+   "file": "django/forms/models.py",
+   "lines": "739",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 2,
+   "followers": 93,
+   "later_fix": []
+  },
+  {
+   "commit": "fc4eaaabf419508ea39d750ca5ca801d933e0b16",
+   "symbol": "GDALRaster.__del__",
+   "file": "django/contrib/gis/gdal/raster/source.py",
+   "lines": "220",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 2,
+   "followers": 89,
+   "later_fix": []
+  },
+  {
+   "commit": "fc4eaaabf419508ea39d750ca5ca801d933e0b16",
+   "symbol": "GDALRaster.vsi_buffer",
+   "file": "django/contrib/gis/gdal/raster/source.py",
+   "lines": "279-281",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 2,
+   "followers": 89,
+   "later_fix": []
+  },
+  {
+   "commit": "850e026cbfbe65944a5e0dc50e47c7ac64143708",
+   "symbol": "EmailValidator.__call__",
+   "file": "django/core/validators.py",
+   "lines": "245-258",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 20,
+   "followers": 87,
+   "later_fix": []
+  },
+  {
+   "commit": "97c38590a2396c8bb123d0782dbe96ddfd760a9a",
+   "symbol": "func_supports_parameter",
+   "file": "django/utils/inspect.py",
+   "lines": "90",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 1,
+   "followers": 85,
+   "later_fix": []
+  },
+  {
+   "commit": "9cb2cba6fc7f71ed768aed8cbc32e7447ecb0be8",
+   "symbol": "DatabaseSchemaEditor._alter_column_comment_sql",
+   "file": "django/db/backends/mysql/schema.py",
+   "lines": "229",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 0,
+   "followers": 82,
+   "later_fix": []
+  },
+  {
+   "commit": "64edef37e7b419dd584307d84650a192fb47dc4c",
+   "symbol": "BaseDatabaseSchemaEditor._alter_field",
+   "file": "django/db/backends/base/schema.py",
+   "lines": "1153-1160",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": true,
+   "commit_changed_tests": 2,
+   "followers": 81,
+   "later_fix": []
+  },
+  {
+   "commit": "8cbdd4a814397f81adf0129288f32b615bd1f94f",
+   "symbol": "BaseDatabaseSchemaEditor._alter_field",
+   "file": "django/db/backends/base/schema.py",
+   "lines": "1086-1095",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": true,
+   "commit_changed_tests": 1,
+   "followers": 80,
+   "later_fix": []
+  },
+  {
+   "commit": "6ade6258480fba84a7e895b4b1e1716dfc954778",
+   "symbol": "RelatedPopulator.__init__",
+   "file": "django/db/models/query.py",
+   "lines": "3103",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 73,
+   "later_fix": []
+  },
+  {
+   "commit": "6ade6258480fba84a7e895b4b1e1716dfc954778",
+   "symbol": "RelatedPopulator.populate",
+   "file": "django/db/models/query.py",
+   "lines": "3119",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 73,
+   "later_fix": []
+  },
+  {
+   "commit": "581deb9402edc70f85b63c170c199a393f0f2183",
+   "symbol": "GenericIPAddressField.get_prep_value",
+   "file": "django/db/models/fields/__init__.py",
+   "lines": "2369-2376",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 4,
+   "followers": 72,
+   "later_fix": []
+  },
+  {
+   "commit": "935edaa91b756325352ca70d5eba49a64b70d28c",
+   "symbol": "ChangeList.get_filters",
+   "file": "django/contrib/admin/views/main.py",
+   "lines": "239-248",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 1,
+   "followers": 69,
+   "later_fix": []
+  },
+  {
+   "commit": "446d9cf602a5c42862da118b714a5679bb61cf27",
+   "symbol": "PostGISOperations.spatial_version",
+   "file": "django/contrib/gis/db/backends/postgis/operations.py",
+   "lines": "214",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 3,
+   "followers": 67,
+   "later_fix": []
+  },
+  {
+   "commit": "446d9cf602a5c42862da118b714a5679bb61cf27",
+   "symbol": "DatabaseFeatures.is_postgresql_16",
+   "file": "django/db/backends/postgresql/features.py",
+   "lines": "177-179",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 3,
+   "followers": 67,
+   "later_fix": []
+  },
+  {
+   "commit": "446d9cf602a5c42862da118b714a5679bb61cf27",
+   "symbol": "JSONArray.as_postgresql",
+   "file": "django/db/models/functions/json.py",
+   "lines": "51-61",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": false,
+   "commit_changed_tests": 3,
+   "followers": 67,
+   "later_fix": []
+  },
+  {
+   "commit": "446d9cf602a5c42862da118b714a5679bb61cf27",
+   "symbol": "JSONObject.as_postgresql",
+   "file": "django/db/models/functions/json.py",
+   "lines": "110-121",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": false,
+   "commit_changed_tests": 3,
+   "followers": 67,
+   "later_fix": []
+  },
+  {
+   "commit": "9e06baf2e4dd17834b5deaf3a3e6ae3bff2fcf26",
+   "symbol": "ModelBackend._aget_permissions",
+   "file": "django/contrib/auth/backends.py",
+   "lines": "142-146",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 6,
+   "followers": 59,
+   "later_fix": []
+  },
+  {
+   "commit": "9e06baf2e4dd17834b5deaf3a3e6ae3bff2fcf26",
+   "symbol": "AsyncPage.__aiter__",
+   "file": "django/core/paginator.py",
+   "lines": "373-374",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 6,
+   "followers": 59,
+   "later_fix": []
+  },
+  {
+   "commit": "9e06baf2e4dd17834b5deaf3a3e6ae3bff2fcf26",
+   "symbol": "AsyncPage.aget_object_list",
+   "file": "django/core/paginator.py",
+   "lines": "417",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 6,
+   "followers": 59,
+   "later_fix": []
+  },
+  {
+   "commit": "9e06baf2e4dd17834b5deaf3a3e6ae3bff2fcf26",
+   "symbol": "QuerySet.aiterator",
+   "file": "django/db/models/query.py",
+   "lines": "659-680",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 6,
+   "followers": 59,
+   "later_fix": []
+  },
+  {
+   "commit": "9e06baf2e4dd17834b5deaf3a3e6ae3bff2fcf26",
+   "symbol": "StreamingHttpResponse.streaming_content",
+   "file": "django/http/response.py",
+   "lines": "495-496",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 6,
+   "followers": 59,
+   "later_fix": []
+  },
+  {
+   "commit": "9e06baf2e4dd17834b5deaf3a3e6ae3bff2fcf26",
+   "symbol": "StreamingHttpResponse.streaming_content.awrapper",
+   "file": "django/http/response.py",
+   "lines": "495-496",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 6,
+   "followers": 59,
+   "later_fix": []
+  },
+  {
+   "commit": "9e06baf2e4dd17834b5deaf3a3e6ae3bff2fcf26",
+   "symbol": "StreamingHttpResponse.__iter__.to_list",
+   "file": "django/http/response.py",
+   "lines": "531-532",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 6,
+   "followers": 59,
+   "later_fix": []
+  },
+  {
+   "commit": "9e06baf2e4dd17834b5deaf3a3e6ae3bff2fcf26",
+   "symbol": "StreamingHttpResponse.__iter__",
+   "file": "django/http/response.py",
+   "lines": "531-532",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 6,
+   "followers": 59,
+   "later_fix": []
+  },
+  {
+   "commit": "9e06baf2e4dd17834b5deaf3a3e6ae3bff2fcf26",
+   "symbol": "StreamingHttpResponse.__aiter__",
+   "file": "django/http/response.py",
+   "lines": "539-540",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 6,
+   "followers": 59,
+   "later_fix": []
+  },
+  {
+   "commit": "9e06baf2e4dd17834b5deaf3a3e6ae3bff2fcf26",
+   "symbol": "aget_list_or_404",
+   "file": "django/shortcuts.py",
+   "lines": "165",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 6,
+   "followers": 59,
+   "later_fix": []
+  },
+  {
+   "commit": "9e06baf2e4dd17834b5deaf3a3e6ae3bff2fcf26",
+   "symbol": "aclosing_iterator_wrapper",
+   "file": "django/test/client.py",
+   "lines": "131-132",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 6,
+   "followers": 59,
+   "later_fix": []
+  },
+  {
+   "commit": "9e06baf2e4dd17834b5deaf3a3e6ae3bff2fcf26",
+   "symbol": "acompress_sequence",
+   "file": "django/utils/text.py",
+   "lines": "400-405",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 6,
+   "followers": 59,
+   "later_fix": []
+  },
+  {
+   "commit": "dffadf6dfc1585da2d5822db4b95322f23f39d4b",
+   "symbol": "SQLCompiler.get_distinct",
+   "file": "django/db/models/sql/compiler.py",
+   "lines": "1066",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 57,
+   "later_fix": []
+  },
+  {
+   "commit": "dffadf6dfc1585da2d5822db4b95322f23f39d4b",
+   "symbol": "Query.get_names_to_join",
+   "file": "django/db/models/sql/query.py",
+   "lines": "1490-1493",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 57,
+   "later_fix": []
+  },
+  {
+   "commit": "2f7f30c320b6517d31fb8852db1875ad3a6a774f",
+   "symbol": "DatabaseWrapper.get_new_connection",
+   "file": "django/db/backends/sqlite3/base.py",
+   "lines": "204",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 4,
+   "followers": 55,
+   "later_fix": []
+  },
+  {
+   "commit": "50eef95591b1e5d8c47b2e8c96066cb0c516753a",
+   "symbol": "TupleLookupMixin.get_lhs_str",
+   "file": "django/db/models/fields/tuple_lookups.py",
+   "lines": "88",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 3,
+   "followers": 52,
+   "later_fix": []
+  },
+  {
+   "commit": "3db0898eee4061d44de5052953ef0fe3afb5951f",
+   "symbol": "UUID4.as_oracle",
+   "file": "django/db/models/functions/uuid.py",
+   "lines": "35",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 46,
+   "later_fix": []
+  },
+  {
+   "commit": "7847227a3fecde4b2a169552b84c60c6286b6025",
+   "symbol": "rename_permissions_after_model_rename",
+   "file": "django/contrib/auth/management/__init__.py",
+   "lines": "143-200",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 3,
+   "followers": 45,
+   "later_fix": []
+  },
+  {
+   "commit": "7d94ee295df9b2503135158a7f2b55fb686785fc",
+   "symbol": "InlineModelAdmin.get_formset",
+   "file": "django/contrib/admin/options.py",
+   "lines": "2789-2827",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 4,
+   "followers": 42,
+   "later_fix": []
+  },
+  {
+   "commit": "7d94ee295df9b2503135158a7f2b55fb686785fc",
+   "symbol": "InlineModelAdmin.get_formset.DeleteProtectedModelForm.hand_clean_DELETE",
+   "file": "django/contrib/admin/options.py",
+   "lines": "2827",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 4,
+   "followers": 42,
+   "later_fix": []
+  },
+  {
+   "commit": "fabce94374e166e80e2643db8b85d1e3442427bf",
+   "symbol": "JSONIn.resolve_expression_parameter",
+   "file": "django/db/models/fields/json.py",
+   "lines": "414",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 3,
+   "followers": 40,
+   "later_fix": [
+    "1b4d021b65"
+   ]
+  },
+  {
+   "commit": "fabce94374e166e80e2643db8b85d1e3442427bf",
+   "symbol": "JSONIn.process_lhs",
+   "file": "django/db/models/fields/json.py",
+   "lines": "435",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 3,
+   "followers": 40,
+   "later_fix": []
+  },
+  {
+   "commit": "08e4c0d8e7db6343567e7b02e25da8ea2226a7e0",
+   "symbol": "BaseSpatialOperations._must_transform_value",
+   "file": "django/contrib/gis/db/backends/base/operations.py",
+   "lines": "120",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 39,
+   "later_fix": []
+  },
+  {
+   "commit": "08e4c0d8e7db6343567e7b02e25da8ea2226a7e0",
+   "symbol": "PostGISOperations.get_geom_placeholder_sql",
+   "file": "django/contrib/gis/db/backends/postgis/operations.py",
+   "lines": "316-331",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 39,
+   "later_fix": []
+  },
+  {
+   "commit": "c88b304cc2d90fc37d3bd1f5f3829706fa6c13bc",
+   "symbol": "reset_cache",
+   "file": "django/utils/translation/trans_real.py",
+   "lines": "71",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 2,
+   "followers": 38,
+   "later_fix": []
+  },
+  {
+   "commit": "c88b304cc2d90fc37d3bd1f5f3829706fa6c13bc",
+   "symbol": "get_supported_language_variant",
+   "file": "django/utils/translation/trans_real.py",
+   "lines": "505-554",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 2,
+   "followers": 38,
+   "later_fix": []
+  },
+  {
+   "commit": "ebcb13b327301f28cbc6cd5e4988a719f00575aa",
+   "symbol": "BaseSpatialField.get_prep_value",
+   "file": "django/contrib/gis/db/models/fields.py",
+   "lines": "224-228",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 2,
+   "followers": 36,
+   "later_fix": []
+  },
+  {
+   "commit": "ebcb13b327301f28cbc6cd5e4988a719f00575aa",
+   "symbol": "GDALRaster.check_raster_lookup_value",
+   "file": "django/contrib/gis/gdal/raster/source.py",
+   "lines": "252-257",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 2,
+   "followers": 36,
+   "later_fix": []
+  },
+  {
+   "commit": "83cbd21be57483e6b3eb6e4688a561c841aff75e",
+   "symbol": "BaseModelFormSet.save_existing_objects",
+   "file": "django/forms/models.py",
+   "lines": "966-970",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 3,
+   "followers": 35,
+   "later_fix": []
+  },
+  {
+   "commit": "62ef9d40cf4ea75f16518436b44b8ab2515340df",
+   "symbol": "GeometryField.__init__",
+   "file": "django/contrib/gis/db/models/fields.py",
+   "lines": "291-306",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 9,
+   "followers": 34,
+   "later_fix": []
+  },
+  {
+   "commit": "62ef9d40cf4ea75f16518436b44b8ab2515340df",
+   "symbol": "GEOSGeometry.__init__",
+   "file": "django/contrib/gis/geos/geometry.py",
+   "lines": "766-768",
+   "untested": false,
+   "basis": null,
+   "author_test": true,
+   "commit_changed_tests": 9,
+   "followers": 34,
+   "later_fix": []
+  },
+  {
+   "commit": "62ef9d40cf4ea75f16518436b44b8ab2515340df",
+   "symbol": "_build_collection_header_re",
+   "file": "django/contrib/gis/geos/prototypes/io.py",
+   "lines": "178-197",
+   "untested": true,
+   "basis": "static_only",
+   "author_test": false,
+   "commit_changed_tests": 9,
+   "followers": 34,
+   "later_fix": []
+  },
+  {
+   "commit": "62ef9d40cf4ea75f16518436b44b8ab2515340df",
+   "symbol": "_WKBReader.limit_wkb",
+   "file": "django/contrib/gis/geos/prototypes/io.py",
+   "lines": "261-267",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 9,
+   "followers": 34,
+   "later_fix": []
+  },
+  {
+   "commit": "62ef9d40cf4ea75f16518436b44b8ab2515340df",
+   "symbol": "_WKBReader.limit_hex",
+   "file": "django/contrib/gis/geos/prototypes/io.py",
+   "lines": "269-294",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 9,
+   "followers": 34,
+   "later_fix": []
+  },
+  {
+   "commit": "62ef9d40cf4ea75f16518436b44b8ab2515340df",
+   "symbol": "_WKBReader.limit_hex._byteswap_uint32",
+   "file": "django/contrib/gis/geos/prototypes/io.py",
+   "lines": "273-279",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 9,
+   "followers": 34,
+   "later_fix": []
+  },
+  {
+   "commit": "62ef9d40cf4ea75f16518436b44b8ab2515340df",
+   "symbol": "_WKBReader.read",
+   "file": "django/contrib/gis/geos/prototypes/io.py",
+   "lines": "300-318",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 9,
+   "followers": 34,
+   "later_fix": []
+  },
+  {
+   "commit": "a269574f1bcf4716502b9ba8c3492abf15dc93eb",
+   "symbol": "Serializer.end_serialization",
+   "file": "django/core/serializers/pyyaml.py",
+   "lines": "48-53",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 29,
+   "later_fix": []
+  },
+  {
+   "commit": "66c40aafa2310abb9ec809c1584955b7caa2a706",
+   "symbol": "KeyTransform.as_oracle",
+   "file": "django/db/models/fields/json.py",
+   "lines": "515",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 26,
+   "later_fix": []
+  },
+  {
+   "commit": "66c40aafa2310abb9ec809c1584955b7caa2a706",
+   "symbol": "KeyTransform.as_postgresql",
+   "file": "django/db/models/fields/json.py",
+   "lines": "524",
+   "untested": true,
+   "basis": "coverage",
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 26,
+   "later_fix": []
+  },
+  {
+   "commit": "1b4d021b6525bff6439b9d3b8d5388a1a1906ecd",
+   "symbol": "JSONIn.resolve_expression_parameter",
+   "file": "django/db/models/fields/json.py",
+   "lines": "432-444",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 24,
+   "later_fix": []
+  },
+  {
+   "commit": "93d7e82b6a67aa56a2d9dababfefb8bda543786e",
+   "symbol": "_non_atomic_requests.wrapper",
+   "file": "django/db/transaction.py",
+   "lines": "345-347",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 21,
+   "later_fix": []
+  },
+  {
+   "commit": "93d7e82b6a67aa56a2d9dababfefb8bda543786e",
+   "symbol": "_non_atomic_requests",
+   "file": "django/db/transaction.py",
+   "lines": "345-347",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 1,
+   "followers": 21,
+   "later_fix": []
+  },
+  {
+   "commit": "bef1986b9ae31fd19d84c933e5d351fdae949d0d",
+   "symbol": "NowNode.__init__",
+   "file": "django/template/defaulttags.py",
+   "lines": "398-399",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 3,
+   "followers": 16,
+   "later_fix": []
+  },
+  {
+   "commit": "bef1986b9ae31fd19d84c933e5d351fdae949d0d",
+   "symbol": "NowNode.render",
+   "file": "django/template/defaulttags.py",
+   "lines": "404-410",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 3,
+   "followers": 16,
+   "later_fix": []
+  },
+  {
+   "commit": "bef1986b9ae31fd19d84c933e5d351fdae949d0d",
+   "symbol": "now",
+   "file": "django/template/defaulttags.py",
+   "lines": "1184-1201",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 3,
+   "followers": 16,
+   "later_fix": []
+  },
+  {
+   "commit": "cf63ff2186852ee1aac4a802b0ff6a93f6e08891",
+   "symbol": "OracleParam.__init__",
+   "file": "django/db/backends/oracle/base.py",
+   "lines": "462",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 0,
+   "followers": 8,
+   "later_fix": []
+  },
+  {
+   "commit": "6669d66a795029add189bebe6f7a7fdcf2c9f9d4",
+   "symbol": "DatabaseFeatures.django_test_skips",
+   "file": "django/contrib/gis/db/backends/oracle/features.py",
+   "lines": "29-46",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 0,
+   "followers": 4,
+   "later_fix": []
+  },
+  {
+   "commit": "31c3e4cf7544597600141d9be60bd919371114c9",
+   "symbol": "Query.build_filter",
+   "file": "django/db/models/sql/query.py",
+   "lines": "1628-1668",
+   "untested": false,
+   "basis": null,
+   "author_test": false,
+   "commit_changed_tests": 0,
+   "followers": 2,
+   "later_fix": []
+  }
+ ],
+ "log": [
+  [
+   "e28c2a9a01",
+   "no production change"
+  ],
+  [
+   "8c454124cd",
+   "no production change"
+  ],
+  [
+   "b34b834378",
+   "no production change"
+  ],
+  [
+   "3ebd048cf7",
+   "no production change"
+  ],
+  [
+   "7b8504eaab",
+   "7 changed functions, 0 untested"
+  ],
+  [
+   "ecc619703a",
+   "no production change"
+  ],
+  [
+   "4106acd141",
+   "no production change"
+  ],
+  [
+   "f51347964a",
+   "no production change"
+  ],
+  [
+   "7112007fca",
+   "no production change"
+  ],
+  [
+   "bdbda29c3e",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "5f90dc2468",
+   "4 changed functions, 0 untested"
+  ],
+  [
+   "260d136920",
+   "0 changed functions, 0 untested"
+  ],
+  [
+   "2e48636c54",
+   "3 changed functions, 0 untested"
+  ],
+  [
+   "bd1cd8f0f8",
+   "no production change"
+  ],
+  [
+   "065a4a4b8d",
+   "no production change"
+  ],
+  [
+   "a486b48d4e",
+   "2 changed functions, 0 untested"
+  ],
+  [
+   "bf5e73c576",
+   "no production change"
+  ],
+  [
+   "581f2969ed",
+   "no production change"
+  ],
+  [
+   "a19b1355ce",
+   "no production change"
+  ],
+  [
+   "0bba6363b0",
+   "no production change"
+  ],
+  [
+   "726440a473",
+   "no production change"
+  ],
+  [
+   "cae38ec9b9",
+   "no production change"
+  ],
+  [
+   "ad289c1de4",
+   "no production change"
+  ],
+  [
+   "274df4df0b",
+   "no production change"
+  ],
+  [
+   "dd4fc22d4c",
+   "no production change"
+  ],
+  [
+   "659a77cf1d",
+   "no production change"
+  ],
+  [
+   "e909d5e3f6",
+   "no production change"
+  ],
+  [
+   "3d34265d5d",
+   "no production change"
+  ],
+  [
+   "cceb6969d4",
+   "no production change"
+  ],
+  [
+   "4ef959ab0c",
+   "no production change"
+  ],
+  [
+   "76e1bca131",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "27151e13c4",
+   "no production change"
+  ],
+  [
+   "dca76b15c6",
+   "no production change"
+  ],
+  [
+   "6cbee65e1f",
+   "no production change"
+  ],
+  [
+   "21b3a4c4c5",
+   "no production change"
+  ],
+  [
+   "d8cedcab52",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "2a5da9d005",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "6fc8150005",
+   "3 changed functions, 1 untested"
+  ],
+  [
+   "c8ad2fbb2a",
+   "no production change"
+  ],
+  [
+   "50c2b7c836",
+   "no production change"
+  ],
+  [
+   "9ea5f4facc",
+   "27 changed functions, 19 untested"
+  ],
+  [
+   "4a89f5c397",
+   "no production change"
+  ],
+  [
+   "e0d64a5ada",
+   "0 changed functions, 0 untested"
+  ],
+  [
+   "8a162076e1",
+   "no production change"
+  ],
+  [
+   "4ea38d54c1",
+   "2 changed functions, 0 untested"
+  ],
+  [
+   "99ab4bd124",
+   "no production change"
+  ],
+  [
+   "957d0cee71",
+   "no production change"
+  ],
+  [
+   "ea6b17b481",
+   "no production change"
+  ],
+  [
+   "c2517faff3",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "5e32c82a5a",
+   "0 changed functions, 0 untested"
+  ],
+  [
+   "8362cdc7ef",
+   "no production change"
+  ],
+  [
+   "09c8b50bc8",
+   "no production change"
+  ],
+  [
+   "92470ad374",
+   "2 changed functions, 1 untested"
+  ],
+  [
+   "50e5264a45",
+   "no production change"
+  ],
+  [
+   "92e1d9e361",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "a959c2596f",
+   "no production change"
+  ],
+  [
+   "e1feeee45e",
+   "no production change"
+  ],
+  [
+   "2936a0a997",
+   "2 changed functions, 0 untested"
+  ],
+  [
+   "c9ff757a55",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "5c4a36f817",
+   "no production change"
+  ],
+  [
+   "274a1d494d",
+   "no production change"
+  ],
+  [
+   "834b5cbb68",
+   "no production change"
+  ],
+  [
+   "143a65ca92",
+   "no production change"
+  ],
+  [
+   "50d706d0ae",
+   "no production change"
+  ],
+  [
+   "1c5927f04a",
+   "no production change"
+  ],
+  [
+   "ca14173f96",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "8c83e9c0ea",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "9465349120",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "902e5c0fb2",
+   "no production change"
+  ],
+  [
+   "2b0e08a149",
+   "no production change"
+  ],
+  [
+   "ea303dee45",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "60121939f6",
+   "3 changed functions, 0 untested"
+  ],
+  [
+   "2cace96be6",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "5637bec7a0",
+   "no production change"
+  ],
+  [
+   "1c550a8151",
+   "no production change"
+  ],
+  [
+   "fb1137658f",
+   "no production change"
+  ],
+  [
+   "f1949c1f97",
+   "3 changed functions, 0 untested"
+  ],
+  [
+   "27137e655e",
+   "3 changed functions, 0 untested"
+  ],
+  [
+   "d2e59b77fe",
+   "23 changed functions, 2 untested"
+  ],
+  [
+   "47511a2102",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "7d75c0b928",
+   "no production change"
+  ],
+  [
+   "f00270d05e",
+   "0 changed functions, 0 untested"
+  ],
+  [
+   "cef2346abf",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "6baaf6a877",
+   "no production change"
+  ],
+  [
+   "8f52e9199b",
+   "2 changed functions, 0 untested"
+  ],
+  [
+   "30ebe0001c",
+   "no production change"
+  ],
+  [
+   "9e0655e49b",
+   "no production change"
+  ],
+  [
+   "401f126647",
+   "no production change"
+  ],
+  [
+   "dfc52e53f1",
+   "no production change"
+  ],
+  [
+   "89e82866dc",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "ae25a40be0",
+   "no production change"
+  ],
+  [
+   "4243ab11dc",
+   "no production change"
+  ],
+  [
+   "c9eb16a87e",
+   "1 changed functions, 1 untested"
+  ],
+  [
+   "b5388a3a80",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "2b4c88b2ce",
+   "no production change"
+  ],
+  [
+   "616e8c52de",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "6df8fe3bc1",
+   "no production change"
+  ],
+  [
+   "082b3df406",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "c6be0bf3bb",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "99d56e5cf1",
+   "2 changed functions, 0 untested"
+  ],
+  [
+   "d6b73a6613",
+   "no production change"
+  ],
+  [
+   "812c08bd4e",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "febefb175e",
+   "2 changed functions, 0 untested"
+  ],
+  [
+   "4ee04972e7",
+   "no production change"
+  ],
+  [
+   "07d4f69c94",
+   "0 changed functions, 0 untested"
+  ],
+  [
+   "3436cf9bce",
+   "no production change"
+  ],
+  [
+   "1a001208b0",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "a3e6e7d3aa",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "f7610bda78",
+   "0 changed functions, 0 untested"
+  ],
+  [
+   "c72f5fb479",
+   "0 changed functions, 0 untested"
+  ],
+  [
+   "be6cf83229",
+   "2 changed functions, 0 untested"
+  ],
+  [
+   "d92b020901",
+   "no production change"
+  ],
+  [
+   "464a5e1844",
+   "0 changed functions, 0 untested"
+  ],
+  [
+   "504d1f12cd",
+   "no production change"
+  ],
+  [
+   "d992705f9e",
+   "4 changed functions, 0 untested"
+  ],
+  [
+   "1d50f12929",
+   "no production change"
+  ],
+  [
+   "cccc004b46",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "4c4f8fd775",
+   "no production change"
+  ],
+  [
+   "03988c5a5b",
+   "no production change"
+  ],
+  [
+   "0b40210e48",
+   "no production change"
+  ],
+  [
+   "7576781cc6",
+   "no production change"
+  ],
+  [
+   "3b767c5f6a",
+   "no production change"
+  ],
+  [
+   "439b936753",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "73cc09f14f",
+   "3 changed functions, 0 untested"
+  ],
+  [
+   "fe81969e83",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "189136c2a3",
+   "no production change"
+  ],
+  [
+   "60a17fccf4",
+   "2 changed functions, 0 untested"
+  ],
+  [
+   "5babd2e21a",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "8d1c673466",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "6126f5d2fe",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "0751d5fed1",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "ae7450c857",
+   "no production change"
+  ],
+  [
+   "ddb83ea0e0",
+   "no production change"
+  ],
+  [
+   "05aec0a4aa",
+   "no production change"
+  ],
+  [
+   "f14e293cd7",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "00dca6f097",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "4d2a26095e",
+   "no production change"
+  ],
+  [
+   "8c2db58d3d",
+   "no production change"
+  ],
+  [
+   "5180f82f48",
+   "no production change"
+  ],
+  [
+   "0d0e7f1503",
+   "69 changed functions, 15 untested"
+  ],
+  [
+   "52abe52bec",
+   "3 changed functions, 0 untested"
+  ],
+  [
+   "026b005f3d",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "aca5b3f694",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "cc933385e7",
+   "4 changed functions, 0 untested"
+  ],
+  [
+   "0398417c50",
+   "7 changed functions, 0 untested"
+  ],
+  [
+   "b3f4d83aad",
+   "0 changed functions, 0 untested"
+  ],
+  [
+   "9193cb5455",
+   "no production change"
+  ],
+  [
+   "fee1cf7262",
+   "no production change"
+  ],
+  [
+   "177fb98c10",
+   "no production change"
+  ],
+  [
+   "5f0293b3ab",
+   "no production change"
+  ],
+  [
+   "dc2c0b5a44",
+   "no production change"
+  ],
+  [
+   "be6a149de8",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "e2a3da1426",
+   "no production change"
+  ],
+  [
+   "e7d301b06a",
+   "no production change"
+  ],
+  [
+   "89768ae1ab",
+   "no production change"
+  ],
+  [
+   "fc4eaaabf4",
+   "2 changed functions, 0 untested"
+  ],
+  [
+   "2b30f6255b",
+   "no production change"
+  ],
+  [
+   "850e026cbf",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "abb9c04bd6",
+   "no production change"
+  ],
+  [
+   "97c38590a2",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "516d06e48f",
+   "no production change"
+  ],
+  [
+   "bbf5a998c0",
+   "no production change"
+  ],
+  [
+   "9cb2cba6fc",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "64edef37e7",
+   "1 changed functions, 1 untested"
+  ],
+  [
+   "8cbdd4a814",
+   "1 changed functions, 1 untested"
+  ],
+  [
+   "f91c8897f5",
+   "no production change"
+  ],
+  [
+   "e7f464ecdc",
+   "no production change"
+  ],
+  [
+   "2abf9d2cf8",
+   "no production change"
+  ],
+  [
+   "08ba4d0e0f",
+   "no production change"
+  ],
+  [
+   "376909dc43",
+   "no production change"
+  ],
+  [
+   "6ade625848",
+   "2 changed functions, 0 untested"
+  ],
+  [
+   "581deb9402",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "a3f0642f69",
+   "no production change"
+  ],
+  [
+   "862ade3409",
+   "no production change"
+  ],
+  [
+   "935edaa91b",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "82f34e2f72",
+   "no production change"
+  ],
+  [
+   "446d9cf602",
+   "4 changed functions, 2 untested"
+  ],
+  [
+   "85647bccc1",
+   "no production change"
+  ],
+  [
+   "dd6f6b1531",
+   "no production change"
+  ],
+  [
+   "951d13c77b",
+   "no production change"
+  ],
+  [
+   "703283b5b4",
+   "0 changed functions, 0 untested"
+  ],
+  [
+   "9d977aaa2d",
+   "no production change"
+  ],
+  [
+   "a013c821ea",
+   "0 changed functions, 0 untested"
+  ],
+  [
+   "4fab678a07",
+   "no production change"
+  ],
+  [
+   "9e06baf2e4",
+   "12 changed functions, 0 untested"
+  ],
+  [
+   "6b58ab0b8c",
+   "no production change"
+  ],
+  [
+   "dffadf6dfc",
+   "2 changed functions, 0 untested"
+  ],
+  [
+   "9332b163a6",
+   "no production change"
+  ],
+  [
+   "2f7f30c320",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "5a4511adb2",
+   "no production change"
+  ],
+  [
+   "479ba6d281",
+   "no production change"
+  ],
+  [
+   "50eef95591",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "91585625a9",
+   "no production change"
+  ],
+  [
+   "23e8bcc464",
+   "no production change"
+  ],
+  [
+   "0ae93a02e5",
+   "no production change"
+  ],
+  [
+   "55c2d202a6",
+   "no production change"
+  ],
+  [
+   "3db0898eee",
+   "1 changed functions, 1 untested"
+  ],
+  [
+   "7847227a3f",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "a461af8ce4",
+   "no production change"
+  ],
+  [
+   "fd91518f17",
+   "no production change"
+  ],
+  [
+   "7d94ee295d",
+   "2 changed functions, 0 untested"
+  ],
+  [
+   "fabce94374",
+   "2 changed functions, 0 untested"
+  ],
+  [
+   "08e4c0d8e7",
+   "2 changed functions, 0 untested"
+  ],
+  [
+   "c88b304cc2",
+   "2 changed functions, 0 untested"
+  ],
+  [
+   "ebcb13b327",
+   "2 changed functions, 0 untested"
+  ],
+  [
+   "83cbd21be5",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "62ef9d40cf",
+   "7 changed functions, 1 untested"
+  ],
+  [
+   "4c5b1d84f4",
+   "no production change"
+  ],
+  [
+   "3b7ae042ce",
+   "no production change"
+  ],
+  [
+   "2bc761b01b",
+   "no production change"
+  ],
+  [
+   "8c34887b1a",
+   "no production change"
+  ],
+  [
+   "a269574f1b",
+   "1 changed functions, 1 untested"
+  ],
+  [
+   "135d7c606f",
+   "no production change"
+  ],
+  [
+   "cf564bf3a7",
+   "no production change"
+  ],
+  [
+   "66c40aafa2",
+   "2 changed functions, 2 untested"
+  ],
+  [
+   "7f48e266a8",
+   "0 changed functions, 0 untested"
+  ],
+  [
+   "1b4d021b65",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "1267767ccd",
+   "no production change"
+  ],
+  [
+   "ce285ce0e7",
+   "no production change"
+  ],
+  [
+   "93d7e82b6a",
+   "2 changed functions, 0 untested"
+  ],
+  [
+   "904349fcbe",
+   "no production change"
+  ],
+  [
+   "137b77706e",
+   "no production change"
+  ],
+  [
+   "badbcf20e1",
+   "no production change"
+  ],
+  [
+   "e9f88e3716",
+   "no production change"
+  ],
+  [
+   "bef1986b9a",
+   "3 changed functions, 0 untested"
+  ],
+  [
+   "a272e554b8",
+   "no production change"
+  ],
+  [
+   "0264b4fc36",
+   "no production change"
+  ],
+  [
+   "650fa4ef3e",
+   "no production change"
+  ],
+  [
+   "677fbf05da",
+   "no production change"
+  ],
+  [
+   "38e2188cde",
+   "no production change"
+  ],
+  [
+   "c01135b42f",
+   "no production change"
+  ],
+  [
+   "dab0a5c47f",
+   "no production change"
+  ],
+  [
+   "cf63ff2186",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "0f34a4cf9f",
+   "no production change"
+  ],
+  [
+   "8a909f3c6b",
+   "no production change"
+  ],
+  [
+   "b33bab3370",
+   "no production change"
+  ],
+  [
+   "6669d66a79",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "31c3e4cf75",
+   "1 changed functions, 0 untested"
+  ],
+  [
+   "de6559094e",
+   "no production change"
+  ]
+ ],
+ "bugfix_commits": 379,
+ "history": 1600
+}

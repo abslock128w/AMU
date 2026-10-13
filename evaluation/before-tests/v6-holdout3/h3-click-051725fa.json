@@ -1,0 +1,30 @@
+{
+  "case_id": "h3-click-051725fa",
+  "function_recall10": 0.6,
+  "file_recall10": 0.5,
+  "function_hits": [
+    "tests/test_testing.py::test_echo_stdin_stream",
+    "tests/test_testing.py::test_runner",
+    "tests/test_testing.py::test_runner_with_stream"
+  ],
+  "missing_from_parent": [
+    "tests/test_deprecations.py::test_stream_helper_deprecated",
+    "tests/test_deprecations.py::test_utilities_deprecated"
+  ],
+  "recommended": 10,
+  "top10": [
+    "tests/test_utils/test_LazyFile.py::test_iter_lazyfile",
+    "tests/test_testing.py::test_runner_with_stream",
+    "tests/test_testing.py::test_echo_stdin_stream",
+    "tests/test_testing.py::test_runner",
+    "tests/test_types.py::test_path_surrogates",
+    "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_existing_file",
+    "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_new_file",
+    "tests/test_utils/test_open_file.py::test_open_file_ignore_errors_stdin",
+    "tests/test_utils/test_open_file.py::test_open_file",
+    "tests/test_utils/test_open_file.py::test_open_file_ignore_invalid_utf8"
+  ],
+  "seconds": 0.547136415996647,
+  "bytes": 1994,
+  "noise10": 7
+}

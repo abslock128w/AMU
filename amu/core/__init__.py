@@ -9,7 +9,7 @@ from pathlib import Path
 
 from . import consequences, coverage, lexical, rank, runners, shadow
 from .git import working_diff
-from .index import parse_or_none
+from .index import cache_dir, parse_or_none
 from .index import state as load_state
 from .patch import applied, candidate, changes, original, renumber
 
@@ -113,11 +113,17 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     content = rank.Content(tests)
     # What the patch says, per file: the words of its added and removed lines.
     said = {path: content.query(' '.join(text for _, text in [*edit['added'], *edit['removed']])) for path, edit in edits.items()}
-    observed, coverage_status = coverage.load(root, coverage_evidence, hashes, gaps)
+    observed, coverage_status = coverage.load(root, coverage_evidence, hashes, gaps, cache_dir(root, index_dir))
+    identify = coverage.identifier(tests, graph)
     recorded = {}
     for path, edit in edits.items():
         # A recording made before this edit is in parent line numbers; the tree is not.
-        if observed and path in observed['files'] and path in observed['stale'] and applied(root, path, edit):
+        before_edit = original(root, path, edit) if observed and path in observed['stale'] else None
+        # With a stored recording the file's recorded hash says whether this edit is the only difference.
+        only_this_edit = before_edit is not None and (
+            'recorded' not in observed or hashlib.sha256(before_edit.encode()).hexdigest() == observed['recorded'].get(path))
+        if observed and path in observed['files'] and path in observed['stale'] and applied(root, path, edit) and only_this_edit:
+            observed.setdefault('translated', set()).add(path)
             place, moved = renumber(edit), {}
             for line, contexts in observed['files'][path].items():
                 moved.setdefault(place(line), set()).update(contexts)
@@ -138,16 +144,26 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
                 reached[ident] = ((position[0], max(1, position[1]), True), path, True)
             # The more tests merely mention the class, the less each mention says about this member.
             broad_weight = 0.5 / math.log2(2 + sum(ident in tests for ident in extra))
-        seen = coverage.tests_for(observed, record, tests, where.get(symbol, ()))
+        seen = coverage.tests_for(observed, record, tests, where.get(symbol, ()), identify)
         if record['kind'] == 'function' and symbol in where:
             lines = sorted(where[symbol])
             span = f'{lines[0]}-{lines[-1]}' if len(lines) > 1 else str(lines[0])
             functions.append(dict(symbol=record['qual'], file=record['path'], lines=span))
             judged = [line for line in lines if record['path'] not in recorded or line in recorded[record['path']]]
-            if observed and record['path'] in observed['files'] and judged:
-                rows_here = observed['files'][record['path']]
-                if not any(coverage._test_identity(c) in tests for line in judged for c in rows_here.get(line, ())):
+            by_name = (observed and observed.get('by_function') and record['path'] in observed['stale']
+                       and record['path'] not in observed.get('translated', ()))
+            if by_name:
+                # The file changed since the recording in ways this patch does not explain: judge the
+                # function by name. A function the recording never saw is left unjudged.
+                ran = (observed['by_function'](record['path']) or {}).get(record['qual'])
+                if ran is not None and not any(identify(c) in tests for c in ran):
                     untested.append(dict(symbol=record['qual'], file=record['path'], lines=span, basis='coverage'))
+            elif observed and record['path'] in observed['files'] and judged:
+                rows_here = observed['files'][record['path']]
+                if not any(identify(c) in tests for line in judged for c in rows_here.get(line, ())):
+                    untested.append(dict(symbol=record['qual'], file=record['path'], lines=span, basis='coverage'))
+            elif observed and record['path'] in observed['files']:
+                pass
             elif not any(ident in tests for ident in reached):
                 untested.append(dict(symbol=record['qual'], file=record['path'], lines=span, basis='static_only'))
         for ident, (position, path, broad) in reached.items():
@@ -201,7 +217,8 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         best.setdefault(ident, (0.5, (1, 2, True), [ident], [], True, None))
     # Likely failures lead; each group keeps its own relevance order.
     first = rank.diverse({t: v for t, v in scores.items() if t in likely}, MAX_TESTS)
-    order = first + rank.diverse({t: v for t, v in scores.items() if t not in likely}, RUN_CANDIDATES if run else MAX_TESTS)
+    order = first + rank.diverse({t: v for t, v in scores.items() if t not in likely},
+                                 RUN_CANDIDATES * (2 if observed else 1) if run else MAX_TESTS)
     rows = []
     for ident, gain in order[:MAX_TESTS]:
         _, position, path, shared, broad, exactness = best[ident]
@@ -234,11 +251,13 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     executed = None
     if run:
         # Exact beats ranked: run the candidates on both sides of the change and report what flips.
-        wide = [tests[ident]['path'] + '::' + tests[ident]['qual'].replace('.', '::') for ident, _ in order[:RUN_CANDIDATES]]
+        # With a recording, the candidates are the tests seen executing the change; run more of them.
+        cap = RUN_CANDIDATES * (2 if observed else 1)
+        wide = [tests[ident]['path'] + '::' + tests[ident]['qual'].replace('.', '::') for ident, _ in order[:cap]]
         flips, executed, run_gaps = shadow.run(root, edits, wide, python, budget, runner)
         gaps.extend(run_gaps)
         # A failing test defined on a base class is run again in every subclass that inherits it.
-        by_id = {tests[ident]['path'] + '::' + tests[ident]['qual'].replace('.', '::'): ident for ident, _ in order[:RUN_CANDIDATES]}
+        by_id = {tests[ident]['path'] + '::' + tests[ident]['qual'].replace('.', '::'): ident for ident, _ in order[:cap]}
         copies = sorted({copy for flip in flips if flip['after'] == 'failed' and flip['id'] in by_id
                          for copy in inheritors(by_id[flip['id']])} - set(wide))[:RUN_CANDIDATES]
         if copies:
@@ -267,8 +286,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     listed = [dict(symbol=ident, depth=position[0], via=label(graph, path))
               for ident, (position, path) in sorted(impacted.items(), key=lambda item: (item[1][0], item[0]))]
     fails = sum(row['expect'] == 'likely_fail' for row in rows)
-    recorded_gaps = sum(row['basis'] == 'coverage' for row in untested)
-    summary = f"{fails} likely_fail, {recorded_gaps} untested, {len(scores)} tests reach the change."
+    summary = f"{fails} likely_fail, {len(scores)} tests reach the change."
     if executed is not None and executed['ran']:
         summary = (f"EXECUTED {executed['ran']} candidate tests on both sides with {executed['runner']} in {executed['seconds']} s: "
                    f"{len(executed['predicted_failures'])} now fail. " + summary.split(', ', 1)[1])
@@ -311,9 +329,9 @@ def compact(report, include_tests=False):
     if not include_tests:
         out['caveats'] = report['caveats'] + ' Tests that only reach the change are omitted; --tests lists them.'
         report = dict(report, caveats=out['caveats'])
-    # Only rows backed by a recording are shown by default. Scored on Django history, a row that says no
-    # call path was found statically mostly marked dynamically reached code, so it stays in full evidence.
-    out['untested'] = [dict(row) for row in report['untested'] if row['basis'] == 'coverage'][:3]
+    # Untested rows are evidence for a reader, not a signal: scored on Django history, neither the static
+    # rows nor the recording-backed ones were more likely to be fixed later than covered functions.
+    out.pop('untested', None)
     if 'predicted_failures' in report:
         commands = {row['id']: row.get('run') for row in report['tests']}
         out['predicted_failures'] = [(row['id'] if native else commands.get(row['id']) or row['id']) for row in report['predicted_failures'][:12]]
@@ -343,14 +361,12 @@ def compact(report, include_tests=False):
     steps = [lambda: narrow(28),
              lambda: out['impacted'] and out['impacted'].pop(),
              lambda: len(out['gaps']) > 1 and out['gaps'].pop(),
-             lambda: len(out['untested']) > 2 and out['untested'].pop(),
              lambda: len(out['changed_symbols']) > 3 and out['changed_symbols'].pop(),
              lambda: len(out['consequences']) > 1 and out['consequences'].pop(),
              lambda: len(out['changed_symbols']) > 1 and out['changed_symbols'].pop(),
              lambda: len(out['tests']) > 8 and out['consequences'] and out['tests'].pop(),
              lambda: narrow(12),
              lambda: out['consequences'] and out['consequences'].pop(),
-             lambda: len(out['untested']) > 1 and out['untested'].pop(),
              lambda: len(out['tests']) > 1 and out['tests'].pop()]
     while len(encoded(out)) >= LIMIT:
         if not any(step() for step in steps):

@@ -654,6 +654,7 @@ def before_tests_cmd(
     tests: bool = typer.Option(False, "--tests", help="also list tests that only reach the change"),
     run: bool = typer.Option(False, "--run", help="execute candidate tests before and after the change even for a supplied patch"),
     static: bool = typer.Option(False, "--static", help="never execute tests; static packet only"),
+    observe: bool = typer.Option(False, "--observe", help="run the whole suite once under coverage and store a per-test recording beside the index"),
     runner: str | None = typer.Option(None, "--runner", help="pytest, unittest, django-runtests or django-manage; default: detected from the tree"),
     python: str | None = typer.Option(None, "--python", help="interpreter with pytest for --run; default: this one"),
     budget: int = typer.Option(60, "--budget", help="seconds allowed per side for --run"),
@@ -663,6 +664,11 @@ def before_tests_cmd(
     sides and prints what flipped; --static never executes. A supplied patch is static unless --run."""
     from amu import core
 
+    if observe:
+        from amu.core import observe as recorder
+
+        typer.echo(core.encoded(recorder.record(repo, python, runner)).decode())
+        raise typer.Exit()
     if patch_file is None:
         patch = None
     elif patch_file == "-":

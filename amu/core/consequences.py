@@ -4,6 +4,8 @@ A row is emitted only when both ends have a source location. Anything else is a 
 """
 from __future__ import annotations
 
+from .graph import APPROXIMATE, LINE, SPECIFICITY
+
 CATCH_ALL = {'*', 'Exception', 'BaseException'}
 MAX_HOPS = 4
 
@@ -79,12 +81,12 @@ class Finder:
             caller = self.record(caller_id)
             if caller_id in seen or caller is None or caller['kind'] != 'function' or self.graph.is_test(caller):
                 continue
-            handler = self.handler(caller, edge['line'], exception)
+            handler = self.handler(caller, edge[LINE], exception)
             if handler is None:
-                found.extend((c, line, raised, guessed or edge['approximate'])
+                found.extend((c, line, raised, guessed or edge[APPROXIMATE])
                              for c, line, raised, guessed in self.handlers(caller_id, exception, hops + 1, seen | {caller_id}))
             else:
-                found.append((caller_id, handler[0], handler[2], edge['approximate']))
+                found.append((caller_id, handler[0], handler[2], edge[APPROXIMATE]))
         return found
 
     def chain(self, ident, exception, hops, seen):
@@ -144,10 +146,10 @@ class Finder:
             users = []
             for caller_id, edge in sorted(self.graph.reverse.get(ident, {}).items()):
                 caller = self.graph.records[caller_id]
-                if (edge['approximate'] or edge['specificity'] != 0 or caller['kind'] != 'function'
-                        or self.graph.is_test(caller) or edge['line'] in caller.get('unused', [])):
+                if (edge[APPROXIMATE] or edge[SPECIFICITY] != 0 or caller['kind'] != 'function'
+                        or self.graph.is_test(caller) or edge[LINE] in caller.get('unused', [])):
                     continue
-                users.append(f"{caller['path']}:{edge['line']} {caller['qual']} uses the result")
+                users.append(f"{caller['path']}:{edge[LINE]} {caller['qual']} uses the result")
             if users:
                 rows.append(dict(**{'from': f"{record['qual']} return changed"}, to=f"{len(users)} caller(s) use the result",
                                  path=[f"{record['path']}:{changed[0]} return", *users[:3]], evidence='static source path'))

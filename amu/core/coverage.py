@@ -5,6 +5,7 @@ still match it; a file edited since is used as approximate evidence.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import re
@@ -85,9 +86,108 @@ def _newer(root, files, recorded_at):
     return stale
 
 
-def load(root, evidence, hashes, gaps):
-    """Return ({'files', 'stale'} or None, status or None). Problems become gaps, not errors."""
+class _Shards(dict):
+    """Per-file line attribution of a stored recording, read from disk only for the files asked about."""
+
+    def __init__(self, base, recorded, hashes, labels):
+        super().__init__()
+        self.base, self.recorded, self.hashes, self.labels = base, recorded, hashes, labels
+        self.functions = {}
+
+    def _read(self, path):
+        if path in self.recorded and not dict.__contains__(self, path):
+            # The shard of the file's current bytes if one exists, else the one from the recording.
+            for sha in (self.hashes.get(path), self.recorded[path]):
+                shard = self.base/'files'/(hashlib.sha256((path + '\0' + str(sha)).encode()).hexdigest() + '.json')
+                try:
+                    raw = json.loads(shard.read_text())
+                except (OSError, ValueError):
+                    continue
+                dict.__setitem__(self, path, {int(line): {self.labels[i] for i in found} for line, found in raw['lines'].items()})
+                self.functions[path] = {qual: {self.labels[i] for i in found} for qual, found in raw.get('functions', {}).items()}
+                break
+            else:
+                dict.__setitem__(self, path, {})
+                self.functions[path] = {}
+
+    def __contains__(self, path):
+        return path in self.recorded
+
+    def get(self, path, default=None):
+        self._read(path)
+        return dict.get(self, path, default)
+
+    def __getitem__(self, path):
+        self._read(path)
+        return dict.__getitem__(self, path)
+
+    def by_function(self, path):
+        self._read(path)
+        return self.functions.get(path)
+
+
+def recording(cache, hashes):
+    """The recording stored beside the index by ``--observe``, or None."""
+    base = Path(cache)/'observed'
+    try:
+        meta = json.loads((base/'meta.json').read_text())
+        if meta.get('format') != 'amu-observed-2':
+            return None
+    except (OSError, ValueError):
+        return None
+    recorded = meta['files']
+    stale = {path for path, sha in recorded.items() if hashes.get(path) != sha}
+    files = _Shards(base, recorded, hashes, meta['labels'])
+    status = dict(evidence='recording', tests=len(meta['labels']), files=len(recorded), edited_since=len(stale))
+    return dict(files=files, stale=stale, by_function=files.by_function, recorded=recorded), status
+
+
+def identifier(tests, graph=None):
+    """A function from a recorded context to the identity of the test it names, or None.
+
+    Contexts are ``path::name|phase`` from pytest-cov, or dotted names from coverage's own
+    ``test_function`` context. A dotted name carries the runtime class, so a method inherited
+    from a base test class is traced to the class that defines it.
+    """
+    modules, memo = {}, {}
+    for ident, record in tests.items():
+        parts = record['path'][:-3].split('/')
+        for start in range(len(parts)):
+            modules.setdefault('.'.join(parts[start:]), set()).add(record['path'])
+
+    def dotted(label):
+        parts = label.split('.')
+        for cut in range(len(parts) - 1, 0, -1):
+            paths = modules.get('.'.join(parts[:cut]))
+            if not paths:
+                continue
+            for path in sorted(paths):
+                ident = path + '#' + '.'.join(parts[cut:])
+                if ident in tests:
+                    return ident
+                owner = path + '#' + '.'.join(parts[cut:-1])
+                if graph is not None and len(parts) - cut >= 2 and owner in graph.records:
+                    # Inherited: look for the method on an ancestor class.
+                    for base, subs in graph.subclasses.items():
+                        if owner in graph.descendants(base) and (base + '.' + parts[-1]) in tests:
+                            return base + '.' + parts[-1]
+            return None
+        return None
+
+    def identify(context):
+        if context not in memo:
+            memo[context] = _test_identity(context) if '::' in context else dotted(context) if context else None
+        return memo[context]
+    return identify
+
+
+def load(root, evidence, hashes, gaps, cache=None):
+    """Return ({'files', 'stale', ...} or None, status or None). Problems become gaps, not errors."""
     explicit = evidence is not None
+    if not explicit and cache is not None:
+        own = recording(cache, hashes)
+        if own is not None:
+            return own
     candidates = [evidence] if explicit else DEFAULTS
     for name in candidates:
         source = Path(name) if Path(name).is_absolute() else root/name
@@ -122,24 +222,34 @@ def load(root, evidence, hashes, gaps):
     return None, None
 
 
-def tests_for(observed, record, tests, lines=()):
+def tests_for(observed, record, tests, lines=(), identify=None):
     """{test identity: (exactness, rarity)} for tests recorded executing this symbol.
 
     ``lines`` are the changed lines inside the symbol. ``rarity`` is 0 for a test that only
     entered the declaration, and otherwise grows as fewer tests share the changed line it ran:
     a line one test executes says more than a line every test passes through. It is None for
     every test when no recorded test executed any changed line.
+
+    When the file was edited after the recording and the line numbers cannot be trusted, the
+    recording's own per-function attribution is used, looked up by the function's name.
     """
     if not observed or record['kind'] not in ('function', 'class', 'variable'):
         return {}
-    rows = observed['files'].get(record['path'])
+    identify = identify or _test_identity
+    path = record['path']
+    if path in observed['stale'] and path not in observed.get('translated', ()) and observed.get('by_function'):
+        recorded = (observed['by_function'](path) or {}).get(record['qual'])
+        if record['kind'] != 'function' or recorded is None:
+            return {}
+        return {ident: (0.5, None) for ident in map(identify, recorded) if ident in tests}
+    rows = observed['files'].get(path)
     if not rows:
         return {}
-    exactness = 0.5 if record['path'] in observed['stale'] else 1.0
+    exactness = 0.5 if path in observed['stale'] else 1.0
     found, rarity = {}, {}
     for start, end in record['spans']:
-        for line in range(start, end + 1):
-            ran = {ident for ident in map(_test_identity, rows.get(line, ())) if ident in tests}
+        for line in range(max(start, record.get('body', start)) if record['kind'] == 'function' else start, end + 1):
+            ran = {ident for ident in map(identify, rows.get(line, ())) if ident in tests}
             # Entering a function is evidence about that function. A class or module span holds
             # unrelated members, so there only the changed lines themselves count.
             if record['kind'] == 'function' or line in lines:

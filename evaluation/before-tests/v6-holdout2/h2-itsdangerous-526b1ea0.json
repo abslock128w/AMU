@@ -1,0 +1,29 @@
+{
+  "case_id": "h2-itsdangerous-526b1ea0",
+  "function_recall10": 0.75,
+  "file_recall10": 1.0,
+  "function_hits": [
+    "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_future_age",
+    "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_malformed_timestamp",
+    "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_timestamp_missing"
+  ],
+  "missing_from_parent": [
+    "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_sig_error_date_signed"
+  ],
+  "recommended": 10,
+  "top10": [
+    "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_future_age",
+    "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_malformed_timestamp",
+    "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_max_age",
+    "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_return_timestamp",
+    "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_timestamp_missing",
+    "tests/test_itsdangerous/test_signer.py::TestSigner::test_algorithm",
+    "tests/test_itsdangerous/test_signer.py::TestSigner::test_broken_signature",
+    "tests/test_itsdangerous/test_signer.py::TestSigner::test_changed_value",
+    "tests/test_itsdangerous/test_signer.py::TestSigner::test_digest_method",
+    "tests/test_itsdangerous/test_signer.py::TestSigner::test_key_derivation"
+  ],
+  "seconds": 0.05056454199802829,
+  "bytes": 1990,
+  "noise10": 7
+}

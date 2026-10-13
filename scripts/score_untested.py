@@ -67,9 +67,11 @@ if __name__ == '__main__':
     p = argparse.ArgumentParser()
     p.add_argument('--repo', required=True)
     p.add_argument('--work', required=True, help='scratch directory outside this repository')
+    p.add_argument('--index', help='index directory; one holding a stored recording scores coverage-backed rows')
+    p.add_argument('--out', default='untested-rows.json')
     a = p.parse_args()
     repo, work = Path(a.repo), Path(a.work)
-    tree, index_dir = work/'tree', work/'index'
+    tree, index_dir = work/'tree', Path(a.index) if a.index else work/'index'
     tree.mkdir(parents=True, exist_ok=True)
     core_index.STATE_KEEP = 3
     protocol = json.loads((DATA/'protocol.json').read_text())
@@ -90,7 +92,7 @@ if __name__ == '__main__':
                 old.unlink()  # bound the drift of repeated relinking with a periodic full rebuild
         patch = git(repo, 'diff', parent, commit, '--', *prod).decode(errors='replace')
         checkout(repo, tree, parent)
-        report = analyze(tree, patch, full_evidence=True, coverage_evidence='none', index_dir=index_dir)
+        report = analyze(tree, patch, full_evidence=True, coverage_evidence=None if a.index else 'none', index_dir=index_dir, run=False)
         untested = {(row['file'], row['symbol']): row['basis'] for row in report['untested']}
         changed_tests = set()
         for name in paths:
@@ -111,7 +113,7 @@ if __name__ == '__main__':
             reach = graph.reach([ident]) if ident in graph.records else {}
             rows.append(dict(commit=commit, symbol=row['symbol'], file=row['file'], lines=row['lines'],
                              untested=(row['file'], row['symbol']) in untested, basis=untested.get((row['file'], row['symbol'])),
-                             tests_reaching_in_parent=report['caveats'] and None, author_test=bool(changed_tests & set(reach)),
+                             author_test=bool(changed_tests & set(reach)),
                              commit_changed_tests=len(changed_tests), followers=position[commit]))
         log.append([commit[:10], f"{len(report['changed_functions'])} changed functions, {len(report['untested'])} untested"])
         print(*log[-1], flush=True)
@@ -123,7 +125,7 @@ if __name__ == '__main__':
     for row in rows:
         row['later_fix'] = [c[:10] for c, touched in fixes.items()
                             if position[c] < position[row['commit']] and (row['file'], row['symbol']) in touched]
-    (DATA/'untested-rows.json').write_text(json.dumps(dict(rows=rows, log=log, bugfix_commits=len(fixes), history=len(history)), indent=1) + '\n')
+    (DATA/a.out).write_text(json.dumps(dict(rows=rows, log=log, bugfix_commits=len(fixes), history=len(history)), indent=1) + '\n')
     for label, group in (('untested', [r for r in rows if r['untested']]), ('covered', [r for r in rows if not r['untested']])):
         n = len(group) or 1
         print(f"{label}: rows {len(group)} | author added or changed a reaching test {sum(r['author_test'] for r in group)} ({sum(r['author_test'] for r in group)/n:.0%})"

@@ -337,6 +337,102 @@ Files: `amu/core/__init__.py`, `amu/core/runners.py`, `amu/core/__main__.py`, `a
 default, and reporting zero failures when the runner could not start. Upstream code executed: Click's tests,
 147 candidates on each side, in a scratch copy.
 
+## Piece 2: a coverage recording as the candidate source
+
+`amu before-tests --observe` runs the project's whole suite once under Coverage.py with a context per test
+and stores the result beside the index (`.amu/index/<version>/observed/`): one shard per source file, named
+by the file's content hash, holding which test ran which line and which test ran which function. A file
+edited since the recording is judged by function name; a file whose only difference is the patch being
+analysed has its recorded lines moved through the patch. An existing `.coverage`, `coverage.json` or AMU
+artefact is still read when no stored recording exists.
+
+Child processes: the recorder installs its own start-up hook in the interpreter for the duration of the run
+and passes the running test's name to children through the environment. Coverage's standard
+`COVERAGE_PROCESS_START` could not be used on Django, whose runner overwrites it with its own configuration.
+
+Django recording (state 7ab2d803, the parent of the oldest screened commit; sqlite, two required dependencies):
+
+| Measure | Value |
+|---|---:|
+| Suite time under recording | 686 s |
+| Tests attributed | 16,213 |
+| Source files with attribution | 2,004 |
+| Child processes recorded | 235 |
+| Test-to-function links seen only through child processes | 60,023, for 216 tests |
+| Stored size | 86 MB |
+
+### Use 1 and 3: shadow candidates and dynamically reached tests (debugging run, exposed cases)
+
+Same five Phase 0 cases. Not a trial: these cases have been used for development since Phase 0.
+
+| Case | Rank of the indirect test, static | Rank with recording | Shadow, static candidates | Shadow, recording candidates | Wall time |
+|---|---:|---:|---|---|---:|
+| 1 | 13 | 13 | found | found | 22 s |
+| 2 | not ranked | found via its base class | found | found | 51 s |
+| 3 | 3 | among 12 likely failures | found | found | 136 s |
+| 4 subprocess | not ranked | 74 | missed | found | 125 s |
+| 5 | 129 | 42 | found | found | 117 s |
+| Indirect test found | | | 4 of 5 | 5 of 5 | |
+
+Case 4 is the test that drives `manage.py` in a child process. It had no static call path; the recording
+attributes `ManagementUtility.execute` to it through the child. Shadow execution now runs candidates in
+chunks of 40, each chunk on both sides before the next, so reaching the 60 s per-side budget keeps
+everything already compared and reports how many candidates were left. Before this, one timeout discarded
+the whole run, which is what happened to case 4 on the first attempt. With a recording the candidate cap is
+300 instead of 150, which is why these runs are slower than the static ones (13 to 46 s).
+
+### Use 2: coverage-backed untested rows, scored from history (run once)
+
+Same 102 non-breaking Django commits and the same two scores as the static rows. The recording predates all
+of them; files changed since are judged by function name.
+
+| Score | Untested rows (48, from 13 commits) | Covered rows (234) | Static untested rows, for comparison (31) |
+|---|---:|---:|---:|
+| (a) Author added or modified a reaching test | 11 (23%) | 97 (41%) | 4 (13%) |
+| (b) A later bug-fix commit changed the function | 2 (4%) | 9 (4%) | 3 (10%) |
+
+(a) is lower for untested rows than for covered ones (p = 0.022) and (b) is identical (p = 1.0).
+**Decision by the same rule: demoted.** `untested[]` is no longer in the default packet at all; both kinds
+remain in `--full-evidence`. Twenty of the 48 rows come from one sweeping commit, and nine sit in code whose
+tests need optional packages the recording environment lacked; without those nine the picture is the same
+(11 of 39 against 85 of 177 for (a); 2 of 39 against 3 of 177 for (b), p = 0.22).
+
+### Two runs lost to my own edits
+
+The first recording and the first claim-set screening were both invalid. Each started before I edited
+`amu/core/index.py`; their parallel parser workers are fresh interpreters and imported the edited module
+with the running process's old job format, so every file failed to parse silently. The recording stored
+line data without function maps, and the screening's lexical ranking came back empty, which made every
+breaking test look indirect (22 "indirect", 0 lexical). Both were discarded and rerun with no core edits in
+flight. The recording was caught by an impossible number (235 child processes, zero child-only links) and
+the screening by a ratio that contradicted Phase 0.
+
+Files: `amu/core/observe.py` (new), `amu/core/coverage.py`, `amu/core/shadow.py`, `amu/core/__init__.py`,
+`amu/core/index.py`, `amu/core/__main__.py`, `amu/cli.py`, `scripts/score_untested.py`,
+`scripts/freeze_holdout.py`. Rejected: `COVERAGE_PROCESS_START` for children; one JSON file for the whole
+recording (the Click one was 92 MB and Django's would be far larger and slow to load); keeping
+coverage-backed untested rows in the packet. Upstream code executed: Django's full suite twice under
+recording (once discarded), and the shadow runs on the five cases.
+
+## Piece 4: speed after an edit (Django, 2,923 files, quiet machine, three runs each)
+
+| Path | Before | After |
+|---|---:|---:|
+| First call after editing a file | 2.9 s | 1.5 to 1.65 s |
+| Warm, unchanged tree | 1.2 s | 1.1 to 1.3 s |
+
+What the profile showed after the bounded relink, and what was done:
+
+| Cost | Before | Change |
+|---|---:|---|
+| Decoding all 2,920 per-file fact files | 1.2 s | Untouched files keep the slim records from the last snapshot; a file's full facts load only when changed code refers into it |
+| Rebuilding one dictionary per saved graph link | 0.5 to 0.9 s | Links stay in the list form they are stored in |
+| Re-reading and hashing every file | 0.5 s | A size-and-modification-time ledger skips unchanged files; files modified within two seconds of the last scan are re-hashed, as git does |
+| Class tables for every record | part of the above | Built per class on first use |
+
+Checked on Django: the relinked graph ranks the same tests as a full rebuild of the edited tree. Rejected:
+writing the new snapshot in a background process, which would make a repeat call race its own cache.
+
 ## Milestones (state at b3747c8)
 
 - **M1 harness.** `scripts/before_tests_harness.py`; protocol and manifests are hash-pinned.
