@@ -1,0 +1,38 @@
+{
+  "case_id": "h3-click-c2ed4149",
+  "function_recall10": 0.5882352941176471,
+  "file_recall10": 0.8333333333333334,
+  "function_hits": [
+    "tests/test_arguments.py::test_file_args",
+    "tests/test_arguments.py::test_file_atomics",
+    "tests/test_basic.py::test_file_lazy_mode",
+    "tests/test_basic.py::test_path_option",
+    "tests/test_shell_completion.py::test_files_closed",
+    "tests/test_testing.py::test_isolated_runner",
+    "tests/test_testing.py::test_isolated_runner_custom_tempdir",
+    "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_existing_file",
+    "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_new_file",
+    "tests/test_utils/test_open_file.py::test_open_file_ignore_no_encoding"
+  ],
+  "missing_from_parent": [
+    "tests/test_deprecations.py::test_isolated_filesystem_deprecated",
+    "tests/test_testing.py::test_tempdir_isolation_is_thread_safe",
+    "tests/test_testing.py::test_tempdir_replacement_pattern"
+  ],
+  "recommended": 10,
+  "top10": [
+    "tests/test_testing.py::test_isolated_runner_custom_tempdir",
+    "tests/test_testing.py::test_isolated_runner",
+    "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_existing_file",
+    "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_new_file",
+    "tests/test_shell_completion.py::test_files_closed",
+    "tests/test_basic.py::test_path_option",
+    "tests/test_basic.py::test_file_lazy_mode",
+    "tests/test_utils/test_open_file.py::test_open_file_ignore_no_encoding",
+    "tests/test_arguments.py::test_file_args",
+    "tests/test_arguments.py::test_file_atomics"
+  ],
+  "seconds": 0.4311907080045785,
+  "bytes": 1940,
+  "noise10": 0
+}

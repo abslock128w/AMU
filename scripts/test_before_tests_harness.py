@@ -1,5 +1,6 @@
 """Validate scoring mechanics, never product accuracy."""
 import unittest
+
 from before_tests_harness import functions
 
 

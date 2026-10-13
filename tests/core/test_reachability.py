@@ -67,7 +67,7 @@ def test_non_python_patch_keeps_python_results(tmp_path):
     source = 'def work():\n    return 1\n'
     repository(tmp_path, {'a.py': source, 'tests/test_a.py': 'from a import work\ndef test_work():\n    assert work()\n'})
     candidate = patch('a.py', source, source.replace('1', '2'))+patch('notes.rst', 'old\n', 'new\n')
-    result = analyze(tmp_path, candidate)
+    result = analyze(tmp_path, candidate, include_tests=True)
     assert result['tests']
     assert 'Skipped 1 non-Python file(s)' in result['gaps']
 
@@ -154,7 +154,7 @@ def test_uncommitted_change_is_the_default_patch(tmp_path):
     for args in (['init', '-q'], ['add', '.'], ['commit', '-qm', 'base']):
         subprocess.run([*git, *args], check=True)
     (tmp_path/'lib.py').write_text(source.replace('1', '2'))
-    result = analyze(tmp_path, index_dir=tmp_path/'.index')
+    result = analyze(tmp_path, index_dir=tmp_path/'.index', include_tests=True)
     assert result['changed_symbols'] == ['lib.py#work'] and ids(result) == ['tests/test_lib.py::test_work']
 
 
@@ -245,7 +245,7 @@ def test_default_packet_stays_under_two_kilobytes_and_keeps_ten_tests(tmp_path):
         f'def test_{n}_behaves_in_case_{i}():\n    assert lib.{n}()\n' for n in names for i in range(4))
     repository(tmp_path, {'package_with_long_name/library_module.py': source, 'package_with_long_name/__init__.py': '',
                           'tests/integration/test_library_module_operations.py': tests})
-    result = analyze(tmp_path, patch('package_with_long_name/library_module.py', source, source.replace('return 1', 'return 2')), index_dir=tmp_path/'.index')
+    result = analyze(tmp_path, patch('package_with_long_name/library_module.py', source, source.replace('return 1', 'return 2')), index_dir=tmp_path/'.index', include_tests=True)
     assert len(encoded(result)) < LIMIT and len(json.dumps(result, separators=(',', ':')).encode()) < LIMIT
     assert len(result['tests']) == 10 and set(result) >= {'summary', 'changed_symbols', 'untested', 'tests', 'consequences', 'gaps', 'caveats', 'report_hash'}
     assert list(result)[0] == 'summary'
@@ -404,4 +404,28 @@ def test_shadow_execution_reports_exactly_the_tests_that_flip(tmp_path):
         result = analyze(tmp_path, patch('lib.py', source, changed), index_dir=tmp_path/'.index', run=True, python=sys.executable)
         assert result['predicted_failures'] == ['tests/test_lib.py::test_work'], result
         assert result['summary'].startswith('EXECUTED 2 candidate tests') and '1 now fail' in result['summary']
-        assert {r['id'].split('::')[-1]: r['expect'] for r in result['tests']} == {'test_loose': 'unchanged'}
+        assert result['tests'] == []
+
+
+def test_default_packet_lists_only_expected_failures(tmp_path):
+    source = 'import warnings\ndef legacy():\n    warnings.warn("old", DeprecationWarning)\n    return 1\n'
+    tests = ('import pytest\nfrom lib import legacy\n'
+             'def test_warns():\n    with pytest.warns(DeprecationWarning, match="x"):\n        legacy()\n'
+             'def test_value():\n    assert legacy() == 1\n')
+    repository(tmp_path, {'lib.py': source, 'tests/test_lib.py': tests})
+    diff = patch('lib.py', source, source.replace('    warnings.warn("old", DeprecationWarning)\n', ''))
+    default = analyze(tmp_path, diff, index_dir=tmp_path/'.index')
+    assert [r['id'].split('::')[-1] for r in default['tests']] == ['test_warns'] and '--tests' in default['caveats']
+    assert len(analyze(tmp_path, diff, index_dir=tmp_path/'.index', include_tests=True)['tests']) == 2
+
+
+def test_removed_module_constant_and_inherited_test_methods(tmp_path):
+    source = 'RAISE = object()\n\n\ndef keep():\n    return 1\n'
+    changed = 'FETCH_RAISE = object()\n\n\ndef keep():\n    return 1\n'
+    tests = ('import unittest\nimport lib\n'
+             'class BaseTests(unittest.TestCase):\n    def test_mode(self):\n        assert lib.RAISE\n'
+             'class OtherBackendTests(BaseTests):\n    pass\n')
+    repository(tmp_path, {'lib.py': source, 'tests/test_lib.py': tests})
+    result = analyze(tmp_path, patch('lib.py', source, changed), index_dir=tmp_path/'.index')
+    assert [r['id'] for r in result['tests']] == ['tests/test_lib.py::BaseTests::test_mode', 'tests/test_lib.py::OtherBackendTests::test_mode']
+    assert all(r['expect'] == 'likely_fail' for r in result['tests']) and 'inherits' in result['tests'][1]['why']

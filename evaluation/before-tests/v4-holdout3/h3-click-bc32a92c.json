@@ -1,0 +1,28 @@
+{
+  "case_id": "h3-click-bc32a92c",
+  "function_recall10": 0.5714285714285714,
+  "file_recall10": 1.0,
+  "function_hits": [
+    "tests/test_termui.py::test_get_pager_file_flushes_stream_on_exception",
+    "tests/test_termui.py::test_get_pager_file_nullpager_keeps_stringio_stream",
+    "tests/test_termui.py::test_get_pager_file_nullpager_wraps_textio_stream",
+    "tests/test_utils/test_echo_via_pager.py::test_echo_via_pager_yields_before_exception"
+  ],
+  "missing_from_parent": [
+    "tests/test_termui.py::test_get_pager_file_close_does_not_close_borrowed_stream"
+  ],
+  "recommended": 8,
+  "top10": [
+    "tests/test_utils/test_echo_via_pager.py::test_echo_via_pager_yields_before_exception",
+    "tests/test_termui.py::test_get_pager_file_nullpager_wraps_textio_stream",
+    "tests/test_termui.py::test_get_pager_file_missing_pager_keeps_borrowed_stream_open",
+    "tests/test_termui.py::test_get_pager_file_nullpager_keeps_stringio_stream",
+    "tests/test_compat.py::test_should_strip_ansi",
+    "tests/test_termui.py::test_get_pager_file_pager_missing_binary_falls_back",
+    "tests/test_termui.py::test_get_pager_file_pager_unset_falls_back_when_no_default",
+    "tests/test_termui.py::test_get_pager_file_flushes_stream_on_exception"
+  ],
+  "seconds": 0.5212832909965073,
+  "bytes": 1983,
+  "noise10": 4
+}

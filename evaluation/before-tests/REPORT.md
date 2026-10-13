@@ -169,6 +169,63 @@ Phase 0 holdout. The full Werkzeug suite does not finish in this environment, so
 
 Static ranking did not move: Werkzeug 10/16 and 16/16, holdout 2 5/8 and 7/8, holdout 3 8/8 and 8/8.
 
+## Phase 0: indirect breakage on Django (the kill test for the test list)
+
+Owner approved Django on 2026-10-13. `scripts/freeze_holdout.py` walked back 250 commits from the head. For
+each commit that changes `django/` and modifies an existing test, it ran the test modules the commit touched
+on the parent tree, then again with only the production change applied. A test that passed and then failed
+is breaking. A breaking test outside the 40 tests most lexically similar to the diff is indirect.
+
+| Screening step | Commits |
+|---|---:|
+| Screened | 250 |
+| Change production code and an existing test | 40 |
+| Break an existing test | 11 |
+| Break a test lexical search would not surface (kept) | 5 |
+
+Indirect breakage occurred in 1 commit in 50. The plan's risk threshold for keeping the test list was 1 in 20.
+
+Trial: the five kept cases, ten agents (Sonnet), same prompt and 15-run budget, one arm with AMU's static
+packet as it stood at commit 5b0a4e9. One run per cell.
+
+| Case | Indirect test found without AMU (runs) | With AMU (runs) | AMU's rank for the indirect test |
+|---|---|---|---:|
+| 1 warning stack level | yes (2) | yes (4) | 13 |
+| 2 reworded settings error | yes (2) | no (4) | not ranked |
+| 3 renamed constant | yes (12) | yes (12) | 3 |
+| 4 management import errors | no (15) | no (15) | not ranked |
+| 5 `import_string` modules | no (3) | no (5) | 129 |
+| Total | 3 of 5 (34) | 2 of 5 (40) | |
+
+**Gate: failed.** The gate asked for the AMU arm to find indirect breakage the search arm missed on at least
+half the cases. It did so on none. In case 3 the AMU agent reported that the packet named no likely failure
+and that it searched for the removed name itself.
+
+Decision applied, as the plan specified: tests that only reach the change are no longer in the default
+packet. `--tests` and `--full-evidence` still list them. The default packet is now the summary, untested
+functions, tests expected to fail, consequences and gaps.
+
+Two defects the trial exposed, fixed afterwards (so the numbers above do not include them):
+
+- A removed module-level constant (`RAISE`) was not treated as a removed name, because only functions and
+  classes of six or more letters were. With the fix, case 3's packet lists 12 likely failures, the same 12
+  tests the agents confirmed.
+- A test method inherited by a subclass had no identity in AMU, so the indirect test of case 2 could not be
+  ranked at all. Likely failures now include the inheriting subclasses.
+
+What stays unsolved on Django:
+
+- Static `likely_fail` fires in 1 of the 5 cases even after the fixes. A reworded message (case 2), a changed
+  stack level (case 1), and behaviour reached through a subprocess (case 4) are invisible to it.
+- Shadow execution would answer these exactly, but it drives pytest and Django uses its own runner. A runner
+  adapter is the next piece of work, and it is the only AMU output with evidence of beating search.
+- Speed: 16 s cold and 2.7 s warm on Django, over the 2 s warm budget.
+
+Limits of this phase: five cases, one run each, one repository. The frozen ground truth only covers test
+modules the commit touched, and it undercounted case 3 (3 tests) because tests in modules that fail to import
+were not parsed; the agents' 12 were verified by hand on both trees. Only Django's two required dependencies
+were installed, so tests needing optional packages were skipped.
+
 ## Milestones (state at b3747c8)
 
 - **M1 harness.** `scripts/before_tests_harness.py`; protocol and manifests are hash-pinned.

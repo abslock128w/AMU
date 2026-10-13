@@ -1,0 +1,12 @@
+tests/basic/tests.py::ModelRefreshTests::test_refresh_copies_fetch_mode_from_plucked_instance
+tests/basic/tests.py::ModelRefreshTests::test_refresh_ignores_fetch_mode_if_no_instance_plucked
+tests/one_to_one/tests.py::OneToOneTests::test_fetch_mode_raise_forward
+tests/one_to_one/tests.py::OneToOneTests::test_fetch_mode_raise_reverse
+tests/many_to_one/tests.py::ManyToOneTests::test_fetch_mode_raise_forward
+tests/prefetch_related/tests.py::PrefetchRelatedTests::test_fetch_mode_raise
+tests/queryset_pickle/tests.py::PickleabilityTestCase::test_fetch_mode_raise
+tests/defer/tests.py::DeferTests::test_only_fetch_mode_raise
+tests/defer/tests.py::DeferTests::test_defer_fetch_mode_raise
+tests/raw_query/tests.py::RawQueryTests::test_fk_fetch_mode_raise
+tests/raw_query/tests.py::RawQueryTests::test_missing_fields_fetch_mode_raise
+tests/generic_relations/tests.py::GenericRelationsTests::test_fetch_mode_raise

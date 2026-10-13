@@ -1,0 +1,23 @@
+{
+  "case_id": "10-ae7f2163",
+  "function_recall10": null,
+  "file_recall10": null,
+  "function_hits": [],
+  "missing_from_parent": [],
+  "recommended": 10,
+  "top10": [
+    "tests/test_wrappers.py::test_common_response_descriptors",
+    "tests/test_wrappers.py::test_common_request_descriptors",
+    "tests/test_wrappers.py::test_request_mimetype_always_lowercase",
+    "tests/test_formparser.py::TestMultiPart::test_headers",
+    "tests/test_send_file.py::test_object_mimetype_from_name",
+    "tests/test_send_file.py::test_path",
+    "tests/test_wrappers.py::test_file_closing",
+    "tests/test_wrappers.py::test_file_closing_with",
+    "tests/test_send_file.py::test_object",
+    "tests/test_send_file.py::test_content_encoding"
+  ],
+  "seconds": 0.7136550830036867,
+  "bytes": 1911,
+  "noise10": 10
+}

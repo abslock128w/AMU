@@ -14,14 +14,14 @@ Nothing is imported or executed. The default answer is one JSON object under 2 K
 | `summary` | Read this first: likely failures, untested functions, how many tests reach the change. |
 | `changed_symbols` | Declarations holding the changed lines, narrowest first. |
 | `untested` | Changed functions no test exercises. `coverage` means no recorded test ran the changed lines; `static_only` means no test reaches the function at all. |
-| `tests` | Up to 10 existing tests. `expect` says what to do with each row; `why` is the path or the evidence. |
+| `tests` | Tests expected to fail, with the evidence in `why`. Tests that only reach the change are listed with `--tests`. |
 | `predicted_failures` | Only with `--run`: tests that passed before the change and fail after it. |
 | `consequences` | A changed exception, shared attribute or used return value, and the located consumer. |
 | `gaps` | What could not be resolved. A gap never hides the results that were found. |
 
 `expect` is `likely_fail` (the test asserts text, or uses a name, warning or exception the change removes),
-`ran_changed_lines` (a recording shows it executing them) or `reaches`. The list is not meant to be run
-top-down: run `likely_fail` rows, then choose among the rest by `why`.
+`ran_changed_lines` (a recording shows it executing them) or `reaches`. Two agent trials showed that a list
+of tests which merely reach a change does not help an agent choose, so the default packet omits those rows.
 
 ```sh
 amu before-tests --run                 # execute candidates before and after the change; report what flips

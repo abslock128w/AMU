@@ -239,7 +239,7 @@ def worker(args):
     else:
         from amu.core import analyze
         # Keep the index outside the frozen case trees.
-        packet = analyze(Path(row['tree']), patch, index_dir=Path(args.output).parent/'index'/row['case_id'])
+        packet = analyze(Path(row['tree']), patch, index_dir=Path(args.output).parent/'index'/row['case_id'], include_tests=True)
         output = json.dumps(packet, separators=(',', ':')).encode()
         elapsed = time.perf_counter()-start
         ids = [t['id'] for t in packet['tests']]

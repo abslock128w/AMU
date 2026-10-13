@@ -85,7 +85,8 @@ def after_facts(root, facts, edits, gaps):
     return after, before, new_lines, renumbered
 
 
-def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, index_dir=None, run=False, python=None, budget=60):
+def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, index_dir=None, run=False, python=None,
+            budget=60, include_tests=False):
     """What a change reaches, which existing tests to run first, and what could not be seen.
 
     ``patch`` is unified-diff text, applied or not yet applied to ``root``. Without one,
@@ -177,6 +178,15 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         near = [ident for ident, (position, _, _) in graph.reach([symbol], max_depth=2).items() if not position[2]]
         for ident, reason in lexical.expecting(tests, near, categories).items():
             likely.setdefault(ident, reason)
+    inherited = {}
+    for ident in list(likely):
+        # A test method defined on a base class also runs, and fails, in every subclass that inherits it.
+        owner = tests[ident].get('owner')
+        if graph.records.get(owner, {}).get('kind') == 'class':
+            name = tests[ident]['qual'].rsplit('.', 1)[-1]
+            for sub in sorted(graph.descendants(owner)):
+                if not graph.members.get((sub, name)) and graph.records[sub]['path'].split('/')[0] == tests[ident]['path'].split('/')[0]:
+                    inherited.setdefault(ident, []).append(graph.records[sub]['path'] + '::' + graph.records[sub]['qual'].replace('.', '::') + '::' + name)
     for ident in likely:
         # A test found only by what it says still belongs in the list.
         scores.setdefault(ident, {}).setdefault('', 0.5)
@@ -209,6 +219,9 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
             confidence = confidence if len(path) > 1 else 'lexical'
         rows.append(dict(id=r['path'] + '::' + r['qual'].replace('.', '::'), expect=expect, why=why, confidence=confidence,
                          line=r['line'], score=round(gain, 3)))
+        for copy in inherited.get(ident, [])[:8]:
+            rows.append(dict(id=copy, expect=expect, why='inherits ' + r['qual'] + '; ' + likely[ident], confidence=confidence,
+                             line=r['line'], score=round(gain, 3)))
     found = consequences.find(graph, after, new_lines, renumbered)
     executed = None
     if run:
@@ -237,10 +250,10 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     listed = [dict(symbol=ident, depth=position[0], via=label(graph, path))
               for ident, (position, path) in sorted(impacted.items(), key=lambda item: (item[1][0], item[0]))]
     fails = sum(row['expect'] == 'likely_fail' for row in rows)
-    summary = f"{fails} likely_fail, {len(untested)} untested, {len(scores)} tests reach. Judge rows by expect and why; not a run-all list."
+    summary = f"{fails} likely_fail, {len(untested)} untested, {len(scores)} tests reach the change."
     if executed is not None:
         summary = (f"EXECUTED {executed['ran']} candidate tests on both sides in {executed['seconds']} s: "
-                   f"{len(executed['predicted_failures'])} now fail. " + summary.split(', ', 1)[1].split('. ')[0] + '.')
+                   f"{len(executed['predicted_failures'])} now fail. " + summary.split(', ', 1)[1])
     report = dict(summary=summary, changed_symbols=narrow, untested=untested, tests=rows, consequences=found,
                   impacted=listed, gaps=sorted(set(gaps)),
                   caveats='Static unless a row says observed. Not proof.')
@@ -252,13 +265,21 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     if full_evidence:
         report['index'] = {'parsed_files': parsed, 'files': len(facts)}
         return report
-    return compact(report)
+    return compact(report, include_tests)
 
 
-def compact(report):
-    """Fit the agent packet under LIMIT bytes. Runnable test ids are the last thing to go."""
+def compact(report, include_tests=False):
+    """Fit the agent packet under LIMIT bytes.
+
+    By default only tests expected to fail are listed. In two agent trials a list of tests that
+    merely reach the change did not help, and cost test runs; ``include_tests`` brings it back.
+    """
     out = dict(report)
-    out['tests'] = [{k: row[k] for k in ('id', 'expect', 'why', 'confidence')} for row in report['tests'][:10]]
+    listed = report['tests'] if include_tests else [row for row in report['tests'] if row['expect'] in ('likely_fail', 'fails')]
+    out['tests'] = [{k: row[k] for k in ('id', 'expect', 'why', 'confidence')} for row in listed[:10]]
+    if not include_tests:
+        out['caveats'] = report['caveats'] + ' Tests that only reach the change are omitted; --tests lists them.'
+        report = dict(report, caveats=out['caveats'])
     out['untested'] = [dict(row) for row in report['untested'][:3]]
     if 'predicted_failures' in report:
         out['predicted_failures'] = [row['id'] for row in report['predicted_failures'][:12]]

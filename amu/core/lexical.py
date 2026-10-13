@@ -40,11 +40,14 @@ def removed_names(before, after, elsewhere=()):
     modules = {r['path']: r for r in after.values() if r['kind'] == 'module'}
     names = set()
     for record in before.values():
-        if record['kind'] not in ('function', 'class') or record['qual'] in kept:
+        # Functions, classes and module-level constants can be imported by name; class attributes are not.
+        top_level = '.' not in record['qual']
+        if record['qual'] in kept or not (record['kind'] in ('function', 'class') or record['kind'] == 'variable' and top_level):
             continue
         leaf = record['qual'].rsplit('.', 1)[-1]
         module = modules.get(record['path'], {})
-        if (len(leaf) < 6 or leaf.startswith('__') or leaf in elsewhere
+        short = len(leaf) < 6 and not (leaf.isupper() and len(leaf) >= 4)
+        if (short or leaf.startswith('__') or leaf in elsewhere
                 or any(q == leaf or q.endswith('.' + leaf) for q in kept)
                 or leaf in module.get('imports', {}) or leaf in module.get('bindings', {})
                 or (record['path'] + '#__getattr__') in after):

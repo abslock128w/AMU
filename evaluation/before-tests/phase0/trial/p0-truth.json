@@ -1,0 +1,51 @@
+{
+ "case1": {
+  "case": "dj-f1d11117",
+  "breaking": [
+   "tests/pagination/tests.py::ModelPaginationTests::test_paginating_unordered_queryset_raises_warning_async"
+  ],
+  "indirect": [
+   "tests/pagination/tests.py::ModelPaginationTests::test_paginating_unordered_queryset_raises_warning_async"
+  ]
+ },
+ "case2": {
+  "case": "dj-80ea222c",
+  "breaking": [
+   "tests/mail/tests.py::MailAdminsAndManagersTests::test_wrong_admins_managers",
+   "tests/mail/tests.py::MailAdminsAndManagersTestsWithMailers::test_wrong_admins_managers"
+  ],
+  "indirect": [
+   "tests/mail/tests.py::MailAdminsAndManagersTestsWithMailers::test_wrong_admins_managers"
+  ]
+ },
+ "case3": {
+  "case": "dj-7dee35f5",
+  "breaking": [
+   "tests/basic/tests.py::ModelRefreshTests::test_refresh_copies_fetch_mode_from_plucked_instance",
+   "tests/basic/tests.py::ModelRefreshTests::test_refresh_ignores_fetch_mode_if_no_instance_plucked",
+   "tests/queryset_pickle/tests.py::PickleabilityTestCase::test_fetch_mode_raise"
+  ],
+  "indirect": [
+   "tests/queryset_pickle/tests.py::PickleabilityTestCase::test_fetch_mode_raise"
+  ]
+ },
+ "case4": {
+  "case": "dj-537c6df3",
+  "breaking": [
+   "tests/admin_scripts/tests.py::ManageRunserverHelpOutput::test_suppressed_options"
+  ],
+  "indirect": [
+   "tests/admin_scripts/tests.py::ManageRunserverHelpOutput::test_suppressed_options"
+  ]
+ },
+ "case5": {
+  "case": "dj-65a9f141",
+  "breaking": [
+   "tests/auth_tests/test_models.py::UserWithPermTestCase::test_invalid_backend_submodule",
+   "tests/auth_tests/test_validators.py::PasswordValidationTest::test_get_password_validators_custom_invalid"
+  ],
+  "indirect": [
+   "tests/auth_tests/test_models.py::UserWithPermTestCase::test_invalid_backend_submodule"
+  ]
+ }
+}

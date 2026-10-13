@@ -6,7 +6,6 @@ ranking against the existing tests whose outcome the patch changed.
 """
 import argparse
 import json
-import os
 import shutil
 import subprocess
 import sys
@@ -88,7 +87,7 @@ def run_case(row, python, tests, package, extra=()):
     from amu.core import analyze
     scored = {}
     for label, evidence in (('static', str(work/'no-coverage')), ('coverage', '.coverage')):
-        packet = analyze(base, patch, coverage_evidence=evidence, index_dir=work/'index')
+        packet = analyze(base, patch, coverage_evidence=evidence, index_dir=work/'index', include_tests=True)
         top = [t['id'] for t in packet['tests']][:10]
         scored[label] = dict(top10=top, observed=sum(t['confidence'] == 'observed' for t in packet['tests']),
                              bytes=len(json.dumps(packet, separators=(',', ':')).encode()),
