@@ -1,0 +1,24 @@
+{
+  "case_id": "extra-f359a67e",
+  "function_recall10": 0.2,
+  "file_recall10": 1.0,
+  "function_hits": [
+    "tests/test_wsgi.py::test_limited_stream_read_with_raw_io"
+  ],
+  "missing_from_parent": [],
+  "recommended": 9,
+  "top10": [
+    "tests/test_send_file.py::test_path",
+    "tests/test_formparser.py::TestFormParser::test_parse_from_environ",
+    "tests/test_send_file.py::test_root_path",
+    "tests/test_formparser.py::TestFormParser::test_parse_form_data_get_without_content",
+    "tests/test_wsgi.py::test_limited_stream_read_with_raw_io",
+    "tests/test_send_file.py::test_object_attachment_requires_name",
+    "tests/test_wrappers.py::test_shallow_mode",
+    "tests/test_wsgi.py::test_range_wrapper",
+    "tests/test_formparser.py::TestFormParser::test_parse_form_data_put_without_content"
+  ],
+  "seconds": 0.6925097919993277,
+  "bytes": 1959,
+  "noise10": 8
+}

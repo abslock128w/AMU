@@ -28,7 +28,7 @@ def changed_symbols(root, facts, edits, gaps):
     line, with the enclosing class as a fallback for unresolved receivers.
     Enclosing functions hold the line too and are changed in their own right.
     """
-    changed = {}
+    changed, where = {}, {}
     for path, edit in edits.items():
         records = facts.get(path, {}).get('records', {})
         if not records:
@@ -44,10 +44,12 @@ def changed_symbols(root, facts, edits, gaps):
             narrow = containing[0]
             classes = [r['id'] for r in containing[1:] if r['kind'] == 'class']
             changed.setdefault(narrow['id'], classes[0] if classes and narrow['kind'] != 'class' else None)
+            where.setdefault(narrow['id'], set()).add(line)
             for outer in containing[1:]:
                 if outer['kind'] == 'function':
                     changed.setdefault(outer['id'], classes[0] if classes else None)
-    return changed
+                    where.setdefault(outer['id'], set()).add(line)
+    return changed, where
 
 
 def label(graph, path):
@@ -85,7 +87,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     edits, patch_gaps = changes(root, patch)
     gaps.extend([*early, *patch_gaps])
     graph = build_graph(facts, hashes, cache)
-    symbols = changed_symbols(root, facts, edits, gaps)
+    symbols, where = changed_symbols(root, facts, edits, gaps)
     order = {'function': 0, 'variable': 0, 'class': 1, 'module': 2}
     narrow = sorted(symbols, key=lambda s: (order[graph.records[s]['kind']], s))
     tests = {ident: r for ident, r in graph.records.items() if graph.is_test(r)}
@@ -94,7 +96,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     # What the patch says, per file: the words of its added and removed lines.
     said = {path: content.query(' '.join(text for _, text in [*edit['added'], *edit['removed']])) for path, edit in edits.items()}
     observed, coverage_status = coverage.load(root, coverage_evidence, hashes, gaps)
-    scores, best, impacted = {}, {}, {}
+    scores, best, impacted, unexecuted = {}, {}, {}, []
     for symbol, fallback in symbols.items():
         record = graph.records[symbol]
         names = rank.symbol_tokens(record)
@@ -108,7 +110,9 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
                 reached[ident] = ((position[0], max(1, position[1]), True), path, True)
             # The more tests merely mention the class, the less each mention says about this member.
             broad_weight = 0.5 / math.log2(2 + sum(ident in tests for ident in extra))
-        seen = coverage.tests_for(observed, record, tests)
+        seen = coverage.tests_for(observed, record, tests, where.get(symbol, ()))
+        if seen and next(iter(seen.values()))[1] is None and record['kind'] == 'function':
+            unexecuted.append(record['qual'])
         for ident, (position, path, broad) in reached.items():
             if ident not in tests:
                 if not broad and (ident not in impacted or position < impacted[ident][0]):
@@ -120,21 +124,26 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
             scores.setdefault(ident, {})[symbol] = value
             if ident not in best or value > best[ident][0]:
                 best[ident] = (value, position, path, shared, broad, None)
-        for ident, exactness in seen.items():
+        for ident, (exactness, on_line) in seen.items():
             # Recorded execution outranks any static guess, and adds tests static analysis missed.
+            # Running the changed lines themselves counts for more than entering the declaration.
             match, shared = affinity.score(ident, names)
             about = content.score(ident, said.get(record['path'], (set(), 0)))
-            value = weight * rank.OBSERVED * exactness * (1 + 2 * match + 2 * about) + scores.get(ident, {}).get(symbol, 0)
+            strength = 0.5 if on_line is None else 0.15 + 0.85 * on_line
+            # What ran outweighs what merely sounds related: names only nudge recorded evidence.
+            value = weight * rank.OBSERVED * exactness * strength * (1 + 0.5 * match + 0.5 * about) + scores.get(ident, {}).get(symbol, 0)
             scores.setdefault(ident, {})[symbol] = value
             if ident not in best or best[ident][5] is None or value > best[ident][0]:
-                best[ident] = (value, (1, 0, False), [ident, symbol], shared, False, exactness)
+                best[ident] = (value, (1, 0, False), [ident, symbol], shared, False, (exactness, on_line))
     rows = []
     for ident, gain in rank.diverse(scores, MAX_TESTS):
         _, position, path, shared, broad, exactness = best[ident]
         r = tests[ident]
         exact = not position[2] and not broad and position[1] == 0
         if exactness is not None:
-            why = 'ran ' + label(graph, path) + ('' if exactness == 1 else ' (recorded before an edit to this file)')
+            exactness, on_line = exactness
+            why = ('ran the changed lines of ' if on_line else 'ran ') + label(graph, path) + (
+                '' if exactness == 1 else ' (recorded before an edit to this file)')
             confidence = 'observed'
         else:
             why = ('calls ' if position[0] == 1 and exact else 'via ') + label(graph, path)
@@ -148,6 +157,8 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     unresolved = graph.unresolved_count + graph.ambiguous
     if unresolved:
         gaps.append(f'{unresolved} call sites unresolved repo-wide; dynamic dispatch may reach more')
+    if unexecuted:
+        gaps.append('No recorded test ran the changed lines of ' + ', '.join(sorted(set(unexecuted))[:3]))
     if not rows:
         gaps.append('No existing test reaches the change within five source hops')
     listed = [dict(symbol=ident, depth=position[0], via=label(graph, path))

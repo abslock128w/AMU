@@ -1,0 +1,24 @@
+{
+  "case_id": "h3-click-7a0a3447",
+  "function_recall10": 0.3333333333333333,
+  "file_recall10": 0.5,
+  "function_hits": [
+    "tests/test_testing.py::test_runner_with_stream",
+    "tests/test_utils/test_make_default_short_help.py::test_make_default_short_help"
+  ],
+  "missing_from_parent": [],
+  "recommended": 8,
+  "top10": [
+    "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_existing_file",
+    "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_new_file",
+    "tests/test_utils/test_open_file.py::test_open_file_ignore_errors_stdin",
+    "tests/test_utils/test_make_default_short_help.py::test_make_default_short_help",
+    "tests/test_utils/test__expand_args.py::test_expand_args",
+    "tests/test_utils/test_open_file.py::test_open_file",
+    "tests/test_testing.py::test_runner_with_stream",
+    "tests/test_utils/test_open_file.py::test_open_file_ignore_no_encoding"
+  ],
+  "seconds": 0.6044164580016513,
+  "bytes": 1901,
+  "noise10": 6
+}

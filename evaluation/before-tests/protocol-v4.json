@@ -1,0 +1,18 @@
+{
+  "rule": "Continue git rev-list --no-merges backwards from the frozen Click HEAD, skipping the 10 commits of click-sealed-v2; first 8 that change production src .py and modify a test function already present in the parent. No analyzer or test run before selection.",
+  "reason": "Judges line-aware coverage ranking on commits never analysed. Same repository as a development set, so independence is by commit, not by project.",
+  "head": "2247b35ea1c47c727d7a06e51fa280e12a863ff6",
+  "hashes": {
+    "holdout3.json": "7dd7c0856ce2e145aa9e5411ac35df6ad63718c2ba653513b010ab10703af0af"
+  },
+  "commits": [
+    "a1d87858abd77fa8e3ffc204670ccd75b96c4781",
+    "bc32a92cd2ae77afb2352f79ebdf00997f35d333",
+    "c2ed41490baa08002714ab79afa4a41f2d67c02c",
+    "8ee83ddbf5a7a4c2eac5308c9599c5ee67ee005e",
+    "fbdd434028fe07ecf35084c945b43b938dfd639f",
+    "051725fa7e0c69effc9107066d8791c5b99242c3",
+    "7a0a3447f6ddd2c15438c5d098e289323f9f9556",
+    "71f2bafa541e7f798834e74076786ff4281ac83e"
+  ]
+}

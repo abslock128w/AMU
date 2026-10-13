@@ -1,0 +1,89 @@
+{
+ "case_id": "click-v2-22177f85",
+ "record": {
+  "command": [
+   "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/../observed-tests-evaluation-2026-10-13/werkzeug-env/bin/python",
+   "-B",
+   "-m",
+   "pytest",
+   "tests",
+   "--ignore=tests/test_stream_lifecycle.py",
+   "-q",
+   "-p",
+   "no:cacheprovider",
+   "--junitxml=/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/exec/click-v2-22177f85/base.xml",
+   "-o",
+   "addopts=",
+   "-W",
+   "ignore",
+   "-p",
+   "pytest_cov.plugin",
+   "--cov=click",
+   "--cov-context=test",
+   "--cov-report="
+  ],
+  "exit": 0,
+  "seconds": 27.1,
+  "summary": "3034 passed, 25 skipped, 1 xfailed in 26.37s"
+ },
+ "patched": {
+  "command": [
+   "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/../observed-tests-evaluation-2026-10-13/werkzeug-env/bin/python",
+   "-B",
+   "-m",
+   "pytest",
+   "tests",
+   "--ignore=tests/test_stream_lifecycle.py",
+   "-q",
+   "-p",
+   "no:cacheprovider",
+   "--junitxml=/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/exec/click-v2-22177f85/patched.xml",
+   "-o",
+   "addopts=",
+   "-W",
+   "ignore"
+  ],
+  "exit": 0,
+  "seconds": 9.6,
+  "summary": "3034 passed, 25 skipped, 1 xfailed in 9.22s"
+ },
+ "patch_applied": true,
+ "tests_run": 528,
+ "outcome_changed": [],
+ "commit_truth": [],
+ "ranking": {
+  "static": {
+   "top10": [
+    "tests/test_types/test_Path.py::test_path_resolve_symlink",
+    "tests/test_types/test_Path.py::test_path_surrogates",
+    "tests/test_types/test_Path.py::test_invalid_path_with_esc_sequence",
+    "tests/test_types/test_Path.py::test_path_type",
+    "tests/test_shell_completion.py::test_path_types",
+    "tests/test_options.py::test_envvar_container_type",
+    "tests/test_arguments.py::test_path_allow_dash",
+    "tests/test_types/test_convert_type.py::test_explicit_container_type_splits_string",
+    "tests/test_basic.py::test_path_option",
+    "tests/test_shell_completion.py::test_absolute_path"
+   ],
+   "observed": 0,
+   "bytes": 1985,
+   "gaps": []
+  },
+  "coverage": {
+   "top10": [
+    "tests/test_types/test_Path.py::test_path_type",
+    "tests/test_types/test_Path.py::test_path_resolve_symlink",
+    "tests/test_types/test_Path.py::test_invalid_path_with_esc_sequence",
+    "tests/test_options.py::test_envvar_container_type",
+    "tests/test_arguments.py::test_path_allow_dash",
+    "tests/test_basic.py::test_path_option",
+    "tests/test_types/test_Path.py::test_path_surrogates",
+    "tests/test_testing.py::test_tempdir_replacement_pattern",
+    "tests/test_shell_completion.py::test_path_types"
+   ],
+   "observed": 7,
+   "bytes": 1866,
+   "gaps": []
+  }
+ }
+}

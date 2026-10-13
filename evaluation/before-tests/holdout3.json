@@ -1,0 +1,293 @@
+[
+  {
+    "case_id": "h3-click-a1d87858",
+    "commit": "a1d87858abd77fa8e3ffc204670ccd75b96c4781",
+    "parent": "2103e157683c5e4cadc8ee1838df526a54bde9a4",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/click.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h3-click-a1d87858/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h3-click-a1d87858/production.patch",
+    "patch_sha256": "0d8f8382cb899e7d3e5456aba8b61f00c4fe227f613b75b915f9b5265b76c6d6",
+    "truth": [
+      "tests/test_termui.py::test_edit",
+      "tests/test_termui.py::test_edit_pathlib",
+      "tests/test_termui.py::test_fast_edit"
+    ],
+    "existing_truth": [
+      "tests/test_termui.py::test_edit",
+      "tests/test_termui.py::test_fast_edit"
+    ],
+    "files": [
+      "tests/test_termui.py",
+      "tests/typing/typing_edit.py"
+    ]
+  },
+  {
+    "case_id": "h3-click-bc32a92c",
+    "commit": "bc32a92cd2ae77afb2352f79ebdf00997f35d333",
+    "parent": "cbd7a4109da16ce58f54c2a618b4c986e3041fcf",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/click.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h3-click-bc32a92c/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h3-click-bc32a92c/production.patch",
+    "patch_sha256": "e632696a1f4ef99bd7c14f1baebad184b71eee97977365457833fede584f8d7d",
+    "truth": [
+      "tests/test_termui.py::test_get_pager_file_close_does_not_close_borrowed_stream",
+      "tests/test_termui.py::test_get_pager_file_flushes_stream_on_exception",
+      "tests/test_termui.py::test_get_pager_file_nullpager_keeps_stringio_stream",
+      "tests/test_termui.py::test_get_pager_file_nullpager_wraps_textio_stream",
+      "tests/test_termui.py::test_tempfile_pager_accepts_text",
+      "tests/test_termui.py::test_tempfile_pager_handles_ansi",
+      "tests/test_utils/test_echo_via_pager.py::test_echo_via_pager_yields_before_exception"
+    ],
+    "existing_truth": [
+      "tests/test_termui.py::test_get_pager_file_flushes_stream_on_exception",
+      "tests/test_termui.py::test_get_pager_file_nullpager_keeps_stringio_stream",
+      "tests/test_termui.py::test_get_pager_file_nullpager_wraps_textio_stream",
+      "tests/test_termui.py::test_tempfile_pager_accepts_text",
+      "tests/test_termui.py::test_tempfile_pager_handles_ansi",
+      "tests/test_utils/test_echo_via_pager.py::test_echo_via_pager_yields_before_exception"
+    ],
+    "files": [
+      "tests/test_termui.py",
+      "tests/test_utils/test_echo_via_pager.py"
+    ]
+  },
+  {
+    "case_id": "h3-click-c2ed4149",
+    "commit": "c2ed41490baa08002714ab79afa4a41f2d67c02c",
+    "parent": "333c28d79cd982990ee98eef61ec20ab1a4f38ba",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/click.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h3-click-c2ed4149/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h3-click-c2ed4149/production.patch",
+    "patch_sha256": "0b0233578d487d1a8f8b120173261f0756c7b4c6af8e3073ecd5d0d242c734f4",
+    "truth": [
+      "tests/test_arguments.py::test_file_args",
+      "tests/test_arguments.py::test_file_atomics",
+      "tests/test_basic.py::test_file_lazy_mode",
+      "tests/test_basic.py::test_file_option",
+      "tests/test_basic.py::test_path_option",
+      "tests/test_deprecations.py::test_isolated_filesystem_deprecated",
+      "tests/test_shell_completion.py::test_files_closed",
+      "tests/test_testing.py::test_isolated_runner",
+      "tests/test_testing.py::test_isolated_runner_custom_tempdir",
+      "tests/test_testing.py::test_tempdir_isolation_is_thread_safe",
+      "tests/test_testing.py::test_tempdir_replacement_pattern",
+      "tests/test_utils/test_open_file.py::test_open_file",
+      "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_existing_file",
+      "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_new_file",
+      "tests/test_utils/test_open_file.py::test_open_file_ignore_invalid_utf8",
+      "tests/test_utils/test_open_file.py::test_open_file_ignore_no_encoding",
+      "tests/test_utils/test_open_file.py::test_open_file_respects_ignore"
+    ],
+    "existing_truth": [
+      "tests/test_arguments.py::test_file_args",
+      "tests/test_arguments.py::test_file_atomics",
+      "tests/test_basic.py::test_file_lazy_mode",
+      "tests/test_basic.py::test_file_option",
+      "tests/test_basic.py::test_path_option",
+      "tests/test_shell_completion.py::test_files_closed",
+      "tests/test_testing.py::test_isolated_runner",
+      "tests/test_testing.py::test_isolated_runner_custom_tempdir",
+      "tests/test_utils/test_open_file.py::test_open_file",
+      "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_existing_file",
+      "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_new_file",
+      "tests/test_utils/test_open_file.py::test_open_file_ignore_invalid_utf8",
+      "tests/test_utils/test_open_file.py::test_open_file_ignore_no_encoding",
+      "tests/test_utils/test_open_file.py::test_open_file_respects_ignore"
+    ],
+    "files": [
+      "tests/test_arguments.py",
+      "tests/test_basic.py",
+      "tests/test_deprecations.py",
+      "tests/test_shell_completion.py",
+      "tests/test_testing.py",
+      "tests/test_utils/test_open_file.py"
+    ]
+  },
+  {
+    "case_id": "h3-click-8ee83ddb",
+    "commit": "8ee83ddbf5a7a4c2eac5308c9599c5ee67ee005e",
+    "parent": "fbdd434028fe07ecf35084c945b43b938dfd639f",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/click.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h3-click-8ee83ddb/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h3-click-8ee83ddb/production.patch",
+    "patch_sha256": "2f05c748b76a5af21c97b6e65a2581588cf1924b07f2d30dc703bada85394d36",
+    "truth": [
+      "tests/test_arguments.py::test_file_args",
+      "tests/test_arguments.py::test_file_atomics",
+      "tests/test_basic.py::test_file_lazy_mode",
+      "tests/test_basic.py::test_file_option",
+      "tests/test_basic.py::test_path_option",
+      "tests/test_shell_completion.py::test_files_closed",
+      "tests/test_testing.py::test_isolated_runner",
+      "tests/test_testing.py::test_isolated_runner_custom_tempdir",
+      "tests/test_utils/test_open_file.py::test_open_file",
+      "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_existing_file",
+      "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_new_file",
+      "tests/test_utils/test_open_file.py::test_open_file_ignore_invalid_utf8",
+      "tests/test_utils/test_open_file.py::test_open_file_ignore_no_encoding",
+      "tests/test_utils/test_open_file.py::test_open_file_respects_ignore"
+    ],
+    "existing_truth": [
+      "tests/test_arguments.py::test_file_args",
+      "tests/test_arguments.py::test_file_atomics",
+      "tests/test_basic.py::test_file_lazy_mode",
+      "tests/test_basic.py::test_file_option",
+      "tests/test_basic.py::test_path_option",
+      "tests/test_shell_completion.py::test_files_closed",
+      "tests/test_testing.py::test_isolated_runner",
+      "tests/test_testing.py::test_isolated_runner_custom_tempdir",
+      "tests/test_utils/test_open_file.py::test_open_file",
+      "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_existing_file",
+      "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_new_file",
+      "tests/test_utils/test_open_file.py::test_open_file_ignore_invalid_utf8",
+      "tests/test_utils/test_open_file.py::test_open_file_ignore_no_encoding",
+      "tests/test_utils/test_open_file.py::test_open_file_respects_ignore"
+    ],
+    "files": [
+      "tests/test_arguments.py",
+      "tests/test_basic.py",
+      "tests/test_shell_completion.py",
+      "tests/test_testing.py",
+      "tests/test_utils/test_open_file.py"
+    ]
+  },
+  {
+    "case_id": "h3-click-fbdd4340",
+    "commit": "fbdd434028fe07ecf35084c945b43b938dfd639f",
+    "parent": "333c28d79cd982990ee98eef61ec20ab1a4f38ba",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/click.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h3-click-fbdd4340/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h3-click-fbdd4340/production.patch",
+    "patch_sha256": "0b0233578d487d1a8f8b120173261f0756c7b4c6af8e3073ecd5d0d242c734f4",
+    "truth": [
+      "tests/test_arguments.py::test_file_args",
+      "tests/test_arguments.py::test_file_atomics",
+      "tests/test_basic.py::test_file_lazy_mode",
+      "tests/test_basic.py::test_file_option",
+      "tests/test_basic.py::test_path_option",
+      "tests/test_shell_completion.py::test_files_closed",
+      "tests/test_testing.py::test_isolated_filesystem_deprecated",
+      "tests/test_testing.py::test_isolated_runner",
+      "tests/test_testing.py::test_isolated_runner_custom_tempdir",
+      "tests/test_testing.py::test_tempdir_isolation_is_thread_safe",
+      "tests/test_testing.py::test_tempdir_replacement_pattern",
+      "tests/test_utils/test_open_file.py::test_open_file",
+      "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_existing_file",
+      "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_new_file",
+      "tests/test_utils/test_open_file.py::test_open_file_ignore_invalid_utf8",
+      "tests/test_utils/test_open_file.py::test_open_file_ignore_no_encoding",
+      "tests/test_utils/test_open_file.py::test_open_file_respects_ignore"
+    ],
+    "existing_truth": [
+      "tests/test_arguments.py::test_file_args",
+      "tests/test_arguments.py::test_file_atomics",
+      "tests/test_basic.py::test_file_lazy_mode",
+      "tests/test_basic.py::test_file_option",
+      "tests/test_basic.py::test_path_option",
+      "tests/test_shell_completion.py::test_files_closed",
+      "tests/test_testing.py::test_isolated_runner",
+      "tests/test_testing.py::test_isolated_runner_custom_tempdir",
+      "tests/test_utils/test_open_file.py::test_open_file",
+      "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_existing_file",
+      "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_new_file",
+      "tests/test_utils/test_open_file.py::test_open_file_ignore_invalid_utf8",
+      "tests/test_utils/test_open_file.py::test_open_file_ignore_no_encoding",
+      "tests/test_utils/test_open_file.py::test_open_file_respects_ignore"
+    ],
+    "files": [
+      "tests/test_arguments.py",
+      "tests/test_basic.py",
+      "tests/test_shell_completion.py",
+      "tests/test_testing.py",
+      "tests/test_utils/test_open_file.py"
+    ]
+  },
+  {
+    "case_id": "h3-click-051725fa",
+    "commit": "051725fa7e0c69effc9107066d8791c5b99242c3",
+    "parent": "7a0a3447f6ddd2c15438c5d098e289323f9f9556",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/click.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h3-click-051725fa/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h3-click-051725fa/production.patch",
+    "patch_sha256": "c9fb60f445a2256f080395544195ed36d0703642e0fc0cfaf107a380fb4751e6",
+    "truth": [
+      "tests/test_deprecations.py::test_stream_helper_deprecated",
+      "tests/test_deprecations.py::test_utilities_deprecated",
+      "tests/test_testing.py::test_echo_stdin_stream",
+      "tests/test_testing.py::test_runner",
+      "tests/test_testing.py::test_runner_with_stream"
+    ],
+    "existing_truth": [
+      "tests/test_testing.py::test_echo_stdin_stream",
+      "tests/test_testing.py::test_runner",
+      "tests/test_testing.py::test_runner_with_stream"
+    ],
+    "files": [
+      "tests/test_deprecations.py",
+      "tests/test_testing.py"
+    ]
+  },
+  {
+    "case_id": "h3-click-7a0a3447",
+    "commit": "7a0a3447f6ddd2c15438c5d098e289323f9f9556",
+    "parent": "b551fe85714c906565303fae98136d7c72b252ea",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/click.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h3-click-7a0a3447/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h3-click-7a0a3447/production.patch",
+    "patch_sha256": "dd6425499b0af5777842f4d8089a353aa4022a14f13f60bec8037af900a3f24b",
+    "truth": [
+      "tests/test_testing.py::test_echo_stdin_stream",
+      "tests/test_testing.py::test_runner",
+      "tests/test_testing.py::test_runner_with_stream",
+      "tests/test_utils/test_KeepOpenFile.py::test_iter_keepopenfile",
+      "tests/test_utils/test_LazyFile.py::test_iter_lazyfile",
+      "tests/test_utils/test_make_default_short_help.py::test_make_default_short_help"
+    ],
+    "existing_truth": [
+      "tests/test_testing.py::test_echo_stdin_stream",
+      "tests/test_testing.py::test_runner",
+      "tests/test_testing.py::test_runner_with_stream",
+      "tests/test_utils/test_KeepOpenFile.py::test_iter_keepopenfile",
+      "tests/test_utils/test_LazyFile.py::test_iter_lazyfile",
+      "tests/test_utils/test_make_default_short_help.py::test_make_default_short_help"
+    ],
+    "files": [
+      "tests/test_testing.py",
+      "tests/test_utils/test_KeepOpenFile.py",
+      "tests/test_utils/test_LazyFile.py",
+      "tests/test_utils/test_make_default_short_help.py"
+    ]
+  },
+  {
+    "case_id": "h3-click-71f2bafa",
+    "commit": "71f2bafa541e7f798834e74076786ff4281ac83e",
+    "parent": "8a4ce842564ae94ab050062db8525196ad476c19",
+    "repo": "/Users/Abslock128/Documents/ChatGPT/AMU/static-usefulness-2026-10-12/click.git",
+    "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h3-click-71f2bafa/parent",
+    "patch": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/h3-click-71f2bafa/production.patch",
+    "patch_sha256": "796bf48f9748f8f609eca4ce79e4b39eb373ff56272cdcc3aa261aa9125f1fc8",
+    "truth": [
+      "tests/test_compat.py::test_ansi_re_matches_whole_sequence",
+      "tests/test_compat.py::test_strip_ansi_is_idempotent",
+      "tests/test_compat.py::test_strip_ansi_is_superset_of_legacy",
+      "tests/test_compat.py::test_strip_ansi_leaves_incomplete_sequences",
+      "tests/test_compat.py::test_strip_ansi_leaves_plain_text",
+      "tests/test_compat.py::test_strip_ansi_mixed_content",
+      "tests/test_compat.py::test_strip_ansi_removes_full_sequence",
+      "tests/test_compat.py::test_strip_ansi_stops_at_final_byte",
+      "tests/test_compat.py::test_term_len",
+      "tests/test_compat.py::test_truncate_visible",
+      "tests/test_formatting.py::test_wrap_text_visible_width",
+      "tests/test_utils/test_style.py::test_unstyle_other_ansi"
+    ],
+    "existing_truth": [
+      "tests/test_formatting.py::test_wrap_text_visible_width",
+      "tests/test_utils/test_style.py::test_unstyle_other_ansi"
+    ],
+    "files": [
+      "tests/test_compat.py",
+      "tests/test_formatting.py",
+      "tests/test_utils/test_style.py"
+    ]
+  }
+]

@@ -171,6 +171,43 @@ def freeze_holdout2():
     print(f'Frozen {len(rows)} holdout-2 cases. No upstream execution.')
 
 
+def freeze_holdout3():
+    """Unseen Click commits for the coverage-assisted ranking, frozen before any run on them.
+
+    Continues the same backwards walk past every commit already used, keeping the first 8 that
+    change production src .py and modify a test function already present in the parent.
+    """
+    protocol = DATA/'protocol-v4.json'
+    if protocol.exists():
+        raise SystemExit('Already frozen; do not overwrite')
+    repo = ROOT.parent/'static-usefulness-2026-10-12/click.git'
+    used = {r['commit'] for r in json.loads((DATA/'click-sealed-v2.json').read_text())}
+    head = json.loads((DATA/'protocol-v2.json').read_text())['heads']['click']
+    rows = []
+    for commit in git(repo, 'rev-list', '--no-merges', head).decode().splitlines():
+        if commit in used:
+            continue
+        try:
+            row = prepare(repo, commit, 'h3-click-'+commit[:8])
+        except (subprocess.CalledProcessError, SyntaxError):
+            continue
+        if row and row['existing_truth']:
+            rows.append(row)
+            if len(rows) == 8:
+                break
+        elif row:
+            import shutil
+            shutil.rmtree(DATA/'cases'/row['case_id'])
+    path = DATA/'holdout3.json'
+    path.write_text(json.dumps(rows, indent=2)+'\n')
+    protocol.write_text(json.dumps(dict(
+        rule='Continue git rev-list --no-merges backwards from the frozen Click HEAD, skipping the 10 commits of click-sealed-v2; first 8 that change production src .py and modify a test function already present in the parent. No analyzer or test run before selection.',
+        reason='Judges line-aware coverage ranking on commits never analysed. Same repository as a development set, so independence is by commit, not by project.',
+        head=head, hashes={'holdout3.json': hashlib.sha256(path.read_bytes()).hexdigest()},
+        commits=[r['commit'] for r in rows]), indent=2)+'\n')
+    print(f'Frozen {len(rows)} holdout-3 cases. Nothing executed.')
+
+
 def worker(args):
     sys.path.insert(0, args.build)
     row = json.loads(Path(args.case).read_text())
@@ -219,8 +256,8 @@ def worker(args):
 
 
 def run(args):
-    freeze = json.loads((DATA/('protocol-v3.json' if args.suite == 'holdout2' else 'protocol-v2.json')).read_text())
-    manifest = DATA/{'werkzeug': 'werkzeug-v2.json', 'click': 'click-sealed-v2.json', 'holdout2': 'holdout2.json'}[args.suite]
+    freeze = json.loads((DATA/{'holdout2': 'protocol-v3.json', 'holdout3': 'protocol-v4.json'}.get(args.suite, 'protocol-v2.json')).read_text())
+    manifest = DATA/{'werkzeug': 'werkzeug-v2.json', 'click': 'click-sealed-v2.json', 'holdout2': 'holdout2.json', 'holdout3': 'holdout3.json'}[args.suite]
     assert hashlib.sha256(manifest.read_bytes()).hexdigest() == freeze['hashes'][manifest.name]
     out = DATA/args.label
     out.mkdir(exist_ok=False)
@@ -247,12 +284,12 @@ def run(args):
 
 if __name__ == '__main__':
     p=argparse.ArgumentParser()
-    p.add_argument('action',choices=['freeze','freeze-holdout2','run','worker'])
-    p.add_argument('--suite',default='werkzeug',choices=['werkzeug','click','holdout2'])
+    p.add_argument('action',choices=['freeze','freeze-holdout2','freeze-holdout3','run','worker'])
+    p.add_argument('--suite',default='werkzeug',choices=['werkzeug','click','holdout2','holdout3'])
     p.add_argument('--label')
     p.add_argument('--build',default=str(ROOT))
     p.add_argument('--engine',default='legacy')
     p.add_argument('--case')
     p.add_argument('--output')
     a=p.parse_args()
-    {'freeze':lambda _:freeze(),'freeze-holdout2':lambda _:freeze_holdout2(),'run':run,'worker':worker}[a.action](a)
+    {'freeze':lambda _:freeze(),'freeze-holdout2':lambda _:freeze_holdout2(),'freeze-holdout3':lambda _:freeze_holdout3(),'run':run,'worker':worker}[a.action](a)

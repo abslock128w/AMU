@@ -6,6 +6,7 @@ still match it; a file edited since is used as approximate evidence.
 from __future__ import annotations
 
 import json
+import math
 import re
 from pathlib import Path
 
@@ -114,20 +115,31 @@ def load(root, evidence, hashes, gaps):
     return None, None
 
 
-def tests_for(observed, record, tests):
-    """{test identity: exactness} for tests recorded executing any line of this symbol."""
+def tests_for(observed, record, tests, lines=()):
+    """{test identity: (exactness, rarity)} for tests recorded executing this symbol.
+
+    ``lines`` are the changed lines inside the symbol. ``rarity`` is 0 for a test that only
+    entered the declaration, and otherwise grows as fewer tests share the changed line it ran:
+    a line one test executes says more than a line every test passes through. It is None for
+    every test when no recorded test executed any changed line.
+    """
     if not observed or record['kind'] not in ('function', 'class', 'variable'):
         return {}
     rows = observed['files'].get(record['path'])
     if not rows:
         return {}
     exactness = 0.5 if record['path'] in observed['stale'] else 1.0
-    found = {}
+    found, rarity = {}, {}
     for start, end in record['spans']:
-        # The declaration line itself runs at import; only body lines attribute to a test.
         for line in range(start, end + 1):
-            for context in rows.get(line, ()):
-                ident = _test_identity(context)
-                if ident in tests:
+            ran = {ident for ident in map(_test_identity, rows.get(line, ())) if ident in tests}
+            # Entering a function is evidence about that function. A class or module span holds
+            # unrelated members, so there only the changed lines themselves count.
+            if record['kind'] == 'function' or line in lines:
+                for ident in ran:
                     found[ident] = exactness
-    return found
+            if line in lines and ran:
+                share = 1 / math.log2(1 + len(ran))
+                for ident in ran:
+                    rarity[ident] = max(rarity.get(ident, 0.0), share)
+    return {ident: (value, rarity.get(ident, 0.0) if rarity else None) for ident, value in found.items()}

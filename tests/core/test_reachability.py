@@ -276,3 +276,24 @@ def test_tail_of_the_ranking_stays_ordered_by_relevance(tmp_path):
         f'def test_far{i}():\n    assert helper()\n' for i in range(8)) + 'def test_zz_near():\n    assert work()\n'
     repository(tmp_path, {'lib.py': source, 'tests/test_lib.py': tests})
     assert ids(run(tmp_path, 'lib.py', source, source.replace('1', '2')))[0] == 'tests/test_lib.py::test_zz_near'
+
+
+def test_running_the_changed_lines_outranks_entering_the_function(tmp_path):
+    source = 'def parse(v):\n    if v:\n        return 1\n    return 2\n'
+    tests = 'from lib import parse\n' + ''.join(f'def test_{n}():\n    assert parse({v})\n' for n, v in (('aaa', 1), ('bbb', 1), ('zzz', 0)))
+    repository(tmp_path, {'lib.py': source, 'tests/test_lib.py': tests})
+    run_line = {str(n): [f'tests/test_lib.py::test_{t}|run' for t in who]
+                for n, who in ((2, ('aaa', 'bbb', 'zzz')), (3, ('aaa', 'bbb')), (4, ('zzz',)))}
+    coverage_report(tmp_path, {'lib.py': run_line})
+    result = run(tmp_path, 'lib.py', source, source.replace('return 2', 'return 3'))
+    assert ids(result)[0] == 'tests/test_lib.py::test_zzz' and 'ran the changed lines' in result['tests'][0]['why']
+    assert all(row['confidence'] == 'observed' for row in result['tests'])
+
+
+def test_change_in_code_no_recorded_test_ran_is_a_gap(tmp_path):
+    source = 'def parse(v):\n    if v:\n        return 1\n    return 2\n'
+    repository(tmp_path, {'lib.py': source, 'tests/test_lib.py': 'from lib import parse\ndef test_a():\n    assert parse(1)\n'})
+    coverage_report(tmp_path, {'lib.py': {'2': ['tests/test_lib.py::test_a|run'], '3': ['tests/test_lib.py::test_a|run']}})
+    result = run(tmp_path, 'lib.py', source, source.replace('return 2', 'return 3'))
+    assert any('No recorded test ran the changed lines of parse' in gap for gap in result['gaps'])
+    assert ids(result) == ['tests/test_lib.py::test_a']
