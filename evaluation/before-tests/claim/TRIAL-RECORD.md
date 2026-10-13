@@ -108,3 +108,60 @@ AMU arm, added before "When finished":
 >   prints JSON whose first fields are `flips` and `predicted_failures`: tests that passed before the change
 >   and fail after it, each as a command naming the test. Its running time, typically half a minute to two and a
 >   quarter minutes, is charged to the same 180 second budget, so decide whether and when to use it.
+
+## Result (added after the run; nothing above this line was changed afterwards)
+
+| Task | Kind | Breaking tests | Without AMU: found, wrong, budget used | AMU arm: found, wrong, budget used | AMU arm ran `./amu` |
+|---|---|---:|---|---|---|
+| 1 | indirect | 6 | 6, 0, 1 s | 6, 0, 1 s | no |
+| 2 | indirect | 4 | 4, 0, 63 s | 4, 0, 13 s | no |
+| 3 | indirect | 1 | 1, 0, 1 s | 1, 0, 2 s | no |
+| 4 | lexical | 2 | 2, 0, 19 s | 2, 0, 7 s | no |
+| 5 | lexical | 1 | 1, 0, 1 s | 1, 0, 3 s | no |
+| 6 | lexical | 1 | 1, 0, 1 s | 1, 0, 2 s | no |
+| Total | | 15 | 15, 0 | 15, 0 | 0 of 6 |
+
+**A tie.** Both arms found every frozen breaking test on all six tasks with no wrong report. By the rule
+written before the start, a tie is reported as a tie: AMU does not win the claim.
+
+No agent in the AMU arm ran `./amu`. Each read the diff, searched the tests for callers of the changed
+function or for the changed message, and ran the matching test modules, which took seconds. Told that the
+tool would cost half a minute to two and a quarter minutes of a 180 second budget, every one of them judged
+it not worth running. So this trial measured whether an agent that has AMU chooses it, and the answer was no.
+It did not measure AMU's output against the other arm's.
+
+The three "indirect" tasks were not hard for either arm. A breaking test outside the 40 tests most
+lexically similar to the diff text is still found by searching for the changed function's name. The
+indirect filter does not select what an agent finds difficult.
+
+### The tool by itself, run after the trial
+
+Because no agent used it, `./amu` was run once in each AMU-arm workspace after all agents had reported
+(`tool-alone-after-trial.log`). This is an observation about the tool at commit b9123df, not an arm result.
+
+| Task | Flips reported | Frozen breaking tests among them | Wrong flips | Budget charged |
+|---|---:|---:|---:|---:|
+| 1 | 6 | 6 of 6 | 0 | 13 s |
+| 2 | 0 | 0 of 4 | 0 | 20 s |
+| 3 | 1 | 1 of 1 | 0 | 48 s |
+| 4 | 2 | 2 of 2 | 0 | 27 s |
+| 5 | 1 | 1 of 1 | 0 | 75 s |
+| 6 | 1 | 1 of 1 | 0 | 78 s |
+
+Five tasks exactly right, no wrong flip anywhere, and one false all-clear. On task 2 the tool printed
+"EXECUTED 3 candidate tests ... 0 now fail" while four tests break. Its ranking had the breaking tests
+first; the failure was in execution. One candidate was a test method defined on a mixin class, which
+Django's runner cannot load: it called the function directly, crashed, and ran nothing. AMU read that as
+no failures. An agent that had trusted it would have been wrong, where plain search was right.
+
+Fixed afterwards: a method on a mixin is sent to the runner as the concrete test classes that inherit it; a
+batch that comes back short is split until the label that aborts it stands alone and is reported as not
+run; the summary states how many of the candidates produced an outcome. With that, the tool reports all
+four on task 2 and stays right on the other five (`tool-alone-after-fix.log`). Those six tasks are exposed
+now, so that rerun shows the defect is repaired and nothing more.
+
+### What executed upstream code
+
+Django's own tests, in scratch copies: the screening of 226 commits (touched test modules, parent and
+patched), one full-suite recording at 920b43eb, the dry run on five exposed cases, the twelve agents' test
+runs through `./rt`, and the tool-alone runs.

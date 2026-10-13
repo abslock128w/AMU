@@ -1,0 +1,67 @@
+{
+ "task1": {
+  "case": "dj-8acd0007",
+  "breaking": [
+   "tests/cache/tests.py::TestMakeTemplateFragmentKey::test_long_vary_on",
+   "tests/cache/tests.py::TestMakeTemplateFragmentKey::test_proper_escaping",
+   "tests/cache/tests.py::TestMakeTemplateFragmentKey::test_with_ints_vary_on",
+   "tests/cache/tests.py::TestMakeTemplateFragmentKey::test_with_many_vary_on",
+   "tests/cache/tests.py::TestMakeTemplateFragmentKey::test_with_one_vary_on",
+   "tests/cache/tests.py::TestMakeTemplateFragmentKey::test_with_unicode_vary_on"
+  ],
+  "indirect": [
+   "tests/cache/tests.py::TestMakeTemplateFragmentKey::test_long_vary_on",
+   "tests/cache/tests.py::TestMakeTemplateFragmentKey::test_proper_escaping",
+   "tests/cache/tests.py::TestMakeTemplateFragmentKey::test_with_ints_vary_on",
+   "tests/cache/tests.py::TestMakeTemplateFragmentKey::test_with_many_vary_on",
+   "tests/cache/tests.py::TestMakeTemplateFragmentKey::test_with_one_vary_on",
+   "tests/cache/tests.py::TestMakeTemplateFragmentKey::test_with_unicode_vary_on"
+  ]
+ },
+ "task2": {
+  "case": "dj-65acb3cc",
+  "breaking": [
+   "tests/cache/tests.py::CacheI18nTest::test_cache_key_i18n_translation_accept_language",
+   "tests/cache/tests.py::CacheUtils::test_learn_cache_key",
+   "tests/cache/tests.py::PrefixedCacheI18nTest::test_cache_key_i18n_translation_accept_language",
+   "tests/cache/tests.py::PrefixedCacheUtils::test_learn_cache_key"
+  ],
+  "indirect": [
+   "tests/cache/tests.py::CacheI18nTest::test_cache_key_i18n_translation_accept_language",
+   "tests/cache/tests.py::CacheUtils::test_learn_cache_key",
+   "tests/cache/tests.py::PrefixedCacheI18nTest::test_cache_key_i18n_translation_accept_language",
+   "tests/cache/tests.py::PrefixedCacheUtils::test_learn_cache_key"
+  ]
+ },
+ "task3": {
+  "case": "dj-ca5746b8",
+  "breaking": [
+   "tests/async/test_async_queryset.py::AsyncQuerySetTest::test_aiterator_prefetch_related"
+  ],
+  "indirect": [
+   "tests/async/test_async_queryset.py::AsyncQuerySetTest::test_aiterator_prefetch_related"
+  ]
+ },
+ "task4": {
+  "case": "dj-57c8c8b1",
+  "breaking": [
+   "tests/modeladmin/test_checks.py::DeleteConfirmationMaxObjectsCheckTests::test_negative_integer",
+   "tests/modeladmin/test_checks.py::DeleteConfirmationMaxObjectsCheckTests::test_not_integer"
+  ],
+  "indirect": []
+ },
+ "task5": {
+  "case": "dj-2314cdf1",
+  "breaking": [
+   "tests/queries/test_qs_combinators.py::QuerySetSetOperationTests::test_unsupported_ordering_slicing_raises_db_error"
+  ],
+  "indirect": []
+ },
+ "task6": {
+  "case": "dj-0f4fff79",
+  "breaking": [
+   "tests/utils_tests/test_crypto.py::TestUtilsCryptoMisc::test_salted_hmac"
+  ],
+  "indirect": []
+ }
+}

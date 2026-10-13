@@ -74,5 +74,8 @@ def run(root, edits, ids, python=None, budget=60, runner=None):
         before, after = states['before'].get(ident), states['after'].get(ident)
         if before and after and before != after:
             rows.append(dict(id=ident, before=before, after=after, label='executed'))
-    info = dict(ran=len(states['after']), seconds=round(time.perf_counter() - started, 1), runner=runner.name)
+    unrunnable = sorted(ident for ident, state in states['after'].items() if state == 'unrunnable')
+    if unrunnable:
+        gaps.append(f'{len(unrunnable)} candidate(s) could not be run by {runner.name} and are not covered by this result')
+    info = dict(ran=sum(state != 'unrunnable' for state in states['after'].values()), candidates=len(ids), unrunnable=len(unrunnable), outcomes=states['after'], seconds=round(time.perf_counter() - started, 1), runner=runner.name)
     return rows, info, gaps

@@ -14,6 +14,7 @@ from pathlib import Path
 VERBOSE = re.compile(r'^(\w+) \(([\w.]+)\)')
 STATE = re.compile(r'\.\.\. (ok|FAIL|ERROR|skipped|expected failure|unexpected success)')
 ORDER = {'failed': 3, 'passed': 2, 'skipped': 1}
+MAX_SPLITS = 12  # extra runner starts allowed to isolate labels that abort a batch
 
 
 def dotted(ident, strip=''):
@@ -162,9 +163,10 @@ def execute(runner, python, tree, ids, report, timeout):
     env = dict(os.environ, PYTHONDONTWRITEBYTECODE='1',
                PYTHONPATH=os.pathsep.join(filter(None, [str(tree/'src'), str(tree), os.environ.get('PYTHONPATH')])))
     found, problem = {}, None
-    # One batch first. A single unloadable label can abort a unittest-style batch, so what is
-    # left without an outcome is retried one test file at a time.
-    batches = [usable]
+    # One batch first. A single label the runner cannot load can abort the whole batch and leave it with
+    # no outcomes, so a batch that comes back short is split in two and retried until the labels that
+    # cannot be run stand alone. Those are returned as 'unrunnable': never silently as "did not fail".
+    batches, splits = [usable], 0
     while batches:
         batch = batches.pop(0)
         try:
@@ -178,14 +180,20 @@ def execute(runner, python, tree, ids, report, timeout):
         got = runner.outcomes(tree, output, report, batch)
         found.update(got)
         missing = [i for i in batch if i not in got]
-        if not got and batch is usable and len({i.split('::')[0] for i in batch}) == 1:
+        if not missing:
+            continue
+        if batch is usable and not got and len(batch) > 1 and splits == 0:
             tail = output.strip().splitlines()[-1:] or ['no output']
-            problem = 'no outcomes read: ' + tail[0][:120]
-        elif missing and batch is usable and runner.needs_class:
-            files = {}
+            first_error = tail[0][:120]
+        if len(missing) == 1 or splits >= MAX_SPLITS:
             for ident in missing:
-                files.setdefault(ident.split('::')[0], []).append(ident)
-            batches.extend(files.values())
+                found[ident] = 'unrunnable'
+            continue
+        splits += 1
+        half = len(missing) // 2
+        batches.extend([missing[:half], missing[half:]])
+    if usable and all(found.get(i) == 'unrunnable' for i in usable):
+        problem = 'no outcomes read: ' + locals().get('first_error', 'the runner produced no result for any candidate')
     return found, problem
 
 

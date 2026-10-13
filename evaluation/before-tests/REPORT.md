@@ -433,6 +433,50 @@ What the profile showed after the bounded relink, and what was done:
 Checked on Django: the relinked graph ranks the same tests as a full rebuild of the edited tree. Rejected:
 writing the new snapshot in a background process, which would make a repeat call race its own cache.
 
+## Piece 3: the claim run (first number that counts as a claim)
+
+Full record, written before the start and extended with the result: `claim/TRIAL-RECORD.md`.
+
+Six unseen Django tasks, frozen by script from history older than every Phase 0 commit: three indirect, three
+lexical. Twelve agents (Sonnet), one per task and arm. Both arms had 180 seconds of tool wall-clock time,
+enforced by a ledger; the AMU arm's `./amu` charged its index build, tree copy and every test it ran to the
+same ledger. Twelve agents instead of ten, to keep the equal split.
+
+| | Without AMU | AMU arm |
+|---|---:|---:|
+| Tasks with every breaking test found | 6 of 6 | 6 of 6 |
+| Breaking tests found | 15 of 15 | 15 of 15 |
+| Wrong reports | 0 | 0 |
+| Tool time used per task | 1 to 63 s | 1 to 13 s |
+| Agents that ran `./amu` | not available | 0 of 6 |
+
+**Result: a tie, so AMU does not win the claim.** No agent given AMU chose to run it. Each searched for
+callers of the changed function or for the changed message and ran the matching test modules in seconds.
+
+The tool run alone on the same six tasks after the trial, at the tested commit b9123df: five exactly right,
+no wrong flip, and one false all-clear (task 2: "0 now fail" while four tests break). A test method on a
+mixin class crashed Django's runner before anything ran and AMU read the empty result as no failures. That
+is fixed, with tests, and the summary now says how many candidates produced an outcome.
+
+What this run established:
+
+- With a time budget instead of a run count, a capable agent on a repository whose test modules run in
+  seconds does not need AMU and does not reach for it.
+- The indirect filter did not select hard cases. "Outside the lexical top 40" is still inside "tests that
+  call the changed function", which is what agents search for.
+- AMU's execution result was right on five of six unseen tasks and silently wrong on one. A tool whose
+  worth is an exact answer cannot afford a silent wrong one; the specific cause is fixed, the class of
+  failure (a runner that produces nothing) is now reported instead of read as a pass.
+
+What it did not establish: whether AMU helps when the agent is not offered a choice (a hook that runs it
+after every edit), on repositories where relevant tests take minutes instead of seconds, or on changes whose
+breaking tests cannot be found by searching, such as Phase 0 case 4. That last kind exists but was 1 commit
+in 250.
+
+Also changed during this piece, from a dry run on the exposed Phase 0 cases before the trial: shadow
+execution runs the changed side first and reruns only failures on the unchanged side, and a recording's
+lines are carried through edits made after it.
+
 ## Milestones (state at b3747c8)
 
 - **M1 harness.** `scripts/before_tests_harness.py`; protocol and manifests are hash-pinned.

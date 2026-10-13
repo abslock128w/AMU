@@ -15,6 +15,7 @@ from .patch import align, applied, candidate, changes, original, renumber
 
 LIMIT = 2000
 MAX_TESTS = 40
+MIXIN_COPIES = 6  # concrete subclasses run for a test method that lives on a mixin
 RUN_CANDIDATES = 150  # executing is cheap next to guessing; --run looks well past the ranked list
 
 
@@ -116,6 +117,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     order = {'function': 0, 'variable': 0, 'class': 1, 'module': 2}
     narrow = sorted(symbols, key=lambda s: (order[graph.records[s]['kind']], s))
     tests = {ident: r for ident, r in graph.records.items() if graph.is_test(r)}
+    chosen = runners.get(root, runner)
     affinity = rank.Affinity(tests)
     content = rank.Content(tests)
     # What the patch says, per file: the words of its added and removed lines.
@@ -225,6 +227,34 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         near = [ident for ident, (position, _, _) in graph.reach([symbol], max_depth=2).items() if not position[2]]
         for ident, reason in lexical.expecting(tests, near, categories).items():
             likely.setdefault(ident, reason)
+    runnable_class = {}
+
+    def runnable(cls, seen=()):
+        """Whether a runner will collect tests from this class: a TestCase descendant, or Test* under pytest."""
+        if cls in runnable_class:
+            return runnable_class[cls]
+        record = graph.records.get(cls) or {}
+        found = record.get('kind') == 'class' and chosen.name == 'pytest' and record['qual'].rsplit('.', 1)[-1].startswith('Test')
+        for base in record.get('bases', []) if record.get('kind') == 'class' else []:
+            name = base[-1] if base and base[0] in ('name', 'attr') else ''
+            if isinstance(name, str) and name.endswith('TestCase'):
+                found = True
+            for parent in graph.resolve(base, record['owner']):
+                if parent not in seen and runnable(parent, (*seen, cls)):
+                    found = True
+        runnable_class[cls] = found
+        return found
+
+    def run_ids(ident):
+        """The ids a runner can actually execute for a test: itself, or, for a method defined on a mixin,
+        the concrete test classes that inherit it."""
+        own = tests[ident]['path'] + '::' + tests[ident]['qual'].replace('.', '::')
+        owner = tests[ident].get('owner')
+        if graph.records.get(owner, {}).get('kind') != 'class' or runnable(owner):
+            return [own]
+        return [copy for copy in inheritors(ident)
+                if runnable(copy.rsplit('::', 1)[0].replace('::', '#', 1).replace('::', '.'))][:MIXIN_COPIES]
+
     def inheritors(ident):
         """Ids of the same test method in subclasses that inherit it: it runs, and fails, there too."""
         owner = tests[ident].get('owner')
@@ -278,7 +308,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         # Exact beats ranked: run the candidates on both sides of the change and report what flips.
         # With a recording, the candidates are the tests seen executing the change; run more of them.
         cap = RUN_CANDIDATES * (2 if observed else 1)
-        wide = [tests[ident]['path'] + '::' + tests[ident]['qual'].replace('.', '::') for ident, _ in order[:cap]]
+        wide = list(dict.fromkeys(run_id for ident, _ in order[:cap] for run_id in run_ids(ident)))[:cap]
         flips, executed, run_gaps = shadow.run(root, edits, wide, python, budget, runner)
         gaps.extend(run_gaps)
         # A failing test defined on a base class is run again in every subclass that inherits it.
@@ -289,12 +319,14 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
             more, again, more_gaps = shadow.run(root, edits, copies, python, budget, runner)
             flips.extend(more)
             gaps.extend(more_gaps)
-            executed.update(ran=executed['ran'] + again['ran'], seconds=round(executed['seconds'] + again['seconds'], 1))
+            executed.update(ran=executed['ran'] + again['ran'], seconds=round(executed['seconds'] + again['seconds'], 1),
+                            candidates=executed.get('candidates', 0) + again.get('candidates', 0),
+                            outcomes={**executed.get('outcomes', {}), **again.get('outcomes', {})})
         state = {flip['id']: flip for flip in flips}
         for row in rows:
             if row['id'] in state:
                 row['expect'] = 'fails' if state[row['id']]['after'] == 'failed' else 'now_' + state[row['id']]['after']
-            elif executed['ran'] and not run_gaps:
+            elif executed.get('outcomes', {}).get(row['id']) in ('passed', 'skipped'):
                 row['expect'] = 'unchanged'
         rows.sort(key=lambda row: row['expect'] != 'fails')
         executed['predicted_failures'] = [flip for flip in flips if flip['after'] == 'failed']
@@ -313,7 +345,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     fails = sum(row['expect'] == 'likely_fail' for row in rows)
     summary = f"{fails} likely_fail, {len(scores)} tests reach the change."
     if executed is not None and executed['ran']:
-        summary = (f"EXECUTED {executed['ran']} candidate tests after the change with {executed['runner']} in {executed['seconds']} s, failures confirmed before it: "
+        summary = (f"EXECUTED {executed['ran']} of {executed.get('candidates', executed['ran'])} candidate tests after the change with {executed['runner']} in {executed['seconds']} s, failures confirmed before it: "
                    f"{len(executed['predicted_failures'])} now fail. " + summary.split(', ', 1)[1])
     elif executed is not None:
         # Saying "0 now fail" when nothing ran would be a false all-clear.
@@ -322,7 +354,6 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
                   impacted=listed, gaps=sorted(set(gaps)),
                   caveats='Static unless a row says observed. Not proof.')
     # Every listed test carries the exact command for the project's own runner.
-    chosen = runners.get(root, runner)
     report['runner'] = chosen.name
     for row in rows:
         row['run'] = chosen.paste(row['id']) if not chosen.needs_class or row['id'].count('::') >= 2 else None

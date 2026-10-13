@@ -1,0 +1,56 @@
+{
+ "task1a": [
+  "cache.tests.TestMakeTemplateFragmentKey.test_long_vary_on",
+  "cache.tests.TestMakeTemplateFragmentKey.test_proper_escaping",
+  "cache.tests.TestMakeTemplateFragmentKey.test_with_ints_vary_on",
+  "cache.tests.TestMakeTemplateFragmentKey.test_with_many_vary_on",
+  "cache.tests.TestMakeTemplateFragmentKey.test_with_one_vary_on",
+  "cache.tests.TestMakeTemplateFragmentKey.test_with_unicode_vary_on"
+ ],
+ "task1b": [
+  "cache.tests.TestMakeTemplateFragmentKey.test_long_vary_on",
+  "cache.tests.TestMakeTemplateFragmentKey.test_proper_escaping",
+  "cache.tests.TestMakeTemplateFragmentKey.test_with_ints_vary_on",
+  "cache.tests.TestMakeTemplateFragmentKey.test_with_many_vary_on",
+  "cache.tests.TestMakeTemplateFragmentKey.test_with_one_vary_on",
+  "cache.tests.TestMakeTemplateFragmentKey.test_with_unicode_vary_on"
+ ],
+ "task2a": [
+  "cache.tests.CacheUtils.test_learn_cache_key",
+  "cache.tests.PrefixedCacheUtils.test_learn_cache_key",
+  "cache.tests.CacheI18nTest.test_cache_key_i18n_translation_accept_language",
+  "cache.tests.PrefixedCacheI18nTest.test_cache_key_i18n_translation_accept_language"
+ ],
+ "task2b": [
+  "cache.tests.CacheUtils.test_learn_cache_key",
+  "cache.tests.PrefixedCacheUtils.test_learn_cache_key",
+  "cache.tests.CacheI18nTest.test_cache_key_i18n_translation_accept_language",
+  "cache.tests.PrefixedCacheI18nTest.test_cache_key_i18n_translation_accept_language"
+ ],
+ "task3a": [
+  "async.test_async_queryset.AsyncQuerySetTest.test_aiterator_prefetch_related"
+ ],
+ "task3b": [
+  "async.test_async_queryset.AsyncQuerySetTest.test_aiterator_prefetch_related"
+ ],
+ "task4a": [
+  "modeladmin.test_checks.DeleteConfirmationMaxObjectsCheckTests.test_negative_integer",
+  "modeladmin.test_checks.DeleteConfirmationMaxObjectsCheckTests.test_not_integer"
+ ],
+ "task4b": [
+  "modeladmin.test_checks.DeleteConfirmationMaxObjectsCheckTests.test_negative_integer",
+  "modeladmin.test_checks.DeleteConfirmationMaxObjectsCheckTests.test_not_integer"
+ ],
+ "task5a": [
+  "queries.test_qs_combinators.QuerySetSetOperationTests.test_unsupported_ordering_slicing_raises_db_error"
+ ],
+ "task5b": [
+  "queries.test_qs_combinators.QuerySetSetOperationTests.test_unsupported_ordering_slicing_raises_db_error"
+ ],
+ "task6a": [
+  "utils_tests.test_crypto.TestUtilsCryptoMisc.test_salted_hmac"
+ ],
+ "task6b": [
+  "utils_tests.test_crypto.TestUtilsCryptoMisc.test_salted_hmac"
+ ]
+}

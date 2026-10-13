@@ -405,7 +405,7 @@ def test_shadow_execution_reports_exactly_the_tests_that_flip(tmp_path):
             (tmp_path/'lib.py').write_text(changed)
         result = analyze(tmp_path, patch('lib.py', source, changed), index_dir=tmp_path/'.index', run=True, python=sys.executable)
         assert result['predicted_failures'] == ['tests/test_lib.py::test_work'], result
-        assert result['summary'].startswith('EXECUTED 2 candidate tests after the change') and '1 now fail' in result['summary']
+        assert result['summary'].startswith('EXECUTED 2 of 2 candidate tests after the change') and '1 now fail' in result['summary']
         assert result['tests'] == []
 
 
@@ -557,3 +557,30 @@ def test_recorded_lines_follow_the_file_through_edits_made_after_the_recording(t
     assert first['id'] == 'tests/test_a.py::T::test_falsy' and 'ran the changed lines of parse' in first['why'], result['tests']
     flips = analyze(tmp_path, patch('lib.py', later, later.replace('return 2', 'return 3')), index_dir=tmp_path/'.index', run=True, python=sys.executable)
     assert flips['predicted_failures'] == ['python -m unittest tests.test_a.T.test_falsy'] and flips['flips'] == 1
+
+
+def test_test_method_on_a_mixin_is_run_in_its_concrete_subclasses_not_reported_as_all_clear(tmp_path):
+    import sys
+    source = 'def key(v):\n    return "k:" + v\n'
+    tests = ('import unittest\nimport lib\n'
+             'class KeyTestsMixin:\n    def test_key(self):\n        self.assertEqual(lib.key("a"), "k:a")\n'
+             'class LocalKeyTests(KeyTestsMixin, unittest.TestCase):\n    pass\n'
+             'class RemoteKeyTests(KeyTestsMixin, unittest.TestCase):\n    pass\n')
+    repository(tmp_path, {'lib.py': source, 'tests/__init__.py': '', 'tests/test_a.py': tests})
+    result = analyze(tmp_path, patch('lib.py', source, source.replace('"k:"', '"key:"')), index_dir=tmp_path/'.index', run=True, python=sys.executable)
+    assert sorted(result['predicted_failures']) == ['python -m unittest tests.test_a.LocalKeyTests.test_key',
+                                                    'python -m unittest tests.test_a.RemoteKeyTests.test_key'], result
+    assert result['flips'] == 2 and 'EXECUTED 2 of 2' in result['summary']
+
+
+def test_label_that_aborts_the_runner_is_isolated_and_reported(tmp_path):
+    import sys
+
+    from amu.core import runners
+    tests = ('import unittest\nclass Mixin:\n    def test_mixin(self):\n        pass\n'
+             'class Real(unittest.TestCase):\n    def test_ok(self):\n        pass\n    def test_bad(self):\n        self.fail("x")\n')
+    repository(tmp_path, {'tests/__init__.py': '', 'tests/test_a.py': tests})
+    ids = ['tests/test_a.py::Real::test_ok', 'tests/test_a.py::Mixin::test_mixin', 'tests/test_a.py::Real::test_bad']
+    found, problem = runners.execute(runners.get(tmp_path, 'unittest'), sys.executable, tmp_path, ids, tmp_path/'r.xml', 60)
+    assert found == {'tests/test_a.py::Real::test_ok': 'passed', 'tests/test_a.py::Mixin::test_mixin': 'unrunnable',
+                     'tests/test_a.py::Real::test_bad': 'failed'} and problem is None
