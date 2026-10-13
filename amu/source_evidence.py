@@ -937,6 +937,16 @@ def graph_call_evidence(
     different file alone cannot: reexports/dynamic bindings remain deliberately
     unverifiable.
     """
+    from .semantic import ACTIVE_INDEX, normalized_id, source_calls
+    index = ACTIVE_INDEX.get()
+    if target_path and index is not None and getattr(index,"repository",None)==str(Path(repo).resolve()):
+        expected=normalized_id(index,target_path+"#"+target_symbol)
+        rows=source_calls(index,relative_path,scope_start,scope_end)
+        rows=[r for r in rows if line is None or r["location"]["line"]<=line<=r["location"]["end_line"]]
+        if any(r["source_id"]==expected and r["resolution"]=="resolved" for r in rows):
+            return "verified"
+        if any(r["source_id"]==expected for r in rows):
+            return "unverifiable"
     target = target_symbol.rsplit(".", 1)[-1].strip()
     parsed = _source_tree(repo, relative_path)
     if not target or parsed is None:

@@ -351,7 +351,11 @@ def _patch_summary(identity: dict, groups: dict) -> dict:
                          "constructed-instance-method": 0, "constructed-instance-state-path": 0,
                          "broad-class-reference": 1, "broad-source-reference": 1}
     ranked_checks = []
+    broad_check_count = 0
     for row in groups["recommended_checks"]:
+        if row.get("verification_category") == "broad-source-reference":
+            broad_check_count += 1
+            continue
         associations = sorted(row.get("associations", []), key=lambda item: (
             min(({"input-and-assertion": 0, "assertion": 1, "input": 2, "broad": 3, "unresolved": 4}.get(
                 evidence.get("level"), 4) for evidence in item.get("obligation_evidence", [])), default=4),
@@ -364,13 +368,16 @@ def _patch_summary(identity: dict, groups: dict) -> dict:
         ranked_checks.append((behavioral_rank, rank, row.get("test_id", ""), row, best))
     ranked_checks.sort(key=lambda item: (item[0], item[1], item[2]))
     check_preview = [{"test_id": row.get("test_id"),
-                      "kind": ("behavioral-evidence" if behavioral_rank < 3 else
+                      "kind": ("assertion-relevant-to-changed-condition" if behavioral_rank == 0 else
+                               "related-result-assertion" if behavioral_rank < 2 else
+                               "supported-input" if behavioral_rank == 2 else
                                "related-result-assertion" if best.get("result_assertion") else
                                "supported-source-path" if rank == 0 else "broad-candidate" if rank == 1 else "unresolved"),
                       "relationship": best.get("relationship"), "entity_id": best.get("entity_id"),
                       "behavioral_rank": behavioral_rank,
                       "result_assertion": ({"line": best["result_assertion"]["assertion"]["location"]["line"],
-                                            "changed_behavior_established": False}
+                                            "changed_behavior_established": False,
+                                            "changed_condition_related": bool(best["result_assertion"].get("changed_condition_related"))}
                                            if best.get("result_assertion") else None),
                       "test_status": row.get("test_provenance", {}).get("status", "unknown"),
                       "obligation_evidence": [{"evidence_category": evidence.get("evidence_category"),
@@ -421,7 +428,9 @@ def _patch_summary(identity: dict, groups: dict) -> dict:
                                    "samples": samples, "omitted_samples": len(rows) - len(samples)})
 
     scope = identity.get("recommendation_scope", {})
-    if ranked_checks:
+    if broad_check_count and not ranked_checks:
+        search = f"No member-specific verification path established; {broad_check_count} broad source references are retained for inspection in recommended_checks."
+    elif ranked_checks:
         search = "Existing checks are ranked by bounded input and assertion evidence, then source relationship. Static evidence does not prove execution or contract coverage."
     elif not any(row.get("file_type") == "python" for row in files):
         search = "No Python entity changed; existing Python checks were not inferred for documentation-only content."
@@ -471,6 +480,8 @@ def _patch_summary(identity: dict, groups: dict) -> dict:
             "omitted_state_relationships": len(state_preview) - min(len(state_preview), PATCH_SUMMARY_STATE_LIMIT),
             "existing_checks": check_preview,
             "omitted_existing_checks": len(ranked_checks) - len(check_preview),
+            "broad_reference_count": broad_check_count,
+            "broad_references_section": "recommended_checks",
             "candidate_test_files": identity.get("candidate_test_files", []),
             "candidate_existing_test_files": identity.get("candidate_existing_test_files", []),
             "candidate_added_test_files": added_tests,

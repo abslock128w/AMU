@@ -212,7 +212,12 @@ class _Phase:
     def collect(self, node: ast.AST, prefix: str = "", class_name: str | None = None,
                 enclosing: tuple[frozenset, ...] = ()):
         context = {"class": class_name, "enclosing": enclosing}
+        from .semantic import overload_nodes
+
+        erased = overload_nodes(self.tree)
         for child in getattr(node, "body", []):
+            if child in erased:
+                continue
             if isinstance(child, (*_FUNCTIONS, ast.ClassDef)):
                 name = f"{prefix}.{child.name}" if prefix else child.name
                 if isinstance(child, ast.ClassDef):

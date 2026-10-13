@@ -631,7 +631,7 @@ def _verified_package_submodules(root: Path, affected: dict[str, set[str]], test
     return verified, sources, unresolved, total_bytes, sorted(absent_competitors)
 
 
-def execute_patch(repo: str, request: PatchRequest) -> dict:
+def _compute_patch(repo: str, request: PatchRequest, *, snapshot_key=None) -> dict:
     """Inspect a concrete diff and relevant existing test syntax, without execution."""
     from amu.change_analysis import analyze_python_change
     from amu.check_drafts import CheckSpecError, propose
@@ -821,10 +821,6 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
     verified_submodules, resolution_sources, unresolved_imports, total_bytes, resolution_absences = _verified_package_submodules(
         root, affected, tests, snapshots, {file.path for file in files}, total_bytes)
     source_calls, source_call_limits = patch_source_call_edges(source_trees, declarations)
-    groups["recommended_checks"] = patch_test_recommendations(
-        tests, affected, declarations=declarations, state_dependencies=groups["state_dependencies"],
-        source_calls=source_calls, verified_submodules=verified_submodules,
-        obligations=groups["obligations"], source_trees=source_trees)
     # Inspect bounded production source as data, using the same secure reads
     # and final snapshot checks as patch/test evidence. Unchanged dependencies
     # participate in report identity; no cross-request summary cache exists.
@@ -864,7 +860,56 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
                                         "sha256": next(row["candidate_sha256"] for row in file_identities if row["path"] == file.path)}
     changed_production_ids = {row["id"] for row in groups["changes"]
                               if row.get("source_role", {}).get("role") == "production"}
-    flow = analyze_repository(flow_before, flow_after, changed_production_ids)
+    from amu.semantic import ACTIVE_INDEX
+    from amu.value_flow import Resolver
+    semantic_index = Resolver(flow_before)
+    semantic_index.repository = str(root)
+    graph_records = []
+    if request.include_graph:
+        try:
+            capture = mapping.worktree_fingerprint(str(root), "before concrete patch graph inspection")
+            targets = sorted(set(graph_targets))
+            for symbol in targets[:MAX_GRAPH_TARGETS]:
+                token = ACTIVE_INDEX.set(semantic_index)
+                try:
+                    mapped = mapping.inspect(str(root), mapping.MapRequest(symbol=symbol, depth=request.depth, change="body"))
+                finally:
+                    ACTIVE_INDEX.reset(token)
+                graph_records.append({"symbol": symbol, "map_hash": mapped["map_hash"], "baseline_only": True,
+                                      "graph_evidence": {key: value for key, value in mapped["graph_evidence"].items() if key != "at"}, "relationships": mapped["nodes"],
+                                      "source_resolution": mapped["resolution"]})
+            current = mapping.worktree_fingerprint(str(root), "after concrete patch graph inspection")
+            if capture["head"] != current["head"] or not graph_refresh.relation_capture_matches(capture, current):
+                raise ImpactInputError("worktree changed during graph inspection; retry")
+            if len(targets) > MAX_GRAPH_TARGETS:
+                groups["uncertainties"].append({"reason": "graph target limit reached; some changed entities have no provider query"})
+            if not targets:
+                groups["uncertainties"].append({"reason": "changed state/additions have no supported baseline provider declaration target"})
+        except (mapping.GraphDataError, state.StateReadError, state.SchemaError, RecursionError) as exc:
+            groups["uncertainties"].append({"reason": str(exc) or "graph provider evidence unavailable"})
+        groups["uncertainties"].extend({"kind": "baseline-provider-evidence", **record} for record in graph_records)
+    else:
+        groups["uncertainties"].append({"reason": "provider graph was not requested; relationships are limited to supported source syntax"})
+    from amu.semantic import normalized_id
+    provider_candidates = []
+    for record in graph_records:
+        evidence = record["graph_evidence"]
+        uncertain = evidence.get("unverified_python_calls", [])
+        if uncertain:
+            evidence["approvable"] = False
+        for node in record["relationships"]:
+            if any(u.get("endpoint") == node.get("symbol") for u in uncertain):
+                node["confidence"] = "unresolved"
+                node["identity_status"] = "source-unverified"
+        for edge in evidence.get("edge_baselines", {}).get(record["symbol"], []):
+            if edge.get("direction") == "in" and edge.get("relation") == "CALLS":
+                provider_candidates.append({"source_id": normalized_id(semantic_index, record["symbol"]), "consumer_id": normalized_id(semantic_index, edge["related"]),
+                                            "status": "candidate", "map_hash": record["map_hash"]})
+    groups["recommended_checks"] = patch_test_recommendations(
+        tests, affected, declarations=declarations, state_dependencies=groups["state_dependencies"],
+        source_calls=source_calls, verified_submodules=verified_submodules,
+        obligations=groups["obligations"], source_trees=source_trees)
+    flow = analyze_repository(flow_before, flow_after, changed_production_ids, provider_candidates=provider_candidates)
     groups["uncertainties"].extend(flow["uncertainties"])
     if not production_complete:
         groups["uncertainties"].append({"reason": "production inventory/dependency analysis incomplete within 512-file and shared source-byte limits"})
@@ -978,28 +1023,6 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
         finding["relationships"] = [{**{key: row[key] for key in ("state_id", "consumer_id", "access", "phase", "location")},
                                       "evidence_section": "state_dependencies"} for row in groups["state_dependencies"]
                                      if row.get("state_id") == entity_id or row.get("consumer_id") == entity_id]
-    graph_records = []
-    if request.include_graph:
-        try:
-            capture = mapping.worktree_fingerprint(str(root), "before concrete patch graph inspection")
-            targets = sorted(set(graph_targets))
-            for symbol in targets[:MAX_GRAPH_TARGETS]:
-                mapped = mapping.inspect(str(root), mapping.MapRequest(symbol=symbol, depth=request.depth, change="body"))
-                graph_records.append({"symbol": symbol, "map_hash": mapped["map_hash"], "baseline_only": True,
-                                      "graph_evidence": {key: value for key, value in mapped["graph_evidence"].items() if key != "at"}, "relationships": mapped["nodes"],
-                                      "source_resolution": mapped["resolution"]})
-            current = mapping.worktree_fingerprint(str(root), "after concrete patch graph inspection")
-            if capture["head"] != current["head"] or not graph_refresh.relation_capture_matches(capture, current):
-                raise ImpactInputError("worktree changed during graph inspection; retry")
-            if len(targets) > MAX_GRAPH_TARGETS:
-                groups["uncertainties"].append({"reason": "graph target limit reached; some changed entities have no provider query"})
-            if not targets:
-                groups["uncertainties"].append({"reason": "changed state/additions have no supported baseline provider declaration target"})
-        except (mapping.GraphDataError, state.StateReadError, state.SchemaError, RecursionError) as exc:
-            groups["uncertainties"].append({"reason": str(exc) or "graph provider evidence unavailable"})
-        groups["uncertainties"].extend({"kind": "baseline-provider-evidence", **record} for record in graph_records)
-    else:
-        groups["uncertainties"].append({"reason": "provider graph was not requested; relationships are limited to supported source syntax"})
     for finding in groups["findings"]:
         finding["provider_context"] = [{"symbol": record["symbol"], "map_hash": record["map_hash"],
                                         "baseline_only": True, "relationship_count": len(record["relationships"]),
@@ -1050,8 +1073,32 @@ def execute_patch(repo: str, request: PatchRequest) -> dict:
                                   "recommendation_evidence": "behavioral-test-evidence-v6",
                                   "input_suggestions": "bounded-input-probes-v1",
                                   "max_graph_targets": MAX_GRAPH_TARGETS, "max_ast_nodes": MAX_AST_NODES, "max_ast_depth": MAX_AST_DEPTH}}
+    from amu import report_store
+    report_store.save(snapshot_key, identity=identity, groups=groups, limitations=_PATCH_LIMITATIONS,
+                      max_bytes=MAX_PACKET_BYTES, max_rows=MAX_ROWS)
     try:
         return impact_report.build_patch_packet(asdict(request), identity=identity, groups=groups,
                                                 limitations=_PATCH_LIMITATIONS, max_bytes=MAX_PACKET_BYTES, max_rows=MAX_ROWS)
     except impact_report.ReportError as exc:
         raise ImpactInputError(str(exc)) from exc
+
+
+def execute_patch(repo: str, request: PatchRequest) -> dict:
+    """Retrieve an immutable snapshot only after revalidating its entire binding."""
+    from amu import report_store
+    validate_patch_request(request)
+    root = _repo(repo)
+    key = None
+    try:
+        key = report_store.fingerprint(root, request)
+        snapshot = report_store.load(key)
+        if snapshot is not None and report_store.fingerprint(root, request) == key:
+            return impact_report.build_patch_packet(asdict(request), identity=snapshot["identity"],
+                groups=snapshot["groups"], limitations=snapshot["limitations"],
+                max_bytes=snapshot["max_bytes"], max_rows=snapshot["max_rows"])
+    except (OSError, ValueError, state.StateReadError, mapping.GraphDataError):
+        # A cache miss never relaxes the original secure source/freshness checks.
+        key = None
+    if key is not None and report_store.fingerprint(root, request) != key:
+        raise ImpactInputError("source or dependency changed during inspection; test inventory changed or another snapshot binding changed; retry")
+    return _compute_patch(repo, request, snapshot_key=key)
