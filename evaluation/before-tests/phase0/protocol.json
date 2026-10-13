@@ -1,0 +1,1015 @@
+{
+ "rule": "Phase 0 holdout: commits whose change breaks an existing test that lexical search would not surface.\n\nExecutes the upstream repository's tests (owner approved Django on 2026-10-13). For each commit, walking\nbackwards from the frozen HEAD, the test modules the commit itself touched are run on the parent tree and\nagain with only the production part of the commit applied. A test that passed and now fails is breaking.\nA breaking test outside the 40 tests most lexically similar to the diff is indirect. The first commits with\nan indirect breaking test are kept. AMU's reachability ranking is never consulted during selection.",
+ "repository": "https://github.com/django/django",
+ "head": "1a9fba7a6c2a0acead19bbb45c25ceb0fdcca7c8",
+ "screened": [
+  [
+   "1a9fba7a6c",
+   "1 breaking, all within the lexical top 40"
+  ],
+  [
+   "de6559094e",
+   "no production or no test change"
+  ],
+  [
+   "31c3e4cf75",
+   "no production or no test change"
+  ],
+  [
+   "f1d11117c6",
+   "kept"
+  ],
+  [
+   "6669d66a79",
+   "no production or no test change"
+  ],
+  [
+   "b33bab3370",
+   "no production or no test change"
+  ],
+  [
+   "8a909f3c6b",
+   "no production or no test change"
+  ],
+  [
+   "0f34a4cf9f",
+   "no production or no test change"
+  ],
+  [
+   "cf63ff2186",
+   "no production or no test change"
+  ],
+  [
+   "dab0a5c47f",
+   "no production or no test change"
+  ],
+  [
+   "c01135b42f",
+   "no production or no test change"
+  ],
+  [
+   "38e2188cde",
+   "no production or no test change"
+  ],
+  [
+   "677fbf05da",
+   "no production or no test change"
+  ],
+  [
+   "650fa4ef3e",
+   "no production or no test change"
+  ],
+  [
+   "0264b4fc36",
+   "no production or no test change"
+  ],
+  [
+   "a272e554b8",
+   "no production or no test change"
+  ],
+  [
+   "bef1986b9a",
+   "no existing test modified or removed"
+  ],
+  [
+   "e9f88e3716",
+   "no production or no test change"
+  ],
+  [
+   "badbcf20e1",
+   "no production or no test change"
+  ],
+  [
+   "137b77706e",
+   "no production or no test change"
+  ],
+  [
+   "904349fcbe",
+   "no production or no test change"
+  ],
+  [
+   "93d7e82b6a",
+   "no existing test modified or removed"
+  ],
+  [
+   "ce285ce0e7",
+   "no production or no test change"
+  ],
+  [
+   "1267767ccd",
+   "no production or no test change"
+  ],
+  [
+   "1b4d021b65",
+   "no existing test breaks (132 run)"
+  ],
+  [
+   "7f48e266a8",
+   "no existing test modified or removed"
+  ],
+  [
+   "66c40aafa2",
+   "no existing test modified or removed"
+  ],
+  [
+   "cf564bf3a7",
+   "no production or no test change"
+  ],
+  [
+   "135d7c606f",
+   "no production or no test change"
+  ],
+  [
+   "a269574f1b",
+   "no existing test modified or removed"
+  ],
+  [
+   "8c34887b1a",
+   "no production or no test change"
+  ],
+  [
+   "2bc761b01b",
+   "no production or no test change"
+  ],
+  [
+   "3b7ae042ce",
+   "no production or no test change"
+  ],
+  [
+   "4c5b1d84f4",
+   "no production or no test change"
+  ],
+  [
+   "62ef9d40cf",
+   "no existing test breaks (0 run)"
+  ],
+  [
+   "83cbd21be5",
+   "no existing test modified or removed"
+  ],
+  [
+   "ebcb13b327",
+   "no existing test breaks (0 run)"
+  ],
+  [
+   "7ff7fcc050",
+   "1 breaking, all within the lexical top 40"
+  ],
+  [
+   "c88b304cc2",
+   "no existing test modified or removed"
+  ],
+  [
+   "08e4c0d8e7",
+   "no existing test modified or removed"
+  ],
+  [
+   "fabce94374",
+   "no existing test modified or removed"
+  ],
+  [
+   "8abacfc36d",
+   "1 breaking, all within the lexical top 40"
+  ],
+  [
+   "7d94ee295d",
+   "no existing test modified or removed"
+  ],
+  [
+   "fd91518f17",
+   "no production or no test change"
+  ],
+  [
+   "a461af8ce4",
+   "no production or no test change"
+  ],
+  [
+   "7847227a3f",
+   "no existing test breaks (77 run)"
+  ],
+  [
+   "3db0898eee",
+   "no existing test modified or removed"
+  ],
+  [
+   "55c2d202a6",
+   "no production or no test change"
+  ],
+  [
+   "0ae93a02e5",
+   "no production or no test change"
+  ],
+  [
+   "80ea222c8a",
+   "kept"
+  ],
+  [
+   "23e8bcc464",
+   "no production or no test change"
+  ],
+  [
+   "91585625a9",
+   "no production or no test change"
+  ],
+  [
+   "50eef95591",
+   "no existing test modified or removed"
+  ],
+  [
+   "479ba6d281",
+   "no production or no test change"
+  ],
+  [
+   "5a4511adb2",
+   "no production or no test change"
+  ],
+  [
+   "2f7f30c320",
+   "no existing test modified or removed"
+  ],
+  [
+   "9332b163a6",
+   "no production or no test change"
+  ],
+  [
+   "dffadf6dfc",
+   "no existing test modified or removed"
+  ],
+  [
+   "6b58ab0b8c",
+   "no production or no test change"
+  ],
+  [
+   "9e06baf2e4",
+   "no existing test modified or removed"
+  ],
+  [
+   "4fab678a07",
+   "no production or no test change"
+  ],
+  [
+   "a013c821ea",
+   "no existing test modified or removed"
+  ],
+  [
+   "9d977aaa2d",
+   "no production or no test change"
+  ],
+  [
+   "703283b5b4",
+   "no existing test breaks (0 run)"
+  ],
+  [
+   "951d13c77b",
+   "no production or no test change"
+  ],
+  [
+   "dd6f6b1531",
+   "no production or no test change"
+  ],
+  [
+   "85647bccc1",
+   "no production or no test change"
+  ],
+  [
+   "446d9cf602",
+   "no existing test breaks (47 run)"
+  ],
+  [
+   "82f34e2f72",
+   "no production or no test change"
+  ],
+  [
+   "935edaa91b",
+   "no existing test modified or removed"
+  ],
+  [
+   "862ade3409",
+   "no production or no test change"
+  ],
+  [
+   "a3f0642f69",
+   "no production or no test change"
+  ],
+  [
+   "581deb9402",
+   "no existing test modified or removed"
+  ],
+  [
+   "6ade625848",
+   "no existing test modified or removed"
+  ],
+  [
+   "376909dc43",
+   "no production or no test change"
+  ],
+  [
+   "08ba4d0e0f",
+   "no production or no test change"
+  ],
+  [
+   "2abf9d2cf8",
+   "no production or no test change"
+  ],
+  [
+   "fb32a564cc",
+   "1 breaking, all within the lexical top 40"
+  ],
+  [
+   "e7f464ecdc",
+   "no production or no test change"
+  ],
+  [
+   "f91c8897f5",
+   "no production or no test change"
+  ],
+  [
+   "8cbdd4a814",
+   "no existing test modified or removed"
+  ],
+  [
+   "64edef37e7",
+   "no existing test breaks (226 run)"
+  ],
+  [
+   "9cb2cba6fc",
+   "no production or no test change"
+  ],
+  [
+   "bbf5a998c0",
+   "no production or no test change"
+  ],
+  [
+   "516d06e48f",
+   "no production or no test change"
+  ],
+  [
+   "97c38590a2",
+   "no existing test breaks (19 run)"
+  ],
+  [
+   "abb9c04bd6",
+   "no production or no test change"
+  ],
+  [
+   "850e026cbf",
+   "no existing test modified or removed"
+  ],
+  [
+   "2b30f6255b",
+   "no production or no test change"
+  ],
+  [
+   "fc4eaaabf4",
+   "no existing test breaks (0 run)"
+  ],
+  [
+   "89768ae1ab",
+   "no production or no test change"
+  ],
+  [
+   "e7d301b06a",
+   "no production or no test change"
+  ],
+  [
+   "e2a3da1426",
+   "no production or no test change"
+  ],
+  [
+   "be6a149de8",
+   "no existing test modified or removed"
+  ],
+  [
+   "dc2c0b5a44",
+   "no production or no test change"
+  ],
+  [
+   "5f0293b3ab",
+   "no production or no test change"
+  ],
+  [
+   "177fb98c10",
+   "no production or no test change"
+  ],
+  [
+   "fee1cf7262",
+   "no production or no test change"
+  ],
+  [
+   "9193cb5455",
+   "no production or no test change"
+  ],
+  [
+   "b3f4d83aad",
+   "no existing test modified or removed"
+  ],
+  [
+   "0398417c50",
+   "no existing test modified or removed"
+  ],
+  [
+   "cc933385e7",
+   "no existing test breaks (5 run)"
+  ],
+  [
+   "aca5b3f694",
+   "no production or no test change"
+  ],
+  [
+   "026b005f3d",
+   "no existing test modified or removed"
+  ],
+  [
+   "52abe52bec",
+   "no existing test breaks (118 run)"
+  ],
+  [
+   "0d0e7f1503",
+   "no existing test breaks (0 run)"
+  ],
+  [
+   "5180f82f48",
+   "no production or no test change"
+  ],
+  [
+   "8c2db58d3d",
+   "no production or no test change"
+  ],
+  [
+   "4d2a26095e",
+   "no production or no test change"
+  ],
+  [
+   "00dca6f097",
+   "no existing test modified or removed"
+  ],
+  [
+   "f14e293cd7",
+   "no existing test modified or removed"
+  ],
+  [
+   "05aec0a4aa",
+   "no production or no test change"
+  ],
+  [
+   "ddb83ea0e0",
+   "no production or no test change"
+  ],
+  [
+   "ae7450c857",
+   "no production or no test change"
+  ],
+  [
+   "0751d5fed1",
+   "no existing test modified or removed"
+  ],
+  [
+   "6126f5d2fe",
+   "no existing test modified or removed"
+  ],
+  [
+   "8d1c673466",
+   "no existing test breaks (121 run)"
+  ],
+  [
+   "5babd2e21a",
+   "no production or no test change"
+  ],
+  [
+   "60a17fccf4",
+   "no existing test modified or removed"
+  ],
+  [
+   "189136c2a3",
+   "no production or no test change"
+  ],
+  [
+   "fe81969e83",
+   "no existing test breaks (95 run)"
+  ],
+  [
+   "73cc09f14f",
+   "no existing test modified or removed"
+  ],
+  [
+   "439b936753",
+   "no production or no test change"
+  ],
+  [
+   "3b767c5f6a",
+   "no production or no test change"
+  ],
+  [
+   "fdfbb711e3",
+   "1 breaking, all within the lexical top 40"
+  ],
+  [
+   "7576781cc6",
+   "no production or no test change"
+  ],
+  [
+   "0b40210e48",
+   "no production or no test change"
+  ],
+  [
+   "03988c5a5b",
+   "no production or no test change"
+  ],
+  [
+   "4c4f8fd775",
+   "no production or no test change"
+  ],
+  [
+   "cccc004b46",
+   "no production or no test change"
+  ],
+  [
+   "1d50f12929",
+   "no production or no test change"
+  ],
+  [
+   "d992705f9e",
+   "no existing test modified or removed"
+  ],
+  [
+   "504d1f12cd",
+   "no production or no test change"
+  ],
+  [
+   "464a5e1844",
+   "no existing test breaks (806 run)"
+  ],
+  [
+   "d92b020901",
+   "no production or no test change"
+  ],
+  [
+   "be6cf83229",
+   "no existing test breaks (93 run)"
+  ],
+  [
+   "c72f5fb479",
+   "no existing test modified or removed"
+  ],
+  [
+   "f7610bda78",
+   "no existing test breaks (0 run)"
+  ],
+  [
+   "a3e6e7d3aa",
+   "no existing test modified or removed"
+  ],
+  [
+   "1a001208b0",
+   "no existing test modified or removed"
+  ],
+  [
+   "3436cf9bce",
+   "no production or no test change"
+  ],
+  [
+   "07d4f69c94",
+   "no existing test breaks (403 run)"
+  ],
+  [
+   "4ee04972e7",
+   "no production or no test change"
+  ],
+  [
+   "febefb175e",
+   "no existing test modified or removed"
+  ],
+  [
+   "812c08bd4e",
+   "no existing test modified or removed"
+  ],
+  [
+   "d6b73a6613",
+   "no production or no test change"
+  ],
+  [
+   "99d56e5cf1",
+   "no existing test modified or removed"
+  ],
+  [
+   "c6be0bf3bb",
+   "no existing test modified or removed"
+  ],
+  [
+   "082b3df406",
+   "no existing test modified or removed"
+  ],
+  [
+   "6df8fe3bc1",
+   "no production or no test change"
+  ],
+  [
+   "616e8c52de",
+   "no existing test breaks (423 run)"
+  ],
+  [
+   "2b4c88b2ce",
+   "no production or no test change"
+  ],
+  [
+   "b5388a3a80",
+   "no existing test modified or removed"
+  ],
+  [
+   "c9eb16a87e",
+   "no production or no test change"
+  ],
+  [
+   "4243ab11dc",
+   "no production or no test change"
+  ],
+  [
+   "ae25a40be0",
+   "no production or no test change"
+  ],
+  [
+   "89e82866dc",
+   "no existing test modified or removed"
+  ],
+  [
+   "dfc52e53f1",
+   "no production or no test change"
+  ],
+  [
+   "401f126647",
+   "no production or no test change"
+  ],
+  [
+   "9e0655e49b",
+   "no production or no test change"
+  ],
+  [
+   "30ebe0001c",
+   "no production or no test change"
+  ],
+  [
+   "8f52e9199b",
+   "no existing test modified or removed"
+  ],
+  [
+   "6baaf6a877",
+   "no production or no test change"
+  ],
+  [
+   "cef2346abf",
+   "no existing test modified or removed"
+  ],
+  [
+   "f00270d05e",
+   "no existing test breaks (15 run)"
+  ],
+  [
+   "7d75c0b928",
+   "no production or no test change"
+  ],
+  [
+   "47511a2102",
+   "no existing test modified or removed"
+  ],
+  [
+   "d2e59b77fe",
+   "no existing test modified or removed"
+  ],
+  [
+   "27137e655e",
+   "no existing test modified or removed"
+  ],
+  [
+   "f1949c1f97",
+   "no existing test breaks (0 run)"
+  ],
+  [
+   "fb1137658f",
+   "no production or no test change"
+  ],
+  [
+   "1c550a8151",
+   "no production or no test change"
+  ],
+  [
+   "7dee35f5ee",
+   "kept"
+  ],
+  [
+   "5637bec7a0",
+   "no production or no test change"
+  ],
+  [
+   "2cace96be6",
+   "no existing test modified or removed"
+  ],
+  [
+   "60121939f6",
+   "no existing test modified or removed"
+  ],
+  [
+   "ea303dee45",
+   "no existing test modified or removed"
+  ],
+  [
+   "06463d3c11",
+   "1 breaking, all within the lexical top 40"
+  ],
+  [
+   "2b0e08a149",
+   "no production or no test change"
+  ],
+  [
+   "902e5c0fb2",
+   "no production or no test change"
+  ],
+  [
+   "9465349120",
+   "no existing test modified or removed"
+  ],
+  [
+   "8c83e9c0ea",
+   "no production or no test change"
+  ],
+  [
+   "ca14173f96",
+   "no existing test breaks (38 run)"
+  ],
+  [
+   "1c5927f04a",
+   "no production or no test change"
+  ],
+  [
+   "50d706d0ae",
+   "no production or no test change"
+  ],
+  [
+   "143a65ca92",
+   "no production or no test change"
+  ],
+  [
+   "834b5cbb68",
+   "no production or no test change"
+  ],
+  [
+   "274a1d494d",
+   "no production or no test change"
+  ],
+  [
+   "5c4a36f817",
+   "no production or no test change"
+  ],
+  [
+   "c9ff757a55",
+   "no existing test modified or removed"
+  ],
+  [
+   "2936a0a997",
+   "no existing test modified or removed"
+  ],
+  [
+   "e1feeee45e",
+   "no production or no test change"
+  ],
+  [
+   "a959c2596f",
+   "no production or no test change"
+  ],
+  [
+   "92e1d9e361",
+   "no existing test breaks (512 run)"
+  ],
+  [
+   "50e5264a45",
+   "no production or no test change"
+  ],
+  [
+   "92470ad374",
+   "no existing test breaks (42 run)"
+  ],
+  [
+   "09c8b50bc8",
+   "no production or no test change"
+  ],
+  [
+   "8362cdc7ef",
+   "no production or no test change"
+  ],
+  [
+   "5e32c82a5a",
+   "no existing test modified or removed"
+  ],
+  [
+   "c2517faff3",
+   "no existing test breaks (52 run)"
+  ],
+  [
+   "ea6b17b481",
+   "no production or no test change"
+  ],
+  [
+   "957d0cee71",
+   "no production or no test change"
+  ],
+  [
+   "99ab4bd124",
+   "no production or no test change"
+  ],
+  [
+   "4ea38d54c1",
+   "no existing test modified or removed"
+  ],
+  [
+   "8a162076e1",
+   "no production or no test change"
+  ],
+  [
+   "e0d64a5ada",
+   "no production or no test change"
+  ],
+  [
+   "4a89f5c397",
+   "no production or no test change"
+  ],
+  [
+   "9ea5f4facc",
+   "no existing test breaks (89 run)"
+  ],
+  [
+   "50c2b7c836",
+   "no production or no test change"
+  ],
+  [
+   "c8ad2fbb2a",
+   "no production or no test change"
+  ],
+  [
+   "6fc8150005",
+   "no existing test breaks (43 run)"
+  ],
+  [
+   "2a5da9d005",
+   "no existing test modified or removed"
+  ],
+  [
+   "d8cedcab52",
+   "no existing test modified or removed"
+  ],
+  [
+   "21b3a4c4c5",
+   "no production or no test change"
+  ],
+  [
+   "6cbee65e1f",
+   "no production or no test change"
+  ],
+  [
+   "dca76b15c6",
+   "no production or no test change"
+  ],
+  [
+   "27151e13c4",
+   "no production or no test change"
+  ],
+  [
+   "76e1bca131",
+   "no existing test modified or removed"
+  ],
+  [
+   "4ef959ab0c",
+   "no production or no test change"
+  ],
+  [
+   "cceb6969d4",
+   "no production or no test change"
+  ],
+  [
+   "3d34265d5d",
+   "no production or no test change"
+  ],
+  [
+   "e909d5e3f6",
+   "no production or no test change"
+  ],
+  [
+   "659a77cf1d",
+   "no production or no test change"
+  ],
+  [
+   "dd4fc22d4c",
+   "no production or no test change"
+  ],
+  [
+   "274df4df0b",
+   "no production or no test change"
+  ],
+  [
+   "ad289c1de4",
+   "no production or no test change"
+  ],
+  [
+   "537c6df3e6",
+   "kept"
+  ],
+  [
+   "cae38ec9b9",
+   "no production or no test change"
+  ],
+  [
+   "726440a473",
+   "no production or no test change"
+  ],
+  [
+   "0bba6363b0",
+   "no production or no test change"
+  ],
+  [
+   "a19b1355ce",
+   "no production or no test change"
+  ],
+  [
+   "581f2969ed",
+   "no production or no test change"
+  ],
+  [
+   "bf5e73c576",
+   "no production or no test change"
+  ],
+  [
+   "a486b48d4e",
+   "no existing test modified or removed"
+  ],
+  [
+   "065a4a4b8d",
+   "no production or no test change"
+  ],
+  [
+   "bd1cd8f0f8",
+   "no production or no test change"
+  ],
+  [
+   "2e48636c54",
+   "no existing test breaks (92 run)"
+  ],
+  [
+   "260d136920",
+   "no existing test modified or removed"
+  ],
+  [
+   "5f90dc2468",
+   "no existing test modified or removed"
+  ],
+  [
+   "bdbda29c3e",
+   "no existing test modified or removed"
+  ],
+  [
+   "7112007fca",
+   "no production or no test change"
+  ],
+  [
+   "65a9f14196",
+   "kept"
+  ],
+  [
+   "f51347964a",
+   "no production or no test change"
+  ],
+  [
+   "4106acd141",
+   "no production or no test change"
+  ],
+  [
+   "ecc619703a",
+   "no production or no test change"
+  ],
+  [
+   "7b8504eaab",
+   "no existing test breaks (176 run)"
+  ],
+  [
+   "3ebd048cf7",
+   "no production or no test change"
+  ],
+  [
+   "b34b834378",
+   "no production or no test change"
+  ],
+  [
+   "8c454124cd",
+   "no production or no test change"
+  ],
+  [
+   "e28c2a9a01",
+   "no production or no test change"
+  ]
+ ],
+ "environment": {
+  "python": "Python 3.14.6",
+  "database": "sqlite, default test settings",
+  "dependencies": "asgiref, sqlparse only; tests needing optional packages skip"
+ },
+ "hashes": {
+  "django.json": "0d3cfc33f5efbc5786394360c6285c1b3ae327fae533010e2fee06b4b9a82a6b"
+ }
+}
