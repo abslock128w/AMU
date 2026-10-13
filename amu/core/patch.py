@@ -113,3 +113,39 @@ def candidate(root, path, edit):
                 position += 1
     out.extend(lines[position:])
     return ''.join(out)
+
+
+def renumber(edit):
+    """Map a parent line number to its place in the patched file.
+
+    A removed line maps to where its replacement landed, so evidence recorded on it
+    still counts as evidence about the changed lines.
+    """
+    table, breaks, offset = {}, [], 0
+    for start, body in edit['hunks']:
+        old, new = start, start + offset
+        if start == 0:
+            old, new = 1, 1 + offset
+        for row in body:
+            sign = row[:1]
+            if sign == ' ':
+                table[old] = new
+                old += 1
+                new += 1
+            elif sign == '-':
+                table[old] = new
+                old += 1
+            elif sign == '+':
+                new += 1
+        offset = new - old
+        breaks.append((old, offset))
+
+    def place(line):
+        if line in table:
+            return table[line]
+        shift = 0
+        for after, value in breaks:
+            if line >= after:
+                shift = value
+        return line + shift
+    return place

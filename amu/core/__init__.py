@@ -11,7 +11,7 @@ from . import consequences, coverage, rank
 from .git import working_diff
 from .index import build, parse_or_none
 from .index import graph as build_graph
-from .patch import applied, candidate, changes
+from .patch import applied, candidate, changes, renumber
 
 LIMIT = 2000
 MAX_TESTS = 40
@@ -35,7 +35,12 @@ def changed_symbols(root, facts, edits, gaps):
             gaps.append(f'{path}: not in the tree; new code has no existing callers')
             continue
         # An agent may ask before or after writing its edit; use whichever side the tree holds.
-        lines = edit['new'] if applied(root, path, edit) else edit['old'] | edit['anchor']
+        if applied(root, path, edit):
+            # Removed lines left no line of their own; they count where their replacement or neighbour now sits.
+            place = renumber(edit)
+            lines = edit['new'] | {place(line) for line in edit['old']}
+        else:
+            lines = edit['old'] | edit['anchor']
         for line in sorted(lines):
             containing = sorted((r for r in records.values() if any(a <= line <= b for a, b in r['spans'])),
                                 key=lambda r: (r['kind'] == 'module', min(b - a for a, b in r['spans'])))
@@ -49,6 +54,8 @@ def changed_symbols(root, facts, edits, gaps):
                 if outer['kind'] == 'function':
                     changed.setdefault(outer['id'], classes[0] if classes else None)
                     where.setdefault(outer['id'], set()).add(line)
+    if edits and not changed:
+        gaps.append('Changed lines could not be mapped to any declaration')
     return changed, where
 
 
@@ -96,6 +103,13 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     # What the patch says, per file: the words of its added and removed lines.
     said = {path: content.query(' '.join(text for _, text in [*edit['added'], *edit['removed']])) for path, edit in edits.items()}
     observed, coverage_status = coverage.load(root, coverage_evidence, hashes, gaps)
+    for path, edit in edits.items():
+        # A recording made before this edit is in parent line numbers; the tree is not.
+        if observed and path in observed['files'] and path in observed['stale'] and applied(root, path, edit):
+            place, moved = renumber(edit), {}
+            for line, contexts in observed['files'][path].items():
+                moved.setdefault(place(line), set()).update(contexts)
+            observed['files'][path] = moved
     scores, best, impacted, unexecuted = {}, {}, {}, []
     for symbol, fallback in symbols.items():
         record = graph.records[symbol]

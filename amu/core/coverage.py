@@ -11,7 +11,7 @@ import re
 from pathlib import Path
 
 DEFAULTS = ('.amu/observed-tests.json', 'coverage.json', '.coverage')
-MAX_BYTES = 64 * 1024 * 1024
+MAX_BYTES = 1024 * 1024 * 1024
 
 
 def _test_identity(context):
@@ -24,14 +24,21 @@ def _test_identity(context):
     return path + '#' + re.sub(r'\[.*\]$', '', name).replace('::', '.')
 
 
-def _relative(root, name):
+def _relative(root, name, known=()):
     path = Path(name)
-    if path.is_absolute():
-        try:
-            return path.resolve().relative_to(root).as_posix()
-        except ValueError:
-            return None
-    return path.as_posix()
+    if not path.is_absolute():
+        return path.as_posix()
+    try:
+        return path.resolve().relative_to(root).as_posix()
+    except ValueError:
+        pass
+    # Recorded elsewhere (CI, another checkout): match the longest path suffix this tree has.
+    parts = path.parts
+    for start in range(1, len(parts)):
+        candidate = '/'.join(parts[start:])
+        if candidate in known:
+            return candidate
+    return None
 
 
 def _artifact(root, raw, hashes):
@@ -45,7 +52,7 @@ def _artifact(root, raw, hashes):
 def _json_report(root, raw, hashes, recorded_at):
     files = {}
     for name, entry in raw['files'].items():
-        path = _relative(root, name)
+        path = _relative(root, name, hashes)
         if path:
             files[path] = {int(line): set(contexts) for line, contexts in entry.get('contexts', {}).items()}
     return files, _newer(root, files, recorded_at)
@@ -58,7 +65,7 @@ def _data_file(root, source, hashes, recorded_at):
     files = {}
     try:
         for name in data.measured_files():
-            path = _relative(root, name)
+            path = _relative(root, name, hashes)
             if path and not data.file_tracer(name):
                 files[path] = {int(line): set(contexts) for line, contexts in data.contexts_by_lineno(name).items()}
     finally:
@@ -90,7 +97,7 @@ def load(root, evidence, hashes, gaps):
             continue
         try:
             if source.stat().st_size > MAX_BYTES:
-                raise ValueError('larger than 64 MiB')
+                raise ValueError('larger than 1 GiB')
             head = source.read_bytes()[:16]
             if head.startswith(b'SQLite format 3'):
                 files, stale = _data_file(root, source, hashes, source.stat().st_mtime)

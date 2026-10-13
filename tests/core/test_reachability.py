@@ -297,3 +297,33 @@ def test_change_in_code_no_recorded_test_ran_is_a_gap(tmp_path):
     result = run(tmp_path, 'lib.py', source, source.replace('return 2', 'return 3'))
     assert any('No recorded test ran the changed lines of parse' in gap for gap in result['gaps'])
     assert ids(result) == ['tests/test_lib.py::test_a']
+
+
+def test_recording_made_in_another_checkout_is_matched_by_path_suffix(tmp_path):
+    source = 'def work():\n    return 1\n'
+    repository(tmp_path, {'src/lib.py': source, 'tests/test_lib.py': 'def test_dynamic():\n    assert __import__("lib").work()\n'})
+    coverage_report(tmp_path, {'/ci/build/1234/src/lib.py': {'2': ['tests/test_lib.py::test_dynamic|run']}})
+    result = run(tmp_path, 'src/lib.py', source, source.replace('1', '2'))
+    assert ids(result) == ['tests/test_lib.py::test_dynamic'] and result['tests'][0]['confidence'] == 'observed'
+
+
+def test_recording_from_before_the_edit_is_translated_when_the_edit_is_on_disk(tmp_path):
+    source = 'def pad():\n    return 0\n\n\ndef parse(v):\n    if v:\n        return 1\n    return 2\n'
+    changed = source.replace('def pad():\n    return 0\n', 'def pad():\n    extra = 0\n    more = 0\n    return extra + more\n').replace('return 2', 'return 3')
+    tests = 'from lib import parse\n' + ''.join(f'def test_{n}():\n    assert parse({v})\n' for n, v in (('aaa', 1), ('zzz', 0)))
+    repository(tmp_path, {'lib.py': source, 'tests/test_lib.py': tests})
+    coverage_report(tmp_path, {'lib.py': {'6': ['tests/test_lib.py::test_aaa|run', 'tests/test_lib.py::test_zzz|run'],
+                                          '7': ['tests/test_lib.py::test_aaa|run'], '8': ['tests/test_lib.py::test_zzz|run']}})
+    import os
+    os.utime(tmp_path/'coverage.json', (1_600_000_000, 1_600_000_000))
+    (tmp_path/'lib.py').write_text(changed)
+    result = run(tmp_path, 'lib.py', source, changed)
+    assert ids(result)[0] == 'tests/test_lib.py::test_zzz' and 'ran the changed lines of parse' in result['tests'][0]['why']
+
+
+def test_deletion_only_edit_already_on_disk_still_maps_to_its_function(tmp_path):
+    source = 'def work():\n    value = 1\n    value += 1\n    return value\n'
+    changed = source.replace('    value += 1\n', '')
+    repository(tmp_path, {'lib.py': changed, 'tests/test_lib.py': 'from lib import work\ndef test_work():\n    assert work()\n'})
+    result = run(tmp_path, 'lib.py', source, changed)
+    assert result['changed_symbols'] == ['lib.py#work'] and ids(result) == ['tests/test_lib.py::test_work']

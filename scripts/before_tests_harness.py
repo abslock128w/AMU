@@ -158,7 +158,6 @@ def freeze_holdout2():
                 if chosen == 5:
                     break
             elif row:
-                import shutil
                 shutil.rmtree(DATA/'cases'/row['case_id'])
     path = DATA/'holdout2.json'
     path.write_text(json.dumps(rows, indent=2)+'\n')
