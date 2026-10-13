@@ -1,13 +1,22 @@
 # Before tests: what a change reaches and what to run first
 
 ```sh
-amu before-tests                       # uncommitted changes of the repository in the current directory
-amu before-tests --patch-file fix.diff # a proposed diff, applied or not yet applied
-git diff main | amu before-tests --patch-file -
+amu                                    # an edit is waiting: run candidate tests on both sides, print what flipped
+amu before-tests --static              # the same change, never executing anything
+amu before-tests --patch-file fix.diff # a supplied diff: static unless --run
+git diff main | amu before-tests --patch-file - --run
 amu before-tests --full-evidence       # every ranked test, dependant and consequence
 ```
 
-Nothing is imported or executed. The default answer is one JSON object under 2 KB:
+For your own uncommitted change, in a tree with tests, AMU executes: it copies the tree, rebuilds the code as
+it was before the edit in the copy, runs up to 150 candidate tests on both sides with the project's runner
+(60 s per side, `--budget` to change), and prints `flips` and `predicted_failures` first, then `gaps`. It
+uses `$VIRTUAL_ENV`, `.venv` or `venv` when present, else the interpreter running AMU; `--python` overrides.
+If nothing could be run, `flips` is null and the summary says NOT EXECUTED, never "0 fail". Bare `amu` opens
+the interactive terminal only when no Python edit is waiting; `amu repl` always opens it.
+
+With `--static`, or for a supplied patch without `--run`:
+nothing is imported or executed, and the answer is one JSON object under 2 KB:
 
 | Field | Meaning |
 |---|---|

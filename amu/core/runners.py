@@ -187,3 +187,21 @@ def execute(runner, python, tree, ids, report, timeout):
                 files.setdefault(ident.split('::')[0], []).append(ident)
             batches.extend(files.values())
     return found, problem
+
+
+def evident(root):
+    """Whether the tree visibly has tests to run: a runner entry point or at least one test module."""
+    root = Path(root)
+    return ((root/'tests'/'runtests.py').is_file() or any(root.glob('tests/**/test*.py')) or any(root.glob('test_*.py'))
+            or any(root.glob('**/tests.py')))
+
+
+def interpreter(root):
+    """The project's own interpreter when one is visible, else the one running AMU."""
+    import sys
+    root = Path(root)
+    for candidate in filter(None, [os.environ.get('VIRTUAL_ENV') and Path(os.environ['VIRTUAL_ENV'])/'bin'/'python',
+                                   root/'.venv'/'bin'/'python', root/'venv'/'bin'/'python']):
+        if Path(candidate).is_file():
+            return str(candidate)
+    return sys.executable

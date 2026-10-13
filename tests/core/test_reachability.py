@@ -484,3 +484,27 @@ def test_edited_tree_relinks_only_changed_files_and_matches_a_full_rebuild(tmp_p
     rebuilt = analyze(tmp_path, diff, index_dir=tmp_path/'.fresh', include_tests=True)
     assert any('relinked' in gap for gap in relinked['gaps']) and not any('relinked' in gap for gap in rebuilt['gaps'])
     assert ids(relinked) == ids(rebuilt) and set(ids(relinked)) == {'tests/test_x.py::test_call', 'tests/test_x.py::test_other'}
+
+
+def test_own_uncommitted_change_is_executed_by_default_and_flips_come_first(tmp_path):
+    import sys
+    source = 'def work():\n    return 1\n'
+    repository(tmp_path, {'lib.py': source, 'tests/test_lib.py': 'from lib import work\ndef test_exact():\n    assert work() == 1\ndef test_loose():\n    assert work()\n'})
+    git = ['git', '-C', str(tmp_path), '-c', 'user.email=a@b.c', '-c', 'user.name=a']
+    for args in (['init', '-q'], ['add', '.'], ['commit', '-qm', 'base']):
+        subprocess.run([*git, *args], check=True)
+    (tmp_path/'lib.py').write_text(source.replace('1', '2'))
+    result = analyze(tmp_path, index_dir=tmp_path/'.index', python=sys.executable)
+    assert list(result)[:3] == ['flips', 'predicted_failures', 'gaps'] and result['flips'] == 1
+    assert result['predicted_failures'] == ['tests/test_lib.py::test_exact']
+    static = analyze(tmp_path, index_dir=tmp_path/'.index', run=False)
+    assert 'flips' not in static and list(static)[0] == 'summary'
+    supplied = analyze(tmp_path, patch('lib.py', source, source.replace('1', '2')), index_dir=tmp_path/'.index')
+    assert 'flips' not in supplied, 'a supplied patch is not executed unless asked'
+
+
+def test_nothing_executed_is_not_reported_as_zero_failures(tmp_path):
+    source = 'def work():\n    return 1\n'
+    repository(tmp_path, {'lib.py': source, 'tests/test_lib.py': 'from lib import work\ndef test_exact():\n    assert work() == 1\n'})
+    result = analyze(tmp_path, patch('lib.py', source, source.replace('1', '2')), index_dir=tmp_path/'.index', run=True, python='/nonexistent/python')
+    assert result['flips'] is None and result['summary'].startswith('NOT EXECUTED') and any('shadow run' in gap for gap in result['gaps'])

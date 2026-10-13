@@ -314,6 +314,29 @@ is function-level: the fix's diff touches lines inside the same qualified name i
 tracking across intervening edits was not attempted. The optional model judge was skipped: (a) and (b) did not
 tie, so there was nothing for it to break.
 
+## Piece 1: shadow execution is the default for the developer's own change
+
+| Invocation | Before | After |
+|---|---|---|
+| bare `amu`, uncommitted Python change | opens the interactive terminal | runs candidates on both sides, prints flips first |
+| bare `amu`, no change waiting | interactive terminal | unchanged; `amu repl` also opens it |
+| `amu before-tests` on the working tree | static packet | executes; `--static` gives the static packet |
+| `amu before-tests --patch-file` | static packet | unchanged; `--run` executes |
+| nothing could be run | not applicable | `flips` is null, summary starts NOT EXECUTED |
+
+"The developer's own tree" is defined operationally: no patch was supplied, so the change is the working
+tree's uncommitted diff. A supplied patch can describe a tree that is not the caller's to execute.
+
+Check on a real repository: a git copy of Click at the parent of bc32a92c with that commit's production
+change uncommitted. Bare `amu` printed `flips: 3` and the three breaking tests (all three in the frozen
+ground truth) in 6.1 s wall time, 147 candidates per side. That case is an exposed one; this is a functional
+check, not a measurement.
+
+Files: `amu/core/__init__.py`, `amu/core/runners.py`, `amu/core/__main__.py`, `amu/cli.py`,
+`tests/core/test_reachability.py`, `docs/before-tests.md`. Rejected: executing for supplied patches by
+default, and reporting zero failures when the runner could not start. Upstream code executed: Click's tests,
+147 candidates on each side, in a scratch copy.
+
 ## Milestones (state at b3747c8)
 
 - **M1 harness.** `scripts/before_tests_harness.py`; protocol and manifests are hash-pinned.

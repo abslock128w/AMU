@@ -85,7 +85,7 @@ def after_facts(root, facts, edits, gaps):
     return after, before, new_lines, renumbered
 
 
-def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, index_dir=None, run=False, python=None,
+def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, index_dir=None, run=None, python=None,
             budget=60, include_tests=False, runner=None):
     """What a change reaches, which existing tests to run first, and what could not be seen.
 
@@ -94,8 +94,14 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     """
     root = Path(root).resolve()
     early = []
+    own_tree = patch is None
     if patch is None:
         patch, early = working_diff(root)
+    if run is None:
+        # The developer's own uncommitted change, in a tree with tests to run: execute, do not guess.
+        # A supplied patch may describe someone else's tree, so that stays static unless asked.
+        run = own_tree and bool(patch.strip()) and runners.evident(root)
+    python = python or (runners.interpreter(root) if run else None)
     facts, hashes, gaps, parsed, graph = load_state(root, index_dir)
     edits, patch_gaps = changes(root, patch)
     gaps.extend([*early, *patch_gaps])
@@ -263,9 +269,12 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     fails = sum(row['expect'] == 'likely_fail' for row in rows)
     recorded_gaps = sum(row['basis'] == 'coverage' for row in untested)
     summary = f"{fails} likely_fail, {recorded_gaps} untested, {len(scores)} tests reach the change."
-    if executed is not None:
+    if executed is not None and executed['ran']:
         summary = (f"EXECUTED {executed['ran']} candidate tests on both sides with {executed['runner']} in {executed['seconds']} s: "
                    f"{len(executed['predicted_failures'])} now fail. " + summary.split(', ', 1)[1])
+    elif executed is not None:
+        # Saying "0 now fail" when nothing ran would be a false all-clear.
+        summary = 'NOT EXECUTED: no candidate test could be run; static analysis only. ' + summary
     report = dict(summary=summary, changed_symbols=narrow, untested=untested, tests=rows, consequences=found,
                   impacted=listed, gaps=sorted(set(gaps)),
                   caveats='Static unless a row says observed. Not proof.')
@@ -278,6 +287,9 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         report['coverage'] = coverage_status
     if executed is not None:
         report['predicted_failures'] = executed['predicted_failures']
+        # What flipped comes first, then what could not be seen.
+        report = dict(flips=len(executed['predicted_failures']) if executed['ran'] else None, predicted_failures=report['predicted_failures'],
+                      gaps=report['gaps'], **{k: v for k, v in report.items() if k not in ('predicted_failures', 'gaps')})
     report['report_hash'] = hashlib.sha256(encoded([hashes, patch, report])).hexdigest()[:12]
     if full_evidence:
         report['index'] = {'parsed_files': parsed, 'files': len(facts)}
@@ -305,6 +317,7 @@ def compact(report, include_tests=False):
     if 'predicted_failures' in report:
         commands = {row['id']: row.get('run') for row in report['tests']}
         out['predicted_failures'] = [(row['id'] if native else commands.get(row['id']) or row['id']) for row in report['predicted_failures'][:12]]
+        out['gaps'] = report['gaps'][:3]
         out['tests'] = [row for row in out['tests'] if row['expect'] != 'fails'][:6]
     out['changed_symbols'] = report['changed_symbols'][:5]
     out['impacted'] = [dict(row) for row in report['impacted'][:3]]
