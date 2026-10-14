@@ -1,0 +1,90 @@
+diff --git a/django/contrib/sites/checks.py b/django/contrib/sites/checks.py
+index 66e8551..493281a 100644
+--- a/django/contrib/sites/checks.py
++++ b/django/contrib/sites/checks.py
+@@ -1,14 +1,27 @@
+-from types import NoneType
+-
++from django.apps import apps
+ from django.conf import settings
+ from django.core.checks import Error
++from django.core.exceptions import ValidationError
++from django.db.models import AutoField
+ 
+ 
+ def check_site_id(app_configs, **kwargs):
+-    if hasattr(settings, "SITE_ID") and not isinstance(
+-        settings.SITE_ID, (NoneType, int)
+-    ):
+-        return [
+-            Error("The SITE_ID setting must be an integer", id="sites.E101"),
+-        ]
+-    return []
++    if not hasattr(settings, "SITE_ID") or settings.SITE_ID is None:
++        return []
++    try:
++        site_pk = apps.get_model("sites", "Site")._meta.pk
++    except LookupError:
++        # The sites app isn't installed, so use the default primary key type.
++        site_pk = AutoField()
++    try:
++        # to_python() coerces values such as "1" to the pk's type, so also
++        # require that the setting was already of that type.
++        site_id = site_pk.to_python(settings.SITE_ID)
++        valid = site_id == settings.SITE_ID and type(site_id) is type(
++            settings.SITE_ID
++        )
++    except ValidationError:
++        valid = False
++    if valid:
++        return []
++    return [Error("The SITE_ID setting must be an integer", id="sites.E101")]
+diff --git a/tests/sites_tests/tests.py b/tests/sites_tests/tests.py
+index 79183f7..50434fc 100644
+--- a/tests/sites_tests/tests.py
++++ b/tests/sites_tests/tests.py
+@@ -1,3 +1,5 @@
++from unittest import mock
++
+ from django.apps import apps
+ from django.apps.registry import Apps
+ from django.conf import settings
+@@ -215,6 +217,38 @@ class SitesFrameworkTests(TestCase):
+             ],
+         )
+ 
++    def test_check_site_id_uses_pk_type(self):
++        class ObjectId:
++            def __init__(self, value):
++                self.value = value
++
++        class ObjectIdKey:
++            def to_python(self, value):
++                if isinstance(value, ObjectId):
++                    return value
++                raise ValidationError("Invalid ObjectId.")
++
++        pk = ObjectIdKey()
++        valid_site_id = ObjectId("65a1b2c3d4e5f6a7b8c9d0e1")
++        with (
++            mock.patch.object(Site._meta, "pk", pk),
++            self.settings(SITE_ID=valid_site_id),
++        ):
++            self.assertEqual(check_site_id(None), [])
++        with (
++            mock.patch.object(Site._meta, "pk", pk),
++            self.settings(SITE_ID=1),
++        ):
++            self.assertEqual(
++                check_site_id(None),
++                [
++                    checks.Error(
++                        msg="The SITE_ID setting must be an integer",
++                        id="sites.E101",
++                    ),
++                ],
++            )
++
+     def test_valid_site_id(self):
+         for site_id in [1, None]:
+             with self.subTest(site_id=site_id), self.settings(SITE_ID=site_id):

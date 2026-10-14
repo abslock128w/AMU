@@ -1,0 +1,62 @@
+[
+ {
+  "tool": "hook",
+  "seconds": 12.98,
+  "at": 1791973936.3,
+  "detail": "before ./rt"
+ },
+ {
+  "tool": "hook",
+  "seconds": 13.07,
+  "at": 1791973988.7,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.57,
+  "at": 1791974003.7,
+  "labels": [
+   "invalid_models_tests.tests.RelatedQueryNameClashWithManagerTests"
+  ],
+  "problems": [
+   "module tests failed to import"
+  ],
+  "ran": 0,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.51,
+  "at": 1791974007.3,
+  "labels": [
+   "invalid_models_tests.test_relative_fields.RelatedQueryNameClashWithManagerTests"
+  ],
+  "problems": [],
+  "ran": 4,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 170.86,
+  "at": 1791974183.8,
+  "labels": [],
+  "problems": [],
+  "ran": 19085,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.83,
+  "at": 1791974193.0,
+  "labels": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests"
+  ],
+  "problems": [],
+  "ran": 1,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ }
+]

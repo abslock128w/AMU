@@ -1,0 +1,85 @@
+[
+ {
+  "tool": "rt",
+  "seconds": 0.78,
+  "at": 1791970598.8,
+  "labels": [
+   "model_formsets"
+  ],
+  "problems": [],
+  "ran": 80,
+  "failed": [
+   "model_formsets.tests.ModelFormsetTest.test_simple_save"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.83,
+  "at": 1791970616.2,
+  "labels": [
+   "model_formsets"
+  ],
+  "problems": [],
+  "ran": 80,
+  "failed": [
+   "model_formsets.tests.ModelFormsetTest.test_simple_save"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.52,
+  "at": 1791970618.9,
+  "labels": [
+   "model_formsets.tests.ModelFormsetTest.test_simple_save"
+  ],
+  "problems": [],
+  "ran": 0,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 1.16,
+  "at": 1791970635.7,
+  "labels": [
+   "model_formsets"
+  ],
+  "problems": [],
+  "ran": 80,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 219.35,
+  "at": 1791970857.3,
+  "labels": [],
+  "problems": [],
+  "ran": 19073,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option",
+   "generic_relations.test_forms.GenericInlineFormsetTests.test_options"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.89,
+  "at": 1791971136.6,
+  "labels": [
+   "model_formsets",
+   "generic_relations"
+  ],
+  "problems": [],
+  "ran": 169,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 118.88,
+  "at": 1791971257.8,
+  "labels": [],
+  "problems": [],
+  "ran": 19074,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ }
+]

@@ -1,0 +1,80 @@
+diff --git a/django/forms/models.py b/django/forms/models.py
+index 104369c..3843203 100644
+--- a/django/forms/models.py
++++ b/django/forms/models.py
+@@ -776,7 +776,7 @@ class BaseModelFormSet(BaseFormSet, AltersData):
+             # If the queryset isn't already ordered we need to add an
+             # artificial ordering here to make sure that all formsets
+             # constructed from this queryset have the same form order.
+-            if not qs.ordered:
++            if not qs.totally_ordered:
+                 qs = qs.order_by(self.model._meta.pk.name)
+ 
+             # Removed queryset limiting here. As per discussion re: #13023
+diff --git a/tests/generic_relations/test_forms.py b/tests/generic_relations/test_forms.py
+index 48fe895..c74412b 100644
+--- a/tests/generic_relations/test_forms.py
++++ b/tests/generic_relations/test_forms.py
+@@ -160,7 +160,7 @@ class GenericInlineFormsetTests(TestCase):
+         self.assertIsNone(formset.forms[2].instance.pk)
+         # A queryset can be used to alter display ordering.
+         formset = TaggedItemFormSet(
+-            instance=platypus, queryset=TaggedItem.objects.order_by("-tag")
++            instance=platypus, queryset=TaggedItem.objects.order_by("-tag", "pk")
+         )
+         self.assertEqual(len(formset.forms), 5)
+         self.assertEqual(formset.forms[0].instance, mammal)
+diff --git a/tests/model_formsets/tests.py b/tests/model_formsets/tests.py
+index 40f2062..85b9851 100644
+--- a/tests/model_formsets/tests.py
++++ b/tests/model_formsets/tests.py
+@@ -221,8 +221,10 @@ class ModelFormsetTest(TestCase):
+         # existing authors with an extra form to add him. We *could* pass in a
+         # queryset to restrict the Author objects we edit, but in this case
+         # we'll use it to display them in alphabetical order by name.
++        # Ordering by a non-unique field alone is not totally ordered, so the
++        # primary key is added as a tiebreaker to keep the form order stable.
+ 
+-        qs = Author.objects.order_by("name")
++        qs = Author.objects.order_by("name", "pk")
+         AuthorFormSet = modelformset_factory(
+             Author, fields="__all__", extra=1, can_delete=False
+         )
+@@ -278,7 +280,7 @@ class ModelFormsetTest(TestCase):
+         # This probably shouldn't happen, but it will. If an add form was
+         # marked for deletion, make sure we don't save that form.
+ 
+-        qs = Author.objects.order_by("name")
++        qs = Author.objects.order_by("name", "pk")
+         AuthorFormSet = modelformset_factory(
+             Author, fields="__all__", extra=1, can_delete=True
+         )
+@@ -1784,6 +1786,28 @@ class ModelFormsetTest(TestCase):
+         queryset = formset.get_queryset()
+         self.assertEqual(queryset.query.order_by, ("id",))
+ 
++    def test_get_queryset_falls_back_to_pk_when_ordering_not_totally_ordered(self):
++        # Author's Meta.ordering is on the non-unique "name" field, so the
++        # queryset is ordered but not totally ordered. The formset must add
++        # the primary key to get a stable form order.
++        qs = Author.objects.all()
++        self.assertIs(qs.ordered, True)
++        self.assertIs(qs.totally_ordered, False)
++
++        AuthorFormSet = modelformset_factory(Author, fields="__all__")
++        formset = AuthorFormSet(queryset=qs)
++        self.assertEqual(formset.get_queryset().query.order_by, ("id",))
++
++    def test_get_queryset_keeps_totally_ordered_queryset(self):
++        # Ordering by a unique field is totally ordered, so the formset must
++        # keep the caller's ordering rather than replacing it with the pk.
++        qs = Author.objects.order_by("-pk")
++        self.assertIs(qs.totally_ordered, True)
++
++        AuthorFormSet = modelformset_factory(Author, fields="__all__")
++        formset = AuthorFormSet(queryset=qs)
++        self.assertEqual(formset.get_queryset().query.order_by, ("-pk",))
++
+     def test_prevent_duplicates_from_with_the_same_formset(self):
+         FormSet = modelformset_factory(Product, fields="__all__", extra=2)
+         data = {

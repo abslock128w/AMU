@@ -1,0 +1,71 @@
+[
+ {
+  "tool": "rt",
+  "seconds": 0.56,
+  "at": 1791973384.5,
+  "labels": [],
+  "problems": [
+   "part 1 of 4 ended without a result (exit 1)",
+   "part 2 of 4 ended without a result (exit 1)",
+   "part 3 of 4 ended without a result (exit 1)",
+   "part 4 of 4 ended without a result (exit 1)"
+  ],
+  "ran": 0,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.35,
+  "at": 1791973407.6,
+  "labels": [
+   "model_fields.test_booleanfield"
+  ],
+  "problems": [
+   "part 1 of 1 ended without a result (exit 1)"
+  ],
+  "ran": 0,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.83,
+  "at": 1791973423.3,
+  "labels": [
+   "model_fields.test_booleanfield",
+   "model_forms.test_modelchoicefield"
+  ],
+  "problems": [],
+  "ran": 36,
+  "failed": [
+   "model_fields.test_booleanfield.BooleanFieldTests.test_booleanfield_choices_blank_desired",
+   "model_forms.test_modelchoicefield.ModelChoiceFieldTests.test_basics",
+   "model_forms.test_modelchoicefield.ModelChoiceFieldTests.test_choices",
+   "model_forms.test_modelchoicefield.ModelChoiceFieldTests.test_choices_freshness",
+   "model_forms.test_modelchoicefield.ModelChoiceFieldTests.test_choices_radio_blank",
+   "model_forms.test_modelchoicefield.ModelChoiceFieldTests.test_queryset_manager"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 190.51,
+  "at": 1791973680.5,
+  "labels": [],
+  "problems": [],
+  "ran": 19062,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.77,
+  "at": 1791973744.3,
+  "labels": [
+   "model_fields.tests",
+   "model_forms.test_modelchoicefield"
+  ],
+  "problems": [],
+  "ran": 66,
+  "failed": []
+ }
+]

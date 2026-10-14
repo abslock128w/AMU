@@ -1,0 +1,47 @@
+[
+ {
+  "tool": "rt",
+  "seconds": 20.48,
+  "at": 1791969799.8,
+  "labels": [
+   "model_fields",
+   "model_forms",
+   "modeladmin",
+   "model_formsets",
+   "admin_filters",
+   "admin_views.test_actions",
+   "admin_views.test_related_object_lookups",
+   "admin_views.tests",
+   "admin_inlines",
+   "admin_widgets"
+  ],
+  "problems": [],
+  "ran": 1709,
+  "failed": [
+   "model_fields.test_blank_choice.BlankChoiceLabelTests.test_use_blank_choice_dash_setting"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 1.01,
+  "at": 1791969804.4,
+  "labels": [
+   "model_fields.test_blank_choice",
+   "model_forms.test_modelchoicefield"
+  ],
+  "problems": [],
+  "ran": 34,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 207.35,
+  "at": 1791970015.4,
+  "labels": [],
+  "problems": [],
+  "ran": 19069,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ }
+]

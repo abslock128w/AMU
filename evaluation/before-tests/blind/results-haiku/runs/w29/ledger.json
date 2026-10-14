@@ -1,0 +1,50 @@
+[
+ {
+  "tool": "rt",
+  "seconds": 0.67,
+  "at": 1791973967.6,
+  "labels": [
+   "invalid_models_tests.test_relative_fields"
+  ],
+  "problems": [],
+  "ran": 108,
+  "failed": [
+   "invalid_models_tests.test_relative_fields.RelatedQueryNameClashWithManagerTests.test_clash_between_default_accessor_and_target_manager"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.62,
+  "at": 1791973974.4,
+  "labels": [
+   "invalid_models_tests"
+  ],
+  "problems": [],
+  "ran": 336,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 175.35,
+  "at": 1791974152.5,
+  "labels": [],
+  "problems": [],
+  "ran": 19085,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.87,
+  "at": 1791974192.0,
+  "labels": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ],
+  "problems": [],
+  "ran": 1,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ }
+]

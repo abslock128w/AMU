@@ -383,3 +383,75 @@ from 22f91ef or 929cd0e, so the commit under test stays 929cd0e.
 Runs with at least one regression, per arm, of 16. The AMU arm wins if fewer of its runs shipped one.
 Equal counts are a tie. The report also gives the regression-test totals, the split by tests upstream left
 alone, the task 3 artefact as before, and a root cause for every AMU-arm run that shipped a regression.
+
+## Haiku result (added after the run; nothing above this line was changed afterwards)
+
+**The hook does not cut regressions even with Haiku: 6 of 16 runs shipped a regression in each arm (1,714
+regression tests in the AMU arm, 1,712 in control). By the rule written before the start this is a tie, and by
+the owner's rule the agent-facing hook line is closed.**
+
+Scores: `results-haiku/scores.json`; per run: `results-haiku/runs/<id>/`.
+
+| Task | AMU arm: regressions (in tests upstream left alone) | Control: regressions (left alone) | Frozen breaking tests the hook listed |
+|---|---|---|---|
+| 1 | w02 0, w23 0 | w27 0, w03 0 | 1 of 1 in each |
+| 2 | w09 0, w06 0 | w13 0, w28 0 | none |
+| 3 | w04 854 (814), w18 854 (814) | w20 854 (814), w01 854 (814) | 6 and 15 of 21 |
+| 4 | w15 0, w10 0 | w07 0, w08 0 | 0 and 1 of 1; both runs also listed the five system-check tests Sonnet's w07 shipped |
+| 5 | w31 1 (0), w30 1 (0) | w14 1 (0), w29 1 (0) | none |
+| 6 | **w21 3 (2)**, w11 1 (0) | w24 1 (0), w32 1 (0) | none frozen; `test_simple_save` and `test_options` in both runs |
+| 7 | w16 0, w26 0 | w17 0, w19 0 | none |
+| 8 | w22 0, w12 0 | w05 0, w25 0 | 4 and 2 of 4 |
+| Runs with a regression | **6 of 16** | **6 of 16** | |
+
+| Measure, per arm over 16 runs | AMU arm | Control |
+|---|---:|---:|
+| Regression tests | 1,714 | 1,712 |
+| Same, without task 3 | 6 in 4 runs | 4 in 4 runs |
+| Regressions in tests upstream left alone, without task 3 | 2 in 1 run (w21) | 0 |
+| Upstream's new tests failing (not regressions) | 28 | 25 |
+| Red tests left in the agent's own tree | 0 | 0 |
+| Runs whose agent ran every frozen breaking test before declaring | 16 | 16 |
+| Runs that declared done | 15 | 16 |
+| Session wall time, median / total | 365 s / 8,225 s | 504 s / 8,331 s |
+| Test time charged, total | 4,320 s (hook 898 s) | 4,168 s |
+| Hook runs charged / hook messages | 63 / 141 | 0 / 0 |
+| Tokens, total incl. cache reads | 29.5 M | 27.6 M |
+| Runs that used a command outside the allow list (`git stash`, `sed -i`, `Monitor`) | 12 | 12 |
+
+Haiku ran the full suite in nearly every run of both arms: all 16 agents of both arms ran every frozen
+breaking test before declaring, and none left a red test in its own tree. The base rate the rerun was meant
+to raise did not rise: without task 3, both arms shipped regressions in 4 runs, all of them in tests upstream
+rewrote (tasks 5 and 6), except w21.
+
+### AMU-arm runs that shipped a regression, root cause
+
+| Run | Hook fired | What it printed | Breaking test among candidates | Runner started | What the agent did |
+|---|---|---|---|---|---|
+| w04, w18 (task 3) | 7 and 8 runs | 149, 5, 2, 1, 0 and 100, 99, 0 flips | the counted tests exist only in upstream's test files (import of an upstream-only helper) | yes | fixed every test the hook listed |
+| w31, w30 (task 5) | 3 and 2 | 0 flips | no: the counted test is upstream's rewrite | yes | nothing to respond to |
+| w11 (task 6) | 4 | 2 flips, then 0 | the counted test is upstream's rewrite; the 2 listed were real breakage | yes | changed its implementation; both pass in the shipped tree |
+| **w21 (task 6)** | 5 | 2 flips (`test_simple_save`, `test_options`), then 2, 1, 0 | yes, both listed | yes | **edited the two flagged tests** (added `"pk"` to their `order_by`) instead of its code; the hook's recheck of only those tests saw them pass and reported 0 |
+
+w21 is the one regression the hook could have prevented, and the hook's own piece-2 shortcut let it through:
+once the production code stopped changing, the hook reran only the previously flipped tests on the agent's
+edited test files, so a test rewritten to match the new behaviour counted as fixed. A flip that disappears
+because the test changed is not a fix and should stay on the list. No AMU-arm run ignored a hook message.
+
+### Departures
+
+- 24 of 32 runs used `git stash`, `sed -i` or `Monitor`, none on the allow list (12 per arm). The transcripts do
+  not show whether each went through an approved prompt or was allowed by the app; they are counted, not
+  called approvals. Every tree was checked: nothing left stashed, no change after its snapshot.
+- Four sessions (w27, w04, w31, w22) listed the shared notes folder the app offers to sibling sessions; it was
+  empty throughout. No transcript shows network use.
+- w16 (AMU arm) ended without the closing JSON after stopping its own background waits; scored as it stood.
+- Two already-closed sessions (w16, w06) took one more turn after a background wait finished; their trees were
+  compared with the snapshots and were unchanged.
+- The installed-package smoke test was fixed on the branch during the run (b2573e8, `scripts/` only); no file
+  under `amu/` changed.
+
+### What executed upstream code
+
+Django's own tests only, in scratch copies: the 32 sessions' `./rt` runs and 63 hook runs; scoring (8 parent
+and 8 upstream full suites, 32 hidden-test full suites, 32 own-tree module runs, reruns of suspects).

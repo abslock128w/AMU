@@ -1,0 +1,56 @@
+[
+ {
+  "tool": "rt",
+  "seconds": 2.76,
+  "at": 1791974565.5,
+  "labels": [
+   "expressions",
+   "annotations",
+   "queries",
+   "aggregation",
+   "expressions_case"
+  ],
+  "problems": [],
+  "ran": 1053,
+  "failed": [
+   "queries.tests.Queries1Tests.test_subquery_condition"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.72,
+  "at": 1791974726.3,
+  "labels": [
+   "queries.tests.Queries1Tests"
+  ],
+  "problems": [],
+  "ran": 79,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 140.24,
+  "at": 1791974866.7,
+  "labels": [],
+  "problems": [],
+  "ran": 19044,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option",
+   "filtered_relation.tests.FilteredRelationTests.test_internal_queryset_alias_mapping"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.56,
+  "at": 1791974876.2,
+  "labels": [
+   "filtered_relation",
+   "admin_scripts.tests.CommandDBOptionChoiceTests"
+  ],
+  "problems": [],
+  "ran": 64,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ }
+]

@@ -585,6 +585,34 @@ AMU's tests: `tests/core` 50 passed, the same 4 failing for want of pytest. File
 `amu/core/runners.py`, `amu/core/__init__.py`, `amu/core/__main__.py`, `tests/core/test_reachability.py`,
 `blind/hook.py`, `blind/replay_hook.py`. Upstream code executed: Django's tests in the 32 replay workspaces.
 
+## The Haiku rerun: the agent-facing hook line is closed
+
+**The hook does not cut regressions even with a cheap agent: 6 of 16 Haiku runs shipped a regression in each
+arm (1,714 regression tests with the hook, 1,712 without). By the owner's rule set before the rerun, the
+agent-facing hook line is closed.** What remains is humans, slow suites and CI, each needing its own trial.
+
+Same eight frozen tasks, prompt, budget, rules and scorer as the Sonnet run; agent Haiku in both arms; AMU at
+929cd0e. Full record: `blind/TRIAL-RECORD.md` (Haiku sections).
+
+| | AMU arm | Control |
+|---|---:|---:|
+| Runs with a regression | 6 of 16 | 6 of 16 |
+| Regression tests | 1,714 | 1,712 |
+| Without the task 3 artefact | 6 in 4 runs | 4 in 4 runs |
+| In tests upstream left alone, without task 3 | 2 in 1 run | 0 |
+| Test time charged | 4,320 s (hook 898 s, 63 runs) | 4,168 s |
+
+- The base rate did not rise. Haiku ran the full suite almost every time, ran every frozen breaking test in all
+  32 runs, and left no red test in its own tree. Apart from task 3, every regression in both arms but one is a
+  test upstream rewrote for its own behaviour, which no tool running the agent's tests can see.
+- The hook did its job in the sense it was built for: it listed real breakage in tasks 1, 3, 4, 6 and 8, including
+  the five system-check tests Sonnet's control run w07 shipped, and agents fixed what it listed. But the Haiku
+  control agents found the same breakage themselves with full-suite runs.
+- **The one regression the hook could have prevented, it let through (w21).** The agent made the two flagged
+  tests pass by editing them. Piece 2's shortcut reran only the earlier flips on the edited test files and
+  reported 0. A flip that disappears because its test changed should stay listed; that is a defect, recorded,
+  not fixed, since the line is closed.
+
 ## Milestones (state at b3747c8)
 
 - **M1 harness.** `scripts/before_tests_harness.py`; protocol and manifests are hash-pinned.

@@ -1,0 +1,47 @@
+diff --git a/django/db/models/query_utils.py b/django/db/models/query_utils.py
+index c37e6b7..692b4ec 100644
+--- a/django/db/models/query_utils.py
++++ b/django/db/models/query_utils.py
+@@ -53,15 +53,24 @@ class Q(tree.Node):
+     connectors = (None, AND, OR, XOR)
+ 
+     def __init__(self, *args, _connector=None, _negated=False, **kwargs):
+-        if _connector not in self.connectors:
+-            connector_reprs = ", ".join(f"{conn!r}" for conn in self.connectors[1:])
+-            raise ValueError(f"_connector must be one of {connector_reprs}, or None.")
++        self._validate_connector(_connector)
+         super().__init__(
+             children=[*args, *sorted(kwargs.items())],
+             connector=_connector,
+             negated=_negated,
+         )
+ 
++    @classmethod
++    def _validate_connector(cls, connector):
++        if connector not in cls.connectors:
++            connector_reprs = ", ".join(f"{conn!r}" for conn in cls.connectors[1:])
++            raise ValueError(f"_connector must be one of {connector_reprs}, or None.")
++
++    @classmethod
++    def create(cls, children=None, connector=None, negated=False):
++        cls._validate_connector(connector)
++        return super().create(children, connector, negated)
++
+     def _combine(self, other, conn):
+         if getattr(other, "conditional", False) is False:
+             raise TypeError(other)
+diff --git a/tests/queries/test_q.py b/tests/queries/test_q.py
+index 52200b2..a54e560 100644
+--- a/tests/queries/test_q.py
++++ b/tests/queries/test_q.py
+@@ -276,6 +276,10 @@ class QTests(SimpleTestCase):
+         msg = f"_connector must be one of {Q.AND!r}, {Q.OR!r}, {Q.XOR!r}, or None."
+         with self.assertRaisesMessage(ValueError, msg):
+             Q(_connector="evil")
++        with self.assertRaisesMessage(ValueError, msg):
++            Q.create([("a", 1)], connector="evil")
++        with self.assertRaisesMessage(ValueError, msg):
++            Q.create([("a", 1)], connector="")
+ 
+     def test_referenced_base_fields(self):
+         # Make sure Q.referenced_base_fields retrieves all base fields from

@@ -1,0 +1,122 @@
+diff --git a/django/contrib/sites/checks.py b/django/contrib/sites/checks.py
+index 66e8551..9fa54f1 100644
+--- a/django/contrib/sites/checks.py
++++ b/django/contrib/sites/checks.py
+@@ -1,14 +1,27 @@
+-from types import NoneType
+-
++from django.apps import apps
+ from django.conf import settings
+ from django.core.checks import Error
++from django.core.exceptions import ValidationError
+ 
+ 
+ def check_site_id(app_configs, **kwargs):
+-    if hasattr(settings, "SITE_ID") and not isinstance(
+-        settings.SITE_ID, (NoneType, int)
+-    ):
++    if not hasattr(settings, "SITE_ID") or settings.SITE_ID is None:
++        return []
++    if not apps.is_installed("django.contrib.sites"):
++        return []
++    pk = apps.get_model("sites", "Site")._meta.pk
++    try:
++        # to_python() coerces some values (e.g. "1" for an AutoField), so also
++        # require the setting to already have the primary key's type.
++        valid = pk.to_python(settings.SITE_ID) == settings.SITE_ID
++    except ValidationError:
++        valid = False
++    if not valid:
+         return [
+-            Error("The SITE_ID setting must be an integer", id="sites.E101"),
++            Error(
++                "The SITE_ID setting must be of the same type as the Site model's "
++                "primary key.",
++                id="sites.E101",
++            ),
+         ]
+     return []
+diff --git a/docs/ref/checks.txt b/docs/ref/checks.txt
+index 16f0c5d..5f3a180 100644
+--- a/docs/ref/checks.txt
++++ b/docs/ref/checks.txt
+@@ -967,7 +967,8 @@ The following checks are performed on any model using a
+ The following checks verify that :mod:`django.contrib.sites` is correctly
+ configured:
+ 
+-* **sites.E101**: The :setting:`SITE_ID` setting must be an integer.
++* **sites.E101**: The :setting:`SITE_ID` setting must be of the same type as
++  the ``Site`` model's primary key.
+ 
+ ``staticfiles``
+ ---------------
+diff --git a/docs/topics/checks.txt b/docs/topics/checks.txt
+index e22415e..2f6c829 100644
+--- a/docs/topics/checks.txt
++++ b/docs/topics/checks.txt
+@@ -240,7 +240,7 @@ an integer, a built-in :ref:`check from the sites framework
+         @override_settings(SITE_ID="non_integer")
+         @modify_settings(INSTALLED_APPS={"prepend": "django.contrib.sites"})
+         def test_non_integer_site_id(self):
+-            message = "(sites.E101) The SITE_ID setting must be an integer."
++            message = "(sites.E101) The SITE_ID setting must be of the same type as the Site model's primary key."
+             with self.assertRaisesMessage(SystemCheckError, message):
+                 call_command("check")
+ 
+diff --git a/tests/sites_tests/tests.py b/tests/sites_tests/tests.py
+index 79183f7..894b22c 100644
+--- a/tests/sites_tests/tests.py
++++ b/tests/sites_tests/tests.py
+@@ -1,3 +1,5 @@
++from unittest import mock
++
+ from django.apps import apps
+ from django.apps.registry import Apps
+ from django.conf import settings
+@@ -10,6 +12,7 @@ from django.contrib.sites.requests import RequestSite
+ from django.contrib.sites.shortcuts import get_current_site
+ from django.core import checks
+ from django.core.exceptions import ObjectDoesNotExist, ValidationError
++from django.db.models import CharField
+ from django.db.models.signals import post_migrate
+ from django.http import HttpRequest, HttpResponse
+ from django.test import SimpleTestCase, TestCase, modify_settings, override_settings
+@@ -209,7 +212,10 @@ class SitesFrameworkTests(TestCase):
+             check_site_id(None),
+             [
+                 checks.Error(
+-                    msg="The SITE_ID setting must be an integer",
++                    msg=(
++                        "The SITE_ID setting must be of the same type as the Site "
++                        "model's primary key."
++                    ),
+                     id="sites.E101",
+                 ),
+             ],
+@@ -220,6 +226,26 @@ class SitesFrameworkTests(TestCase):
+             with self.subTest(site_id=site_id), self.settings(SITE_ID=site_id):
+                 self.assertEqual(check_site_id(None), [])
+ 
++    def test_check_site_id_non_integer_pk(self):
++        # The primary key's type decides which SITE_ID values are valid.
++        pk = CharField(primary_key=True, max_length=24)
++        with mock.patch.object(Site._meta, "pk", pk):
++            with self.settings(SITE_ID="1"):
++                self.assertEqual(check_site_id(None), [])
++            with self.settings(SITE_ID=1):
++                self.assertEqual(
++                    check_site_id(None),
++                    [
++                        checks.Error(
++                            msg=(
++                                "The SITE_ID setting must be of the same type as "
++                                "the Site model's primary key."
++                            ),
++                            id="sites.E101",
++                        ),
++                    ],
++                )
++
+ 
+ @override_settings(ALLOWED_HOSTS=["example.com"])
+ class RequestSiteTests(SimpleTestCase):

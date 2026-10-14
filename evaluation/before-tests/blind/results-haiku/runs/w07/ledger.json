@@ -1,0 +1,75 @@
+[
+ {
+  "tool": "rt",
+  "seconds": 0.61,
+  "at": 1791969699.7,
+  "labels": [
+   "sites_tests"
+  ],
+  "problems": [],
+  "ran": 27,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 239.44,
+  "at": 1791969942.1,
+  "labels": [],
+  "problems": [],
+  "ran": 19059,
+  "failed": [
+   "admin_checks.tests.SystemChecksTestCase.test_checks_are_performed",
+   "admin_checks.tests.SystemChecksTestCase.test_custom_adminsite",
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option",
+   "contenttypes_tests.test_checks.GenericForeignKeyTests.test_generic_foreign_key_checks_are_performed",
+   "migrations.test_commands.MigrateTests.test_migrate_runs_database_system_checks",
+   "migrations.test_commands.MigrateTests.test_sqlmigrate_system_checks_colorized"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 210.06,
+  "at": 1791970160.7,
+  "labels": [],
+  "problems": [],
+  "ran": 19059,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.57,
+  "at": 1791970175.2,
+  "labels": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ],
+  "problems": [],
+  "ran": 1,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 208.34,
+  "at": 1791970386.5,
+  "labels": [],
+  "problems": [],
+  "ran": 19059,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.51,
+  "at": 1791970391.0,
+  "labels": [
+   "sites_tests"
+  ],
+  "problems": [],
+  "ran": 27,
+  "failed": []
+ }
+]

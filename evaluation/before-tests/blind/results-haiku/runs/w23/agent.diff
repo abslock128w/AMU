@@ -1,0 +1,39 @@
+diff --git a/django/utils/deprecation.py b/django/utils/deprecation.py
+index 89c9f71..da1d231 100644
+--- a/django/utils/deprecation.py
++++ b/django/utils/deprecation.py
+@@ -16,7 +16,9 @@ def django_file_prefixes():
+     file = getattr(django, "__file__", None)
+     if file is None:
+         return ()
+-    return (os.path.dirname(file),)
++    # Include a trailing path separator so that sibling packages whose names
++    # merely start with "django" (e.g. "django_goodies") aren't matched.
++    return (os.path.join(os.path.dirname(file), ""),)
+ 
+ 
+ class RemovedInNextVersionWarning(DeprecationWarning):
+diff --git a/tests/deprecation/tests.py b/tests/deprecation/tests.py
+index ac610b4..1ed380a 100644
+--- a/tests/deprecation/tests.py
++++ b/tests/deprecation/tests.py
+@@ -31,7 +31,18 @@ class DjangoFilePrefixesTests(SimpleTestCase):
+         prefixes = django_file_prefixes()
+         self.assertIsInstance(prefixes, tuple)
+         self.assertEqual(len(prefixes), 1)
+-        self.assertTrue(prefixes[0].endswith(f"{os.path.sep}django"))
++        self.assertTrue(prefixes[0].endswith(f"{os.path.sep}django{os.path.sep}"))
++
++    def test_sibling_package_not_matched(self):
++        # A package whose name merely starts with "django" (for example
++        # "django_goodies" installed next to Django) must not match.
++        prefix = django_file_prefixes()[0]
++        site_packages = os.path.dirname(os.path.dirname(prefix))
++        sibling_file = os.path.join(
++            site_packages, "django_goodies", "__init__.py"
++        )
++        self.assertFalse(sibling_file.startswith(prefix))
++        self.assertTrue(os.path.join(prefix, "__init__.py").startswith(prefix))
+ 
+ 
+ class RenameManagerMethods(RenameMethodsBase):

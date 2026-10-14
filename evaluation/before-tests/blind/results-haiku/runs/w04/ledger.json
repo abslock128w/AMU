@@ -1,0 +1,84 @@
+[
+ {
+  "tool": "hook",
+  "seconds": 14.98,
+  "at": 1791969453.9,
+  "detail": "before ./rt"
+ },
+ {
+  "tool": "hook",
+  "seconds": 66.18,
+  "at": 1791969754.0,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "hook",
+  "seconds": 57.9,
+  "at": 1791969823.5,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "hook",
+  "seconds": 52.51,
+  "at": 1791969882.0,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "hook",
+  "seconds": 11.69,
+  "at": 1791969936.0,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "hook",
+  "seconds": 9.67,
+  "at": 1791969951.1,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "hook",
+  "seconds": 13.29,
+  "at": 1791969973.8,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 176.84,
+  "at": 1791970201.2,
+  "labels": [],
+  "problems": [],
+  "ran": 19062,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option",
+   "model_forms.tests.ModelFormBasicTests.test_initial_values",
+   "model_forms.tests.ModelFormBasicTests.test_multi_fields",
+   "model_forms.tests.ModelFormBasicTests.test_runtime_choicefield_populated"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.62,
+  "at": 1791970223.9,
+  "labels": [
+   "model_forms.tests.ModelFormBasicTests",
+   "admin_scripts.tests.CommandDBOptionChoiceTests"
+  ],
+  "problems": [],
+  "ran": 16,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option",
+   "model_forms.tests.ModelFormBasicTests.test_runtime_choicefield_populated"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 181.04,
+  "at": 1791970417.8,
+  "labels": [],
+  "problems": [],
+  "ran": 19062,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ }
+]

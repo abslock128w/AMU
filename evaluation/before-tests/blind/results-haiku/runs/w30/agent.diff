@@ -1,0 +1,103 @@
+diff --git a/django/db/models/fields/related.py b/django/db/models/fields/related.py
+index f1bc664..b591576 100644
+--- a/django/db/models/fields/related.py
++++ b/django/db/models/fields/related.py
+@@ -720,10 +720,22 @@ class ForeignObject(RelatedField):
+         return []
+ 
+     def _check_conflict_with_managers(self):
++        from django.db.models.base import ModelBase
++
++        # f.remote_field.model may be a string instead of a model. Skip if
++        # model name is not resolved.
++        if not isinstance(self.remote_field.model, ModelBase):
++            return []
++
+         errors = []
+-        manager_names = {manager.name for manager in self.opts.managers}
+-        for rel_objs in self.model._meta.related_objects:
+-            related_object_name = rel_objs.name
++        # The reverse accessor is added to the related model, so it is that
++        # model's managers which it may clash with.
++        opts = self.remote_field.model._meta
++        manager_names = {manager.name for manager in opts.managers}
++        for rel_objs in opts.related_objects:
++            if rel_objs.field is not self:
++                continue
++            related_object_name = rel_objs.accessor_name
+             if related_object_name in manager_names:
+                 field_name = f"{self.model._meta.object_name}.{self.name}"
+                 errors.append(
+diff --git a/tests/invalid_models_tests/test_relative_fields.py b/tests/invalid_models_tests/test_relative_fields.py
+index 51b1de1..6b6c40d 100644
+--- a/tests/invalid_models_tests/test_relative_fields.py
++++ b/tests/invalid_models_tests/test_relative_fields.py
+@@ -1591,6 +1591,68 @@ class RelatedQueryNameClashWithManagerTests(SimpleTestCase):
+             ],
+         )
+ 
++    def test_clash_between_related_name_and_manager_of_related_model(self):
++        class Author(models.Model):
++            authors = models.Manager()
++
++        class Book(models.Model):
++            author = models.ForeignKey(
++                Author, related_name="authors", on_delete=models.CASCADE
++            )
++
++        self.assertEqual(
++            Book.check(),
++            [
++                Error(
++                    "Related name 'authors' for 'Book.author' clashes with the name "
++                    "of a model manager.",
++                    hint=(
++                        "Rename the model manager or change the related_name argument "
++                        "in the definition for field 'Book.author'."
++                    ),
++                    obj=Book._meta.get_field("author"),
++                    id="fields.E348",
++                )
++            ],
++        )
++        self.assertEqual(Author.check(), [])
++
++    def test_clash_between_default_accessor_and_manager_of_related_model(self):
++        class Author(models.Model):
++            book_set = models.Manager()
++
++        class Book(models.Model):
++            author = models.ForeignKey(Author, on_delete=models.CASCADE)
++
++        self.assertEqual(
++            Book.check(),
++            [
++                Error(
++                    "Related name 'book_set' for 'Book.author' clashes with the "
++                    "name of a model manager.",
++                    hint=(
++                        "Rename the model manager or change the related_name argument "
++                        "in the definition for field 'Book.author'."
++                    ),
++                    obj=Book._meta.get_field("author"),
++                    id="fields.E348",
++                )
++            ],
++        )
++        self.assertEqual(Author.check(), [])
++
++    def test_no_clash_between_related_query_name_and_manager_of_related_model(self):
++        # The related query name (book) does not clash with managers; only the
++        # reverse accessor (book_set) does.
++        class Author(models.Model):
++            book = models.Manager()
++
++        class Book(models.Model):
++            author = models.ForeignKey(Author, on_delete=models.CASCADE)
++
++        self.assertEqual(Book.check(), [])
++        self.assertEqual(Author.check(), [])
++
+ 
+ @isolate_apps("invalid_models_tests")
+ class SelfReferentialM2MClashTests(SimpleTestCase):

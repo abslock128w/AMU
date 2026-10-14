@@ -1,0 +1,61 @@
+[
+ {
+  "tool": "hook",
+  "seconds": 13.48,
+  "at": 1791973089.1,
+  "detail": "before ./rt"
+ },
+ {
+  "tool": "hook",
+  "seconds": 8.6,
+  "at": 1791973256.9,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "hook",
+  "seconds": 8.78,
+  "at": 1791973345.4,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "hook",
+  "seconds": 5.77,
+  "at": 1791973363.8,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.62,
+  "at": 1791973368.4,
+  "labels": [
+   "sites_tests"
+  ],
+  "problems": [],
+  "ran": 27,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 200.99,
+  "at": 1791973572.9,
+  "labels": [],
+  "problems": [],
+  "ran": 19059,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.76,
+  "at": 1791973685.6,
+  "labels": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests"
+  ],
+  "problems": [],
+  "ran": 1,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ }
+]

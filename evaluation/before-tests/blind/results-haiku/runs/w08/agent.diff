@@ -1,0 +1,87 @@
+diff --git a/django/contrib/sites/checks.py b/django/contrib/sites/checks.py
+index 66e8551..eb085fc 100644
+--- a/django/contrib/sites/checks.py
++++ b/django/contrib/sites/checks.py
+@@ -1,14 +1,29 @@
+-from types import NoneType
+-
++from django.apps import apps
+ from django.conf import settings
+-from django.core.checks import Error
++from django.core import checks
++from django.core.exceptions import ValidationError
++from django.db.models import AutoField, IntegerField
+ 
+ 
+ def check_site_id(app_configs, **kwargs):
+-    if hasattr(settings, "SITE_ID") and not isinstance(
+-        settings.SITE_ID, (NoneType, int)
+-    ):
+-        return [
+-            Error("The SITE_ID setting must be an integer", id="sites.E101"),
+-        ]
+-    return []
++    if not hasattr(settings, "SITE_ID") or settings.SITE_ID is None:
++        return []
++    try:
++        pk = apps.get_model("sites", "Site")._meta.pk
++    except LookupError:
++        # The sites framework isn't installed; fall back to the default
++        # integer primary key.
++        pk = AutoField()
++    try:
++        # to_python() may coerce values (e.g. "1" -> 1 for AutoField), so the
++        # value must also be unchanged by the conversion.
++        is_valid = settings.SITE_ID == pk.to_python(settings.SITE_ID)
++    except ValidationError:
++        is_valid = False
++    if is_valid:
++        return []
++    if isinstance(pk, IntegerField):
++        msg = "The SITE_ID setting must be an integer"
++    else:
++        msg = f"The SITE_ID setting must be a valid {pk.__class__.__name__} value"
++    return [checks.Error(msg, id="sites.E101")]
+diff --git a/tests/sites_tests/tests.py b/tests/sites_tests/tests.py
+index 79183f7..be3855f 100644
+--- a/tests/sites_tests/tests.py
++++ b/tests/sites_tests/tests.py
+@@ -1,3 +1,5 @@
++from unittest import mock
++
+ from django.apps import apps
+ from django.apps.registry import Apps
+ from django.conf import settings
+@@ -10,6 +12,7 @@ from django.contrib.sites.requests import RequestSite
+ from django.contrib.sites.shortcuts import get_current_site
+ from django.core import checks
+ from django.core.exceptions import ObjectDoesNotExist, ValidationError
++from django.db.models import CharField
+ from django.db.models.signals import post_migrate
+ from django.http import HttpRequest, HttpResponse
+ from django.test import SimpleTestCase, TestCase, modify_settings, override_settings
+@@ -220,6 +223,24 @@ class SitesFrameworkTests(TestCase):
+             with self.subTest(site_id=site_id), self.settings(SITE_ID=site_id):
+                 self.assertEqual(check_site_id(None), [])
+ 
++    def test_check_site_id_non_integer_pk(self):
++        pk = CharField(primary_key=True, max_length=24)
++        with mock.patch.object(Site._meta, "pk", pk):
++            # Values accepted by the primary key type are valid.
++            with self.settings(SITE_ID="5f1e2d3c4b5a69788796a5b4"):
++                self.assertEqual(check_site_id(None), [])
++            # Values rejected by the primary key type are reported.
++            with self.settings(SITE_ID=1):
++                self.assertEqual(
++                    check_site_id(None),
++                    [
++                        checks.Error(
++                            msg="The SITE_ID setting must be a valid CharField value",
++                            id="sites.E101",
++                        ),
++                    ],
++                )
++
+ 
+ @override_settings(ALLOWED_HOSTS=["example.com"])
+ class RequestSiteTests(SimpleTestCase):

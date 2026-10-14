@@ -1,0 +1,97 @@
+diff --git a/django/contrib/sites/checks.py b/django/contrib/sites/checks.py
+index 66e8551..72b64eb 100644
+--- a/django/contrib/sites/checks.py
++++ b/django/contrib/sites/checks.py
+@@ -1,12 +1,27 @@
+-from types import NoneType
+-
++from django.apps import apps
+ from django.conf import settings
+ from django.core.checks import Error
++from django.core.exceptions import ValidationError
+ 
+ 
+ def check_site_id(app_configs, **kwargs):
+-    if hasattr(settings, "SITE_ID") and not isinstance(
+-        settings.SITE_ID, (NoneType, int)
++    if (
++        not hasattr(settings, "SITE_ID")
++        or settings.SITE_ID is None
++        or not apps.is_installed("django.contrib.sites")
++    ):
++        return []
++    pk = apps.get_model("sites", "Site")._meta.pk
++    try:
++        site_id = pk.to_python(settings.SITE_ID)
++    except ValidationError:
++        site_id = None
++    # to_python() may coerce values (e.g. "1" -> 1), so also require that the
++    # setting was already of the expected type and value.
++    if (
++        site_id is None
++        or type(site_id) is not type(settings.SITE_ID)
++        or site_id != settings.SITE_ID
+     ):
+         return [
+             Error("The SITE_ID setting must be an integer", id="sites.E101"),
+diff --git a/tests/sites_tests/tests.py b/tests/sites_tests/tests.py
+index 79183f7..99b14f3 100644
+--- a/tests/sites_tests/tests.py
++++ b/tests/sites_tests/tests.py
+@@ -1,3 +1,5 @@
++from unittest import mock
++
+ from django.apps import apps
+ from django.apps.registry import Apps
+ from django.conf import settings
+@@ -10,6 +12,7 @@ from django.contrib.sites.requests import RequestSite
+ from django.contrib.sites.shortcuts import get_current_site
+ from django.core import checks
+ from django.core.exceptions import ObjectDoesNotExist, ValidationError
++from django.db.models import Field
+ from django.db.models.signals import post_migrate
+ from django.http import HttpRequest, HttpResponse
+ from django.test import SimpleTestCase, TestCase, modify_settings, override_settings
+@@ -220,6 +223,42 @@ class SitesFrameworkTests(TestCase):
+             with self.subTest(site_id=site_id), self.settings(SITE_ID=site_id):
+                 self.assertEqual(check_site_id(None), [])
+ 
++    def test_check_site_id_rejects_values_coerced_by_pk(self):
++        # AutoField.to_python() coerces these to int, but they aren't ints.
++        for site_id in ["1", 1.0, True]:
++            with self.subTest(site_id=site_id), self.settings(SITE_ID=site_id):
++                self.assertEqual(
++                    check_site_id(None),
++                    [
++                        checks.Error(
++                            msg="The SITE_ID setting must be an integer",
++                            id="sites.E101",
++                        ),
++                    ],
++                )
++
++    def test_check_site_id_rejects_invalid_pk_value(self):
++        with self.settings(SITE_ID="abc"):
++            self.assertEqual(
++                check_site_id(None),
++                [
++                    checks.Error(
++                        msg="The SITE_ID setting must be an integer",
++                        id="sites.E101",
++                    ),
++                ],
++            )
++
++    def test_check_site_id_uses_site_pk_field(self):
++        # A non-integer primary key (e.g. MongoDB's ObjectId) accepts the
++        # value as-is, so the check must not reject it.
++        pk = Field(primary_key=True)
++        with (
++            mock.patch.object(Site._meta, "pk", pk),
++            self.settings(SITE_ID="507f1f77bcf86cd799439011"),
++        ):
++            self.assertEqual(check_site_id(None), [])
++
+ 
+ @override_settings(ALLOWED_HOSTS=["example.com"])
+ class RequestSiteTests(SimpleTestCase):
