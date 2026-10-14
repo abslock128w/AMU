@@ -1,0 +1,48 @@
+[
+ {
+  "tool": "rt",
+  "seconds": 1.5,
+  "at": 1791954899.2,
+  "labels": [
+   "queries",
+   "annotations",
+   "aggregation",
+   "expressions"
+  ],
+  "problems": [],
+  "ran": 964,
+  "failed": [
+   "queries.tests.Queries1Tests.test_subquery_condition"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 128.11,
+  "at": 1791955140.0,
+  "labels": [],
+  "problems": [],
+  "ran": 19043,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option",
+   "filtered_relation.tests.FilteredRelationTests.test_internal_queryset_alias_mapping",
+   "queries.tests.Queries1Tests.test_subquery_condition"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 1.96,
+  "at": 1791955225.3,
+  "labels": [
+   "annotations",
+   "filtered_relation",
+   "queries",
+   "expressions",
+   "aggregation",
+   "extra_regress",
+   "raw_query"
+  ],
+  "problems": [],
+  "ran": 1075,
+  "failed": []
+ }
+]

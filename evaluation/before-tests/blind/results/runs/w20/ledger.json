@@ -1,0 +1,52 @@
+[
+ {
+  "tool": "rt",
+  "seconds": 193.51,
+  "at": 1791953423.6,
+  "labels": [],
+  "problems": [],
+  "ran": 19059,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option",
+   "admin_views.test_actions.AdminActionsTest.test_actions_ordering",
+   "model_fields.test_booleanfield.BooleanFieldTests.test_booleanfield_choices_blank_desired",
+   "model_fields.tests.GetChoicesTests.test_lazy_strings_not_evaluated",
+   "model_forms.test_modelchoicefield.ModelChoiceFieldTests.test_basics",
+   "model_forms.test_modelchoicefield.ModelChoiceFieldTests.test_choices",
+   "model_forms.test_modelchoicefield.ModelChoiceFieldTests.test_choices_freshness",
+   "model_forms.test_modelchoicefield.ModelChoiceFieldTests.test_choices_radio_blank",
+   "model_forms.test_modelchoicefield.ModelChoiceFieldTests.test_queryset_manager",
+   "model_forms.tests.FileAndImageFieldTests.test_file_path_field_blank",
+   "model_forms.tests.ModelFormBaseTest.test_blank_foreign_key_with_radio",
+   "model_forms.tests.ModelFormBasicTests.test_callable_choices_are_lazy",
+   "model_forms.tests.ModelFormBasicTests.test_initial_values",
+   "model_forms.tests.ModelFormBasicTests.test_multi_fields",
+   "model_forms.tests.ModelFormBasicTests.test_runtime_choicefield_populated",
+   "model_forms.tests.ModelOneToOneFieldTests.test_onetoonefield",
+   "model_forms.tests.OtherModelFormTests.test_foreignkeys_which_use_to_field",
+   "model_forms.tests.OtherModelFormTests.test_prefetch_related_queryset",
+   "model_formsets.tests.ModelFormsetTest.test_custom_pk",
+   "modeladmin.tests.ModelAdminTests.test_default_foreign_key_widget",
+   "modeladmin.tests.ModelAdminTests.test_foreign_key_as_custom_widget",
+   "modeladmin.tests.ModelAdminTests.test_queryset_override"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 3.2,
+  "at": 1791953446.4,
+  "labels": [
+   "model_fields",
+   "model_forms",
+   "model_formsets",
+   "modeladmin",
+   "admin_views.test_actions",
+   "settings_tests",
+   "forms_tests",
+   "deprecation"
+  ],
+  "problems": [],
+  "ran": 2180,
+  "failed": []
+ }
+]

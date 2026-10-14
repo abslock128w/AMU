@@ -1,0 +1,16 @@
+{
+ "flips": 1,
+ "predicted_failures": [
+  {
+   "id": "tests/generic_relations/test_forms.py::GenericInlineFormsetTests::test_options",
+   "before": "passed",
+   "after": "failed",
+   "label": "executed"
+  }
+ ],
+ "summary": "EXECUTED 299 of 299 candidate tests after the change with django-runtests in 13.1 s, failures confirmed before it: 1 now fail. 855 tests reach the change.",
+ "gaps": [
+  "97446 call sites unresolved repo-wide; dynamic dispatch may reach more",
+  "tests/test_runner_apps/tagged/tests_syntax_error.py: SyntaxError"
+ ]
+}

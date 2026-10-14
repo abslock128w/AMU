@@ -1,0 +1,28 @@
+[
+ {
+  "tool": "rt",
+  "seconds": 186.93,
+  "at": 1791956649.5,
+  "labels": [],
+  "problems": [],
+  "ran": 19043,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option",
+   "filtered_relation.tests.FilteredRelationTests.test_internal_queryset_alias_mapping",
+   "queries.tests.Queries1Tests.test_subquery_condition"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 2.15,
+  "at": 1791956662.9,
+  "labels": [
+   "annotations",
+   "queries.tests",
+   "filtered_relation"
+  ],
+  "problems": [],
+  "ran": 470,
+  "failed": []
+ }
+]

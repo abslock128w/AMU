@@ -1,0 +1,732 @@
+diff --git a/django/conf/__init__.py b/django/conf/__init__.py
+index c7ae36a..c3741de 100644
+--- a/django/conf/__init__.py
++++ b/django/conf/__init__.py
+@@ -16,6 +16,7 @@ from pathlib import Path
+ import django
+ from django.conf import global_settings
+ from django.core.exceptions import ImproperlyConfigured
++from django.utils.deprecation import RemovedInDjango70Warning
+ from django.utils.functional import LazyObject, empty
+ 
+ ENVIRONMENT_VARIABLE = "DJANGO_SETTINGS_MODULE"
+@@ -35,6 +36,11 @@ class SettingsReference(str):
+     def __init__(self, value, setting_name):
+         self.setting_name = setting_name
+ 
++USE_BLANK_CHOICE_DASH_DEPRECATED_MSG = (
++    "The USE_BLANK_CHOICE_DASH transitional setting is deprecated. The "
++    "'---------' blank choice label will be replaced by a more accessible one."
++)
++
+ 
+ class LazySettings(LazyObject):
+     """
+@@ -182,6 +188,13 @@ class Settings:
+                 setattr(self, setting, setting_value)
+                 self._explicit_settings.add(setting)
+ 
++        if "USE_BLANK_CHOICE_DASH" in self._explicit_settings:
++            warnings.warn(
++                USE_BLANK_CHOICE_DASH_DEPRECATED_MSG,
++                RemovedInDjango70Warning,
++                stacklevel=2,
++            )
++
+         if hasattr(time, "tzset") and self.TIME_ZONE:
+             # When we can, attempt to validate the timezone. If we can't find
+             # this file, no check happens and it's harmless.
+diff --git a/django/conf/global_settings.py b/django/conf/global_settings.py
+index 72c376d..1197173 100644
+--- a/django/conf/global_settings.py
++++ b/django/conf/global_settings.py
+@@ -159,6 +159,10 @@ LANGUAGES_BIDI = ["he", "ar", "ar-dz", "ckb", "fa", "ug", "ur"]
+ # If you set this to False, Django will make some optimizations so as not
+ # to load the internationalization machinery.
+ USE_I18N = True
++
++# RemovedInDjango70Warning: Transitional setting. Set to True to keep using the
++# legacy "---------" label for the blank choice of <select> inputs.
++USE_BLANK_CHOICE_DASH = False
+ LOCALE_PATHS = []
+ 
+ # Settings for language cookie
+diff --git a/django/contrib/admin/options.py b/django/contrib/admin/options.py
+index bb091e4..d4f9c5e 100644
+--- a/django/contrib/admin/options.py
++++ b/django/contrib/admin/options.py
+@@ -1049,11 +1049,13 @@ class ModelAdmin(BaseModelAdmin):
+         actions = self._filter_actions_by_permissions(request, self._get_base_actions())
+         return {name: (func, name, desc) for func, name, desc in actions}
+ 
+-    def get_action_choices(self, request, default_choices=models.BLANK_CHOICE_DASH):
++    def get_action_choices(self, request, default_choices=None):
+         """
+         Return a list of choices for use in a form object. Each choice is a
+         tuple (name, description).
+         """
++        if default_choices is None:
++            default_choices = [("", models.BLANK_CHOICE_LABEL)]
+         choices = [*default_choices]
+         for func, name, description in self.get_actions(request).values():
+             choice = (name, description % model_format_dict(self.opts))
+diff --git a/django/db/models/__init__.py b/django/db/models/__init__.py
+index c580392..c6be448 100644
+--- a/django/db/models/__init__.py
++++ b/django/db/models/__init__.py
+@@ -136,3 +136,12 @@ __all__ += [
+     "ManyToManyRel",
+     "OneToOneRel",
+ ]
++
++
++# RemovedInDjango70Warning.
++def __getattr__(name):
++    if name == "BLANK_CHOICE_DASH":
++        from django.db.models import fields
++
++        return fields.BLANK_CHOICE_DASH
++    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+diff --git a/django/db/models/fields/__init__.py b/django/db/models/fields/__init__.py
+index e248b70..ab33777 100644
+--- a/django/db/models/fields/__init__.py
++++ b/django/db/models/fields/__init__.py
+@@ -18,6 +18,7 @@ from django.db.models.query_utils import DeferredAttribute, RegisterLookupMixin
+ from django.db.utils import NotSupportedError
+ from django.utils import timezone
+ from django.utils.choices import (
++    BLANK_CHOICE_LABEL,
+     BlankChoiceIterator,
+     CallableChoiceIterator,
+     flatten_choices,
+@@ -39,7 +40,7 @@ from django.utils.translation import gettext_lazy as _
+ 
+ __all__ = [
+     "AutoField",
+-    "BLANK_CHOICE_DASH",
++    "BLANK_CHOICE_LABEL",
+     "BigAutoField",
+     "BigIntegerField",
+     "BinaryField",
+@@ -81,9 +82,18 @@ class NOT_PROVIDED:
+     pass
+ 
+ 
+-# The values to use for "blank" in SelectFields. Will be appended to the start
+-# of most "choices" lists.
+-BLANK_CHOICE_DASH = [("", "---------")]
++
++
++# RemovedInDjango70Warning.
++def __getattr__(name):
++    if name == "BLANK_CHOICE_DASH":
++        warnings.warn(
++            "BLANK_CHOICE_DASH is deprecated. Use BLANK_CHOICE_LABEL instead.",
++            RemovedInDjango70Warning,
++            stacklevel=2,
++        )
++        return [("", "---------")]
++    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+ 
+ 
+ def _load_field(app_label, model_name, field_name):
+@@ -1088,7 +1098,7 @@ class Field(RegisterLookupMixin):
+     def get_choices(
+         self,
+         include_blank=True,
+-        blank_choice=BLANK_CHOICE_DASH,
++        blank_choice=None,
+         limit_choices_to=None,
+         ordering=(),
+     ):
+@@ -1096,6 +1106,8 @@ class Field(RegisterLookupMixin):
+         Return choices with a default blank choices included, for use
+         as <select> choices for this field.
+         """
++        if blank_choice is None:
++            blank_choice = [("", BLANK_CHOICE_LABEL)]
+         if self.choices is not None:
+             if include_blank:
+                 return BlankChoiceIterator(self.choices, blank_choice)
+diff --git a/django/db/models/fields/reverse_related.py b/django/db/models/fields/reverse_related.py
+index e6c2525..29ec06c 100644
+--- a/django/db/models/fields/reverse_related.py
++++ b/django/db/models/fields/reverse_related.py
+@@ -13,7 +13,7 @@ from django.core import exceptions
+ from django.utils.functional import cached_property
+ from django.utils.hashable import make_hashable
+ 
+-from . import BLANK_CHOICE_DASH
++from . import BLANK_CHOICE_LABEL
+ from .mixins import FieldCacheMixin
+ 
+ 
+@@ -172,7 +172,7 @@ class ForeignObjectRel(FieldCacheMixin):
+     def get_choices(
+         self,
+         include_blank=True,
+-        blank_choice=BLANK_CHOICE_DASH,
++        blank_choice=None,
+         limit_choices_to=None,
+         ordering=(),
+     ):
+@@ -183,6 +183,8 @@ class ForeignObjectRel(FieldCacheMixin):
+         Analog of django.db.models.fields.Field.get_choices(), provided
+         initially for utilization by RelatedFieldListFilter.
+         """
++        if blank_choice is None:
++            blank_choice = [("", BLANK_CHOICE_LABEL)]
+         limit_choices_to = limit_choices_to or self.limit_choices_to
+         qs = self.related_model._default_manager.complex_filter(limit_choices_to)
+         if ordering:
+diff --git a/django/forms/fields.py b/django/forms/fields.py
+index 8aad2d4..ce7b6e5 100644
+--- a/django/forms/fields.py
++++ b/django/forms/fields.py
+@@ -39,7 +39,7 @@ from django.forms.widgets import (
+     URLInput,
+ )
+ from django.utils import formats
+-from django.utils.choices import normalize_choices
++from django.utils.choices import BLANK_CHOICE_LABEL, normalize_choices
+ from django.utils.datastructures import OrderedSet
+ from django.utils.dateparse import parse_datetime, parse_duration
+ from django.utils.duration import duration_string
+@@ -1200,7 +1200,7 @@ class FilePathField(ChoiceField):
+         if self.required:
+             self.choices = []
+         else:
+-            self.choices = [("", "---------")]
++            self.choices = [("", BLANK_CHOICE_LABEL)]
+ 
+         if self.match is not None:
+             self.match_re = re.compile(self.match)
+diff --git a/django/forms/models.py b/django/forms/models.py
+index a53f119..fb88f72 100644
+--- a/django/forms/models.py
++++ b/django/forms/models.py
+@@ -23,7 +23,7 @@ from django.forms.widgets import (
+     RadioSelect,
+     SelectMultiple,
+ )
+-from django.utils.choices import BaseChoiceIterator
++from django.utils.choices import BLANK_CHOICE_LABEL, BaseChoiceIterator
+ from django.utils.hashable import make_hashable
+ from django.utils.text import capfirst, get_text_list
+ from django.utils.translation import gettext
+@@ -1481,7 +1481,7 @@ class ModelChoiceField(ChoiceField):
+         self,
+         queryset,
+         *,
+-        empty_label="---------",
++        empty_label=BLANK_CHOICE_LABEL,
+         required=True,
+         widget=None,
+         label=None,
+diff --git a/django/utils/choices.py b/django/utils/choices.py
+index 6b355d2..24069ed 100644
+--- a/django/utils/choices.py
++++ b/django/utils/choices.py
+@@ -1,9 +1,12 @@
+ from collections.abc import Callable, Iterable, Iterator, Mapping
+ from itertools import islice, tee, zip_longest
+ 
+-from django.utils.functional import Promise
++from django.conf import settings
++from django.utils.functional import Promise, lazy
++from django.utils.translation import gettext_lazy as _
+ 
+ __all__ = [
++    "BLANK_CHOICE_LABEL",
+     "BaseChoiceIterator",
+     "BlankChoiceIterator",
+     "CallableChoiceIterator",
+@@ -12,6 +15,19 @@ __all__ = [
+ ]
+ 
+ 
++def _get_blank_choice_label():
++    # RemovedInDjango70Warning: When the deprecation ends, return the
++    # translated label unconditionally.
++    if settings.USE_BLANK_CHOICE_DASH:
++        return "---------"
++    return _("(select an option)")
++
++
++# Label for the blank choice of <select> inputs. Evaluated lazily so that it
++# honors the active language and the transitional USE_BLANK_CHOICE_DASH setting.
++BLANK_CHOICE_LABEL = lazy(_get_blank_choice_label, str)()
++
++
+ class BaseChoiceIterator:
+     """Base class for lazy iterators for choices."""
+ 
+diff --git a/docs/internals/deprecation.txt b/docs/internals/deprecation.txt
+index 799c355..d58610e 100644
+--- a/docs/internals/deprecation.txt
++++ b/docs/internals/deprecation.txt
+@@ -34,6 +34,9 @@ details on these changes.
+ * Support for setting the ``ADMINS`` or ``MANAGERS`` settings to a list of
+   (name, address) tuples will be removed.
+ 
++* The ``django.db.models.fields.BLANK_CHOICE_DASH`` constant and the
++  ``USE_BLANK_CHOICE_DASH`` transitional setting will be removed.
++
+ * The ``orphans`` argument being larger than or equal to the ``per_page``
+   argument of ``django.core.paginator.Paginator`` and
+   ``django.core.paginator.AsyncPaginator`` will no longer be allowed.
+diff --git a/docs/ref/settings.txt b/docs/ref/settings.txt
+index cca7b18..cc62aac 100644
+--- a/docs/ref/settings.txt
++++ b/docs/ref/settings.txt
+@@ -3044,6 +3044,19 @@ the correct environment.
+ 
+ .. _list of time zones: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+ 
++.. setting:: USE_BLANK_CHOICE_DASH
++
++``USE_BLANK_CHOICE_DASH``
++-------------------------
++
++.. versionadded:: 6.1
++
++Default: ``False``
++
++A transitional setting. When ``True``, the blank choice of ``<select>`` inputs
++uses the legacy ``"---------"`` label instead of ``"(select an option)"``. This
++setting is deprecated and will be removed in Django 7.0.
++
+ .. setting:: USE_I18N
+ 
+ ``USE_I18N``
+diff --git a/docs/releases/6.1.txt b/docs/releases/6.1.txt
+index 142ddb6..55f0bdd 100644
+--- a/docs/releases/6.1.txt
++++ b/docs/releases/6.1.txt
+@@ -244,7 +244,11 @@ File Uploads
+ Forms
+ ~~~~~
+ 
+-* ...
++* The default blank choice label of ``<select>`` inputs generated from model
++  fields and of :class:`~django.forms.ModelChoiceField` is now the more
++  accessible and translatable ``"(select an option)"`` instead of
++  ``"---------"``. The new transitional setting ``USE_BLANK_CHOICE_DASH`` can
++  be set to ``True`` to keep the previous label while upgrading.
+ 
+ Generic Views
+ ~~~~~~~~~~~~~
+@@ -529,6 +533,10 @@ Features deprecated in 6.1
+ Miscellaneous
+ -------------
+ 
++* The ``django.db.models.fields.BLANK_CHOICE_DASH`` constant is deprecated in
++  favor of the new ``BLANK_CHOICE_LABEL`` constant, and the transitional
++  ``USE_BLANK_CHOICE_DASH`` setting is deprecated.
++
+ * Calling :meth:`.QuerySet.values_list` with ``flat=True`` and no field name
+   is deprecated. Pass an explicit field name, like
+   ``values_list("pk", flat=True)``.
+diff --git a/tests/admin_views/test_actions.py b/tests/admin_views/test_actions.py
+index 467fe04..7018ab0 100644
+--- a/tests/admin_views/test_actions.py
++++ b/tests/admin_views/test_actions.py
+@@ -294,7 +294,7 @@ class AdminActionsTest(TestCase):
+         self.assertContains(
+             response,
+             """<label>Action: <select name="action" required>
+-<option value="" selected>---------</option>
++<option value="" selected>(select an option)</option>
+ <option value="delete_selected">Delete selected external
+ subscribers</option>
+ <option value="redirect_to">Redirect to (Awesome action)</option>
+diff --git a/tests/model_fields/test_booleanfield.py b/tests/model_fields/test_booleanfield.py
+index 30eb009..6451c74 100644
+--- a/tests/model_fields/test_booleanfield.py
++++ b/tests/model_fields/test_booleanfield.py
+@@ -48,7 +48,7 @@ class BooleanFieldTests(TestCase):
+         """
+         choices = [(1, "Si"), (2, "No")]
+         f = models.BooleanField(choices=choices)
+-        self.assertEqual(f.formfield().choices, [("", "---------")] + choices)
++        self.assertEqual(f.formfield().choices, [("", "(select an option)")] + choices)
+ 
+     def test_nullbooleanfield_formfield(self):
+         f = models.BooleanField(null=True)
+diff --git a/tests/model_fields/tests.py b/tests/model_fields/tests.py
+index b27c07a..ddfc345 100644
+--- a/tests/model_fields/tests.py
++++ b/tests/model_fields/tests.py
+@@ -4,7 +4,7 @@ import warnings
+ from django import forms
+ from django.core.exceptions import ValidationError
+ from django.db import connection, models
+-from django.test import SimpleTestCase, TestCase
++from django.test import SimpleTestCase, TestCase, override_settings
+ from django.utils.choices import CallableChoiceIterator
+ from django.utils.deprecation import RemovedInDjango70Warning
+ from django.utils.functional import lazy
+@@ -391,7 +391,7 @@ class GetChoicesTests(SimpleTestCase):
+     def test_lazy_strings_not_evaluated(self):
+         lazy_func = lazy(lambda x: 0 / 0, int)  # raises ZeroDivisionError if evaluated.
+         f = models.CharField(choices=[(lazy_func("group"), [("a", "A"), ("b", "B")])])
+-        self.assertEqual(f.get_choices(include_blank=True)[0], ("", "---------"))
++        self.assertEqual(f.get_choices(include_blank=True)[0], ("", "(select an option)"))
+ 
+ 
+ class GetChoicesOrderingTests(TestCase):
+@@ -474,3 +474,23 @@ class GetChoicesLimitChoicesToTests(TestCase):
+             field.get_choices(include_blank=False, limit_choices_to={}),
+             [self.bar1, self.bar2],
+         )
++
++
++class BlankChoiceLabelTests(SimpleTestCase):
++    def test_blank_choice_label(self):
++        self.assertEqual(str(models.BLANK_CHOICE_LABEL), "(select an option)")
++
++    @override_settings(USE_BLANK_CHOICE_DASH=True)
++    def test_use_blank_choice_dash(self):
++        self.assertEqual(str(models.BLANK_CHOICE_LABEL), "---------")
++        field = models.CharField(choices=[("a", "A")])
++        self.assertEqual(list(field.get_choices()), [("", "---------"), ("a", "A")])
++
++    def test_blank_choice_dash_deprecated(self):
++        msg = "BLANK_CHOICE_DASH is deprecated. Use BLANK_CHOICE_LABEL instead."
++        with self.assertWarnsMessage(RemovedInDjango70Warning, msg):
++            self.assertEqual(models.BLANK_CHOICE_DASH, [("", "---------")])
++        with self.assertWarnsMessage(RemovedInDjango70Warning, msg):
++            from django.db.models.fields import BLANK_CHOICE_DASH
++
++            self.assertEqual(BLANK_CHOICE_DASH, [("", "---------")])
+diff --git a/tests/model_forms/test_modelchoicefield.py b/tests/model_forms/test_modelchoicefield.py
+index 7f66b5b..ae6c095 100644
+--- a/tests/model_forms/test_modelchoicefield.py
++++ b/tests/model_forms/test_modelchoicefield.py
+@@ -24,7 +24,7 @@ class ModelChoiceFieldTests(TestCase):
+         self.assertEqual(
+             list(f.choices),
+             [
+-                ("", "---------"),
++                ("", "(select an option)"),
+                 (self.c1.pk, "Entertainment"),
+                 (self.c2.pk, "A test"),
+                 (self.c3.pk, "Third"),
+@@ -102,7 +102,7 @@ class ModelChoiceFieldTests(TestCase):
+         self.assertEqual(
+             list(f.choices),
+             [
+-                ("", "---------"),
++                ("", "(select an option)"),
+                 (self.c1.pk, "Entertainment"),
+                 (self.c2.pk, "A test"),
+             ],
+@@ -118,7 +118,7 @@ class ModelChoiceFieldTests(TestCase):
+         self.assertEqual(
+             list(gen_two),
+             [
+-                ("", "---------"),
++                ("", "(select an option)"),
+                 (self.c1.pk, "Entertainment"),
+                 (self.c2.pk, "A test"),
+             ],
+@@ -130,7 +130,7 @@ class ModelChoiceFieldTests(TestCase):
+         self.assertEqual(
+             list(f.choices),
+             [
+-                ("", "---------"),
++                ("", "(select an option)"),
+                 (self.c1.pk, "category Entertainment"),
+                 (self.c2.pk, "category A test"),
+                 (self.c3.pk, "category Third"),
+@@ -143,7 +143,7 @@ class ModelChoiceFieldTests(TestCase):
+         self.assertEqual(
+             list(f.choices),
+             [
+-                ("", "---------"),
++                ("", "(select an option)"),
+                 (self.c1.pk, "Entertainment"),
+                 (self.c2.pk, "A test"),
+                 (self.c3.pk, "Third"),
+@@ -154,7 +154,7 @@ class ModelChoiceFieldTests(TestCase):
+         self.assertEqual(
+             list(f.choices),
+             [
+-                ("", "---------"),
++                ("", "(select an option)"),
+                 (self.c1.pk, "Entertainment"),
+                 (self.c2.pk, "A test"),
+                 (self.c3.pk, "Third"),
+@@ -190,7 +190,7 @@ class ModelChoiceFieldTests(TestCase):
+                     )
+                     self.assertEqual(
+                         list(f.choices),
+-                        [("", "---------")] + choices if blank else choices,
++                        [("", "(select an option)")] + choices if blank else choices,
+                     )
+ 
+     def test_deepcopies_widget(self):
+@@ -424,7 +424,7 @@ class ModelChoiceFieldTests(TestCase):
+         self.assertCountEqual(
+             list(f.choices),
+             [
+-                ("", "---------"),
++                ("", "(select an option)"),
+                 (self.c1.pk, "Entertainment"),
+                 (self.c2.pk, "A test"),
+                 (self.c3.pk, "Third"),
+diff --git a/tests/model_forms/tests.py b/tests/model_forms/tests.py
+index 3d4eb06..37a3e2e 100644
+--- a/tests/model_forms/tests.py
++++ b/tests/model_forms/tests.py
+@@ -343,7 +343,7 @@ class ModelFormBaseTest(TestCase):
+         self.assertEqual(
+             list(form.fields["author"].choices),
+             [
+-                ("", "---------"),
++                ("", "(select an option)"),
+                 (writer.pk, "Joe Doe"),
+             ],
+         )
+@@ -1531,7 +1531,7 @@ class ModelFormBasicTests(TestCase):
+             <li>Slug: <input type="text" name="slug" maxlength="50" required></li>
+             <li>Pub date: <input type="text" name="pub_date" required></li>
+             <li>Writer: <select name="writer" required>
+-            <option value="" selected>---------</option>
++            <option value="" selected>(select an option)</option>
+             <option value="%s">Bob Woodward</option>
+             <option value="%s">Mike Royko</option>
+             </select></li>
+@@ -1543,7 +1543,7 @@ class ModelFormBasicTests(TestCase):
+             <option value="%s">Third test</option>
+             </select></li>
+             <li>Status: <select name="status">
+-            <option value="" selected>---------</option>
++            <option value="" selected>(select an option)</option>
+             <option value="1">Draft</option>
+             <option value="2">Pending</option>
+             <option value="3">Live</option>
+@@ -1585,7 +1585,7 @@ class ModelFormBasicTests(TestCase):
+             <li>Pub date:
+             <input type="text" name="pub_date" value="1988-01-04" required></li>
+             <li>Writer: <select name="writer" required>
+-            <option value="">---------</option>
++            <option value="">(select an option)</option>
+             <option value="%s">Bob Woodward</option>
+             <option value="%s" selected>Mike Royko</option>
+             </select></li>
+@@ -1597,7 +1597,7 @@ class ModelFormBasicTests(TestCase):
+             <option value="%s">Third test</option>
+             </select></li>
+             <li>Status: <select name="status">
+-            <option value="" selected>---------</option>
++            <option value="" selected>(select an option)</option>
+             <option value="1">Draft</option>
+             <option value="2">Pending</option>
+             <option value="3">Live</option>
+@@ -1731,7 +1731,7 @@ class ModelFormBasicTests(TestCase):
+             </div>
+             <div>Writer:
+                 <select name="writer" required>
+-                    <option value="" selected>---------</option>
++                    <option value="" selected>(select an option)</option>
+                     <option value="%s">Bob Woodward</option>
+                     <option value="%s">Mike Royko</option>
+                 </select>
+@@ -1748,7 +1748,7 @@ class ModelFormBasicTests(TestCase):
+             </div>
+             <div>Status:
+                 <select name="status">
+-                    <option value="" selected>---------</option>
++                    <option value="" selected>(select an option)</option>
+                     <option value="1">Draft</option><option value="2">Pending</option>
+                     <option value="3">Live</option>
+                 </select>
+@@ -1781,7 +1781,7 @@ class ModelFormBasicTests(TestCase):
+             <li>Pub date:
+             <input type="text" name="pub_date" value="1988-01-04" required></li>
+             <li>Writer: <select name="writer" required>
+-            <option value="">---------</option>
++            <option value="">(select an option)</option>
+             <option value="%s">Bob Woodward</option>
+             <option value="%s" selected>Mike Royko</option>
+             </select></li>
+@@ -1793,7 +1793,7 @@ class ModelFormBasicTests(TestCase):
+             <option value="%s">Third test</option>
+             </select></li>
+             <li>Status: <select name="status">
+-            <option value="" selected>---------</option>
++            <option value="" selected>(select an option)</option>
+             <option value="1">Draft</option>
+             <option value="2">Pending</option>
+             <option value="3">Live</option>
+@@ -1957,7 +1957,7 @@ class ModelFormBasicTests(TestCase):
+             '<li>Slug: <input type="text" name="slug" maxlength="50" required></li>'
+             '<li>Pub date: <input type="text" name="pub_date" required></li>'
+             '<li>Writer: <select name="writer" required>'
+-            '<option value="" selected>---------</option>'
++            '<option value="" selected>(select an option)</option>'
+             '<option value="%s">Bob Woodward</option>'
+             '<option value="%s">Mike Royko</option>'
+             "</select></li>"
+@@ -1969,7 +1969,7 @@ class ModelFormBasicTests(TestCase):
+             '<option value="%s">Third test</option>'
+             "</select> </li>"
+             '<li>Status: <select name="status">'
+-            '<option value="" selected>---------</option>'
++            '<option value="" selected>(select an option)</option>'
+             '<option value="1">Draft</option>'
+             '<option value="2">Pending</option>'
+             '<option value="3">Live</option>'
+@@ -1986,7 +1986,7 @@ class ModelFormBasicTests(TestCase):
+             '<li>Slug: <input type="text" name="slug" maxlength="50" required></li>'
+             '<li>Pub date: <input type="text" name="pub_date" required></li>'
+             '<li>Writer: <select name="writer" required>'
+-            '<option value="" selected>---------</option>'
++            '<option value="" selected>(select an option)</option>'
+             '<option value="%s">Bob Woodward</option>'
+             '<option value="%s">Carl Bernstein</option>'
+             '<option value="%s">Mike Royko</option>'
+@@ -2000,7 +2000,7 @@ class ModelFormBasicTests(TestCase):
+             '<option value="%s">Fourth</option>'
+             "</select></li>"
+             '<li>Status: <select name="status">'
+-            '<option value="" selected>---------</option>'
++            '<option value="" selected>(select an option)</option>'
+             '<option value="1">Draft</option>'
+             '<option value="2">Pending</option>'
+             '<option value="3">Live</option>'
+@@ -2044,7 +2044,7 @@ class ModelFormBasicTests(TestCase):
+         self.assertEqual(call_count, 0)
+         self.assertEqual(
+             form.fields["animal"].choices,
+-            models.BLANK_CHOICE_DASH + [("LION", "Lion"), ("ZEBRA", "Zebra")],
++            [("", models.BLANK_CHOICE_LABEL), ("LION", "Lion"), ("ZEBRA", "Zebra")],
+         )
+         self.assertEqual(call_count, 1)
+ 
+@@ -2410,7 +2410,7 @@ class ModelOneToOneFieldTests(TestCase):
+             """
+             <p><label for="id_writer">Writer:</label>
+             <select name="writer" id="id_writer" required>
+-            <option value="" selected>---------</option>
++            <option value="" selected>(select an option)</option>
+             <option value="%s">Bob Woodward</option>
+             <option value="%s">Mike Royko</option>
+             </select></p>
+@@ -2437,7 +2437,7 @@ class ModelOneToOneFieldTests(TestCase):
+             """
+             <p><label for="id_writer">Writer:</label>
+             <select name="writer" id="id_writer" required>
+-            <option value="">---------</option>
++            <option value="">(select an option)</option>
+             <option value="%s" selected>Bob Woodward</option>
+             <option value="%s">Mike Royko</option>
+             </select></p>
+@@ -2727,7 +2727,7 @@ class FileAndImageFieldTests(TestCase):
+ 
+         form = FPForm()
+         self.assertEqual(
+-            [name for _, name in form["path"].field.choices], ["---------", "models.py"]
++            [name for _, name in form["path"].field.choices], ["(select an option)", "models.py"]
+         )
+ 
+     @skipUnless(test_images, "Pillow not installed")
+@@ -3027,7 +3027,7 @@ class OtherModelFormTests(TestCase):
+             self.assertEqual(
+                 tuple(field.choices),
+                 (
+-                    ("", "---------"),
++                    ("", "(select an option)"),
+                     (multicolor_item.pk, "blue, red"),
+                     (red_item.pk, "red"),
+                 ),
+@@ -3041,14 +3041,14 @@ class OtherModelFormTests(TestCase):
+         field = forms.ModelChoiceField(Inventory.objects.all(), to_field_name="barcode")
+         self.assertEqual(
+             tuple(field.choices),
+-            (("", "---------"), (86, "Apple"), (87, "Core"), (22, "Pear")),
++            (("", "(select an option)"), (86, "Apple"), (87, "Core"), (22, "Pear")),
+         )
+ 
+         form = InventoryForm(instance=core)
+         self.assertHTMLEqual(
+             str(form["parent"]),
+             """<select name="parent" id="id_parent">
+-<option value="">---------</option>
++<option value="">(select an option)</option>
+ <option value="86" selected>Apple</option>
+ <option value="87">Core</option>
+ <option value="22">Pear</option>
+diff --git a/tests/model_formsets/tests.py b/tests/model_formsets/tests.py
+index 9436642..7d2b2a9 100644
+--- a/tests/model_formsets/tests.py
++++ b/tests/model_formsets/tests.py
+@@ -1267,7 +1267,7 @@ class ModelFormsetTest(TestCase):
+             formset.forms[0].as_p(),
+             '<p><label for="id_form-0-owner">Owner:</label>'
+             '<select name="form-0-owner" id="id_form-0-owner">'
+-            '<option value="" selected>---------</option>'
++            '<option value="" selected>(select an option)</option>'
+             '<option value="%s">Joe Perry at Giordanos</option>'
+             '<option value="%s">Jack Berry at Giordanos</option>'
+             "</select></p>"
+diff --git a/tests/modeladmin/tests.py b/tests/modeladmin/tests.py
+index 74bbc83..1107fa7 100644
+--- a/tests/modeladmin/tests.py
++++ b/tests/modeladmin/tests.py
+@@ -636,7 +636,7 @@ class ModelAdminTests(TestCase):
+             '<div class="related-widget-wrapper" data-model-ref="band">'
+             '<select data-context="available-source" '
+             'name="main_band" id="id_main_band" required>'
+-            '<option value="" selected>---------</option>'
++            '<option value="" selected>(select an option)</option>'
+             '<option value="%s">The Beatles</option>'
+             '<option value="%s">The Doors</option>'
+             "</select></div>" % (band2.id, self.band.id),
+@@ -660,7 +660,7 @@ class ModelAdminTests(TestCase):
+             '<div class="related-widget-wrapper" data-model-ref="band">'
+             '<select data-context="available-source" '
+             'name="main_band" id="id_main_band" required>'
+-            '<option value="" selected>---------</option>'
++            '<option value="" selected>(select an option)</option>'
+             '<option value="%s">The Doors</option>'
+             "</select></div>" % self.band.id,
+         )
+@@ -715,23 +715,23 @@ class ModelAdminTests(TestCase):
+         self.assertEqual(type(cmafa.base_fields["main_band"].widget.widget), Select)
+         self.assertEqual(
+             list(cmafa.base_fields["main_band"].widget.choices),
+-            [("", "---------"), (self.band.id, "The Doors")],
++            [("", "(select an option)"), (self.band.id, "The Doors")],
+         )
+ 
+         self.assertEqual(type(cmafa.base_fields["opening_band"].widget.widget), Select)
+         self.assertEqual(
+             list(cmafa.base_fields["opening_band"].widget.choices),
+-            [("", "---------"), (self.band.id, "The Doors")],
++            [("", "(select an option)"), (self.band.id, "The Doors")],
+         )
+         self.assertEqual(type(cmafa.base_fields["day"].widget), Select)
+         self.assertEqual(
+             list(cmafa.base_fields["day"].widget.choices),
+-            [("", "---------"), (1, "Fri"), (2, "Sat")],
++            [("", "(select an option)"), (1, "Fri"), (2, "Sat")],
+         )
+         self.assertEqual(type(cmafa.base_fields["transport"].widget), Select)
+         self.assertEqual(
+             list(cmafa.base_fields["transport"].widget.choices),
+-            [("", "---------"), (1, "Plane"), (2, "Train"), (3, "Bus")],
++            [("", "(select an option)"), (1, "Plane"), (2, "Train"), (3, "Bus")],
+         )
+ 
+     def test_foreign_key_as_radio_field(self):
+@@ -849,7 +849,7 @@ class ModelAdminTests(TestCase):
+             'class="related-widget-wrapper" data-model-ref="band"><select '
+             'name="main_band" data-context="available-source" required '
+             'id="id_main_band" data-custom-widget="true" multiple>'
+-            '<option value="">---------</option>'
++            '<option value="">(select an option)</option>'
+             f'<option value="{self.band.pk}">The Doors</option>'
+             "</select></div></div>"
+         )

@@ -1,0 +1,31 @@
+[
+ {
+  "tool": "rt",
+  "seconds": 4.22,
+  "at": 1791954907.0,
+  "labels": [
+   "mail",
+   "logging_tests",
+   "admin_views.tests.AdminViewBasicTest"
+  ],
+  "problems": [],
+  "ran": 391,
+  "failed": [
+   "mail.tests.MailConnectionArgsTests.test_conflicting_args",
+   "mail.tests.MailDeprecatedPositionalArgsTests.test_send_mail",
+   "mail.tests.MailDeprecatedPositionalArgsTests.test_send_mass_mail"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 2.03,
+  "at": 1791954918.6,
+  "labels": [
+   "mail",
+   "logging_tests"
+  ],
+  "problems": [],
+  "ran": 307,
+  "failed": []
+ }
+]

@@ -1,0 +1,61 @@
+[
+ {
+  "tool": "hook",
+  "seconds": 11.62,
+  "at": 1791953877.7,
+  "detail": "before ./rt"
+ },
+ {
+  "tool": "hook",
+  "seconds": 22.7,
+  "at": 1791953967.1,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.62,
+  "at": 1791953970.1,
+  "labels": [
+   "model_formsets.tests.ModelFormsetTest.test_simple_save",
+   "generic_relations.test_forms.GenericInlineFormsetTests.test_options"
+  ],
+  "problems": [],
+  "ran": 1,
+  "failed": [
+   "generic_relations.test_forms.GenericInlineFormsetTests.test_options"
+  ]
+ },
+ {
+  "tool": "hook",
+  "seconds": 19.25,
+  "at": 1791954001.7,
+  "detail": "after edit"
+ },
+ {
+  "tool": "hook",
+  "seconds": 80.76,
+  "at": 1791954082.6,
+  "detail": "after edit"
+ },
+ {
+  "tool": "rt",
+  "seconds": 2.54,
+  "at": 1791954090.9,
+  "labels": [
+   "model_formsets",
+   "generic_relations",
+   "model_formsets_regress",
+   "inline_formsets",
+   "admin_inlines"
+  ],
+  "problems": [],
+  "ran": 293,
+  "failed": []
+ },
+ {
+  "tool": "hook",
+  "seconds": 22.91,
+  "at": 1791954114.0,
+  "detail": "after Bash"
+ }
+]

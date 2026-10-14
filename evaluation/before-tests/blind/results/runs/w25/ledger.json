@@ -1,0 +1,45 @@
+[
+ {
+  "tool": "rt",
+  "seconds": 0.89,
+  "at": 1791956495.7,
+  "labels": [
+   "mail",
+   "logging"
+  ],
+  "problems": [],
+  "ran": 252,
+  "failed": [
+   "mail.tests.MailDeprecatedPositionalArgsTests.test_send_mail",
+   "mail.tests.MailDeprecatedPositionalArgsTests.test_send_mass_mail",
+   "mail.tests.MailTests.test_options_with_connection_raise_typeerror"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 1.53,
+  "at": 1791956664.8,
+  "labels": [
+   "mail",
+   "logging"
+  ],
+  "problems": [],
+  "ran": 252,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 174.84,
+  "at": 1791956681.5,
+  "labels": [
+   "mail",
+   "logging",
+   "admin_scripts"
+  ],
+  "problems": [],
+  "ran": 473,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ }
+]

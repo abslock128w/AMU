@@ -1,0 +1,91 @@
+[
+ {
+  "tool": "hook",
+  "seconds": 10.73,
+  "at": 1791953897.0,
+  "detail": "before ./rt"
+ },
+ {
+  "tool": "rt",
+  "seconds": 1.36,
+  "at": 1791953953.5,
+  "labels": [
+   "invalid_models_tests",
+   "model_fields",
+   "m2m_regress"
+  ],
+  "problems": [],
+  "ran": 909,
+  "failed": [
+   "invalid_models_tests.test_relative_fields.RelatedQueryNameClashWithManagerTests.test_clash_between_related_name_and_manager_on_other_model"
+  ]
+ },
+ {
+  "tool": "hook",
+  "seconds": 20.77,
+  "at": 1791953974.5,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.62,
+  "at": 1791953978.6,
+  "labels": [
+   "invalid_models_tests"
+  ],
+  "problems": [],
+  "ran": 336,
+  "failed": [
+   "invalid_models_tests.test_relative_fields.RelatedQueryNameClashWithManagerTests.test_clash_between_related_name_and_manager_on_other_model"
+  ]
+ },
+ {
+  "tool": "hook",
+  "seconds": 19.2,
+  "at": 1791953998.0,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.56,
+  "at": 1791954000.9,
+  "labels": [
+   "invalid_models_tests.test_relative_fields.RelatedQueryNameClashWithManagerTests"
+  ],
+  "problems": [],
+  "ran": 4,
+  "failed": [
+   "invalid_models_tests.test_relative_fields.RelatedQueryNameClashWithManagerTests.test_clash_between_related_name_and_manager_on_other_model"
+  ]
+ },
+ {
+  "tool": "hook",
+  "seconds": 19.46,
+  "at": 1791954102.3,
+  "detail": "after edit"
+ },
+ {
+  "tool": "rt",
+  "seconds": 108.6,
+  "at": 1791954213.3,
+  "labels": [],
+  "problems": [],
+  "ran": 19085,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.56,
+  "at": 1791954336.5,
+  "labels": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests"
+  ],
+  "problems": [],
+  "ran": 1,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ }
+]

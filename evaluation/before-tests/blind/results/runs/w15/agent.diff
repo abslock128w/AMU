@@ -1,0 +1,50 @@
+diff --git a/django/contrib/sites/checks.py b/django/contrib/sites/checks.py
+index 66e8551..578097e 100644
+--- a/django/contrib/sites/checks.py
++++ b/django/contrib/sites/checks.py
+@@ -1,13 +1,21 @@
+-from types import NoneType
+-
+ from django.conf import settings
+ from django.core.checks import Error
++from django.core.exceptions import ValidationError
+ 
+ 
+ def check_site_id(app_configs, **kwargs):
+-    if hasattr(settings, "SITE_ID") and not isinstance(
+-        settings.SITE_ID, (NoneType, int)
+-    ):
++    from django.contrib.sites.models import Site
++
++    site_id = getattr(settings, "SITE_ID", None)
++    if site_id is None:
++        return []
++    try:
++        # to_python() may coerce compatible values (e.g. "1" to 1); reject
++        # those since the setting must already have the primary key's type.
++        valid = site_id == Site._meta.pk.to_python(site_id)
++    except (ValidationError, TypeError, ValueError):
++        valid = False
++    if not valid:
+         return [
+             Error("The SITE_ID setting must be an integer", id="sites.E101"),
+         ]
+diff --git a/tests/sites_tests/tests.py b/tests/sites_tests/tests.py
+index 79183f7..1cc7077 100644
+--- a/tests/sites_tests/tests.py
++++ b/tests/sites_tests/tests.py
+@@ -215,6 +215,14 @@ class SitesFrameworkTests(TestCase):
+             ],
+         )
+ 
++    def test_check_site_id_invalid_types(self):
++        for site_id in ["1", 1.5, [1]]:
++            with self.subTest(site_id=site_id), self.settings(SITE_ID=site_id):
++                self.assertEqual(
++                    [e.id for e in check_site_id(None)],
++                    ["sites.E101"],
++                )
++
+     def test_valid_site_id(self):
+         for site_id in [1, None]:
+             with self.subTest(site_id=site_id), self.settings(SITE_ID=site_id):

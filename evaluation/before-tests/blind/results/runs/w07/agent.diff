@@ -1,0 +1,69 @@
+diff --git a/django/contrib/sites/checks.py b/django/contrib/sites/checks.py
+index 66e8551..0da861e 100644
+--- a/django/contrib/sites/checks.py
++++ b/django/contrib/sites/checks.py
+@@ -1,13 +1,21 @@
+-from types import NoneType
+-
++from django.apps import apps
+ from django.conf import settings
+ from django.core.checks import Error
++from django.core.exceptions import ValidationError
+ 
+ 
+ def check_site_id(app_configs, **kwargs):
+-    if hasattr(settings, "SITE_ID") and not isinstance(
+-        settings.SITE_ID, (NoneType, int)
+-    ):
++    site_id = getattr(settings, "SITE_ID", None)
++    if site_id is None:
++        return []
++    Site = apps.get_model("sites", "Site")
++    try:
++        # Values that to_python() coerces to another value (e.g. "1" -> 1)
++        # are programmer mistakes.
++        valid = Site._meta.pk.to_python(site_id) == site_id
++    except (ValidationError, TypeError, ValueError):
++        valid = False
++    if not valid:
+         return [
+             Error("The SITE_ID setting must be an integer", id="sites.E101"),
+         ]
+diff --git a/tests/sites_tests/tests.py b/tests/sites_tests/tests.py
+index 79183f7..5b7015d 100644
+--- a/tests/sites_tests/tests.py
++++ b/tests/sites_tests/tests.py
+@@ -1,3 +1,5 @@
++from unittest import mock
++
+ from django.apps import apps
+ from django.apps.registry import Apps
+ from django.conf import settings
+@@ -10,6 +12,7 @@ from django.contrib.sites.requests import RequestSite
+ from django.contrib.sites.shortcuts import get_current_site
+ from django.core import checks
+ from django.core.exceptions import ObjectDoesNotExist, ValidationError
++from django.db import models as db_models
+ from django.db.models.signals import post_migrate
+ from django.http import HttpRequest, HttpResponse
+ from django.test import SimpleTestCase, TestCase, modify_settings, override_settings
+@@ -220,6 +223,19 @@ class SitesFrameworkTests(TestCase):
+             with self.subTest(site_id=site_id), self.settings(SITE_ID=site_id):
+                 self.assertEqual(check_site_id(None), [])
+ 
++    def test_check_site_id_uses_pk_field(self):
++        for site_id in ["1", 1.5, object()]:
++            with self.subTest(site_id=site_id), self.settings(SITE_ID=site_id):
++                self.assertEqual(len(check_site_id(None)), 1)
++
++    def test_check_site_id_custom_pk_type(self):
++        pk = db_models.CharField(max_length=10, primary_key=True)
++        with mock.patch.object(Site._meta, "pk", pk):
++            with self.settings(SITE_ID="abc"):
++                self.assertEqual(check_site_id(None), [])
++            with self.settings(SITE_ID=1):
++                self.assertEqual(len(check_site_id(None)), 1)
++
+ 
+ @override_settings(ALLOWED_HOSTS=["example.com"])
+ class RequestSiteTests(SimpleTestCase):

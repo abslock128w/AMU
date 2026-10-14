@@ -1,0 +1,122 @@
+[
+ {
+  "tool": "rt",
+  "seconds": 0.24,
+  "at": 1791955785.6,
+  "labels": [
+   "model_fields",
+   "model_forms",
+   "admin_views",
+   "admin_filters",
+   "modeladmin",
+   "forms_tests",
+   "model_formsets",
+   "generic_inline_admin",
+   "admin_widgets",
+   "settings_tests"
+  ],
+  "problems": [
+   "part 1 of 1 ended without a result (exit 1)"
+  ],
+  "ran": 0,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.24,
+  "at": 1791955788.0,
+  "labels": [
+   "model_fields"
+  ],
+  "problems": [
+   "part 1 of 1 ended without a result (exit 1)"
+  ],
+  "ran": 0,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.24,
+  "at": 1791955795.2,
+  "labels": [
+   "model_fields.tests.GetChoicesTests"
+  ],
+  "problems": [
+   "part 1 of 1 ended without a result (exit 1)"
+  ],
+  "ran": 0,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 12.77,
+  "at": 1791955861.9,
+  "labels": [
+   "model_fields",
+   "model_forms",
+   "admin_views",
+   "admin_filters",
+   "modeladmin",
+   "forms_tests",
+   "model_formsets",
+   "generic_inline_admin",
+   "admin_widgets",
+   "settings_tests"
+  ],
+  "problems": [],
+  "ran": 2797,
+  "failed": [
+   "model_forms.tests.ModelFormBasicTests.test_callable_choices_are_lazy"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 11.99,
+  "at": 1791955889.8,
+  "labels": [
+   "model_forms",
+   "model_fields",
+   "admin_views",
+   "admin_filters",
+   "modeladmin"
+  ],
+  "problems": [],
+  "ran": 1499,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 193.47,
+  "at": 1791956083.3,
+  "labels": [],
+  "problems": [],
+  "ran": 19063,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.5,
+  "at": 1791956091.4,
+  "labels": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests"
+  ],
+  "problems": [],
+  "ran": 1,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 181.6,
+  "at": 1791956198.1,
+  "labels": [],
+  "problems": [],
+  "ran": 19063,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ }
+]

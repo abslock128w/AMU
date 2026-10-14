@@ -1,0 +1,14 @@
+You are working in /private/tmp/claude-502/-Users-Abslock128-Documents-ChatGPT-AMU/dec84ecf-4e2e-45b0-b752-43ef7fcc7697/scratchpad/blind/ws/w02. It is a git repository holding the Django web framework: source in django/, tests in tests/, documentation in docs/. HEAD is the state before your work.
+
+Your task is in TASK.md: implement that change in this repository.
+
+Make sure your change does not break anything. Behaviour the task does not ask to change must keep working, and the existing tests must pass when you are done. Where the task changes behaviour on purpose, update the tests that describe the old behaviour and add tests for the new behaviour.
+
+Rules:
+- Run tests only with ./rt (see ./rt --help). ./rt with no arguments runs the full suite, which takes about 3 to 5 minutes. Do not call runtests.py, pytest or python yourself.
+- You have a budget of 900 seconds of test-execution time. Every test run in this workspace is charged its running time to that budget, whether you start it or an automatic check does, and the amount used is printed each time. When it is used up no more tests can be run. Time you spend reading, thinking and editing is not limited.
+- Work only inside this directory. Do not read anything outside it, do not use the network, and do not use git to fetch, pull or clone.
+- Leave your work uncommitted in the working tree.
+
+When you are finished, end your reply with a single JSON object on the last line:
+{"done": true, "tests_run": ["the labels you ran, or 'full suite'"], "notes": "one sentence"}

@@ -232,6 +232,98 @@ What the pilot showed:
 The first AMU-arm session's transcript is read to confirm that the PreToolUse text reaches the agent; if it
 does not, the trial stops there and the owner is told.
 
-## Result
+## Result (added after the run; nothing above this line was changed afterwards)
 
-Not yet run.
+**By the rule written before the start, the AMU arm shipped fewer regressions: 6 of its 16 runs shipped at
+least one, against 7 of 16 for control (1,712 regression tests against 1,719). The whole difference is one
+control run (task 4, w07) whose bug no AMU-arm agent wrote and which the hook could not have executed
+against, so this trial does not show the hook reducing regressions.**
+
+Scores: `results/scores.json`. Per run: `results/runs/<id>/` (ledger, hook log, diff, timing).
+
+| Task | AMU arm: regressions (in tests upstream left alone) | Control: regressions (left alone) | Frozen breaking tests the hook listed |
+|---|---|---|---|
+| 1 | w02 0, w23 0 | w27 0, w03 0 | w23 1 of 1; w02 none |
+| 2 | w09 0, w06 0 | w13 0, w28 0 | none |
+| 3 | w04 854 (814), w18 854 (814) | w20 854 (814), w01 854 (814) | 1 of 21 in each |
+| 4 | w15 0, w10 0 | **w07 5 (5)**, w08 0 | none |
+| 5 | w31 1 (0), w30 1 (0) | w14 1 (0), w29 1 (0) | none |
+| 6 | w21 1 (0), w11 1 (0) | w24 1 (0), **w32 3 (2)** | none frozen; 2 other breaking tests in both runs |
+| 7 | w16 0, w26 0 | w17 0, w19 0 | none |
+| 8 | w22 0, w12 0 | w05 0, w25 0 | 2 of 4 in each |
+| Runs with a regression | **6 of 16** | **7 of 16** | |
+
+| Measure, per arm over 16 runs | AMU arm | Control |
+|---|---:|---:|
+| Regression tests | 1,712 | 1,719 |
+| Same, without task 3 | 4 in 4 runs | 11 in 5 runs |
+| Regressions in tests upstream left alone, without task 3 | 0 | 7 in 2 runs |
+| Upstream's new tests failing (not regressions) | 25 | 28 |
+| Red tests left in the agent's own tree | 0 | 0 |
+| Runs whose agent ran every frozen breaking test before declaring | 16 | 16 |
+| Runs that declared done | 16 | 16 |
+| Session wall time, median / total | 166 s / 3,802 s | 170 s / 3,206 s |
+| Test time charged, total | 2,453 s (hook 1,303 s) | 1,506 s |
+| `./rt` runs / hook runs / hook messages | 36 / 55 / 92 | 43 / 0 / 0 |
+| Tokens, total incl. cache reads | 11.4 M | 16.1 M |
+
+What the counts are made of:
+
+- **Task 3 (854 in every run, both arms) is a scoring artefact.** Upstream's rewritten test modules import
+  `get_blank_choice_label` from `django.db.models.utils`, a helper upstream added and neither the ticket
+  nor the commit message names. On every agent's tree those modules fail to import, so all their tests
+  count. The set is identical in all four runs. The definition was fixed beforehand and is applied as
+  written; the "without task 3" rows are a post-hoc view and are labelled as one.
+- **Tasks 5 and 6 (one in every run, both arms)** are tests upstream rewrote for its own behaviour
+  (`test_clash_between_related_query_name_and_manager`, `test_get_queryset_falls_back_to_pk_when_no_ordering_defined`).
+  All eight agents of each task implemented the ticket differently from upstream in the same way. No tool
+  running the agent's existing tests can see a hidden rewritten test.
+- **w07 (task 4, control): a real regression.** Its new `SITE_ID` check calls `apps.get_model("sites",
+  "Site")`, which raises `LookupError` when `django.contrib.sites` is not installed. Five system-check
+  tests upstream left alone fail. Both AMU-arm agents of task 4 wrote a check without this bug, so the hook
+  never had it to find. Counterfactual, run after scoring: bare `amu` on a copy of w07's tree ranked all of
+  those tests among its candidates and executed none: Django's runner aborts on the broken check at start,
+  and AMU reported `NOT EXECUTED` (`results/counterfactual-w07.json`). The hook would have said nothing
+  useful.
+- **w32 (task 6, control): two real regressions**, `GenericInlineFormsetTests.test_options` and
+  `ModelFormsetTest.test_simple_save`. It edited `test_simple_save` to match its own behaviour and never
+  ran `generic_relations`. These are exactly the two tests the hook listed in both AMU-arm runs of task 6
+  (w21, w11), whose agents then changed their implementation and shipped neither. The other control run
+  (w24) found them by running packages. Counterfactual: bare `amu` on w32's tree names `test_options` in
+  25 s (`results/counterfactual-w32.json`); `test_simple_save` it cannot, since the agent rewrote it.
+
+### AMU-arm runs that shipped a regression, root cause
+
+| Run | Hook fired | What it printed at the end | Breaking test among candidates | Runner started | Agent's response |
+|---|---|---|---|---|---|
+| w04, w18 (task 3) | 6 runs each | 0 flips | no: the failing tests exist only in upstream's test files | yes, after early `NOT EXECUTED` checks on half-edited trees | fixed the one test the hook listed |
+| w31, w30 (task 5) | 4 and 2 runs | 0 flips | no: the failing test is upstream's rewrite | yes | nothing to respond to |
+| w21, w11 (task 6) | 5 and 3 runs | 2 flips, then 0 | the hidden test is upstream's rewrite; the 2 listed tests were real breakage | yes | changed the implementation; both listed tests pass in the shipped tree |
+
+No AMU-arm run shipped a regression the hook had printed. No agent ignored a hook message.
+
+### Departures from the brief and from this record
+
+- Desktop-app sessions instead of headless processes, and a six-run pilot, both recorded above before the
+  real start. The hook was widened to Bash after the pilot showed two of three agents never used Edit.
+- Permission prompts were answered in three runs although the record says none would be: w31 (AMU arm,
+  `git stash` around one test run), w16 (AMU arm) and w17 (control), both a `sed -i` on
+  `tests/queries/tests.py`. w16 and w17 shipped none; w31 shipped only the task 5 rewritten-test
+  regression that all four task 5 runs shipped.
+- `python3` heredocs ran without a prompt in both arms; the rules did not stop agents calling python.
+- w01 (control) took a second turn after a backgrounded full-suite run finished; its tree was compared with
+  the first snapshot and was unchanged; its end time is the second turn's.
+- Wall time comes from each session's transcript timestamps. Token totals come from the session transcripts
+  and include cache reads; their output-token counts look low and are not used for any comparison.
+- The scorer was changed after the runs to read desktop transcripts (commit 07db2ad); its definitions were
+  not changed. The counterfactual `amu` runs on w07 and w32 were added after scoring.
+- The shared notes folder the app offers to sibling sessions stayed empty. No transcript shows network use
+  or a read outside the workspace.
+
+### What executed upstream code
+
+Django's own tests only, in scratch copies: screening of 151 commits for the freeze; timing runs; one
+full-suite coverage recording at 455e787b; hook dry runs on two exposed claim cases; the six pilot sessions;
+the 32 trial sessions' `./rt` runs and 55 hook runs; scoring (8 parent and 8 upstream full suites, 32
+hidden-test full suites, 32 own-tree module runs, reruns of suspects); one module rerun each on w04 and w07
+to read their errors; the two counterfactual `amu` runs.

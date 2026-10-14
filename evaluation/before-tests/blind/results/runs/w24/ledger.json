@@ -1,0 +1,45 @@
+[
+ {
+  "tool": "rt",
+  "seconds": 0.89,
+  "at": 1791954079.1,
+  "labels": [
+   "model_formsets",
+   "inlines"
+  ],
+  "problems": [],
+  "ran": 80,
+  "failed": [
+   "model_formsets.tests.ModelFormsetTest.test_simple_save"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 13.7,
+  "at": 1791954101.7,
+  "labels": [
+   "model_formsets",
+   "inlines",
+   "admin_views",
+   "generic_relations"
+  ],
+  "problems": [],
+  "ran": 676,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 4.06,
+  "at": 1791954107.9,
+  "labels": [
+   "model_formsets",
+   "admin_inlines",
+   "generic_relations",
+   "model_formsets_regress",
+   "forms_tests"
+  ],
+  "problems": [],
+  "ran": 1319,
+  "failed": []
+ }
+]

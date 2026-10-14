@@ -1,0 +1,344 @@
+diff --git a/django/conf/global_settings.py b/django/conf/global_settings.py
+index 72c376d..ea65294 100644
+--- a/django/conf/global_settings.py
++++ b/django/conf/global_settings.py
+@@ -674,6 +674,11 @@ SECURE_CSP_REPORT_ONLY = {}
+ # provided. Set to True to assume HTTPS during the Django 6.x release cycle.
+ URLIZE_ASSUME_HTTPS = False
+ 
++# RemovedInDjango70Warning: A transitional setting to opt into the more
++# accessible blank choice label "(select an option)" in forms. Set to False to
++# use it instead of "---------".
++USE_BLANK_CHOICE_DASH = True
++
+ #########
+ # TASKS #
+ #########
+diff --git a/django/contrib/admin/options.py b/django/contrib/admin/options.py
+index bb091e4..bf8a6a2 100644
+--- a/django/contrib/admin/options.py
++++ b/django/contrib/admin/options.py
+@@ -56,6 +56,7 @@ from django.http import HttpResponseRedirect
+ from django.http.response import HttpResponseBase
+ from django.template.response import SimpleTemplateResponse, TemplateResponse
+ from django.urls import reverse
++from django.utils.choices import BLANK_CHOICE_LABEL
+ from django.utils.decorators import method_decorator
+ from django.utils.html import format_html
+ from django.utils.http import urlencode
+@@ -1049,11 +1050,13 @@ class ModelAdmin(BaseModelAdmin):
+         actions = self._filter_actions_by_permissions(request, self._get_base_actions())
+         return {name: (func, name, desc) for func, name, desc in actions}
+ 
+-    def get_action_choices(self, request, default_choices=models.BLANK_CHOICE_DASH):
++    def get_action_choices(self, request, default_choices=None):
+         """
+         Return a list of choices for use in a form object. Each choice is a
+         tuple (name, description).
+         """
++        if default_choices is None:
++            default_choices = [("", BLANK_CHOICE_LABEL)]
+         choices = [*default_choices]
+         for func, name, description in self.get_actions(request).values():
+             choice = (name, description % model_format_dict(self.opts))
+diff --git a/django/db/models/__init__.py b/django/db/models/__init__.py
+index c580392..529f6c8 100644
+--- a/django/db/models/__init__.py
++++ b/django/db/models/__init__.py
+@@ -136,3 +136,12 @@ __all__ += [
+     "ManyToManyRel",
+     "OneToOneRel",
+ ]
++
++
++def __getattr__(name):
++    # RemovedInDjango70Warning: remove when BLANK_CHOICE_DASH is removed.
++    if name == "BLANK_CHOICE_DASH":
++        from django.db.models import fields
++
++        return fields.BLANK_CHOICE_DASH
++    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+diff --git a/django/db/models/fields/__init__.py b/django/db/models/fields/__init__.py
+index e248b70..34802cf 100644
+--- a/django/db/models/fields/__init__.py
++++ b/django/db/models/fields/__init__.py
+@@ -18,6 +18,7 @@ from django.db.models.query_utils import DeferredAttribute, RegisterLookupMixin
+ from django.db.utils import NotSupportedError
+ from django.utils import timezone
+ from django.utils.choices import (
++    BLANK_CHOICE_LABEL,
+     BlankChoiceIterator,
+     CallableChoiceIterator,
+     flatten_choices,
+@@ -39,7 +40,7 @@ from django.utils.translation import gettext_lazy as _
+ 
+ __all__ = [
+     "AutoField",
+-    "BLANK_CHOICE_DASH",
++    "BLANK_CHOICE_LABEL",
+     "BigAutoField",
+     "BigIntegerField",
+     "BinaryField",
+@@ -83,7 +84,18 @@ class NOT_PROVIDED:
+ 
+ # The values to use for "blank" in SelectFields. Will be appended to the start
+ # of most "choices" lists.
+-BLANK_CHOICE_DASH = [("", "---------")]
++_BLANK_CHOICE_DASH = [("", "---------")]
++
++
++def __getattr__(name):
++    if name == "BLANK_CHOICE_DASH":
++        warnings.warn(
++            "BLANK_CHOICE_DASH is deprecated in favor of BLANK_CHOICE_LABEL.",
++            RemovedInDjango70Warning,
++            stacklevel=2,
++        )
++        return _BLANK_CHOICE_DASH
++    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+ 
+ 
+ def _load_field(app_label, model_name, field_name):
+@@ -1088,7 +1100,7 @@ class Field(RegisterLookupMixin):
+     def get_choices(
+         self,
+         include_blank=True,
+-        blank_choice=BLANK_CHOICE_DASH,
++        blank_choice=None,
+         limit_choices_to=None,
+         ordering=(),
+     ):
+@@ -1096,6 +1108,8 @@ class Field(RegisterLookupMixin):
+         Return choices with a default blank choices included, for use
+         as <select> choices for this field.
+         """
++        if blank_choice is None:
++            blank_choice = [("", BLANK_CHOICE_LABEL)]
+         if self.choices is not None:
+             if include_blank:
+                 return BlankChoiceIterator(self.choices, blank_choice)
+diff --git a/django/db/models/fields/reverse_related.py b/django/db/models/fields/reverse_related.py
+index e6c2525..a03685d 100644
+--- a/django/db/models/fields/reverse_related.py
++++ b/django/db/models/fields/reverse_related.py
+@@ -13,7 +13,7 @@ from django.core import exceptions
+ from django.utils.functional import cached_property
+ from django.utils.hashable import make_hashable
+ 
+-from . import BLANK_CHOICE_DASH
++from django.utils.choices import BLANK_CHOICE_LABEL
+ from .mixins import FieldCacheMixin
+ 
+ 
+@@ -172,7 +172,7 @@ class ForeignObjectRel(FieldCacheMixin):
+     def get_choices(
+         self,
+         include_blank=True,
+-        blank_choice=BLANK_CHOICE_DASH,
++        blank_choice=None,
+         limit_choices_to=None,
+         ordering=(),
+     ):
+@@ -183,6 +183,8 @@ class ForeignObjectRel(FieldCacheMixin):
+         Analog of django.db.models.fields.Field.get_choices(), provided
+         initially for utilization by RelatedFieldListFilter.
+         """
++        if blank_choice is None:
++            blank_choice = [("", BLANK_CHOICE_LABEL)]
+         limit_choices_to = limit_choices_to or self.limit_choices_to
+         qs = self.related_model._default_manager.complex_filter(limit_choices_to)
+         if ordering:
+diff --git a/django/forms/fields.py b/django/forms/fields.py
+index 8aad2d4..ce7b6e5 100644
+--- a/django/forms/fields.py
++++ b/django/forms/fields.py
+@@ -39,7 +39,7 @@ from django.forms.widgets import (
+     URLInput,
+ )
+ from django.utils import formats
+-from django.utils.choices import normalize_choices
++from django.utils.choices import BLANK_CHOICE_LABEL, normalize_choices
+ from django.utils.datastructures import OrderedSet
+ from django.utils.dateparse import parse_datetime, parse_duration
+ from django.utils.duration import duration_string
+@@ -1200,7 +1200,7 @@ class FilePathField(ChoiceField):
+         if self.required:
+             self.choices = []
+         else:
+-            self.choices = [("", "---------")]
++            self.choices = [("", BLANK_CHOICE_LABEL)]
+ 
+         if self.match is not None:
+             self.match_re = re.compile(self.match)
+diff --git a/django/forms/models.py b/django/forms/models.py
+index a53f119..fb88f72 100644
+--- a/django/forms/models.py
++++ b/django/forms/models.py
+@@ -23,7 +23,7 @@ from django.forms.widgets import (
+     RadioSelect,
+     SelectMultiple,
+ )
+-from django.utils.choices import BaseChoiceIterator
++from django.utils.choices import BLANK_CHOICE_LABEL, BaseChoiceIterator
+ from django.utils.hashable import make_hashable
+ from django.utils.text import capfirst, get_text_list
+ from django.utils.translation import gettext
+@@ -1481,7 +1481,7 @@ class ModelChoiceField(ChoiceField):
+         self,
+         queryset,
+         *,
+-        empty_label="---------",
++        empty_label=BLANK_CHOICE_LABEL,
+         required=True,
+         widget=None,
+         label=None,
+diff --git a/django/utils/choices.py b/django/utils/choices.py
+index 6b355d2..e03764b 100644
+--- a/django/utils/choices.py
++++ b/django/utils/choices.py
+@@ -1,9 +1,12 @@
+ from collections.abc import Callable, Iterable, Iterator, Mapping
+ from itertools import islice, tee, zip_longest
+ 
+-from django.utils.functional import Promise
++from django.conf import settings
++from django.utils.functional import Promise, lazy
++from django.utils.translation import gettext
+ 
+ __all__ = [
++    "BLANK_CHOICE_LABEL",
+     "BaseChoiceIterator",
+     "BlankChoiceIterator",
+     "CallableChoiceIterator",
+@@ -12,6 +15,18 @@ __all__ = [
+ ]
+ 
+ 
++def _blank_choice_label():
++    # RemovedInDjango70Warning: remove the USE_BLANK_CHOICE_DASH branch.
++    if settings.USE_BLANK_CHOICE_DASH:
++        return "---------"
++    return gettext("(select an option)")
++
++
++# Label of the blank choice in forms. Evaluated lazily as it depends on the
++# USE_BLANK_CHOICE_DASH setting and the active language.
++BLANK_CHOICE_LABEL = lazy(_blank_choice_label, str)()
++
++
+ class BaseChoiceIterator:
+     """Base class for lazy iterators for choices."""
+ 
+diff --git a/docs/internals/deprecation.txt b/docs/internals/deprecation.txt
+index 799c355..665e841 100644
+--- a/docs/internals/deprecation.txt
++++ b/docs/internals/deprecation.txt
+@@ -28,6 +28,10 @@ details on these changes.
+ 
+ * The ``URLIZE_ASSUME_HTTPS`` transitional setting will be removed.
+ 
++* The ``django.db.models.fields.BLANK_CHOICE_DASH`` constant will be removed.
++
++* The ``USE_BLANK_CHOICE_DASH`` transitional setting will be removed.
++
+ * Using a percent sign in a column alias or annotation will raise
+   ``ValueError``.
+ 
+diff --git a/docs/ref/settings.txt b/docs/ref/settings.txt
+index cca7b18..2a64b77 100644
+--- a/docs/ref/settings.txt
++++ b/docs/ref/settings.txt
+@@ -3095,6 +3095,20 @@ be retained if present.
+ 
+ See also :setting:`TIME_ZONE` and :setting:`USE_I18N`.
+ 
++.. setting:: USE_BLANK_CHOICE_DASH
++
++``USE_BLANK_CHOICE_DASH``
++-------------------------
++
++.. versionadded:: 6.0
++.. deprecated:: 6.0
++
++Default: ``True``
++
++Set this transitional setting to ``False`` to use the more accessible
++``"(select an option)"`` label, instead of ``"---------"``, for the blank
++choice of ``<select>`` widgets in forms.
++
+ .. setting:: USE_X_FORWARDED_HOST
+ 
+ ``USE_X_FORWARDED_HOST``
+diff --git a/docs/releases/6.0.txt b/docs/releases/6.0.txt
+index 1697a09..4a4f13e 100644
+--- a/docs/releases/6.0.txt
++++ b/docs/releases/6.0.txt
+@@ -537,6 +537,13 @@ Miscellaneous
+ 
+ * The :setting:`URLIZE_ASSUME_HTTPS` transitional setting is deprecated.
+ 
++* The ``django.db.models.fields.BLANK_CHOICE_DASH`` constant is deprecated in
++  favor of ``django.db.models.fields.BLANK_CHOICE_LABEL``, a lazy, translatable
++  and more accessible label for the blank choice in forms. Set the transitional
++  setting :setting:`USE_BLANK_CHOICE_DASH` to ``False`` to opt into it.
++
++* The :setting:`USE_BLANK_CHOICE_DASH` transitional setting is deprecated.
++
+ * Setting :setting:`ADMINS` or :setting:`MANAGERS` to a list of (name, address)
+   tuples is deprecated. Set to a list of email address strings instead. Django
+   never used the name portion. To include a name, format the address string as
+diff --git a/tests/model_forms/tests.py b/tests/model_forms/tests.py
+index 3d4eb06..ee10585 100644
+--- a/tests/model_forms/tests.py
++++ b/tests/model_forms/tests.py
+@@ -23,8 +23,9 @@ from django.forms.models import (
+ )
+ from django.template import Context, Template
+ from django.test import SimpleTestCase, TestCase, skipUnlessDBFeature
+-from django.test.utils import isolate_apps
+-from django.utils.choices import BlankChoiceIterator
++from django.test.utils import isolate_apps, override_settings
++from django.utils.choices import BLANK_CHOICE_LABEL, BlankChoiceIterator
++from django.utils.deprecation import RemovedInDjango70Warning
+ from django.utils.version import PY314, PYPY
+ 
+ from .models import (
+@@ -2044,7 +2045,7 @@ class ModelFormBasicTests(TestCase):
+         self.assertEqual(call_count, 0)
+         self.assertEqual(
+             form.fields["animal"].choices,
+-            models.BLANK_CHOICE_DASH + [("LION", "Lion"), ("ZEBRA", "Zebra")],
++            [("", "---------"), ("LION", "Lion"), ("ZEBRA", "Zebra")],
+         )
+         self.assertEqual(call_count, 1)
+ 
+@@ -3777,3 +3778,29 @@ class ConstraintValidationTests(TestCase):
+         full_form = AttnameConstraintsModelForm(data, instance=instance)
+         self.assertFalse(full_form.is_valid())
+         self.assertEqual(full_form.errors, {"right": ["This field is required."]})
++
++
++class BlankChoiceLabelTests(SimpleTestCase):
++    def test_default_is_dashes(self):
++        self.assertEqual(str(BLANK_CHOICE_LABEL), "---------")
++        self.assertEqual(
++            list(forms.ModelChoiceField(Category.objects.none()).choices),
++            [("", "---------")],
++        )
++
++    @override_settings(USE_BLANK_CHOICE_DASH=False)
++    def test_accessible_label(self):
++        self.assertEqual(str(BLANK_CHOICE_LABEL), "(select an option)")
++        self.assertEqual(
++            list(forms.ModelChoiceField(Category.objects.none()).choices),
++            [("", "(select an option)")],
++        )
++        field = models.CharField(choices=[("a", "A")], blank=True, max_length=1)
++        self.assertEqual(
++            list(field.get_choices()), [("", "(select an option)"), ("a", "A")]
++        )
++
++    def test_blank_choice_dash_deprecated(self):
++        msg = "BLANK_CHOICE_DASH is deprecated in favor of BLANK_CHOICE_LABEL."
++        with self.assertWarnsMessage(RemovedInDjango70Warning, msg):
++            self.assertEqual(models.BLANK_CHOICE_DASH, [("", "---------")])

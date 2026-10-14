@@ -477,6 +477,36 @@ Also changed during this piece, from a dry run on the exposed Phase 0 cases befo
 execution runs the changed side first and reruns only failures on the unchanged side, and a recording's
 lines are carried through edits made after it.
 
+## The blind, unasked trial (2026-10-14)
+
+Full record, rules written before the start, pilot and result: `blind/TRIAL-RECORD.md`.
+
+**By the pre-set rule the AMU arm shipped fewer regressions, 6 of 16 runs against 7 of 16, but the one-run
+difference is a control bug (task 4, w07) that no AMU-arm agent wrote and the hook could not have executed
+against. This trial does not show the hook reducing regressions.**
+
+Eight fresh Django tasks, frozen by script and hash-pinned before any analysis; the agent got the ticket
+and commit message, never the diff, and was not told anything broke. 32 desktop sessions (Sonnet), 900 s of
+test time per run in both arms, hook time charged. AMU arm: bare `amu` from a hook after every `.py` change
+(Edit, Write, or a Bash command that changed a `.py` file) and before every test run.
+
+| | AMU arm | Control |
+|---|---:|---:|
+| Runs with a regression | 6 of 16 | 7 of 16 |
+| Regression tests | 1,712 | 1,719 |
+| Regressions in tests upstream left alone, without the task 3 artefact | 0 | 7 in 2 runs |
+| Test time charged | 2,453 s | 1,506 s |
+| Session wall time, total | 3,802 s | 3,206 s |
+
+- Task 3's 854 per run, both arms, are upstream test modules importing a helper only upstream has.
+- Tasks 5 and 6 add one regression to every run in both arms: tests upstream rewrote for its own behaviour.
+- The one place the hook changed an outcome: task 6. It listed `test_simple_save` and `test_options` in both
+  AMU-arm runs and both agents fixed their implementation; one control run (w32) shipped both broken.
+- No AMU-arm run shipped a regression the hook had printed. Hook checks that execute nothing (`NOT
+  EXECUTED`) happen when the agent's tree aborts Django's runner at start, which is also why the hook could
+  not have caught w07.
+- A pilot of six runs showed an Edit/Write-only hook misses agents that edit through Bash (two of three).
+
 ## Milestones (state at b3747c8)
 
 - **M1 harness.** `scripts/before_tests_harness.py`; protocol and manifests are hash-pinned.

@@ -1,0 +1,226 @@
+diff --git a/django/db/backends/mysql/compiler.py b/django/db/backends/mysql/compiler.py
+index 0291b76..8191bb2 100644
+--- a/django/db/backends/mysql/compiler.py
++++ b/django/db/backends/mysql/compiler.py
+@@ -30,7 +30,7 @@ class SQLDeleteCompiler(BaseSQLDeleteCompiler):
+             return super().as_sql()
+         result = [
+             "DELETE %s FROM"
+-            % self.quote_name_unless_alias(self.query.get_initial_alias())
++            % self.quote_name(self.query.get_initial_alias())
+         ]
+         from_sql, params = self.get_from_clause()
+         result.extend(from_sql)
+diff --git a/django/db/models/expressions.py b/django/db/models/expressions.py
+index c6ba5c8..0c58e77 100644
+--- a/django/db/models/expressions.py
++++ b/django/db/models/expressions.py
+@@ -1366,7 +1366,7 @@ class Col(Expression):
+     def as_sql(self, compiler, connection):
+         alias, column = self.alias, self.target.column
+         identifiers = (alias, column) if alias else (column,)
+-        sql = ".".join(map(compiler.quote_name_unless_alias, identifiers))
++        sql = ".".join(map(compiler.quote_name, identifiers))
+         return sql, ()
+ 
+     def relabeled_clone(self, relabels):
+diff --git a/django/db/models/sql/compiler.py b/django/db/models/sql/compiler.py
+index 6c758fb..faae539 100644
+--- a/django/db/models/sql/compiler.py
++++ b/django/db/models/sql/compiler.py
+@@ -440,7 +440,7 @@ class SQLCompiler:
+                 yield (
+                     OrderBy(
+                         RawSQL(
+-                            "%s.%s" % (self.quote_name_unless_alias(table), col), []
++                            "%s.%s" % (self.quote_name(table), col), []
+                         ),
+                         descending=descending,
+                     ),
+@@ -547,11 +547,10 @@ class SQLCompiler:
+                     extra_select.append((expr, (without_ordering, params), None))
+         return extra_select
+ 
+-    def quote_name_unless_alias(self, name):
++    def quote_name(self, name):
+         """
+-        A wrapper around connection.ops.quote_name that doesn't quote aliases
+-        for table names. This avoids problems with some SQL dialects that treat
+-        quoted strings specially (e.g. PostgreSQL).
++        A wrapper around connection.ops.quote_name that caches the result.
++        All identifiers, including aliases, are quoted.
+         """
+         if (
+             self.connection.features.prohibits_dollar_signs_in_column_aliases
+@@ -563,20 +562,13 @@ class SQLCompiler:
+             )
+         if name in self.quote_cache:
+             return self.quote_cache[name]
+-        if (
+-            (name in self.query.alias_map and name not in self.query.table_map)
+-            or name in self.query.extra_select
+-            or (
+-                self.query.external_aliases.get(name)
+-                and name not in self.query.table_map
+-            )
+-        ):
+-            self.quote_cache[name] = name
+-            return name
+         r = self.connection.ops.quote_name(name)
+         self.quote_cache[name] = r
+         return r
+ 
++    # Kept as an alias of quote_name() for backward compatibility.
++    quote_name_unless_alias = quote_name
++
+     def compile(self, node):
+         vendor_impl = getattr(node, "as_" + self.connection.vendor, None)
+         if vendor_impl:
+@@ -1175,7 +1167,7 @@ class SQLCompiler:
+                 alias not in self.query.alias_map
+                 or self.query.alias_refcount[alias] == 1
+             ):
+-                result.append(", %s" % self.quote_name_unless_alias(alias))
++                result.append(", %s" % self.quote_name(alias))
+         return result, params
+ 
+     def get_related_selections(
+@@ -1504,7 +1496,7 @@ class SQLCompiler:
+                 if self.connection.features.select_for_update_of_column:
+                     result.append(self.compile(col)[0])
+                 else:
+-                    result.append(self.quote_name_unless_alias(col.alias))
++                    result.append(self.quote_name(col.alias))
+         if invalid_names:
+             raise FieldError(
+                 "Invalid field name(s) given in select_for_update(of=(...)): %s. "
+@@ -1805,7 +1797,7 @@ class SQLInsertCompiler(SQLCompiler):
+         return placeholder_rows, param_rows
+ 
+     def as_sql(self):
+-        # We don't need quote_name_unless_alias() here, since these are all
++        # We don't need self.quote_name() here, since these are all
+         # going to be column names (so we can avoid the extra overhead).
+         qn = self.connection.ops.quote_name
+         opts = self.query.get_meta()
+@@ -2006,7 +1998,7 @@ class SQLDeleteCompiler(SQLCompiler):
+         )
+ 
+     def _as_sql(self, query):
+-        delete = "DELETE FROM %s" % self.quote_name_unless_alias(query.base_table)
++        delete = "DELETE FROM %s" % self.quote_name(query.base_table)
+         try:
+             where, params = self.compile(query.where)
+         except FullResultSet:
+@@ -2050,7 +2042,7 @@ class SQLUpdateCompiler(SQLCompiler):
+         self.pre_sql_setup()
+         if not self.query.values:
+             return "", ()
+-        qn = self.quote_name_unless_alias
++        qn = self.quote_name
+         values, update_params = [], []
+         for field, model, val in self.query.values:
+             if hasattr(val, "resolve_expression"):
+diff --git a/django/db/models/sql/datastructures.py b/django/db/models/sql/datastructures.py
+index 5314d37..3cda586 100644
+--- a/django/db/models/sql/datastructures.py
++++ b/django/db/models/sql/datastructures.py
+@@ -82,7 +82,7 @@ class Join:
+         """
+         join_conditions = []
+         params = []
+-        qn = compiler.quote_name_unless_alias
++        qn = compiler.quote_name
+         # Add a join condition for each pair of joining columns.
+         for lhs, rhs in self.join_fields:
+             lhs, rhs = connection.ops.prepare_join_on_clause(
+@@ -120,7 +120,9 @@ class Join:
+             )
+         on_clause_sql = " AND ".join(join_conditions)
+         alias_str = (
+-            "" if self.table_alias == self.table_name else (" %s" % self.table_alias)
++            ""
++            if self.table_alias == self.table_name
++            else (" %s" % compiler.quote_name(self.table_alias))
+         )
+         sql = "%s %s%s ON (%s)" % (
+             self.join_type,
+@@ -194,9 +196,11 @@ class BaseTable:
+ 
+     def as_sql(self, compiler, connection):
+         alias_str = (
+-            "" if self.table_alias == self.table_name else (" %s" % self.table_alias)
++            ""
++            if self.table_alias == self.table_name
++            else (" %s" % compiler.quote_name(self.table_alias))
+         )
+-        base_sql = compiler.quote_name_unless_alias(self.table_name)
++        base_sql = compiler.quote_name(self.table_name)
+         return base_sql + alias_str, []
+ 
+     def relabeled_clone(self, change_map):
+diff --git a/docs/releases/6.1.txt b/docs/releases/6.1.txt
+index 1bd4f09..563b4a2 100644
+--- a/docs/releases/6.1.txt
++++ b/docs/releases/6.1.txt
+@@ -382,6 +382,14 @@ Validators
+ Backwards incompatible changes in 6.1
+ =====================================
+ 
++Quoting of aliases
++------------------
++
++All database identifiers, including aliases provided to
++:meth:`~.QuerySet.annotate` and :meth:`~.QuerySet.alias`, are now quoted in
++generated SQL. Raw SQL that references such aliases, for example in
++:class:`~django.db.models.expressions.RawSQL`, may need to quote them.
++
+ Database backend API
+ --------------------
+ 
+diff --git a/tests/annotations/tests.py b/tests/annotations/tests.py
+index 42869bf..3ae139c 100644
+--- a/tests/annotations/tests.py
++++ b/tests/annotations/tests.py
+@@ -1270,6 +1270,11 @@ class NonAggregateAnnotationTestCase(TestCase):
+ 
+ 
+ class AliasTests(TestCase):
++    def test_annotation_alias_is_quoted(self):
++        qs = Book.objects.annotate(MixedCase=F("pages"))
++        self.assertIn(connection.ops.quote_name("MixedCase"), str(qs.query))
++        self.assertEqual(qs.first().MixedCase, qs.first().pages)
++
+     @classmethod
+     def setUpTestData(cls):
+         cls.a1 = Author.objects.create(name="Adrian Holovaty", age=34)
+diff --git a/tests/filtered_relation/tests.py b/tests/filtered_relation/tests.py
+index d15dd0d..9047feb 100644
+--- a/tests/filtered_relation/tests.py
++++ b/tests/filtered_relation/tests.py
+@@ -210,8 +210,9 @@ class FilteredRelationTests(TestCase):
+             ),
+         ).filter(book_alice__isnull=False)
+         self.assertIn(
+-            "INNER JOIN {} book_alice ON".format(
+-                connection.ops.quote_name("filtered_relation_book")
++            "INNER JOIN {} {} ON".format(
++                connection.ops.quote_name("filtered_relation_book"),
++                connection.ops.quote_name("book_alice"),
+             ),
+             str(queryset.query),
+         )
+diff --git a/tests/queries/tests.py b/tests/queries/tests.py
+index af657b2..7fbd980 100644
+--- a/tests/queries/tests.py
++++ b/tests/queries/tests.py
+@@ -195,7 +195,8 @@ class Queries1Tests(TestCase):
+         # It is possible to reuse U for the second subquery, no need to use W.
+         self.assertNotIn("w0", str(qs4.query).lower())
+         # So, 'U0."id"' is referenced in SELECT and WHERE twice.
+-        self.assertEqual(str(qs4.query).lower().count("u0."), 4)
++        qn = connection.ops.quote_name
++        self.assertEqual(str(qs4.query).count(qn("U0") + "."), 4)
+ 
+     def test_ticket1050(self):
+         self.assertSequenceEqual(

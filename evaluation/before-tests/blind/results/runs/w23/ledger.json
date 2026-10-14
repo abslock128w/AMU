@@ -1,0 +1,42 @@
+[
+ {
+  "tool": "hook",
+  "seconds": 12.39,
+  "at": 1791955466.7,
+  "detail": "before ./rt"
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.51,
+  "at": 1791955470.9,
+  "labels": [
+   "deprecation"
+  ],
+  "problems": [],
+  "ran": 53,
+  "failed": []
+ },
+ {
+  "tool": "hook",
+  "seconds": 9.88,
+  "at": 1791955484.3,
+  "detail": "after edit"
+ },
+ {
+  "tool": "hook",
+  "seconds": 8.93,
+  "at": 1791955493.4,
+  "detail": "after edit"
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.51,
+  "at": 1791955494.1,
+  "labels": [
+   "deprecation"
+  ],
+  "problems": [],
+  "ran": 54,
+  "failed": []
+ }
+]

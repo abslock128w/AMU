@@ -1,0 +1,35 @@
+[
+ {
+  "tool": "hook",
+  "seconds": 40.26,
+  "at": 1791956225.1,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "hook",
+  "seconds": 25.56,
+  "at": 1791956258.1,
+  "detail": "after edit"
+ },
+ {
+  "tool": "hook",
+  "seconds": 26.01,
+  "at": 1791956288.2,
+  "detail": "after edit"
+ },
+ {
+  "tool": "rt",
+  "seconds": 14.16,
+  "at": 1791956303.1,
+  "labels": [
+   "model_formsets",
+   "generic_relations",
+   "inline_formsets",
+   "model_formsets_regress",
+   "admin_views"
+  ],
+  "problems": [],
+  "ran": 711,
+  "failed": []
+ }
+]

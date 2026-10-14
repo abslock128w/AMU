@@ -1,0 +1,52 @@
+[
+ {
+  "tool": "rt",
+  "seconds": 0.6,
+  "at": 1791955633.8,
+  "labels": [
+   "sites_tests"
+  ],
+  "problems": [],
+  "ran": 26,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.63,
+  "at": 1791955638.3,
+  "labels": [
+   "sites_tests",
+   "check_framework"
+  ],
+  "problems": [],
+  "ran": 225,
+  "failed": [
+   "sites_tests.tests.SitesFrameworkTests.test_check_site_id_invalid_types"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.51,
+  "at": 1791955644.6,
+  "labels": [
+   "sites_tests"
+  ],
+  "problems": [],
+  "ran": 27,
+  "failed": [
+   "sites_tests.tests.SitesFrameworkTests.test_check_site_id_invalid_types"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.56,
+  "at": 1791955648.4,
+  "labels": [
+   "sites_tests",
+   "check_framework"
+  ],
+  "problems": [],
+  "ran": 225,
+  "failed": []
+ }
+]

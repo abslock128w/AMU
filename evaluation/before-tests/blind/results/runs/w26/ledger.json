@@ -1,0 +1,53 @@
+[
+ {
+  "tool": "hook",
+  "seconds": 59.17,
+  "at": 1791956514.4,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "hook",
+  "seconds": 38.93,
+  "at": 1791956557.2,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 188.34,
+  "at": 1791956749.5,
+  "labels": [],
+  "problems": [],
+  "ran": 19043,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option",
+   "filtered_relation.tests.FilteredRelationTests.test_internal_queryset_alias_mapping",
+   "queries.tests.Queries1Tests.test_subquery_condition"
+  ]
+ },
+ {
+  "tool": "hook",
+  "seconds": 25.39,
+  "at": 1791956783.0,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 1.33,
+  "at": 1791956792.8,
+  "labels": [
+   "annotations",
+   "queries",
+   "filtered_relation",
+   "expressions"
+  ],
+  "problems": [],
+  "ran": 872,
+  "failed": []
+ },
+ {
+  "tool": "hook",
+  "seconds": 24.16,
+  "at": 1791956817.1,
+  "detail": "after Bash"
+ }
+]
