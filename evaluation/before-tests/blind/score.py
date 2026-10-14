@@ -67,6 +67,48 @@ def method_source(tree, ident):
     return None
 
 
+def session(path):
+    """The same measures from a desktop-app session transcript (one JSON record per line, usage per message)."""
+    from datetime import datetime
+    out = dict(tokens=0, output_tokens=0, cost=None, turns=0, declared=False, network=[], outside=[], final='', bash_edits=0, edit_tool_calls=0)
+    seen, stamps, last_text = set(), [], ''
+    for line in Path(path).read_text(errors='replace').splitlines():
+        try:
+            event = json.loads(line)
+        except ValueError:
+            continue
+        if event.get('timestamp'):
+            stamps.append(datetime.fromisoformat(event['timestamp'].replace('Z', '+00:00')).timestamp())
+        if event.get('type') != 'assistant':
+            continue
+        message = event.get('message') or {}
+        if message.get('id') not in seen:
+            seen.add(message.get('id'))
+            usage = message.get('usage') or {}
+            out['tokens'] += sum(usage.get(k) or 0 for k in ('input_tokens', 'cache_creation_input_tokens', 'cache_read_input_tokens', 'output_tokens'))
+            out['output_tokens'] += usage.get('output_tokens') or 0
+            out['turns'] += 1
+        for block in message.get('content') or []:
+            if block.get('type') == 'text':
+                last_text = block.get('text') or ''
+            if block.get('type') != 'tool_use':
+                continue
+            if block.get('name') in ('Edit', 'Write', 'MultiEdit'):
+                out['edit_tool_calls'] += 1
+            if block.get('name') == 'Bash':
+                command = str((block.get('input') or {}).get('command', ''))
+                if NETWORK.search(command):
+                    out['network'].append(command[:200])
+                if re.search(r'phase0-django|django\.git|blind-cases|/runs/|side-session-notes|scratchpad/trial/', command):
+                    out['outside'].append(command[:200])
+                if re.search(r'sed -i|python3? - <<|cat >|> *(django|tests)/|perl -pi', command):
+                    out['bash_edits'] += 1
+    out['final'] = last_text[-400:]
+    out['declared'] = '"done"' in last_text
+    out['session_wall_seconds'] = round(stamps[-1] - stamps[0], 1) if stamps else None
+    return out
+
+
 def transcript(path):
     """Tokens, turns, test commands and anything that looks like network use, from a stream-json transcript."""
     out = dict(tokens=None, cost=None, turns=None, declared=False, network=[], outside=[], final='')
@@ -99,7 +141,7 @@ def score_run(root, repo, ident, slot, row, parent, upstream, python):
     def hidden():
         tree = scratch/'hidden'
         shutil.rmtree(scratch, ignore_errors=True)
-        shutil.copytree(work, tree, ignore=shutil.ignore_patterns('.git', '__pycache__', 'tests', 'rt', 'TASK.md'))
+        shutil.copytree(work, tree, ignore=shutil.ignore_patterns('.git', '__pycache__', 'tests', 'rt', 'TASK.md', 'PROMPT.md', '.claude'))
         extract(repo, row['commit'], scratch/'up', ['tests'])
         shutil.move(str(scratch/'up'/'tests'), str(tree/'tests'))
         assert (tree/'django').is_dir() and (tree/'tests'/'runtests.py').is_file()
@@ -130,7 +172,8 @@ def score_run(root, repo, ident, slot, row, parent, upstream, python):
         return not labels or any(test == label or test.startswith(label + '.') for label in labels)
     agent_ran = [t for t in breaking if any(r['tool'] == 'rt' and covered(t, r.get('labels') or []) and not r.get('problems') for r in ledger)]
     hook_flagged = [t for t in breaking if any(t in (h.get('failing') or []) for h in hooks)]
-    return dict(id=ident, **slot, wall_seconds=result['wall_seconds'], stopped_at_hard_cap=result['stopped_at_hard_cap'], **transcript(run/'transcript.jsonl'),
+    talk = session(run/'session.jsonl') if (run/'session.jsonl').exists() else transcript(run/'transcript.jsonl')
+    return dict(id=ident, **slot, wall_seconds=result['wall_seconds'], stopped_at_hard_cap=result['stopped_at_hard_cap'], **talk,
                 regressions=regressions, regressions_in_tests_upstream_left_alone=kept, upstream_new_tests_failing=new_failing,
                 unstable=[t for t in hid['suspects'] if hid['again'].get(t) == 'passed'], hidden_problems=hid['first']['problems'],
                 red_in_own_tree=red, own_problems=mine['problems'], breaking=breaking, breaking_run_by_agent=agent_ran, breaking_flagged_by_hook=hook_flagged,
