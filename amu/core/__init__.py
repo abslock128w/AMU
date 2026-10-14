@@ -94,7 +94,7 @@ def after_facts(root, facts, edits, gaps):
 
 
 def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, index_dir=None, run=None, python=None,
-            budget=60, include_tests=False, runner=None):
+            budget=60, include_tests=False, runner=None, only=None):
     """What a change reaches, which existing tests to run first, and what could not be seen.
 
     ``patch`` is unified-diff text, applied or not yet applied to ``root``. Without one,
@@ -309,14 +309,18 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         # With a recording, the candidates are the tests seen executing the change; run more of them.
         cap = RUN_CANDIDATES * (2 if observed else 1)
         wide = list(dict.fromkeys(run_id for ident, _ in order[:cap] for run_id in run_ids(ident)))[:cap]
-        flips, executed, run_gaps = shadow.run(root, edits, wide, python, budget, runner)
+        if only:
+            # A caller that already knows which tests matter (a hook re-checking earlier failures) names them.
+            wide = list(dict.fromkeys(only))
+        memo = cache_dir(root, index_dir)/'shadow-memo.json'
+        flips, executed, run_gaps = shadow.run(root, edits, wide, python, budget, runner, memo=memo)
         gaps.extend(run_gaps)
         # A failing test defined on a base class is run again in every subclass that inherits it.
         by_id = {tests[ident]['path'] + '::' + tests[ident]['qual'].replace('.', '::'): ident for ident, _ in order[:cap]}
         copies = sorted({copy for flip in flips if flip['after'] == 'failed' and flip['id'] in by_id
                          for copy in inheritors(by_id[flip['id']])} - set(wide))[:RUN_CANDIDATES]
         if copies:
-            more, again, more_gaps = shadow.run(root, edits, copies, python, budget, runner)
+            more, again, more_gaps = shadow.run(root, edits, copies, python, budget, runner, memo=memo)
             flips.extend(more)
             gaps.extend(more_gaps)
             executed.update(ran=executed['ran'] + again['ran'], seconds=round(executed['seconds'] + again['seconds'], 1),

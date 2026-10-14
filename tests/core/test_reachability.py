@@ -633,3 +633,29 @@ def test_a_runner_that_aborts_only_on_the_changed_code_is_a_failure(tmp_path):
         runners.execute = real
     assert rows == []
     assert info['aborted'] == dict(error="NameError: name 'VALUE' is not defined (at lib.py:1)", ran_before=1, probed=1)
+
+
+def test_parallel_parts_cover_every_candidate_once(tmp_path):
+    from amu.core import runners, shadow
+    seen, real = [], runners.execute
+
+    def fake(runner, python, tree, ids, report, timeout):
+        seen.append(list(ids))
+        return {i: 'passed' for i in ids}, None
+    runners.execute = fake
+    try:
+        found, problems = shadow.execute(runners.get(tmp_path, 'django-runtests'), 'python', tmp_path, [f't{i}' for i in range(10)], tmp_path, 'after', 5, 4)
+    finally:
+        runners.execute = real
+    assert len(seen) == 4 and sorted(i for part in seen for i in part) == sorted(f't{i}' for i in range(10))
+    assert found == {f't{i}': 'passed' for i in range(10)} and problems == []
+
+
+def test_remembered_outcomes_before_the_change_expire_with_the_commit(tmp_path):
+    import json
+
+    from amu.core.shadow import load_memo
+    memo = tmp_path/'memo.json'
+    memo.write_text(json.dumps(dict(key='a', before={'t': 'passed'}, rate=12.0)))
+    assert load_memo(memo, 'a')['before'] == {'t': 'passed'}
+    assert load_memo(memo, 'b') == dict(key='b', before={}, rate=12.0)

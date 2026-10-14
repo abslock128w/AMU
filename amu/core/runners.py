@@ -44,6 +44,7 @@ def dotted(ident, strip=''):
 class Runner:
     name = 'pytest'
     needs_class = False
+    parallel = False  # whether several processes may run tests in the same tree at once
 
     def label(self, ident):
         return ident
@@ -119,6 +120,7 @@ class Unittest(Runner):
 class DjangoRuntests(Unittest):
     name = 'django-runtests'
     strip = 'tests/'
+    parallel = True  # each process gets its own in-memory test databases
 
     def cwd(self, tree):
         return tree/'tests'

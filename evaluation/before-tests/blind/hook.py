@@ -84,24 +84,54 @@ def message(packet):
     return text
 
 
+def is_test(path):
+    parts = path.split('/')
+    return 'tests' in parts[:-1] or 'test' in parts[:-1] or parts[-1].startswith('test')
+
+
+def keys(workspace):
+    """(production key, test key, whole key) over the uncommitted .py state."""
+    state = sorted(python_state(workspace).items())
+    digest = lambda rows: hashlib.sha256(json.dumps(rows).encode()).hexdigest()
+    return digest([r for r in state if not is_test(r[0])]), digest([r for r in state if is_test(r[0])]), digest(state)
+
+
 def check(run, workspace, head, row):
-    """Run amu (or reuse the last result for an unchanged tree). Returns the text to inject, or None."""
+    """Run amu, or reuse the last result. Returns the text to inject, or None.
+
+    Unchanged .py state: the last result stands, nothing is charged. Only test files changed since the last check:
+    nothing new can flip in code the agent did not touch, so only the tests that flipped last time are run again,
+    or nothing at all when none did. Otherwise a full check, its time per side capped by the budget left."""
     ledger = djrun.Ledger(run/'ledger.json', config['budget'])
-    key = hashlib.sha256(json.dumps(sorted(python_state(workspace).items())).encode()).hexdigest()
+    production, tests_key, key = keys(workspace)
     last = run/'last-check.json'
     previous = json.loads(last.read_text()) if last.exists() else None
     if previous and previous['key'] == key:
         row.update(cached=True, flips=previous['flips'], failing=previous['failing'])
         return (f"{head} (no .py file changed since the last check, so its result stands; nothing charged): {previous['body']}"
                 f'\n[test time: {ledger.spent():.0f} of {ledger.budget} s used]')
+    only = None
+    if previous and previous.get('production') == production:
+        if not previous.get('ids'):
+            row.update(cached=True, flips=previous['flips'], failing=previous['failing'], reason='only test files changed')
+            previous['key'] = key
+            last.write_text(json.dumps(previous))
+            return (f"{head} (only test files changed since the last check, which found no failure; nothing charged): {previous['body']}"
+                    f'\n[test time: {ledger.spent():.0f} of {ledger.budget} s used]')
+        only = previous['ids']
     left = ledger.left()
     if left < MIN_LEFT:
         row.update(skipped='budget', left=round(left, 1))
         return None
     started = time.time()
     env = dict(os.environ, PYTHONPATH=config['amu'], AMU_INDEX_DIR=str(run/'amu-index'))
+    side = str(max(10, min(60, int(left / 3))))
+    extra = ['--budget', side]
+    if only:
+        extra += ['--only', *only]
+        row['only'] = len(only)
     try:
-        done = subprocess.run([sys.executable, '-m', 'amu.core', '--repo', str(workspace), '--python', config['python'], *config.get('amu_args', [])],
+        done = subprocess.run([sys.executable, '-m', 'amu.core', '--repo', str(workspace), '--python', config['python'], *config.get('amu_args', []), *extra],
                               env=env, capture_output=True, text=True, timeout=left, stdin=subprocess.DEVNULL)
         output, problem = done.stdout.strip(), done.stderr.strip()[-600:] if done.returncode else None
     except subprocess.TimeoutExpired:
@@ -123,7 +153,8 @@ def check(run, workspace, head, row):
     row.update(seconds=round(seconds, 2), problem=problem, flips=None if packet is None else packet.get('flips'), failing=failing,
                summary=None if packet is None else packet.get('summary'))
     if packet is not None:
-        last.write_text(json.dumps(dict(key=key, body=body, flips=packet.get('flips'), failing=failing)))
+        ids = [r['id'] for r in packet.get('predicted_failures') or [] if isinstance(r, dict)]
+        last.write_text(json.dumps(dict(key=key, production=production, tests=tests_key, body=body, flips=packet.get('flips'), failing=failing, ids=ids)))
     return text + f'\n[test time: {ledger.spent():.0f} of {ledger.budget} s used]'
 
 

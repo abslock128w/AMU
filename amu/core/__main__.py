@@ -18,6 +18,7 @@ def main(argv=None):
     p.add_argument('--runner', choices=['pytest', 'unittest', 'django-runtests', 'django-manage'], help='test runner; default: detected from the tree')
     p.add_argument('--python', help='interpreter with pytest for --run; default: this one')
     p.add_argument('--budget', type=int, default=60, help='seconds allowed per side for --run')
+    p.add_argument('--only', nargs='+', metavar='TEST', help='run exactly these tests (path::Class::test) instead of the ranked candidates')
     p.add_argument('--observe', action='store_true', help='run the whole suite once under coverage and store a per-test recording beside the index')
     a = p.parse_args(argv)
     if a.observe:
@@ -25,7 +26,7 @@ def main(argv=None):
         sys.stdout.write(encoded(observe.record(a.repo, a.python, a.runner)).decode() + '\n')
         return
     patch = None if a.patch_file is None else sys.stdin.read() if a.patch_file == '-' else Path(a.patch_file).read_text(errors='replace')
-    sys.stdout.write(encoded(analyze(a.repo, patch, full_evidence=a.full_evidence, coverage_evidence=a.coverage, run=False if a.static else True if a.run else None, python=a.python, budget=a.budget, include_tests=a.tests, runner=a.runner)).decode() + '\n')
+    sys.stdout.write(encoded(analyze(a.repo, patch, full_evidence=a.full_evidence, coverage_evidence=a.coverage, run=False if a.static else True if a.run else None, python=a.python, budget=a.budget, include_tests=a.tests, runner=a.runner, only=a.only)).decode() + '\n')
 
 
 if __name__ == '__main__':

@@ -544,6 +544,47 @@ pytest needs a download that was not approved. Files: `amu/core/patch.py`, `amu/
 `amu/core/shadow.py`, `amu/core/__init__.py`, `tests/core/test_reachability.py`, `blind/hook.py`.
 Upstream code executed: Django's tests on copies of w07's tree (three `amu` runs).
 
+## After the blind trial, piece 2: hook cost
+
+In the trial a hook run cost 24 s on average (1,303 s over 55 runs): about 300 candidates run one after
+another in one Django process, a 20 s allowance for confirming each failure on the unchanged code, and a full
+check after edits that touched only tests. Changes:
+
+- **Parallel parts.** For Django's `runtests.py` the candidates of each chunk run in up to four processes side
+  by side (half the cores). Each process gets its own in-memory databases. Other runners stay serial; pytest
+  projects can share files between tests.
+- **Outcomes before the change are remembered** in the index directory, keyed by the commit plus any non-`.py`
+  uncommitted change. A failure already confirmed against that code is not run there again.
+- **Candidates are capped by the time allowed**: the measured tests per second per process times the parts
+  times the seconds allowed. Lower-ranked candidates beyond that are named in a gap, not silently dropped.
+- **The hook** passes a per-side allowance of a third of the budget left, at most 60 s. When only test files
+  changed since the last check it reruns only the tests that flipped last time (new `--only` option), or
+  nothing when none did; an unchanged tree reuses the last result. Neither is charged.
+
+Same replay of all 16 AMU-arm runs from the trial (fresh parent tree, recording present, one workspace at a
+time; four events each: a test run on the clean tree, production edits, test edits, another test run):
+
+| | Old hook and engine (ca77f9c) | New |
+|---|---:|---:|
+| Hook runs charged, of 64 events | 48 | 38 |
+| Mean per charged run | 16.4 s | **9.7 s** |
+| Median per charged run | 12.5 s | 11.2 s |
+| Mean of the first, cold run in a workspace (index build) | 18.4 s | 11.4 s |
+| Mean of the later runs | 15.4 s | 8.5 s |
+| Total hook time, 16 runs | 789 s | 369 s |
+| Flips reported, every event | | identical to the old |
+
+The target, under 10 s per hook run, is met on the mean and not on the median. What holds the median up is the
+first call in each workspace, which builds the index from cold: 11 s whatever the change. In the trial the
+same old hook averaged 24 s rather than 16 s because four sessions ran at once.
+
+Ranking, base and after these changes: every case's top 10 identical. Werkzeug 10/16 and 16/16, requests and
+itsdangerous 6/8 and 8/8, Click holdout 3 8/8 and 8/8 (`blind/results/ranking/rank-p2-*.json`).
+
+AMU's tests: `tests/core` 50 passed, the same 4 failing for want of pytest. Files: `amu/core/shadow.py`,
+`amu/core/runners.py`, `amu/core/__init__.py`, `amu/core/__main__.py`, `tests/core/test_reachability.py`,
+`blind/hook.py`, `blind/replay_hook.py`. Upstream code executed: Django's tests in the 32 replay workspaces.
+
 ## Milestones (state at b3747c8)
 
 - **M1 harness.** `scripts/before_tests_harness.py`; protocol and manifests are hash-pinned.
