@@ -343,3 +343,37 @@ of an AMU bug, not because of the runner.
 The four hook runs in the trial that executed nothing (w04 three times, w18 once) were real runner aborts:
 the agent's half-edited tree raised `NameError` or `ImportError` while Django started. That defect did not
 fire in any of the trial's 55 hook runs. Neither correction changes the counts or the first line.
+
+# Rerun with Haiku: trial record
+
+Written 2026-10-14, before any Haiku session started. Everything above stays as the record of the Sonnet run.
+
+## What changes and what does not
+
+- **Agent model: Haiku (`claude-haiku-5-5`) in both arms**, instead of Sonnet. The reason, set by the owner:
+  Sonnet shipped a regression the hook could address in only one run of sixteen, so the base rate is raised
+  with a cheaper agent. If the hook cuts regressions here, the product claim becomes "makes cheap agents ship
+  safely". If it does not, the agent-facing hook line is closed.
+- **AMU under test: commit 929cd0e.** Two engine changes since the Sonnet run, both reported in
+  `../REPORT.md`: (1) a test runner that aborts on the changed code and runs on the code before it is reported
+  as a failure, with the runner's own error, and the hook injects that line; the "before" side is now rebuilt
+  correctly when a hunk begins with inserted lines, the defect that hid w07's regressions; (2) hook cost:
+  Django candidates in up to four parallel processes, outcomes before the change remembered within a session,
+  candidates capped by time allowed, and test-only edits recheck only the last flipped tests. No file under
+  `amu/` changes between this record and the last Haiku session finishing.
+- **Hook:** `hook.py` at 929cd0e. Triggers as in the Sonnet run (after Edit/Write of a `.py` file, after a
+  Bash command that changed a `.py` file, before a Bash command that runs `./rt` or `runtests.py`).
+- **Unchanged:** the eight frozen tasks and their text, the prompt word for word, `./rt`, the 900 s test-time
+  ledger with hook time charged, the 3,600 s hard stop, the permission rules in both arms, desktop-app sessions
+  started from the coordinating session, at most four at a time (both arms of two tasks), the coverage
+  recording at 455e787b (not charged), the scorer and every definition in "Measures" and "What would count".
+- 32 runs, no pilot: the mechanism was verified in the Sonnet run. Fresh root directory
+  (`.../scratchpad/haiku/`), so nothing of a Sonnet session's paths, transcripts or per-folder memory is shared.
+  Workspace names and the task-and-arm mapping are the same seed as before.
+- Permission prompts: the owner is asked not to answer any. A run with an answered prompt is marked.
+
+## What would count (same rule, first line of the report)
+
+Runs with at least one regression, per arm, of 16. The AMU arm wins if fewer of its runs shipped one.
+Equal counts are a tie. The report also gives the regression-test totals, the split by tests upstream left
+alone, the task 3 artefact as before, and a root cause for every AMU-arm run that shipped a regression.

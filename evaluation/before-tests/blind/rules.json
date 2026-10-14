@@ -1,5 +1,5 @@
 {
- "model": "sonnet",
+ "model": "claude-haiku-5-5",
  "budget_seconds": 900,
  "hard_cap_seconds": 3600,
  "rt_shards": 4,
@@ -7,5 +7,7 @@
  "suite_minutes_told": "3 to 5",
  "pairs_at_once": 2,
  "seed": 20261014,
- "amu_args": ["--full-evidence"]
+ "amu_args": [
+  "--full-evidence"
+ ]
 }
