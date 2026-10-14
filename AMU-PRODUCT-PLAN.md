@@ -400,3 +400,39 @@ auto-fix event it read as standing authorization. The merge was safe: all checks
 merge commit preserved cited hashes. Rule from here: a CI auto-fix authorization covers
 fixing checks and conflicts on the branch. Merging, deleting branches and changing remotes
 need the owner's words in chat.
+
+## 11. After three trials: what was actually measured (2026-10-14, commit 8262822)
+
+| Trial | Design | Result |
+|---|---|---|
+| Click smoke, 5 tasks | agent told breakage exists, given the diff, static packet | AMU lost, 13 vs 15 of 17 |
+| Django Phase 0, 5 indirect cases | same, static packet | AMU lost, 2 vs 3 of 5 |
+| Django claim run, 6 tasks | same, shadow execution available, wall-clock budget | tie, 15 vs 15 of 15; 0 of 6 AMU agents ran the tool |
+
+Engine state: shadow execution with the coverage recording found all five exposed indirect
+tests including the subprocess case; alone on the six claim tasks it was exactly right on
+five and gave one false all-clear, since fixed. Warm 1.1 s, after-edit 1.5 s on Django.
+Coverage-backed untested rows scored 23 percent author agreement and no later-fix signal,
+so `untested` is out of the default packet entirely.
+
+**All three trials measured the same thing, and it is not the product moment.** Each agent
+was told that existing tests break and was handed the diff. Finding the failing test under
+those conditions is a search task, and a capable agent searches callers and runs modules in
+seconds. It never needed a tool, so it never ran one. The moment AMU exists for is the one
+where the agent does not know anything broke: it has just implemented a change, believes it
+is done, and is about to run whatever tests it thinks of. No trial has measured that yet.
+
+Three untested hypotheses remain, in order of how cheaply they can be killed:
+
+1. **Unasked.** AMU runs from a hook after every Python edit and the flip count is in front
+   of the agent before it decides what to run. The claim-run agents never chose the tool;
+   a hook removes the choice.
+2. **Blind tasks.** The agent is given the upstream issue or commit message, not the diff,
+   and asked to implement the change. The measure is regressions on the hidden upstream
+   tests at the moment the agent declares done, and whether it ran the breaking test before
+   declaring. This is the original M7 design and it has never been run.
+3. **Slow suites.** Where the relevant modules take minutes, shadow-executing 150
+   candidates in 60 s is a real saving. Django modules ran in seconds, so this was never
+   exercised.
+
+The next trial combines 1 and 2. Section 12 is the brief for it.
