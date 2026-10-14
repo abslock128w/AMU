@@ -722,6 +722,33 @@ Files: `amu/core/shadow.py`, `amu/core/__init__.py`, `amu/core/__main__.py` (`--
 `tests/core/test_blind_hook.py`. Upstream code executed: Click holdout 3 and Werkzeug suites under testmon (18 cases,
 baseline and collection), and Django's tests on copies of Haiku w21's tree.
 
+## Slow-suite brief, piece 3: the repository (no suite executed)
+
+Surveyed from each project's own files, CI logs and a blobless clone of its history; nothing of theirs was built,
+installed or run. Every history count was recounted by a second agent by a different method and matched exactly.
+Evidence: `slow-suite/survey.json`.
+
+| | pandas | scikit-learn | sympy |
+|---|---|---|---|
+| Runner | pytest + xdist (via pixi) | pytest + xdist | pytest + xdist (`-m 'not slow and not tooslow'` in addopts) |
+| Published full suite | 15 min (2 workers) + 9.5 min serial single_cpu tests, ubuntu py3.14 | 11.6-14.6 min, the one serial CI job (py3.13, coverage) | 6.7-13.4 min, 4 workers, py3.14 (median 13.1) |
+| Serial estimate on this Mac | about 20 min (15-30) | about 10 min | about 20-24 min |
+| Test functions (items) | 22,025 (about 262,000) | 5,512 (about 54,000) | 12,770 (14,365 in the default run) |
+| Last 300 commits touching production and an existing test | 149 | 82 | 128 |
+| Compiled extensions | yes: meson + Cython + C/C++, a build per task tree (1-2 min), rebuild on import after a .pyx edit, network on first build | yes: meson + Cython + C/C++, OpenMP needs libomp, about 1.5-2 min per build | none: pure Python, mpmath only |
+| External services | MySQL/Postgres tests (skip without them), local HTTP and S3 mocks | none by default (network tests skipped unless enabled) | none |
+| Python 3.14 | supported (conda-forge in CI) | supported | supported, CI's main version |
+
+**Recommendation: sympy.** It is the only one of the three where a task's parent tree runs as checked out: no build per
+tree, an agent's edit is live in the next test process, and shadow execution's tree copy works unchanged. Its suite is as
+long as pandas' in serial terms, so a budget of one third cannot hold it, and 128 of 300 commits give the blind freeze
+plenty to draw on. pandas and scikit-learn would make every task, every hook run and every scoring run pay a native
+build, and a `.pyx` edit by an agent would need one before any test sees it.
+
+Known risks with sympy, for the record before the trial: the addopts marker expression deselects `slow` tests even
+when they are named on the command line, so AMU's runner and the dumb hook must override it or they will see no outcome
+for slow candidates; per-test times are heavy-tailed (some solvers take seconds to minutes); a few tests use hypothesis.
+
 ## Milestones (state at b3747c8)
 
 - **M1 harness.** `scripts/before_tests_harness.py`; protocol and manifests are hash-pinned.
