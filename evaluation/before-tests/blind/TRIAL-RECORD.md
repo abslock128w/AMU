@@ -194,6 +194,44 @@ process could run. On the owner's instruction the agents are Claude desktop-app 
 - On the first AMU-arm session, the transcript is read to confirm the hook's text reached the agent before
   its next tool call. If it did not, the trial stops there.
 
+## Pilot, and a second change before the real start
+
+Written before any run of the real trial started. On the owner's instruction, the first six desktop
+sessions are a **pilot and are not scored**: trial 1 of tasks 1 to 3, both arms (w02, w27, w09, w13, w04,
+w20 under the first root). Nothing from them was scored or compared against upstream; their trees,
+ledgers and hook logs are kept beside the first root's workspaces and are not used.
+
+What the pilot showed:
+
+- **The Edit/Write hook missed two of three AMU-arm runs.** In w09 (5 tool calls) and w04 (16 tool calls)
+  every edit was made through Bash, with `python3` heredocs and `sed -i`, never with the Edit or Write tool,
+  so the hook never fired and those agents received no message. In w02 the agent used Edit; the hook fired
+  25 s after the first edit and named the task's frozen breaking test. That message was attached to the
+  edit's result, before the agent's next turn; the agent had sent a `./rt` call in the same batch as the
+  edit, so that one call could not have seen it.
+- **The permission rules do not stop `python3`.** Agents in both arms ran `python3` heredocs to edit files
+  without any prompt, although the prompt says not to call python and `python3` is not on the allow list.
+  The rules stay identical in both arms and are not changed.
+- Agents in both arms tried `git commit` (denied) and one ran `git stash` around a test run and restored it.
+- The app gives each session the path of a shared notes folder for sessions started from the same session.
+  It stayed empty during the pilot. It is checked before scoring.
+
+**Changes for the real trial**, on the owner's instruction:
+
+1. The hook also fires **after any Bash command during which a `.py` file in the tree changed**: git
+   status and file contents of changed and untracked `.py` files are recorded by a PreToolUse call before
+   the command and compared after it.
+2. The hook also fires **before any Bash command that runs `./rt` or `runtests.py`**, and puts the current
+   flips in front of the agent before the tests run (PreToolUse `additionalContext`).
+3. A check whose tree has the same uncommitted `.py` state as the last check reuses that result, says so,
+   and charges nothing. Every check that runs is charged in full, as before.
+4. The real trial runs under a new root directory (`.../scratchpad/blind/`), so no path, transcript folder
+   or per-folder memory of a pilot session is shared with a real run. Workspace names and the task-and-arm
+   mapping are unchanged (same seed).
+
+The first AMU-arm session's transcript is read to confirm that the PreToolUse text reaches the agent; if it
+does not, the trial stops there and the owner is told.
+
 ## Result
 
 Not yet run.

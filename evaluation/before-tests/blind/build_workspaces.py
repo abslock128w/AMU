@@ -81,7 +81,10 @@ def build(root, ident, row, text, arm, recording):
     settings = {}
     if arm == 'amu':
         command = f"/opt/homebrew/bin/python3 {root/'tools'/'hook.py'} {run/'config.json'}"
-        settings = dict(hooks=dict(PostToolUse=[dict(matcher='Edit|Write|MultiEdit', hooks=[dict(type='command', command=command, timeout=RULES['budget_seconds'] + 60)])]))
+        hook = [dict(type='command', command=command, timeout=RULES['budget_seconds'] + 60)]
+        # After file edits and after any shell command (fires when a .py file changed); before any shell command
+        # (records the tree, and fires when the command runs the tests).
+        settings = dict(hooks=dict(PostToolUse=[dict(matcher='Edit|Write|MultiEdit|Bash', hooks=hook)], PreToolUse=[dict(matcher='Bash', hooks=hook)]))
         # The recording is the only thing pre-placed in the index; facts and graph are built on the clock.
         version = Path(recording).parent.name
         (run/'amu-index'/version).mkdir(parents=True)
