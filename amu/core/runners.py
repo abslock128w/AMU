@@ -21,8 +21,9 @@ FRAME = re.compile(r'^\s*File "([^"]+)", line (\d+)')
 
 def abort_reason(output, tree):
     """The runner's own last exception line, with the deepest frame inside the tree when there is one."""
-    lines = output.strip().splitlines()
-    exception = next((line.strip() for line in reversed(lines) if EXCEPTION.match(line.strip())), None)
+    # pytest prints the underlying exception indented after "E", below its own summary line.
+    lines = [re.sub(r'^E\s+', '', line.strip()) for line in output.strip().splitlines()]
+    exception = next((line for line in reversed(lines) if EXCEPTION.match(line)), None)
     if exception is None:
         return (lines[-1].strip() if lines else 'no output')[:300]
     where = None

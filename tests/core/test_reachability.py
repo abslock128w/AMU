@@ -659,3 +659,154 @@ def test_remembered_outcomes_before_the_change_expire_with_the_commit(tmp_path):
     memo.write_text(json.dumps(dict(key='a', before={'t': 'passed'}, rate=12.0)))
     assert load_memo(memo, 'a')['before'] == {'t': 'passed'}
     assert load_memo(memo, 'b') == dict(key='b', before={}, rate=12.0)
+
+
+def test_a_failing_test_made_to_pass_by_editing_it_stays_listed(tmp_path):
+    """Blind trial, Haiku w21: the agent edited the two flagged tests instead of its code."""
+    import sys
+
+    source = 'def work():\n    return 1\n\n\ndef other():\n    return 5\n'
+    changed = source.replace('return 1', 'return 2')
+    tests = 'from lib import work, other\ndef test_work():\n    assert work() == 1\ndef test_other():\n    assert other() == 5\n'
+    edited = tests.replace('assert work() == 1', 'assert work() == 2')
+    repository(tmp_path, {'lib.py': changed, 'tests/test_lib.py': edited})
+    diff = patch('lib.py', source, changed) + patch('tests/test_lib.py', tests, edited)
+    result = analyze(tmp_path, diff, index_dir=tmp_path/'.index', run=True, python=sys.executable, full_evidence=True)
+    flagged = {row['id']: row['label'] for row in result['predicted_failures']}
+    assert flagged == {'tests/test_lib.py::test_work': 'test edited, not fixed'}, result
+    assert 'test edited, not fixed' in result['summary'] and 'also run as they were before the edit' in result['summary'], result['summary']
+    assert result['original_tests']['tests/test_lib.py::test_work'] == 'failed'
+    compact = analyze(tmp_path, diff, index_dir=tmp_path/'.index', run=True, python=sys.executable)
+    assert compact['predicted_failures'] == ['tests/test_lib.py::test_work'], compact
+    assert compact['test_edited_not_fixed'] == ['tests/test_lib.py::test_work'], compact
+    # A change that breaks nothing, with an unrelated edit in the same test file, flags nothing.
+    harmless = source.replace('return 5', 'return 2 + 3')
+    added = tests + 'def test_new():\n    assert other() == 5\n'
+    repository(tmp_path, {'lib.py': harmless, 'tests/test_lib.py': added})
+    quiet = analyze(tmp_path, patch('lib.py', source, harmless) + patch('tests/test_lib.py', tests, added), index_dir=tmp_path/'.index',
+                    run=True, python=sys.executable, full_evidence=True)
+    assert quiet['predicted_failures'] == [] and quiet['flips'] == 0, quiet
+    assert quiet['original_tests'] == {'tests/test_lib.py::test_other': 'passed'}, quiet.get('original_tests')
+
+
+def test_a_flip_that_does_not_repeat_is_unstable_not_a_failure(tmp_path):
+    import sys
+
+    marker = tmp_path/'failed-once'
+    source = 'def flag():\n    return 1\n'
+    changed = 'def flag():\n    return 2\n'
+    tests = ('import pathlib\nfrom lib import flag\n'
+             f'MARK = pathlib.Path({str(marker)!r})\n'
+             'def test_flaky():\n    if flag() == 2 and not MARK.exists():\n        MARK.write_text("x")\n        assert False\n'
+             'def test_steady():\n    assert flag() == 1\n')
+    repository(tmp_path, {'lib.py': changed, 'tests/test_lib.py': tests})
+    result = analyze(tmp_path, patch('lib.py', source, changed), index_dir=tmp_path/'.index', run=True, python=sys.executable)
+    assert result['predicted_failures'] == ['tests/test_lib.py::test_steady'], result
+    assert result['unstable'] == ['tests/test_lib.py::test_flaky'] and 'unstable, not counted' in result['summary'], result
+
+
+def _shadow(tmp_path, files_before, files_after, ids, runner='pytest'):
+    """shadow.run on a tree that holds ``files_after``, with the change from ``files_before``."""
+    import sys
+
+    from amu.core import shadow
+    from amu.core.patch import changes
+    repository(tmp_path, files_after)
+    diff = ''.join(patch(path, files_before.get(path, ''), files_after.get(path, '')) for path in files_after if files_before.get(path) != files_after[path])
+    edits, _ = changes(tmp_path, diff)
+    return shadow.run(tmp_path, edits, ids, python=sys.executable, runner=runner)
+
+
+def test_new_tests_in_an_edited_file_do_not_hide_an_edited_failing_test(tmp_path):
+    lib0, lib1 = 'def work():\n    return 1\n', 'def work():\n    return 2\n'
+    tests0 = 'from lib import work\ndef test_value():\n    assert work() == 1\n'
+    tests1 = ('from lib import work\ndef test_new_a():\n    assert work() == 2\ndef test_new_b():\n    assert isinstance(work(), int)\n'
+              'def test_value():\n    assert work() == 2\n')
+    rows, info, gaps = _shadow(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests0}, {'lib.py': lib1, 'tests/test_lib.py': tests1},
+                               ['tests/test_lib.py::test_new_a', 'tests/test_lib.py::test_new_b', 'tests/test_lib.py::test_value'])
+    assert [(r['id'], r['label']) for r in rows] == [('tests/test_lib.py::test_value', 'test edited, not fixed')], (rows, gaps)
+
+
+def test_a_renamed_class_or_a_deleted_same_named_method_is_removed_not_an_abort(tmp_path):
+    lib0, lib1 = 'def work():\n    return 1\n', 'def work():\n    return 2\n'
+    tests0 = ('from lib import work\nclass TestA:\n    def test_basic(self):\n        assert work() == 1\n'
+              'class TestB:\n    def test_basic(self):\n        assert work() == 1\n')
+    tests1 = 'from lib import work\nclass TestA:\n    def test_basic(self):\n        assert work() == 2\n'
+    rows, info, gaps = _shadow(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests0}, {'lib.py': lib1, 'tests/test_lib.py': tests1},
+                               ['tests/test_lib.py::TestB::test_basic'])
+    assert 'aborted' not in info, info
+    assert [(r['id'], r['label']) for r in rows] == [('tests/test_lib.py::TestB::test_basic', 'test edited, not fixed')], (rows, gaps)
+    assert any('no longer defined' in g for g in gaps), gaps
+
+
+def test_a_broken_test_module_with_inherited_tests_is_still_a_runner_abort(tmp_path):
+    base = 'class Base:\n    def test_inherited(self):\n        assert True\n'
+    sub0 = 'from tests.base import Base\n\n\nclass TestSub(Base):\n    pass\n'
+    sub1 = 'from tests.base import Base, Nope\n\n\nclass TestSub(Base):\n    pass\n'
+    files = {'tests/__init__.py': '', 'tests/base.py': base}
+    rows, info, gaps = _shadow(tmp_path, {**files, 'tests/test_sub.py': sub0}, {**files, 'tests/test_sub.py': sub1},
+                               ['tests/test_sub.py::TestSub::test_inherited'])
+    assert info.get('aborted') and 'Nope' in info['aborted']['error'], (info, gaps)
+
+
+def test_an_order_dependent_regression_is_not_demoted_to_unstable(tmp_path):
+    lib0 = 'def collect(x, acc=None):\n    acc = [] if acc is None else acc\n    acc.append(x)\n    return acc\n'
+    lib1 = 'def collect(x, acc=[]):\n    acc.append(x)\n    return acc\n'
+    tests = 'from lib import collect\ndef test_p():\n    assert collect(1)\ndef test_t():\n    assert collect(2) == [2]\n'
+    rows, info, gaps = _shadow(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1, 'tests/test_lib.py': tests},
+                               ['tests/test_lib.py::test_p', 'tests/test_lib.py::test_t'])
+    assert [r['id'] for r in rows] == ['tests/test_lib.py::test_t'] and not info.get('unstable'), (rows, info.get('unstable'), gaps)
+
+
+def test_a_new_failing_test_is_not_an_existing_test_that_now_fails(tmp_path):
+    lib = 'def work():\n    return 1\n'
+    tests0 = 'from lib import work\ndef test_work():\n    assert work() == 1\n'
+    tests1 = tests0 + 'def test_added():\n    assert work() == 3\n'
+    rows, info, gaps = _shadow(tmp_path, {'lib.py': lib, 'tests/test_lib.py': tests0}, {'lib.py': lib.replace('1', '1  # same'), 'tests/test_lib.py': tests1},
+                               ['tests/test_lib.py::test_added', 'tests/test_lib.py::test_work'])
+    assert rows == [], rows
+
+
+def test_a_deleted_unittest_test_is_removed_not_a_failure(tmp_path):
+    lib = 'def work():\n    return 1\n'
+    tests0 = ('import unittest\nfrom lib import work\nclass T(unittest.TestCase):\n    def test_keep(self):\n        assert work() == 1\n'
+              '    def test_gone(self):\n        assert work() == 1\n')
+    tests1 = 'import unittest\nfrom lib import work\nclass T(unittest.TestCase):\n    def test_keep(self):\n        assert work() == 1\n'
+    files = {'tests/__init__.py': ''}
+    rows, info, gaps = _shadow(tmp_path, {**files, 'lib.py': lib, 'tests/test_u.py': tests0},
+                               {**files, 'lib.py': lib.replace('1', '1  # same'), 'tests/test_u.py': tests1},
+                               ['tests/test_u.py::T::test_gone', 'tests/test_u.py::T::test_keep'], runner='unittest')
+    assert rows == [] and any('no longer defined' in g for g in gaps), (rows, gaps)
+
+
+def test_a_broken_edited_test_module_is_not_reported_as_fully_executed(tmp_path):
+    from amu.core import analyze
+    import sys
+    lib0, lib1 = 'def f():\n    return 1\n', 'def f():\n    return 1  # tidy\n'
+    tf0 = 'from lib import f\ndef test_f1():\n    assert f() == 1\ndef test_f2():\n    assert f()\n'
+    tf1 = tf0.replace('from lib import f', 'from lib import f, missing_helper')
+    repository(tmp_path, {'lib.py': lib1, 'tests/test_f.py': tf1})
+    result = analyze(tmp_path, patch('lib.py', lib0, lib1) + patch('tests/test_f.py', tf0, tf1), index_dir=tmp_path/'.index', run=True,
+                     python=sys.executable, full_evidence=True)
+    assert not result['summary'].startswith('EXECUTED 2 of 2'), result['summary']
+
+
+def test_new_methods_in_a_subclassing_test_class_do_not_hide_an_edited_failing_test(tmp_path):
+    lib0, lib1 = 'def work():\n    return 1\n', 'def work():\n    return 2\n'
+    tests0 = 'import unittest\nfrom lib import work\nclass TestWork(unittest.TestCase):\n    def test_value(self):\n        assert work() == 1\n'
+    tests1 = ('import unittest\nfrom lib import work\nclass TestWork(unittest.TestCase):\n    def test_new_a(self):\n        assert work() == 2\n'
+              '    def test_new_b(self):\n        assert isinstance(work(), int)\n    def test_value(self):\n        assert work() == 2\n')
+    for _ in range(4):
+        rows, info, gaps = _shadow(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests0}, {'lib.py': lib1, 'tests/test_lib.py': tests1},
+                                   ['tests/test_lib.py::TestWork::test_new_a', 'tests/test_lib.py::TestWork::test_new_b', 'tests/test_lib.py::TestWork::test_value'])
+        assert [(r['id'], r['label']) for r in rows] == [('tests/test_lib.py::TestWork::test_value', 'test edited, not fixed')], (rows, gaps)
+
+
+def test_a_test_moved_into_an_edited_base_class_is_not_removed(tmp_path):
+    base0 = 'class Mixin:\n    pass\n'
+    base1 = 'class Mixin:\n    def test_x(self):\n        assert True\n'
+    sub0 = 'from tests.base import Mixin\n\n\nclass TestSub(Mixin):\n    def test_x(self):\n        assert True\n'
+    sub1 = 'from tests.base import Mixin, nope\n\n\nclass TestSub(Mixin):\n    pass\n'
+    rows, info, gaps = _shadow(tmp_path, {'tests/__init__.py': '', 'tests/base.py': base0, 'tests/test_sub.py': sub0},
+                               {'tests/__init__.py': '', 'tests/base.py': base1, 'tests/test_sub.py': sub1}, ['tests/test_sub.py::TestSub::test_x'])
+    assert info.get('aborted') and not any('no longer defined' in g for g in gaps), (info, gaps)

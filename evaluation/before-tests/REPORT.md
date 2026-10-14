@@ -613,6 +613,115 @@ Same eight frozen tasks, prompt, budget, rules and scorer as the Sonnet run; age
   reported 0. A flip that disappears because its test changed should stay listed; that is a defect, recorded,
   not fixed, since the line is closed.
 
+## Slow-suite brief, pieces 1 and 2 (2026-10-14)
+
+**testmon finds more of the breaking tests than AMU on Werkzeug, 14 of 21 against 9 of 21; AMU finds more on Click
+holdout 3, 55 of 61 against 46 of 61. Bare `amu` on an applied change found no candidate at all in 2 of the 10
+Werkzeug cases (a defect, below).**
+
+### Piece 1: a flagged test made to pass by editing it stays listed
+
+Shadow execution now also runs the tests of an edited test file in their form before the edit, against the changed
+code. A test that passed before and fails in its original form, but passes, is skipped or is gone as edited, is
+reported `test edited, not fixed`. The hook's `--only` recheck also compares each flagged test's file hash, and the
+hash of the test files as a whole, with those recorded when it was flagged; a flagged test that stops failing without
+its original form having been run, while only test files changed, stays listed.
+
+On a copy of Haiku w21's final tree, bare `amu` lists exactly `test_simple_save` and `test_options` as `test edited,
+not fixed` (`blind/results-pieces/piece1-bare-amu-on-haiku-w21.json`). Replayed through the hook in w21's order
+(production edit, then the test edits), the first check flags both (21 s) and the recheck after the test edits keeps
+both (6 s).
+
+Found while testing: a flagged test that was renamed or deleted made pytest report "no tests ran", which piece 1 of the
+previous brief (22f91ef) read as "the runner aborts on the changed code". Removed tests are now recognised by comparing
+what the test file defined directly before and after the edit.
+
+### Piece 2a: flake recheck
+
+Every flip runs once more on the changed side before it is reported. One that does not repeat alone runs again in the
+batch it first failed in (a failure can depend on the tests before it), and is `unstable`, never a failure, only if it
+does not repeat there either. A "before" outcome taken from the memo is confirmed afresh for a flip. Unstable tests are
+listed apart and are not counted.
+
+### Piece 2c: the dumb hook (`blind/dumb_hook.py`)
+
+The control arm from now on. Same triggers as `hook.py`, no AMU: for every `.py` file that differs from HEAD it runs
+the touched test modules, test modules under a touched `conftest.py`, test modules named after a touched file in its
+package's tests directory, and every test module that imports it (read with the parser), at most 25, with the same
+allowance and charging as the AMU hook. Results are read as the tests run, so a run cut short keeps what finished and is
+not cached.
+
+### Review
+
+An adversarial review (5 reviewers, 2 skeptics per finding) found 36 defects that survived refutation in these changes,
+among them: new tests in an edited file hiding the edited-test check; renamed classes read as runner aborts; the flake
+recheck demoting an order-dependent regression; the hook erasing flags after a run that executed nothing; the dumb hook
+losing parametrized failures and every result on a timeout; and the testmon harness scoring AMU from patch text rather
+than the applied change. All were fixed; a second pass (one agent per finding, by reproduction) found 27 closed and 9
+narrower variants, which were then fixed and covered by tests. Two of the 36 were older than this work: `is_test`
+classing `django/test/*.py` as tests, and a new failing test being reported as an existing test that now fails.
+
+### Piece 2b: testmon beside AMU (run once)
+
+pytest-testmon 2.2.0 in the evaluation environment, coverage's C tracer (Python 3.14's default sys.monitoring core
+cannot record testmon's contexts). testmon's baseline is the whole suite on the parent tree; its selection is read after
+the production patch is applied. AMU's set is what bare `amu` would run on a git working copy with the patch applied
+(execution stubbed). Recall counts ground-truth tests that existed before the commit and passed in the baseline; none was
+excluded. Click's `-m 'not stress'` and Werkzeug's live dev-server tests (which need pytest-timeout, not installed) are
+deselected by a plugin, since `-m` switches testmon's selection off.
+
+| Set | Case | Truth tests | testmon recall | testmon selected: functions / items selected of collected | AMU recall | AMU candidates |
+|---|---|---:|---:|---|---:|---:|
+| Click h3 | h3-click-a1d87858 | 2 | 2/2 | 88 / 426/32396 | 2/2 | 150 |
+| Click h3 | h3-click-bc32a92c | 6 | 6/6 | 43 / 152/31391 | 6/6 | 150 |
+| Click h3 | h3-click-c2ed4149 | 14 | 14/14 | 14 / 17/31408 | 14/14 | 150 |
+| Click h3 | h3-click-8ee83ddb | 14 | 2/14 | 3 / 3/31131 | 10/14 | 150 |
+| Click h3 | h3-click-fbdd4340 | 14 | 14/14 | 14 / 17/31408 | 14/14 | 150 |
+| Click h3 | h3-click-051725fa | 3 | 0/3 | 296 / 1092/32561 | 3/3 | 150 |
+| Click h3 | h3-click-7a0a3447 | 6 | 6/6 | 466 / 1676/32750 | 4/6 | 150 |
+| Click h3 | h3-click-71f2bafa | 2 | 2/2 | 327 / 1269/32714 | 2/2 | 150 |
+| Werkzeug | 02-0c419f95 | 1 | 1/1 | 10 / 13/394 | 1/1 | 33 |
+| Werkzeug | 03-594452f6 | 1 | 1/1 | 3 / 12/238 | 1/1 | 149 |
+| Werkzeug | 05-2c453bf3 | 1 | 1/1 | 2 / 18/68 | 1/1 | 1 |
+| Werkzeug | 16-658bf5ed | 1 | 1/1 | 102 / 186/466 | 1/1 | 150 |
+| Werkzeug | extra-6b495d0d | 6 | 0/6 | 10 / 10/147 | 0/6 | 0 |
+| Werkzeug | extra-97d9f22a | 1 | 1/1 | 225 / 361/775 | 0/1 | 0 |
+| Werkzeug | extra-0743179b | 2 | 2/2 | 282 / 466/605 | 2/2 | 150 |
+| Werkzeug | extra-45768395 | 2 | 2/2 | 242 / 378/671 | 0/2 | 149 |
+| Werkzeug | extra-dc199349 | 1 | 1/1 | 187 / 268/570 | 1/1 | 10 |
+| Werkzeug | extra-f359a67e | 5 | 4/5 | 156 / 235/488 | 2/5 | 150 |
+
+| Set | Cases | Truth tests found, testmon | Truth tests found, AMU | Cases fully covered, testmon | Cases fully covered, AMU |
+|---|---:|---:|---:|---:|---:|
+| Click h3 | 8 | 46/61 | 55/61 | 6/8 | 6/8 |
+| Werkzeug | 10 | 14/21 | 9/21 | 8/10 | 6/10 |
+
+- testmon's misses: Click 051725fa renames `get_binary_stream`, and the breaking tests fail when their module is imported,
+  at collection, outside any test's coverage context, so testmon never links them (traced in its database). The misses in
+  Click 8ee83ddb and Werkzeug extra-6b495d0d and extra-f359a67e were not traced.
+- **AMU's misses include a defect.** In Werkzeug extra-6b495d0d and extra-97d9f22a, bare `amu` on the applied change has
+  no candidate at all; in patch-text mode (the ranking harness) it finds them. When a change renames or removes the
+  function the tests reach, the graph rebuilt from the edited tree no longer connects them. The hook runs bare `amu`.
+- testmon's selections are larger on most cases (up to 1,676 items of a 2,000-item Click suite).
+- Not run: requests and itsdangerous. requests cannot be imported here without urllib3, idna, charset-normalizer and
+  certifi, and its tests need pytest-httpbin and trustme; itsdangerous' timed tests need freezegun. Only testmon was
+  approved for installation.
+- The first attempt was discarded: its AMU column came from patch-text mode, and Werkzeug's run hung because a live dev
+  server held the output pipe open past the timeout. Runs are now killed as a process group.
+
+### Ranking (static, nothing executed): unchanged
+
+Every case's top 10 is identical to the base: Werkzeug 10/16 and 16/16, requests and itsdangerous 6/8 and 8/8, Click
+holdout 3 8/8 and 8/8 (`blind/results/ranking/rank-p3-*.json`).
+
+AMU's suite (`pytest tests scripts/test_before_tests_harness.py`): 2,597 passed, 14 skipped, 1 failed, the installed
+package's build-hash check in `tests/test_mcp_verification.py`, which fails on any source change not yet installed.
+
+Files: `amu/core/shadow.py`, `amu/core/__init__.py`, `amu/core/__main__.py` (`--also`), `amu/core/runners.py`,
+`blind/hook.py`, `blind/dumb_hook.py`, `blind/testmon_baseline.py`, `tests/core/test_reachability.py`,
+`tests/core/test_blind_hook.py`. Upstream code executed: Click holdout 3 and Werkzeug suites under testmon (18 cases,
+baseline and collection), and Django's tests on copies of Haiku w21's tree.
+
 ## Milestones (state at b3747c8)
 
 - **M1 harness.** `scripts/before_tests_harness.py`; protocol and manifests are hash-pinned.

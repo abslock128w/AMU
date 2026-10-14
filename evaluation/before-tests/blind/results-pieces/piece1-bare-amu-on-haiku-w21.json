@@ -1,0 +1,20 @@
+{
+ "summary": "EXECUTED 150 of 150 candidate tests after the change with django-runtests in 21.0 s, failures confirmed before it: 2 now fail. 691 tests reach the change. 73 test(s) from edited test files also run as they were before the edit. 2 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed.",
+ "predicted_failures": [
+  {
+   "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_simple_save",
+   "before": "passed",
+   "after": "failed",
+   "label": "test edited, not fixed",
+   "edited_form": "passed"
+  },
+  {
+   "id": "tests/generic_relations/test_forms.py::GenericInlineFormsetTests::test_options",
+   "before": "passed",
+   "after": "failed",
+   "label": "test edited, not fixed",
+   "edited_form": "passed"
+  }
+ ],
+ "unstable": null
+}

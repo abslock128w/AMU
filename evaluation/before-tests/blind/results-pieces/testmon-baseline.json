@@ -1,0 +1,671 @@
+[
+ {
+  "suite": "holdout3",
+  "testmon_version": "2.2.0",
+  "case_id": "h3-click-a1d87858",
+  "existing_truth": [
+   "tests/test_termui.py::test_edit",
+   "tests/test_termui.py::test_fast_edit"
+  ],
+  "unscored": {},
+  "scored": true,
+  "collection_errors": false,
+  "testmon": {
+   "selected": 88,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_termui.py::test_edit",
+    "tests/test_termui.py::test_fast_edit"
+   ],
+   "collected_line": "426/32396 tests collected",
+   "baseline_seconds": 9.9,
+   "baseline_result": "1988 passed, 25 skipped, 31000 deselected, 1 xfailed in 8.88s",
+   "select_seconds": 2.7
+  },
+  "amu": {
+   "candidates": 150,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_termui.py::test_edit",
+    "tests/test_termui.py::test_fast_edit"
+   ]
+  }
+ },
+ {
+  "suite": "holdout3",
+  "testmon_version": "2.2.0",
+  "case_id": "h3-click-bc32a92c",
+  "existing_truth": [
+   "tests/test_termui.py::test_get_pager_file_flushes_stream_on_exception",
+   "tests/test_termui.py::test_get_pager_file_nullpager_keeps_stringio_stream",
+   "tests/test_termui.py::test_get_pager_file_nullpager_wraps_textio_stream",
+   "tests/test_termui.py::test_tempfile_pager_accepts_text",
+   "tests/test_termui.py::test_tempfile_pager_handles_ansi",
+   "tests/test_utils/test_echo_via_pager.py::test_echo_via_pager_yields_before_exception"
+  ],
+  "unscored": {},
+  "scored": true,
+  "collection_errors": false,
+  "testmon": {
+   "selected": 43,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_termui.py::test_get_pager_file_flushes_stream_on_exception",
+    "tests/test_termui.py::test_get_pager_file_nullpager_keeps_stringio_stream",
+    "tests/test_termui.py::test_get_pager_file_nullpager_wraps_textio_stream",
+    "tests/test_termui.py::test_tempfile_pager_accepts_text",
+    "tests/test_termui.py::test_tempfile_pager_handles_ansi",
+    "tests/test_utils/test_echo_via_pager.py::test_echo_via_pager_yields_before_exception"
+   ],
+   "collected_line": "152/31391 tests collected",
+   "baseline_seconds": 77.7,
+   "baseline_result": "1969 passed, 25 skipped, 31000 deselected, 1 xfailed in 71.19s (0:01:11)",
+   "select_seconds": 24.1
+  },
+  "amu": {
+   "candidates": 150,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_termui.py::test_get_pager_file_flushes_stream_on_exception",
+    "tests/test_termui.py::test_get_pager_file_nullpager_keeps_stringio_stream",
+    "tests/test_termui.py::test_get_pager_file_nullpager_wraps_textio_stream",
+    "tests/test_termui.py::test_tempfile_pager_accepts_text",
+    "tests/test_termui.py::test_tempfile_pager_handles_ansi",
+    "tests/test_utils/test_echo_via_pager.py::test_echo_via_pager_yields_before_exception"
+   ]
+  }
+ },
+ {
+  "suite": "holdout3",
+  "testmon_version": "2.2.0",
+  "case_id": "h3-click-c2ed4149",
+  "existing_truth": [
+   "tests/test_arguments.py::test_file_args",
+   "tests/test_arguments.py::test_file_atomics",
+   "tests/test_basic.py::test_file_lazy_mode",
+   "tests/test_basic.py::test_file_option",
+   "tests/test_basic.py::test_path_option",
+   "tests/test_shell_completion.py::test_files_closed",
+   "tests/test_testing.py::test_isolated_runner",
+   "tests/test_testing.py::test_isolated_runner_custom_tempdir",
+   "tests/test_utils/test_open_file.py::test_open_file",
+   "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_existing_file",
+   "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_new_file",
+   "tests/test_utils/test_open_file.py::test_open_file_ignore_invalid_utf8",
+   "tests/test_utils/test_open_file.py::test_open_file_ignore_no_encoding",
+   "tests/test_utils/test_open_file.py::test_open_file_respects_ignore"
+  ],
+  "unscored": {},
+  "scored": true,
+  "collection_errors": false,
+  "testmon": {
+   "selected": 14,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_arguments.py::test_file_args",
+    "tests/test_arguments.py::test_file_atomics",
+    "tests/test_basic.py::test_file_lazy_mode",
+    "tests/test_basic.py::test_file_option",
+    "tests/test_basic.py::test_path_option",
+    "tests/test_shell_completion.py::test_files_closed",
+    "tests/test_testing.py::test_isolated_runner",
+    "tests/test_testing.py::test_isolated_runner_custom_tempdir",
+    "tests/test_utils/test_open_file.py::test_open_file",
+    "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_existing_file",
+    "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_new_file",
+    "tests/test_utils/test_open_file.py::test_open_file_ignore_invalid_utf8",
+    "tests/test_utils/test_open_file.py::test_open_file_ignore_no_encoding",
+    "tests/test_utils/test_open_file.py::test_open_file_respects_ignore"
+   ],
+   "collected_line": "17/31408 tests collected",
+   "baseline_seconds": 124.6,
+   "baseline_result": "1914 passed, 25 skipped, 31000 deselected, 1 xfailed in 114.20s (0:01:54)",
+   "select_seconds": 33.7
+  },
+  "amu": {
+   "candidates": 150,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_arguments.py::test_file_args",
+    "tests/test_arguments.py::test_file_atomics",
+    "tests/test_basic.py::test_file_lazy_mode",
+    "tests/test_basic.py::test_file_option",
+    "tests/test_basic.py::test_path_option",
+    "tests/test_shell_completion.py::test_files_closed",
+    "tests/test_testing.py::test_isolated_runner",
+    "tests/test_testing.py::test_isolated_runner_custom_tempdir",
+    "tests/test_utils/test_open_file.py::test_open_file",
+    "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_existing_file",
+    "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_new_file",
+    "tests/test_utils/test_open_file.py::test_open_file_ignore_invalid_utf8",
+    "tests/test_utils/test_open_file.py::test_open_file_ignore_no_encoding",
+    "tests/test_utils/test_open_file.py::test_open_file_respects_ignore"
+   ]
+  }
+ },
+ {
+  "suite": "holdout3",
+  "testmon_version": "2.2.0",
+  "case_id": "h3-click-8ee83ddb",
+  "existing_truth": [
+   "tests/test_arguments.py::test_file_args",
+   "tests/test_arguments.py::test_file_atomics",
+   "tests/test_basic.py::test_file_lazy_mode",
+   "tests/test_basic.py::test_file_option",
+   "tests/test_basic.py::test_path_option",
+   "tests/test_shell_completion.py::test_files_closed",
+   "tests/test_testing.py::test_isolated_runner",
+   "tests/test_testing.py::test_isolated_runner_custom_tempdir",
+   "tests/test_utils/test_open_file.py::test_open_file",
+   "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_existing_file",
+   "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_new_file",
+   "tests/test_utils/test_open_file.py::test_open_file_ignore_invalid_utf8",
+   "tests/test_utils/test_open_file.py::test_open_file_ignore_no_encoding",
+   "tests/test_utils/test_open_file.py::test_open_file_respects_ignore"
+  ],
+  "unscored": {},
+  "scored": true,
+  "collection_errors": false,
+  "testmon": {
+   "selected": 3,
+   "recall": 0.143,
+   "hits": [
+    "tests/test_testing.py::test_isolated_runner",
+    "tests/test_testing.py::test_isolated_runner_custom_tempdir"
+   ],
+   "collected_line": "3/31131 tests collected",
+   "baseline_seconds": 152.6,
+   "baseline_result": "1917 passed, 25 skipped, 31000 deselected, 1 xfailed in 138.81s (0:02:18)",
+   "select_seconds": 31.5
+  },
+  "amu": {
+   "candidates": 150,
+   "recall": 0.714,
+   "hits": [
+    "tests/test_arguments.py::test_file_args",
+    "tests/test_arguments.py::test_file_atomics",
+    "tests/test_basic.py::test_file_lazy_mode",
+    "tests/test_basic.py::test_file_option",
+    "tests/test_basic.py::test_path_option",
+    "tests/test_testing.py::test_isolated_runner",
+    "tests/test_testing.py::test_isolated_runner_custom_tempdir",
+    "tests/test_utils/test_open_file.py::test_open_file",
+    "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_existing_file",
+    "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_new_file"
+   ]
+  }
+ },
+ {
+  "suite": "holdout3",
+  "testmon_version": "2.2.0",
+  "case_id": "h3-click-fbdd4340",
+  "existing_truth": [
+   "tests/test_arguments.py::test_file_args",
+   "tests/test_arguments.py::test_file_atomics",
+   "tests/test_basic.py::test_file_lazy_mode",
+   "tests/test_basic.py::test_file_option",
+   "tests/test_basic.py::test_path_option",
+   "tests/test_shell_completion.py::test_files_closed",
+   "tests/test_testing.py::test_isolated_runner",
+   "tests/test_testing.py::test_isolated_runner_custom_tempdir",
+   "tests/test_utils/test_open_file.py::test_open_file",
+   "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_existing_file",
+   "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_new_file",
+   "tests/test_utils/test_open_file.py::test_open_file_ignore_invalid_utf8",
+   "tests/test_utils/test_open_file.py::test_open_file_ignore_no_encoding",
+   "tests/test_utils/test_open_file.py::test_open_file_respects_ignore"
+  ],
+  "unscored": {},
+  "scored": true,
+  "collection_errors": false,
+  "testmon": {
+   "selected": 14,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_arguments.py::test_file_args",
+    "tests/test_arguments.py::test_file_atomics",
+    "tests/test_basic.py::test_file_lazy_mode",
+    "tests/test_basic.py::test_file_option",
+    "tests/test_basic.py::test_path_option",
+    "tests/test_shell_completion.py::test_files_closed",
+    "tests/test_testing.py::test_isolated_runner",
+    "tests/test_testing.py::test_isolated_runner_custom_tempdir",
+    "tests/test_utils/test_open_file.py::test_open_file",
+    "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_existing_file",
+    "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_new_file",
+    "tests/test_utils/test_open_file.py::test_open_file_ignore_invalid_utf8",
+    "tests/test_utils/test_open_file.py::test_open_file_ignore_no_encoding",
+    "tests/test_utils/test_open_file.py::test_open_file_respects_ignore"
+   ],
+   "collected_line": "17/31408 tests collected",
+   "baseline_seconds": 105.1,
+   "baseline_result": "1914 passed, 25 skipped, 31000 deselected, 1 xfailed in 95.00s (0:01:35)",
+   "select_seconds": 30.4
+  },
+  "amu": {
+   "candidates": 150,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_arguments.py::test_file_args",
+    "tests/test_arguments.py::test_file_atomics",
+    "tests/test_basic.py::test_file_lazy_mode",
+    "tests/test_basic.py::test_file_option",
+    "tests/test_basic.py::test_path_option",
+    "tests/test_shell_completion.py::test_files_closed",
+    "tests/test_testing.py::test_isolated_runner",
+    "tests/test_testing.py::test_isolated_runner_custom_tempdir",
+    "tests/test_utils/test_open_file.py::test_open_file",
+    "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_existing_file",
+    "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_new_file",
+    "tests/test_utils/test_open_file.py::test_open_file_ignore_invalid_utf8",
+    "tests/test_utils/test_open_file.py::test_open_file_ignore_no_encoding",
+    "tests/test_utils/test_open_file.py::test_open_file_respects_ignore"
+   ]
+  }
+ },
+ {
+  "suite": "holdout3",
+  "testmon_version": "2.2.0",
+  "case_id": "h3-click-051725fa",
+  "existing_truth": [
+   "tests/test_testing.py::test_echo_stdin_stream",
+   "tests/test_testing.py::test_runner",
+   "tests/test_testing.py::test_runner_with_stream"
+  ],
+  "unscored": {},
+  "scored": true,
+  "collection_errors": false,
+  "testmon": {
+   "selected": 296,
+   "recall": 0.0,
+   "hits": [],
+   "collected_line": "1092/32561 tests collected",
+   "baseline_seconds": 138.7,
+   "baseline_result": "1901 passed, 25 skipped, 31000 deselected, 1 xfailed in 123.06s (0:02:03)",
+   "select_seconds": 33.9
+  },
+  "amu": {
+   "candidates": 150,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_testing.py::test_echo_stdin_stream",
+    "tests/test_testing.py::test_runner",
+    "tests/test_testing.py::test_runner_with_stream"
+   ]
+  }
+ },
+ {
+  "suite": "holdout3",
+  "testmon_version": "2.2.0",
+  "case_id": "h3-click-7a0a3447",
+  "existing_truth": [
+   "tests/test_testing.py::test_echo_stdin_stream",
+   "tests/test_testing.py::test_runner",
+   "tests/test_testing.py::test_runner_with_stream",
+   "tests/test_utils/test_KeepOpenFile.py::test_iter_keepopenfile",
+   "tests/test_utils/test_LazyFile.py::test_iter_lazyfile",
+   "tests/test_utils/test_make_default_short_help.py::test_make_default_short_help"
+  ],
+  "unscored": {},
+  "scored": true,
+  "collection_errors": false,
+  "testmon": {
+   "selected": 466,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_testing.py::test_echo_stdin_stream",
+    "tests/test_testing.py::test_runner",
+    "tests/test_testing.py::test_runner_with_stream",
+    "tests/test_utils/test_KeepOpenFile.py::test_iter_keepopenfile",
+    "tests/test_utils/test_LazyFile.py::test_iter_lazyfile",
+    "tests/test_utils/test_make_default_short_help.py::test_make_default_short_help"
+   ],
+   "collected_line": "1676/32750 tests collected",
+   "baseline_seconds": 136.1,
+   "baseline_result": "1901 passed, 25 skipped, 31000 deselected, 1 xfailed in 122.88s (0:02:02)",
+   "select_seconds": 40.5
+  },
+  "amu": {
+   "candidates": 150,
+   "recall": 0.667,
+   "hits": [
+    "tests/test_testing.py::test_echo_stdin_stream",
+    "tests/test_testing.py::test_runner",
+    "tests/test_testing.py::test_runner_with_stream",
+    "tests/test_utils/test_LazyFile.py::test_iter_lazyfile"
+   ]
+  }
+ },
+ {
+  "suite": "holdout3",
+  "testmon_version": "2.2.0",
+  "case_id": "h3-click-71f2bafa",
+  "existing_truth": [
+   "tests/test_formatting.py::test_wrap_text_visible_width",
+   "tests/test_utils/test_style.py::test_unstyle_other_ansi"
+  ],
+  "unscored": {},
+  "scored": true,
+  "collection_errors": false,
+  "testmon": {
+   "selected": 327,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_formatting.py::test_wrap_text_visible_width",
+    "tests/test_utils/test_style.py::test_unstyle_other_ansi"
+   ],
+   "collected_line": "1269/32714 tests collected",
+   "baseline_seconds": 109.7,
+   "baseline_result": "1748 passed, 25 skipped, 31000 deselected, 1 xfailed in 99.86s (0:01:39)",
+   "select_seconds": 30.0
+  },
+  "amu": {
+   "candidates": 150,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_formatting.py::test_wrap_text_visible_width",
+    "tests/test_utils/test_style.py::test_unstyle_other_ansi"
+   ]
+  }
+ },
+ {
+  "suite": "werkzeug",
+  "testmon_version": "2.2.0",
+  "case_id": "02-0c419f95",
+  "existing_truth": [
+   "tests/test_http.py::TestRange::test_range_parsing"
+  ],
+  "unscored": {},
+  "scored": true,
+  "collection_errors": false,
+  "testmon": {
+   "selected": 10,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_http.py::TestRange::test_range_parsing"
+   ],
+   "collected_line": "13/394 tests collected",
+   "baseline_seconds": 86.7,
+   "baseline_result": "1 failed, 952 passed, 3 skipped, 25 deselected, 1 warning in 80.08s (0:01:20)",
+   "select_seconds": 12.6
+  },
+  "amu": {
+   "candidates": 33,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_http.py::TestRange::test_range_parsing"
+   ]
+  }
+ },
+ {
+  "suite": "werkzeug",
+  "testmon_version": "2.2.0",
+  "case_id": "03-594452f6",
+  "existing_truth": [
+   "tests/test_routing.py::test_converter"
+  ],
+  "unscored": {},
+  "scored": true,
+  "collection_errors": false,
+  "testmon": {
+   "selected": 3,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_routing.py::test_converter"
+   ],
+   "collected_line": "12/238 tests collected",
+   "baseline_seconds": 84.2,
+   "baseline_result": "1 failed, 1035 passed, 2 skipped, 25 deselected in 78.42s (0:01:18)",
+   "select_seconds": 9.2
+  },
+  "amu": {
+   "candidates": 149,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_routing.py::test_converter"
+   ]
+  }
+ },
+ {
+  "suite": "werkzeug",
+  "testmon_version": "2.2.0",
+  "case_id": "05-2c453bf3",
+  "existing_truth": [
+   "tests/middleware/test_proxy_fix.py::test_proxy_fix"
+  ],
+  "unscored": {},
+  "scored": true,
+  "collection_errors": false,
+  "testmon": {
+   "selected": 2,
+   "recall": 1.0,
+   "hits": [
+    "tests/middleware/test_proxy_fix.py::test_proxy_fix"
+   ],
+   "collected_line": "18/68 tests collected",
+   "baseline_seconds": 96.2,
+   "baseline_result": "1 failed, 1004 passed, 2 skipped, 25 deselected in 89.65s (0:01:29)",
+   "select_seconds": 9.0
+  },
+  "amu": {
+   "candidates": 1,
+   "recall": 1.0,
+   "hits": [
+    "tests/middleware/test_proxy_fix.py::test_proxy_fix"
+   ]
+  }
+ },
+ {
+  "suite": "werkzeug",
+  "testmon_version": "2.2.0",
+  "case_id": "16-658bf5ed",
+  "existing_truth": [
+   "tests/sansio/test_utils.py::test_get_host_invalid"
+  ],
+  "unscored": {},
+  "scored": true,
+  "collection_errors": false,
+  "testmon": {
+   "selected": 102,
+   "recall": 1.0,
+   "hits": [
+    "tests/sansio/test_utils.py::test_get_host_invalid"
+   ],
+   "collected_line": "186/466 tests collected",
+   "baseline_seconds": 93.8,
+   "baseline_result": "1 failed, 945 passed, 3 skipped, 25 deselected, 1 warning in 88.24s (0:01:28)",
+   "select_seconds": 13.7
+  },
+  "amu": {
+   "candidates": 150,
+   "recall": 1.0,
+   "hits": [
+    "tests/sansio/test_utils.py::test_get_host_invalid"
+   ]
+  }
+ },
+ {
+  "suite": "werkzeug",
+  "testmon_version": "2.2.0",
+  "case_id": "extra-6b495d0d",
+  "existing_truth": [
+   "tests/test_formparser.py::TestFormParser::test_parse_bad_content_type",
+   "tests/test_formparser.py::TestFormParser::test_parse_form_data_get_without_content",
+   "tests/test_formparser.py::TestFormParser::test_parse_form_data_put_without_content",
+   "tests/test_formparser.py::TestMultiPart::test_empty_multipart",
+   "tests/test_test.py::test_environ_builder_empty_file",
+   "tests/test_test.py::test_environ_builder_stream_switch"
+  ],
+  "unscored": {},
+  "scored": true,
+  "collection_errors": false,
+  "testmon": {
+   "selected": 10,
+   "recall": 0.0,
+   "hits": [],
+   "collected_line": "10/147 tests collected",
+   "baseline_seconds": 70.2,
+   "baseline_result": "1 failed, 1037 passed, 2 skipped, 25 deselected in 65.86s (0:01:05)",
+   "select_seconds": 6.1
+  },
+  "amu": {
+   "candidates": 0,
+   "recall": 0.0,
+   "hits": []
+  }
+ },
+ {
+  "suite": "werkzeug",
+  "testmon_version": "2.2.0",
+  "case_id": "extra-97d9f22a",
+  "existing_truth": [
+   "tests/test_utils.py::test_append_slash_redirect"
+  ],
+  "unscored": {},
+  "scored": true,
+  "collection_errors": false,
+  "testmon": {
+   "selected": 225,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_utils.py::test_append_slash_redirect"
+   ],
+   "collected_line": "361/775 tests collected",
+   "baseline_seconds": 42.4,
+   "baseline_result": "1 failed, 1037 passed, 2 skipped, 25 deselected in 39.11s",
+   "select_seconds": 6.1
+  },
+  "amu": {
+   "candidates": 0,
+   "recall": 0.0,
+   "hits": []
+  }
+ },
+ {
+  "suite": "werkzeug",
+  "testmon_version": "2.2.0",
+  "case_id": "extra-0743179b",
+  "existing_truth": [
+   "tests/test_wsgi.py::test_get_host",
+   "tests/test_wsgi.py::test_get_host_fallback"
+  ],
+  "unscored": {},
+  "scored": true,
+  "collection_errors": false,
+  "testmon": {
+   "selected": 282,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_wsgi.py::test_get_host",
+    "tests/test_wsgi.py::test_get_host_fallback"
+   ],
+   "collected_line": "466/605 tests collected",
+   "baseline_seconds": 38.6,
+   "baseline_result": "1 failed, 1029 passed, 2 skipped, 25 deselected in 36.06s",
+   "select_seconds": 5.1
+  },
+  "amu": {
+   "candidates": 150,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_wsgi.py::test_get_host",
+    "tests/test_wsgi.py::test_get_host_fallback"
+   ]
+  }
+ },
+ {
+  "suite": "werkzeug",
+  "testmon_version": "2.2.0",
+  "case_id": "extra-45768395",
+  "existing_truth": [
+   "tests/test_wsgi.py::test_get_current_url_invalid_utf8",
+   "tests/test_wsgi.py::test_get_current_url_unicode"
+  ],
+  "unscored": {},
+  "scored": true,
+  "collection_errors": false,
+  "testmon": {
+   "selected": 242,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_wsgi.py::test_get_current_url_invalid_utf8",
+    "tests/test_wsgi.py::test_get_current_url_unicode"
+   ],
+   "collected_line": "378/671 tests collected",
+   "baseline_seconds": 16.2,
+   "baseline_result": "1 failed, 1029 passed, 2 skipped, 25 deselected in 14.45s",
+   "select_seconds": 2.2
+  },
+  "amu": {
+   "candidates": 149,
+   "recall": 0.0,
+   "hits": []
+  }
+ },
+ {
+  "suite": "werkzeug",
+  "testmon_version": "2.2.0",
+  "case_id": "extra-dc199349",
+  "existing_truth": [
+   "tests/test_wsgi.py::test_path_info_and_script_name_fetching"
+  ],
+  "unscored": {},
+  "scored": true,
+  "collection_errors": false,
+  "testmon": {
+   "selected": 187,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_wsgi.py::test_path_info_and_script_name_fetching"
+   ],
+   "collected_line": "268/570 tests collected",
+   "baseline_seconds": 16.5,
+   "baseline_result": "1 failed, 1029 passed, 2 skipped, 25 deselected in 15.40s",
+   "select_seconds": 2.6
+  },
+  "amu": {
+   "candidates": 10,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_wsgi.py::test_path_info_and_script_name_fetching"
+   ]
+  }
+ },
+ {
+  "suite": "werkzeug",
+  "testmon_version": "2.2.0",
+  "case_id": "extra-f359a67e",
+  "existing_truth": [
+   "tests/test_wrappers.py::test_other_method_payload",
+   "tests/test_wsgi.py::test_limited_stream",
+   "tests/test_wsgi.py::test_limited_stream_disconnection",
+   "tests/test_wsgi.py::test_limited_stream_json_load",
+   "tests/test_wsgi.py::test_limited_stream_read_with_raw_io"
+  ],
+  "unscored": {},
+  "scored": true,
+  "collection_errors": false,
+  "testmon": {
+   "selected": 156,
+   "recall": 0.8,
+   "hits": [
+    "tests/test_wsgi.py::test_limited_stream",
+    "tests/test_wsgi.py::test_limited_stream_disconnection",
+    "tests/test_wsgi.py::test_limited_stream_json_load",
+    "tests/test_wsgi.py::test_limited_stream_read_with_raw_io"
+   ],
+   "collected_line": "235/488 tests collected",
+   "baseline_seconds": 15.8,
+   "baseline_result": "1 failed, 1029 passed, 2 skipped, 25 deselected in 14.57s",
+   "select_seconds": 2.6
+  },
+  "amu": {
+   "candidates": 150,
+   "recall": 0.4,
+   "hits": [
+    "tests/test_wrappers.py::test_other_method_payload",
+    "tests/test_wsgi.py::test_limited_stream"
+   ]
+  }
+ }
+]

@@ -94,7 +94,7 @@ def after_facts(root, facts, edits, gaps):
 
 
 def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, index_dir=None, run=None, python=None,
-            budget=60, include_tests=False, runner=None, only=None):
+            budget=60, include_tests=False, runner=None, only=None, also=None):
     """What a change reaches, which existing tests to run first, and what could not be seen.
 
     ``patch`` is unified-diff text, applied or not yet applied to ``root``. Without one,
@@ -312,6 +312,9 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         if only:
             # A caller that already knows which tests matter (a hook re-checking earlier failures) names them.
             wide = list(dict.fromkeys(only))
+        elif also:
+            # Tests a caller wants run in any case (earlier failures), ahead of the ranked candidates.
+            wide = list(dict.fromkeys([*also, *wide]))
         memo = cache_dir(root, index_dir)/'shadow-memo.json'
         flips, executed, run_gaps = shadow.run(root, edits, wide, python, budget, runner, memo=memo)
         gaps.extend(run_gaps)
@@ -325,7 +328,10 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
             gaps.extend(more_gaps)
             executed.update(ran=executed['ran'] + again['ran'], seconds=round(executed['seconds'] + again['seconds'], 1),
                             candidates=executed.get('candidates', 0) + again.get('candidates', 0),
-                            outcomes={**executed.get('outcomes', {}), **again.get('outcomes', {})})
+                            outcomes={**executed.get('outcomes', {}), **again.get('outcomes', {})},
+                            unstable=sorted({*executed.get('unstable', []), *again.get('unstable', [])}),
+                            ran_original=executed.get('ran_original', 0) + again.get('ran_original', 0),
+                            original_tests={**executed.get('original_tests', {}), **again.get('original_tests', {})})
         state = {flip['id']: flip for flip in flips}
         for row in rows:
             if row['id'] in state:
@@ -348,9 +354,17 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
               for ident, (position, path) in sorted(impacted.items(), key=lambda item: (item[1][0], item[0]))]
     fails = sum(row['expect'] == 'likely_fail' for row in rows)
     summary = f"{fails} likely_fail, {len(scores)} tests reach the change."
-    if executed is not None and executed['ran']:
+    if executed is not None and (executed['ran'] or executed.get('ran_original')):
         summary = (f"EXECUTED {executed['ran']} of {executed.get('candidates', executed['ran'])} candidate tests after the change with {executed['runner']} in {executed['seconds']} s, failures confirmed before it: "
                    f"{len(executed['predicted_failures'])} now fail. " + summary.split(', ', 1)[1])
+        if executed.get('ran_original'):
+            summary += f" {executed['ran_original']} test(s) from edited test files also run as they were before the edit."
+        edited = sum(flip.get('label') == shadow.EDITED for flip in executed['predicted_failures'])
+        if edited:
+            summary += (f" {edited} of the failures pass, are skipped or are gone only because the test was edited; as it was, "
+                        f"it still fails on the changed code: {shadow.EDITED}.")
+        if executed.get('unstable'):
+            summary += f" {len(executed['unstable'])} flipped once and not on a rerun: unstable, not counted."
     elif executed is not None and executed.get('aborted'):
         # The runner starts on the code before the change and not after it: the change broke it.
         aborted = executed['aborted']
@@ -371,8 +385,14 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     if executed is not None:
         report['predicted_failures'] = executed['predicted_failures']
         # What flipped comes first, then what could not be seen.
-        report = dict(flips=len(executed['predicted_failures']) if executed['ran'] else None, predicted_failures=report['predicted_failures'],
+        report = dict(flips=len(executed['predicted_failures']) if executed['ran'] or executed.get('ran_original') else None,
+                      predicted_failures=report['predicted_failures'],
                       gaps=report['gaps'], **{k: v for k, v in report.items() if k not in ('predicted_failures', 'gaps')})
+        if executed.get('unstable'):
+            report['unstable'] = executed['unstable']
+        if executed.get('original_tests'):
+            # Which tests of an edited test file were also run as they were before the edit, and how they did.
+            report['original_tests'] = executed['original_tests']
         if executed.get('aborted'):
             report = dict(failure=dict(executed['aborted'], runner=executed['runner']), flips=None, **{k: v for k, v in report.items() if k != 'flips'})
     report['report_hash'] = hashlib.sha256(encoded([hashes, patch, report])).hexdigest()[:12]
@@ -402,7 +422,14 @@ def compact(report, include_tests=False):
     if 'predicted_failures' in report:
         commands = {row['id']: row.get('run') for row in report['tests']}
         out['predicted_failures'] = [(row['id'] if native else commands.get(row['id']) or row['id']) for row in report['predicted_failures'][:12]]
-        out['gaps'] = report['gaps'][:3]
+        edited = [row['id'] for row in report['predicted_failures'] if row.get('label') == shadow.EDITED]
+        if edited:
+            # Kept apart from the pasteable commands: these fail only in the form the test had before it was edited.
+            out['test_edited_not_fixed'] = edited[:12]
+        if report.get('unstable'):
+            out['unstable'] = report['unstable'][:5] + ([f"and {len(report['unstable']) - 5} more"] if len(report['unstable']) > 5 else [])
+        out.pop('original_tests', None)
+        out['gaps'] = [gap if len(gap) <= 240 else gap[:237] + '...' for gap in report['gaps'][:3]]
         out['tests'] = [row for row in out['tests'] if row['expect'] != 'fails'][:6]
     out['changed_symbols'] = report['changed_symbols'][:5]
     out['impacted'] = [dict(row) for row in report['impacted'][:3]]
