@@ -347,6 +347,11 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     if executed is not None and executed['ran']:
         summary = (f"EXECUTED {executed['ran']} of {executed.get('candidates', executed['ran'])} candidate tests after the change with {executed['runner']} in {executed['seconds']} s, failures confirmed before it: "
                    f"{len(executed['predicted_failures'])} now fail. " + summary.split(', ', 1)[1])
+    elif executed is not None and executed.get('aborted'):
+        # The runner starts on the code before the change and not after it: the change broke it.
+        aborted = executed['aborted']
+        summary = (f"FAILED: the test runner ({executed['runner']}) aborts on the changed code before running any test: {aborted['error']}. "
+                   f"On the code before the change it ran {aborted['ran_before']} of the same {aborted['probed']} candidates.")
     elif executed is not None:
         # Saying "0 now fail" when nothing ran would be a false all-clear.
         summary = 'NOT EXECUTED: no candidate test could be run; static analysis only. ' + summary
@@ -364,6 +369,8 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         # What flipped comes first, then what could not be seen.
         report = dict(flips=len(executed['predicted_failures']) if executed['ran'] else None, predicted_failures=report['predicted_failures'],
                       gaps=report['gaps'], **{k: v for k, v in report.items() if k not in ('predicted_failures', 'gaps')})
+        if executed.get('aborted'):
+            report = dict(failure=dict(executed['aborted'], runner=executed['runner']), flips=None, **{k: v for k, v in report.items() if k != 'flips'})
     report['report_hash'] = hashlib.sha256(encoded([hashes, patch, report])).hexdigest()[:12]
     if full_evidence:
         report['index'] = {'parsed_files': parsed, 'files': len(facts)}

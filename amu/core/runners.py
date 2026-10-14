@@ -15,6 +15,24 @@ VERBOSE = re.compile(r'^(\w+) \(([\w.]+)\)')
 STATE = re.compile(r'\.\.\. (ok|FAIL|ERROR|skipped|expected failure|unexpected success)')
 ORDER = {'failed': 3, 'passed': 2, 'skipped': 1}
 MAX_SPLITS = 12  # extra runner starts allowed to isolate labels that abort a batch
+EXCEPTION = re.compile(r'^([A-Za-z_][\w.]*(Error|Exception|Exit|Interrupt|Warning)|LookupError|KeyError)\b.*')
+FRAME = re.compile(r'^\s*File "([^"]+)", line (\d+)')
+
+
+def abort_reason(output, tree):
+    """The runner's own last exception line, with the deepest frame inside the tree when there is one."""
+    lines = output.strip().splitlines()
+    exception = next((line.strip() for line in reversed(lines) if EXCEPTION.match(line.strip())), None)
+    if exception is None:
+        return (lines[-1].strip() if lines else 'no output')[:300]
+    where = None
+    roots = sorted({str(Path(tree)), str(Path(tree).resolve())}, key=len, reverse=True)
+    for line in lines:
+        frame = FRAME.match(line)
+        root = next((r for r in roots if frame and frame[1].startswith(r + '/')), None)
+        if root and '/tests/runtests.py' not in frame[1]:
+            where = f'{frame[1][len(root) + 1:]}:{frame[2]}'
+    return (exception[:300] + (f' (at {where})' if where else ''))
 
 
 def dotted(ident, strip=''):
@@ -182,9 +200,16 @@ def execute(runner, python, tree, ids, report, timeout):
         missing = [i for i in batch if i not in got]
         if not missing:
             continue
-        if batch is usable and not got and len(batch) > 1 and splits == 0:
-            tail = output.strip().splitlines()[-1:] or ['no output']
-            first_error = tail[0][:120]
+        if batch is usable and not got:
+            first_error = abort_reason(output, tree)
+        elif (not got and splits and len(batch) > 1 and not any(state != 'unrunnable' for state in found.values())
+              and abort_reason(output, tree) == locals().get('first_error')):
+            # Half a batch failing exactly as the whole batch did: the runner aborts before any test, whatever
+            # the labels. Splitting further only restarts it; every remaining candidate is unrunnable.
+            for ident in [*missing, *(i for rest in batches for i in rest)]:
+                found[ident] = 'unrunnable'
+            batches = []
+            continue
         if len(missing) == 1 or splits >= MAX_SPLITS:
             for ident in missing:
                 found[ident] = 'unrunnable'

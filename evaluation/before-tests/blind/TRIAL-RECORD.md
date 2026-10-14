@@ -327,3 +327,19 @@ full-suite coverage recording at 455e787b; hook dry runs on two exposed claim ca
 the 32 trial sessions' `./rt` runs and 55 hook runs; scoring (8 parent and 8 upstream full suites, 32
 hidden-test full suites, 32 own-tree module runs, reruns of suspects); one module rerun each on w04 and w07
 to read their errors; the two counterfactual `amu` runs.
+
+## Correction after the report (2026-10-14, written before any engine change was committed)
+
+One statement in the result above is wrong, and so is the line of the report that repeats it. The
+counterfactual on w07's tree did not execute nothing because Django's runner aborted. Its packet's own gap
+says `tests/sites_tests/tests.py: other side of the change could not be built; nothing executed`; I inferred
+the abort without reading it. The cause is an AMU defect: when a hunk of the change begins with inserted
+lines (w07 added `from unittest import mock` at the top of its test file), the code that rebuilds the file
+as it was before the change placed the reversed hunk at the wrong line and gave up. With that fixed, bare
+`amu` on a copy of w07's tree executes 198 candidates in 23 s and names exactly the five tests w07 shipped
+broken (`results/counterfactual-w07-after-fix.json`). The hook in this trial could not have caught w07 because
+of an AMU bug, not because of the runner.
+
+The four hook runs in the trial that executed nothing (w04 three times, w18 once) were real runner aborts:
+the agent's half-edited tree raised `NameError` or `ImportError` while Django started. That defect did not
+fire in any of the trial's 55 hook runs. Neither correction changes the counts or the first line.

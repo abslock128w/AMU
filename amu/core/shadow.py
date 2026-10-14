@@ -44,7 +44,7 @@ def run(root, edits, ids, python=None, budget=60, runner=None):
         # Most promising candidates first, in chunks. Each chunk runs on the changed code; only the tests
         # that fail there are run on the code as it was, to confirm they passed before. A test that passes
         # after the change cannot be a new failure, so the unchanged side is never paid for it.
-        left, done = float(budget), 0
+        left, done, aborted = float(budget), 0, None
         for start in range(0, len(ids), CHUNK):
             chunk = ids[start:start + CHUNK]
             if left <= 1:
@@ -55,6 +55,15 @@ def run(root, edits, ids, python=None, budget=60, runner=None):
             states['after'].update(found)
             if problem and problem != 'timed out':
                 gaps.append(f'shadow run (after the change, {runner.name}): {problem}')
+                if not any(state != 'unrunnable' for state in states['after'].values()):
+                    # Nothing ran on the changed code. If the same candidates run on the code before the change,
+                    # the change is what stops the runner: that is a failure of the change, not a gap.
+                    began = time.perf_counter()
+                    probe, again = runners.execute(runner, python, trees['before'], chunk, Path(scratch)/'probe.xml', max(left, CONFIRM))
+                    left -= time.perf_counter() - began
+                    ran_before = sum(state != 'unrunnable' for state in probe.values())
+                    if ran_before:
+                        aborted = dict(error=problem.removeprefix('no outcomes read: '), ran_before=ran_before, probed=len(chunk))
                 break
             if problem == 'timed out':
                 break
@@ -67,7 +76,7 @@ def run(root, edits, ids, python=None, budget=60, runner=None):
                 if problem:
                     gaps.append(f'shadow run (before the change, {runner.name}): {problem}')
             done = start + len(chunk)
-        if done < len(ids):
+        if done < len(ids) and not aborted:
             gaps.append(f'shadow run stopped at its {budget} s budget: {done} of {len(ids)} candidates run')
     rows = []
     for ident in ids:
@@ -78,4 +87,6 @@ def run(root, edits, ids, python=None, budget=60, runner=None):
     if unrunnable:
         gaps.append(f'{len(unrunnable)} candidate(s) could not be run by {runner.name} and are not covered by this result')
     info = dict(ran=sum(state != 'unrunnable' for state in states['after'].values()), candidates=len(ids), unrunnable=len(unrunnable), outcomes=states['after'], seconds=round(time.perf_counter() - started, 1), runner=runner.name)
+    if aborted:
+        info['aborted'] = aborted
     return rows, info, gaps

@@ -1,0 +1,2 @@
+Automatic test check after the edit to django/contrib/sites/checks.py (5 s, charged to the test-time budget): FAILED: the test runner (django-runtests) aborts on the changed code before running any test: NameError: name 'NOT_PROVIDED' is not defined (at django/contrib/sites/checks.py:24). On the code before the change it ran 40 of the same 40 candidates.
+[test time: 5 of 900 s used]

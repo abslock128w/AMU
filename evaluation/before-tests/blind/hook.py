@@ -67,7 +67,10 @@ def message(packet):
     # Only what limits this execution; repository-wide static caveats are left out of the agent's context.
     gaps = [g for g in packet.get('gaps') or [] if isinstance(g, str) and ('shadow run' in g or 'candidate' in g)][:3]
     head = ''
-    if flips is None:
+    if packet.get('failure'):
+        # The runner aborts on the changed code and runs on the code before it: the change broke it.
+        text = packet.get('summary') or 'FAILED: the test runner aborts on the changed code.'
+    elif flips is None:
         text = head + 'no test could be executed, so nothing is known about what your changes break.'
     elif flips == 0:
         text = head + f"{ran or 'the candidate'} existing tests were run on the code with your uncommitted changes; none that passed before now fails."
@@ -76,7 +79,7 @@ def message(packet):
         text = (head + f'{flips} existing test(s) that passed before your uncommitted changes now fail:\n'
                 + '\n'.join('- ' + ident for ident in ids[:SHOWN])
                 + (f'\n- and {len(ids) - SHOWN} more' if len(ids) > SHOWN else ''))
-    if gaps:
+    if gaps and not packet.get('failure'):
         text += '\nNot covered by this check: ' + '; '.join(gaps)
     return text
 

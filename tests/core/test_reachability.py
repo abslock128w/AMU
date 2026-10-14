@@ -584,3 +584,52 @@ def test_label_that_aborts_the_runner_is_isolated_and_reported(tmp_path):
     found, problem = runners.execute(runners.get(tmp_path, 'unittest'), sys.executable, tmp_path, ids, tmp_path/'r.xml', 60)
     assert found == {'tests/test_a.py::Real::test_ok': 'passed', 'tests/test_a.py::Mixin::test_mixin': 'unrunnable',
                      'tests/test_a.py::Real::test_bad': 'failed'} and problem is None
+
+
+def test_original_rebuilds_a_file_whose_hunk_starts_with_inserted_lines(tmp_path):
+    """New imports at the top of a file: the parent side must still be rebuilt (blind trial, w07)."""
+    from amu.core.patch import changes, original
+    before = 'import os\nimport re\nimport sys\n\n\ndef f():\n    return 1\n'
+    after = 'from unittest import mock\n\nimport os\nimport re\nimport sys\n\n\ndef f():\n    return 2\n'
+    (tmp_path/'m.py').write_text(after)
+    patch = ('--- a/m.py\n+++ b/m.py\n@@ -1,3 +1,5 @@\n+from unittest import mock\n+\n import os\n import re\n import sys\n'
+             '@@ -4,4 +6,4 @@ import sys\n \n \n def f():\n-    return 1\n+    return 2\n')
+    edits, _ = changes(tmp_path, patch)
+    assert original(tmp_path, 'm.py', edits['m.py']) == before
+
+
+def test_runner_reason_names_the_exception_and_the_frame_in_the_tree(tmp_path):
+    from amu.core.runners import abort_reason
+    output = ('Traceback (most recent call last):\n'
+              f'  File "{tmp_path}/tests/runtests.py", line 782, in <module>\n'
+              f'  File "{tmp_path}/django/contrib/sites/checks.py", line 11, in check_site_id\n'
+              '    Site = apps.get_model("sites", "Site")\n'
+              f'  File "{tmp_path}/django/apps/registry.py", line 165, in get_app_config\n'
+              "LookupError: No installed app with label 'sites'.\n")
+    assert abort_reason(output, tmp_path) == "LookupError: No installed app with label 'sites'. (at django/apps/registry.py:165)"
+
+
+def test_a_runner_that_aborts_only_on_the_changed_code_is_a_failure(tmp_path):
+    """Blind trial w04 and w07: nothing ran after the change. That is the change's failure, not a gap."""
+    from pathlib import Path
+
+    from amu.core import runners, shadow
+    from amu.core.patch import changes
+    (tmp_path/'tests').mkdir()
+    (tmp_path/'tests'/'test_lib.py').write_text('import unittest\n\nclass T(unittest.TestCase):\n    def test_a(self):\n        pass\n')
+    (tmp_path/'lib.py').write_text('VALUE = 2\n')
+    patch = '--- a/lib.py\n+++ b/lib.py\n@@ -1 +1 @@\n-VALUE = 1\n+VALUE = 2\n'
+    edits, _ = changes(tmp_path, patch)
+    real = runners.execute
+
+    def fake(runner, python, tree, ids, report, timeout):
+        if Path(tree) == tmp_path:
+            return {i: 'unrunnable' for i in ids}, "no outcomes read: NameError: name 'VALUE' is not defined (at lib.py:1)"
+        return {i: 'passed' for i in ids}, None
+    runners.execute = fake
+    try:
+        rows, info, gaps = shadow.run(tmp_path, edits, ['tests/test_lib.py::T::test_a'], runner='unittest')
+    finally:
+        runners.execute = real
+    assert rows == []
+    assert info['aborted'] == dict(error="NameError: name 'VALUE' is not defined (at lib.py:1)", ran_before=1, probed=1)

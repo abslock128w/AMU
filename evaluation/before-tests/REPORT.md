@@ -502,10 +502,47 @@ test time per run in both arms, hook time charged. AMU arm: bare `amu` from a ho
 - Tasks 5 and 6 add one regression to every run in both arms: tests upstream rewrote for its own behaviour.
 - The one place the hook changed an outcome: task 6. It listed `test_simple_save` and `test_options` in both
   AMU-arm runs and both agents fixed their implementation; one control run (w32) shipped both broken.
-- No AMU-arm run shipped a regression the hook had printed. Hook checks that execute nothing (`NOT
-  EXECUTED`) happen when the agent's tree aborts Django's runner at start, which is also why the hook could
-  not have caught w07.
+- No AMU-arm run shipped a regression the hook had printed. The four hook checks that executed nothing were
+  runner aborts on a half-edited tree.
+- **Corrected after the report:** the hook could not have caught w07 because of an AMU defect, not the
+  runner (see the record's correction). With the defect fixed, `amu` names all five of w07's regressions.
 - A pilot of six runs showed an Edit/Write-only hook misses agents that edit through Bash (two of three).
+
+## After the blind trial, piece 1: a runner that aborts is a failure
+
+When the test runner starts on the code before the change and runs nothing on the code after it, the packet
+now opens with `failure` (the runner's own last exception line and the deepest frame inside the tree) and the
+summary reads `FAILED: the test runner (...) aborts on the changed code before running any test: ...`. The
+hook injects that line and nothing else. Before, the same case was `NOT EXECUTED` with the error buried in a
+gap, and the batch was split up to twelve more times, restarting the runner each time; a split that fails
+exactly as the whole batch did now stops the splitting.
+
+Checked on a copy of w07's tree with one module-level `NameError` added to the file w07 changed, the kind of
+error that stopped four trial hook runs (w04, w18):
+
+```
+FAILED: the test runner (django-runtests) aborts on the changed code before running any test:
+NameError: name 'NOT_PROVIDED' is not defined (at django/contrib/sites/checks.py:24).
+On the code before the change it ran 40 of the same 40 candidates.
+```
+
+The hook printed exactly that, in 5 s with a warm index (`blind/results/piece1-hook-on-aborting-w07-copy.txt`).
+
+**Found on the way, and the bigger fix:** rebuilding the "before" side failed whenever a hunk began with
+inserted lines, such as new imports at the top of a file, and AMU then ran nothing. That is what hid w07's five
+regressions; after the fix `amu` on w07's tree names exactly those five in 23 s
+(`blind/results/counterfactual-w07-after-fix.json`). The trial record carries a correction. The defect did not
+fire in any of the trial's 55 hook runs.
+
+Ranking, before and after these changes, run with the frozen manifests (static, nothing executed): every case's
+top 10 is identical. Werkzeug 10/16 function and 16/16 file, requests and itsdangerous 6/8 and 8/8, Click
+holdout 3 8/8 and 8/8 (`blind/results/ranking/`).
+
+AMU's tests: `tests/core` 48 passed and 4 failed, the same 4 that fail without these changes. pytest is not
+installed on this machine and those four shell out to it; the full suite could not be run, and installing
+pytest needs a download that was not approved. Files: `amu/core/patch.py`, `amu/core/runners.py`,
+`amu/core/shadow.py`, `amu/core/__init__.py`, `tests/core/test_reachability.py`, `blind/hook.py`.
+Upstream code executed: Django's tests on copies of w07's tree (three `amu` runs).
 
 ## Milestones (state at b3747c8)
 

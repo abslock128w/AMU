@@ -1,0 +1,40 @@
+{
+ "flips": 5,
+ "predicted_failures": [
+  {
+   "id": "tests/contenttypes_tests/test_checks.py::GenericForeignKeyTests::test_generic_foreign_key_checks_are_performed",
+   "before": "passed",
+   "after": "failed",
+   "label": "executed"
+  },
+  {
+   "id": "tests/migrations/test_commands.py::MigrateTests::test_sqlmigrate_system_checks_colorized",
+   "before": "passed",
+   "after": "failed",
+   "label": "executed"
+  },
+  {
+   "id": "tests/admin_checks/tests.py::SystemChecksTestCase::test_checks_are_performed",
+   "before": "passed",
+   "after": "failed",
+   "label": "executed"
+  },
+  {
+   "id": "tests/migrations/test_commands.py::MigrateTests::test_migrate_runs_database_system_checks",
+   "before": "passed",
+   "after": "failed",
+   "label": "executed"
+  },
+  {
+   "id": "tests/admin_checks/tests.py::SystemChecksTestCase::test_custom_adminsite",
+   "before": "passed",
+   "after": "failed",
+   "label": "executed"
+  }
+ ],
+ "summary": "EXECUTED 198 of 198 candidate tests after the change with django-runtests in 11.6 s, failures confirmed before it: 5 now fail. 198 tests reach the change.",
+ "gaps": [
+  "98014 call sites unresolved repo-wide; dynamic dispatch may reach more",
+  "tests/test_runner_apps/tagged/tests_syntax_error.py: SyntaxError"
+ ]
+}
