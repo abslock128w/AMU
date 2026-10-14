@@ -28,6 +28,8 @@ from amu.core.patch import changes  # noqa: E402
 
 DATA = ROOT/'evaluation/before-tests/phase0'
 KEEP_LEXICAL = False
+BLIND = False  # --blind: tasks an agent must implement from the commit message; see the argument's help
+BLIND_MAX_LINES = 200
 LINE = re.compile(r'^(\w+) \(([\w.]+)\)')
 STATE = re.compile(r'\.\.\. (ok|FAIL|ERROR|skipped|expected failure|unexpected success)')
 
@@ -82,6 +84,12 @@ def screen(repo, commit, python, cases):
     touched = [p for p in paths if p.startswith('tests/') and p.endswith('.py')]
     if not prod or not touched:
         return None, 'no production or no test change'
+    if BLIND:
+        if not git(repo, 'log', '-1', '--format=%s', commit).decode().startswith('Fixed #'):
+            return None, 'blind: subject does not start with "Fixed #"'
+        size = sum(line[:1] in '+-' and line[:3] not in ('+++', '---') for line in git(repo, 'diff', parent, commit, '--', *prod).decode(errors='replace').splitlines())
+        if size > BLIND_MAX_LINES:
+            return None, f'blind: production change is {size} lines, over {BLIND_MAX_LINES}'
     modified = []
     for path in touched:
         try:
@@ -130,7 +138,8 @@ def screen(repo, commit, python, cases):
         return None, f'{len(breaking)} breaking, all within the lexical top 40'
     return dict(case_id=case.name, commit=commit, parent=parent, tree=str(tree), patch=str(case/'production.patch'),
                 patch_sha256=hashlib.sha256(patch).hexdigest(), labels=labels, tests_run=len(before),
-                breaking=breaking, indirect=indirect, lexical_top40=top, production_files=prod), 'kept' if indirect else 'lexical'
+                breaking=breaking, indirect=indirect, lexical_top40=top, production_files=prod,
+                message=git(repo, 'log', '-1', '--format=%B', commit).decode(errors='replace').strip()), 'kept' if indirect else 'lexical'
 
 
 if __name__ == '__main__':
@@ -143,8 +152,11 @@ if __name__ == '__main__':
     p.add_argument('--skip', type=int, default=0, help='newest commits to pass over, for a set disjoint from an earlier one')
     p.add_argument('--name', default='django', help='manifest name; "django" is the Phase 0 set')
     p.add_argument('--with-lexical', action='store_true', help='also keep as many breaking-but-lexical cases as indirect ones')
+    p.add_argument('--blind', action='store_true', help='keep the first --want commits that break an existing test, indirect or not, '
+                   f'whose subject starts with "Fixed #" and whose production change is at most {BLIND_MAX_LINES} added plus removed lines')
     a = p.parse_args()
-    KEEP_LEXICAL = a.with_lexical
+    KEEP_LEXICAL = a.with_lexical or a.blind
+    BLIND = a.blind
     DATA.mkdir(parents=True, exist_ok=True)
     record = DATA/('protocol.json' if a.name == 'django' else a.name + '-protocol.json')
     if record.exists():
@@ -157,7 +169,9 @@ if __name__ == '__main__':
             row, reason = screen(repo, commit, a.python, cases)
         except subprocess.CalledProcessError:
             row, reason = None, 'history boundary'
-        if row and reason == 'kept' and len(indirect) < a.want:
+        if row and a.blind and len(indirect) < a.want:
+            indirect.append(row)  # order of screening, either kind
+        elif row and reason == 'kept' and len(indirect) < a.want:
             indirect.append(row)
         elif row and reason == 'lexical' and len(lexical) < a.want:
             lexical.append(row)
@@ -166,15 +180,15 @@ if __name__ == '__main__':
             reason += ' (not needed)'
         log.append([commit[:10], reason])
         print(commit[:10], reason, flush=True)
-        if len(indirect) == a.want and (not a.with_lexical or len(lexical) == a.want):
+        if len(indirect) == a.want and (a.blind or not a.with_lexical or len(lexical) == a.want):
             break
-    rows = indirect + lexical[:len(indirect)]
+    rows = indirect if a.blind else indirect + lexical[:len(indirect)]
     for extra in lexical[len(indirect):]:
         shutil.rmtree(cases/extra['case_id'], ignore_errors=True)
     (DATA/(a.name + '.json')).write_text(json.dumps(rows, indent=1) + '\n')
     record.write_text(json.dumps(dict(
         rule=__doc__.strip(), repository='https://github.com/django/django', head=head, skipped_newest=a.skip, screened=log,
-        kept=dict(indirect=[r['case_id'] for r in indirect], lexical=[r['case_id'] for r in lexical[:len(indirect)]]),
+        kept=dict(blind=[r['case_id'] for r in rows]) if a.blind else dict(indirect=[r['case_id'] for r in indirect], lexical=[r['case_id'] for r in lexical[:len(indirect)]]),
         environment=dict(python=subprocess.check_output([a.python, '-V']).decode().strip(), database='sqlite, default test settings',
                          dependencies='asgiref, sqlparse only; tests needing optional packages skip'),
         hashes={a.name + '.json': hashlib.sha256((DATA/(a.name + '.json')).read_bytes()).hexdigest()}), indent=1) + '\n')

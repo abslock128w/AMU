@@ -1,0 +1,41 @@
+﻿id,summary,reporter,owner,description,type,status,component,version,severity,resolution,keywords,cc,stage,has_patch,needs_docs,needs_tests,needs_better_patch,easy,ui_ux
+36795,Always quote user-provided aliases,Jacob Walls,Simon Charette,"As part of evaluating CVE-2025-13372 (mitigated in 5b90ca1e7591fa36fccf2d6dad67cf1477e6293e), Simon Charette observed that we could reduce the potential for mistakes in this area by systematically quoting user-provided aliases, instead of checking aliases against `FORBIDDEN_ALIAS_PATTERN`:
+
+> ... the root of the problem here is that we don't perform alias quoting when they are provided by the user as on some backends they are treated differently mainly regarding case (e.g. ""foo"" != ""FOO"" on Postgres). If we did systematically quote aliases most of the FORBIDDEN_ALIAS_PATTERN logic would be unnecessary (as long as we escape quotes in aliases) as aliases would always be quoted.
+
+> There is work to do and deprecation cycles to put in place (mainly regarding extra(...) usage) if we want to venture that way (particularly regarding subqueries) but try ... the following patch
+
+{{{#!diff
+diff --git a/django/db/models/expressions.py b/django/db/models/expressions.py
+index 0d47366d2c..c6eb9750e2 100644
+--- a/django/db/models/expressions.py
++++ b/django/db/models/expressions.py
+@@ -1322,7 +1322,7 @@ def __repr__(self):
+     def as_sql(self, compiler, connection):
+         alias, column = self.alias, self.target.column
+         identifiers = (alias, column) if alias else (column,)
+-        sql = ""."".join(map(compiler.quote_name_unless_alias, identifiers))
++        sql = ""."".join(map(compiler.quote_name, identifiers))
+         return sql, ()
+
+     def relabeled_clone(self, relabels):
+diff --git a/django/db/models/sql/datastructures.py b/django/db/models/sql/datastructures.py
+index 5314d37a1a..5ef5efbcfc 100644
+--- a/django/db/models/sql/datastructures.py
++++ b/django/db/models/sql/datastructures.py
+@@ -125,7 +125,7 @@ def as_sql(self, compiler, connection):
+         sql = ""%s %s%s ON (%s)"" % (
+             self.join_type,
+             qn(self.table_name),
+-            alias_str,
++            qn(alias_str),
+             on_clause_sql,
+         )
+         return sql, params
+}}}
+
+(Notice that is *not* a complete patch but rather a sketch to send a contributor down a fruitful path.)
+
+With agreement from the Security Team, Simon's recommendation was that after the mitigation we should:
+
+> ... investigate how much work it would be to treat user vs system generated aliases differently in a public ticket.",Cleanup/optimization,closed,"Database layer (models, ORM)",dev,Normal,fixed,,Simon Charette,Ready for checkin,1,0,0,0,0,0

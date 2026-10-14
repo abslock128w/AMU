@@ -1,0 +1,17 @@
+﻿id,summary,reporter,owner,description,type,status,component,version,severity,resolution,keywords,cc,stage,has_patch,needs_docs,needs_tests,needs_better_patch,easy,ui_ux
+36912,Q.create() doesn't validate connectors as Q.__init__() does,Jacob Walls,Anna Makarudze,"In 98e642c69181c942d60a10ca0085d48c6b3068bb, we mitigated a SQL injection vector for user-controlled arguments to `filter()` and friends (CVE-2025-64459) by adding validation for the `_connector` argument.
+
+We deliberately avoided adding the same validation to `Q.create()`, because `Q.create` is an undocumented internal not to be used with user-controlled field names and was created specifically for the purpose of speed.
+
+The Security Team then received more than one report extrapolating from CVE-2025-64459, suggesting that `Q.create` was missing the same validation.
+
+Although we don't consider this a security vulnerability, we would be interested to evaluate if adding validation to `Q.create` to match `Q.__init__` would be cheap enough to implement. A concern is how many times `Q.create` might be called in loops. Thus, one part of the solution here might be a refactor to reduce the number of times `Q.create` is called in loops in Django's code:
+
+in `contrib.contenttypes`:
+https://github.com/django/django/blob/13299a6203f4bc3e5b2552c96a51ff2b15da3c43/django/contrib/contenttypes/fields.py#L682-L695
+in the deletion `Collector`:
+https://github.com/django/django/blob/13299a6203f4bc3e5b2552c96a51ff2b15da3c43/django/db/models/deletion.py#L357-L358
+...others?
+----
+Tentatively passing over to Djangonaut Space navigators to see if a good fit for anyone (git archaeology, benchmarking, security, ORM internals)
+",Cleanup/optimization,closed,"Database layer (models, ORM)",dev,Normal,fixed,_connector security,,Ready for checkin,1,0,0,0,0,0

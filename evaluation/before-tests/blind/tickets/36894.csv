@@ -1,0 +1,36 @@
+﻿id,summary,reporter,owner,description,type,status,component,version,severity,resolution,keywords,cc,stage,has_patch,needs_docs,needs_tests,needs_better_patch,easy,ui_ux
+36894,"Email fail_silently, auth_user, auth_password are ignored when connection param provided",Mike Edmunds,Praful Gulani,"Most django.core.mail APIs take a `fail_silently` parameter which is intended to suppress errors during sending, as well as a `connection` parameter to provide a specific EmailBackend instance for sending. When `connection` is specified, `fail_silently` is ignored.
+
+To reproduce, configure your email settings to cause an error (e.g., `EMAIL_HOST=""not.a.real.host""`) and: 
+{{{#!python
+from django.core.mail import get_connection, send_mail
+
+send_mail(""subject"", ""body"", None, [""to@example.com""])
+# Correct behavior: raises socket.gaierror: [Errno 8] nodename nor servname provided, or not known
+
+send_mail(""subject"", ""body"", None, [""to@example.com""], fail_silently=True)
+# Correct behavior: returns 0 messages sent, doesn't raise an error
+
+send_mail(""subject"", ""body"", None, [""to@example.com""], fail_silently=True, connection=get_connection())
+# Bug: despite fail_silently=True, raises socket.gaierror
+}}}
+
+A similar problem exists with the `auth_user` and `auth_password` params to `send_mail()` and `send_mass_mail()`, which are also silently ignored when a `connection` is provided.
+
+There is no safe way to set any of these options on a connection (EmailBackend instance) once it has been constructed. The correct way to achieve the desired behavior is move `fail_silently` and the other params into `get_connection()`: 
+
+{{{#!python
+send_mail(""subject"", ""body"", None, [""to@example.com""],
+    connection=get_connection(fail_silently=True, username=""auth_user"", password=""auth_password""))
+}}}
+
+
+**Suggested fix**
+
+Django's email APIs should handle `fail_silently`, `auth_user` and `auth_password` params as an error when `connection` is also provided. This will involve:
+- Changing the default from `fail_silently=False` to `fail_silently=None` to be able to distinguish the cases. (Don't forget EmailMessage.send().)
+- Raising a TypeError when `connection is not None and fail_silently is not None`. Something like ""fail_silently cannot be used with a connection. (Pass fail_silently to get_connection() instead.)""
+- Converting fail_silently==None to False where the high level APIs call get_connection()
+- Issuing similar error messages for `auth_user` and `auth_password` (which already default to None)
+- Updating tests to cover the new behavior
+- Updating docs to note the changed behavior (params that had been silently ignored with `connection` will now raise an error)",Cleanup/optimization,closed,Core (Mail),6.0,Normal,fixed,email fail_silently,,Ready for checkin,1,0,0,0,1,0
