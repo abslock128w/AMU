@@ -163,6 +163,37 @@ and what the agent did next.
   share that; the trial cannot remove it.
 - Nothing is rerun because of its result.
 
+## Change to this record before the start: desktop-app sessions
+
+Written before any agent started. The `claude` CLI on this machine had no credentials, so no headless
+process could run. On the owner's instruction the agents are Claude desktop-app sessions instead:
+
+- Each run is a session started from the coordinating session with `start_session` (fresh context, working
+  folder = the workspace, no worktree, model Sonnet, permission mode acceptEdits). The owner authorised
+  the 32 sessions.
+- **The hook comes from the workspace's own `.claude/settings.json`**: the PostToolUse hook above for the
+  AMU arm, an empty hooks block for control. That file and `PROMPT.md` sit inside the workspace (excluded
+  from git), so an agent that opens `.claude/settings.json` can see a command naming `hook.py`. Nothing
+  else about it is in the workspace.
+- Both arms' settings also carry the same permission rules: `./rt`, file tools and read-only shell commands
+  (`git diff/status/log/show`, `ls`, `grep`, `rg`, `cat`, `head`, `tail`, `wc`, `find`, `sed -n`) are
+  allowed; web tools, `curl`, `wget`, `pip`, `git fetch/pull/clone/commit` are denied. Anything else waits
+  for a permission prompt that nobody answers; such a run is left until it ends or reaches the hard stop.
+- The prompt above is given verbatim in the session's brief and as `PROMPT.md`, which the brief says to read
+  first. The brief's background text says only that the folder is a Django checkout prepared for one ticket.
+- Sessions have the desktop app's tool set, not the six tools listed above; it is the same in both arms.
+- No CLAUDE.md exists in any workspace or at user level; the workspaces are under `/private/tmp`, outside
+  the owner's home directory, so no ancestor CLAUDE.md applies. The app's own system prompt is the same in
+  both arms.
+- At most four sessions at a time: both arms of two task-and-trial pairs. Wall time runs from the
+  `start_session` call to the coordinating session's notice that the session ended its turn, so it includes
+  a few seconds of notice latency. The 3,600 s hard stop is enforced with `stop_session`.
+- A session that ends its turn with a question instead of a declaration is not answered; its tree is scored
+  as it stands, and the report says so.
+- Tokens come from the session's own transcript file under `~/.claude/projects/`.
+- On the first AMU-arm session, the transcript is read to confirm the hook's text reached the agent before
+  its next tool call. If it did not, the trial stops there.
+
 ## Result
 
 Not yet run.
