@@ -372,6 +372,12 @@ Written 2026-10-14, before any Haiku session started. Everything above stays as 
   Workspace names and the task-and-arm mapping are the same seed as before.
 - Permission prompts: the owner is asked not to answer any. A run with an answered prompt is marked.
 
+AMU's full suite at 929cd0e, before the first Haiku session (`pytest tests scripts/test_before_tests_harness.py`
+with the owner's Werkzeug evaluation environment): 2,577 passed, 14 skipped, 1 failed. The failure is
+`tests/test_mcp_verification.py`, which compares the installed package's build hash with the source and fails
+on any uncommitted-to-install source change, as recorded in `../REPORT.md` before this work. No failure comes
+from 22f91ef or 929cd0e, so the commit under test stays 929cd0e.
+
 ## What would count (same rule, first line of the report)
 
 Runs with at least one regression, per arm, of 16. The AMU arm wins if fewer of its runs shipped one.
