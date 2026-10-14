@@ -436,3 +436,46 @@ Three untested hypotheses remain, in order of how cheaply they can be killed:
    exercised.
 
 The next trial combines 1 and 2. Section 12 is the brief for it.
+
+## 12. The blind, unasked trial (2026-10-14, commit ca77f9c)
+
+Eight unseen Django tickets, 32 desktop sessions, agent given ticket and commit message, never
+the diff. AMU arm had a hook after every edit and before every test run. Scored on hidden
+upstream tests.
+
+| | AMU arm | Control |
+|---|---:|---:|
+| Runs with a regression, by the pre-set rule | 6 of 16 | 7 of 16 |
+| Real regressions after removing the task 3 import artefact | 0 | 7, in 2 runs |
+| Frozen breaking tests run before declaring done | 16 of 16 | 16 of 16 |
+| Test time charged | 2,453 s, hook 1,303 s | 1,506 s |
+
+**Decision: not won.** The one-run difference is a control bug no AMU agent wrote, and on
+that tree the hook could not run because the agent's broken system check aborted Django's
+runner at startup. Phase 3 does not start on this result.
+
+**What it did show, for the first time.** On task 6 the hook listed two breaking tests in
+both AMU runs and both agents fixed their change; the control run shipped both broken. No
+AMU run shipped a regression the hook had printed. No agent ignored a hook message. That is
+the mechanism working. It is one task.
+
+**Why the effect is small and will stay small on this design.** A capable agent on a
+well-specified Django ticket ran every frozen breaking test on its own in all 32 runs. Real
+control regressions happened in 2 runs of 16. With a base rate that low, no trial of this
+size can show a tool reducing it. The room for AMU is where the base rate is high.
+
+### Three things that follow, in order
+
+1. **Runner abort is a failure, not a gap.** When the test runner cannot start on the
+   edited tree, the packet's first line says so as a failure, with the runner's own error,
+   and the hook makes the agent read it. That would have caught w07, the one real regression
+   the control arm shipped. Small change, no trial needed, ships now.
+2. **Hook cost.** 1,303 s of test time across 55 hook runs is 24 s each. Skip the run when
+   no production file changed since the last run, reuse the parent-side results across
+   runs in the same session, and cap candidates by time left in budget. Target under 10 s
+   per hook run on Django.
+3. **Raise the base rate, then rerun.** Same eight tasks, same harness, same hook, with a
+   cheaper model as the agent. If the hook cuts regressions where a cheap agent makes them,
+   the product claim is "makes cheap agents ship safely", which is a real claim with a real
+   buyer. If it does not help even there, the agent-facing hook line is closed and what
+   remains is humans, slow suites, and CI.
