@@ -194,3 +194,76 @@ anywhere, and no source, test name or error text is kept.**
   test could run. That is the expected result, and the comment's first line says "no flip count" rather than 0.
 - `workflow_run` workflows run only from the default branch, so pull requests opened before the merge get a comment
   from their next push on.
+
+### The deliberate flip (PR #4, closed, not merged)
+
+PR #4 moved the `manage.py` check in `runners.detect` ahead of explicit pytest configuration, which contradicts the
+function's docstring. On its first push (36d7037), with everything running on GitHub:
+- **The run job took 49 s:** project install, AMU install, cold index, then 42 candidate tests in 5.3 s.
+- **The verify job took 38 s.** It reran the flip on the merge base in a fresh runner, where it passed again.
+- **The posting job took 13 s.**
+
+The comment, verbatim apart from the hidden blocks:
+
+> **AMU: 1 flip** at `36d7037`, among 42 tests run
+>
+> ### Flips (1)
+>
+> Pass on the merge base `77fe972`, fail on the head. Each was rerun on the merge base to confirm it passed there.
+>
+> - `tests/core/test_reachability.py::test_runner_is_detected_from_the_tree_and_labels_are_pasteable`
+>
+> Rerun on the merge base in a fresh job: 1 passed again, 0 failed there too, so not the change, 0 could not be rerun.
+>
+> ### Gaps (1)
+>
+> Not run or not seen:
+>
+> - `15035 call sites unresolved repo-wide; dynamic dispatch may reach more`
+>
+> ### What ran
+>
+> 42 of 42 candidate tests on the head, 5.3 s with `pytest`, budget 300 s per side. Failures were rerun on the merge
+> base. Tests outside the candidates were not run.
+
+- **The flipped test is the right one.** It is the one test that asserts the detection order, and it is the one the
+  local rehearsal found.
+- **The counters block holds one record:** head and merge-base SHAs, flips 1, ran 42, candidates 42, gaps 1, checked 1,
+  held 1, false 0, 11.2 s. It holds no test name or text.
+
+**Second push (071a4a0, a revert of the flip): the same comment was edited in place, not duplicated.** It is still
+comment 6197228987, the only one on the pull request. Its first line became "**AMU: no flip count** at `071a4a0`: `the
+pull request changes nothing against its merge base; nothing was run`". The counters history now has two records: the
+first push's, and one with `error: true` and no counts.
+
+By the collector's rule, PR #4 does not count as cleared before merge, for two reasons:
+- a push counts as clearing only if it shows 0 flips among tests that ran, and the revert ran nothing;
+- PR #4 was closed, not merged.
+
+PR #4 was then closed without merging.
+
+### PR #2
+
+- The push of 3484b1d to `accuracy/observed-tests` gave PR #2 its first comment: "**AMU: 0 flips** at `3484b1d`, among
+  150 tests run". It ran 150 of 150 candidates in 72 s, and the job took 125 s.
+- Its gaps say that the patch exceeds 2 MiB and only the first 2 MiB was inspected, and that 256 non-Python files
+  were skipped. The comment does not present 0 as a pass.
+- The verify job was skipped, as it should be with no flips.
+
+### Where the adoption bars stand
+
+- **Commenting on every pull request here this week: started.** PR #2 and PR #4 got comments. PR #3, the one that
+  enabled AMU, ran the job but could not post: the posting workflow was not on main until PR #3 merged it. From now
+  on every pull request into main gets the comment.
+- **Three external repositories within four weeks: not started.** It waits on the owner's introductions.
+  `INSTALL-NOTE.md` has the one-paragraph install note and the sample comment.
+- **First 50 pull requests (false-flip rate under 5%, cleared share at least half): measurable now.**
+  - The counters, the fresh-job rerun and `python -m amu.ci.counters` work end to end on this repository.
+  - Counted so far, across PR #2 and PR #4: 1 flip rerun, 0 false, and no pull request merged after a flip.
+
+### Known limits, not fixed
+
+- GitHub warns that the Node 20 actions used here (`checkout`, `setup-python`, `cache`, `upload-artifact` and
+  `download-artifact`, all v4 or v5) are being run on Node 24. They work, and nothing in the action depends on the
+  Node version.
+- On PR #2 the diff is over 2 MiB, so AMU inspected only the first 2 MiB. The comment lists that as a gap.
