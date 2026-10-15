@@ -129,14 +129,14 @@ def detect(root):
     root = Path(root)
     if (root/'tests'/'runtests.py').is_file():
         return 'django-runtests'
-    if (root/'manage.py').is_file():
-        return 'django-manage'
     for name, marker in (('pytest.ini', ''), ('pyproject.toml', '[tool.pytest'), ('tox.ini', '[pytest]'), ('setup.cfg', '[tool:pytest]')):
         try:
             if marker in (root/name).read_text(errors='replace'):
                 return 'pytest'
         except OSError:
             pass
+    if (root/'manage.py').is_file():
+        return 'django-manage'
     if (root/'conftest.py').is_file() or (root/'tests'/'conftest.py').is_file():
         return 'pytest'
     # Module-level test functions and pytest imports only work under pytest.
