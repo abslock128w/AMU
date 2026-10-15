@@ -17,6 +17,7 @@ ORDER = {'failed': 3, 'passed': 2, 'skipped': 1}
 MAX_SPLITS = 12  # extra runner starts allowed to isolate labels that abort a batch
 EXCEPTION = re.compile(r'^([A-Za-z_][\w.]*(Error|Exception|Exit|Interrupt|Warning)|LookupError|KeyError)\b.*')
 FRAME = re.compile(r'^\s*File "([^"]+)", line (\d+)')
+DESELECTED = re.compile(r'\b\d+ deselected\b')
 
 
 def abort_reason(output, tree):
@@ -58,6 +59,16 @@ class Runner:
 
     def paste(self, ident):
         return 'python -m pytest ' + self.label(ident)
+
+    def selected(self, python, tree, ids, env, timeout):
+        """The ids pytest still selects under the project's own configuration (a marker filter in addopts deselects
+        tests even when they are named); None when that cannot be read."""
+        try:
+            done = subprocess.run([python, '-m', 'pytest', '--collect-only', '-q', '-p', 'no:cacheprovider', *[self.label(i) for i in ids]],
+                                  cwd=self.cwd(tree), env=env, capture_output=True, timeout=timeout, stdin=subprocess.DEVNULL)
+        except (subprocess.TimeoutExpired, OSError):
+            return None
+        return {re.sub(r'\[.*\]$', '', line.strip()) for line in done.stdout.decode(errors='replace').splitlines() if '::' in line}
 
     def outcomes(self, tree, output, report, ids):
         found = {}
@@ -201,6 +212,12 @@ def execute(runner, python, tree, ids, report, timeout):
         got = runner.outcomes(tree, output, report, batch)
         found.update(got)
         missing = [i for i in batch if i not in got]
+        if missing and runner.name == 'pytest' and DESELECTED.search(output):
+            # Deselected by the project's configuration, not lost to an abort: skipped, and not split to find out.
+            kept = runner.selected(python, tree, missing, env, timeout)
+            if kept is not None:
+                found.update({ident: 'skipped' for ident in missing if ident not in kept})
+                missing = [ident for ident in missing if ident in kept]
         if not missing:
             continue
         if batch is usable and not got:

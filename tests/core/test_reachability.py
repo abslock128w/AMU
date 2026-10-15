@@ -998,3 +998,27 @@ def test_a_function_moved_behind_a_deprecation_shim_still_has_candidates_but_a_r
     (tmp_path/'lib.py').write_text('from forms import parse_form\n')
     _, report = _bare_candidates(tmp_path)
     assert 'lib.py#parse_form (renamed or removed)' not in report['changed_symbols'], report['changed_symbols']
+
+
+def test_a_candidate_the_project_deselects_is_skipped_without_splitting(tmp_path, monkeypatch):
+    import subprocess
+    import sys
+
+    from amu.core import runners
+    repository(tmp_path, {
+        'pyproject.toml': '[tool.pytest.ini_options]\naddopts = "-m \'not slow\'"\nmarkers = ["slow"]\n',
+        'tests/test_lib.py': ('import pytest\n\n\ndef test_quick():\n    assert True\n\n\n'
+                              '@pytest.mark.slow\ndef test_slow():\n    assert True\n\n\n'
+                              'class TestGroup:\n    @pytest.mark.slow\n    def test_slow_method(self):\n        assert True\n')})
+    starts, real = [], subprocess.run
+
+    def counted(command, **kwargs):
+        starts.append(command)
+        return real(command, **kwargs)
+    monkeypatch.setattr(runners.subprocess, 'run', counted)
+    ids = ['tests/test_lib.py::test_quick', 'tests/test_lib.py::test_slow', 'tests/test_lib.py::TestGroup::test_slow_method']
+    found, problem = runners.execute(runners.get(tmp_path, 'pytest'), sys.executable, tmp_path, ids, tmp_path/'r.xml', 60)
+    assert found == {ids[0]: 'passed', ids[1]: 'skipped', ids[2]: 'skipped'} and problem is None, (found, problem)
+    assert len(starts) == 2, starts  # the batch and one collection, no splitting
+    only_slow, problem = runners.execute(runners.get(tmp_path, 'pytest'), sys.executable, tmp_path, ids[1:], tmp_path/'r.xml', 60)
+    assert only_slow == {ids[1]: 'skipped', ids[2]: 'skipped'} and problem is None, (only_slow, problem)
