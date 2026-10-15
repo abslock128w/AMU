@@ -1,0 +1,115 @@
+name: AMU pull request check
+description: Runs a pull request's candidate tests on its merge base and on its head, and saves which ones flip.
+author: abslock128w
+branding:
+  icon: git-pull-request
+  color: blue
+
+# The calling job checks out the pull request head with history:
+#   - uses: actions/checkout@v4
+#     with: {ref: '${{ github.event.pull_request.head.sha }}', fetch-depth: 0, persist-credentials: false}
+# This step always succeeds. What happened is in the saved JSON, not in the step's status.
+# Linux and macOS runners only.
+
+inputs:
+  install:
+    description: Shell command that installs the project and its test dependencies into the selected Python.
+    required: false
+    default: python -m pip install -e .
+  python-version:
+    description: Python for the project and for AMU (3.11 or later).
+    required: false
+    default: '3.12'
+  runner:
+    description: Test runner (pytest, unittest, django-runtests, django-manage). Empty means detected from the tree.
+    required: false
+    default: ''
+  amu-ref:
+    description: Tag of github.com/abslock128w/AMU that AMU is installed from.
+    required: false
+    default: ci-v0.1.0
+  base-sha:
+    description: Base commit of the pull request.
+    required: false
+    default: ${{ github.event.pull_request.base.sha }}
+  head-sha:
+    description: Head commit of the pull request.
+    required: false
+    default: ${{ github.event.pull_request.head.sha }}
+  artifact-name:
+    description: Name of the artifact holding report.json and meta.json.
+    required: false
+    default: amu-report
+
+outputs:
+  merge-base:
+    description: The merge base the pull request was compared against.
+    value: ${{ steps.run.outputs.merge-base }}
+  flips:
+    description: Tests that pass on the merge base and fail on the head; empty when nothing ran.
+    value: ${{ steps.run.outputs.flips }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install the project
+      id: install
+      shell: bash
+      env:
+        AMU_INSTALL: ${{ inputs.install }}
+      run: |
+        mkdir -p "$RUNNER_TEMP/amu-out"
+        echo "python=$(python -c 'import sys; print(sys.executable)')" >> "$GITHUB_OUTPUT"
+        if bash -c "$AMU_INSTALL" > "$RUNNER_TEMP/amu-out/install.log" 2>&1; then
+          echo "ok=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "ok=false" >> "$GITHUB_OUTPUT"
+          echo "::warning::The install command failed; AMU runs anyway and reports what could not run."
+          tail -n 40 "$RUNNER_TEMP/amu-out/install.log"
+        fi
+
+    - name: Install AMU
+      shell: bash
+      env:
+        AMU_REF: ${{ inputs.amu-ref }}
+      run: |
+        python -m venv "$RUNNER_TEMP/amu-venv"
+        if ! "$RUNNER_TEMP/amu-venv/bin/python" -m pip install --quiet --disable-pip-version-check \
+            "amu @ git+https://github.com/abslock128w/AMU@${AMU_REF}" > "$RUNNER_TEMP/amu-out/amu-install.log" 2>&1; then
+          echo "::warning::AMU could not be installed from ${AMU_REF}."
+          tail -n 20 "$RUNNER_TEMP/amu-out/amu-install.log"
+        fi
+
+    - name: Run AMU
+      id: run
+      shell: bash
+      env:
+        AMU_BASE: ${{ inputs.base-sha }}
+        AMU_HEAD: ${{ inputs.head-sha }}
+        AMU_PR: ${{ github.event.pull_request.number }}
+        AMU_RUNNER: ${{ inputs.runner }}
+        AMU_REF: ${{ inputs.amu-ref }}
+        AMU_PYTHON: ${{ steps.install.outputs.python }}
+        AMU_INSTALL_OK: ${{ steps.install.outputs.ok }}
+      run: |
+        out="$RUNNER_TEMP/amu-out"
+        if "$RUNNER_TEMP/amu-venv/bin/python" -c 'import amu.ci.run' 2> /dev/null; then
+          "$RUNNER_TEMP/amu-venv/bin/python" -m amu.ci.run --base "$AMU_BASE" --head "$AMU_HEAD" --out "$out" \
+            --python "$AMU_PYTHON" ${AMU_RUNNER:+--runner "$AMU_RUNNER"} ${AMU_PR:+--pr "$AMU_PR"} \
+            --install-ok "${AMU_INSTALL_OK:-false}" --amu-ref "$AMU_REF" || true
+        else
+          python -c 'import json, sys; json.dump({"error": "AMU could not be installed from " + sys.argv[1]}, open(sys.argv[2], "w"))' \
+            "$AMU_REF" "$out/report.json"
+        fi
+
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ${{ runner.temp }}/amu-out
+        if-no-files-found: warn
+        retention-days: 14
