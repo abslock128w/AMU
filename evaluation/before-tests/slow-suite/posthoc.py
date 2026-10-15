@@ -27,6 +27,8 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 EXCLUDED = {'w26', 'w30'}
+# The plan's six clean tasks: all but task 2 (the permission-prompt artefact) and task 5 (AMU's walk defect).
+SIX = {'task1', 'task3', 'task4', 'task6', 'task7', 'task8'}
 SLACK, LONG = 5.0, 20.0
 
 
@@ -95,9 +97,12 @@ if __name__ == '__main__':
                    clean_active=a['clean_active'] is not None and (d['clean_active'] is None or a['clean_active'] < d['clean_active']))
         tied = dict(red=a['red'] == d['red'], breaking_share=a['breaking_share'] == d['breaking_share'])
         table.append(dict(task=task, amu=a, dumb=d, amu_won=won, tied=tied))
+    six = {}
     for measure in ('clean_active', 'active', 'wall', 'test_seconds', 'red', 'breaking_share'):
         wins[measure] = sum(row['amu_won'][measure] for row in table)
-    (HERE/'results'/'posthoc.json').write_text(json.dumps(dict(runs=runs, tasks=table, amu_task_wins=wins), indent=1))
+        six[measure] = sum(row['amu_won'][measure] for row in table if row['task'] in SIX)
+    (HERE/'results'/'posthoc.json').write_text(json.dumps(dict(runs=runs, tasks=table, amu_task_wins=wins,
+                                                               amu_task_wins_on_six=six), indent=1))
     print('run  task  arm   wall  wait  active  test  red  brk')
     for r in sorted(runs, key=lambda r: (r['task'], r['arm'], r['trial'])):
         print(f"{r['id']} {r['task']} {r['arm']:4} {r['wall']:6.0f} {r['waiting']:5.0f} {r['active']:6.0f} {r['test_seconds']:5.0f}"
@@ -109,3 +114,4 @@ if __name__ == '__main__':
               'test', fmt(a['test_seconds']), fmt(d['test_seconds']), 'red', a['red'], d['red'],
               'brk', round(a['breaking_share'], 2), round(d['breaking_share'], 2), row['amu_won'])
     print('AMU task wins of', len(table), wins)
+    print('AMU task wins of the six', six)

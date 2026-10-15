@@ -858,18 +858,19 @@ triggers in both arms. Full tables and root causes are in `slow-suite/TRIAL-RECO
 
 ## Slow-suite: post hoc paired re-analysis (no new runs)
 
-**Post hoc. AMU reached a tree with no red test faster on 6 of 8 tasks (5 of 8 at other wait thresholds), short of
-the owner's bar of five of six. The agent line is closed with nothing further to test; no final trial is defined.**
+**Post hoc. On the plan's six clean tasks (all but task 2, the prompt artefact, and task 5, the walk defect), the AMU
+arm reached a tree with no red test first on 5 of 6, at every wait threshold tried. That meets the owner's bar, so a
+win condition for one final trial is written in the record. It is not run. Over all 8 tasks the count is 6 of 8 (5 of
+8 at higher thresholds), which would not meet it.**
 
-Pairs by task, excluding w26 and w30. Both are task 2, trial 1, so the comparison covers 8 tasks, with task 2 on one
-run per arm. Wall time is corrected for permission-prompt waits, up to about 2,500 s in some runs. Details, the table
-and the method are in `slow-suite/TRIAL-RECORD.md` (Post hoc paired re-analysis), with `slow-suite/posthoc.py`.
-- Two of the six wins (tasks 3 and 8) are wins only because dumb-hook agents left a red test in their own trees. In
+Paired by task, excluding w26 and w30, with wall time corrected for permission-prompt waits of up to about 2,500 s.
+Details, the table, the method and the written trial condition are in `slow-suite/TRIAL-RECORD.md` (Post hoc paired
+re-analysis), with `slow-suite/posthoc.py`.
+- Two of the five wins (tasks 3 and 8) are wins only because dumb-hook agents left a red test in their own trees. In
   task 3 upstream's rewritten test accepts that behaviour, and the AMU arm is the one that shipped regressions.
-- One win (task 4) is by 1 to 2 s.
-- Task 2's result flips with the threshold.
-- AMU charged less test time on 4 of 8 tasks, left fewer red tests on 2 (6 ties), and ran a larger share of the
-  frozen breaking tests on 4 (3 ties).
+- One win (task 4) is by 1 to 2 s. Only tasks 1 and 6 are won by a margin.
+- On the six: less test time charged on 4, fewer red tests on 2 (4 ties), larger share of frozen breaking tests run
+  on 4 (2 ties), lower active time on 4.
 
 ## Slow-suite brief, piece 4: preparation (no agent session yet)
 

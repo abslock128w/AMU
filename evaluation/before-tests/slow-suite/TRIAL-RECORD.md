@@ -319,20 +319,21 @@ sympy's tests only, in copies outside the owner's checkout:
 
 ## Post hoc paired re-analysis (2026-10-15, after the result; no new runs)
 
-**Post hoc. Not a pre-registered measure. AMU reached a tree with no red test faster on 6 of 8 tasks at the default
-setting and 5 of 8 at others, short of the owner's bar of five of six. The agent line is closed with nothing further
-to test.**
+**Post hoc. Not a pre-registered measure. On the six tasks the plan calls clean (all but task 2, the permission-prompt
+artefact, and task 5, AMU's walk defect), the AMU arm reached a tree with no red test first on 5 of 6, at every wait
+threshold tried. That meets the owner's bar, so the win condition for one final trial is written below. It is not
+run. Read over all 8 tasks instead, the count is 6 of 8 (5 of 8 at higher thresholds), below the bar.**
 
 Asked by the owner after the result: pair by task, exclude w26 and w30 as prompt-blocked, and report per pair wall
 time to declared done, test time charged, red tests left in the agent's own tree, and whether the frozen breaking
 test was run. Script: `posthoc.py`; output: `results/posthoc.json`. The 32 scored runs and their saved transcripts are
 the only input.
 
-**How "six" was read.** w26 and w30 are both task 2 and both trial 1, so excluding them leaves task 2 with one run per
-arm (w05 against w10), not six tasks. The owner's bar, five of six, is applied as a share: at least 5/6 of the tasks
-compared. Below, 8 tasks, task 2 on its remaining pair. Without task 2 the counts are one lower out of 7. The only way
-to reach 5 of 6 is to also drop task 5, the one where AMU's own walk defect spent the budget, and the owner did not
-ask for that.
+**Which six.** The bar ("five of six clean tasks") comes from `AMU-PRODUCT-PLAN.md` section 13, which does not list
+the six. Its paragraph names task 2 as a permission-prompt artefact and task 5 as the task AMU's defect stopped from
+testing; the other six are 1, 3, 4, 6, 7 and 8. That is the reading used for the decision. w26 and w30 are both in
+task 2 (trial 1), so the owner's exclusion alone leaves 8 tasks with task 2 on one run per arm; the 8-task counts are
+given too. The decision differs between the two readings.
 
 **Wall time is corrected for permission prompts.** 16 runs waited on prompts the owner answered, some for 15 minutes
 or more (w01 and w02 each 2,500 s or so). For every tool call over 20 s, the wait is the gap from call to result, less
@@ -350,20 +351,38 @@ the mean of its runs. An arm reaches a tree with no red test only if all its run
 | 7 | w27, w01; w28, w02 | 222 / 139 | 124 / 69 | 0 / 0 | 0.75 / 0.25 | no |
 | 8 | w07, w14; w16, w15 | 113 / 111 | 80 / 83 | 0 / 0.5 | 1.0 / 0.5 | yes: dumb arm left a red test |
 
-AMU-arm task wins out of 8 (default 20 s threshold; at 60 s and 120 s in brackets):
-- first to a tree with no red test: 6 (5, 5);
-- lower active time: 5 (4, 4); lower raw wall time: 5;
-- less test time charged: 4;
-- fewer red tests in its own tree: 2, with 6 ties;
-- larger share of frozen breaking tests run: 4, with 3 ties.
+AMU-arm task wins on the six (tasks 1, 3, 4, 6, 7, 8), then on all 8; default 20 s threshold, 60 s and 120 s in brackets:
+- first to a tree with no red test: **5 of 6 (5, 5)**; 6 of 8 (5, 5);
+- lower active time: 4 of 6 (4, 4); 5 of 8 (4, 4); lower raw wall time: 5 of 6; 5 of 8;
+- less test time charged: 4 of 6; 4 of 8;
+- fewer red tests in its own tree: 2 of 6, 4 ties; 2 of 8, 6 ties;
+- larger share of frozen breaking tests run: 4 of 6, 2 ties; 4 of 8, 3 ties.
 
-What the wins rest on:
+What the wins rest on, so the next trial is read with them in mind:
 - **Tasks 3 and 8** are won because dumb-hook agents left a red test in their own tree. In task 3 that red test
   (`test_issue_12791`) is one upstream rewrote to accept the dumb arm's behaviour, and it is the AMU arm that shipped
   regressions there. Finishing first with no red test is not the same as matching upstream.
 - **Task 4** is won by 1 to 2 s of a 65 s mean.
-- **Task 2** flips with the wait threshold, and rests on one run per arm.
-- Measured on raw wall time instead, with no prompt correction, AMU leads on 5 of 8.
+- **Tasks 1 and 6** are the only wins by a margin (17 s and 80 s of active time).
+- Task 2, excluded from the six, flips with the threshold and rests on one run per arm. Task 5, excluded, is a loss
+  caused by the defect now fixed in 087e832.
 
-**By the owner's rule: AMU is not faster to a tree with no red test on at least five of six. The agent line is closed,
-with nothing further to test. No final trial condition is written.**
+### Pre-registered win condition for one final trial (written, not run)
+
+Hypothesis from the re-analysis above: with AMU's hook, an agent reaches a tree with no red test sooner than with the
+dumb hook, without shipping more regressions. Nothing below has been run. Running it needs the owner's decision.
+
+- **Tasks:** 8 new sympy commits, frozen with the same script and filters from a window that excludes the 86 already
+  screened, committed before any session.
+- **Arms and runs:** as in this trial (Sonnet, AMU hook against dumb hook, 2 runs per task per arm, 185 s test
+  budget, same prompt). AMU at 087e832 or later, frozen in the record before the first session.
+- **Permission prompts removed, not corrected for:** each workspace allows `sed -i`, `python3`, `cat >` and `./rt`
+  without asking. A run that still waits on a prompt is excluded with its task.
+- **Primary measure, per task:** each arm's mean active time to declared done, where active time is wall time less
+  prompt waits (`posthoc.py`'s method, 20 s threshold). An arm reaches the target only if every run leaves no red
+  test in its own tree; an arm that does not loses the task.
+- **Win:** the AMU arm is first on at least 5 of 6 tasks, counting only tasks with no excluded run. With 7 or 8
+  tasks compared, at least 6 of 7 or 7 of 8.
+- **Guard:** the AMU arm's runs that ship a regression (this trial's headline measure and scorer) are no more than
+  the dumb hook's. If the guard fails, the trial is lost whatever the primary measure says.
+- **Otherwise:** lost, and the agent line is closed with nothing further to test.
