@@ -27,7 +27,7 @@ inputs:
   amu-ref:
     description: Tag of github.com/abslock128w/AMU that AMU is installed from.
     required: false
-    default: ci-v0.1.0
+    default: ci-v0.1.1
   base-sha:
     description: Base commit of the pull request.
     required: false
@@ -150,8 +150,8 @@ runs:
         AMU_COUNTERS: ${{ inputs.counters }}
       run: |
         out="$RUNNER_TEMP/amu-out"
-        if "$RUNNER_TEMP/amu-venv/bin/python" -c 'import amu.ci.run' 2> /dev/null; then
-          "$RUNNER_TEMP/amu-venv/bin/python" -m amu.ci.run --base "$AMU_BASE" --head "$AMU_HEAD" --out "$out" \
+        if "$RUNNER_TEMP/amu-venv/bin/python" -P -c 'import amu.ci.run' 2> /dev/null; then
+          "$RUNNER_TEMP/amu-venv/bin/python" -P -m amu.ci.run --base "$AMU_BASE" --head "$AMU_HEAD" --out "$out" \
             --python "$AMU_PYTHON" ${AMU_RUNNER:+--runner "$AMU_RUNNER"} ${AMU_PR:+--pr "$AMU_PR"} \
             --install-ok "${AMU_INSTALL_OK:-false}" --amu-ref "$AMU_REF" \
             ${AMU_BUDGET:+--budget "$AMU_BUDGET"} ${AMU_WALL_CAP:+--wall-cap "$AMU_WALL_CAP"} \
@@ -161,7 +161,7 @@ runs:
             "$AMU_REF" "$out/report.json"
         fi
         # A preview of the comment; the posting job renders it again from the JSON with the pinned AMU.
-        "$RUNNER_TEMP/amu-venv/bin/python" -m amu.ci.render "$out" > "$out/comment.md" 2> /dev/null || true
+        "$RUNNER_TEMP/amu-venv/bin/python" -P -m amu.ci.render "$out" > "$out/comment.md" 2> /dev/null || true
 
     - uses: actions/upload-artifact@v4
       if: always() && inputs.mode != 'verify'
@@ -185,7 +185,7 @@ runs:
       env:
         AMU_PYTHON: ${{ steps.install.outputs.python }}
       run: |
-        "$RUNNER_TEMP/amu-venv/bin/python" -m amu.ci.verify --dir "$RUNNER_TEMP/amu-in" --out "$RUNNER_TEMP/amu-verify" \
+        "$RUNNER_TEMP/amu-venv/bin/python" -P -m amu.ci.verify --dir "$RUNNER_TEMP/amu-in" --out "$RUNNER_TEMP/amu-verify" \
           --python "$AMU_PYTHON" || true
 
     - uses: actions/upload-artifact@v4

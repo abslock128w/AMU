@@ -31,6 +31,9 @@ from .. import __version__
 from ..core.index import cache_dir
 
 RESERVE = 60  # seconds kept back from the wall cap for reading results
+# The checkout may hold its own ``amu`` package (AMU's own repository does); -P keeps the current directory off
+# sys.path so the installed AMU runs, not the one under test.
+SAFE = ['-P']
 
 
 def git(repo, *args):
@@ -48,7 +51,7 @@ def merge_base(repo, base, head):
 
 
 def amu_command(patch, python, runner, budget):
-    command = [sys.executable, '-m', 'amu.core', '--repo', '.', '--patch-file', str(patch), '--run', '--full-evidence',
+    command = [sys.executable, *SAFE, '-m', 'amu.core', '--repo', '.', '--patch-file', str(patch), '--run', '--full-evidence',
                '--python', python]
     if runner:
         command += ['--runner', runner]
@@ -88,7 +91,7 @@ def observe(repo, found, python, runner, seconds):
     try:
         if git(repo, 'worktree', 'add', '--detach', '--quiet', str(tree), found) is None:
             return 'recording skipped: the merge base could not be checked out'
-        command = [sys.executable, '-m', 'amu.core', '--repo', str(tree), '--observe', '--python', python]
+        command = [sys.executable, *SAFE, '-m', 'amu.core', '--repo', str(tree), '--observe', '--python', python]
         done, problem = bounded(command + (['--runner', runner] if runner else []), tree, seconds)
         source = recording(tree)
         if problem or not source.is_dir():

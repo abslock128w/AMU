@@ -96,3 +96,16 @@ def test_second_run_reuses_the_index_and_records_on_the_merge_base(pull_request,
     assert second['cached_index'] is True and second['recording'] is True
     assert report['flips'] == 1 and not [gap for gap in report['gaps'] if 'recording' in gap]
     assert git(repo, 'worktree', 'list').count('\n') == 0  # the merge-base worktree is gone
+
+
+def test_a_checkout_with_its_own_amu_package_does_not_shadow_the_installed_one(pull_request, tmp_path):
+    repo, base, head = pull_request
+    (repo/'amu'/'core').mkdir(parents=True)
+    (repo/'amu'/'__init__.py').write_text('')
+    (repo/'amu'/'core'/'__init__.py').write_text('')
+    (repo/'amu'/'core'/'__main__.py').write_text('print("the checkout\'s amu")\n')
+    git(repo, 'add', '.')
+    git(repo, 'commit', '-qm', 'an amu package of its own')
+    head = git(repo, 'rev-parse', 'HEAD')
+    report, _ = ci_run.run(repo, base, head, tmp_path/'out', python=sys.executable)
+    assert report.get('flips') == 1, report

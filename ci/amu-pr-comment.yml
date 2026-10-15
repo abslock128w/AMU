@@ -40,10 +40,10 @@ jobs:
       - name: Post the comment
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          AMU_REF: ci-v0.1.0
+          AMU_REF: ci-v0.1.1
         run: |
           python -m venv "$RUNNER_TEMP/amu"
           "$RUNNER_TEMP/amu/bin/python" -m pip install --quiet --disable-pip-version-check --no-deps \
             "amu @ git+https://github.com/abslock128w/AMU@${AMU_REF}"
-          "$RUNNER_TEMP/amu/bin/python" -m amu.ci.post --dir "$RUNNER_TEMP/amu-report" \
+          "$RUNNER_TEMP/amu/bin/python" -P -m amu.ci.post --dir "$RUNNER_TEMP/amu-report" \
             --repo "$GITHUB_REPOSITORY" --event "$GITHUB_EVENT_PATH" --verify-dir "$RUNNER_TEMP/amu-verify"
