@@ -36,3 +36,32 @@ step always succeeds.**
   - The flip is found against the merge base, and a commit added to main later stays out of the diff.
   - A wrong checkout, a missing base and the CLI exit code are covered.
 - **Not yet tested:** a GitHub run. That is piece 6.
+
+## 2. The comment (`amu/ci/render.py`, `amu/ci/post.py`)
+
+**One Markdown comment per pull request. The first line is the flip count and the head SHA. Then come flips, a runner
+abort, gaps and what ran. The comment is found by a hidden marker and edited on each push.**
+
+- **First line, one of:**
+  - `**AMU: 2 flips** at abcdef1, among 40 tests run`;
+  - `**AMU: no flip count** at abcdef1: <why>`, when nothing ran, the runner aborted or AMU produced no report.
+- **It never claims more than ran.** A 0 is "0 flips among N tests run", and a closing line says tests outside the
+  candidates were not run. No word in it calls the change good.
+  - To support this, the full-evidence report now carries `executed` (ran, candidates, unrunnable, seconds, runner,
+    budget). The compact agent packet is unchanged.
+- **Untrusted text.** Test names and error text come from the pull request's code, so each goes into an inline code
+  span with backticks and line breaks removed, cut to 300 characters. No heading, HTML, @mention or copied marker can
+  take effect.
+- **Size cap:** 60,000 characters, under GitHub's 65,536. Lists are halved until the comment fits, with "and N more in
+  the artifact".
+- **Find-or-create-then-edit.** Comments are paged through the REST API. Only a comment with the marker *and* written
+  by the posting account (`github-actions[bot]` by default) is edited, so a marker copied into someone else's comment
+  is ignored. The poster never fails the job.
+- **Preview:** the action also saves `comment.md` in the artifact. The trusted posting job (piece 3) renders the
+  comment again from the JSON and does not use that file.
+- **Tests:** `tests/ci/test_render_post.py` (9):
+  - the order of the sections, and that 0 is not a pass;
+  - nothing ran, a runner abort, an error with a failed install;
+  - code-span escaping against a hostile test name;
+  - the size cap with 2,000 flips;
+  - editing only our marked comment, and creating one when there is none.

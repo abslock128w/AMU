@@ -419,6 +419,10 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     report['report_hash'] = hashlib.sha256(encoded([hashes, patch, report])).hexdigest()[:12]
     if full_evidence:
         report['index'] = {'parsed_files': parsed, 'files': len(facts)}
+        if executed is not None:
+            # How much actually ran, for readers that must not claim more (the pull request comment).
+            report['executed'] = dict({k: executed.get(k) for k in ('ran', 'candidates', 'unrunnable', 'seconds', 'runner')},
+                                      budget=budget)
         report['changed_functions'] = functions
         return report
     return compact(report, include_tests)

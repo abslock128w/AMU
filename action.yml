@@ -105,6 +105,8 @@ runs:
           python -c 'import json, sys; json.dump({"error": "AMU could not be installed from " + sys.argv[1]}, open(sys.argv[2], "w"))' \
             "$AMU_REF" "$out/report.json"
         fi
+        # A preview of the comment; the posting job renders it again from the JSON with the pinned AMU.
+        "$RUNNER_TEMP/amu-venv/bin/python" -m amu.ci.render "$out" > "$out/comment.md" 2> /dev/null || true
 
     - uses: actions/upload-artifact@v4
       if: always()
