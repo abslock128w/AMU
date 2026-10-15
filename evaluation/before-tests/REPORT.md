@@ -832,6 +832,27 @@ Files: `amu/core/vanished.py`, `amu/core/__init__.py`, `amu/core/patch.py`, `tes
 for the review follow-ups, `amu/core/shadow.py`, `blind/hook.py` and `tests/core/test_blind_hook.py`. Nothing upstream
 was executed for this change: the AMU column stubs execution, and the ranking is static.
 
+## Slow-suite brief, piece 4: preparation (no agent session yet)
+
+**sympy's full suite takes 555 s serially with its own runner, so each run gets a 185 s test budget. Eight tasks are
+frozen. Three engine defects that would have crippled AMU on sympy were found and fixed before the record names the
+commit under test (b4fb71f).**
+
+- **Measured once, before anything else:** `bin/test` (pytest under sympy's configuration), serial, at 92e2a7e6. It took
+  555 s wall: 13,297 passed, 737 skipped, 263 deselected, 329 xfailed, 2 xpassed, 0 failed. Its ids are pytest node ids
+  and paste into pytest, so no adapter was needed.
+- **Freeze (ee101a5, committed before any analysis):** 86 commits screened, eight kept, all indirect; see the record for
+  why the mix differs from the brief.
+- **Engine fixes, each its own commit:**
+  - ebffb45: a candidate deselected by the project's marker filter is skipped, not split out with up to 12 pytest restarts.
+  - 11479c7: bare `amu` now executes in trees whose tests live inside packages. On sympy it had executed nothing.
+  - b4fb71f: tests named `test1` or `testSquare` count, and functions nested in a test do not. A mechanics check on a
+    non-task tree had AMU list 9 of the 10 tests the dumb hook saw failing; it now lists all 10. The ranking is
+    unchanged (`blind/results/ranking/rank-p6-*.json`).
+- AMU's suite at b4fb71f: 2,614 passed, 14 skipped, 1 failed (the known build-hash check).
+- Record, rules and scripts: `slow-suite/` (`TRIAL-RECORD.md`, `rules.json`, `symrun.py`, `build_workspaces.py`,
+  `prebuild_index.py`, `desktop_prepare.py`, `make_tasks.py`, `score.py`).
+
 ## Milestones (state at b3747c8)
 
 - **M1 harness.** `scripts/before_tests_harness.py`; protocol and manifests are hash-pinned.

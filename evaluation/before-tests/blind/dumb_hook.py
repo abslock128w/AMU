@@ -20,7 +20,6 @@ import ast
 import fcntl
 import hashlib
 import json
-import os
 import re
 import subprocess
 import sys
