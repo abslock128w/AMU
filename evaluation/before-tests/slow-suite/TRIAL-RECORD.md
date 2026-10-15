@@ -335,6 +335,9 @@ testing; the other six are 1, 3, 4, 6, 7 and 8. That is the reading used for the
 task 2 (trial 1), so the owner's exclusion alone leaves 8 tasks with task 2 on one run per arm; the 8-task counts are
 given too. The decision differs between the two readings.
 
+The owner confirmed the six-task reading on 2026-10-15. The final-trial condition below stays written; whether to
+run it is the owner's separate decision.
+
 **Wall time is corrected for permission prompts.** 16 runs waited on prompts the owner answered, some for 15 minutes
 or more (w01 and w02 each 2,500 s or so). For every tool call over 20 s, the wait is the gap from call to result, less
 test and hook seconds the ledger logged inside the gap, less 5 s. "Active" is wall minus waits. Per task, each arm is
