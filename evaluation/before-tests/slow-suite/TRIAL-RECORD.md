@@ -316,3 +316,54 @@ sympy's tests only, in copies outside the owner's checkout:
 - the 32 sessions' `./rt` and hook runs;
 - scoring: 16 reference full suites, 32 hidden-test full suites, suspect reruns and 32 own-tree module runs;
 - one diagnostic AMU run on a copy of w19's tree, and the w30 counterfactual.
+
+## Post hoc paired re-analysis (2026-10-15, after the result; no new runs)
+
+**Post hoc. Not a pre-registered measure. AMU reached a tree with no red test faster on 6 of 8 tasks at the default
+setting and 5 of 8 at others, short of the owner's bar of five of six. The agent line is closed with nothing further
+to test.**
+
+Asked by the owner after the result: pair by task, exclude w26 and w30 as prompt-blocked, and report per pair wall
+time to declared done, test time charged, red tests left in the agent's own tree, and whether the frozen breaking
+test was run. Script: `posthoc.py`; output: `results/posthoc.json`. The 32 scored runs and their saved transcripts are
+the only input.
+
+**How "six" was read.** w26 and w30 are both task 2 and both trial 1, so excluding them leaves task 2 with one run per
+arm (w05 against w10), not six tasks. The owner's bar, five of six, is applied as a share: at least 5/6 of the tasks
+compared. Below, 8 tasks, task 2 on its remaining pair. Without task 2 the counts are one lower out of 7. The only way
+to reach 5 of 6 is to also drop task 5, the one where AMU's own walk defect spent the budget, and the owner did not
+ask for that.
+
+**Wall time is corrected for permission prompts.** 16 runs waited on prompts the owner answered, some for 15 minutes
+or more (w01 and w02 each 2,500 s or so). For every tool call over 20 s, the wait is the gap from call to result, less
+test and hook seconds the ledger logged inside the gap, less 5 s. "Active" is wall minus waits. Per task, each arm is
+the mean of its runs. An arm reaches a tree with no red test only if all its runs do.
+
+| Task | Runs (AMU; dumb) | Active s to declared, AMU / dumb | Test s charged | Red tests in own tree | Share of frozen breaking tests run | AMU first to a no-red tree |
+|---|---|---|---|---|---|---|
+| 1 | w12, w06; w23, w22 | 161 / 178 | 108 / 132 | 0 / 0 | 0.4 / 0.4 | yes |
+| 2 | w05; w10 | 170 / 184 | 114 / 93 | 0 / 0 | 1.0 / 1.0 | yes (no at 60 s) |
+| 3 | w09, w04; w18, w03 | 209 / 270 | 139 / 178 | 0 / 1.0 | 0.75 / 0 | yes: dumb arm left a red test |
+| 4 | w11, w29; w25, w21 | 64 / 66 | 27 / 8 | 0 / 0 | 1.0 / 0.5 | yes, by 1 to 2 s |
+| 5 | w19, w13; w08, w24 | 339 / 250 | 185 / 115 | 0 / 0 | 0 / 1.0 | no |
+| 6 | w31, w20; w32, w17 | 158 / 238 | 117 / 175 | 0 / 0 | 0.5 / 0.5 | yes |
+| 7 | w27, w01; w28, w02 | 222 / 139 | 124 / 69 | 0 / 0 | 0.75 / 0.25 | no |
+| 8 | w07, w14; w16, w15 | 113 / 111 | 80 / 83 | 0 / 0.5 | 1.0 / 0.5 | yes: dumb arm left a red test |
+
+AMU-arm task wins out of 8 (default 20 s threshold; at 60 s and 120 s in brackets):
+- first to a tree with no red test: 6 (5, 5);
+- lower active time: 5 (4, 4); lower raw wall time: 5;
+- less test time charged: 4;
+- fewer red tests in its own tree: 2, with 6 ties;
+- larger share of frozen breaking tests run: 4, with 3 ties.
+
+What the wins rest on:
+- **Tasks 3 and 8** are won because dumb-hook agents left a red test in their own tree. In task 3 that red test
+  (`test_issue_12791`) is one upstream rewrote to accept the dumb arm's behaviour, and it is the AMU arm that shipped
+  regressions there. Finishing first with no red test is not the same as matching upstream.
+- **Task 4** is won by 1 to 2 s of a 65 s mean.
+- **Task 2** flips with the wait threshold, and rests on one run per arm.
+- Measured on raw wall time instead, with no prompt correction, AMU leads on 5 of 8.
+
+**By the owner's rule: AMU is not faster to a tree with no red test on at least five of six. The agent line is closed,
+with nothing further to test. No final trial condition is written.**

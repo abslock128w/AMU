@@ -856,6 +856,21 @@ triggers in both arms. Full tables and root causes are in `slow-suite/TRIAL-RECO
   14 runs, against 12. That did not turn into fewer regressions: most counted tests are ones upstream rewrote, and no
   tool that runs the agent's existing tests sees those.
 
+## Slow-suite: post hoc paired re-analysis (no new runs)
+
+**Post hoc. AMU reached a tree with no red test faster on 6 of 8 tasks (5 of 8 at other wait thresholds), short of
+the owner's bar of five of six. The agent line is closed with nothing further to test; no final trial is defined.**
+
+Pairs by task, excluding w26 and w30. Both are task 2, trial 1, so the comparison covers 8 tasks, with task 2 on one
+run per arm. Wall time is corrected for permission-prompt waits, up to about 2,500 s in some runs. Details, the table
+and the method are in `slow-suite/TRIAL-RECORD.md` (Post hoc paired re-analysis), with `slow-suite/posthoc.py`.
+- Two of the six wins (tasks 3 and 8) are wins only because dumb-hook agents left a red test in their own trees. In
+  task 3 upstream's rewritten test accepts that behaviour, and the AMU arm is the one that shipped regressions.
+- One win (task 4) is by 1 to 2 s.
+- Task 2's result flips with the threshold.
+- AMU charged less test time on 4 of 8 tasks, left fewer red tests on 2 (6 ties), and ran a larger share of the
+  frozen breaking tests on 4 (3 ties).
+
 ## Slow-suite brief, piece 4: preparation (no agent session yet)
 
 **sympy's full suite takes 555 s serially with its own runner, so each run gets a 185 s test budget. Eight tasks are
