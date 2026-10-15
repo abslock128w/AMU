@@ -27,7 +27,7 @@ inputs:
   amu-ref:
     description: Tag of github.com/abslock128w/AMU that AMU is installed from.
     required: false
-    default: ci-v0.1.1
+    default: ci-v0.1.2
   base-sha:
     description: Base commit of the pull request.
     required: false
@@ -53,7 +53,7 @@ inputs:
     required: false
     default: 'false'
   cache:
-    description: "'false' turns off caching of .amu (index and recording), keyed on the merge base."
+    description: "'false' turns off caching of .amu/index (index and recording), keyed on the merge base."
     required: false
     default: 'true'
   counters:
@@ -97,10 +97,10 @@ runs:
         echo "sha=$found" >> "$GITHUB_OUTPUT"
 
     # Caches written by a pull request are visible only to that pull request; the base branch's are shared.
-    - uses: actions/cache@v4
+    # Only .amu/index (index and recording): a repository may track other files under .amu.
       if: inputs.mode != 'verify' && inputs.cache == 'true' && steps.base.outputs.sha != ''
       with:
-        path: .amu
+        path: .amu/index
         key: amu-${{ runner.os }}-py${{ inputs.python-version }}-${{ steps.base.outputs.sha }}
         restore-keys: amu-${{ runner.os }}-py${{ inputs.python-version }}-
 

@@ -67,3 +67,9 @@ def test_artifact_cannot_redirect_the_comment(tmp_path, monkeypatch):
     monkeypatch.setattr(post, 'upsert', lambda github, repo, pr, body, author: posted.append((pr, body(None))) or ('created', 1))
     assert post.main(['--dir', str(tmp_path), '--repo', 'o/r', '--event', str(tmp_path/'event.json')]) == 0
     assert posted[0][0] == 4 and '`h2`' in posted[0][1].splitlines()[0] and 'forged' not in posted[0][1]
+
+
+def test_cache_holds_only_the_index_folder():
+    # A repository may track its own files under .amu (AMU's does); restoring a cache over them would change the tree.
+    text = (ROOT/'action.yml').read_text()
+    assert 'path: .amu/index\n' in text and 'path: .amu\n' not in text

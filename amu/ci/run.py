@@ -10,7 +10,7 @@ reached the base branch after the pull request was opened are not in it. Writes 
 - ``patch.diff``: the diff amu was given.
 Under GitHub Actions, ``merge-base`` and ``flips`` are also written to ``$GITHUB_OUTPUT``.
 
-The index and any per-test recording live in ``.amu/`` (the action caches it on the merge base). ``--observe`` records
+The index and any per-test recording live in ``.amu/index/`` (the action caches that folder on the merge base). ``--observe`` records
 one on the merge base, in a temporary worktree, when the cache has none. ``--wall-cap`` bounds everything: past it the
 run is stopped and the report says so.
 """

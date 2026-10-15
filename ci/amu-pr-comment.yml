@@ -40,7 +40,7 @@ jobs:
       - name: Post the comment
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          AMU_REF: ci-v0.1.1
+          AMU_REF: ci-v0.1.2
         run: |
           python -m venv "$RUNNER_TEMP/amu"
           "$RUNNER_TEMP/amu/bin/python" -m pip install --quiet --disable-pip-version-check --no-deps \
