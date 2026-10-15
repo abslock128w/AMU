@@ -615,9 +615,9 @@ Same eight frozen tasks, prompt, budget, rules and scorer as the Sonnet run; age
 
 ## Slow-suite brief, pieces 1 and 2 (2026-10-14)
 
-**testmon finds more of the breaking tests than AMU on Werkzeug, 14 of 21 against 9 of 21; AMU finds more on Click
-holdout 3, 55 of 61 against 46 of 61. Bare `amu` on an applied change found no candidate at all in 2 of the 10
-Werkzeug cases (a defect, below).**
+**Across the four sets testmon found 82 of 105 breaking tests and AMU 86 of 105: testmon more on Werkzeug (14 of
+21 against 9 of 21), AMU more on Click holdout 3 (55 of 61 against 46 of 61), level on requests and itsdangerous. Bare
+`amu` on an applied change found no candidate at all in 2 of the 10 Werkzeug cases (a defect, fixed in the next piece).**
 
 ### Piece 1: a flagged test made to pass by editing it stays listed
 
@@ -670,7 +670,7 @@ the production patch is applied. AMU's set is what bare `amu` would run on a git
 excluded. Click's `-m 'not stress'` and Werkzeug's live dev-server tests (which need pytest-timeout, not installed) are
 deselected by a plugin, since `-m` switches testmon's selection off.
 
-| Set | Case | Truth tests | testmon recall | testmon selected: functions / items selected of collected | AMU recall | AMU candidates |
+| Set | Case | Truth tests | testmon found | testmon selected: functions / items selected of collected | AMU found | AMU candidates |
 |---|---|---:|---:|---|---:|---:|
 | Click h3 | h3-click-a1d87858 | 2 | 2/2 | 88 / 426/32396 | 2/2 | 150 |
 | Click h3 | h3-click-bc32a92c | 6 | 6/6 | 43 / 152/31391 | 6/6 | 150 |
@@ -690,11 +690,22 @@ deselected by a plugin, since `-m` switches testmon's selection off.
 | Werkzeug | extra-45768395 | 2 | 2/2 | 242 / 378/671 | 0/2 | 149 |
 | Werkzeug | extra-dc199349 | 1 | 1/1 | 187 / 268/570 | 1/1 | 10 |
 | Werkzeug | extra-f359a67e | 5 | 4/5 | 156 / 235/488 | 2/5 | 150 |
+| requests | h2-requests-f0198e6d | 2 | 2/2 | 98 / 126/576 | 2/2 | 39 |
+| requests | h2-requests-bc7dd0fc | 1 | 1/1 | 192 / 285/583 | 0/1 | 4 |
+| requests | h2-requests-f8bec2f7 | 2 | 2/2 | 276 / 521/585 | 2/2 | 150 |
+| requests | h2-requests-01353d3b | 1 | 0/1 | 72 / 221/248 | 1/1 | 109 |
+| itsdangerous | h2-itsdangerous-7f4dcf83 | 1 | 1/1 | 129 / 289 | 1/1 | 35 |
+| itsdangerous | h2-itsdangerous-177196d3 | 1 | 1/1 | 53 / 97/231 | 1/1 | 29 |
+| itsdangerous | h2-itsdangerous-aed5b260 | 12 | 12/12 | 190 / 421 | 12/12 | 46 |
+| itsdangerous | h2-itsdangerous-526b1ea0 | 3 | 3/3 | 64 / 116/350 | 3/3 | 33 |
 
 | Set | Cases | Truth tests found, testmon | Truth tests found, AMU | Cases fully covered, testmon | Cases fully covered, AMU |
 |---|---:|---:|---:|---:|---:|
 | Click h3 | 8 | 46/61 | 55/61 | 6/8 | 6/8 |
 | Werkzeug | 10 | 14/21 | 9/21 | 8/10 | 6/10 |
+| requests | 4 | 5/6 | 5/6 | 3/4 | 3/4 |
+| itsdangerous | 4 | 17/17 | 17/17 | 4/4 | 4/4 |
+| All four | 26 | 82/105 | 86/105 | 21/26 | 19/26 |
 
 - testmon's misses: Click 051725fa renames `get_binary_stream`, and the breaking tests fail when their module is imported,
   at collection, outside any test's coverage context, so testmon never links them (traced in its database). The misses in
@@ -703,9 +714,10 @@ deselected by a plugin, since `-m` switches testmon's selection off.
   no candidate at all; in patch-text mode (the ranking harness) it finds them. When a change renames or removes the
   function the tests reach, the graph rebuilt from the edited tree no longer connects them. The hook runs bare `amu`.
 - testmon's selections are larger on most cases (up to 1,676 items of a 2,000-item Click suite).
-- Not run: requests and itsdangerous. requests cannot be imported here without urllib3, idna, charset-normalizer and
-  certifi, and its tests need pytest-httpbin and trustme; itsdangerous' timed tests need freezegun. Only testmon was
-  approved for installation.
+- requests and itsdangerous ran after their test dependencies were approved and installed (urllib3, idna, charset-normalizer,
+  certifi, pytest-httpbin, trustme, freezegun). requests' baseline had 8 to 11 environment failures; none is a truth test.
+  testmon's selection was the whole suite on itsdangerous 7f4dcf83 and aed5b260. The AMU column for these 8 cases was
+  recomputed with the committed engine and matched exactly; the run had loaded the engine before an edit made during it.
 - The first attempt was discarded: its AMU column came from patch-text mode, and Werkzeug's run hung because a live dev
   server held the output pipe open past the timeout. Runs are now killed as a process group.
 
@@ -719,8 +731,8 @@ package's build-hash check in `tests/test_mcp_verification.py`, which fails on a
 
 Files: `amu/core/shadow.py`, `amu/core/__init__.py`, `amu/core/__main__.py` (`--also`), `amu/core/runners.py`,
 `blind/hook.py`, `blind/dumb_hook.py`, `blind/testmon_baseline.py`, `tests/core/test_reachability.py`,
-`tests/core/test_blind_hook.py`. Upstream code executed: Click holdout 3 and Werkzeug suites under testmon (18 cases,
-baseline and collection), and Django's tests on copies of Haiku w21's tree.
+`tests/core/test_blind_hook.py`. Upstream code executed: the Click holdout 3, Werkzeug, requests and itsdangerous suites under testmon
+(26 cases, baseline and collection), and Django's tests on copies of Haiku w21's tree.
 
 ## Slow-suite brief, piece 3: the repository (no suite executed)
 

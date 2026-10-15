@@ -667,5 +667,278 @@
     "tests/test_wsgi.py::test_limited_stream"
    ]
   }
+ },
+ {
+  "suite": "holdout2",
+  "testmon_version": "2.2.0",
+  "case_id": "h2-requests-f0198e6d",
+  "existing_truth": [
+   "tests/test_utils.py::test__parse_content_type_header",
+   "tests/test_utils.py::test_get_encoding_from_headers"
+  ],
+  "unscored": {},
+  "scored": true,
+  "collection_errors": false,
+  "testmon": {
+   "selected": 98,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_utils.py::test__parse_content_type_header",
+    "tests/test_utils.py::test_get_encoding_from_headers"
+   ],
+   "collected_line": "126/576 tests collected",
+   "baseline_seconds": 112.1,
+   "baseline_result": "8 failed, 593 passed, 15 skipped, 1 xpassed, 18 warnings in 106.39s (0:01:46)",
+   "select_seconds": 17.8
+  },
+  "amu": {
+   "candidates": 39,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_utils.py::test__parse_content_type_header",
+    "tests/test_utils.py::test_get_encoding_from_headers"
+   ]
+  }
+ },
+ {
+  "suite": "holdout2",
+  "testmon_version": "2.2.0",
+  "case_id": "h2-requests-bc7dd0fc",
+  "existing_truth": [
+   "tests/test_requests.py::TestRequests::test_header_no_return_chars"
+  ],
+  "unscored": {},
+  "scored": true,
+  "collection_errors": false,
+  "testmon": {
+   "selected": 192,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_requests.py::TestRequests::test_header_no_return_chars"
+   ],
+   "collected_line": "285/583 tests collected",
+   "baseline_seconds": 113.8,
+   "baseline_result": "8 failed, 588 passed, 15 skipped, 1 xpassed, 18 warnings in 106.71s (0:01:46)",
+   "select_seconds": 9.9
+  },
+  "amu": {
+   "candidates": 4,
+   "recall": 0.0,
+   "hits": []
+  }
+ },
+ {
+  "suite": "holdout2",
+  "testmon_version": "2.2.0",
+  "case_id": "h2-requests-f8bec2f7",
+  "existing_truth": [
+   "tests/test_requests.py::TestRequests::test_invalid_ca_certificate_path",
+   "tests/test_requests.py::TestRequests::test_invalid_ssl_certificate_files"
+  ],
+  "unscored": {},
+  "scored": true,
+  "collection_errors": false,
+  "testmon": {
+   "selected": 276,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_requests.py::TestRequests::test_invalid_ca_certificate_path",
+    "tests/test_requests.py::TestRequests::test_invalid_ssl_certificate_files"
+   ],
+   "collected_line": "521/585 tests collected",
+   "baseline_seconds": 109.7,
+   "baseline_result": "8 failed, 587 passed, 15 skipped, 1 xpassed, 18 warnings in 102.99s (0:01:42)",
+   "select_seconds": 13.6
+  },
+  "amu": {
+   "candidates": 150,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_requests.py::TestRequests::test_invalid_ca_certificate_path",
+    "tests/test_requests.py::TestRequests::test_invalid_ssl_certificate_files"
+   ]
+  }
+ },
+ {
+  "suite": "holdout2",
+  "testmon_version": "2.2.0",
+  "case_id": "h2-requests-01353d3b",
+  "existing_truth": [
+   "tests/test_requests.py::test_content_length_for_string_data_counts_bytes"
+  ],
+  "unscored": {},
+  "scored": true,
+  "collection_errors": false,
+  "testmon": {
+   "selected": 72,
+   "recall": 0.0,
+   "hits": [],
+   "collected_line": "221/248 tests collected",
+   "baseline_seconds": 108.5,
+   "baseline_result": "11 failed, 579 passed, 15 skipped, 1 xpassed, 18 warnings in 100.40s (0:01:40)",
+   "select_seconds": 9.6
+  },
+  "amu": {
+   "candidates": 109,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_requests.py::test_content_length_for_string_data_counts_bytes"
+   ]
+  }
+ },
+ {
+  "suite": "holdout2",
+  "testmon_version": "2.2.0",
+  "case_id": "h2-itsdangerous-7f4dcf83",
+  "existing_truth": [
+   "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_iter_unsigners"
+  ],
+  "unscored": {},
+  "scored": true,
+  "collection_errors": false,
+  "testmon": {
+   "selected": 129,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_iter_unsigners"
+   ],
+   "collected_line": "289 tests collected",
+   "baseline_seconds": 16.5,
+   "baseline_result": "297 passed in 10.97s",
+   "select_seconds": 6.0
+  },
+  "amu": {
+   "candidates": 35,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_iter_unsigners"
+   ]
+  }
+ },
+ {
+  "suite": "holdout2",
+  "testmon_version": "2.2.0",
+  "case_id": "h2-itsdangerous-177196d3",
+  "existing_truth": [
+   "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_malformed_future_timestamp"
+  ],
+  "unscored": {},
+  "scored": true,
+  "collection_errors": false,
+  "testmon": {
+   "selected": 53,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_malformed_future_timestamp"
+   ],
+   "collected_line": "97/231 tests collected",
+   "baseline_seconds": 16.9,
+   "baseline_result": "297 passed in 11.27s",
+   "select_seconds": 7.4
+  },
+  "amu": {
+   "candidates": 29,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_malformed_future_timestamp"
+   ]
+  }
+ },
+ {
+  "suite": "holdout2",
+  "testmon_version": "2.2.0",
+  "case_id": "h2-itsdangerous-aed5b260",
+  "existing_truth": [
+   "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_alt_salt",
+   "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_bad_payload_exception",
+   "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_bad_signature_exception",
+   "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_changed_value",
+   "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_fallback_signers",
+   "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_file",
+   "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_iter_unsigners",
+   "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_loads_unsafe",
+   "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_serializer",
+   "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_signer_cls",
+   "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_signer_kwargs",
+   "tests/test_itsdangerous/test_signer.py::test_abstract_algorithm"
+  ],
+  "unscored": {},
+  "scored": true,
+  "collection_errors": false,
+  "testmon": {
+   "selected": 190,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_alt_salt",
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_bad_payload_exception",
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_bad_signature_exception",
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_changed_value",
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_fallback_signers",
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_file",
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_iter_unsigners",
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_loads_unsafe",
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_serializer",
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_signer_cls",
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_signer_kwargs",
+    "tests/test_itsdangerous/test_signer.py::test_abstract_algorithm"
+   ],
+   "collected_line": "421 tests collected",
+   "baseline_seconds": 27.4,
+   "baseline_result": "421 passed in 20.08s",
+   "select_seconds": 12.8
+  },
+  "amu": {
+   "candidates": 46,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_alt_salt",
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_bad_payload_exception",
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_bad_signature_exception",
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_changed_value",
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_fallback_signers",
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_file",
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_iter_unsigners",
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_loads_unsafe",
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_serializer",
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_signer_cls",
+    "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_signer_kwargs",
+    "tests/test_itsdangerous/test_signer.py::test_abstract_algorithm"
+   ]
+  }
+ },
+ {
+  "suite": "holdout2",
+  "testmon_version": "2.2.0",
+  "case_id": "h2-itsdangerous-526b1ea0",
+  "existing_truth": [
+   "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_future_age",
+   "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_malformed_timestamp",
+   "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_timestamp_missing"
+  ],
+  "unscored": {},
+  "scored": true,
+  "collection_errors": false,
+  "testmon": {
+   "selected": 64,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_future_age",
+    "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_malformed_timestamp",
+    "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_timestamp_missing"
+   ],
+   "collected_line": "116/350 tests collected",
+   "baseline_seconds": 17.8,
+   "baseline_result": "415 passed in 10.55s",
+   "select_seconds": 3.7
+  },
+  "amu": {
+   "candidates": 33,
+   "recall": 1.0,
+   "hits": [
+    "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_future_age",
+    "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_malformed_timestamp",
+    "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_timestamp_missing"
+   ]
+  }
  }
 ]
