@@ -835,3 +835,166 @@ def test_the_packet_stays_under_its_limit_with_many_long_unstable_ids():
     out = compact(report)
     assert len(encoded(out)) < LIMIT and len(out['gaps'][0]) <= 240, out
     assert out['unstable'][-1] == f"and {len(ids) - len(out['unstable']) + 1} more", out['unstable']
+
+
+def _git_tree(tmp_path, files):
+    import subprocess
+    repository(tmp_path, files)
+    for args in (['init', '-q'], ['add', '-A'], ['-c', 'user.email=t@example.invalid', '-c', 'user.name=t', 'commit', '-qm', 'start']):
+        subprocess.run(['git', '-C', str(tmp_path), *args], check=True, capture_output=True)
+
+
+def _bare_candidates(tmp_path):
+    """The ids bare amu would execute for the uncommitted change in tmp_path (execution stubbed)."""
+    from amu.core import shadow
+    seen, real = [], shadow.run
+    shadow.run = lambda root, edits, ids, *a, **k: (seen.extend(ids), ([], dict(ran=0, seconds=0.0, runner='rec'), []))[1]
+    try:
+        report = analyze(tmp_path, None, index_dir=tmp_path/'.index', run=True, full_evidence=True)
+    finally:
+        shadow.run = real
+    return seen, report
+
+
+def test_a_renamed_function_still_has_candidates_on_the_applied_change(tmp_path):
+    lib = ('def slash_redirect(path):\n    return path + "/"\n\n\n'
+           'def route(path):\n    return slash_redirect(path)\n')
+    files = {'lib.py': lib,
+             'tests/test_redirect.py': 'from lib import slash_redirect\ndef test_slash_redirect():\n    assert slash_redirect("a") == "a/"\n',
+             'tests/test_route.py': 'from lib import route\ndef test_route():\n    assert route("a") == "a/"\n',
+             'tests/test_other.py': 'def test_unrelated():\n    assert 1\n'}
+    _git_tree(tmp_path, files)
+    (tmp_path/'lib.py').write_text(lib.replace('def slash_redirect', 'def _slash_redirect'))
+    seen, report = _bare_candidates(tmp_path)
+    assert 'tests/test_redirect.py::test_slash_redirect' in seen, seen
+    assert 'tests/test_route.py::test_route' in seen, seen
+    assert 'tests/test_other.py::test_unrelated' not in seen
+    assert 'lib.py#slash_redirect (renamed or removed)' in report['changed_symbols'], report['changed_symbols']
+
+
+def test_a_removed_function_still_has_candidates_on_the_applied_change(tmp_path):
+    lib = ('def legacy_total(items):\n    return sum(items)\n\n\n'
+           'def report(items):\n    return f"total {legacy_total(items)}"\n\n\n'
+           'def keep():\n    return 1\n')
+    files = {'lib.py': lib,
+             'tests/test_total.py': 'import lib\ndef test_legacy_total():\n    assert lib.legacy_total([1, 2]) == 3\n',
+             'tests/test_report.py': 'from lib import report\ndef test_report():\n    assert report([1]) == "total 1"\n',
+             'tests/test_keep.py': 'from lib import keep\ndef test_keep():\n    assert keep() == 1\n'}
+    _git_tree(tmp_path, files)
+    (tmp_path/'lib.py').write_text(lib.replace('def legacy_total(items):\n    return sum(items)\n\n\n', ''))
+    seen, report = _bare_candidates(tmp_path)
+    assert 'tests/test_total.py::test_legacy_total' in seen and 'tests/test_report.py::test_report' in seen, seen
+    assert 'lib.py#legacy_total (renamed or removed)' in report['changed_symbols'], report['changed_symbols']
+
+
+def _rows(report):
+    return {row['id']: row for row in report['tests']}
+
+
+def test_a_name_found_by_text_is_labelled_as_such(tmp_path):
+    lib = 'def total(items):\n    return sum(items)\n'
+    _git_tree(tmp_path, {'lib.py': lib, 'tests/test_total.py': 'import lib\ndef test_total():\n    assert lib.total([1]) == 1\n'})
+    (tmp_path/'lib.py').write_text(lib.replace('def total', 'def _total'))
+    _, report = _bare_candidates(tmp_path)
+    row = _rows(report)['tests/test_total.py::test_total']
+    assert row['confidence'] == 'heuristic' and row['why'].startswith('names lib.py#total, renamed or removed'), row
+
+
+def test_a_syntax_error_mid_edit_is_not_a_removal(tmp_path):
+    lib = 'def alpha_one():\n    return 1\n\n\ndef beta_two():\n    return 2\n'
+    _git_tree(tmp_path, {'lib.py': lib, 'tests/test_lib.py': 'from lib import beta_two\ndef test_beta_two():\n    assert beta_two() == 2\n'})
+    (tmp_path/'lib.py').write_text(lib.replace('return 1', 'return (1'))
+    _, report = _bare_candidates(tmp_path)
+    assert not any('renamed or removed' in s for s in report['changed_symbols']), report['changed_symbols']
+
+
+def test_a_deleted_or_moved_module_still_has_candidates(tmp_path):
+    import subprocess
+    files = {'pkg/__init__.py': '', 'pkg/legacy.py': 'def legacy_total(items):\n    return sum(items)\n',
+             'pkg/core.py': 'def keep():\n    return 1\n',
+             'tests/test_legacy.py': 'from pkg.legacy import legacy_total\ndef test_legacy_total():\n    assert legacy_total([1]) == 1\n',
+             'tests/test_core.py': 'from pkg.core import keep\ndef test_keep():\n    assert keep() == 1\n'}
+    _git_tree(tmp_path, files)
+    (tmp_path/'pkg/legacy.py').unlink()
+    (tmp_path/'pkg/core.py').write_text('def keep():\n    return 2\n')
+    seen, report = _bare_candidates(tmp_path)
+    assert 'tests/test_legacy.py::test_legacy_total' in seen, (seen, report['changed_symbols'])
+    subprocess.run(['git', '-C', str(tmp_path), 'checkout', '-q', '--', '.'], check=True)
+    subprocess.run(['git', '-C', str(tmp_path), 'mv', 'pkg/legacy.py', 'pkg/totals.py'], check=True)
+    seen, report = _bare_candidates(tmp_path)
+    assert 'tests/test_legacy.py::test_legacy_total' in seen, (seen, report['changed_symbols'])
+
+
+def test_a_pure_deletion_whose_lines_repeat_below_is_applied(tmp_path):
+    lib = 'import os\n\n\ndef legacy_sep():\n    return os.sep\n\n\ndef keep_sep():\n    return os.sep\n'
+    _git_tree(tmp_path, {'lib.py': lib, 'tests/test_legacy.py': 'from lib import legacy_sep\ndef test_legacy_sep():\n    assert legacy_sep()\n'})
+    (tmp_path/'lib.py').write_text(lib.replace('def legacy_sep():\n    return os.sep\n\n\n', ''))
+    seen, report = _bare_candidates(tmp_path)
+    assert 'tests/test_legacy.py::test_legacy_sep' in seen and not any('did not apply' in g for g in report['gaps']), (seen, report['gaps'])
+    from amu.core.patch import applied, changes
+    edits, _ = changes(tmp_path, patch('lib.py', lib, lib.replace('def legacy_sep():\n    return os.sep\n\n\n', '')))
+    (tmp_path/'lib.py').write_text(lib)
+    assert not applied(tmp_path, 'lib.py', edits['lib.py'])
+
+
+def test_closures_common_method_names_and_names_defined_elsewhere_do_not_pull_in_unrelated_tests(tmp_path):
+    files = {'lib.py': ('import functools\n\n\ndef logged(fn):\n    @functools.wraps(fn)\n    def inner(*a):\n        return fn(*a)\n    return inner\n\n\n'
+                        'class Store:\n    def put(self, k, v):\n        self.d = {k: v}\n\n    def get(self, k):\n        return self.d[k]\n\n\n'
+                        'def get_host(env):\n    return env["HOST"]\n'),
+             'wsgi.py': 'def get_host(env):\n    return env.get("SERVER")\n',
+             'tests/test_dict.py': 'def test_dict():\n    inner = {"a": 1}\n    assert inner.get("a") == 1\n',
+             'tests/test_wsgi.py': 'from wsgi import get_host\ndef test_wsgi_get_host():\n    assert get_host({"SERVER": 1}) == 1\n',
+             'tests/test_store.py': 'from lib import Store\ndef test_store():\n    s = Store()\n    s.put(1, 2)\n    assert s.get(1) == 2\n'}
+    _git_tree(tmp_path, files)
+    lib = files['lib.py'].replace('    @functools.wraps(fn)\n    def inner(*a):\n        return fn(*a)\n    return inner\n', '    return fn\n')
+    lib = lib.replace('\n    def get(self, k):\n        return self.d[k]\n', '').replace('def get_host(env):\n    return env["HOST"]\n', '')
+    (tmp_path/'lib.py').write_text(lib)
+    seen, report = _bare_candidates(tmp_path)
+    assert 'tests/test_store.py::test_store' in seen, seen
+    assert 'tests/test_dict.py::test_dict' not in seen, seen
+    assert not any('inner' in s for s in report['changed_symbols']), report['changed_symbols']
+    assert _rows(report).get('tests/test_wsgi.py::test_wsgi_get_host', {}).get('confidence') in (None, 'heuristic'), report['tests']
+
+
+def test_a_test_module_importing_the_old_name_puts_all_its_tests_forward(tmp_path):
+    lib = 'def to_upper(s):\n    return s.upper()\n'
+    tests = ('import pytest\nfrom lib import to_upper\nCONVERTERS = [(to_upper, "A")]\n\n\n'
+             '@pytest.mark.parametrize("fn,want", CONVERTERS)\ndef test_converts(fn, want):\n    assert fn("a") == want\n')
+    _git_tree(tmp_path, {'lib.py': lib, 'tests/test_conv.py': tests})
+    (tmp_path/'lib.py').write_text(lib.replace('to_upper', 'upper_case'))
+    seen, report = _bare_candidates(tmp_path)
+    assert 'tests/test_conv.py::test_converts' in seen, (seen, report['gaps'])
+
+
+def test_co_change_ignores_root_and_wide_commits_and_git_failures(tmp_path, monkeypatch):
+    import subprocess
+
+    from amu.core import vanished
+    def commit(files, message):
+        repository(tmp_path, files)
+        for args in (['add', '-A'], ['-c', 'user.email=t@example.invalid', '-c', 'user.name=t', 'commit', '-qm', message]):
+            subprocess.run(['git', '-C', str(tmp_path), *args], check=True, capture_output=True)
+    subprocess.run(['git', '-C', str(tmp_path), 'init', '-q'], check=True)
+    commit({'lib.py': 'a = 1\n', 'tests/test_lib.py': 'x = 1\n', 'other.py': 'o = 1\n'}, 'root: everything')
+    commit({'lib.py': 'a = 2\n', 'tests/test_lib.py': 'x = 2\n'}, 'together')
+    commit({'lib.py': 'a = 3\n', **{f'gen/m{i}.py': '' for i in range(vanished.WIDE + 1)}}, 'wide')
+    assert vanished.co_changed(tmp_path, 'lib.py') == {'tests/test_lib.py': 1.0}
+    def slow(*args, **kwargs):
+        raise subprocess.TimeoutExpired('git', 30)
+    monkeypatch.setattr(vanished, '_git', slow)
+    assert vanished.co_changed(tmp_path, 'lib.py') == {}
+
+
+def test_a_function_moved_behind_a_deprecation_shim_still_has_candidates_but_a_re_export_does_not(tmp_path):
+    lib = 'def parse_form(data):\n    return dict(data)\n'
+    shim = ('import warnings\n\n\ndef _parse_form(data):\n    return dict(data)\n\n\n'
+            'def __getattr__(name):\n    if name == "parse_form":\n        warnings.warn("deprecated", DeprecationWarning)\n'
+            '        return _parse_form\n    raise AttributeError(name)\n')
+    _git_tree(tmp_path, {'lib.py': lib, 'tests/test_form.py': 'from lib import parse_form\ndef test_parse_form():\n    assert parse_form([]) == {}\n'})
+    (tmp_path/'lib.py').write_text(shim)
+    seen, report = _bare_candidates(tmp_path)
+    assert 'tests/test_form.py::test_parse_form' in seen, (seen, report['changed_symbols'])
+    (tmp_path/'forms.py').write_text(lib)
+    (tmp_path/'lib.py').write_text('from forms import parse_form\n')
+    _, report = _bare_candidates(tmp_path)
+    assert 'lib.py#parse_form (renamed or removed)' not in report['changed_symbols'], report['changed_symbols']

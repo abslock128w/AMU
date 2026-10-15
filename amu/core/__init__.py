@@ -7,7 +7,7 @@ import math
 import re
 from pathlib import Path
 
-from . import consequences, coverage, lexical, rank, runners, shadow
+from . import consequences, coverage, lexical, rank, runners, shadow, vanished
 from .git import working_diff
 from .index import cache_dir, parse_or_none
 from .index import state as load_state
@@ -157,6 +157,17 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
             # Lines the patch added did not exist when the recording was made; it says nothing about them.
             place = renumber(edit)
             recorded[path] = {place(line) for line in edit['old'] | edit['anchor']}
+    after, before, new_lines, renumbered = after_facts(root, facts, edits, gaps)
+    # With the change on disk the index is the edited tree: a definition it renamed or removed is gone from the graph,
+    # and so is every path to its tests. Find them by the old name instead.
+    # Only files whose edited form parsed, with the edit on disk, can say a definition is gone; so can a deleted file.
+    settled = {r['path'] for r in after.values()}
+    taken = {k: r for k, r in before.items() if r['path'] in settled and applied(root, r['path'], edits[r['path']])}
+    for path, source in vanished.deleted(patch).items():
+        parsed_old = None if (root/path).exists() else parse_or_none(path, source)
+        if parsed_old:
+            taken.update(parsed_old['records'])
+    removed = vanished.gone(taken, after)
     scores, best, impacted, untested, functions = {}, {}, {}, [], []
     for symbol, fallback in symbols.items():
         record = graph.records[symbol]
@@ -215,10 +226,17 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
             scores.setdefault(ident, {})[symbol] = value
             if ident not in best or best[ident][5] is None or value > best[ident][0]:
                 best[ident] = (value, (1, 0, False), [ident, symbol], shared, False, (exactness, on_line))
-    after, before, new_lines, renumbered = after_facts(root, facts, edits, gaps)
+    named = {}
+    if removed:
+        extra_scores, extra_best = vanished.candidates(root, graph, tests, removed, affinity, content, taken)
+        for ident, per in extra_scores.items():
+            scores.setdefault(ident, {}).update(per)
+        for ident, (value, position, path, shared, why) in extra_best.items():
+            if ident not in best or value > best[ident][0]:
+                # Found by the old name, not through a resolved call: a heuristic row that says what it matched.
+                best[ident] = (value, (position[0], position[1], True), path, shared, True, None)
+                named[ident] = why
     gone_phrases = set().union(*(lexical.removed_phrases(edit) for edit in edits.values())) if edits else set()
-    # Only files whose patched form was established can say a definition is gone.
-    settled = {r['path'] for r in after.values()}
     elsewhere = {r['qual'].rsplit('.', 1)[-1] for r in graph.records.values()
                  if r['path'] not in settled and r['kind'] in ('function', 'class', 'variable') and not graph.is_test(r)}
     likely = lexical.matches(tests, gone_phrases, lexical.removed_names(
@@ -289,6 +307,8 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         else:
             why = ('calls ' if position[0] == 1 and exact else 'via ') + label(graph, path)
             confidence = 'heuristic' if not exact else 'direct' if position[0] == 1 else 'transitive'
+            if ident in named:
+                why = (why + ', ' if len(path) > 1 else '') + named[ident]
         if shared:
             why += ' (name: ' + ','.join(shared) + ')'
         expect = 'reaches'
@@ -373,7 +393,8 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     elif executed is not None:
         # Saying "0 now fail" when nothing ran would be a false all-clear.
         summary = 'NOT EXECUTED: no candidate test could be run; static analysis only. ' + summary
-    report = dict(summary=summary, changed_symbols=narrow, untested=untested, tests=rows, consequences=found,
+    report = dict(summary=summary, changed_symbols=narrow + [f"{r['path']}#{r['qual']} (renamed or removed)" for r in removed.values()],
+                  untested=untested, tests=rows, consequences=found,
                   impacted=listed, gaps=sorted(set(gaps)),
                   caveats='Static unless a row says observed. Not proof.')
     # Every listed test carries the exact command for the project's own runner.

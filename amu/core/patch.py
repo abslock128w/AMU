@@ -82,7 +82,17 @@ def applied(root, path, edit):
 
     new, old = share(edit['added']), share(edit['removed'])
     if new is None:
-        return old == 0 and bool(edit['removed'])
+        if not edit['removed']:
+            return False
+        if old == 0:
+            return True
+        # A removal whose lines repeat in what shifts into place (`return self`, `pass`): each hunk's surviving lines
+        # sit together at the patched-side start, and the hunk as it was does not sit at the parent-side start.
+        def at(start, rows):
+            rows = [row[1:].rstrip('\r\n') for row in rows]
+            return start >= 1 and lines[start - 1:start - 1 + len(rows)] == rows
+        return all(len(hunk) > 2 and at(hunk[2], [row for row in hunk[1] if row[:1] == ' '])
+                   and not at(hunk[0], [row for row in hunk[1] if row[:1] in ' -']) for hunk in edit['hunks'])
     return new == 1 and (old is None or old < 1)
 
 

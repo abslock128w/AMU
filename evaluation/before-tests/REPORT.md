@@ -761,6 +761,77 @@ Known risks with sympy, for the record before the trial: the addopts marker expr
 when they are named on the command line, so AMU's runner and the dumb hook must override it or they will see no outcome
 for slow candidates; per-test times are heavy-tailed (some solvers take seconds to minutes); a few tests use hypothesis.
 
+The owner approved sympy on 2026-10-15. Its test dependencies are installed in the evaluation virtualenv (mpmath 1.4.1,
+pytest-xdist 3.8.0, pytest-timeout 2.4.0, hypothesis 6.169.2).
+
+## Slow-suite brief: renamed and removed definitions (engine change, 2026-10-15)
+
+**On the 26 testmon cases, bare `amu` on the applied change now finds 100 of the 105 breaking tests, up from 86;
+testmon finds 82. I made the fix after seeing these cases, so this is development evidence, not a holdout result. The
+ranking is unchanged.**
+
+With the change on disk, the index is built from the edited tree. A function the change renames or removes is not in
+that tree, and nothing reaches it. `amu/core/vanished.py` finds its tests by the old name:
+- tests whose own source names it;
+- test files that import it or use it at module level, where every test in the file fails to load;
+- tests that reach code that still names it (its callers);
+- tests named like it;
+- tests in files that changed with its file in the last 200 commits.
+
+These rows are labelled `heuristic`, and the `why` field says what matched (for example `names lib.py#total, renamed or
+removed`). The changed symbols list the old name with `(renamed or removed)`.
+
+Guards, each from a review finding:
+- An edit that does not parse removes nothing.
+- A deleted or `git mv`'d file counts as removing everything it defined.
+- Closures and the methods of a removed class are covered by their enclosing definition.
+- A re-exported name is not removed. A name served only by a module `__getattr__` shim is, since the shim warns and the
+  tests turn warnings into errors.
+- A method's name counts only in files that name its class. A name still defined in another module counts only in
+  files that name the old module.
+- Co-change ignores root commits, a shallow clone's boundary commit and commits touching over 100 files, and a slow git
+  gives no evidence rather than an error.
+- `patch.applied` now recognises a pure deletion whose removed lines repeat in the lines that move up (`return self`,
+  `pass`). Before, such a deletion was read as not applied.
+
+| Set | AMU before | AMU after | testmon |
+|---|---:|---:|---:|
+| Werkzeug (10 cases) | 9/21 | 21/21 | 14/21 |
+| requests and itsdangerous (8) | 22/23 | 22/23 | 22/23 |
+| Click holdout 3 (8) | 55/61 | 57/61 | 46/61 |
+| All four (26) | 86/105 | 100/105 | 82/105 |
+
+The cases that moved: Werkzeug extra-6b495d0d 0→6 (its function went behind a deprecation shim), extra-97d9f22a 0→1,
+extra-45768395 0→2 and extra-f359a67e 2→5, and Click 7a0a3447 4→6. Analysis takes at most 0.8 s per case
+(`blind/results-pieces/amu-after-rename-fix.json`). Every case's ranking top 10 is identical to the base: Werkzeug 10/16
+and 16/16, requests and itsdangerous 6/8 and 8/8, Click holdout 3 8/8 and 8/8 (`blind/results/ranking/rank-p5-*.json`).
+
+Review: 3 reviewers made 15 findings and 2 or 3 skeptics checked each one; 13 survived. All 13 are fixed and have unit
+tests. The two refuted findings were the cost of repeated scans (under 1 s per case here) and treating a name served
+through `__getattr__` as still present. I applied the second anyway, and it took Werkzeug back to 9/21. I reverted it,
+and a test now covers it.
+
+Not fixed, and older than this change:
+- A pure deletion still lists the next definition as changed, because removed lines map to where their replacement
+  landed.
+- The lexical rule still reads a removed closure's name of six or more characters as a removed definition.
+
+The earlier pieces' last nine review variants were checked again by reproduction: 8 were closed. The ninth, a packet
+over 2,000 bytes when unstable test ids are long, is now fixed. `compact()` now shortens the unstable list, and its
+240-character gap cut, which was dead code, now takes effect.
+
+Three follow-ups the second check found are also fixed:
+- A deleted test was taken as moved to a base class whenever any edited file defined a function of the same name.
+- After a recheck that ran nothing, the hook did not name the tests still flagged.
+- A row kept by the hash rule said "as edited it passes" when it was only known not to fail.
+
+AMU's suite (`pytest tests scripts/test_before_tests_harness.py`, Werkzeug env): 2,611 passed, 14 skipped, 1 failed, the
+installed package's build-hash check in `tests/test_mcp_verification.py`, as before.
+
+Files: `amu/core/vanished.py`, `amu/core/__init__.py`, `amu/core/patch.py`, `tests/core/test_reachability.py`, and,
+for the review follow-ups, `amu/core/shadow.py`, `blind/hook.py` and `tests/core/test_blind_hook.py`. Nothing upstream
+was executed for this change: the AMU column stubs execution, and the ranking is static.
+
 ## Milestones (state at b3747c8)
 
 - **M1 harness.** `scripts/before_tests_harness.py`; protocol and manifests are hash-pinned.
