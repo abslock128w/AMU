@@ -1,0 +1,55 @@
+# AMU on pull requests, part 1 of 2: runs the pull request's code (from ci/amu-pr.yml at ci-v0.1.3).
+# Untrusted code runs only here, under pull_request, with a read-only token and no secrets. This job never
+# comments; it saves its JSON as an artifact, and amu-pr-comment.yml posts it. Never use pull_request_target.
+name: AMU pull request
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: amu-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  amu:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      merge-base: ${{ steps.amu.outputs.merge-base }}
+      flips: ${{ steps.amu.outputs.flips }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: abslock128w/AMU@ci-v0.1.3
+        id: amu
+        with:
+          python-version: '3.11'
+          install: python -m pip install -c constraints.txt -e '.[dev]'
+          counters: 'true'
+          # budget: '300'      # seconds of test time per side
+          # wall-cap: '1200'   # seconds for AMU's whole run
+          # observe: 'true'    # record the suite on the merge base when the cache has none
+
+  # Optional, for the false-flip measure: reruns each flip on the merge base in a fresh job.
+  verify-flips:
+    needs: amu
+    if: needs.amu.outputs.flips != '' && needs.amu.outputs.flips != '0'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.amu.outputs.merge-base }}
+          persist-credentials: false
+      - uses: abslock128w/AMU@ci-v0.1.3
+        with:
+          mode: verify
+          python-version: '3.11'
+          install: python -m pip install -c constraints.txt -e '.[dev]'
