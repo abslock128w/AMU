@@ -30,7 +30,13 @@ _spec.loader.exec_module(_blind)
 session = _blind.session
 
 RULES = json.loads((HERE/'rules.json').read_text())
-OUTSIDE = r'sympy-cases|sympy/repo|/runs/|side-session-notes|scratchpad/slow'
+
+
+def tree_of(row):
+    """The task's parent tree: under rules.json cases_dir when set (regenerated from the frozen commits after the
+    scratch area was lost in a restart; each production patch matched its frozen sha256), else the manifest's path."""
+    return Path(RULES['cases_dir'])/row['case_id']/'parent' if RULES.get('cases_dir') else Path(row['tree'])
+OUTSIDE = r'sympy-cases|sympy/repo|amu-slow-suite-2026-10-15/(cases|sympy|record)|/runs/|side-session-notes|scratchpad/slow'
 EDITS = r'sed -i|python3? - <<|cat >|> *sympy/|perl -pi'
 
 
@@ -110,7 +116,7 @@ def score_run(root, repo, ident, slot, row, parent, upstream, python):
     failing = [t for t in hid['suspects'] if hid['again'].get(t) != 'passed']
     regressions = [t for t in failing if parent['states'].get(t) == 'passed']
     new_failing = [t for t in failing if t not in parent['states']]
-    parent_tree = Path(row['tree'])
+    parent_tree = tree_of(row)
     kept = [t for t in regressions if test_source(parent_tree, t) == test_source(scratch/'hidden', t)]
 
     def own():
@@ -149,7 +155,7 @@ if __name__ == '__main__':
         if (a.only and ident not in a.only) or not (root/'runs'/ident/'result.json').exists():
             continue
         row = manifest[slot['case']]
-        parent = cached(root/'score'/f"{slot['task']}-parent.json", lambda: suite(python, row['tree'], root/'score'/'home-parent'))
+        parent = cached(root/'score'/f"{slot['task']}-parent.json", lambda: suite(python, tree_of(row), root/'score'/'home-parent'))
 
         def reference():
             extract(repo, row['commit'], root/'score'/'trees'/slot['task'])

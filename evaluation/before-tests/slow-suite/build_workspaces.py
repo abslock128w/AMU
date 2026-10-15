@@ -19,6 +19,12 @@ HERE = Path(__file__).resolve().parent
 BLIND = HERE.parent/'blind'
 RULES = json.loads((HERE/'rules.json').read_text())
 
+
+def tree_of(row):
+    """The task's parent tree: under rules.json cases_dir when set (regenerated from the frozen commits after the
+    scratch area was lost in a restart; each production patch matched its frozen sha256), else the manifest's path."""
+    return Path(RULES['cases_dir'])/row['case_id']/'parent' if RULES.get('cases_dir') else Path(row['tree'])
+
 RT = r'''#!/opt/homebrew/bin/python3
 """Run sympy's tests in this workspace. Usage: ./rt [-k EXPRESSION] [PATH_OR_TEST ...]
   ./rt                                              the full suite (about %(suite_minutes)s minutes)
@@ -74,7 +80,7 @@ def build(root, ident, row, text, arm, recording):
     for path in (work, run):
         shutil.rmtree(path, ignore_errors=True)
     run.mkdir(parents=True)
-    shutil.copytree(row['tree'], work, ignore=shutil.ignore_patterns('__pycache__', '.github', '.amu', '.hypothesis', '.pytest_cache'))
+    shutil.copytree(tree_of(row), work, ignore=shutil.ignore_patterns('__pycache__', '.github', '.amu', '.hypothesis', '.pytest_cache'))
     (work/'TASK.md').write_text(text)
     (work/'rt').write_text(RT % dict(tools=str(root/'tools'), workspace=str(work), ledger=str(run/'ledger.json'), budget=RULES['budget_seconds'],
                                      python=str(root/'env/bin/python'), home=str(run/'home'), suite_minutes=RULES['suite_minutes_told']))
