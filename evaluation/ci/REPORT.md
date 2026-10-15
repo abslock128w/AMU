@@ -97,3 +97,30 @@ job that never checks out or runs the pull request's code. Neither the templates
   - Fork resolution by owner and branch.
   - Stale, cancelled and non-PR runs post nothing.
   - A forged `meta.json` (another pull request, another head) cannot redirect or relabel the comment.
+
+## 4. Caching, budget and wall cap (`action.yml`, `amu/ci/run.py`)
+
+**`.amu/` is cached, keyed on the merge-base SHA. It holds the index and any per-test recording. The default budget
+is 300 s of test time per side. A wall cap bounds the whole run, and past it the comment says AMU was stopped.**
+
+- **Cache.** A new step finds the merge base before anything is installed. `actions/cache@v4` saves `.amu` under
+  `amu-<os>-py<version>-<merge base>`, and falls back to the latest cache for that OS and Python.
+  - The index is incremental by file hash, so a fallback cache still saves work.
+  - GitHub scopes a cache written by a pull request to that pull request, so one PR cannot poison another's.
+  - `cache: 'false'` turns it off.
+  - `meta.json` records whether an index was already there (`cached_index`).
+- **Recording** (`observe: 'true'`, default off).
+  - When the cache has no recording, the suite is recorded under coverage on the merge base, in a temporary git
+    worktree that is removed afterwards. The recording is then copied next to the head's index.
+  - It may use only what the wall cap leaves after twice the budget plus a minute. If that is too little, it is
+    skipped, and the skip is listed as a gap.
+- **Budget:** `budget` (default 300 s per side) is passed to `amu --budget`.
+- **Wall cap:** `wall-cap`, default 1,200 s. It bounds recording plus comparison, with 60 s kept back for reading
+  results.
+  - Each run starts in its own process group, and at the cap the whole group is killed, so pytest workers die too.
+  - The report becomes `error: stopped at the wall cap of N s; amu reported nothing`. The comment's first line then
+    gives no flip count.
+- **Tests:** `tests/ci/test_run.py` gains 2 tests (6 in the file; 21 CI tests in all).
+  - A suite whose `conftest.py` sleeps 60 s is stopped at an 8 s cap within 30 s, and the report says so.
+  - A second run finds the index in place and records on the merge base. The flip is still found, no recording gap
+    is listed, and the worktree is gone.

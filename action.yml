@@ -40,6 +40,22 @@ inputs:
     description: Name of the artifact holding report.json and meta.json.
     required: false
     default: amu-report
+  budget:
+    description: Seconds of test time allowed per side (head, then merge base).
+    required: false
+    default: '300'
+  wall-cap:
+    description: Seconds for AMU's whole run, recording included. Past it the run stops and the comment says so.
+    required: false
+    default: '1200'
+  observe:
+    description: "'true' records the suite under coverage on the merge base when the cache has no recording."
+    required: false
+    default: 'false'
+  cache:
+    description: "'false' turns off caching of .amu (index and recording), keyed on the merge base."
+    required: false
+    default: 'true'
 
 outputs:
   merge-base:
@@ -55,6 +71,28 @@ runs:
     - uses: actions/setup-python@v5
       with:
         python-version: ${{ inputs.python-version }}
+
+    - name: Find the merge base
+      id: base
+      shell: bash
+      env:
+        AMU_BASE: ${{ inputs.base-sha }}
+        AMU_HEAD: ${{ inputs.head-sha }}
+      run: |
+        head="${AMU_HEAD:-HEAD}"
+        found=$(git merge-base "$AMU_BASE" "$head" 2> /dev/null) || {
+          git fetch --no-tags --quiet origin "$AMU_BASE" 2> /dev/null || true
+          found=$(git merge-base "$AMU_BASE" "$head" 2> /dev/null) || found=""
+        }
+        echo "sha=$found" >> "$GITHUB_OUTPUT"
+
+    # Caches written by a pull request are visible only to that pull request; the base branch's are shared.
+    - uses: actions/cache@v4
+      if: inputs.cache == 'true' && steps.base.outputs.sha != ''
+      with:
+        path: .amu
+        key: amu-${{ runner.os }}-py${{ inputs.python-version }}-${{ steps.base.outputs.sha }}
+        restore-keys: amu-${{ runner.os }}-py${{ inputs.python-version }}-
 
     - name: Install the project
       id: install
@@ -95,12 +133,17 @@ runs:
         AMU_REF: ${{ inputs.amu-ref }}
         AMU_PYTHON: ${{ steps.install.outputs.python }}
         AMU_INSTALL_OK: ${{ steps.install.outputs.ok }}
+        AMU_BUDGET: ${{ inputs.budget }}
+        AMU_WALL_CAP: ${{ inputs.wall-cap }}
+        AMU_OBSERVE: ${{ inputs.observe }}
       run: |
         out="$RUNNER_TEMP/amu-out"
         if "$RUNNER_TEMP/amu-venv/bin/python" -c 'import amu.ci.run' 2> /dev/null; then
           "$RUNNER_TEMP/amu-venv/bin/python" -m amu.ci.run --base "$AMU_BASE" --head "$AMU_HEAD" --out "$out" \
             --python "$AMU_PYTHON" ${AMU_RUNNER:+--runner "$AMU_RUNNER"} ${AMU_PR:+--pr "$AMU_PR"} \
-            --install-ok "${AMU_INSTALL_OK:-false}" --amu-ref "$AMU_REF" || true
+            --install-ok "${AMU_INSTALL_OK:-false}" --amu-ref "$AMU_REF" \
+            ${AMU_BUDGET:+--budget "$AMU_BUDGET"} ${AMU_WALL_CAP:+--wall-cap "$AMU_WALL_CAP"} \
+            $([ "$AMU_OBSERVE" = true ] && echo --observe) || true
         else
           python -c 'import json, sys; json.dump({"error": "AMU could not be installed from " + sys.argv[1]}, open(sys.argv[2], "w"))' \
             "$AMU_REF" "$out/report.json"

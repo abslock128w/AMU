@@ -75,3 +75,24 @@ def test_main_always_exits_zero_and_writes_outputs(pull_request, tmp_path, monke
     assert f'merge-base={base}' in outputs.read_text() and 'flips=1' in outputs.read_text()
     assert ci_run.main(['--base', 'nope', '--out', str(tmp_path/'bad')]) == 0
     assert 'error' in json.loads((tmp_path/'bad'/'report.json').read_text())
+
+
+def test_wall_cap_stops_a_hanging_suite_and_says_so(pull_request, tmp_path, monkeypatch):
+    repo, base, head = pull_request
+    monkeypatch.setattr(ci_run, 'RESERVE', 0)
+    (repo/'tests'/'conftest.py').write_text('import time\ntime.sleep(60)\n')
+    git(repo, 'add', '.')
+    git(repo, 'commit', '-qm', 'slow suite')
+    head = git(repo, 'rev-parse', 'HEAD')
+    report, meta = ci_run.run(repo, base, head, tmp_path/'out', python=sys.executable, wall_cap=8)
+    assert 'wall cap of 8 s' in report['error'] and meta['seconds'] < 30
+
+
+def test_second_run_reuses_the_index_and_records_on_the_merge_base(pull_request, tmp_path):
+    repo, base, head = pull_request
+    _, first = ci_run.run(repo, base, head, tmp_path/'one', python=sys.executable)
+    assert first['cached_index'] is False and first['recording'] is False
+    report, second = ci_run.run(repo, base, head, tmp_path/'two', python=sys.executable, record=True, budget=60)
+    assert second['cached_index'] is True and second['recording'] is True
+    assert report['flips'] == 1 and not [gap for gap in report['gaps'] if 'recording' in gap]
+    assert git(repo, 'worktree', 'list').count('\n') == 0  # the merge-base worktree is gone

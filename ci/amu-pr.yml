@@ -28,3 +28,6 @@ jobs:
         with:
           # The command that installs your project and its test dependencies.
           install: python -m pip install -e .
+          # budget: '300'      # seconds of test time per side
+          # wall-cap: '1200'   # seconds for AMU's whole run
+          # observe: 'true'    # record the suite on the merge base when the cache has none
