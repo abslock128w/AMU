@@ -479,3 +479,45 @@ size can show a tool reducing it. The room for AMU is where the base rate is hig
    the product claim is "makes cheap agents ship safely", which is a real claim with a real
    buyer. If it does not help even there, the agent-facing hook line is closed and what
    remains is humans, slow suites, and CI.
+
+## 13. The slow-suite trial on sympy (2026-10-15, commit 3378be2): lost
+
+Eight unseen sympy tasks, all indirect, 185 s test budget (a third of the suite), Sonnet in both
+arms, dumb hook versus AMU hook, 32 runs.
+
+| | AMU arm | Dumb hook |
+|---|---:|---:|
+| Runs with a regression (the pre-set rule) | 8 of 16 | 6 of 16 |
+| Without the run blocked on a permission prompt past the hard stop | 7 | 6 |
+| Regressions in tests upstream left alone | 4 in 3 runs | 2 in 2 runs |
+| Runs leaving a red test in the agent's own tree | 1 | 4 |
+| Runs where the agent ran every frozen breaking test | 9 | 6 |
+| Median session wall time | 279 s | 589 s |
+
+**Decision: lost, by the rule.** Seven trials now, across Click, Django and sympy, fast and
+slow suites, Sonnet and Haiku, no hook, dumb hook and AMU hook. AMU has never reduced the
+number of runs that ship a regression. The agent-facing product is closed on the evidence.
+
+What the loss is made of: tasks 1 and 5 identical in all four runs; task 2 a permission-prompt
+artefact; task 3 both AMU runs diverging from a test upstream rewrote, the same category that
+hit both dumb-hook runs on task 8. On the substance the arms tie on regressions.
+
+What the trial showed that was not the win condition: the AMU arm finished in half the median
+wall time, ran the frozen breaking test in more runs, and left fewer red tests behind. That is
+a post-hoc observation on six clean tasks, not a claim.
+
+**AMU defect found:** `consequences.handlers` walks caller paths for a new `raise` with no memo,
+exponential on dense call graphs; it spent the whole budget in both task-5 AMU runs. Fix it
+regardless of what happens to the product.
+
+### What follows
+
+1. Fix the exponential walk, with a test on a dense fixture and a time bound as a test.
+2. One re-analysis of the existing 32 runs, no new sessions: paired per task, excluding
+   prompt-blocked runs, wall time to declared done and red tests left behind, AMU versus dumb
+   hook. If the AMU arm is faster on at least five of six clean tasks, that is a pre-registered
+   hypothesis for one last trial whose win condition is time to a clean tree with regressions
+   as a guard. If not, the agent line is closed with nothing further to test.
+3. The CI line is untouched by any of this and is the remaining product: a pull-request comment
+   with flips and gaps, for humans, on repositories whose suites are slow. It needs its own
+   brief and its own measurement, which is adoption, not a trial.
