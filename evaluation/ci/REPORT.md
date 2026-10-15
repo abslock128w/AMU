@@ -124,3 +124,43 @@ is 300 s of test time per side. A wall cap bounds the whole run, and past it the
   - A suite whose `conftest.py` sleeps 60 s is stopped at an 8 s cap within 30 s, and the report says so.
   - A second run finds the index in place and records on the merge base. The flip is still found, no recording gap
     is listed, and the worktree is gone.
+
+## 5. Opt-in counters (`amu/ci/counters.py`, `amu/ci/verify.py`)
+
+**With `counters: 'true'`, the comment carries a hidden block of counts and SHAs, one record per push. A fresh job
+reruns each flip on the merge base. A collector computes both adoption bars from those comments. Nothing is sent
+anywhere, and no source, test name or error text is kept.**
+
+- **One record per push**, built by the trusted posting job from the artifact, every field typed and nothing else
+  kept:
+  - the head SHA (from the event) and the merge-base SHA, each checked to be a SHA;
+  - flips, tests run, candidates and number of gaps, as integers;
+  - whether the runner aborted or AMU errored;
+  - seconds;
+  - from the fresh-job rerun, flips checked, held and false.
+- **Storage:** the block is an HTML comment inside AMU's own comment, so it stays in the user's repository. The
+  history comes from AMU's previous comment only (marker plus author), keeps the last 100 pushes, and a rerun of the
+  same head replaces its record.
+- **False flips, measured as the owner set.**
+  - `ci/amu-pr.yml` has an optional `verify-flips` job. It runs only when the run job reported flips, checks out the
+    merge base in a fresh runner, and calls the action with `mode: verify`.
+  - That job reruns every flipped test there with the project's runner and classes each one:
+    - `held`: it passes again, so the flip stands;
+    - `false`: it fails there too, so it was not the change;
+    - `other`: skipped, could not run, or gone.
+  - The posting job downloads that second artifact. The comment shows one line, "Rerun on the merge base in a fresh
+    job: H passed again, F failed there too, so not the change, O could not be rerun". It has integer counts only and
+    is shown whether or not counters are on.
+- **Cleared before merge.** A pull request counts if a push with flips is followed by a push with 0 flips among tests
+  that ran, and the pull request was merged.
+- **Collector:** `python -m amu.ci.counters OWNER/NAME ... [--first 50]` reads those blocks across repositories. It
+  prints, over the first 50 pull requests commented on in order of the first comment:
+  - pull requests with a flip, cleared before merge, and the cleared share (bar: at least 0.5);
+  - flips rerun, false flips, and the false-flip rate (bar: under 0.05).
+- **Tests:** `tests/ci/test_counters.py` (5).
+  - A record built from a report holding a secret test name and source text keeps neither.
+  - History round-trips through the rendered comment, and a rerun replaces its push.
+  - The summary computes both bars on a mixed set, and stops at the first 50.
+  - The poster adds the block only when opted in.
+  - `verify` classes passed, failed and missing tests on a real tree as held, false and other.
+- Also in this commit: import order in `amu/ci/run.py`, which ruff flagged after piece 4 was pushed.

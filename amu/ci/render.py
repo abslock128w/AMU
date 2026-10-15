@@ -48,7 +48,7 @@ def rows(items, render, limit=LISTED):
     return lines
 
 
-def render(report, meta, limit=LIMIT, listed=LISTED, extra=''):
+def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None):
     head, base = meta.get('head'), meta.get('merge_base') or meta.get('base')
     executed = report.get('executed') or {}
     ran = executed.get('ran') or 0
@@ -73,6 +73,10 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra=''):
             label = row.get('label') if isinstance(row, dict) else None
             return code(failure_id(row)) + (' (fails as the test was before it was edited)' if label == 'test edited, not fixed' else '')
         out += rows(failures, flip, listed) + ['']
+        if verify and verify.get('checked'):
+            out += [f"Rerun on the merge base in a fresh job: {verify.get('held', 0)} passed again, "
+                    f"{verify.get('false', 0)} failed there too, so not the change, "
+                    f"{verify.get('other', 0)} could not be rerun.", '']
     unstable = report.get('unstable') or []
     if unstable:
         out += [f'Flipped once and not on a rerun, so not counted: {len(unstable)}.', '']
@@ -102,7 +106,7 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra=''):
               f"report {code(report.get('report_hash') or '-', 20)}. Full JSON is in the workflow run's artifact.</sub>")
     body = '\n'.join(out + [footer, extra, MARKER]).replace('\n\n\n', '\n\n')
     if len(body) > limit and listed > 1:
-        return render(report, meta, limit, listed // 2, extra)
+        return render(report, meta, limit, listed // 2, extra, verify)
     if len(body) > limit:
         body = first + '\n\nThe report is too long for a comment; see the artifact.\n\n' + MARKER
     return body
@@ -119,6 +123,20 @@ def load(folder):
             return {}
     report = read('report.json') or dict(error='no report.json in the artifact')
     return report, read('meta.json')
+
+
+def load_verify(folder):
+    """The fresh-job rerun's counts, as integers only; None when there are none."""
+    try:
+        value = json.loads((Path(folder)/'verify.json').read_text())
+    except (OSError, ValueError, TypeError):
+        return None
+    if not isinstance(value, dict):
+        return None
+    counts = {key: value.get(key) for key in ('checked', 'held', 'false', 'other')}
+    if not all(isinstance(n, int) and not isinstance(n, bool) and 0 <= n < 10**7 for n in counts.values()):
+        return None
+    return counts
 
 
 if __name__ == '__main__':

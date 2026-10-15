@@ -22,8 +22,8 @@ import os
 import shutil
 import signal
 import subprocess
-import tempfile
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -101,12 +101,12 @@ def observe(repo, found, python, runner, seconds):
 
 
 def run(repo, base, head, out, python=None, runner=None, pr=None, budget=None, install_ok=None, amu_ref=None,
-        wall_cap=None, record=False):
+        wall_cap=None, record=False, counters=False):
     repo, out = Path(repo).resolve(), Path(out)
     out.mkdir(parents=True, exist_ok=True)
     meta = dict(pr=pr, base=base, head=head, merge_base=None, amu_version=__version__, amu_ref=amu_ref,
                 runner=runner or None, budget=budget, wall_cap=wall_cap, install_ok=install_ok, status=None, seconds=None,
-                cached_index=cache_dir(repo).is_dir(), recording=None)
+                cached_index=cache_dir(repo).is_dir(), recording=None, counters=bool(counters))
     report, notes = None, []
     started = time.monotonic()
     deadline = started + wall_cap if wall_cap else None
@@ -177,13 +177,14 @@ def main(argv=None):
     p.add_argument('--budget', type=int, help='seconds allowed per side; default: amu\'s')
     p.add_argument('--wall-cap', type=int, help='seconds for everything, recording included; past it the run is stopped')
     p.add_argument('--observe', action='store_true', help='record the suite on the merge base when the cache has no recording')
+    p.add_argument('--counters', action='store_true', help='opt in to the counters kept in the comment (counts and SHAs only)')
     p.add_argument('--pr', type=int)
     p.add_argument('--install-ok', choices=['true', 'false'])
     p.add_argument('--amu-ref')
     a = p.parse_args(argv)
     try:
         report, meta = run(a.repo, a.base, a.head or None, a.out, a.python, a.runner, a.pr, a.budget,
-                           None if a.install_ok is None else a.install_ok == 'true', a.amu_ref, a.wall_cap, a.observe)
+                           None if a.install_ok is None else a.install_ok == 'true', a.amu_ref, a.wall_cap, a.observe, a.counters)
         print(f"amu: {meta['status']}; flips: {report.get('flips')}; {report.get('error') or report.get('summary', '')}"[:500])
     except Exception as exc:  # the job never fails because of AMU
         print(f'amu ci run failed: {type(exc).__name__}: {exc}')

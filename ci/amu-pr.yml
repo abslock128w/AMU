@@ -18,6 +18,9 @@ jobs:
   amu:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    outputs:
+      merge-base: ${{ steps.amu.outputs.merge-base }}
+      flips: ${{ steps.amu.outputs.flips }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -25,9 +28,27 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - uses: abslock128w/AMU@ci-v0.1.0
+        id: amu
         with:
           # The command that installs your project and its test dependencies.
           install: python -m pip install -e .
+          # counters: 'true'   # opt in: counts and SHAs kept in the comment, for the adoption measures
           # budget: '300'      # seconds of test time per side
           # wall-cap: '1200'   # seconds for AMU's whole run
           # observe: 'true'    # record the suite on the merge base when the cache has none
+
+  # Optional, for the false-flip measure: reruns each flip on the merge base in a fresh job.
+  verify-flips:
+    needs: amu
+    if: needs.amu.outputs.flips != '' && needs.amu.outputs.flips != '0'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.amu.outputs.merge-base }}
+          persist-credentials: false
+      - uses: abslock128w/AMU@ci-v0.1.0
+        with:
+          mode: verify
+          install: python -m pip install -e .

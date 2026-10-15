@@ -56,6 +56,15 @@ inputs:
     description: "'false' turns off caching of .amu (index and recording), keyed on the merge base."
     required: false
     default: 'true'
+  counters:
+    description: "'true' opts in to counters kept in a hidden block of the comment: counts and SHAs only, never source."
+    required: false
+    default: 'false'
+  mode:
+    description: "'run' compares the head with the merge base. 'verify' runs in a fresh job checked out at the merge base
+      and reruns each flip there, to measure false flips."
+    required: false
+    default: run
 
 outputs:
   merge-base:
@@ -74,6 +83,7 @@ runs:
 
     - name: Find the merge base
       id: base
+      if: inputs.mode != 'verify'
       shell: bash
       env:
         AMU_BASE: ${{ inputs.base-sha }}
@@ -88,7 +98,7 @@ runs:
 
     # Caches written by a pull request are visible only to that pull request; the base branch's are shared.
     - uses: actions/cache@v4
-      if: inputs.cache == 'true' && steps.base.outputs.sha != ''
+      if: inputs.mode != 'verify' && inputs.cache == 'true' && steps.base.outputs.sha != ''
       with:
         path: .amu
         key: amu-${{ runner.os }}-py${{ inputs.python-version }}-${{ steps.base.outputs.sha }}
@@ -124,6 +134,7 @@ runs:
 
     - name: Run AMU
       id: run
+      if: inputs.mode != 'verify'
       shell: bash
       env:
         AMU_BASE: ${{ inputs.base-sha }}
@@ -136,6 +147,7 @@ runs:
         AMU_BUDGET: ${{ inputs.budget }}
         AMU_WALL_CAP: ${{ inputs.wall-cap }}
         AMU_OBSERVE: ${{ inputs.observe }}
+        AMU_COUNTERS: ${{ inputs.counters }}
       run: |
         out="$RUNNER_TEMP/amu-out"
         if "$RUNNER_TEMP/amu-venv/bin/python" -c 'import amu.ci.run' 2> /dev/null; then
@@ -143,7 +155,7 @@ runs:
             --python "$AMU_PYTHON" ${AMU_RUNNER:+--runner "$AMU_RUNNER"} ${AMU_PR:+--pr "$AMU_PR"} \
             --install-ok "${AMU_INSTALL_OK:-false}" --amu-ref "$AMU_REF" \
             ${AMU_BUDGET:+--budget "$AMU_BUDGET"} ${AMU_WALL_CAP:+--wall-cap "$AMU_WALL_CAP"} \
-            $([ "$AMU_OBSERVE" = true ] && echo --observe) || true
+            $([ "$AMU_OBSERVE" = true ] && echo --observe) $([ "$AMU_COUNTERS" = true ] && echo --counters) || true
         else
           python -c 'import json, sys; json.dump({"error": "AMU could not be installed from " + sys.argv[1]}, open(sys.argv[2], "w"))' \
             "$AMU_REF" "$out/report.json"
@@ -152,9 +164,34 @@ runs:
         "$RUNNER_TEMP/amu-venv/bin/python" -m amu.ci.render "$out" > "$out/comment.md" 2> /dev/null || true
 
     - uses: actions/upload-artifact@v4
-      if: always()
+      if: always() && inputs.mode != 'verify'
       with:
         name: ${{ inputs.artifact-name }}
         path: ${{ runner.temp }}/amu-out
+        if-no-files-found: warn
+        retention-days: 14
+
+    # Verify mode: the run job's artifact, rerun on the merge base this job checked out.
+    - uses: actions/download-artifact@v4
+      if: inputs.mode == 'verify'
+      continue-on-error: true
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ${{ runner.temp }}/amu-in
+
+    - name: Rerun the flips on the merge base
+      if: inputs.mode == 'verify'
+      shell: bash
+      env:
+        AMU_PYTHON: ${{ steps.install.outputs.python }}
+      run: |
+        "$RUNNER_TEMP/amu-venv/bin/python" -m amu.ci.verify --dir "$RUNNER_TEMP/amu-in" --out "$RUNNER_TEMP/amu-verify" \
+          --python "$AMU_PYTHON" || true
+
+    - uses: actions/upload-artifact@v4
+      if: always() && inputs.mode == 'verify'
+      with:
+        name: ${{ inputs.artifact-name }}-verify
+        path: ${{ runner.temp }}/amu-verify
         if-no-files-found: warn
         retention-days: 14

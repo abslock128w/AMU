@@ -21,7 +21,8 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-from .render import MARKER, load, render
+from . import counters
+from .render import MARKER, load, load_verify, render
 
 API = 'https://api.github.com'
 AUTHOR = 'github-actions[bot]'
@@ -54,8 +55,11 @@ def ours(comment, author=AUTHOR):
 
 
 def upsert(github, repo, pr, body, author=AUTHOR):
-    """Edit the existing comment or create one. Returns ('edited' | 'created', comment id)."""
+    """Edit the existing comment or create one. ``body`` is text, or a function of the previous comment's text.
+    Returns ('edited' | 'created', comment id)."""
     existing = next((c for c in github.pages(f'/repos/{repo}/issues/{pr}/comments') if ours(c, author)), None)
+    if callable(body):
+        body = body(existing.get('body') if existing else None)
     if existing:
         github.request('PATCH', f"/repos/{repo}/issues/comments/{existing['id']}", dict(body=body))
         return 'edited', existing['id']
@@ -96,6 +100,7 @@ def main(argv=None):
     which.add_argument('--event', help='workflow_run event file ($GITHUB_EVENT_PATH)')
     which.add_argument('--pr', type=int, help='pull request number, for a run outside workflow_run')
     p.add_argument('--author', default=AUTHOR, help='login whose marked comment is edited')
+    p.add_argument('--verify-dir', help="folder with the fresh-job rerun's verify.json, when there is one")
     a = p.parse_args(argv)
     report, meta = load(a.dir)
     try:
@@ -110,7 +115,14 @@ def main(argv=None):
             if meta.get('pr') not in (None, number) or meta.get('head') not in (None, head):
                 print(f"amu: the artifact names #{meta.get('pr')} at {meta.get('head')}; using #{number} at {head} from the event")
             meta = dict(meta, pr=number, head=head)
-        action, ident = upsert(github, a.repo, number, render(report, meta), a.author)
+        verify = load_verify(a.verify_dir) if a.verify_dir else None
+
+        def body(previous):
+            extra = ''
+            if meta.get('counters') is True:
+                extra = counters.block(counters.extend(previous, counters.record(report, meta, verify)))
+            return render(report, meta, extra=extra, verify=verify)
+        action, ident = upsert(github, a.repo, number, body, a.author)
         print(f'amu: comment {ident} {action} on #{number}')
     except (KeyError, urllib.error.URLError, OSError, ValueError) as exc:
         print(f'amu: could not post the comment: {type(exc).__name__}: {exc}')

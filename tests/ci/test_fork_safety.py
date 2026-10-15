@@ -64,6 +64,6 @@ def test_artifact_cannot_redirect_the_comment(tmp_path, monkeypatch):
     posted = []
     monkeypatch.setenv('GITHUB_TOKEN', 't')
     monkeypatch.setattr(post.GitHub, 'request', lambda self, m, p, b=None: dict(state='open', head=dict(sha='h2')))
-    monkeypatch.setattr(post, 'upsert', lambda github, repo, pr, body, author: posted.append((pr, body)) or ('created', 1))
+    monkeypatch.setattr(post, 'upsert', lambda github, repo, pr, body, author: posted.append((pr, body(None))) or ('created', 1))
     assert post.main(['--dir', str(tmp_path), '--repo', 'o/r', '--event', str(tmp_path/'event.json')]) == 0
     assert posted[0][0] == 4 and '`h2`' in posted[0][1].splitlines()[0] and 'forged' not in posted[0][1]

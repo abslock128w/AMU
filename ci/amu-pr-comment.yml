@@ -27,6 +27,13 @@ jobs:
           path: ${{ runner.temp }}/amu-report
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ github.token }}
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: amu-report-verify
+          path: ${{ runner.temp }}/amu-verify
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -39,4 +46,4 @@ jobs:
           "$RUNNER_TEMP/amu/bin/python" -m pip install --quiet --disable-pip-version-check --no-deps \
             "amu @ git+https://github.com/abslock128w/AMU@${AMU_REF}"
           "$RUNNER_TEMP/amu/bin/python" -m amu.ci.post --dir "$RUNNER_TEMP/amu-report" \
-            --repo "$GITHUB_REPOSITORY" --event "$GITHUB_EVENT_PATH"
+            --repo "$GITHUB_REPOSITORY" --event "$GITHUB_EVENT_PATH" --verify-dir "$RUNNER_TEMP/amu-verify"
