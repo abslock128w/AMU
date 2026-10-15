@@ -164,3 +164,33 @@ anywhere, and no source, test name or error text is kept.**
   - The poster adds the block only when opted in.
   - `verify` classes passed, failed and missing tests on a real tree as held, false and other.
 - Also in this commit: import order in `amu/ci/run.py`, which ruff flagged after piece 4 was pushed.
+
+## 6. Dogfood on this repository
+
+### Defects found before the first comment, each fixed with a test
+
+1. **The checkout's own `amu` package shadowed the installed AMU** (fixed in 5e9bf30, `ci-v0.1.1`).
+   - `python -m` puts the current directory first on `sys.path`. In this repository the checkout holds `amu/` from
+     main, with no `amu.ci`, so the first run on PR #3 (`ci-v0.1.0`) reported "AMU could not be installed".
+   - Every AMU invocation now uses `python -P`. A test with a decoy `amu` package in the checkout fails without the
+     flag.
+2. **The cache could overwrite tracked files** (b739937, `ci-v0.1.2`).
+   - This repository tracks files under `.amu/`, and the action cached the whole folder. Restoring the cache could
+     have changed them.
+   - Only `.amu/index` is cached now. It holds both the index and the recording.
+3. **`ci-v0.1.2` merged two steps into one** (2eeb1f2, `ci-v0.1.3`).
+   - The edit for defect 2 dropped the `- uses: actions/cache@v4` line.
+   - GitHub refused the action ("'if' is already defined"); PyYAML had accepted it.
+   - A test now checks that each action step has unique keys and exactly one of `uses` and `run`. It fails on
+     `ci-v0.1.2`'s file.
+   - The YAML is also loaded locally with a parser that rejects duplicate keys.
+
+### Enabled on this repository
+
+- PR #3 added `.github/workflows/amu-pr.yml` and `amu-pr-comment.yml` to main (merged as 77fe972, on the owner's
+  go-ahead). They are pinned to `ci-v0.1.3`, with counters on, the fresh-job rerun on, and this repository's install
+  command (`pip install -c constraints.txt -e '.[dev]'`, Python 3.11).
+- PR #3's own AMU run (`ci-v0.1.3`) succeeded. The pull request changes only YAML, so the report says no candidate
+  test could run. That is the expected result, and the comment's first line says "no flip count" rather than 0.
+- `workflow_run` workflows run only from the default branch, so pull requests opened before the merge get a comment
+  from their next push on.
