@@ -67,7 +67,11 @@ def method_source(tree, ident):
     return None
 
 
-def session(path):
+OUTSIDE = r'phase0-django|django\.git|blind-cases|/runs/|side-session-notes|scratchpad/trial/'
+EDITS = r'sed -i|python3? - <<|cat >|> *(django|tests)/|perl -pi'
+
+
+def session(path, outside=OUTSIDE, edits=EDITS):
     """The same measures from a desktop-app session transcript (one JSON record per line, usage per message)."""
     from datetime import datetime
     out = dict(tokens=0, output_tokens=0, cost=None, turns=0, declared=False, network=[], outside=[], final='', bash_edits=0, edit_tool_calls=0)
@@ -99,9 +103,9 @@ def session(path):
                 command = str((block.get('input') or {}).get('command', ''))
                 if NETWORK.search(command):
                     out['network'].append(command[:200])
-                if re.search(r'phase0-django|django\.git|blind-cases|/runs/|side-session-notes|scratchpad/trial/', command):
+                if re.search(outside, command):
                     out['outside'].append(command[:200])
-                if re.search(r'sed -i|python3? - <<|cat >|> *(django|tests)/|perl -pi', command):
+                if re.search(edits, command):
                     out['bash_edits'] += 1
     out['final'] = last_text[-400:]
     out['declared'] = '"done"' in last_text

@@ -29,12 +29,15 @@ import djrun  # noqa: E402
 MIN_LEFT = 20   # seconds of budget below which the check is not started
 SHOWN = 40      # flipped tests listed at most
 EDITED = 'test edited, not fixed'
-RUNS_TESTS = re.compile(r'(^|[\s;&|(`])(\./rt|rt)(\s|$|;|&|\|)|runtests\.py')
+RUNS_TESTS = re.compile(r'(^|[\s;&|(`])(\./rt|rt)(\s|$|;|&|\|)|runtests\.py|(^|[;&|(]\s*)(python3?\s+(-\S+\s+)*)?(-m\s+pytest|pytest|bin/test)\b')
 
 
 def label(row):
-    """tests/app/module.py::Class::test -> app.module.Class.test, the form ./rt takes."""
+    """tests/app/module.py::Class::test -> app.module.Class.test, the form Django's ./rt takes; unchanged where ./rt
+    takes pytest ids (label_format pytest)."""
     ident = row['id'] if isinstance(row, dict) else str(row).rsplit(' ', 1)[-1]
+    if config.get('label_format') == 'pytest':
+        return ident
     path, *rest = ident.split('::')
     path = path[len('tests/'):] if path.startswith('tests/') else path
     return '.'.join([path[:-3].replace('/', '.') if path.endswith('.py') else path, *rest])
