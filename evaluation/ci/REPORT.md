@@ -65,3 +65,35 @@ abort, gaps and what ran. The comment is found by a hidden marker and edited on 
   - code-span escaping against a hostile test name;
   - the size cap with 2,000 flips;
   - editing only our marked comment, and creating one when there is none.
+
+## 3. Fork safety (`ci/amu-pr.yml`, `ci/amu-pr-comment.yml`, `amu/ci/post.py`)
+
+**Untrusted code runs only under `pull_request`, with a read-only token. The comment is posted by a `workflow_run`
+job that never checks out or runs the pull request's code. Neither the templates nor the action use
+`pull_request_target`.**
+
+- **`ci/amu-pr.yml`** (copy to `.github/workflows/`) is the untrusted job.
+  - It runs on `pull_request` (opened, synchronize, reopened) with `permissions: contents: read`.
+  - It checks out the head SHA with full history and `persist-credentials: false`.
+  - Concurrency cancels an older run on the same pull request.
+  - It calls the action pinned at `ci-v0.1.0`. It cannot post.
+- **`ci/amu-pr-comment.yml`** is the trusted job.
+  - It runs on `workflow_run` of that workflow, from the default branch, with `permissions: {}` at the top level and
+    only `actions: read` and `pull-requests: write` on the job.
+  - It has no checkout step. It downloads the artifact and installs AMU from the pinned tag with `--no-deps`; the
+    renderer and poster need only the standard library.
+  - It runs `amu.ci.post --event $GITHUB_EVENT_PATH`.
+- **The artifact is data, never trusted.**
+  - The pull request number and head SHA come from the `workflow_run` event and the API, not from `meta.json`.
+  - A fork's pull request, which the event does not list, is found by the head repository's owner and branch. It
+    counts only if it is open and its current head is the run's head.
+  - A stale run (an older push finishing late), a cancelled run or a run not triggered by a pull request posts
+    nothing, so it cannot overwrite a newer comment.
+  - Untrusted strings are still escaped by the renderer (piece 2).
+- **Tests:** `tests/ci/test_fork_safety.py` (6).
+  - There is no `pull_request_target`.
+  - The untrusted job has no write permission and no posting.
+  - The posting job has no checkout and pins its AMU install.
+  - Fork resolution by owner and branch.
+  - Stale, cancelled and non-PR runs post nothing.
+  - A forged `meta.json` (another pull request, another head) cannot redirect or relabel the comment.

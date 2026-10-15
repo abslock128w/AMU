@@ -1,0 +1,42 @@
+# AMU on pull requests, part 2 of 2: posts the comment. Copy to .github/workflows/amu-pr-comment.yml.
+# Runs from the default branch with a token that can comment. It never checks out or runs the pull request's code:
+# it reads the saved JSON as data, takes the pull request and head from the trusted workflow_run event, and
+# renders with AMU installed from a pinned tag.
+name: AMU pull request comment
+
+on:
+  workflow_run:
+    workflows: [AMU pull request]
+    types: [completed]
+
+permissions: {}
+
+jobs:
+  comment:
+    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion != 'cancelled'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: read
+      pull-requests: write
+    steps:
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: amu-report
+          path: ${{ runner.temp }}/amu-report
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Post the comment
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          AMU_REF: ci-v0.1.0
+        run: |
+          python -m venv "$RUNNER_TEMP/amu"
+          "$RUNNER_TEMP/amu/bin/python" -m pip install --quiet --disable-pip-version-check --no-deps \
+            "amu @ git+https://github.com/abslock128w/AMU@${AMU_REF}"
+          "$RUNNER_TEMP/amu/bin/python" -m amu.ci.post --dir "$RUNNER_TEMP/amu-report" \
+            --repo "$GITHUB_REPOSITORY" --event "$GITHUB_EVENT_PATH"
