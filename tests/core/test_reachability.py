@@ -1022,3 +1022,13 @@ def test_a_candidate_the_project_deselects_is_skipped_without_splitting(tmp_path
     assert len(starts) == 2, starts  # the batch and one collection, no splitting
     only_slow, problem = runners.execute(runners.get(tmp_path, 'pytest'), sys.executable, tmp_path, ids[1:], tmp_path/'r.xml', 60)
     assert only_slow == {ids[1]: 'skipped', ids[2]: 'skipped'} and problem is None, (only_slow, problem)
+
+
+def test_tests_inside_a_package_make_the_tree_evident(tmp_path):
+    from amu.core import runners
+    repository(tmp_path, {'pkg/core/basic.py': 'x = 1\n', 'pkg/core/tests/__init__.py': ''})
+    assert not runners.evident(tmp_path)
+    repository(tmp_path, {'.hidden/tests/test_x.py': 'def test_x():\n    pass\n'})
+    assert not runners.evident(tmp_path)
+    repository(tmp_path, {'pkg/core/tests/test_basic.py': 'def test_x():\n    pass\n'})
+    assert runners.evident(tmp_path)

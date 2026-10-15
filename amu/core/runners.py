@@ -243,10 +243,16 @@ def execute(runner, python, tree, ids, report, timeout):
 
 
 def evident(root):
-    """Whether the tree visibly has tests to run: a runner entry point or at least one test module."""
+    """Whether the tree visibly has tests to run: a runner entry point or at least one test module, in a top-level
+    tests directory or in a package's own (sympy/core/tests/test_basic.py). Hidden directories are not searched."""
     root = Path(root)
-    return ((root/'tests'/'runtests.py').is_file() or any(root.glob('tests/**/test*.py')) or any(root.glob('test_*.py'))
-            or any(root.glob('**/tests.py')))
+    if (root/'tests'/'runtests.py').is_file() or any(root.glob('tests/**/test*.py')) or any(root.glob('test_*.py')):
+        return True
+    for folder, dirs, files in os.walk(root):
+        dirs[:] = [d for d in dirs if not d.startswith('.') and d not in ('node_modules', '__pycache__')]
+        if 'tests.py' in files or (Path(folder).name == 'tests' and any(f.startswith('test_') and f.endswith('.py') for f in files)):
+            return True
+    return False
 
 
 def interpreter(root):
