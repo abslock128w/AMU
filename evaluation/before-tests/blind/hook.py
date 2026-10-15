@@ -77,7 +77,7 @@ def message(packet):
     elif flips == 0:
         text = head + f"{ran or 'the candidate'} existing tests were run on the code with your uncommitted changes; none that passed before now fails."
     else:
-        forms = {'skipped': 'is skipped', 'removed': 'is gone', 'unrunnable': 'cannot run'}
+        forms = {'skipped': 'is skipped', 'removed': 'is gone', 'unrunnable': 'cannot run', 'not failing': 'no longer fails'}
         ids = [label(row) + (f" ({EDITED}: as edited it {forms.get(row.get('edited_form'), 'passes')})"
                              if isinstance(row, dict) and row.get('label') == EDITED else '') for row in failing]
         text = (head + f'{flips} existing test(s) that passed before your uncommitted changes now fail:\n'
@@ -98,6 +98,15 @@ def _path(ident):
     return ident.split('::')[0]
 
 
+def kept_form(workspace, ident):
+    """What a flagged test kept by the hash rule is now: gone when its file no longer names it, otherwise only known
+    not to fail (it may pass or be skipped)."""
+    path = Path(workspace)/_path(ident)
+    name = ident.split('::')[-1]
+    text = path.read_text(errors='replace') if path.is_file() else ''
+    return 'not failing' if re.search(r'\bdef\s+' + re.escape(name) + r'\b', text) else 'removed'
+
+
 def file_hash(workspace, ident):
     """sha1 of the file that defines a test id (path::Class::test), or None when it is gone."""
     path = Path(workspace)/ident.split('::')[0]
@@ -115,7 +124,9 @@ def is_test(path):
 def keys(workspace):
     """(production key, test key, whole key) over the uncommitted .py state."""
     state = sorted(python_state(workspace).items())
-    digest = lambda rows: hashlib.sha256(json.dumps(rows).encode()).hexdigest()
+
+    def digest(rows):
+        return hashlib.sha256(json.dumps(rows).encode()).hexdigest()
     return digest([r for r in state if not is_test(r[0])]), digest([r for r in state if is_test(r[0])]), digest(state)
 
 
@@ -185,6 +196,8 @@ def check(run, workspace, head, row):
     if packet is not None and packet.get('flips') is None and previous and previous.get('ids'):
         # A check that ran nothing (runner failure, timeout) says nothing about what was flagged: keep it flagged.
         last.write_text(json.dumps(dict(previous, key=key, production=production, tests=tests_key, body=body)))
+        text += ('\nStill flagged from the previous check, not rechecked this time: '
+                 + ', '.join(label(ident) for ident in previous['ids'][:SHOWN]) + (' and more' if len(previous['ids']) > SHOWN else ''))
         return text + f'\n[test time: {ledger.spent():.0f} of {ledger.budget} s used]'
     if packet is not None:
         if only:
@@ -198,7 +211,7 @@ def check(run, workspace, head, row):
                          or tests_key != (flagged.get(ident) or {}).get('tests'))]
             if kept:
                 packet['predicted_failures'] = [*(packet.get('predicted_failures') or []),
-                                                *(dict(id=ident, before='passed', after='failed', label=EDITED, edited_form='passed' if (workspace/_path(ident)).is_file() else 'removed')
+                                                *(dict(id=ident, before='passed', after='failed', label=EDITED, edited_form=kept_form(workspace, ident))
                                                   for ident in kept)]
                 packet['flips'] = len(packet['predicted_failures'])
                 body = message(packet)

@@ -429,14 +429,14 @@ def compact(report, include_tests=False):
         if report.get('unstable'):
             out['unstable'] = report['unstable'][:5] + ([f"and {len(report['unstable']) - 5} more"] if len(report['unstable']) > 5 else [])
         out.pop('original_tests', None)
-        out['gaps'] = [gap if len(gap) <= 240 else gap[:237] + '...' for gap in report['gaps'][:3]]
         out['tests'] = [row for row in out['tests'] if row['expect'] != 'fails'][:6]
     out['changed_symbols'] = report['changed_symbols'][:5]
     out['impacted'] = [dict(row) for row in report['impacted'][:3]]
     # Steps keep the last two path components here; --full-evidence has full paths.
     out['consequences'] = [dict(row, path=[re.sub(r'^\S*/(?=[^/ ]+/[^/ ]+:\d)', '', step) for step in row['path']])
                            for row in report['consequences'][:2]]
-    out['gaps'] = report['gaps'][:3]
+    # Shadow gaps can repeat long test ids; they are cut, the full text is in --full-evidence.
+    out['gaps'] = [gap if len(gap) <= 240 or 'predicted_failures' not in report else gap[:237] + '...' for gap in report['gaps'][:3]]
     hidden = len(report['changed_symbols']) - len(out['changed_symbols'])
     more = len(report['consequences']) - len(out['consequences'])
     out['caveats'] = (report['caveats'] + (f' +{hidden} changed symbols.' if hidden else '')
@@ -452,9 +452,17 @@ def compact(report, include_tests=False):
                 row['why'] = row['why'][:width[0] - 1] + '~'
         return True
 
+    def fewer_unstable():
+        shown = [i for i in out.get('unstable', []) if not i.startswith('and ')]
+        if len(shown) <= 1:
+            return False
+        out['unstable'] = shown[:-1] + [f"and {len(report['unstable']) - len(shown) + 1} more"]
+        return True
+
     steps = [lambda: narrow(28),
              lambda: out['impacted'] and out['impacted'].pop(),
              lambda: len(out['gaps']) > 1 and out['gaps'].pop(),
+             fewer_unstable,
              lambda: len(out['changed_symbols']) > 3 and out['changed_symbols'].pop(),
              lambda: len(out['consequences']) > 1 and out['consequences'].pop(),
              lambda: len(out['changed_symbols']) > 1 and out['changed_symbols'].pop(),

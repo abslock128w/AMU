@@ -780,8 +780,9 @@ def test_a_deleted_unittest_test_is_removed_not_a_failure(tmp_path):
 
 
 def test_a_broken_edited_test_module_is_not_reported_as_fully_executed(tmp_path):
-    from amu.core import analyze
     import sys
+
+    from amu.core import analyze
     lib0, lib1 = 'def f():\n    return 1\n', 'def f():\n    return 1  # tidy\n'
     tf0 = 'from lib import f\ndef test_f1():\n    assert f() == 1\ndef test_f2():\n    assert f()\n'
     tf1 = tf0.replace('from lib import f', 'from lib import f, missing_helper')
@@ -810,3 +811,27 @@ def test_a_test_moved_into_an_edited_base_class_is_not_removed(tmp_path):
     rows, info, gaps = _shadow(tmp_path, {'tests/__init__.py': '', 'tests/base.py': base0, 'tests/test_sub.py': sub0},
                                {'tests/__init__.py': '', 'tests/base.py': base1, 'tests/test_sub.py': sub1}, ['tests/test_sub.py::TestSub::test_x'])
     assert info.get('aborted') and not any('no longer defined' in g for g in gaps), (info, gaps)
+
+
+def test_a_module_level_test_deleted_beside_an_unrelated_same_named_def_is_removed(tmp_path):
+    from amu.core.shadow import _removed
+    (tmp_path/'tests').mkdir()
+    (tmp_path/'tests/test_sub.py').write_text('class TestSub:\n    pass\n')
+    (tmp_path/'tests/test_other.py').write_text('def test_x():\n    assert True\n')
+    (tmp_path/'tests/test_mod.py').write_text('')
+    edits = {'tests/test_sub.py': '', 'tests/test_other.py': '', 'tests/test_mod.py': ''}
+    before = {'tests/test_sub.py': 'class TestSub:\n    def test_x(self):\n        assert True\n', 'tests/test_mod.py': 'def test_x():\n    pass\n'}
+    # A module-level def of the same name elsewhere is not a base class taking the method over.
+    assert _removed('tests/test_sub.py::TestSub::test_x', edits, before, tmp_path)
+    assert _removed('tests/test_mod.py::test_x', edits, before, tmp_path)
+
+
+def test_the_packet_stays_under_its_limit_with_many_long_unstable_ids():
+    from amu.core import LIMIT, compact, encoded
+    ids = [f'tests/integration/test_library_module_operations.py::TestConcurrentAccess::test_{"x" * 150}_{i:02d}' for i in range(12)]
+    gap = f'{len(ids)} test(s) flipped once and not on a rerun; reported as unstable, not as failures: ' + ', '.join(ids[:3]) + ' and 9 more'
+    report = dict(tests=[], caveats='', predicted_failures=[], unstable=ids, gaps=[gap], changed_symbols=['lib.py#flag'], impacted=[],
+                  consequences=[], runner='pytest', flips=0, summary='EXECUTED 12 of 12')
+    out = compact(report)
+    assert len(encoded(out)) < LIMIT and len(out['gaps'][0]) <= 240, out
+    assert out['unstable'][-1] == f"and {len(ids) - len(out['unstable']) + 1} more", out['unstable']

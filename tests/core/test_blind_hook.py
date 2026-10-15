@@ -81,7 +81,7 @@ def test_the_recheck_keeps_a_flagged_test_whose_file_hash_changed(tmp_path, monk
     row = {}
     text = hook.check(run, work.resolve(), 'Automatic test check', row)
     assert '--only' in calls[0] and ident in calls[0], calls
-    assert row['kept_by_hash'] == [ident] and 'test_lib.test_work (test edited, not fixed: as edited it passes)' in text.replace('tests.', ''), text
+    assert row['kept_by_hash'] == [ident] and 'test_lib.test_work (test edited, not fixed: as edited it no longer fails)' in text.replace('tests.', ''), text
     # The same file, unchanged since it was flagged, and not failing: it drops off.
     _, tests_now, _ = hook.keys(work)
     (run/'last-check.json').write_text(json.dumps(dict(key='earlier', production=production, tests='earlier', body='', flips=1,
@@ -90,6 +90,49 @@ def test_the_recheck_keeps_a_flagged_test_whose_file_hash_changed(tmp_path, monk
     row = {}
     hook.check(run, work.resolve(), 'Automatic test check', row)
     assert 'kept_by_hash' not in row and row['flips'] == 0, row
+
+
+def _load_hook(run, monkeypatch):
+    import importlib.util
+    monkeypatch.setattr(sys, 'argv', ['hook.py', str(run/'config.json')])
+    spec = importlib.util.spec_from_file_location('blind_hook_under_test', BLIND/'hook.py')
+    hook = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(hook)
+    return hook
+
+
+def test_limits_of_the_check_reach_the_agent_and_kept_flags_name_their_form(tmp_path, monkeypatch):
+    work, run = setup(tmp_path)
+    hook = _load_hook(run, monkeypatch)
+    for gap in ('1 test(s) from edited test files not run as they were before the edit: the budget was used up',
+                '1 flip(s) could not be rerun: the budget was used up'):
+        text = hook.message(dict(flips=0, predicted_failures=[], gaps=[gap, '3 call sites unresolved repo-wide'],
+                                 summary='EXECUTED 1 of 1 candidate tests'))
+        assert 'Not covered by this check: ' + gap in text and 'call sites' not in text, text
+    assert hook.kept_form(work, 'tests/test_lib.py::test_work') == 'not failing'
+    assert hook.kept_form(work, 'tests/test_lib.py::test_gone') == 'removed'
+    assert hook.kept_form(work, 'tests/test_missing.py::test_work') == 'removed'
+
+
+def test_a_recheck_that_runs_nothing_still_names_the_flagged_tests(tmp_path, monkeypatch):
+    import types
+    work, run = setup(tmp_path)
+    hook = _load_hook(run, monkeypatch)
+    ident = 'tests/test_lib.py::test_work'
+    production, tests_then, _ = hook.keys(work)
+    (run/'last-check.json').write_text(json.dumps(dict(key='earlier', production=production, tests='earlier', body='', flips=1,
+                                                       failing=['test_lib.test_work'], ids=[ident], hashes={})))
+    (work/'tests/test_lib.py').write_text('')
+    real_run = subprocess.run
+
+    def fake_run(command, **kwargs):
+        if 'amu.core' not in command:
+            return real_run(command, **kwargs)
+        return types.SimpleNamespace(stdout=json.dumps(dict(flips=None, predicted_failures=[], gaps=[], summary='')), stderr='', returncode=0)
+    monkeypatch.setattr(hook.subprocess, 'run', fake_run)
+    text = hook.check(run, work.resolve(), 'Automatic test check', {})
+    assert 'nothing is known' in text and 'Still flagged from the previous check, not rechecked this time: ' in text, text
+    assert 'test_lib.test_work' in text.replace('tests.', ''), text
 
 
 def test_a_flagged_test_fixed_in_the_code_drops_off(tmp_path):
@@ -133,8 +176,6 @@ def test_a_full_check_after_a_rename_still_lists_the_flagged_test(tmp_path):
 
 
 def test_is_test_keeps_a_package_named_test_as_production():
-    import importlib.util
-    spec = importlib.util.spec_from_file_location('hook_is_test', BLIND/'hook.py')
     source = (BLIND/'hook.py').read_text()
     namespace = {}
     exec(compile(source[source.index('def is_test'):source.index('def keys')], 'hook.py', 'exec'), namespace)

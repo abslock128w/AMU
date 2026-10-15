@@ -284,9 +284,12 @@ def _removed(ident, edits, before_src, after_tree):
         return False
     if not (_direct(before_src.get(path, ''), ident) is True and _direct(_read(Path(after_tree)/path), ident) is False):
         return False
-    # Moved up into a base class in another edited file: still inherited, not removed.
+    # Moved up into a base class in another edited file: still inherited, not removed. Only a method (an indented def)
+    # can be inherited; a module-level test is not.
+    if len(ident.split('::')) < 3:
+        return True
     name = ident.split('::')[-1]
-    pattern = re.compile(r'^\s*(async\s+)?def\s+' + re.escape(name) + r'\b', re.M)
+    pattern = re.compile(r'^[ \t]+(async\s+)?def\s+' + re.escape(name) + r'\b', re.M)
     return not any(pattern.search(_read(Path(after_tree)/other)) for other in edits if other != path and other.endswith('.py'))
 
 
