@@ -73,3 +73,15 @@ def test_cache_holds_only_the_index_folder():
     # A repository may track its own files under .amu (AMU's does); restoring a cache over them would change the tree.
     text = (ROOT/'action.yml').read_text()
     assert 'path: .amu/index\n' in text and 'path: .amu\n' not in text
+
+
+def test_every_action_step_is_one_step():
+    # GitHub rejects a step with two 'if' keys; a lenient YAML parser silently keeps the last one.
+    text = (ROOT/'action.yml').read_text()
+    steps = text.split('\n  steps:\n', 1)[1].split('\n    - ')[1:]
+    assert 'uses: actions/cache@v4' in text
+    for step in steps:
+        keys = [line.strip().split(':', 1)[0] for line in ('  ' + step).splitlines()
+                if line.startswith(('  ', '      ')) and not line.startswith('        ') and ':' in line and not line.strip().startswith('#')]
+        assert len(keys) == len(set(keys)), step
+        assert ('uses' in keys) != ('run' in keys), step

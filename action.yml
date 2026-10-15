@@ -27,7 +27,7 @@ inputs:
   amu-ref:
     description: Tag of github.com/abslock128w/AMU that AMU is installed from.
     required: false
-    default: ci-v0.1.2
+    default: ci-v0.1.3
   base-sha:
     description: Base commit of the pull request.
     required: false
@@ -98,6 +98,7 @@ runs:
 
     # Caches written by a pull request are visible only to that pull request; the base branch's are shared.
     # Only .amu/index (index and recording): a repository may track other files under .amu.
+    - uses: actions/cache@v4
       if: inputs.mode != 'verify' && inputs.cache == 'true' && steps.base.outputs.sha != ''
       with:
         path: .amu/index
