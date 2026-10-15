@@ -8,6 +8,7 @@ from .graph import APPROXIMATE, LINE, SPECIFICITY
 
 CATCH_ALL = {'*', 'Exception', 'BaseException'}
 MAX_HOPS = 4
+MAX_STEPS = 200_000  # caller edges examined by one Finder before the exception walk gives up
 
 
 def inside(record, lines):
@@ -20,6 +21,9 @@ class Finder:
         self.after = after            # identity -> record as of the candidate source
         self.new_lines = new_lines    # path -> candidate line numbers the patch wrote
         self.renumbered = renumbered  # paths whose parent line numbers differ from the candidate
+        self.memo = {}          # handlers() results, per walk start
+        self.steps = 0
+        self.truncated = False
         self.parents = {}
         for record in graph.records.values():
             if record['kind'] == 'class':
@@ -73,21 +77,40 @@ class Finder:
                            == [s.split(' ', 1)[0] for s in row['path'][1:]] for other in rows)]
 
     def handlers(self, ident, exception, hops, seen):
-        """Located handlers for an exception leaving ``ident``, looking through callers that let it pass."""
-        found = []
-        if hops >= MAX_HOPS:
-            return found
-        for caller_id, edge in sorted(self.graph.reverse.get(ident, {}).items()):
-            caller = self.record(caller_id)
-            if caller_id in seen or caller is None or caller['kind'] != 'function' or self.graph.is_test(caller):
-                continue
-            handler = self.handler(caller, edge[LINE], exception)
-            if handler is None:
-                found.extend((c, line, raised, guessed or edge[APPROXIMATE])
-                             for c, line, raised, guessed in self.handlers(caller_id, exception, hops + 1, seen | {caller_id}))
-            else:
-                found.append((caller_id, handler[0], handler[2], edge[APPROXIMATE]))
-        return found
+        """Located handlers for an exception leaving ``ident``, looking through callers that let it pass.
+
+        Breadth first, each caller expanded once: a dense call graph has few nodes but exponentially
+        many paths. Work is bounded across the whole Finder; past the bound the walk stops and says so."""
+        key = (ident, exception, hops, frozenset(seen))
+        if key in self.memo:
+            return self.memo[key]
+        found, expanded = {}, set(seen)
+        level = {ident: False}  # node -> reached only through a guessed edge
+        while level and hops < MAX_HOPS and not self.truncated:
+            onward = {}
+            for node, guessed in sorted(level.items()):
+                for caller_id, edge in sorted(self.graph.reverse.get(node, {}).items()):
+                    self.steps += 1
+                    if self.steps > MAX_STEPS:
+                        self.truncated = True
+                        break
+                    caller = self.record(caller_id)
+                    if caller_id in expanded or caller is None or caller['kind'] != 'function' or self.graph.is_test(caller):
+                        continue
+                    through = guessed or edge[APPROXIMATE]
+                    handler = self.handler(caller, edge[LINE], exception)
+                    if handler is None:
+                        onward[caller_id] = onward.get(caller_id, True) and through
+                    else:
+                        previous = found.get((caller_id, handler[0]))
+                        found[(caller_id, handler[0])] = (caller_id, handler[0], handler[2],
+                                                          through and (previous is None or previous[3]))
+                if self.truncated:
+                    break
+            expanded.update(onward)
+            level, hops = onward, hops + 1
+        self.memo[key] = result = list(found.values())
+        return result
 
     def chain(self, ident, exception, hops, seen):
         """Follow one exception while the path is unambiguous. Returns (steps, end, guessed) or None."""
@@ -156,10 +179,13 @@ class Finder:
         return rows
 
 
-def find(graph, after, new_lines, renumbered):
+def find(graph, after, new_lines, renumbered, gaps=None):
     finder = Finder(graph, after, new_lines, renumbered)
     rows = []
-    for group in (finder.exceptions(), finder.state(), finder.results()):
+    groups = (finder.exceptions(), finder.state(), finder.results())
+    if finder.truncated and gaps is not None:
+        gaps.append(f'exception chains: caller walk stopped after {MAX_STEPS} edges; some handlers may be missing')
+    for group in groups:
         unique = {}
         for row in group:
             unique.setdefault((row['from'], row['to']), row)

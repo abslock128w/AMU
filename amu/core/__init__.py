@@ -322,7 +322,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         for copy in inherited.get(ident, [])[:8]:
             rows.append(dict(id=copy, expect=expect, why='inherits ' + r['qual'] + '; ' + likely[ident], confidence=confidence,
                              line=r['line'], score=round(gain, 3)))
-    found = consequences.find(graph, after, new_lines, renumbered)
+    found = consequences.find(graph, after, new_lines, renumbered, gaps)
     executed = None
     if run:
         # Exact beats ranked: run the candidates on both sides of the change and report what flips.

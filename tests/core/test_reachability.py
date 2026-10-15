@@ -1,6 +1,7 @@
 import difflib
 import json
 import subprocess
+import time
 
 from amu.core import LIMIT, analyze, encoded
 from amu.core.index import build
@@ -183,6 +184,26 @@ def test_exception_chain_is_reported_only_through_located_handlers(tmp_path):
     row = run(tmp_path, 'conv.py', source, changed)['consequences'][0]
     assert row['from'] == 'convert raises Invalid' and row['to'] == 'dispatch raises NotFound'
     assert [step.split(' ')[0] for step in row['path']] == ['conv.py:7', 'match.py:7', 'app.py:7']
+
+
+def test_exception_walk_on_a_dense_call_graph_is_bounded(tmp_path):
+    # Four layers of 60 functions, each calling every function below: 13 million caller paths, 241 nodes.
+    # A walk without a memo spent 11 s here (and the whole hook budget on sympy's ArrayAdd).
+    source = 'class Invalid(Exception):\n    pass\ndef convert(v):\n    return int(v)\n'
+    files, below, module = {'conv.py': source}, ['convert'], 'conv'
+    for layer in range(4):
+        names = [f'f{layer}_{i}' for i in range(60)]
+        files[f'layer{layer}.py'] = f'from {module} import {", ".join(below)}\n' + ''.join(
+            f'def {name}(v):\n' + ''.join(f'    {callee}(v)\n' for callee in below) + '    return v\n' for name in names)
+        below, module = names, f'layer{layer}'
+    files['top.py'] = ('from conv import Invalid\nfrom layer2 import f2_0\nclass Stop(Exception):\n    pass\n'
+                       'def top(v):\n    try:\n        return f2_0(v)\n    except Invalid:\n        raise Stop()\n')
+    repository(tmp_path, files)
+    run(tmp_path, 'conv.py', source, source)  # index outside the timed call
+    started = time.perf_counter()
+    result = run(tmp_path, 'conv.py', source, source.replace('    return int(v)\n', '    raise Invalid(v)\n'))
+    assert time.perf_counter() - started < 3
+    assert [(row['from'], row['to']) for row in result['consequences']] == [('convert raises Invalid', 'top raises Stop')]
 
 
 def test_no_consequence_without_a_located_consumer(tmp_path):
