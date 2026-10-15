@@ -1,0 +1,9 @@
+{
+ "started": 1792041675.0,
+ "ended": 1792045275,
+ "wall_seconds": 3600.0,
+ "session": "local_1e6b1b68-9213-45d1-bc8c-3bde9068dd6f",
+ "stopped_at_hard_cap": true,
+ "note": "Blocked on a permission prompt (sed -i, then ./rt) from before the hard stop (06:21:15 UTC); answered at 06:58:57 UTC, after it. The sed failed and changed nothing; one Edit to ring_series.py and one ./rt followed, then a second sed prompt left waiting. Scored tree = the tree at the hard stop, rebuilt by reversing that Edit. agent-final.diff is the tree after the answer. The session was not stopped by the coordinator (the app reserves a waiting session to the user).",
+ "permission_prompt_answered_at": "2026-10-15T06:58:57Z"
+}

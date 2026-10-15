@@ -1,0 +1,47 @@
+[
+ {
+  "tool": "hook",
+  "seconds": 0.97,
+  "at": 1792049923.6,
+  "detail": "before ./rt"
+ },
+ {
+  "tool": "hook",
+  "seconds": 64.25,
+  "at": 1792049990.5,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "hook",
+  "seconds": 27.23,
+  "at": 1792050032.9,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 1.6,
+  "at": 1792050042.7,
+  "labels": [
+   "sympy/simplify/tests/test_trigsimp.py"
+  ],
+  "k": [
+   "unrelated or issue_4032 or noncommutative"
+  ],
+  "problems": [],
+  "ran": 4,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 4.39,
+  "at": 1792050050.1,
+  "labels": [
+   "sympy/simplify/tests/test_trigsimp.py",
+   "sympy/series/tests/test_series.py::test_issue_12791"
+  ],
+  "k": null,
+  "problems": [],
+  "ran": 31,
+  "failed": []
+ }
+]

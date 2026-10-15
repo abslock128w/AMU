@@ -832,6 +832,30 @@ Files: `amu/core/vanished.py`, `amu/core/__init__.py`, `amu/core/patch.py`, `tes
 for the review follow-ups, `amu/core/shadow.py`, `blind/hook.py` and `tests/core/test_blind_hook.py`. Nothing upstream
 was executed for this change: the AMU column stubs execution, and the ranking is static.
 
+## Slow-suite brief, piece 4: result
+
+**AMU did not beat the dumb hook: 8 of 16 AMU-arm runs shipped a regression, against 6 of 16 for the dumb hook (20
+regression tests against 16). By the owner's rule, the agent-facing product is closed.**
+
+Sonnet, sympy, 8 frozen indirect tasks, 185 s of test time per run (one third of the 555 s suite), with the same hook
+triggers in both arms. Full tables and root causes are in `slow-suite/TRIAL-RECORD.md` (Result).
+
+- **Tasks 1 and 5 were identical in all four runs.** The counted tests are mostly ones upstream rewrote, and task 5
+  also has one test upstream left alone.
+- **Tasks 4, 6 and 7 were clean in both arms.**
+- **The arms differ on three tasks:**
+  - Task 3: both AMU-arm agents' `trigsimp` fails upstream's rewritten `test_hyperbolic_simp`.
+  - Task 2: w30 was scored on its tree at the hard stop, mid-edit, while blocked on a permission prompt answered 38
+    minutes late. Its later tree passes upstream's tests.
+  - Task 8: both dumb-hook runs fail upstream's rewritten `test_Pow_is_algebraic`, against one AMU-arm run.
+  - Post hoc, without w30: 7 against 6, still not a win.
+- **An AMU defect cost the AMU arm all testing in both task 5 runs.** `consequences.handlers` enumerates caller paths
+  for a new `raise` without a memo, which is exponential on sympy's `ArrayAdd`. The first check ran 184 s and spent the
+  budget. Those runs shipped the same regressions as the dumb-hook runs.
+- The AMU-arm agents ran every frozen breaking test in 9 runs, against 6. Hook messages listed a frozen breaking test in
+  14 runs, against 12. That did not turn into fewer regressions: most counted tests are ones upstream rewrote, and no
+  tool that runs the agent's existing tests sees those.
+
 ## Slow-suite brief, piece 4: preparation (no agent session yet)
 
 **sympy's full suite takes 555 s serially with its own runner, so each run gets a 185 s test budget. Eight tasks are

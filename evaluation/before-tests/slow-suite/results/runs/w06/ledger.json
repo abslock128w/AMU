@@ -1,0 +1,88 @@
+[
+ {
+  "tool": "hook",
+  "seconds": 0.94,
+  "at": 1792055089.0,
+  "detail": "before ./rt"
+ },
+ {
+  "tool": "hook",
+  "seconds": 66.6,
+  "at": 1792055169.9,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "hook",
+  "seconds": 13.7,
+  "at": 1792055187.7,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 6.94,
+  "at": 1792055197.7,
+  "labels": [
+   "sympy/core/tests/test_arit.py",
+   "sympy/core/tests/test_exprtools.py",
+   "sympy/core/tests/test_expr.py"
+  ],
+  "k": null,
+  "problems": [],
+  "ran": 227,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 13.55,
+  "at": 1792055213.5,
+  "labels": [
+   "sympy/core/tests/test_power.py",
+   "sympy/core/tests/test_numbers.py",
+   "sympy/simplify/tests/test_powsimp.py",
+   "sympy/simplify/tests/test_simplify.py",
+   "sympy/printing/tests/test_str.py",
+   "sympy/core/tests/test_subs.py",
+   "sympy/core/tests/test_function.py"
+  ],
+  "k": null,
+  "problems": [],
+  "ran": 517,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 1.68,
+  "at": 1792055218.3,
+  "labels": [
+   "sympy/polys/tests/test_rings.py",
+   "sympy/polys/tests/test_fields.py",
+   "sympy/simplify/tests/test_radsimp.py",
+   "sympy/series/tests/test_gruntz.py",
+   "sympy/simplify/tests/test_sqrtdenest.py",
+   "sympy/core/tests/test_mul.py"
+  ],
+  "k": null,
+  "problems": [
+   "pytest ended without a result (exit 4): no tests ran in 0.00s"
+  ],
+  "ran": 0,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 22.63,
+  "at": 1792055243.4,
+  "labels": [
+   "sympy/polys/tests/test_rings.py",
+   "sympy/polys/tests/test_fields.py",
+   "sympy/simplify/tests/test_radsimp.py",
+   "sympy/series/tests/test_gruntz.py",
+   "sympy/simplify/tests/test_sqrtdenest.py",
+   "sympy/solvers/tests/test_solvers.py"
+  ],
+  "k": null,
+  "problems": [],
+  "ran": 337,
+  "failed": []
+ }
+]

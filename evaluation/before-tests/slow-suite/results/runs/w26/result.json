@@ -1,0 +1,9 @@
+{
+ "started": 1792041675.0,
+ "ended": 1792045275,
+ "wall_seconds": 3600.0,
+ "session": "local_76e63e59-4987-4c90-b98e-89dbbf0415a2",
+ "stopped_at_hard_cap": true,
+ "permission_prompt_answered_at": "2026-10-15T06:59:05Z",
+ "note": "Blocked on a permission prompt from 05:34:51 UTC; answered after the hard stop (06:21:15 UTC). Scored tree = the tree at the hard stop, rebuilt by reversing the two Edits made after the answer and restoring the temp test file the answered rm deleted (the three sed -i calls failed and changed nothing). agent-final.diff is the tree after the answer."
+}

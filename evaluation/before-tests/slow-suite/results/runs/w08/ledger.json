@@ -1,0 +1,101 @@
+[
+ {
+  "tool": "hook",
+  "seconds": 14.71,
+  "at": 1792051214.1,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 6.56,
+  "at": 1792051225.9,
+  "labels": [
+   "sympy/matrices/expressions/tests/test_derivatives.py",
+   "sympy/matrices/expressions/tests/test_indexing.py",
+   "sympy/tensor/array/expressions/tests"
+  ],
+  "k": null,
+  "problems": [],
+  "ran": 166,
+  "failed": [
+   "sympy/matrices/expressions/tests/test_derivatives.py::test_fix_issue_24021",
+   "sympy/matrices/expressions/tests/test_derivatives.py::test_issue_23492",
+   "sympy/matrices/expressions/tests/test_derivatives.py::test_issue_24725",
+   "sympy/matrices/expressions/tests/test_derivatives.py::test_issue_25118",
+   "sympy/matrices/expressions/tests/test_indexing.py::test_matrix_expression_from_index_summation",
+   "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_convert_array_to_matrix_scalar_addends",
+   "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars",
+   "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array",
+   "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients"
+  ]
+ },
+ {
+  "tool": "hook",
+  "seconds": 11.89,
+  "at": 1792051248.3,
+  "detail": "after edit"
+ },
+ {
+  "tool": "rt",
+  "seconds": 5.34,
+  "at": 1792051253.8,
+  "labels": [
+   "sympy/matrices/expressions/tests/test_derivatives.py",
+   "sympy/matrices/expressions/tests/test_indexing.py",
+   "sympy/tensor/array/expressions/tests"
+  ],
+  "k": null,
+  "problems": [],
+  "ran": 166,
+  "failed": [
+   "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_convert_array_to_matrix_scalar_addends",
+   "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars",
+   "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array",
+   "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients"
+  ]
+ },
+ {
+  "tool": "hook",
+  "seconds": 11.22,
+  "at": 1792051277.0,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 3.15,
+  "at": 1792051287.2,
+  "labels": [
+   "sympy/tensor/array/expressions/tests"
+  ],
+  "k": null,
+  "problems": [],
+  "ran": 115,
+  "failed": [
+   "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_array_add_scalar_arguments"
+  ]
+ },
+ {
+  "tool": "hook",
+  "seconds": 11.27,
+  "at": 1792051298.5,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 1.59,
+  "at": 1792051305.2,
+  "labels": [
+   "sympy/tensor/array/expressions/tests/test_array_expressions.py"
+  ],
+  "k": null,
+  "problems": [],
+  "ran": 46,
+  "failed": []
+ },
+ {
+  "tool": "hook",
+  "seconds": 11.3,
+  "at": 1792051316.6,
+  "detail": "after Bash"
+ }
+]

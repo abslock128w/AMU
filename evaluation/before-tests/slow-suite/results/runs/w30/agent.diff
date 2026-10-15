@@ -1,0 +1,13 @@
+diff --git a/sympy/polys/ring_series.py b/sympy/polys/ring_series.py
+index 67959d9..9a00fbc 100644
+--- a/sympy/polys/ring_series.py
++++ b/sympy/polys/ring_series.py
+@@ -968,7 +968,7 @@ def rs_nth_root(p, n, x, prec):
+     index = R.gens.index(x)
+     m = min(p, key=lambda k: k[index])[index]
+     p = mul_xin(p, index, -m)
+-    prec -= m
++    prec -= m // n
+ 
+     if _has_constant_term(p - 1, x):
+         zm = R.zero_monom

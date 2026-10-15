@@ -229,3 +229,90 @@ As in the Django trials:
   tool call. If it did not, the trial stops there.
 - Nothing is rerun because of its result.
 - These commits are from September and October 2026; both arms share whatever the model knows of them.
+
+## Result (added after the run; nothing above this line was changed afterwards)
+
+**AMU did not beat the dumb hook: 8 of its 16 runs shipped a regression, against 6 of 16 for the dumb hook (20
+regression tests against 16). By the owner's rule, the agent-facing product is closed.**
+
+Scores: `results/scores.json`. Per run: `results/runs/<id>/` (ledger, hook log, diff, result). Departures:
+`results/departures.md`. Reference runs: `results/references.json`. Every parent and upstream full suite had 0
+failures.
+
+| Task | AMU arm: regressions (in tests upstream left alone) | Dumb hook: regressions (left alone) |
+|---|---|---|
+| 1 | w12 4 (0), w06 4 (0) | w23 4 (0), w22 4 (0) |
+| 2 | **w30 3 (2)**, w05 0 | w26 0, w10 0 |
+| 3 | **w09 1 (0), w04 1 (0)** | w18 0, w03 0 |
+| 4 | w11 0, w29 0 | w25 0, w21 0 |
+| 5 | w19 3 (1), w13 3 (1) | w08 3 (1), w24 3 (1) |
+| 6 | w31 0, w20 0 | w32 0, w17 0 |
+| 7 | w27 0, w01 0 | w28 0, w02 0 |
+| 8 | w07 0, w14 1 (0) | **w16 1 (0), w15 1 (0)** |
+| Runs with a regression | **8 of 16** | **6 of 16** |
+
+| Measure, per arm over 16 runs | AMU arm | Dumb hook |
+|---|---:|---:|
+| Regression tests | 20 | 16 |
+| Regressions in tests upstream left alone | 4 in 3 runs | 2 in 2 runs |
+| Upstream's new tests failing (not regressions) | 5 | 4 |
+| Runs leaving a red test in the agent's own tree | 1 (w30, its tree at the hard stop) | 4 |
+| Runs whose agent ran every frozen breaking test before declaring | 9 | 6 |
+| Runs whose hook listed at least one frozen breaking test | 14 | 12 |
+| Runs that declared done | 16 | 16 |
+| Session wall time, median / total | 279 s / 17,397 s | 589 s / 16,319 s |
+| Test time charged, total (of it, hook) | 1,788 s (1,636 s) | 1,663 s (1,453 s) |
+| `./rt` runs / hook runs / hook messages / checks skipped for budget | 29 / 58 / 93 / 12 | 28 / 59 / 102 / 5 |
+| Tokens, total incl. cache reads | 16.6 M | 16.5 M |
+| Runs with an answered permission prompt | 6 | 10 |
+
+Where the arms differ, on three tasks (tasks 1 and 5 are identical in all four runs, and tasks 4, 6 and 7 are clean):
+- **Task 2:** w30's 3 regressions come from its tree at the hard stop. The agent waited on a permission prompt from
+  05:3x UTC until 38 minutes after the stop, with an edit half done. Counterfactual, run after scoring: w30's tree
+  after the late answer passes all 37 of upstream's `test_ring_series.py` tests. The hook had listed
+  `test_nth_root`.
+- **Task 3:** both AMU-arm runs fail upstream's rewritten `test_hyperbolic_simp`. Neither edited it, and it passes in
+  their own trees, so their `trigsimp` change behaves differently from upstream's. w04's hook listed it mid-run, and
+  the agent's next edit cleared it. Both dumb-hook runs match upstream there, but both left `test_issue_12791` red in
+  their own trees; upstream's rewrite of that test accepts their behaviour.
+- **Task 8:** both dumb-hook runs and one AMU-arm run (w14) fail upstream's rewritten `test_Pow_is_algebraic`. w07
+  does not.
+
+Post hoc, labelled as such: without w30, AMU has 7 runs with a regression against 6, still not a win.
+
+### AMU-arm runs that shipped a regression, root cause
+
+| Run | Hook fired | What it printed at the end | Breaking test among candidates | Runner started | What the agent did |
+|---|---|---|---|---|---|
+| w12, w06 (task 1) | 3 checks each | 1 flip: `test_as_base_exp`, then edited-test rechecks | yes | yes | updated `test_as_base_exp` as the task changes it; the 4 counted tests are ones upstream rewrote, the same 4 in all four runs |
+| w30 (task 2) | 7 | `test_nth_root` | yes | yes | blocked on a prompt at the hard stop; scored mid-edit (above) |
+| w09, w04 (task 3) | 3 and 4 | 0 flips at the end | `test_hyperbolic_simp` was listed in w04 and then passed | yes | implementation diverges from upstream's rewritten test |
+| w19, w13 (task 5) | 2 each | nothing: the first check ran 184 s and spent the budget | no result | no: AMU's static phase never finished | edited by reading only; shipped the same 3 regressions as both dumb-hook runs, which ran their tests |
+| w14 (task 8) | 3 | `test_Pow_is_algebraic` | yes | yes | updated the test to its own behaviour; upstream's rewrite expects another; both dumb-hook runs did the same |
+
+**AMU defect found in the run (w19, w13).** For each newly added `raise`, `consequences.handlers` enumerates every
+caller path up to MAX_HOPS without a memo. On sympy's call graph around `ArrayAdd.__new__` that is exponential, and the
+static phase ran past the whole budget. It cost the AMU arm all testing in both task 5 runs, though the regression
+counts there equal the dumb hook's. It was not fixed during the run, because `amu/` was frozen.
+
+### Departures (details in `results/departures.md`)
+
+- The machine restarted before any session. Trees were regenerated and checked against the frozen patch hashes, and the
+  recording was remade (above).
+- Permission prompts were answered in 16 runs. In w26 and w30 the answer came 38 minutes after the hard stop, so those
+  trees were rebuilt to their state at the stop from the transcripts. The trees after the answers are kept as
+  `agent-final.diff`.
+- From batch 2 on, the owner asked for batches to start without waiting. The app starts sessions only on the owner's
+  own message, so each batch still began on one.
+- Every session listed the shared notes folder the app offers to sibling sessions; it was empty throughout. No
+  transcript shows network use.
+
+### What executed upstream code
+
+sympy's tests only, in copies outside the owner's checkout:
+- the one full-suite measurement and the screening of 86 commits;
+- the coverage recording, twice (the first was lost in the restart);
+- the mechanics checks on 92e2a7e6;
+- the 32 sessions' `./rt` and hook runs;
+- scoring: 16 reference full suites, 32 hidden-test full suites, suspect reruns and 32 own-tree module runs;
+- one diagnostic AMU run on a copy of w19's tree, and the w30 counterfactual.

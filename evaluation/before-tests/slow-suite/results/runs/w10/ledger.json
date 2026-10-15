@@ -1,0 +1,110 @@
+[
+ {
+  "tool": "hook",
+  "seconds": 10.69,
+  "at": 1792055116.3,
+  "detail": "after edit"
+ },
+ {
+  "tool": "rt",
+  "seconds": 1.94,
+  "at": 1792055121.5,
+  "labels": [
+   "sympy/polys/tests/test_ring_series.py"
+  ],
+  "k": [
+   "test1 or nth_root or puiseux"
+  ],
+  "problems": [],
+  "ran": 5,
+  "failed": [
+   "sympy/polys/tests/test_ring_series.py::test1",
+   "sympy/polys/tests/test_ring_series.py::test_nth_root",
+   "sympy/polys/tests/test_ring_series.py::test_puiseux"
+  ]
+ },
+ {
+  "tool": "hook",
+  "seconds": 8.79,
+  "at": 1792055159.1,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 1.81,
+  "at": 1792055163.6,
+  "labels": [
+   "sympy/polys/tests/test_ring_series.py"
+  ],
+  "k": [
+   "nth_root"
+  ],
+  "problems": [],
+  "ran": 1,
+  "failed": [
+   "sympy/polys/tests/test_ring_series.py::test_nth_root"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 2.11,
+  "at": 1792055175.0,
+  "labels": [
+   "sympy/polys/tests/test_ring_series.py"
+  ],
+  "k": [
+   "nth_root"
+  ],
+  "problems": [],
+  "ran": 1,
+  "failed": [
+   "sympy/polys/tests/test_ring_series.py::test_nth_root"
+  ]
+ },
+ {
+  "tool": "hook",
+  "seconds": 9.62,
+  "at": 1792055184.7,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 37.57,
+  "at": 1792055228.1,
+  "labels": [
+   "sympy/polys"
+  ],
+  "k": null,
+  "problems": [],
+  "ran": 1562,
+  "failed": [
+   "sympy/polys/tests/test_ring_series.py::test_nth_root"
+  ]
+ },
+ {
+  "tool": "hook",
+  "seconds": 10.38,
+  "at": 1792055238.6,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 2.11,
+  "at": 1792055666.0,
+  "labels": [
+   "sympy/polys/tests/test_ring_series.py"
+  ],
+  "k": [
+   "nth_root"
+  ],
+  "problems": [],
+  "ran": 1,
+  "failed": []
+ },
+ {
+  "tool": "hook",
+  "seconds": 8.18,
+  "at": 1792055674.3,
+  "detail": "after Bash"
+ }
+]

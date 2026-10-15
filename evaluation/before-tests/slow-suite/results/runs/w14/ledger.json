@@ -1,0 +1,33 @@
+[
+ {
+  "tool": "hook",
+  "seconds": 0.86,
+  "at": 1792060884.4,
+  "detail": "before ./rt"
+ },
+ {
+  "tool": "hook",
+  "seconds": 65.02,
+  "at": 1792061950.9,
+  "detail": "after edit"
+ },
+ {
+  "tool": "rt",
+  "seconds": 2.91,
+  "at": 1792062788.1,
+  "labels": [
+   "sympy/core/tests/test_assumptions.py",
+   "sympy/core/tests/test_power.py"
+  ],
+  "k": null,
+  "problems": [],
+  "ran": 126,
+  "failed": []
+ },
+ {
+  "tool": "hook",
+  "seconds": 10.51,
+  "at": 1792062798.7,
+  "detail": "after Bash"
+ }
+]

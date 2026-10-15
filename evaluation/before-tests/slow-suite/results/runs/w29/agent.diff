@@ -1,0 +1,136 @@
+diff --git a/sympy/interactive/session.py b/sympy/interactive/session.py
+index fe08b44..91f486d 100644
+--- a/sympy/interactive/session.py
++++ b/sympy/interactive/session.py
+@@ -107,16 +107,16 @@ def int_to_Integer(s):
+     >>> from sympy.interactive.session import int_to_Integer
+     >>> s = '1.2 + 1/2 - 0x12 + a1'
+     >>> int_to_Integer(s)
+-    '1.2 +Integer (1 )/Integer (2 )-Integer (0x12 )+a1 '
++    '1.2 + Integer(1)/Integer(2) - Integer(0x12) + a1'
+     >>> s = 'print (1/2)'
+     >>> int_to_Integer(s)
+-    'print (Integer (1 )/Integer (2 ))'
++    'print (Integer(1)/Integer(2))'
+     >>> exec(s)
+     0.5
+     >>> exec(int_to_Integer(s))
+     1/2
+     """
+-    from tokenize import generate_tokens, untokenize, NUMBER, NAME, OP
++    from tokenize import generate_tokens, NUMBER
+     from io import StringIO
+ 
+     def _is_int(num):
+@@ -128,19 +128,15 @@ def _is_int(num):
+             return False
+         return True
+ 
+-    result = []
+-    g = generate_tokens(StringIO(s).readline)  # tokenize the string
+-    for toknum, tokval, _, _, _ in g:
+-        if toknum == NUMBER and _is_int(tokval):  # replace NUMBER tokens
+-            result.extend([
+-                (NAME, 'Integer'),
+-                (OP, '('),
+-                (NUMBER, tokval),
+-                (OP, ')')
+-            ])
+-        else:
+-            result.append((toknum, tokval))
+-    return untokenize(result)
++    lines = StringIO(s).readlines()
++    numbers = [(start, end, tokval)
++               for toknum, tokval, start, end, _ in
++               generate_tokens(StringIO(s).readline)
++               if toknum == NUMBER and _is_int(tokval)]
++    for (row, scol), (_, ecol), tokval in reversed(numbers):
++        line = lines[row - 1]
++        lines[row - 1] = '%sInteger(%s)%s' % (line[:scol], tokval, line[ecol:])
++    return ''.join(lines)
+ 
+ 
+ def enable_automatic_int_sympification(shell):
+@@ -148,9 +144,8 @@ def enable_automatic_int_sympification(shell):
+     Allow IPython to automatically convert integer literals to Integer.
+     """
+     import ast
+-    old_run_cell = shell.run_cell
+ 
+-    def my_run_cell(cell, *args, **kwargs):
++    def _check_and_convert(cell):
+         try:
+             # Check the cell for syntax errors.  This way, the syntax error
+             # will show the original input, not the transformed input.  The
+@@ -159,12 +154,24 @@ def my_run_cell(cell, *args, **kwargs):
+             # that doesn't expect transformed input will continue to work).
+             ast.parse(cell)
+         except SyntaxError:
+-            pass
+-        else:
+-            cell = int_to_Integer(cell)
+-        return old_run_cell(cell, *args, **kwargs)
++            return cell
++        return int_to_Integer(cell)
++
++    if hasattr(shell, 'input_transformers_post'):
++        from io import StringIO
++
++        def transform(lines):
++            cell = ''.join(lines)
++            return StringIO(_check_and_convert(cell)).readlines()
++
++        shell.input_transformers_post.append(transform)
++    else:
++        old_run_cell = shell.run_cell
++
++        def my_run_cell(cell, *args, **kwargs):
++            return old_run_cell(_check_and_convert(cell), *args, **kwargs)
+ 
+-    shell.run_cell = my_run_cell
++        shell.run_cell = my_run_cell
+ 
+ 
+ def enable_automatic_symbols(shell):
+diff --git a/sympy/interactive/tests/test_interactive.py b/sympy/interactive/tests/test_interactive.py
+index 8a79fc8..cc9f17a 100644
+--- a/sympy/interactive/tests/test_interactive.py
++++ b/sympy/interactive/tests/test_interactive.py
+@@ -4,8 +4,11 @@
+ 
+ def test_int_to_Integer():
+     assert int_to_Integer("1 + 2.2 + 0x3 + 40") == \
+-        'Integer (1 )+2.2 +Integer (0x3 )+Integer (40 )'
+-    assert int_to_Integer("0b101") == 'Integer (0b101 )'
+-    assert int_to_Integer("ab1 + 1 + '1 + 2'") == "ab1 +Integer (1 )+'1 + 2'"
+-    assert int_to_Integer("(2 + \n3)") == '(Integer (2 )+\nInteger (3 ))'
+-    assert int_to_Integer("2 + 2.0 + 2j + 2e-10") == 'Integer (2 )+2.0 +2j +2e-10 '
++        'Integer(1) + 2.2 + Integer(0x3) + Integer(40)'
++    assert int_to_Integer("0b101") == 'Integer(0b101)'
++    assert int_to_Integer("ab1 + 1 + '1 + 2'") == "ab1 + Integer(1) + '1 + 2'"
++    assert int_to_Integer("(2 + \n3)") == '(Integer(2) + \nInteger(3))'
++    assert int_to_Integer("2 + 2.0 + 2j + 2e-10") == 'Integer(2) + 2.0 + 2j + 2e-10'
++    assert int_to_Integer("f(1)  # 2\n") == 'f(Integer(1))  # 2\n'
++    assert int_to_Integer("eo = solveset(sin(x), x)") == \
++        "eo = solveset(sin(x), x)"
+diff --git a/sympy/interactive/tests/test_ipython.py b/sympy/interactive/tests/test_ipython.py
+index 720bda9..3ddf542 100644
+--- a/sympy/interactive/tests/test_ipython.py
++++ b/sympy/interactive/tests/test_ipython.py
+@@ -76,6 +76,16 @@ def test_int_to_Integer():
+     # input, not the transformed input?
+ 
+ 
++def test_int_to_Integer_history():
++    app = init_ipython_session()
++    app.run_cell("from sympy import Integer")
++    enable_automatic_int_sympification(app)
++    app.run_cell("b = 1/2  # half", True)
++    assert isinstance(app.user_ns['b'], Rational)
++    assert app.history_manager.input_hist_raw[-1] == "b = 1/2  # half"
++    assert app.history_manager.input_hist_parsed[-1] != "b = 1/2  # half"
++
++
+ def test_ipythonprinting():
+     # Initialize and setup IPython session
+     app = init_ipython_session()

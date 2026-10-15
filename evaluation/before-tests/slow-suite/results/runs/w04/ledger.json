@@ -1,0 +1,54 @@
+[
+ {
+  "tool": "hook",
+  "seconds": 1.03,
+  "at": 1792055867.8,
+  "detail": "before ./rt"
+ },
+ {
+  "tool": "hook",
+  "seconds": 83.02,
+  "at": 1792055979.4,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "hook",
+  "seconds": 40.27,
+  "at": 1792056053.3,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 24.97,
+  "at": 1792056085.0,
+  "labels": [
+   "sympy/simplify/tests/test_trigsimp.py"
+  ],
+  "k": null,
+  "problems": [],
+  "ran": 30,
+  "failed": [
+   "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_leaves_independent_terms"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 8.73,
+  "at": 1792056099.6,
+  "labels": [
+   "sympy/simplify/tests/test_trigsimp.py"
+  ],
+  "k": [
+   "leaves_independent"
+  ],
+  "problems": [],
+  "ran": 1,
+  "failed": []
+ },
+ {
+  "tool": "hook",
+  "seconds": 22.25,
+  "at": 1792056122.3,
+  "detail": "after Bash"
+ }
+]

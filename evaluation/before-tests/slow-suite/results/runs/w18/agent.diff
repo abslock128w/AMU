@@ -1,0 +1,82 @@
+diff --git a/sympy/simplify/tests/test_trigsimp.py b/sympy/simplify/tests/test_trigsimp.py
+index 27103fc..708874b 100644
+--- a/sympy/simplify/tests/test_trigsimp.py
++++ b/sympy/simplify/tests/test_trigsimp.py
+@@ -231,7 +231,15 @@ def test_trigsimp_issue_3826():
+ def test_trigsimp_issue_4032():
+     n = Symbol('n', integer=True, positive=True)
+     assert trigsimp(2**(n/2)*cos(pi*n/4)/2 + 2**(n - 1)/2) == \
+-        2**(n/2)*cos(pi*n/4)/2 + 2**n/4
++        2**(n/2)*cos(pi*n/4)/2 + 2**(n - 1)/2
++
++
++def test_trigsimp_nontrig_terms_untouched():
++    x = Symbol('x')
++    nt = (x**2 - 1)/(x - 1)
++    assert trigsimp(nt + sin(x)**2 + cos(x)**2) == 1 + nt
++    assert trigsimp(nt) == nt
++    assert trigsimp(nt + 1 - sin(x)**2) == nt + cos(x)**2
+ 
+ 
+ def test_trigsimp_issue_7761():
+diff --git a/sympy/simplify/trigsimp.py b/sympy/simplify/trigsimp.py
+index 7107a59..609d1ae 100644
+--- a/sympy/simplify/trigsimp.py
++++ b/sympy/simplify/trigsimp.py
+@@ -464,14 +464,10 @@ def f(rv):
+ def trigsimp(expr, inverse=False, **opts):
+     """Returns a reduced expression by using known trig identities.
+ 
+-    While ``trigsimp`` primarily simplifies trigonometric and hyperbolic
+-    expressions, it also performs general algebraic simplifications on
+-    non-trigonometric parts. This can lead to broader simplification
+-    beyond just trigonometric identities, including factoring and term
+-    cancellation, which may make its output resemble ``simplify``.
+-
+-    For targeted trigonometric simplifications that leave other algebraic
+-    components untouched, consider using :func:`~sympy.simplify.fu.fu`.
++    ``trigsimp`` simplifies trigonometric and hyperbolic expressions. In a
++    sum, terms that do not involve trigonometric functions are left as they
++    are, although the trigonometric terms may still be factored or otherwise
++    rearranged.
+ 
+     Parameters
+     ==========
+@@ -518,20 +514,13 @@ def trigsimp(expr, inverse=False, **opts):
+     >>> trigsimp(log(e))
+     log(2)
+ 
+-    Note that `trigsimp` also performs general algebraic simplifications on
+-    non-trigonometric parts of the expression:
++    Terms of a sum that do not involve trigonometric functions are left
++    untouched, apart from any numeric term, which may combine with the
++    trigonometric terms:
+ 
+     >>> x = Symbol('x')
+     >>> expr = (x**2 - 1)/(x - 1) + sin(x)**2 + cos(x)**2
+     >>> trigsimp(expr)
+-    x + 2
+-
+-    For a more targeted trigonometric simplification, such as only simplifying
+-    `sin(x)**2 + cos(x)**2` to `1` without affecting `(x**2 - 1)/(x - 1)`,
+-    you can use functions from the `sympy.simplify.fu` module:
+-
+-    >>> from sympy.simplify.fu import TR5
+-    >>> TR5(expr)
+     1 + (x**2 - 1)/(x - 1)
+ 
+     Using ``method='groebner'`` (or ``method='combined'``) might lead to
+@@ -1213,6 +1202,13 @@ def _futrig(e):
+     if not e.has(TrigonometricFunction):
+         return e
+ 
++    if e.is_Add and e.is_commutative:
++        indep, dep = e.as_independent(TrigonometricFunction, as_Add=True)
++        if indep:
++            num, rest = indep.as_coeff_Add()
++            if rest:
++                return rest + _futrig(num + dep)
++
+     if e.is_Mul:
+         coeff, e = e.as_independent(TrigonometricFunction)
+     else:

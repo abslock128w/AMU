@@ -1,0 +1,48 @@
+[
+ {
+  "tool": "hook",
+  "seconds": 34.1,
+  "at": 1792051057.6,
+  "detail": "after edit"
+ },
+ {
+  "tool": "hook",
+  "seconds": 95.21,
+  "at": 1792051152.9,
+  "detail": "after edit"
+ },
+ {
+  "tool": "hook",
+  "seconds": 37.62,
+  "at": 1792051203.2,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 2.59,
+  "at": 1792051235.9,
+  "labels": [
+   "sympy/functions/elementary/tests/test_trigonometric.py"
+  ],
+  "k": [
+   "acot or evenodd"
+  ],
+  "problems": [],
+  "ran": 6,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 2.57,
+  "at": 1792051238.5,
+  "labels": [
+   "sympy/functions/elementary/tests/test_hyperbolic.py"
+  ],
+  "k": [
+   "acoth"
+  ],
+  "problems": [],
+  "ran": 6,
+  "failed": []
+ }
+]

@@ -1,0 +1,48 @@
+[
+ {
+  "tool": "hook",
+  "seconds": 41.45,
+  "at": 1792042481.8,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 8.11,
+  "at": 1792042496.9,
+  "labels": [
+   "sympy/core/tests/test_expr.py",
+   "sympy/core/tests/test_power.py",
+   "sympy/core/tests/test_exprtools.py",
+   "sympy/simplify/tests/test_powsimp.py",
+   "sympy/simplify/tests/test_simplify.py"
+  ],
+  "k": null,
+  "problems": [],
+  "ran": 256,
+  "failed": []
+ },
+ {
+  "tool": "hook",
+  "seconds": 38.89,
+  "at": 1792042535.9,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 26.82,
+  "at": 1792042566.1,
+  "labels": [
+   "sympy/series/tests/test_gruntz.py",
+   "sympy/series/tests/test_limits.py",
+   "sympy/functions/elementary/tests/test_exponential.py",
+   "sympy/simplify/tests/test_radsimp.py",
+   "sympy/simplify/tests/test_fu.py",
+   "sympy/polys/tests/test_polyroots.py",
+   "sympy/printing/tests/test_str.py"
+  ],
+  "k": null,
+  "problems": [],
+  "ran": 468,
+  "failed": []
+ }
+]

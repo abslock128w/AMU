@@ -1,0 +1,50 @@
+diff --git a/sympy/simplify/tests/test_trigsimp.py b/sympy/simplify/tests/test_trigsimp.py
+index 27103fc..fef5393 100644
+--- a/sympy/simplify/tests/test_trigsimp.py
++++ b/sympy/simplify/tests/test_trigsimp.py
+@@ -234,6 +234,14 @@ def test_trigsimp_issue_4032():
+         2**(n/2)*cos(pi*n/4)/2 + 2**n/4
+ 
+ 
++def test_trigsimp_leaves_unrelated_terms():
++    x, y = symbols('x y')
++    e = (y**2 - 1)/(y - 1)
++    assert trigsimp(e + sin(x)**2 + cos(x)**2) == e + 1
++    assert trigsimp(e + 1 - sin(x)**2) == e + cos(x)**2
++    assert trigsimp(e) == e
++
++
+ def test_trigsimp_issue_7761():
+     assert trigsimp(cosh(pi/4)) == cosh(pi/4)
+ 
+diff --git a/sympy/simplify/trigsimp.py b/sympy/simplify/trigsimp.py
+index 7107a59..b4b7f33 100644
+--- a/sympy/simplify/trigsimp.py
++++ b/sympy/simplify/trigsimp.py
+@@ -23,7 +23,7 @@
+ from sympy.simplify.cse_main import cse
+ from sympy.strategies.core import identity
+ from sympy.strategies.tree import greedy
+-from sympy.utilities.iterables import iterable
++from sympy.utilities.iterables import iterable, sift
+ from sympy.utilities.misc import debug
+ 
+ def trigsimp_groebner(expr, hints=[], quick=False, order="grlex",
+@@ -1215,6 +1215,17 @@ def _futrig(e):
+ 
+     if e.is_Mul:
+         coeff, e = e.as_independent(TrigonometricFunction)
++    elif e.is_Add:
++        trig, other = sift(e.args, lambda a: a.has(TrigonometricFunction)
++            or a.is_Number, binary=True)
++        if trig and other:
++            fs = Add(*trig).free_symbols
++            keep = [a for a in other if a.is_commutative
++                and not a.free_symbols & fs]
++            if keep:
++                rest = [a for a in other if a not in keep]
++                return Add(*keep) + _futrig(Add(*trig, *rest))
++        coeff = None
+     else:
+         coeff = None
+ 

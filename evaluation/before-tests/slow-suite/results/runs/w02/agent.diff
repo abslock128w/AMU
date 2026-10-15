@@ -1,0 +1,224 @@
+diff --git a/sympy/printing/conventions.py b/sympy/printing/conventions.py
+index 031a069..43c65f7 100644
+--- a/sympy/printing/conventions.py
++++ b/sympy/printing/conventions.py
+@@ -6,7 +6,7 @@
+ import re
+ 
+ from collections.abc import Iterable
+-from sympy.core.function import Derivative
++from sympy.core.function import Derivative, Function, FunctionClass, Lambda
+ 
+ _name_with_digits_p = re.compile(r'^([^\W\d_]+)(\d+)$', re.UNICODE)
+ 
+@@ -71,6 +71,34 @@ def split_super_sub(text):
+     return name, supers, subs
+ 
+ 
++def elementwise_function(func):
++    """Return the function to print for an elementwise function application
++
++    A ``Lambda`` of the form ``Lambda(d, f(d))`` is replaced by ``f`` itself,
++    so that it can be printed by name. Any other function is returned
++    unchanged.
++
++    Examples
++    ========
++
++    >>> from sympy import Lambda, exp, symbols
++    >>> from sympy.printing.conventions import elementwise_function
++    >>> x = symbols('x')
++    >>> elementwise_function(Lambda(x, exp(x)))
++    exp
++    >>> elementwise_function(Lambda(x, 1/x))
++    Lambda(x, 1/x)
++
++    """
++    if isinstance(func, Lambda) and len(func.variables) == 1:
++        body = func.expr
++        if (isinstance(body, Function)
++                and isinstance(body.func, FunctionClass)
++                and body.args == func.variables):
++            return body.func
++    return func
++
++
+ def requires_partial(expr):
+     """Return whether a partial derivative symbol is required for printing
+ 
+diff --git a/sympy/printing/latex.py b/sympy/printing/latex.py
+index c5d536d..b481197 100644
+--- a/sympy/printing/latex.py
++++ b/sympy/printing/latex.py
+@@ -22,7 +22,8 @@
+ # sympy.printing imports
+ from sympy.printing.precedence import precedence_traditional
+ from sympy.printing.printer import Printer, print_function
+-from sympy.printing.conventions import split_super_sub, requires_partial
++from sympy.printing.conventions import (split_super_sub, requires_partial,
++                                        elementwise_function)
+ from sympy.printing.precedence import precedence, PRECEDENCE
+ 
+ from sympy.utilities.iterables import has_variety, sift
+@@ -40,7 +41,7 @@
+ accepted_latex_functions = ['arcsin', 'arccos', 'arctan', 'sin', 'cos', 'tan',
+                             'sinh', 'cosh', 'tanh', 'sqrt', 'ln', 'log', 'sec',
+                             'csc', 'cot', 'coth', 're', 'im', 'frac', 'root',
+-                            'arg',
++                            'arg', 'exp',
+                             ]
+ 
+ tex_greek_dictionary = {
+@@ -1039,10 +1040,12 @@ def _print_UndefinedFunction(self, expr):
+ 
+     def _print_ElementwiseApplyFunction(self, expr):
+         return r"{%s}_{\circ}\left({%s}\right)" % (
+-            self._print(expr.function),
++            self._print(elementwise_function(expr.function)),
+             self._print(expr.expr),
+         )
+ 
++    _print_ArrayElementwiseApplyFunc = _print_ElementwiseApplyFunction
++
+     @property
+     def _special_function_classes(self):
+         from sympy.functions.special.tensor_functions import KroneckerDelta
+diff --git a/sympy/printing/pretty/pretty.py b/sympy/printing/pretty/pretty.py
+index 1f9d3cb..799736f 100644
+--- a/sympy/printing/pretty/pretty.py
++++ b/sympy/printing/pretty/pretty.py
+@@ -11,7 +11,7 @@
+ from sympy.core.sorting import default_sort_key
+ from sympy.core.symbol import Symbol
+ from sympy.core.sympify import SympifyError
+-from sympy.printing.conventions import requires_partial
++from sympy.printing.conventions import requires_partial, elementwise_function
+ from sympy.printing.precedence import PRECEDENCE, precedence, precedence_traditional
+ from sympy.printing.printer import Printer, print_function
+ from sympy.printing.str import sstr
+@@ -1690,11 +1690,13 @@ def _helper_print_function(self, func, args, sort=False, func_name=None,
+         return pform
+ 
+     def _print_ElementwiseApplyFunction(self, e):
+-        func = e.function
++        func = elementwise_function(e.function)
+         arg = e.expr
+         args = [arg]
+         return self._helper_print_function(func, args, delimiter="", elementwise=True)
+ 
++    _print_ArrayElementwiseApplyFunc = _print_ElementwiseApplyFunction
++
+     @property
+     def _special_function_classes(self):
+         from sympy.functions.special.tensor_functions import KroneckerDelta
+diff --git a/sympy/printing/pretty/tests/test_pretty.py b/sympy/printing/pretty/tests/test_pretty.py
+index c68496a..db004a4 100644
+--- a/sympy/printing/pretty/tests/test_pretty.py
++++ b/sympy/printing/pretty/tests/test_pretty.py
+@@ -4016,12 +4016,12 @@ def test_MatrixExpressions():
+     expr = (X.T*X).applyfunc(sin)
+ 
+     ascii_str = """\
+-              / T  \\\n\
+-(d -> sin(d)).\\X *X/\
++    / T  \\\n\
++sin.\\X *X/\
+ """
+     ucode_str = """\
+-             ⎛ T  ⎞\n\
+-(d ↦ sin(d))˳⎝X ⋅X⎠\
++    ⎛ T  ⎞\n\
++sin˳⎝X ⋅X⎠\
+ """
+     assert pretty(expr) == ascii_str
+     assert upretty(expr) == ucode_str
+@@ -4042,6 +4042,21 @@ def test_MatrixExpressions():
+     assert upretty(expr) == ucode_str
+ 
+ 
++def test_ArrayElementwiseApplyFunc():
++    from sympy.tensor.array.expressions.array_expressions import (
++        ArraySymbol, ArrayElementwiseApplyFunc)
++    A = ArraySymbol("A", (3, 3))
++    expr = ArrayElementwiseApplyFunc(exp, A)
++    assert pretty(expr) == "exp.(A)"
++    assert upretty(expr) == "exp˳(A)"
++    expr = ArrayElementwiseApplyFunc(Lambda(x, 1/x), A)
++    assert upretty(expr) == """\
++⎛    1⎞    \n\
++⎜x ↦ ─⎟˳(A)\n\
++⎝    x⎠    \
++"""
++
++
+ def test_pretty_dotproduct():
+     from sympy.matrices.expressions.dotproduct import DotProduct
+     n = symbols("n", integer=True)
+diff --git a/sympy/printing/tests/test_conventions.py b/sympy/printing/tests/test_conventions.py
+index 97e0a80..06e19e1 100644
+--- a/sympy/printing/tests/test_conventions.py
++++ b/sympy/printing/tests/test_conventions.py
+@@ -1,7 +1,7 @@
+ # -*- coding: utf-8 -*-
+ from __future__ import annotations
+ 
+-from sympy.core.function import (Derivative, Function)
++from sympy.core.function import (Derivative, Function, Lambda)
+ from sympy.core.numbers import oo
+ from sympy.core.symbol import symbols
+ from sympy.functions.elementary.exponential import exp
+@@ -10,7 +10,8 @@
+ from sympy.functions.special.bessel import besselj
+ from sympy.functions.special.polynomials import legendre
+ from sympy.functions.combinatorial.numbers import bell
+-from sympy.printing.conventions import split_super_sub, requires_partial
++from sympy.printing.conventions import (split_super_sub, requires_partial,
++                                        elementwise_function)
+ from sympy.testing.pytest import XFAIL
+ 
+ def test_super_sub():
+@@ -115,3 +116,17 @@ def test_requires_partial_unspecified_variables():
+     f = symbols('f', cls=Function)
+     assert requires_partial(Derivative(f, x)) is False
+     assert requires_partial(Derivative(f, x, y)) is True
++
++
++def test_elementwise_function():
++    x, y = symbols('x y')
++    f = Function('f')
++    assert elementwise_function(Lambda(x, exp(x))) is exp
++    assert elementwise_function(Lambda(x, f(x))) == f
++    assert elementwise_function(exp) is exp
++    lam = Lambda(x, 1/x)
++    assert elementwise_function(lam) == lam
++    lam = Lambda(x, exp(2*x))
++    assert elementwise_function(lam) == lam
++    lam = Lambda((x, y), f(x, y))
++    assert elementwise_function(lam) == lam
+diff --git a/sympy/printing/tests/test_latex.py b/sympy/printing/tests/test_latex.py
+index 5172bb6..f02f66e 100644
+--- a/sympy/printing/tests/test_latex.py
++++ b/sympy/printing/tests/test_latex.py
+@@ -2263,11 +2263,21 @@ def test_MatPow():
+ def test_ElementwiseApplyFunction():
+     X = MatrixSymbol('X', 2, 2)
+     expr = (X.T*X).applyfunc(sin)
+-    assert latex(expr) == r"{\left( d \mapsto \sin{\left(d \right)} \right)}_{\circ}\left({X^{T} X}\right)"
++    assert latex(expr) == r"{\sin}_{\circ}\left({X^{T} X}\right)"
+     expr = X.applyfunc(Lambda(x, 1/x))
+     assert latex(expr) == r'{\left( x \mapsto \frac{1}{x} \right)}_{\circ}\left({X}\right)'
+ 
+ 
++def test_ArrayElementwiseApplyFunc():
++    from sympy.tensor.array.expressions.array_expressions import (
++        ArrayElementwiseApplyFunc)
++    A = ArraySymbol("A", (3, 3))
++    assert latex(ArrayElementwiseApplyFunc(exp, A)) == r"{\exp}_{\circ}\left({A}\right)"
++    assert latex(ArrayElementwiseApplyFunc(Lambda(x, 1/x), A)) == \
++        r"{\left( x \mapsto \frac{1}{x} \right)}_{\circ}\left({A}\right)"
++    assert latex(exp) == r"\exp"
++
++
+ def test_MatrixUnit():
+     from sympy.matrices.expressions.special import MatrixUnit
+     assert latex(MatrixUnit(3, 3, 1, 2), mat_symbol_style='plain') == 'E_{1,2}'
