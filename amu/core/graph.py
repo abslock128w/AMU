@@ -157,11 +157,14 @@ class Graph:
         self.below[cls] = seen
         return seen
 
-    @staticmethod
-    def is_test(r):
+    def is_test(self, r):
+        """A function the test runner collects: named test* (pytest's and unittest's prefix, so test1 and testSquare
+        count), in a test file, defined in a module or a class. A function nested in another is never collected."""
         name = r['qual'].rsplit('.', 1)[-1]
         path = r['path'].split('/')
-        return r['kind'] == 'function' and name.startswith('test_') and ('tests' in path or path[-1].startswith('test_') or path[-1].endswith('_test.py'))
+        if not (r['kind'] == 'function' and name.startswith('test') and ('tests' in path or path[-1].startswith('test_') or path[-1].endswith('_test.py'))):
+            return False
+        return (self.records.get(r.get('owner')) or {}).get('kind') != 'function'
 
     @staticmethod
     def visible_fixture(test, fixture):

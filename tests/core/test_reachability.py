@@ -1032,3 +1032,16 @@ def test_tests_inside_a_package_make_the_tree_evident(tmp_path):
     assert not runners.evident(tmp_path)
     repository(tmp_path, {'pkg/core/tests/test_basic.py': 'def test_x():\n    pass\n'})
     assert runners.evident(tmp_path)
+
+
+def test_a_test_named_with_the_bare_prefix_is_a_candidate(tmp_path):
+    lib = 'def nth_root(x, n):\n    return x ** (1 / n)\n'
+    tests = ('import pytest\nfrom lib import nth_root\n\n\ndef test1():\n    assert nth_root(4, 2) == 2\n\n\n'
+             'class TestRoots:\n    def testSquare(self):\n        assert nth_root(9, 2) == 3\n\n\n'
+             'def test_cli():\n    def test():\n        return nth_root(8, 3)\n    assert test()\n')
+    _git_tree(tmp_path, {'lib.py': lib, 'tests/test_roots.py': tests})
+    (tmp_path/'lib.py').write_text(lib.replace('1 / n', '1.0 / n'))
+    seen, _ = _bare_candidates(tmp_path)
+    assert 'tests/test_roots.py::test1' in seen and 'tests/test_roots.py::TestRoots::testSquare' in seen, seen
+    # A function named test inside a test is a local helper; pytest never collects it.
+    assert 'tests/test_roots.py::test_cli' in seen and not any(i.endswith('::test_cli::test') for i in seen), seen

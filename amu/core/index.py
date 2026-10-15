@@ -10,7 +10,7 @@ from pathlib import Path
 
 from .rank import tokens
 
-VERSION = '7'
+VERSION = '8'
 FUNCTIONS = (ast.FunctionDef, ast.AsyncFunctionDef)
 SKIP = {'.git', '.amu', '.entire', '.venv', 'venv', 'node_modules', '__pycache__', 'build', 'dist', 'site-packages'}
 
