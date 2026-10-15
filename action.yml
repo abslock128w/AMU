@@ -27,7 +27,7 @@ inputs:
   amu-ref:
     description: Tag of github.com/abslock128w/AMU that AMU is installed from.
     required: false
-    default: ci-v0.1.3
+    default: v0.1.0
   base-sha:
     description: Base commit of the pull request.
     required: false
@@ -128,7 +128,7 @@ runs:
       run: |
         python -m venv "$RUNNER_TEMP/amu-venv"
         if ! "$RUNNER_TEMP/amu-venv/bin/python" -m pip install --quiet --disable-pip-version-check \
-            "amu @ git+https://github.com/abslock128w/AMU@${AMU_REF}" > "$RUNNER_TEMP/amu-out/amu-install.log" 2>&1; then
+            "anti-messup @ git+https://github.com/abslock128w/AMU@${AMU_REF}" > "$RUNNER_TEMP/amu-out/amu-install.log" 2>&1; then
           echo "::warning::AMU could not be installed from ${AMU_REF}."
           tail -n 20 "$RUNNER_TEMP/amu-out/amu-install.log"
         fi

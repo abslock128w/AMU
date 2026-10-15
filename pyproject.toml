@@ -1,5 +1,5 @@
 [project]
-name = "amu"
+name = "anti-messup"
 dynamic = ["version"]
 description = "Anti-Messup Agent – scope guardrail for AI code edits (TWC Buildathon 2026, Track 2)"
 requires-python = ">=3.11"
@@ -10,6 +10,9 @@ dependencies = [
     "prompt_toolkit>=3.0",
     "watchfiles>=0.20",
 ]
+
+[project.urls]
+Homepage = "https://github.com/abslock128w/AMU"
 
 [project.optional-dependencies]
 model = ["anthropic"]

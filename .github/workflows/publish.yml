@@ -1,0 +1,49 @@
+# Publishes one release tag to PyPI as anti-messup. Runs only when started by hand, from the Actions tab or
+# `gh workflow run publish.yml -f tag=v0.1.0`, so nothing uploads on a push. Needs the PYPI_API_TOKEN secret.
+name: Publish to PyPI
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to build and upload (for example v0.1.0).
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-pypi
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ inputs.tag }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Build from the tag
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          python -m pip install -c constraints.txt build setuptools==84.0.0
+          version=$(python -I -c 'import ast, pathlib; print(ast.literal_eval(pathlib.Path("amu/__init__.py").read_text().split("=", 1)[1].strip()))')
+          if [ "v$version" != "$TAG" ]; then echo "::error::amu/__init__.py says $version, the tag is $TAG"; exit 1; fi
+          python -m build --no-isolation
+          python -I scripts/check_source_archive.py dist/*.tar.gz
+          ls -l dist
+      - name: Install the wheel in a clean environment
+        run: |
+          python -m venv "$RUNNER_TEMP/check"
+          "$RUNNER_TEMP/check/bin/python" -m pip install -c constraints.txt setuptools
+          "$RUNNER_TEMP/check/bin/python" -m pip install -c constraints.txt dist/*.whl
+          "$RUNNER_TEMP/check/bin/python" -I scripts/smoke_installed.py
+      - uses: pypa/gh-action-pypi-publish@v1.12.4
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}

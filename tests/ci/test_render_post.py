@@ -1,7 +1,7 @@
 from amu.ci import post
 from amu.ci.render import LIMIT, MARKER, render
 
-META = dict(head='abcdef1234567890', merge_base='1234567aaaa', amu_version='0.2.0', amu_ref='ci-v0.1.3', install_ok=True)
+META = dict(head='abcdef1234567890', merge_base='1234567aaaa', amu_version='0.1.0', amu_ref='v0.1.0', install_ok=True)
 EXECUTED = dict(ran=40, candidates=40, unrunnable=0, seconds=3.1, runner='pytest', budget=300)
 
 

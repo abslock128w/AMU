@@ -197,7 +197,7 @@ def main():
 
     assert sys.flags.isolated, "run with selected installed interpreter -I -B"
     assert Path(amu.__file__).resolve().is_relative_to(Path(sys.prefix).resolve()), "not a non-editable installed package"
-    assert amu.__version__ == importlib.metadata.version("amu")
+    assert amu.__version__ == importlib.metadata.version("anti-messup")
     identity = mcp_manifest.runtime_identity()
     assert identity["build"]["complete"] and identity["build_sha256"]
     assert identity["manifest_sha256"] == REVIEWED_MANIFEST

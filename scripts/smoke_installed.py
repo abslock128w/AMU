@@ -17,7 +17,7 @@ def main():
 
     package = Path(amu.__file__).resolve()
     assert package.is_relative_to(Path(sys.prefix).resolve()), package
-    assert amu.__version__ == importlib.metadata.version('amu'), 'package version mismatch'
+    assert amu.__version__ == importlib.metadata.version('anti-messup'), 'package version mismatch'
     for module in (mcp_manifest, mcp_verification, repository_diagnostics, diagnostics, impact, impact_report):
         assert Path(module.__file__).resolve().is_relative_to(Path(sys.prefix).resolve()), module.__file__
     identity = mcp_manifest.runtime_identity()

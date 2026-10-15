@@ -35,7 +35,7 @@ def check(pins, installed):
     for name, version in installed:
         name = normalize(name)
         # The app has a separate version smoke check; pip bootstraps the environment.
-        if name in {'amu', 'pip'}:
+        if name in {'amu', 'anti-messup', 'pip'}:
             continue
         if pins.get(name) != version:
             errors.append(f'{name}: installed {version}, expected {pins.get(name, "a reviewed pin")}')

@@ -28,7 +28,7 @@ def main():
 
     package = Path(amu.__file__).resolve()
     assert package.is_relative_to(Path(sys.prefix).resolve()), package
-    assert amu.__version__ == importlib.metadata.version("amu"), "package version mismatch"
+    assert amu.__version__ == importlib.metadata.version("anti-messup"), "package version mismatch"
     assert sys.flags.isolated, "invoke this smoke script with Python -I"
     expected = mcp_manifest.inspection_manifest()
     assert expected["sha256"] == REVIEWED_INSPECTION_MANIFEST, "reviewed inspection manifest changed"

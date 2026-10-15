@@ -71,7 +71,7 @@ class Drill:
         package = Path(amu.__file__).resolve()
         if not package.is_relative_to(prefix) or not Path(process.__file__).resolve().is_relative_to(prefix):
             raise DrillFailure(f"AMU must be a non-editable installed wheel under {prefix}; imported {package}")
-        if amu.__version__ != importlib.metadata.version("amu"):
+        if amu.__version__ != importlib.metadata.version("anti-messup"):
             raise DrillFailure("installed distribution and imported AMU versions differ")
         root = root.resolve()
         self.process = process

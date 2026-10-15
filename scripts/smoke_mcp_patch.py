@@ -54,7 +54,7 @@ def main() -> int:
     args = parser.parse_args()
     assert sys.flags.isolated, "invoke this smoke script with candidate Python -I"
     assert Path(amu.__file__).resolve().is_relative_to(Path(sys.prefix).resolve()), amu.__file__
-    assert amu.__version__ == importlib.metadata.version("amu"), "package version mismatch"
+    assert amu.__version__ == importlib.metadata.version("anti-messup"), "package version mismatch"
     assert mcp_manifest.inspection_manifest()["sha256"] == REVIEWED_V1_SHA256, "v1 manifest changed"
     python = Path(args.python)
     assert python.is_absolute() and python.is_file() and os.access(python, os.X_OK), "select an absolute Python executable"

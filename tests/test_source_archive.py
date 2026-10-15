@@ -14,14 +14,14 @@ from scripts import check_source_archive as checker
 def _archive(tmp_path, *, missing=None, extra=None, constraints=b"rich==15.0.0\n", executable=True):
     path = tmp_path / "source.tar.gz"
     with tarfile.open(path, "w:gz") as archive:
-        root = tarfile.TarInfo("amu-0.2.0")
+        root = tarfile.TarInfo("anti_messup-0.1.0")
         root.type = tarfile.DIRTYPE
         archive.addfile(root)
         for relative in sorted(checker.REQUIRED_FILES - {missing}):
             body = constraints if relative == "constraints.txt" else b"Representative source support.\n"
             if relative == "tests/__init__.py":
                 body = b""
-            member = tarfile.TarInfo("amu-0.2.0/" + relative)
+            member = tarfile.TarInfo("anti_messup-0.1.0/" + relative)
             member.size = len(body)
             if relative == "tests/bin/entire" and executable:
                 member.mode = 0o755
@@ -34,7 +34,7 @@ def _archive(tmp_path, *, missing=None, extra=None, constraints=b"rich==15.0.0\n
 def test_valid_representative_archive_without_extracting(tmp_path):
     path = _archive(tmp_path)
     report = checker.check_archive(path)
-    assert report["root"] == "amu-0.2.0"
+    assert report["root"] == "anti_messup-0.1.0"
     assert report["files"] == report["required_files"] == len(checker.REQUIRED_FILES)
     assert len(report["constraints_sha256"]) == 64
     assert sorted(child.name for child in tmp_path.iterdir()) == ["source.tar.gz"]
@@ -50,9 +50,9 @@ def test_missing_release_support_is_failure(tmp_path, missing):
     assert missing in str(caught.value)
 
 
-@pytest.mark.parametrize("name", ["/outside", "amu-0.2.0/../outside", "amu-0.2.0/./hidden",
-                                 "amu-0.2.0//hidden", "amu-0.2.0/\\outside", "amu-0.2.0/C:outside",
-                                 "amu-0.2.0/a\nb", "another-root/file"])
+@pytest.mark.parametrize("name", ["/outside", "anti_messup-0.1.0/../outside", "anti_messup-0.1.0/./hidden",
+                                 "anti_messup-0.1.0//hidden", "anti_messup-0.1.0/\\outside", "anti_messup-0.1.0/C:outside",
+                                 "anti_messup-0.1.0/a\nb", "another-root/file"])
 def test_unsafe_or_multiple_roots_rejected(tmp_path, name):
     with pytest.raises(checker.ArchiveError, match="unsafe archive path|multiple root"):
         checker.check_archive(_archive(tmp_path, extra=tarfile.TarInfo(name)))
@@ -60,7 +60,7 @@ def test_unsafe_or_multiple_roots_rejected(tmp_path, name):
 
 @pytest.mark.parametrize("kind", [tarfile.SYMTYPE, tarfile.LNKTYPE, tarfile.FIFOTYPE, tarfile.CHRTYPE])
 def test_links_and_special_files_rejected(tmp_path, kind):
-    member = tarfile.TarInfo("amu-0.2.0/untrusted")
+    member = tarfile.TarInfo("anti_messup-0.1.0/untrusted")
     member.type = kind
     member.linkname = "../../outside"
     with pytest.raises(checker.ArchiveError, match="links, sparse files and special"):
@@ -71,7 +71,7 @@ def test_links_and_special_files_rejected(tmp_path, kind):
                                      ".git/config", ".env", "docs/evidence/release-candidate-2026.json"])
 def test_generated_private_and_candidate_sidecars_rejected(tmp_path, relative):
     with pytest.raises(checker.ArchiveError, match="generated/private state"):
-        checker.check_archive(_archive(tmp_path, extra=tarfile.TarInfo("amu-0.2.0/" + relative)))
+        checker.check_archive(_archive(tmp_path, extra=tarfile.TarInfo("anti_messup-0.1.0/" + relative)))
 
 
 @pytest.mark.parametrize("body", [b"", b"rich>=15\n", b"rich==15\nrich==16\n", b"\xff"])
@@ -82,7 +82,7 @@ def test_archived_constraints_must_be_nonempty_exact_unique_utf8_pins(tmp_path, 
 
 def test_duplicate_member_rejected(tmp_path):
     with pytest.raises(checker.ArchiveError, match="duplicate member"):
-        checker.check_archive(_archive(tmp_path, extra=tarfile.TarInfo("amu-0.2.0/README.md")))
+        checker.check_archive(_archive(tmp_path, extra=tarfile.TarInfo("anti_messup-0.1.0/README.md")))
 
 
 def test_fake_provider_support_preserves_executable_mode(tmp_path):
@@ -111,7 +111,7 @@ def test_compressed_bytes_are_bounded(tmp_path, monkeypatch):
 
 
 def test_expansion_including_metadata_is_bounded(tmp_path, monkeypatch):
-    member = tarfile.TarInfo("amu-0.2.0/" + "long" * 100)
+    member = tarfile.TarInfo("anti_messup-0.1.0/" + "long" * 100)
     path = _archive(tmp_path, extra=member)
     monkeypatch.setattr(checker, "MAX_UNPACKED_BYTES", 1000)
     with pytest.raises(checker.ArchiveError, match="decompressed byte limit"):
