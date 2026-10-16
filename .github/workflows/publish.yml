@@ -1,5 +1,7 @@
 # Publishes one release tag to PyPI as anti-messup. Runs only when started by hand, from the Actions tab or
-# `gh workflow run publish.yml -f tag=v0.1.0`, so nothing uploads on a push. Needs the PYPI_API_TOKEN secret.
+# `gh workflow run publish.yml -f tag=v0.1.0`, so nothing uploads on a push. Uses PyPI trusted publishing: PyPI
+# accepts a short-lived token for this repository and this workflow file (publisher: abslock128w/AMU,
+# publish.yml, no environment). No PyPI token is stored here.
 name: Publish to PyPI
 
 on:
@@ -20,6 +22,9 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write   # only for the PyPI token exchange
     steps:
       - uses: actions/checkout@v4
         with:
@@ -45,5 +50,3 @@ jobs:
           "$RUNNER_TEMP/check/bin/python" -m pip install -c constraints.txt dist/*.whl
           "$RUNNER_TEMP/check/bin/python" -I scripts/smoke_installed.py
       - uses: pypa/gh-action-pypi-publish@v1.12.4
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}

@@ -294,8 +294,10 @@ PR #4 was then closed without merging.
 - **Checked on a fresh pull request:** PR #5, a one-word code-comment change, got AMU's comment from the v0.1.0 pins.
   Its footer reads "AMU `0.1.0` from `v0.1.0`". No test reaches a comment, so the first line correctly gave no flip
   count. PR #5 was closed without merging.
-- **PyPI: not uploaded yet.** `publish.yml` needs the repository Actions secret `PYPI_API_TOKEN`. On 2026-10-16 the
-  repository's Actions secrets list was empty, so the upload was not started.
+- **PyPI: not uploaded yet.** Two runs of `publish.yml` with a token secret built the package and passed the smoke
+  test, but got no token, because the repository's Actions secrets list stayed empty. Nothing was published.
+  `publish.yml` now uses PyPI trusted publishing, so no token is stored. It waits on the owner's pending publisher on
+  PyPI (project `anti-messup`, owner `abslock128w`, repository `AMU`, workflow `publish.yml`, no environment).
   - Building from the tag was rehearsed locally: sdist and wheel `anti_messup-0.1.0`, the archive check, and the
     installed-wheel smoke all pass.
   - Once the package is on PyPI, the action can install `anti-messup==0.1.0` instead of the git URL, in a v0.1.1.
