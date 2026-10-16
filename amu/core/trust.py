@@ -165,6 +165,11 @@ def _env(folder, out=None, repeat=None, reach=None):
     return extra
 
 
+def _in_given_order(runner):
+    """Arguments that make a run keep the order of the ids given: pytest-randomly, when loaded, must not reorder."""
+    return ['--randomly-dont-reorganize'] if any('randomly' in str(arg) for arg in runner.extra) else None
+
+
 def _hits(folder):
     """Changed lines run by any process that wrote a record; None when none did."""
     found, any_file = set(), False
@@ -240,7 +245,7 @@ def triad(runner, python, tree, flipped, candidates, scratch, left, changed, bef
         gaps.append(f'{len(rest)} flip(s) past the first {MAX_ALONE} were rerun together in one fresh process; their reach was not measured')
     others = [i for i in candidates if i not in set(flipped)]
     found, problem = runners.execute(runner, python, tree, [*others, *flipped], Path(scratch)/'trust-after-set.xml', remaining(),
-                                     extra_args=['-p', 'no:randomly'] if runner.name == 'pytest' else None)
+                                     extra_args=_in_given_order(runner))
     legs['after_set'] = {i: found.get(i) for i in flipped}
     if problem == 'timed out':
         gaps.append('the rerun of flips after the rest of the candidate set timed out; that rerun is missing for some flips')
@@ -250,7 +255,7 @@ def triad(runner, python, tree, flipped, candidates, scratch, left, changed, bef
     base_order = {}
     if ordered and before_tree is not None:
         base_order, _ = runners.execute(runner, python, before_tree, [*others, *ordered], Path(scratch)/'trust-after-set-base.xml',
-                                        remaining(), extra_args=['-p', 'no:randomly'] if runner.name == 'pytest' else None)
+                                        remaining(), extra_args=_in_given_order(runner))
     verdicts = {}
     for ident in flipped:
         reruns = {leg: legs[leg].get(ident) for leg in LEGS}

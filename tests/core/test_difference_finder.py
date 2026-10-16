@@ -1,6 +1,7 @@
 """Phase A of brief 4: the change's own tests replayed on the code before it, flip trust, selection, base cache."""
 import difflib
 import sys
+from pathlib import Path
 
 from amu.core import analyze, replay
 
@@ -122,3 +123,38 @@ def test_run_order_is_touched_then_recent_flip_then_duration_then_ranking():
     got = select.order(ids, touched=['e'], flips={'d': 100, 'c': 50}, durations={'a': 5.0, 'b': 0.1}, tiebreak={'a': 0, 'b': 1})
     assert got == ['e', 'd', 'c', 'b', 'a']
     assert select.order(['x', 'y', 'z'], tiebreak={'z': 0, 'y': 1, 'x': 2}) == ['z', 'y', 'x']
+
+
+def test_a_second_run_against_the_same_base_takes_its_passes_from_the_cache(tmp_path):
+    # Only passes are cached: a test the change adds that fails on the base would run there again, by design.
+    tests = 'from lib import work\ndef test_work():\n    assert work() == 1\n'
+    change = ({'lib.py': LIB0, 'tests/test_lib.py': tests}, {'lib.py': LIB1, 'tests/test_lib.py': tests})
+    first = run_change(tmp_path, *change)
+    assert first['executed']['base_cache']['ran'] >= 1 and first['executed']['base_cache']['stored'] >= 1, first['executed']
+    second = analyze(tmp_path, diff(*change), full_evidence=True, index_dir=tmp_path/'.index', run=True, python=sys.executable)
+    assert second['executed']['base_cache']['ran'] == 0 and second['executed']['base_cache']['answered'] >= 1, second['executed']
+    assert second['flips'] == first['flips'] == 1
+    from amu.ci.render import render
+    body = render(second, dict(head='a' * 40, merge_base='b' * 40))
+    assert 'The merge base side was not run' in body, body
+
+
+def test_a_cached_pass_is_keyed_on_what_the_test_imports(tmp_path):
+    from amu.core.basecache import BaseCache
+    repository(tmp_path, {'lib.py': 'x = 1\n', 'helper.py': 'import lib\n', 'tests/test_a.py': 'import helper\n'})
+    cache = BaseCache(tmp_path/'c', {'tests/test_a.py': ['helper.py'], 'helper.py': ['lib.py']}, tmp_path, sys.executable, ['pytest'])
+    cache.store(tmp_path, {'tests/test_a.py::test_x': 'passed', 'tests/test_a.py::test_y': 'failed'})
+    assert cache.lookup(tmp_path, ['tests/test_a.py::test_x', 'tests/test_a.py::test_y']) == {'tests/test_a.py::test_x': 'passed'}
+    (tmp_path/'lib.py').write_text('x = 2\n')
+    assert cache.lookup(tmp_path, ['tests/test_a.py::test_x']) == {}
+
+
+def test_plugin_autoload_is_off_and_reordering_or_rerunning_plugins_are_not_loaded(monkeypatch):
+    from amu.core import runners
+    monkeypatch.setitem(runners._PLUGINS, 'py', [('django', 'pytest_django.plugin'), ('xdist.looponfail', 'xdist.looponfail'),
+                                                 ('randomly', 'pytest_randomly'), ('pytest_cov', 'pytest_cov.plugin'),
+                                                 ('rerunfailures', 'pytest_rerunfailures')])
+    runner = runners.Runner()
+    assert runners.plugin_args(runner, 'py') == ['-p', 'pytest_django.plugin', '-p', 'pytest_randomly'] and runner.autoload_off
+    assert runners.environment(Path('.'), autoload=False)['PYTEST_DISABLE_PLUGIN_AUTOLOAD'] == '1'
+    assert runners.plugin_args(runners.Unittest(), 'py') == []

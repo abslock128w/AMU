@@ -7,7 +7,7 @@ import math
 import re
 from pathlib import Path
 
-from . import consequences, coverage, lexical, rank, replay, runners, select, shadow, trust, vanished
+from . import basecache, consequences, coverage, lexical, rank, replay, runners, select, shadow, trust, vanished
 from .git import working_diff
 from .index import cache_dir, parse_or_none
 from .index import state as load_state
@@ -350,7 +350,13 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         # Every test the change adds or edits runs, first, and is replayed on the code before the change.
         own = [] if only else replay.touched(root, edits, chosen.name)
         wide = list(dict.fromkeys([*own, *wide]))
-        flips, executed, run_gaps = shadow.run(root, edits, wide, python, budget, runner, memo=memo, own=own)
+        # Passing outcomes on the code before the change, by content: a second run against the same base runs nothing
+        # there that the first saw pass.
+        forward = {path: sorted({t for name in select.deps(fact) if (t := select.resolve(name, graph.modules)) and t != path})
+                   for path, fact in facts.items()}
+        cache = basecache.BaseCache(cache_dir(root, index_dir)/'base-passes', forward, root, python,
+                                    [chosen.name, *runners.plugin_args(runners.get(root, runner), python), trust.SEED])
+        flips, executed, run_gaps = shadow.run(root, edits, wide, python, budget, runner, memo=memo, own=own, base_cache=cache)
         executed['selection'] = dict(selection, candidates=len(wide))
         gaps.extend(run_gaps)
         # A failing test defined on a base class is run again in every subclass that inherits it.
@@ -359,7 +365,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
                          and flip.get('trust', trust.CONFIRMED) == trust.CONFIRMED
                          for copy in inheritors(by_id[flip['id']])} - set(wide))[:RUN_CANDIDATES]
         if copies:
-            more, again, more_gaps = shadow.run(root, edits, copies, python, budget, runner, memo=memo)
+            more, again, more_gaps = shadow.run(root, edits, copies, python, budget, runner, memo=memo, base_cache=cache)
             flips.extend(more)
             gaps.extend(more_gaps)
             executed.update(ran=executed['ran'] + again['ran'], seconds=round(executed['seconds'] + again['seconds'], 1),
@@ -367,6 +373,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
                             outcomes={**executed.get('outcomes', {}), **again.get('outcomes', {})},
                             unstable=sorted({*executed.get('unstable', []), *again.get('unstable', [])}),
                             not_caused=sorted({*executed.get('not_caused', []), *again.get('not_caused', [])}),
+                            base_cache=again.get('base_cache', executed.get('base_cache')),
                             ran_original=executed.get('ran_original', 0) + again.get('ran_original', 0),
                             original_tests={**executed.get('original_tests', {}), **again.get('original_tests', {})})
         # Only a flip that passed the trust checks is a failure; the others stay listed with their label.
@@ -467,7 +474,8 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         if executed is not None:
             # How much actually ran, for readers that must not claim more (the pull request comment).
             report['executed'] = dict({k: executed.get(k) for k in ('ran', 'candidates', 'unrunnable', 'seconds', 'runner')},
-                                      budget=budget, replayed=len(executed.get('replayed') or []), selection=executed.get('selection'))
+                                      budget=budget, replayed=len(executed.get('replayed') or []), selection=executed.get('selection'),
+                                      base_cache=executed.get('base_cache'))
         report['changed_functions'] = functions
         return report
     return compact(report, include_tests)

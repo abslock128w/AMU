@@ -5,6 +5,7 @@ label its command line accepts, so a row in the packet can be pasted into the pr
 """
 from __future__ import annotations
 
+import json
 import os
 import re
 import subprocess
@@ -67,7 +68,8 @@ class Runner:
         """The ids pytest still selects under the project's own configuration (a marker filter in addopts deselects
         tests even when they are named); None when that cannot be read."""
         try:
-            done = subprocess.run([python, '-m', 'pytest', '--collect-only', '-q', '-p', 'no:cacheprovider', *[self.label(i) for i in ids]],
+            done = subprocess.run([python, '-m', 'pytest', '--collect-only', '-q', '-p', 'no:cacheprovider', *self.extra,
+                                   *[self.label(i) for i in ids]],
                                   cwd=self.cwd(tree), env=env, capture_output=True, timeout=timeout, stdin=subprocess.DEVNULL)
         except (subprocess.TimeoutExpired, OSError):
             return None
@@ -197,11 +199,50 @@ def get(root, name=None):
     return RUNNERS.get(name or detect(root), Runner)()
 
 
-def environment(tree, extra_env=None):
+# Plugins never loaded for a comparison: they reorder, rerun, select or decorate tests, and the comparison does that
+# itself (pytest-randomly is loaded again with a fixed seed when present: trust.ordering).
+SKIPPED_PLUGINS = ('xdist', 'testmon', 'pytest_cov', 'rerunfailures', 'pytest_rerunfailures', 'flaky', 'sugar', 'pytest_sugar',
+                   'pytest_html', 'picked', 'pytest_picked', 'randomly', 'pytest_randomly', 'pytest_randomly.', 'random_order',
+                   'pytest_random_order', 'instafail', 'pytest_instafail')
+_PLUGINS = {}
+
+
+def plugins(python):
+    """The pytest plugins installed for ``python`` (entry point group pytest11), as importable module names."""
+    if python not in _PLUGINS:
+        code = ('import importlib.metadata as m, json; '
+                'print(json.dumps(sorted({(e.name, e.value.split(":")[0]) for e in m.entry_points(group="pytest11")})))')
+        try:
+            done = subprocess.run([python, '-c', code], capture_output=True, text=True, timeout=60)
+            _PLUGINS[python] = [tuple(item) for item in json.loads(done.stdout)]
+        except (OSError, subprocess.TimeoutExpired, ValueError):
+            _PLUGINS[python] = None
+    return _PLUGINS[python]
+
+
+def plugin_args(runner, python):
+    """With plugin autoload off (environment), the installed plugins a comparison keeps, each named with -p. Empty
+    when the list cannot be read; autoload then stays on."""
+    if runner.name != 'pytest':
+        return []
+    found = plugins(python)
+    if found is None:
+        return []
+    runner.autoload_off = True
+    kept = [module for name, module in found
+            if not any(name == skip or module == skip or module.startswith(skip.rstrip('.') + '.') for skip in SKIPPED_PLUGINS)]
+    if any(module.split('.')[0] == 'pytest_randomly' for _, module in found):
+        kept.append('pytest_randomly')
+    return [arg for module in kept for arg in ('-p', module)]
+
+
+def environment(tree, extra_env=None, autoload=True):
     """The environment a test run gets: the tree importable, no bytecode written, a fixed hash seed so both sides
     iterate sets and dicts of strings alike. ``AMU_TRUST_PATH`` in ``extra_env`` goes first on the path (trust)."""
     extra = dict(extra_env or {})
     first = extra.get('AMU_TRUST_PATH')
+    if not autoload:
+        extra.setdefault('PYTEST_DISABLE_PLUGIN_AUTOLOAD', '1')
     return dict(os.environ, PYTHONDONTWRITEBYTECODE='1', PYTHONHASHSEED='0', **extra,
                 PYTHONPATH=os.pathsep.join(filter(None, [first, str(tree/'src'), str(tree), os.environ.get('PYTHONPATH')])))
 
@@ -211,7 +252,8 @@ def sequence(runner, python, tree, ids, timeout):
     twice runs twice in the same process."""
     try:
         done = subprocess.run(runner.command(python, [runner.label(i) for i in ids], None), cwd=runner.cwd(tree),
-                              env=environment(tree), capture_output=True, timeout=timeout, stdin=subprocess.DEVNULL)
+                              env=environment(tree, autoload=not getattr(runner, 'autoload_off', False)), capture_output=True,
+                              timeout=timeout, stdin=subprocess.DEVNULL)
     except (subprocess.TimeoutExpired, OSError):
         return {}
     by_label = {runner.label(ident): ident for ident in ids}
@@ -234,7 +276,7 @@ def execute(runner, python, tree, ids, report, timeout, extra_env=None, extra_ar
     usable = [ident for ident in ids if not runner.needs_class or ident.count('::') >= 2]
     if not usable:
         return {}, None
-    env = environment(tree, extra_env)
+    env = environment(tree, extra_env, autoload=not getattr(runner, 'autoload_off', False))
     found, problem = {}, None
     # One batch first. A single label the runner cannot load can abort the whole batch and leave it with
     # no outcomes, so a batch that comes back short is split in two and retried until the labels that

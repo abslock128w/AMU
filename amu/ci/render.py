@@ -124,6 +124,14 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None):
                        f"{', budget ' + str(executed['budget']) + ' s per side' if executed.get('budget') else ''}. "
                        'Failures were rerun on the merge base. Tests outside the candidates were not run.'
                        + (f" Order: {code(report['order'], 120)}." if report.get('order') else ''))
+            cached = executed.get('base_cache') or {}
+            if cached.get('answered') and not cached.get('ran'):
+                out.append(f"The merge base side was not run: all {cached['answered']} outcomes it needed are passes "
+                           'cached from an earlier run, keyed on the content of each test file and what it imports, the '
+                           'interpreter, the lock files and the runner arguments.')
+            elif cached.get('answered'):
+                out.append(f"On the merge base, {cached['answered']} outcomes came from the cache of earlier passes and "
+                           f"{cached['ran']} ran.")
         else:
             out.append('No test ran, so nothing here says whether the change breaks one.')
         out.append('')
