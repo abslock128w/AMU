@@ -1,0 +1,54 @@
+{
+ "tree": "/Users/Abslock128/Documents/ChatGPT/AMU/observed-tests-cycle-2026-10-13/evaluation/before-tests/cases/click-v2-f67c2bb6/parent",
+ "record": {
+  "runner": "pytest",
+  "python": "/Users/Shared/amu-slow-suite-2026-10-15/slow/env/bin/python",
+  "gaps": [],
+  "mode": "edges",
+  "exit": 0,
+  "suite": "2069 passed, 25 skipped, 31000 deselected, 1 xfailed in 5.05s",
+  "failures": [],
+  "summary": [],
+  "command": "/Users/Shared/amu-slow-suite-2026-10-15/slow/env/bin/python -m pytest -q -p no:cacheprovider -p amu_edges_hook",
+  "seconds": 5.8,
+  "processes": 3,
+  "tests": 547,
+  "codes": 1800,
+  "edges": 52208,
+  "stored": "/private/tmp/claude-502/-Users-Abslock128-Documents-ChatGPT-AMU/3bee62a4-7848-483d-a1e3-cd5e96127f7d/scratchpad/b1-click/index/8/edges"
+ },
+ "comparison": {
+  "all callers, direct calls": {
+   "edges": 4032,
+   "in_static": 2147,
+   "share_in_static": 0.532,
+   "callee_not_in_static": 0,
+   "caller_not_in_static": 0,
+   "both_present_edge_missing": 1885
+  },
+  "all callers, every edge": {
+   "edges": 4112,
+   "in_static": 2172,
+   "share_in_static": 0.528,
+   "callee_not_in_static": 0,
+   "caller_not_in_static": 0,
+   "both_present_edge_missing": 1940
+  },
+  "non-test callers, direct calls": {
+   "edges": 1074,
+   "in_static": 597,
+   "share_in_static": 0.556,
+   "callee_not_in_static": 0,
+   "caller_not_in_static": 0,
+   "both_present_edge_missing": 477
+  },
+  "non-test callers, every edge": {
+   "edges": 1118,
+   "in_static": 607,
+   "share_in_static": 0.543,
+   "callee_not_in_static": 0,
+   "caller_not_in_static": 0,
+   "both_present_edge_missing": 511
+  }
+ }
+}

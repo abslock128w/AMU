@@ -92,3 +92,20 @@ def test_a_call_recording_makes_dynamically_reached_tests_candidates(tmp_path, m
     report = analyze(root, diff, full_evidence=True, index_dir=tmp_path/'.index', run=True, python=sys.executable)
     assert 'tests/test_cli.py::test_child' in seen, seen
     assert report['call_recording']['tests'] == 3
+
+
+@pytest.mark.skipif(not NEW, reason='sys.monitoring needs Python 3.12')
+def test_the_tracer_never_changes_what_a_test_sees(tmp_path):
+    # Found on Django: getattr(mock.call(...), '__code__') is another, unhashable, call object; the callback raised into
+    # the test. Mocks, lazy objects and proxies must pass through untouched.
+    (tmp_path/'pkg').mkdir()
+    (tmp_path/'pkg/__init__.py').write_text('def f(x):\n    return x\n')
+    (tmp_path/'tests').mkdir()
+    (tmp_path/'tests/test_mocks.py').write_text(
+        'from unittest import mock\nimport pkg\n\n\nclass Lazy:\n    touched = 0\n\n    def __getattr__(self, name):\n'
+        '        Lazy.touched += 1\n        return lambda *a: None\n\n    def __call__(self, *a):\n        return 1\n\n\n'
+        'def test_mock_calls():\n    m = mock.Mock()\n    pkg.f(m)(1)\n    assert m.mock_calls == [mock.call(1)]\n\n\n'
+        'def test_lazy_not_touched():\n    Lazy()(pkg.f(2))\n    assert Lazy.touched == 0\n')
+    subprocess.run(['git', 'init', '-q'], cwd=tmp_path, check=True)
+    info = edges.record(tmp_path, sys.executable, 'pytest', index_dir=tmp_path/'.index')
+    assert info['exit'] == 0 and info.get('tests') == 2, info

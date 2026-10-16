@@ -33,7 +33,8 @@ from .index import build
 
 FORMAT = 'amu-edges-1'  # edges are [caller, callee, direct]; caller -1 when no first-party frame called
 
-HOOK = r'''
+HOOK = r'''"""AMU's edge hook, loaded through a .pth file and named to pytest with -p. PYTEST_DONT_REWRITE: it is imported before
+pytest starts, and asking pytest to rewrite it would raise a warning that -W error turns into an abort."""
 import os, sys
 _out = os.environ.get("AMU_EDGES_OUT")
 _root = os.environ.get("AMU_EDGES_ROOT")
@@ -67,22 +68,37 @@ if _out and _root and sys.version_info >= (3, 12):
         def _add(caller, callee, direct):
             _edges.setdefault(_state["test"], set()).add((_id(caller) if caller is not None else -1, _id(callee), int(direct)))
 
+        import types as _types
+        _function, _method = _types.FunctionType, _types.MethodType
+
+        # A callback must never raise into the code it observes, and must never touch the objects it sees beyond their
+        # exact type: getattr on a mock call, a lazy object or a proxy runs their code (a mock.call's __code__ is
+        # another, unhashable, call object).
         def _start(code, offset):
-            if _mine(code):
-                # The nearest first-party frame below: direct when it is the immediate caller, else reached through
-                # library code (a framework, a descriptor protocol in C, a signal dispatcher).
-                back = sys._getframe(1).f_back
-                direct = back is not None and _mine(back.f_code)
-                while back is not None and not _mine(back.f_code):
-                    back = back.f_back
-                _add(back.f_code if back is not None else None, code, direct)
+            try:
+                if _mine(code):
+                    # The nearest first-party frame below: direct when it is the immediate caller, else reached
+                    # through library code (a framework, a descriptor protocol in C, a signal dispatcher).
+                    back = sys._getframe(1).f_back
+                    direct = back is not None and _mine(back.f_code)
+                    while back is not None and not _mine(back.f_code):
+                        back = back.f_back
+                    _add(back.f_code if back is not None else None, code, direct)
+            except Exception:
+                pass
             return _m.DISABLE
 
         def _call(code, offset, target, arg0):
-            if _mine(code):
-                inner = getattr(target, "__code__", None) or getattr(getattr(target, "__func__", None), "__code__", None)
-                if inner is not None and _mine(inner):
-                    _add(code, inner, True)
+            try:
+                if _mine(code):
+                    kind = type(target)
+                    if kind is _method:
+                        target = target.__func__
+                        kind = type(target)
+                    if kind is _function and _mine(target.__code__):
+                        _add(code, target.__code__, True)
+            except Exception:
+                pass
             return _m.DISABLE
 
         events = _m.events.PY_START | _m.events.CALL
@@ -90,10 +106,13 @@ if _out and _root and sys.version_info >= (3, 12):
         _m.register_callback(_tool, _m.events.CALL, _call)
         if os.environ.get("AMU_EDGES_EXC"):
             def _raise(code, offset, exc):
-                if _mine(code):
-                    chain = _chains.setdefault(id(exc), [type(exc).__name__, []])
-                    if not chain[1] or chain[1][-1] != _id(code):
-                        chain[1].append(_id(code))
+                try:
+                    if _mine(code):
+                        chain = _chains.setdefault(id(exc), [type(exc).__name__, []])
+                        if not chain[1] or chain[1][-1] != _id(code):
+                            chain[1].append(_id(code))
+                except Exception:
+                    pass
 
             for event in (_m.events.RAISE, _m.events.RERAISE, _m.events.PY_UNWIND):
                 _m.register_callback(_tool, event, _raise)
@@ -220,8 +239,11 @@ def record(root, python=None, runner=None, index_dir=None, timeout=7200, labels=
         started = time.perf_counter()
         try:
             done = subprocess.run(command, cwd=chosen.cwd(root), env=env, capture_output=True, timeout=timeout, stdin=subprocess.DEVNULL)
-            tail = (done.stderr + done.stdout).decode(errors='replace').strip().splitlines()[-1:] or ['']
-            info.update(exit=done.returncode, suite=tail[0][:160])
+            output = (done.stderr + done.stdout).decode(errors='replace').strip().splitlines()
+            tail = output[-1:] or ['']
+            info.update(exit=done.returncode, suite=tail[0][:160],
+                        failures=[line[:200] for line in output if line.startswith(('FAIL:', 'ERROR:', 'FAILED ', 'ERROR '))][:50],
+                        summary=[line[:200] for line in output if line.startswith(('Ran ', 'FAILED (', 'OK'))][-3:])
         except subprocess.TimeoutExpired:
             info['gaps'].append(f'the suite did not finish in {timeout} s; what ran is recorded')
         finally:

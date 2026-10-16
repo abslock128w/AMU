@@ -36,7 +36,9 @@ def compare(graph, data):
     rows = {}
     for scope in ('all callers', 'non-test callers'):
         for which in ('direct calls', 'every edge'):
+            # A class body running at import is a definition, not a call: left out.
             chosen = {(a, b) for a, b, direct in pairs if a != b and (which == 'every edge' or direct)
+                      and graph.records.get(b, {}).get('kind') != 'class'
                       and (scope == 'all callers' or not is_test_file(a.split('#')[0]))}
             held = sum(b in graph.edges.get(a, {}) for a, b in chosen)
             no_callee = sum(b not in graph.records for a, b in chosen)

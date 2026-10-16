@@ -1,0 +1,53 @@
+[
+ {
+  "runner": "django-runtests",
+  "python": "/Users/Abslock128/Documents/ChatGPT/AMU/phase0-django-2026-10-13/env/bin/python",
+  "gaps": [],
+  "mode": "plain",
+  "exit": 0,
+  "suite": "System check identified no issues (17 silenced).",
+  "command": "/Users/Abslock128/Documents/ChatGPT/AMU/phase0-django-2026-10-13/env/bin/python runtests.py --parallel 1 --noinput",
+  "seconds": 330.7,
+  "processes": 0,
+  "total_seconds": 330.7,
+  "stored_bytes": 0,
+  "labels": []
+ },
+ {
+  "runner": "django-runtests",
+  "python": "/Users/Abslock128/Documents/ChatGPT/AMU/phase0-django-2026-10-13/env/bin/python",
+  "gaps": [],
+  "mode": "edges",
+  "exit": 1,
+  "suite": "System check identified no issues (17 silenced).",
+  "command": "/Users/Abslock128/Documents/ChatGPT/AMU/phase0-django-2026-10-13/env/bin/python runtests.py --parallel 1 --noinput",
+  "seconds": 377.8,
+  "processes": 236,
+  "tests": 17980,
+  "codes": 40332,
+  "edges": 4436272,
+  "stored": "/private/tmp/claude-502/-Users-Abslock128-Documents-ChatGPT-AMU/3bee62a4-7848-483d-a1e3-cd5e96127f7d/scratchpad/b1-full/edges/index/8/edges",
+  "total_seconds": 388.1,
+  "stored_bytes": 3946613,
+  "labels": []
+ },
+ {
+  "runner": "django-runtests",
+  "python": "/Users/Abslock128/Documents/ChatGPT/AMU/phase0-django-2026-10-13/env/bin/python",
+  "gaps": [],
+  "exit": 0,
+  "suite": "System check identified no issues (17 silenced).",
+  "command": "/Users/Abslock128/Documents/ChatGPT/AMU/phase0-django-2026-10-13/env/bin/python runtests.py --parallel 1 --noinput",
+  "seconds": 488.8,
+  "tests": 16213,
+  "files": 2004,
+  "stored": "/private/tmp/claude-502/-Users-Abslock128-Documents-ChatGPT-AMU/3bee62a4-7848-483d-a1e3-cd5e96127f7d/scratchpad/b1-full/coverage/index/8/observed",
+  "links_only_through_child_processes": 60023,
+  "tests_with_such_links": 216,
+  "child_processes": 235,
+  "total_seconds": 508.1,
+  "stored_bytes": 103603260,
+  "mode": "coverage",
+  "labels": []
+ }
+]

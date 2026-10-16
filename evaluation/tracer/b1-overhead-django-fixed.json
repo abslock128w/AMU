@@ -1,0 +1,47 @@
+[
+ {
+  "runner": "django-runtests",
+  "python": "/Users/Abslock128/Documents/ChatGPT/AMU/phase0-django-2026-10-13/env/bin/python",
+  "gaps": [],
+  "mode": "edges",
+  "exit": 1,
+  "suite": "System check identified no issues (17 silenced).",
+  "failures": [
+   "FAIL: test_reporting_frames_for_cyclic_reference (view_tests.tests.test_debug.ExceptionReporterTests.test_reporting_frames_for_cyclic_reference)",
+   "FAILED (failures=1, skipped=1911, expected failures=4)"
+  ],
+  "summary": [
+   "Ran 19655 tests in 364.805s",
+   "FAILED (failures=1, skipped=1911, expected failures=4)"
+  ],
+  "command": "/Users/Abslock128/Documents/ChatGPT/AMU/phase0-django-2026-10-13/env/bin/python runtests.py --parallel 1 --noinput",
+  "seconds": 378.1,
+  "processes": 236,
+  "tests": 17980,
+  "codes": 40328,
+  "edges": 4437862,
+  "stored": "/private/tmp/claude-502/-Users-Abslock128-Documents-ChatGPT-AMU/3bee62a4-7848-483d-a1e3-cd5e96127f7d/scratchpad/b1-fixed/edges/index/8/edges",
+  "total_seconds": 389.7,
+  "stored_bytes": 4245431,
+  "labels": []
+ },
+ {
+  "runner": "django-runtests",
+  "python": "/Users/Abslock128/Documents/ChatGPT/AMU/phase0-django-2026-10-13/env/bin/python",
+  "gaps": [],
+  "mode": "plain",
+  "exit": 0,
+  "suite": "System check identified no issues (17 silenced).",
+  "failures": [],
+  "summary": [
+   "Ran 19655 tests in 597.588s",
+   "OK (skipped=1911, expected failures=4)"
+  ],
+  "command": "/Users/Abslock128/Documents/ChatGPT/AMU/phase0-django-2026-10-13/env/bin/python runtests.py --parallel 1 --noinput",
+  "seconds": 606.3,
+  "processes": 0,
+  "total_seconds": 606.4,
+  "stored_bytes": 0,
+  "labels": []
+ }
+]
