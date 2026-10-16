@@ -251,7 +251,7 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
     ran_after = sum(state in OUTCOMES for state in states['after'].values())
     remembered.setdefault('durations', {}).update(runner.durations or {})
     now = round(time.time())
-    remembered.setdefault('flips', {}).update({i: now for i, v in verdicts.items() if v['label'] == trust.CONFIRMED})
+    remembered.setdefault('flips', {}).update({i: now for i, v in verdicts.items() if trust.counted(v['label'])})
     if key and memo:
         if ran_after >= CHUNK and after_seconds > 0:
             remembered['rate'] = round(ran_after / after_seconds / max(1, parts if runner.parallel else 1), 1)

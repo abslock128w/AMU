@@ -6,9 +6,11 @@ A test that passed before the change and fails after it is reported as a failure
 - it executed at least one changed line on the changed side (the reach check); a flip that did not is labelled
   ``not caused by this change`` with the reason;
 - it fails again in all three reruns on the changed side: in the same process right after itself, alone in a fresh
-  process, and after the rest of the candidate set; a flip that does not is ``unstable``, naming the rerun that
-  passed.
-No flip is dropped: each one carries one of the three labels.
+  process, and after the rest of the candidate set.
+A flip that fails in some of those orders and passes in others is order-dependent. When the code before the change
+passes in every order it failed in on the changed side, the change brought the dependence (a state leak): that counts,
+as ``fails: order-dependent, new with this change``. Otherwise it is ``unstable``, naming the rerun that passed.
+No flip is dropped: each one carries one of the four labels.
 """
 from __future__ import annotations
 
@@ -20,6 +22,13 @@ from pathlib import Path
 from . import runners
 
 CONFIRMED, UNSTABLE, NOT_CAUSED = 'fails', 'unstable', 'not caused by this change'
+ORDER_NEW = 'fails: order-dependent, new with this change'
+
+
+def counted(label):
+    """Whether a flip with this label is a failure in the count: it fails in every rerun, or it fails on the changed
+    code in some order and passes on the code before the change in every order run (a state leak the change brings)."""
+    return label in (CONFIRMED, ORDER_NEW)
 SEED = 20261016
 MAX_ALONE = 20  # flips rerun one per fresh process; past this they share one fresh process and reach is not measured
 LEGS = ('in_process', 'fresh_process', 'after_set')
@@ -249,25 +258,37 @@ def triad(runner, python, tree, flipped, candidates, scratch, left, changed, bef
     legs['after_set'] = {i: found.get(i) for i in flipped}
     if problem == 'timed out':
         gaps.append('the rerun of flips after the rest of the candidate set timed out; that rerun is missing for some flips')
-    # Failing after other tests and passing alone is order dependence. Whether the change brought it is known only by
-    # running the same order on the code before the change.
-    ordered = [i for i in flipped if legs['fresh_process'].get(i) in ('passed', 'skipped') and legs['after_set'].get(i) == 'failed']
-    base_order = {}
+    # Failing in some orders and passing in others is order dependence. Whether the change brought it is known only by
+    # running the same orders on the code before the change: alone (the flip's own confirmation), after the rest of the
+    # candidates, and twice in one process.
+    ordered = [i for i in flipped if {legs[leg].get(i) for leg in LEGS} & {'passed', 'skipped'}
+               and {legs[leg].get(i) for leg in LEGS} & {'failed'}]
+    base_order, base_repeat = {}, {}
     if ordered and before_tree is not None:
-        base_order, _ = runners.execute(runner, python, before_tree, [*others, *ordered], Path(scratch)/'trust-after-set-base.xml',
-                                        remaining(), extra_args=_in_given_order(runner))
+        if any(legs['after_set'].get(i) == 'failed' for i in ordered):
+            base_order, _ = runners.execute(runner, python, before_tree, [*others, *ordered], Path(scratch)/'trust-after-set-base.xml',
+                                            remaining(), extra_args=_in_given_order(runner))
+        repeated = [i for i in ordered if legs['in_process'].get(i) == 'failed']
+        if repeated:
+            base_repeat = in_process(runner, python, before_tree, repeated, scratch, remaining())
     verdicts = {}
     for ident in flipped:
         reruns = {leg: legs[leg].get(ident) for leg in LEGS}
         passed = [leg for leg, state in reruns.items() if state in ('passed', 'skipped')]
         missing = [leg for leg, state in reruns.items() if state not in runners.ORDER]
         if passed:
-            label, why = UNSTABLE, 'passed in ' + ' and '.join(NAMES[leg] for leg in passed)
-            if ident in ordered and base_order.get(ident) == 'passed':
-                why += ('; fails after the other candidates, and in that same order passes on the code before the change: '
-                        'an order dependence this change brings')
-            elif ident in ordered and base_order.get(ident) == 'failed':
-                why += '; fails after the other candidates on the code before the change too: an order dependence already there'
+            failed_in = [leg for leg in ('in_process', 'after_set') if reruns[leg] == 'failed']
+            base = {'in_process': base_repeat.get(ident), 'after_set': base_order.get(ident)}
+            if ident in ordered and failed_in and all(base[leg] == 'passed' for leg in failed_in):
+                label, why = ORDER_NEW, ('fails ' + ' and '.join(NAMES[leg] for leg in failed_in).replace('the rerun ', '')
+                                         + ', passes in ' + ' and '.join(NAMES[leg] for leg in passed)
+                                         + '; the code before the change passes in the same orders: a state leak this change brings')
+            else:
+                label, why = UNSTABLE, 'passed in ' + ' and '.join(NAMES[leg] for leg in passed)
+                if any(base[leg] == 'failed' for leg in failed_in):
+                    why += '; fails in the same order on the code before the change too: an order dependence already there'
+                elif failed_in:
+                    why += '; the same order could not be run on the code before the change'
         elif reach.get(ident) == 0:
             label, why = NOT_CAUSED, 'it ran none of the changed lines on the changed code (reach tracer)'
         else:

@@ -361,7 +361,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         # A failing test defined on a base class is run again in every subclass that inherits it.
         by_id = {tests[ident]['path'] + '::' + tests[ident]['qual'].replace('.', '::'): ident for ident in picked}
         copies = sorted({copy for flip in flips if flip['after'] == 'failed' and flip['id'] in by_id
-                         and flip.get('trust', trust.CONFIRMED) == trust.CONFIRMED
+                         and trust.counted(flip.get('trust', trust.CONFIRMED))
                          for copy in inheritors(by_id[flip['id']])} - set(wide))[:RUN_CANDIDATES]
         if copies:
             more, again, more_gaps = shadow.run(root, edits, copies, python, budget, runner, memo=memo, base_cache=cache)
@@ -377,7 +377,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
                             original_tests={**executed.get('original_tests', {}), **again.get('original_tests', {})})
         # Only a flip that passed the trust checks is a failure; the others stay listed with their label.
         labelled = [flip for flip in flips if flip.get('trust') and flip['after'] == 'failed']
-        flips = [flip for flip in flips if flip.get('trust', trust.CONFIRMED) == trust.CONFIRMED]
+        flips = [flip for flip in flips if trust.counted(flip.get('trust', trust.CONFIRMED))]
         state = {flip['id']: flip for flip in flips}
         for row in rows:
             if row['id'] in state:

@@ -71,15 +71,19 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None):
         out += [f'### Flips ({len(failures)})', '',
                 f'Pass on the merge base {short(base)}, fail on the head. Each was rerun on the merge base to confirm '
                 'it passed there, and failed again on the head in every rerun made: in the same process, alone in a fresh '
-                'process, and after the rest of the candidates. A rerun that was not made is named on its row.', '']
+                'process, and after the rest of the candidates, unless its row says it is order-dependent. A rerun that was '
+                'not made is named on its row.', '']
         missing = {row.get('id'): [leg for leg, state in (row.get('reruns') or {}).items() if state is None]
                    for row in report.get('flip_trust') or [] if isinstance(row, dict)}
+        leaks = {row.get('id'): row.get('why', '') for row in report.get('flip_trust') or [] if isinstance(row, dict)
+                 and row.get('label') == 'fails: order-dependent, new with this change'}
         names = dict(in_process='in the same process', fresh_process='alone in a fresh process', after_set='after the rest')
 
         def flip(row):
             label = row.get('label') if isinstance(row, dict) else None
             gone = [names.get(leg, str(leg)) for leg in missing.get(failure_id(row), [])]
             return (code(failure_id(row)) + (' (fails as the test was before it was edited)' if label == 'test edited, not fixed' else '')
+                    + (f" (order-dependent, new with this change: {code(leaks[failure_id(row)], 200)})" if failure_id(row) in leaks else '')
                     + (f" (not rerun {', '.join(gone)})" if gone else ''))
         out += rows(failures, flip, listed) + ['']
         if verify and verify.get('checked'):
@@ -101,7 +105,8 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None):
         quiet = sum(row.get('verdict') == 'none' for row in replayed)
         if quiet:
             out += [f"{plural(quiet, 'test')} pass on the merge base too, so they show nothing about the change.", '']
-    labelled = [row for row in report.get('flip_trust') or [] if isinstance(row, dict) and row.get('id') and row.get('label') != 'fails']
+    labelled = [row for row in report.get('flip_trust') or [] if isinstance(row, dict) and row.get('id')
+                and not str(row.get('label', '')).startswith('fails')]
     unstable = report.get('unstable') or []
     if labelled and not report.get('error'):
         out += [f'### Flips not counted ({len(labelled)})', '',

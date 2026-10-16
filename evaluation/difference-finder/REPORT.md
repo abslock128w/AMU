@@ -72,13 +72,16 @@ A flip counts as a failure only when:
   `unstable`, naming which. When the fresh-process rerun alone passes and the after-the-rest rerun fails, the same order
   is run on the base: the label then says whether the order dependence came with this change.
 
-Every flip leaves with one label: `fails`, `unstable` or `not caused by this change`. Only `fails` is counted; the
-others are listed under "Flips not counted". A rerun a runner cannot make is named on the flip's row: Django's runner
+Every flip leaves with one label: `fails`, `fails: order-dependent, new with this change`, `unstable` or `not caused by
+this change`. The first two are counted; the others are listed under "Flips not counted". A rerun a runner cannot make is named on the flip's row: Django's runner
 drops a label given twice, so the same-process rerun is never made there.
 
-Decision to flag: an earlier review had a test that an order-dependent regression is **not** demoted to unstable. The
-brief's rule demotes it. I followed the brief; the row says "an order dependence this change brings" when the base
-passes in the same order. If you want those counted as failures, it is one condition in `trust.triad`.
+Owner's decision (2026-10-16), applied after the first version of this report: a flip that fails on the head in some
+order and passes in another is order-dependent. When the base passes in every order it failed in on the head (alone,
+after the rest of the candidates, and twice in one process when that is where it failed), the change brought a state
+leak: it counts, labelled `fails: order-dependent, new with this change`. When the base fails in the same order too,
+it stays `unstable` ("an order dependence already there"). Unit tests cover both sides. The sympy set has no
+order-dependent flip, so its numbers below are unchanged by this.
 
 Found by the check and fixed: the reruns were charged to the per-side budget, so on sympy w19 the edited-test check
 had no time left and three flips the old engine confirmed went unreported. Verifying flips now has its own clock
