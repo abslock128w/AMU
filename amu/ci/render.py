@@ -140,7 +140,7 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None):
                            'cached from an earlier run, keyed on the content of each test file and what it imports, the '
                            'interpreter, the lock files and the runner arguments.')
             elif cached.get('answered'):
-                out.append(f"On the merge base, {cached['answered']} outcomes came from the cache of earlier passes and "
+                out.append(f"On the merge base, {plural(cached['answered'], 'outcome')} came from the cache of earlier passes and "
                            f"{cached['ran']} ran.")
         else:
             out.append('No test ran, so nothing here says whether the change breaks one.')

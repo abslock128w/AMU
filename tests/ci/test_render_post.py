@@ -112,3 +112,11 @@ def test_a_rerun_the_runner_could_not_make_is_named_on_the_flip():
                   gaps=[], executed=dict(ran=3, candidates=3, runner='django-runtests'))
     body = render(report, dict(head='a' * 40, merge_base='b' * 40))
     assert '`tests/t.py::T::test_a` (not rerun in the same process)' in body, body
+
+
+def test_one_cached_outcome_is_singular():
+    from amu.ci.render import render
+    report = dict(flips=0, predicted_failures=[], gaps=[],
+                  executed=dict(ran=3, candidates=3, runner='pytest', base_cache=dict(answered=1, ran=2, stored=0)))
+    body = render(report, dict(head='a' * 40, merge_base='b' * 40))
+    assert 'On the merge base, 1 outcome came from the cache' in body, body
