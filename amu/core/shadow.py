@@ -174,7 +174,7 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
         removed = [i for i in ids if i in states['after'] and _removed(i, edits, before_src, trees['after'])]
         for ident in removed:
             states['after'][ident] = 'removed'
-        unstable, edited_flips, originals, replayed, verdicts, edited_verdicts = [], [], {}, [], {}, {}
+        unstable, edited_flips, originals, replayed, verdicts, edited_verdicts, trust_seconds = [], [], {}, [], {}, {}, 0.0
         if not aborted:
             # A flip is believed only after the trust checks (trust module): the reach check and three reruns on the
             # changed code. A "before" outcome taken from the memo is confirmed afresh, so a test that is flaky on the
@@ -186,7 +186,9 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
                 began = time.perf_counter()
                 verdicts, more = trust.triad(runner, python, trees['after'], flipped, ran, scratch, max(left, CONFIRM), changed,
                                              before_tree=trees['before'])
-                left -= time.perf_counter() - began
+                # Verifying a flip is not charged to the budget for finding flips: otherwise the reruns could leave no time
+                # for the edited-test check below, and flips it would find would go unreported.
+                trust_seconds += time.perf_counter() - began
                 gaps += more
                 remembered_flips = [i for i in flipped if i in from_memo and verdicts[i]['label'] != trust.UNSTABLE]
                 if remembered_flips:
@@ -222,7 +224,7 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
                         changed = trust.changed_lines(other, {p: e for p, e in edits.items() if p not in edited}, _after_lines)
                         began = time.perf_counter()
                         edited_verdicts, more = trust.triad(runner, python, other, failing, checked, scratch, max(left, CONFIRM), changed)
-                        left -= time.perf_counter() - began
+                        trust_seconds += time.perf_counter() - began
                         gaps += more
                     for problem in problems:
                         gaps.append(f'shadow run (original tests on the changed code, {runner.name}): {problem}')
@@ -291,6 +293,8 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
     if unreached:
         info['not_caused'] = unreached
     info['order'] = order
+    if not aborted and trust_seconds:
+        info['trust_seconds'] = round(trust_seconds, 1)
     if base_cache is not None:
         info['base_cache'] = dict(answered=base_cache.hits, ran=base_cache.misses, stored=base_cache.stored)
     if replayed:

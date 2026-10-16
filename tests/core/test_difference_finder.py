@@ -158,3 +158,32 @@ def test_plugin_autoload_is_off_and_reordering_or_rerunning_plugins_are_not_load
     assert runners.plugin_args(runner, 'py') == ['-p', 'pytest_django.plugin', '-p', 'pytest_randomly'] and runner.autoload_off
     assert runners.environment(Path('.'), autoload=False)['PYTEST_DISABLE_PLUGIN_AUTOLOAD'] == '1'
     assert runners.plugin_args(runners.Unittest(), 'py') == []
+
+
+def test_the_bounded_diverse_pick_equals_the_full_scan():
+    import random
+
+    from amu.core import rank
+
+    def full(scores, limit):
+        remaining = {s: 1.0 for per in scores.values() for s in per}
+        strongest = {}
+        for per in scores.values():
+            for s, v in per.items():
+                strongest[s] = max(strongest.get(s, 0.0), v)
+        left, order = dict(scores), []
+
+        def gain(t):
+            return sum((rank.FLOOR + (1 - rank.FLOOR) * remaining[s]) * v for s, v in left[t].items())
+        while left and len(order) < limit:
+            best = min(left, key=lambda t: (-gain(t), t))
+            order.append((best, gain(best)))
+            for s, v in left.pop(best).items():
+                if strongest[s] > 0:
+                    remaining[s] *= 1 - 0.5 * v / strongest[s]
+        return order
+    generator = random.Random(4)
+    for _ in range(30):
+        scores = {f't{n}': {f's{k}': round(generator.choice([0.0, 0.1, 0.3, 0.3, 1.0, 2.5]), 2) for k in generator.sample(range(6), 3)}
+                  for n in range(generator.randint(1, 80))}
+        assert rank.diverse(scores, 40) == full(scores, 40)

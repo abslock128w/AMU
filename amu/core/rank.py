@@ -102,9 +102,20 @@ def diverse(scores, limit):
         # Coverage of a symbol is discounted, never erased: relevance keeps ordering the tail.
         return sum((FLOOR + (1 - FLOOR) * remaining[s]) * v for s, v in left[test].items())
 
+    # A test's gain never exceeds the sum of its positive values (each weight is at most 1). Scanning in that bound's order and
+    # stopping once the bound falls below the best gain found gives the same pick as scanning every test.
+    bound = sorted(((sum(v for v in per.values() if v > 0), t) for t, per in scores.items()), key=lambda item: (-item[0], item[1]))
     while left and len(order) < limit:
-        best = min(left, key=lambda t: (-gain(t), t))
-        order.append((best, gain(best)))
+        best, best_gain = None, None
+        for most, test in bound:
+            if test not in left:
+                continue
+            if best is not None and most < best_gain:
+                break
+            value = gain(test)
+            if best is None or (-value, test) < (-best_gain, best):
+                best, best_gain = test, value
+        order.append((best, best_gain))
         for symbol, value in left.pop(best).items():
             if strongest[symbol] > 0:
                 remaining[symbol] *= 1 - 0.5 * value / strongest[symbol]
