@@ -206,7 +206,7 @@ if _spec_path and _sys.version_info >= (3, 12):
                         pass
 
         def _thaw(blob):
-            return pickle.loads(blob[1]) if blob[0] == "pickle" else copy.deepcopy(blob[1])
+            return pickle.loads(blob[1]) if blob[0] == "pickle" else copy.deepcopy(blob[1]) if blob[0] == "copy" else blob[1]
 
         def _run(fn, blob, generator, changed=False):
             pos, kw = _thaw(blob)
@@ -253,23 +253,28 @@ if _spec_path and _sys.version_info >= (3, 12):
                 # Lambdas, local classes and the like do not pickle; a deep copy shares functions and copies the rest.
                 try:
                     blob = ("copy", copy.deepcopy((pos, kw)))
-                except Exception as exc:
-                    _skipped[target["id"]] = "arguments cannot be copied: " + type(exc).__name__
-                    return
+                except Exception:
+                    # Objects holding locks, modules or connections copy neither way. This run's test outcomes are not
+                    # used, so the versions run on the live arguments; the comparison stands only if no run changed them.
+                    blob = ("live", (pos, kw))
             fns = _built.get(target["id"])
             if fns is None:
                 fns = _built[target["id"]] = (_build(target, "before", frame.f_globals), _build(target, "after", frame.f_globals))
             base, head = fns
             generator = bool(flags & 0x20)
+            untouched = _fp([pos, kw]) if blob[0] == "live" else None
             runs = [_run(base, blob, generator), _run(base, blob, generator),
                     _run(head, blob, generator, True), _run(head, blob, generator, True)]
+            if untouched is not None and any(run["args_after"] != untouched for run in runs):
+                _skipped[target["id"]] = "changes arguments that cannot be copied; not compared on them"
+                return
             stable = runs[0] == runs[1] and runs[2] == runs[3]
             differs = [field for field in ("result", "args_after", "stdout", "calls") if runs[0][field] != runs[2][field]]
             try:
                 shown = repr(_thaw(blob))
             except Exception:
                 shown = "<input>"
-            _results.append(dict(target=target["id"], test=_os.environ.get("AMU_TEST_CONTEXT") or _os.environ.get("PYTEST_CURRENT_TEST", ""),
+            _results.append(dict(target=target["id"], copied=blob[0] != "live", test=_os.environ.get("AMU_TEST_CONTEXT") or _os.environ.get("PYTEST_CURRENT_TEST", ""),
                                  input=_ADDRESS.sub(" at 0x?", shown)[:400], stable=stable, differs=differs,
                                  before=runs[0], after=runs[2]))
 

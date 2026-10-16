@@ -84,3 +84,14 @@ def test_a_new_helper_and_uncopyable_arguments_are_handled(tmp_path):
     report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1, 'tests/test_lib.py': tests})
     [row] = report['behaviour_differences']
     assert row['before']['result'] == ['return', 'True'] and row['after']['result'] == ['return', 'False'], row
+
+
+def test_arguments_that_cannot_be_copied_are_used_live_only_when_no_run_changes_them(tmp_path):
+    lib0 = ('import threading\n\n\nclass Site:\n    def __init__(self):\n        self.lock = threading.RLock()\n        self.n = 1\n\n'
+            '    def size(self):\n        return self.n\n\n    def bump(self):\n        self.n += 1\n        return self.n\n')
+    lib1 = lib0.replace('return self.n\n\n    def bump', 'return self.n + 1\n\n    def bump').replace('self.n += 1', 'self.n += 2')
+    tests = 'from lib import Site\n\n\ndef test_site():\n    s = Site()\n    s.size()\n    s.bump()\n'
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1, 'tests/test_lib.py': tests})
+    found = {row['target']: row for row in report['behaviour_differences']}
+    assert set(found) == {'lib.py#Site.size'}, found
+    assert report['side_by_side']['not_compared'] == {'lib.py#Site.bump': 'changes arguments that cannot be copied; not compared on them'}
