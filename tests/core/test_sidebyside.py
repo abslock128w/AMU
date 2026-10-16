@@ -110,3 +110,21 @@ def test_the_as_changed_run_sees_new_class_members_and_names_added_to_other_modu
     [row] = report['behaviour_differences']
     assert row['after']['result'] == ['return', ['list', ['1', '10', 'True']]], row
     assert row['before']['result'] == ['return', ['list', ['1']]]
+
+
+def test_an_import_of_a_helper_added_elsewhere_and_objects_built_by_the_old_code(tmp_path):
+    # Found on Django 0398417c (a changed import of a helper added to another module) and d992705f (populate() on an
+    # object the old __init__ built).
+    util0 = 'def base():\n    return 1\n'
+    util1 = util0 + '\n\ndef qualname(x):\n    return "q:" + x\n'
+    lib0 = ('from util import base\n\n\nclass Pop:\n    def __init__(self, v):\n        self.v = v\n\n'
+            '    def run(self):\n        return self.v\n\n\ndef label(x):\n    return x\n')
+    lib1 = ('from util import base, qualname\n\n\nclass Pop:\n    def __init__(self, v):\n        self.v = v\n        self.w = v * 2\n\n'
+            '    def run(self):\n        return self.w\n\n\ndef label(x):\n    return qualname(x)\n')
+    tests = 'from lib import Pop, label\n\n\ndef test_pop():\n    assert Pop(2).run()\n    assert label("a")\n'
+    report = change(tmp_path, {'util.py': util0, 'lib.py': lib0, 'tests/test_lib.py': tests},
+                    {'util.py': util1, 'lib.py': lib1, 'tests/test_lib.py': tests})
+    found = {row['target'].split('#')[1]: row for row in report['behaviour_differences']}
+    assert found['label']['after']['result'] == ['return', "'q:a'"], found
+    assert found['Pop.__init__']['differs'] == ['args_after'] and 'Pop.run' not in found, found
+    assert report['side_by_side']['input_built_before_the_change'] == 1

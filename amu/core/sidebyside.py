@@ -190,33 +190,43 @@ if _spec_path and _sys.version_info >= (3, 12):
             class. A changed function must see the rest of the change, or the comparison mixes versions."""
             if _swaps:
                 return _swaps
-            for addition in _spec.get("additions", []):
-                module = _module_for(_os.path.realpath(addition["file"]))
-                if not module:
-                    continue
-                space = vars(module)
-                before = dict(space)
-                try:
-                    if addition["owner"]:
-                        owner = _owner(module, addition["owner"].split("."))
-                        if not isinstance(owner, type):
-                            continue
-                        exec(compile("class __amu_members__:\n" + textwrap.indent(addition["source"], "    "), addition["file"], "exec"), space)
-                        members = {k: v for k, v in vars(space["__amu_members__"]).items()
-                                   if k not in ("__module__", "__qualname__", "__dict__", "__weakref__", "__doc__", "__firstlineno__", "__static_attributes__")}
-                        for name, value in members.items():
-                            _swaps.append((owner, name, _rebind(value, owner), vars(owner).get(name, _MISSING)))
-                    else:
-                        exec(compile(addition["source"], addition["file"], "exec"), space)
-                        for name, value in list(space.items()):
-                            if before.get(name, _MISSING) is not value:
-                                _swaps.append((module, name, value, before.get(name, _MISSING)))
-                except Exception:
-                    pass
-                finally:
-                    for name in [n for n in space if n not in before]:
-                        del space[name]
-                    space.update(before)
+            # Additions are applied as they are prepared and stay applied until all are, so an import in one file can
+            # see a helper the change adds to another; one that fails is retried after the others.
+            pending = list(_spec.get("additions", []))
+            for _ in range(3):
+                failed = []
+                for addition in pending:
+                    module = _module_for(_os.path.realpath(addition["file"]))
+                    if not module:
+                        continue
+                    space = vars(module)
+                    before = dict(space)
+                    try:
+                        if addition["owner"]:
+                            owner = _owner(module, addition["owner"].split("."))
+                            if not isinstance(owner, type):
+                                continue
+                            exec(compile("class __amu_members__:\n" + textwrap.indent(addition["source"], "    "), addition["file"], "exec"), space)
+                            members = {k: v for k, v in vars(space.pop("__amu_members__")).items()
+                                       if k not in ("__module__", "__qualname__", "__dict__", "__weakref__", "__doc__", "__firstlineno__", "__static_attributes__")}
+                            for name, value in members.items():
+                                item = (owner, name, _rebind(value, owner), vars(owner).get(name, _MISSING))
+                                _swaps.append(item)
+                                setattr(owner, name, item[2])
+                        else:
+                            exec(compile(addition["source"], addition["file"], "exec"), space)
+                            for name, value in list(space.items()):
+                                if before.get(name, _MISSING) is not value:
+                                    _swaps.append((module, name, value, before.get(name, _MISSING)))
+                    except Exception:
+                        failed.append(addition)
+                        for name in [n for n in space if n not in before]:
+                            del space[name]
+                        space.update(before)
+                if not failed or len(failed) == len(pending):
+                    break
+                pending = failed
+            _swapped(False)
             for target in _spec["targets"]:
                 module = _module_for(_os.path.realpath(target["file"]))
                 if not module:
@@ -514,15 +524,26 @@ def run(runner, python, before_tree, ids, spec_targets, skipped, scratch, timeou
         skipped.update(data.get('skipped', {}))
         for name, count in data.get('captured', {}).items():
             captured[name] = captured.get(name, 0) + count
-    seen, differences = set(), []
+    # An object built by the code before the change lacks state a changed method now gives it. When one changed method
+    # of a class changes the object's state, an AttributeError from another changed method of that class says the input
+    # was built by the old code, not that the method behaves differently: set aside, and counted.
+    stateful = {row['target'].rsplit('.', 1)[0] for row in results
+                if row['stable'] and 'args_after' in row['differs'] and '.' in row['target'].split('#', 1)[1]}
+    seen, differences, built_before = set(), [], 0
     for row in results:
+        after = row['after']['result']
+        if (row['stable'] and row['differs'] and row['target'].rsplit('.', 1)[0] in stateful and 'args_after' not in row['differs']
+                and after[0] == 'raise' and after[1] == 'AttributeError' and row['before']['result'][0] != 'raise'):
+            built_before += 1
+            continue
         if row['stable'] and row['differs']:
             key = (row['target'], row['input'])
             if key not in seen:
                 seen.add(key)
                 differences.append(dict(row, label=KIND))
     info = dict(targets=len(spec_targets), compared_calls=len(results), functions_called=len(captured),
-                unstable=sum(not r['stable'] for r in results), differences=len(differences), skipped=skipped)
+                unstable=sum(not r['stable'] for r in results), differences=len(differences), skipped=skipped,
+                input_built_before_the_change=built_before)
     if not results:
         gaps.append(f'side-by-side: none of the {len(spec_targets)} changed function(s) was called by the tests run on the code before the change')
     return info, differences, gaps
