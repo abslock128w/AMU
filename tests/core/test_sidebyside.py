@@ -128,3 +128,16 @@ def test_an_import_of_a_helper_added_elsewhere_and_objects_built_by_the_old_code
     assert found['label']['after']['result'] == ['return', "'q:a'"], found
     assert found['Pop.__init__']['differs'] == ['args_after'] and 'Pop.run' not in found, found
     assert report['side_by_side']['input_built_before_the_change'] == 1
+
+
+def test_comparisons_made_before_the_time_limit_are_kept(tmp_path, monkeypatch):
+    # Found in pass 2 on Django (2936a0a9): results were written at exit, so a run stopped at its limit kept nothing.
+    from amu.core import shadow
+    monkeypatch.setattr(shadow, 'SIDE_BY_SIDE', 4)
+    monkeypatch.setattr(shadow, 'CONFIRM', 4)
+    lib0 = 'def clamp(v):\n    return min(v, 10)\n'
+    lib1 = 'def clamp(v):\n    return min(v, 9)\n'
+    tests = ('import time\nfrom lib import clamp\n\n\ndef test_a():\n    assert clamp(50)\n\n\n'
+             'def test_slow():\n    time.sleep(30)\n')
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1, 'tests/test_lib.py': tests})
+    assert [row['target'] for row in report['behaviour_differences']] == ['lib.py#clamp'], report.get('side_by_side')

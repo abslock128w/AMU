@@ -86,6 +86,7 @@ def main(argv=None):
     p.add_argument('--jobs', type=int, default=3)
     p.add_argument('--budget', type=int, default=60)
     p.add_argument('--limit', type=int)
+    p.add_argument('--commits', nargs='*', help='only these commits (prefixes)')
     a = p.parse_args(argv)
     Path(a.scratch).mkdir(parents=True, exist_ok=True)
     (Path(a.scratch)/'worker.py').write_text(WORKER)
@@ -93,7 +94,8 @@ def main(argv=None):
     results = json.loads(out.read_text()) if out.exists() else []
     done = {r['commit'] for r in results if 'error' not in r}
     results = [r for r in results if r['commit'] in done]
-    jobs = [job for job in commits(Path(a.repo)) if job[0] not in done][:a.limit]
+    jobs = [job for job in commits(Path(a.repo)) if job[0] not in done
+            and (not a.commits or any(job[0].startswith(c) for c in a.commits))][:a.limit]
     print(f'{len(jobs)} commits to run, {len(done)} already done', flush=True)
     slots = list(range(a.jobs))
 

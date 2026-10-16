@@ -34,7 +34,7 @@ import os as _os, sys as _sys
 _spec_path = _os.environ.get("AMU_SBS_SPEC")
 if _spec_path and _sys.version_info >= (3, 12):
     try:
-        import atexit, contextlib, copy, io, json, pickle, re, textwrap, threading, types
+        import contextlib, copy, io, json, pickle, re, textwrap, threading, types
         with open(_spec_path) as _h:
             _spec = json.load(_h)
         _out = _os.environ["AMU_SBS_OUT"]
@@ -44,8 +44,17 @@ if _spec_path and _sys.version_info >= (3, 12):
         _m.use_tool_id(_tool, "amu-side-by-side")
         _want = {(_os.path.realpath(t["file"]), t["qual"]): t for t in _spec["targets"]}
         _files = {k[0] for k in _want}
-        _keys, _built, _count, _results, _skipped = {}, {}, {}, [], {}
+        _keys, _built, _count = {}, {}, {}
         _local = threading.local()
+        _journal = _os.path.join(_out, "%d.jsonl" % _os.getpid())
+
+        def _emit(kind, **data):
+            """One line per event, written at once: a run stopped at its time limit keeps what it compared."""
+            try:
+                with open(_journal, "a") as handle:
+                    handle.write(json.dumps(dict(data, kind=kind)) + "\n")
+            except Exception:
+                pass
         _limit = _spec.get("calls", 5)
         _bytes = _spec.get("bytes", 262144)
         _ADDRESS = re.compile(r" at 0x[0-9a-fA-F]+")
@@ -306,7 +315,7 @@ if _spec_path and _sys.version_info >= (3, 12):
             try:
                 blob = ("pickle", pickle.dumps((pos, kw), protocol=4))
                 if len(blob[1]) > _bytes:
-                    _skipped[target["id"]] = "arguments over the size bound"
+                    _emit("skipped", target=target["id"], reason="arguments over the size bound")
                     return
             except Exception:
                 # Lambdas, local classes and the like do not pickle; a deep copy shares functions and copies the rest.
@@ -325,7 +334,7 @@ if _spec_path and _sys.version_info >= (3, 12):
             runs = [_run(base, blob, generator), _run(base, blob, generator),
                     _run(head, blob, generator, True), _run(head, blob, generator, True)]
             if untouched is not None and any(run["args_after"] != untouched for run in runs):
-                _skipped[target["id"]] = "changes arguments that cannot be copied; not compared on them"
+                _emit("skipped", target=target["id"], reason="changes arguments that cannot be copied; not compared on them")
                 return
             stable = runs[0] == runs[1] and runs[2] == runs[3]
             differs = [field for field in ("result", "args_after", "stdout", "calls") if runs[0][field] != runs[2][field]]
@@ -333,7 +342,7 @@ if _spec_path and _sys.version_info >= (3, 12):
                 shown = repr(_thaw(blob))
             except Exception:
                 shown = "<input>"
-            _results.append(dict(target=target["id"], copied=blob[0] != "live", test=_os.environ.get("AMU_TEST_CONTEXT") or _os.environ.get("PYTEST_CURRENT_TEST", ""),
+            _emit("result", **dict(target=target["id"], copied=blob[0] != "live", test=_os.environ.get("AMU_TEST_CONTEXT") or _os.environ.get("PYTEST_CURRENT_TEST", ""),
                                  input=_ADDRESS.sub(" at 0x?", shown)[:400], stable=stable, differs=differs,
                                  before=runs[0], after=runs[2]))
 
@@ -347,18 +356,19 @@ if _spec_path and _sys.version_info >= (3, 12):
             if target is None:
                 return _m.DISABLE
             if code.co_flags & (0x80 | 0x100 | 0x200):
-                _skipped[target["id"]] = "coroutine or async generator"
+                _emit("skipped", target=target["id"], reason="coroutine or async generator")
                 return _m.DISABLE
             seen = _count.get(target["id"], 0)
             if seen >= _limit:
                 return _m.DISABLE
             _count[target["id"]] = seen + 1
+            _emit("captured", target=target["id"])
             _local.busy, _local.calls = True, None
             _m.set_events(_tool, _m.events.PY_START | _m.events.CALL)
             try:
                 _compare(target, code, _sys._getframe(1))
             except BaseException as exc:
-                _skipped[target["id"]] = "could not be compared: " + type(exc).__name__ + ": " + str(exc)[:160]
+                _emit("skipped", target=target["id"], reason="could not be compared: " + type(exc).__name__ + ": " + str(exc)[:160])
             finally:
                 _m.set_events(_tool, _m.events.PY_START)
                 _local.busy = False
@@ -368,13 +378,6 @@ if _spec_path and _sys.version_info >= (3, 12):
         _m.register_callback(_tool, _m.events.CALL, _external)
         _m.set_events(_tool, _m.events.PY_START)
 
-        def _save():
-            try:
-                with open(_os.path.join(_out, "%d.json" % _os.getpid()), "w") as handle:
-                    json.dump(dict(results=_results, skipped=_skipped, captured=_count), handle)
-            except Exception:
-                pass
-        atexit.register(_save)
         try:
             import unittest
             _run_test = unittest.TestCase.run
@@ -515,15 +518,23 @@ def run(runner, python, before_tree, ids, spec_targets, skipped, scratch, timeou
     elif problem:
         gaps.append('side-by-side run stopped at its time limit; calls captured until then are compared')
     results, captured = [], {}
-    for part in sorted((folder/'out').glob('*.json')):
+    for part in sorted((folder/'out').glob('*.jsonl')):
         try:
-            data = json.loads(part.read_text())
-        except (OSError, ValueError):
+            lines = part.read_text().splitlines()
+        except OSError:
             continue
-        results += data.get('results', [])
-        skipped.update(data.get('skipped', {}))
-        for name, count in data.get('captured', {}).items():
-            captured[name] = captured.get(name, 0) + count
+        for line in lines:
+            try:
+                event = json.loads(line)
+            except ValueError:
+                continue  # a line cut short by the time limit
+            kind = event.pop('kind', None)
+            if kind == 'result':
+                results.append(event)
+            elif kind == 'skipped':
+                skipped[event['target']] = event['reason']
+            elif kind == 'captured':
+                captured[event['target']] = captured.get(event['target'], 0) + 1
     # An object built by the code before the change lacks state a changed method now gives it. When one changed method
     # of a class changes the object's state, an AttributeError from another changed method of that class says the input
     # was built by the old code, not that the method behaves differently: set aside, and counted.
