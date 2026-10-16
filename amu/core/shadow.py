@@ -17,7 +17,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from . import runners
+from . import replay, runners
 from .git import _git
 from .patch import applied, candidate, original
 
@@ -63,8 +63,11 @@ def execute(runner, python, tree, ids, scratch, name, timeout, parts):
     return found, problems
 
 
-def run(root, edits, ids, python=None, budget=60, runner=None, memo=None):
+def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()):
     """Outcomes of ``ids`` before and after the change. Returns (rows, info, gaps).
+
+    ``own`` are the tests the change adds or edits (replay.touched); they are also run on the code before the change
+    with the tests as the change leaves them, and their verdicts go to ``info['replayed']``.
 
     ``memo`` is a file kept between runs on the same tree: outcomes already seen on the code before the change
     (valid while that code is the same) and the measured test rate, which caps how many candidates are tried."""
@@ -154,7 +157,7 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None):
         removed = [i for i in ids if i in states['after'] and _removed(i, edits, before_src, trees['after'])]
         for ident in removed:
             states['after'][ident] = 'removed'
-        unstable, edited_flips, originals = [], [], {}
+        unstable, edited_flips, originals, replayed = [], [], {}, []
         if not aborted:
             # A flip is believed only if it repeats: every flipped test runs once more on the changed code. One that does
             # not repeat alone runs again in the batch it first failed in, since a failure can depend on the tests before
@@ -226,6 +229,10 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None):
                     if problem:
                         gaps.append(f'shadow run (before the change, original tests, {runner.name}): {problem}')
                 edited_flips = [i for i in failing if known.get(i) == 'passed']
+        if own and not aborted:
+            replayed, more = _replay(runner, python, trees['after'], other, edits, before_src, after_src, live_is_after,
+                                     own, states['after'], scratch, left)
+            gaps += more
     ran_after = sum(state in OUTCOMES for state in states['after'].values())
     if key and memo:
         if ran_after >= CHUNK and after_seconds > 0:
@@ -257,6 +264,8 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None):
         info['aborted'] = aborted
     if unstable:
         info['unstable'] = unstable
+    if replayed:
+        info['replayed'] = replayed
     if originals:
         info['original_tests'] = {i: state for i, state in originals.items() if state != 'unrunnable'}
         info['ran_original'] = len(info['original_tests'])
@@ -264,6 +273,48 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None):
 
 
 EDITED = 'test edited, not fixed'
+
+
+def _replay(runner, python, after_tree, other, edits, before_src, after_src, live_is_after, own, after_states, scratch, left):
+    """The change's own tests on the code before it, with the tests as the change leaves them (replay module).
+    Returns ([{id, head, base, verdict}], gaps). The copy ``other`` is put back as it was."""
+    gaps = []
+    own = list(dict.fromkeys(own))
+    missing = [i for i in own if after_states.get(i) not in OUTCOMES]
+    if missing:
+        found, problem = runners.execute(runner, python, after_tree, missing, Path(scratch)/'own-head.xml', max(left, CONFIRM))
+        after_states.update({i: s for i, s in found.items() if i in missing})
+        if problem:
+            gaps.append(f"replaying the change's own tests (after the change, {runner.name}): {problem}")
+    runnable = [i for i in own if after_states.get(i) in OUTCOMES]
+    if not runnable:
+        return [], gaps
+    for path in edits:
+        _write(other/path, after_src[path] if replay.is_test_file(path) else before_src[path])
+    try:
+        base, problem = runners.execute(runner, python, other, runnable, Path(scratch)/'own-base.xml', max(left, CONFIRM))
+        # A failure on the code before the change is the evidence; it must repeat in a fresh process to count.
+        failing = [i for i in runnable if base.get(i) in ('failed', 'unrunnable') and after_states[i] == 'passed']
+        again = runners.execute(runner, python, other, failing, Path(scratch)/'own-base-again.xml', max(left, CONFIRM))[0] if failing else {}
+    finally:
+        for path in edits:
+            _write(other/path, before_src[path] if live_is_after else after_src[path])
+    if problem and not any(base.get(i) in OUTCOMES for i in runnable):
+        gaps.append(f"replaying the change's own tests (before the change, {runner.name}): {problem}")
+    rows = []
+    for ident in runnable:
+        head, was = after_states[ident], base.get(ident)
+        if was == 'unrunnable' and head == 'passed':
+            # Runs after the change and does not even load before it (an import of what the change adds).
+            was = 'unloadable'
+        if ident in again and again[ident] == 'passed':
+            rows.append(dict(id=ident, head=head, base=was, verdict='unstable', why='failed on the code before the change once, passed on a rerun'))
+            continue
+        verdict = replay.classify(head, was)
+        if verdict is None:
+            continue
+        rows.append(dict(id=ident, head=head, base=was, verdict=verdict))
+    return rows, gaps
 OUTCOMES = ('passed', 'failed', 'skipped')
 
 

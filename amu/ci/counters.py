@@ -4,6 +4,7 @@ With ``counters: 'true'`` the posting job keeps, in a hidden block of its own co
 is sent anywhere else. Each record has:
 - the head and merge-base SHAs;
 - the flip count, tests run and candidates, and the number of gaps;
+- tests the pull request adds or edits that were replayed on the merge base, and how many of them are change evidence;
 - whether the runner aborted or AMU errored, and seconds;
 - from the fresh-job rerun, flips checked, held and false.
 
@@ -22,7 +23,7 @@ import sys
 
 BLOCK = re.compile(r'<!-- amu-ci-counters (\{.*?\}) -->', re.S)
 SHA = re.compile(r'^[0-9a-f]{7,40}$')
-COUNTS = ('flips', 'ran', 'candidates', 'gaps', 'checked', 'held', 'false')
+COUNTS = ('flips', 'ran', 'candidates', 'gaps', 'checked', 'held', 'false', 'evidence', 'replayed')
 FLAGS = ('aborted', 'error')
 KEEP = 100  # pushes kept per pull request
 
@@ -34,7 +35,9 @@ def record(report, meta, verify=None):
     return clean(dict(head=meta.get('head'), merge_base=meta.get('merge_base'), flips=report.get('flips'),
                       ran=executed.get('ran'), candidates=executed.get('candidates'), gaps=len(report.get('gaps') or []),
                       aborted=bool(report.get('failure')), error=bool(report.get('error')), seconds=meta.get('seconds'),
-                      checked=verify.get('checked'), held=verify.get('held'), false=verify.get('false')))
+                      checked=verify.get('checked'), held=verify.get('held'), false=verify.get('false'),
+                      evidence=len(report.get('change_evidence') or []) if 'replayed' in report else None,
+                      replayed=len(report.get('replayed') or []) if 'replayed' in report else None))
 
 
 def clean(raw):

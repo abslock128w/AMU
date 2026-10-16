@@ -63,6 +63,9 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None):
         first = f'**AMU: no flip count** at {short(head)}: no candidate test ran'
     else:
         first = f"**AMU: {plural(flips, 'flip')}** at {short(head)}, among {plural(ran, 'test')} run"
+    evidence = [row for row in report.get('change_evidence') or [] if isinstance(row, dict) and row.get('id')]
+    if evidence and not report.get('error'):
+        first += f"; {plural(len(evidence), 'test')} of the pull request's own fail on the merge base and pass on the head"
     out = [first, '']
     if failures and not report.get('error'):
         out += [f'### Flips ({len(failures)})', '',
@@ -77,6 +80,21 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None):
             out += [f"Rerun on the merge base in a fresh job: {verify.get('held', 0)} passed again, "
                     f"{verify.get('false', 0)} failed there too, so not the change, "
                     f"{verify.get('other', 0)} could not be rerun.", '']
+    replayed = [row for row in report.get('replayed') or [] if isinstance(row, dict)]
+    if replayed and not report.get('error'):
+        out += [f"### Change evidence: the pull request's own tests ({len(evidence)})", '',
+                f"The {plural(len(replayed), 'test')} this pull request adds or edits ran on the head and on the merge base "
+                f"{short(base)} with the tests as the pull request leaves them.", '']
+        if evidence:
+            out += ['Fail on the merge base and pass on the head, so the change does what they check. Each failure on the '
+                    'merge base repeated in a fresh process.', '']
+
+            def shown(row):
+                return code(row['id']) + (' (does not load on the merge base)' if row.get('before') == 'unloadable' else '')
+            out += rows(evidence, shown, listed) + ['']
+        quiet = sum(row.get('verdict') == 'none' for row in replayed)
+        if quiet:
+            out += [f"{plural(quiet, 'test')} pass on the merge base too, so they show nothing about the change.", '']
     unstable = report.get('unstable') or []
     if unstable:
         out += [f'Flipped once and not on a rerun, so not counted: {len(unstable)}.', '']

@@ -7,7 +7,7 @@ import math
 import re
 from pathlib import Path
 
-from . import consequences, coverage, lexical, rank, runners, shadow, vanished
+from . import consequences, coverage, lexical, rank, replay, runners, shadow, vanished
 from .git import working_diff
 from .index import cache_dir, parse_or_none
 from .index import state as load_state
@@ -335,8 +335,11 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         elif also:
             # Tests a caller wants run in any case (earlier failures), ahead of the ranked candidates.
             wide = list(dict.fromkeys([*also, *wide]))
+        # Every test the change adds or edits runs, first, and is replayed on the code before the change.
+        own = [] if only else replay.touched(root, edits, chosen.name)
+        wide = list(dict.fromkeys([*own, *wide]))
         memo = cache_dir(root, index_dir)/'shadow-memo.json'
-        flips, executed, run_gaps = shadow.run(root, edits, wide, python, budget, runner, memo=memo)
+        flips, executed, run_gaps = shadow.run(root, edits, wide, python, budget, runner, memo=memo, own=own)
         gaps.extend(run_gaps)
         # A failing test defined on a base class is run again in every subclass that inherits it.
         by_id = {tests[ident]['path'] + '::' + tests[ident]['qual'].replace('.', '::'): ident for ident, _ in order[:cap]}
@@ -360,6 +363,17 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
                 row['expect'] = 'unchanged'
         rows.sort(key=lambda row: row['expect'] != 'fails')
         executed['predicted_failures'] = [flip for flip in flips if flip['after'] == 'failed']
+        replayed = executed.get('replayed') or []
+        executed['change_evidence'] = [dict(id=row['id'], before=row['base'], after=row['head'], label=replay.EVIDENCE)
+                                       for row in replayed if row['verdict'] == 'evidence']
+        both = [row['id'] for row in replayed if row['verdict'] == 'fails_both']
+        if both:
+            gaps.append(f"{len(both)} test(s) the change adds or edits fail before and after it: " + ', '.join(both[:3])
+                        + (f' and {len(both) - 3} more' if len(both) > 3 else ''))
+        head_only = [row['id'] for row in replayed if row['verdict'] == 'fails_head']
+        if head_only:
+            gaps.append(f"{len(head_only)} test(s) the change adds or edits pass on the code before it and fail after it: "
+                        + ', '.join(head_only[:3]) + (f' and {len(head_only) - 3} more' if len(head_only) > 3 else ''))
         shown = {row['id'] for row in rows}
         for flip in executed['predicted_failures']:
             if flip['id'] not in shown:
@@ -385,6 +399,9 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
                         f"it still fails on the changed code: {shadow.EDITED}.")
         if executed.get('unstable'):
             summary += f" {len(executed['unstable'])} flipped once and not on a rerun: unstable, not counted."
+        if executed.get('replayed'):
+            summary += (f" {len(executed['replayed'])} test(s) the change adds or edits replayed on the code before it: "
+                        f"{len(executed['change_evidence'])} fail there and pass after ({replay.EVIDENCE}).")
     elif executed is not None and executed.get('aborted'):
         # The runner starts on the code before the change and not after it: the change broke it.
         aborted = executed['aborted']
@@ -411,6 +428,9 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
                       gaps=report['gaps'], **{k: v for k, v in report.items() if k not in ('predicted_failures', 'gaps')})
         if executed.get('unstable'):
             report['unstable'] = executed['unstable']
+        if executed.get('replayed'):
+            report['change_evidence'] = executed['change_evidence']
+            report['replayed'] = executed['replayed']
         if executed.get('original_tests'):
             # Which tests of an edited test file were also run as they were before the edit, and how they did.
             report['original_tests'] = executed['original_tests']
@@ -422,7 +442,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         if executed is not None:
             # How much actually ran, for readers that must not claim more (the pull request comment).
             report['executed'] = dict({k: executed.get(k) for k in ('ran', 'candidates', 'unrunnable', 'seconds', 'runner')},
-                                      budget=budget)
+                                      budget=budget, replayed=len(executed.get('replayed') or []))
         report['changed_functions'] = functions
         return report
     return compact(report, include_tests)
