@@ -34,7 +34,7 @@ import os as _os, sys as _sys
 _spec_path = _os.environ.get("AMU_SBS_SPEC")
 if _spec_path and _sys.version_info >= (3, 12):
     try:
-        import atexit, contextlib, io, json, pickle, re, textwrap, threading, types
+        import atexit, contextlib, copy, io, json, pickle, re, textwrap, threading, types
         with open(_spec_path) as _h:
             _spec = json.load(_h)
         _out = _os.environ["AMU_SBS_OUT"]
@@ -85,10 +85,27 @@ if _spec_path and _sys.version_info >= (3, 12):
                 text = "<repr failed: " + type(exc).__name__ + ">"
             return kind.__qualname__ + ":" + _ADDRESS.sub(" at 0x?", text)[:2000]
 
+        _namespaces = {}
+
+        def _namespace(target, globs):
+            """The module's globals as the change leaves them: a copy of the running module's, with the top-level
+            statements the change adds (a new helper, a new import, a new constant) run in it."""
+            found = _namespaces.get(target["file"])
+            if found is None:
+                found = _namespaces[target["file"]] = dict(globs)
+                for statement in target.get("additions") or []:
+                    try:
+                        exec(compile(statement, target["file"], "exec"), found)
+                    except Exception:
+                        pass
+            return found
+
         def _build(target, which, globs):
             source = target.get(which)
             if source is None:
                 return None
+            if which == "after":
+                globs = _namespace(target, globs)
             template = ("def __amu_outer__():\n    __class__ = None\n" + textwrap.indent(source, "    ")
                         + "\n    return " + target["name"] + "\n")
             space = dict(globs)
@@ -188,8 +205,11 @@ if _spec_path and _sys.version_info >= (3, 12):
                     except Exception:
                         pass
 
+        def _thaw(blob):
+            return pickle.loads(blob[1]) if blob[0] == "pickle" else copy.deepcopy(blob[1])
+
         def _run(fn, blob, generator, changed=False):
-            pos, kw = pickle.loads(blob)
+            pos, kw = _thaw(blob)
             out = io.StringIO()
             _local.calls = []
             if changed:
@@ -225,13 +245,17 @@ if _spec_path and _sys.version_info >= (3, 12):
             if flags & 0x08:
                 kw.update(local[names[extra]])
             try:
-                blob = pickle.dumps((pos, kw), protocol=4)
-            except Exception as exc:
-                _skipped[target["id"]] = "arguments cannot be copied: " + type(exc).__name__
-                return
-            if len(blob) > _bytes:
-                _skipped[target["id"]] = "arguments over the size bound"
-                return
+                blob = ("pickle", pickle.dumps((pos, kw), protocol=4))
+                if len(blob[1]) > _bytes:
+                    _skipped[target["id"]] = "arguments over the size bound"
+                    return
+            except Exception:
+                # Lambdas, local classes and the like do not pickle; a deep copy shares functions and copies the rest.
+                try:
+                    blob = ("copy", copy.deepcopy((pos, kw)))
+                except Exception as exc:
+                    _skipped[target["id"]] = "arguments cannot be copied: " + type(exc).__name__
+                    return
             fns = _built.get(target["id"])
             if fns is None:
                 fns = _built[target["id"]] = (_build(target, "before", frame.f_globals), _build(target, "after", frame.f_globals))
@@ -242,7 +266,7 @@ if _spec_path and _sys.version_info >= (3, 12):
             stable = runs[0] == runs[1] and runs[2] == runs[3]
             differs = [field for field in ("result", "args_after", "stdout", "calls") if runs[0][field] != runs[2][field]]
             try:
-                shown = repr(pickle.loads(blob))
+                shown = repr(_thaw(blob))
             except Exception:
                 shown = "<input>"
             _results.append(dict(target=target["id"], test=_os.environ.get("AMU_TEST_CONTEXT") or _os.environ.get("PYTEST_CURRENT_TEST", ""),
@@ -360,8 +384,38 @@ def targets(functions, before_src, after_src):
         if any(isinstance(n, (ast.Yield, ast.YieldFrom)) for n in ast.walk(old)) != any(isinstance(n, (ast.Yield, ast.YieldFrom)) for n in ast.walk(new)):
             skipped[ident] = 'a generator on one side only'
             continue
-        found.append(dict(id=ident, file=path, qual=qual, name=qual.rsplit('.', 1)[-1], before=old_text, after=new_text))
+        found.append(dict(id=ident, file=path, qual=qual, name=qual.rsplit('.', 1)[-1], before=old_text, after=new_text,
+                          additions=additions(before, after)))
     return found, skipped
+
+
+def _defined(statement):
+    names = set()
+    if isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+        names.add(statement.name)
+    elif isinstance(statement, (ast.Import, ast.ImportFrom)):
+        names.update((a.asname or a.name.split('.')[0]) for a in statement.names)
+    elif isinstance(statement, (ast.Assign, ast.AnnAssign, ast.AugAssign)):
+        for target in (statement.targets if isinstance(statement, ast.Assign) else [statement.target]):
+            names.update(n.id for n in ast.walk(target) if isinstance(n, ast.Name))
+    return names
+
+
+def additions(before, after):
+    """Source of the top-level statements in ``after`` that define a name ``before`` does not, in file order."""
+    try:
+        old, new = ast.parse(before), ast.parse(after)
+    except (SyntaxError, ValueError):
+        return []
+    known = set().union(*(_defined(s) for s in old.body)) if old.body else set()
+    lines = after.splitlines()
+    found = []
+    for statement in new.body:
+        names = _defined(statement)
+        if names and not names <= known:
+            start = min([statement.lineno, *(d.lineno for d in getattr(statement, 'decorator_list', []))])
+            found.append(textwrap.dedent('\n'.join(lines[start - 1:statement.end_lineno])) + '\n')
+    return found
 
 
 def support(scratch, tree, spec_targets):

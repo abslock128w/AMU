@@ -72,3 +72,15 @@ def test_changed_functions_that_call_each_other_run_as_changed_together(tmp_path
     assert found['lib.py#Detector.detect']['after']['result'] == ['return', '2'], found
     assert found['lib.py#Detector.detect']['before']['result'] == ['return', '1']
     assert found['lib.py#Detector.prepare']['differs'] == ['args_after']
+
+
+def test_a_new_helper_and_uncopyable_arguments_are_handled(tmp_path):
+    # Found on Django 27137e65: the changed function calls a helper the change adds to its module (NameError before),
+    # and many arguments do not pickle (a lambda here); a deep copy carries them.
+    lib0 = 'def check(lang, finder):\n    return finder(lang)\n'
+    lib1 = ('def exists(lang):\n    return lang.startswith("e")\n\n\n'
+            'def check(lang, finder):\n    return finder(lang) and exists(lang)\n')
+    tests = 'from lib import check\n\n\ndef test_check():\n    assert check("fr", lambda lang: True)\n'
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1, 'tests/test_lib.py': tests})
+    [row] = report['behaviour_differences']
+    assert row['before']['result'] == ['return', 'True'] and row['after']['result'] == ['return', 'False'], row
