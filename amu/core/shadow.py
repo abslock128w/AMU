@@ -17,9 +17,9 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from . import runners
+from . import basecache, replay, runners, trust
 from .git import _git
-from .patch import applied, candidate, original
+from .patch import applied, candidate, original, renumber
 
 CHUNK = 40
 CONFIRM = 20  # seconds always allowed for confirming a failure on the unchanged code
@@ -41,11 +41,23 @@ def parent_key(root):
 
 
 def load_memo(memo, key):
+    """The memo for the code before the change ``key``. Outcomes before the change hold only for the same key; the
+    measured rate, per-test durations and when each test last flipped carry over to any key."""
     try:
         data = json.loads(Path(memo).read_text())
     except (OSError, ValueError, TypeError):
-        return dict(key=key, before={}, rate=None)
-    return data if data.get('key') == key else dict(key=key, before={}, rate=data.get('rate'))
+        return dict(key=key, before={}, rate=None, durations={}, flips={})
+    kept = dict(rate=data.get('rate'), durations=data.get('durations') or {}, flips=data.get('flips') or {})
+    return dict(data, **kept) if data.get('key') == key else dict(key=key, before={}, **kept)
+
+
+def history(memo):
+    """({id: when it last flipped}, {id: seconds}) from earlier runs in this tree; empty when there were none."""
+    try:
+        data = json.loads(Path(memo).read_text())
+    except (OSError, ValueError, TypeError):
+        return {}, {}
+    return data.get('flips') or {}, data.get('durations') or {}
 
 
 def execute(runner, python, tree, ids, scratch, name, timeout, parts):
@@ -63,8 +75,14 @@ def execute(runner, python, tree, ids, scratch, name, timeout, parts):
     return found, problems
 
 
-def run(root, edits, ids, python=None, budget=60, runner=None, memo=None):
+def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=(), base_cache=None):
     """Outcomes of ``ids`` before and after the change. Returns (rows, info, gaps).
+
+    ``own`` are the tests the change adds or edits (replay.touched); they are also run on the code before the change
+    with the tests as the change leaves them, and their verdicts go to ``info['replayed']``.
+
+    ``base_cache`` (basecache.BaseCache) answers passing outcomes on the code before the change from earlier runs;
+    only what it cannot answer runs there.
 
     ``memo`` is a file kept between runs on the same tree: outcomes already seen on the code before the change
     (valid while that code is the same) and the measured test rate, which caps how many candidates are tried."""
@@ -73,8 +91,10 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None):
     if not ids:
         return [], dict(ran=0, seconds=0.0, runner=runner.name), gaps
     parts = PARTS if runner.parallel else 1
+    seeded, order = trust.ordering(runner, python)
+    runner.extra = (*runners.plugin_args(runner, python), *seeded)
     key = parent_key(root) if memo else None
-    remembered = load_memo(memo, key) if key else dict(before={}, rate=None)
+    remembered = load_memo(memo, key) if key else dict(before={}, rate=None, durations={}, flips={})
     rate = remembered.get('rate') or RATE
     cap = max(CHUNK, int(rate * parts * budget * 0.8))
     if len(ids) > cap:
@@ -140,7 +160,7 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None):
             unknown = [ident for ident in failing if ident not in remembered['before']]
             if unknown:
                 began = time.perf_counter()
-                confirmed, problem = runners.execute(runner, python, trees['before'], unknown, Path(scratch)/'before.xml', max(left, CONFIRM))
+                confirmed, problem = _base(base_cache, runner, python, trees['before'], unknown, Path(scratch)/'before.xml', max(left, CONFIRM))
                 left -= time.perf_counter() - began
                 states['before'].update(confirmed)
                 remembered['before'].update({ident: state for ident, state in confirmed.items() if state != 'unrunnable'})
@@ -154,32 +174,31 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None):
         removed = [i for i in ids if i in states['after'] and _removed(i, edits, before_src, trees['after'])]
         for ident in removed:
             states['after'][ident] = 'removed'
-        unstable, edited_flips, originals = [], [], {}
+        unstable, edited_flips, originals, replayed, verdicts, edited_verdicts, trust_seconds = [], [], {}, [], {}, {}, 0.0
         if not aborted:
-            # A flip is believed only if it repeats: every flipped test runs once more on the changed code. One that does
-            # not repeat alone runs again in the batch it first failed in, since a failure can depend on the tests before
-            # it; it is unstable only if it does not repeat there either. A "before" outcome taken from the memo is
-            # confirmed afresh, so a test that is flaky on the unchanged code is not a flip.
-            flipped = [i for i in ids if _flip(states['before'].get(i), states['after'].get(i))]
+            # A flip is believed only after the trust checks (trust module): the reach check and three reruns on the
+            # changed code. A "before" outcome taken from the memo is confirmed afresh, so a test that is flaky on the
+            # unchanged code is not a flip. Nothing is dropped: every flip leaves with a label.
+            flipped = [i for i in ids if _flip(states['before'].get(i), states['after'].get(i)) and states['after'][i] == 'failed']
             if flipped:
+                ran = [i for i in ids if states['after'].get(i) in OUTCOMES]
+                changed = trust.changed_lines(trees['after'], edits, _after_lines)
                 began = time.perf_counter()
-                again, problems = execute(runner, python, trees['after'], flipped, scratch, 'recheck', max(left, CONFIRM), parts)
-                left -= time.perf_counter() - began
-                differs = [i for i in flipped if again.get(i) in OUTCOMES and again[i] != states['after'][i]]
-                unchecked = [i for i in flipped if again.get(i) not in OUTCOMES]
-                for part in {tuple(context[i]) for i in differs if i in context}:
-                    began = time.perf_counter()
-                    inside, _ = runners.execute(runner, python, trees['after'], list(part), Path(scratch)/'recheck-context.xml', max(left, CONFIRM))
-                    left -= time.perf_counter() - began
-                    unstable += [i for i in differs if i in part and inside.get(i) != states['after'][i]]
-                remembered_flips = [i for i in flipped if i in from_memo and i not in unstable]
+                verdicts, more = trust.triad(runner, python, trees['after'], flipped, ran, scratch, max(left, CONFIRM), changed,
+                                             before_tree=trees['before'])
+                # Verifying a flip is not charged to the budget for finding flips: otherwise the reruns could leave no time
+                # for the edited-test check below, and flips it would find would go unreported.
+                trust_seconds += time.perf_counter() - began
+                gaps += more
+                remembered_flips = [i for i in flipped if i in from_memo and verdicts[i]['label'] != trust.UNSTABLE]
                 if remembered_flips:
                     began = time.perf_counter()
-                    fresh, _ = runners.execute(runner, python, trees['before'], remembered_flips, Path(scratch)/'before-fresh.xml', max(left, CONFIRM))
+                    fresh, _ = _base(base_cache, runner, python, trees['before'], remembered_flips, Path(scratch)/'before-fresh.xml', max(left, CONFIRM))
                     left -= time.perf_counter() - began
-                    unstable += [i for i in remembered_flips if fresh.get(i) in OUTCOMES and fresh[i] != states['before'][i]]
-                if unchecked:
-                    gaps.append(f'{len(unchecked)} flip(s) could not be rerun ({"; ".join(problems) or "no outcome"}); reported without a recheck')
+                    for i in remembered_flips:
+                        if fresh.get(i) in OUTCOMES and fresh[i] != states['before'][i]:
+                            verdicts[i].update(label=trust.UNSTABLE, why='passed and failed on the code before the change')
+                unstable += [i for i in flipped if verdicts[i]['label'] == trust.UNSTABLE]
             # A test file the change edited: its tests as they were are also run against the changed code. A test that
             # passed before and fails in its original form on the changed code, but passes, is skipped or is gone as
             # edited, was dealt with by changing the test, not the code: "test edited, not fixed". Only tests the file
@@ -187,9 +206,9 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None):
             edited = {path for path in edits if before_src.get(path) and any(_path(i) == path for i in ids)}
             checked = [i for i in ids if _path(i) in edited and states['after'].get(i) in ('passed', 'skipped', 'unrunnable', 'removed')
                        and _existed(i, before_src, trees['after'])]
-            if checked and left <= 1:
-                gaps.append(f'{len(checked)} test(s) from edited test files not run as they were before the edit: the budget was used up')
-            elif checked:
+            # These are tests the change touches, and every test the change touches runs (select): the check gets at least
+            # the confirmation allowance even when the candidates used up the budget.
+            if checked:
                 # The copy holds one side of every changed file; overwrite it into "changed code, tests as they were".
                 for path in edits:
                     _write(other/path, before_src[path] if path in edited else after_src[path])
@@ -200,15 +219,13 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None):
                     left -= time.perf_counter() - began
                     failing = [i for i in checked if originals.get(i) == 'failed']
                     if failing:
+                        # The same trust checks as any flip, on the changed code with the tests as they were. Reach
+                        # counts production lines only: the edited test files are in their earlier form here.
+                        changed = trust.changed_lines(other, {p: e for p, e in edits.items() if p not in edited}, _after_lines)
                         began = time.perf_counter()
-                        again, recheck_problems = execute(runner, python, other, failing, scratch, 'original-recheck', max(left, CONFIRM), parts)
-                        left -= time.perf_counter() - began
-                        unstable += [i for i in failing if again.get(i) in ('passed', 'skipped')]
-                        failing = [i for i in failing if again.get(i) not in ('passed', 'skipped')]
-                        unchecked = [i for i in failing if again.get(i) not in OUTCOMES]
-                        if unchecked:
-                            gaps.append(f'{len(unchecked)} test(s) failing as they were before the edit could not be rerun '
-                                        f'({"; ".join(recheck_problems) or "no outcome"}); reported without a recheck')
+                        edited_verdicts, more = trust.triad(runner, python, other, failing, checked, scratch, max(left, CONFIRM), changed)
+                        trust_seconds += time.perf_counter() - began
+                        gaps += more
                     for problem in problems:
                         gaps.append(f'shadow run (original tests on the changed code, {runner.name}): {problem}')
                 finally:
@@ -219,14 +236,22 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None):
                 unknown = list(failing)
                 if unknown:
                     began = time.perf_counter()
-                    confirmed, problem = runners.execute(runner, python, trees['before'], unknown, Path(scratch)/'before-original.xml', max(left, CONFIRM))
+                    confirmed, problem = _base(base_cache, runner, python, trees['before'], unknown, Path(scratch)/'before-original.xml', max(left, CONFIRM))
                     left -= time.perf_counter() - began
                     known.update(confirmed)
                     remembered['before'].update({i: state for i, state in confirmed.items() if state != 'unrunnable'})
                     if problem:
                         gaps.append(f'shadow run (before the change, original tests, {runner.name}): {problem}')
                 edited_flips = [i for i in failing if known.get(i) == 'passed']
+                unstable += [i for i in edited_flips if edited_verdicts.get(i, {}).get('label') == trust.UNSTABLE]
+        if own and not aborted:
+            replayed, more = _replay(runner, python, trees['after'], other, edits, before_src, after_src, live_is_after,
+                                     own, states['after'], scratch, left, base_cache)
+            gaps += more
     ran_after = sum(state in OUTCOMES for state in states['after'].values())
+    remembered.setdefault('durations', {}).update(runner.durations or {})
+    now = round(time.time())
+    remembered.setdefault('flips', {}).update({i: now for i, v in verdicts.items() if trust.counted(v['label'])})
     if key and memo:
         if ran_after >= CHUNK and after_seconds > 0:
             remembered['rate'] = round(ran_after / after_seconds / max(1, parts if runner.parallel else 1), 1)
@@ -238,15 +263,23 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None):
     rows, unstable = [], sorted(set(unstable))
     for ident in ids:
         before, after = states['before'].get(ident), states['after'].get(ident)
-        if ident in unstable:
-            continue
-        if before in OUTCOMES and after in OUTCOMES and before != after:
-            rows.append(dict(id=ident, before=before, after=after, label='executed'))
+        if ident in verdicts:
+            rows.append(dict(id=ident, before=before, after=after, label='executed', trust=verdicts[ident]['label'],
+                             why=verdicts[ident]['why'], reruns=verdicts[ident]['reruns'], reach=verdicts[ident]['reach']))
         elif ident in edited_flips:
-            rows.append(dict(id=ident, before='passed', after='failed', label=EDITED, edited_form=after))
+            verdict = edited_verdicts.get(ident) or dict(label=trust.CONFIRMED, why='', reruns=None, reach=None)
+            rows.append(dict(id=ident, before='passed', after='failed', label=EDITED, edited_form=after, trust=verdict['label'],
+                             why=('as the test was before the edit: ' + verdict['why']).rstrip(': '), reruns=verdict['reruns'],
+                             reach=verdict['reach']))
+        elif ident in unstable:
+            continue
+        elif before in OUTCOMES and after in OUTCOMES and before != after:
+            rows.append(dict(id=ident, before=before, after=after, label='executed'))
     if unstable:
-        gaps.append(f'{len(unstable)} test(s) flipped once and not on a rerun; reported as unstable, not as failures: ' + ', '.join(unstable[:3])
+        gaps.append(f'{len(unstable)} test(s) flipped and did not fail again in every rerun; reported as unstable, not as failures: ' + ', '.join(unstable[:3])
                     + (f' and {len(unstable) - 3} more' if len(unstable) > 3 else ''))
+    labels = {**{i: v['label'] for i, v in verdicts.items()}, **{i: edited_verdicts[i]['label'] for i in edited_flips if i in edited_verdicts}}
+    unreached = [i for i in ids if labels.get(i) == trust.NOT_CAUSED]
     if removed:
         gaps.append(f'{len(removed)} candidate(s) no longer defined after the change (renamed or deleted in an edited test file)')
     unrunnable = sorted(ident for ident, state in states['after'].items() if state == 'unrunnable')
@@ -257,6 +290,15 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None):
         info['aborted'] = aborted
     if unstable:
         info['unstable'] = unstable
+    if unreached:
+        info['not_caused'] = unreached
+    info['order'] = order
+    if not aborted and trust_seconds:
+        info['trust_seconds'] = round(trust_seconds, 1)
+    if base_cache is not None:
+        info['base_cache'] = dict(answered=base_cache.hits, ran=base_cache.misses, stored=base_cache.stored)
+    if replayed:
+        info['replayed'] = replayed
     if originals:
         info['original_tests'] = {i: state for i, state in originals.items() if state != 'unrunnable'}
         info['ran_original'] = len(info['original_tests'])
@@ -264,6 +306,60 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None):
 
 
 EDITED = 'test edited, not fixed'
+
+
+def _base(cache, runner, python, tree, ids, report, timeout):
+    """runners.execute on the code before the change, through the cache of passing outcomes when there is one."""
+    return basecache.execute(cache, lambda t, i, *rest: runners.execute(runner, python, t, i, *rest), tree, ids, report, timeout)
+
+
+def _after_lines(path, edit):
+    """Changed lines of one file, numbered as on the changed side: added lines, and where removed lines' replacements
+    landed."""
+    place = renumber(edit)
+    return set(edit['new']) | {place(line) for line in edit['old']}
+
+
+def _replay(runner, python, after_tree, other, edits, before_src, after_src, live_is_after, own, after_states, scratch, left, base_cache=None):
+    """The change's own tests on the code before it, with the tests as the change leaves them (replay module).
+    Returns ([{id, head, base, verdict}], gaps). The copy ``other`` is put back as it was."""
+    gaps = []
+    own = list(dict.fromkeys(own))
+    missing = [i for i in own if after_states.get(i) not in OUTCOMES]
+    if missing:
+        found, problem = runners.execute(runner, python, after_tree, missing, Path(scratch)/'own-head.xml', max(left, CONFIRM))
+        after_states.update({i: s for i, s in found.items() if i in missing})
+        if problem:
+            gaps.append(f"replaying the change's own tests (after the change, {runner.name}): {problem}")
+    runnable = [i for i in own if after_states.get(i) in OUTCOMES]
+    if not runnable:
+        return [], gaps
+    for path in edits:
+        _write(other/path, after_src[path] if replay.is_test_file(path) else before_src[path])
+    try:
+        base, problem = _base(base_cache, runner, python, other, runnable, Path(scratch)/'own-base.xml', max(left, CONFIRM))
+        # A failure on the code before the change is the evidence; it must repeat in a fresh process to count.
+        failing = [i for i in runnable if base.get(i) in ('failed', 'unrunnable') and after_states[i] == 'passed']
+        again = runners.execute(runner, python, other, failing, Path(scratch)/'own-base-again.xml', max(left, CONFIRM))[0] if failing else {}
+    finally:
+        for path in edits:
+            _write(other/path, before_src[path] if live_is_after else after_src[path])
+    if problem and not any(base.get(i) in OUTCOMES for i in runnable):
+        gaps.append(f"replaying the change's own tests (before the change, {runner.name}): {problem}")
+    rows = []
+    for ident in runnable:
+        head, was = after_states[ident], base.get(ident)
+        if was == 'unrunnable' and head == 'passed':
+            # Runs after the change and does not even load before it (an import of what the change adds).
+            was = 'unloadable'
+        if ident in again and again[ident] == 'passed':
+            rows.append(dict(id=ident, head=head, base=was, verdict='unstable', why='failed on the code before the change once, passed on a rerun'))
+            continue
+        verdict = replay.classify(head, was)
+        if verdict is None:
+            continue
+        rows.append(dict(id=ident, head=head, base=was, verdict=verdict))
+    return rows, gaps
 OUTCOMES = ('passed', 'failed', 'skipped')
 
 

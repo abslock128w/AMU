@@ -7,7 +7,7 @@ import math
 import re
 from pathlib import Path
 
-from . import consequences, coverage, lexical, rank, runners, shadow, vanished
+from . import basecache, consequences, coverage, lexical, rank, replay, runners, select, shadow, trust, vanished
 from .git import working_diff
 from .index import cache_dir, parse_or_none
 from .index import state as load_state
@@ -16,7 +16,7 @@ from .patch import align, applied, candidate, changes, original, renumber
 LIMIT = 2000
 MAX_TESTS = 40
 MIXIN_COPIES = 6  # concrete subclasses run for a test method that lives on a mixin
-RUN_CANDIDATES = 150  # executing is cheap next to guessing; --run looks well past the ranked list
+RUN_CANDIDATES = 150  # inheriting copies of failing base-class tests run at most
 
 
 def encoded(value):
@@ -168,7 +168,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         if parsed_old:
             taken.update(parsed_old['records'])
     removed = vanished.gone(taken, after)
-    scores, best, impacted, untested, functions = {}, {}, {}, [], []
+    scores, best, impacted, untested, functions, observed_tests = {}, {}, {}, [], [], set()
     for symbol, fallback in symbols.items():
         record = graph.records[symbol]
         names = rank.symbol_tokens(record)
@@ -183,6 +183,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
             # The more tests merely mention the class, the less each mention says about this member.
             broad_weight = 0.5 / math.log2(2 + sum(ident in tests for ident in extra))
         seen = coverage.tests_for(observed, record, tests, where.get(symbol, ()), identify)
+        observed_tests.update(seen)
         if record['kind'] == 'function' and symbol in where:
             lines = sorted(where[symbol])
             span = f'{lines[0]}-{lines[-1]}' if len(lines) > 1 else str(lines[0])
@@ -290,8 +291,8 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         best.setdefault(ident, (0.5, (1, 2, True), [ident], [], True, None))
     # Likely failures lead; each group keeps its own relevance order.
     first = rank.diverse({t: v for t, v in scores.items() if t in likely}, MAX_TESTS)
-    order = first + rank.diverse({t: v for t, v in scores.items() if t not in likely},
-                                 RUN_CANDIDATES * (2 if observed else 1) if run else MAX_TESTS)
+    # The diverse pick orders what is shown; what runs is chosen by subtraction (select), with scores as a tiebreaker.
+    order = first + rank.diverse({t: v for t, v in scores.items() if t not in likely}, MAX_TESTS)
     rows = []
     for ident, gain in order[:MAX_TESTS]:
         _, position, path, shared, broad, exactness = best[ident]
@@ -327,31 +328,56 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     if run:
         # Exact beats ranked: run the candidates on both sides of the change and report what flips.
         # With a recording, the candidates are the tests seen executing the change; run more of them.
-        cap = RUN_CANDIDATES * (2 if observed else 1)
-        wide = list(dict.fromkeys(run_id for ident, _ in order[:cap] for run_id in run_ids(ident)))[:cap]
+        # Selection by subtraction (select module): the import closure of the changed files, hubs passed only on
+        # recorded evidence, plus what static reach found; ordered by recent flips and measured durations, the
+        # ranking only breaking ties. The time the budget allows caps it, not a count.
+        picked, selection = select.candidates(graph, facts, list(edits), tests, observed_tests, scores)
+        position = {ident: n for n, (ident, _) in enumerate(order)}
+        tail = sorted((i for i in picked if i not in position), key=lambda i: (-max(scores.get(i, {'': 0}).values() or [0]), i))
+        position.update({ident: len(position) + n for n, ident in enumerate(tail)})
+        memo = cache_dir(root, index_dir)/'shadow-memo.json'
+        flipped_at, durations = shadow.history(memo)
+        expanded = list(dict.fromkeys(run_id for ident in sorted(picked, key=position.get) for run_id in run_ids(ident)))
+        tiebreak = {run_id: n for n, run_id in enumerate(expanded)}
+        wide = select.order(expanded, flips=flipped_at, durations=durations, tiebreak=tiebreak)
         if only:
             # A caller that already knows which tests matter (a hook re-checking earlier failures) names them.
             wide = list(dict.fromkeys(only))
         elif also:
             # Tests a caller wants run in any case (earlier failures), ahead of the ranked candidates.
             wide = list(dict.fromkeys([*also, *wide]))
-        memo = cache_dir(root, index_dir)/'shadow-memo.json'
-        flips, executed, run_gaps = shadow.run(root, edits, wide, python, budget, runner, memo=memo)
+        # Every test the change adds or edits runs, first, and is replayed on the code before the change.
+        own = [] if only else replay.touched(root, edits, chosen.name)
+        wide = list(dict.fromkeys([*own, *wide]))
+        # Passing outcomes on the code before the change, by content: a second run against the same base runs nothing
+        # there that the first saw pass.
+        forward = {path: sorted({t for name in select.deps(fact) if (t := select.resolve(name, graph.modules)) and t != path})
+                   for path, fact in facts.items()}
+        cache = basecache.BaseCache(cache_dir(root, index_dir)/'base-passes', forward, root, python,
+                                    [chosen.name, *runners.plugin_args(runners.get(root, runner), python), trust.SEED])
+        flips, executed, run_gaps = shadow.run(root, edits, wide, python, budget, runner, memo=memo, own=own, base_cache=cache)
+        executed['selection'] = dict(selection, candidates=len(wide))
         gaps.extend(run_gaps)
         # A failing test defined on a base class is run again in every subclass that inherits it.
-        by_id = {tests[ident]['path'] + '::' + tests[ident]['qual'].replace('.', '::'): ident for ident, _ in order[:cap]}
+        by_id = {tests[ident]['path'] + '::' + tests[ident]['qual'].replace('.', '::'): ident for ident in picked}
         copies = sorted({copy for flip in flips if flip['after'] == 'failed' and flip['id'] in by_id
+                         and trust.counted(flip.get('trust', trust.CONFIRMED))
                          for copy in inheritors(by_id[flip['id']])} - set(wide))[:RUN_CANDIDATES]
         if copies:
-            more, again, more_gaps = shadow.run(root, edits, copies, python, budget, runner, memo=memo)
+            more, again, more_gaps = shadow.run(root, edits, copies, python, budget, runner, memo=memo, base_cache=cache)
             flips.extend(more)
             gaps.extend(more_gaps)
             executed.update(ran=executed['ran'] + again['ran'], seconds=round(executed['seconds'] + again['seconds'], 1),
                             candidates=executed.get('candidates', 0) + again.get('candidates', 0),
                             outcomes={**executed.get('outcomes', {}), **again.get('outcomes', {})},
                             unstable=sorted({*executed.get('unstable', []), *again.get('unstable', [])}),
+                            not_caused=sorted({*executed.get('not_caused', []), *again.get('not_caused', [])}),
+                            base_cache=again.get('base_cache', executed.get('base_cache')),
                             ran_original=executed.get('ran_original', 0) + again.get('ran_original', 0),
                             original_tests={**executed.get('original_tests', {}), **again.get('original_tests', {})})
+        # Only a flip that passed the trust checks is a failure; the others stay listed with their label.
+        labelled = [flip for flip in flips if flip.get('trust') and flip['after'] == 'failed']
+        flips = [flip for flip in flips if trust.counted(flip.get('trust', trust.CONFIRMED))]
         state = {flip['id']: flip for flip in flips}
         for row in rows:
             if row['id'] in state:
@@ -360,6 +386,19 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
                 row['expect'] = 'unchanged'
         rows.sort(key=lambda row: row['expect'] != 'fails')
         executed['predicted_failures'] = [flip for flip in flips if flip['after'] == 'failed']
+        executed['flip_trust'] = [dict(id=f['id'], label=f['trust'], why=f.get('why', ''), reruns=f.get('reruns'), reach=f.get('reach'))
+                                  for f in labelled]
+        replayed = executed.get('replayed') or []
+        executed['change_evidence'] = [dict(id=row['id'], before=row['base'], after=row['head'], label=replay.EVIDENCE)
+                                       for row in replayed if row['verdict'] == 'evidence']
+        both = [row['id'] for row in replayed if row['verdict'] == 'fails_both']
+        if both:
+            gaps.append(f"{len(both)} test(s) the change adds or edits fail before and after it: " + ', '.join(both[:3])
+                        + (f' and {len(both) - 3} more' if len(both) > 3 else ''))
+        head_only = [row['id'] for row in replayed if row['verdict'] == 'fails_head']
+        if head_only:
+            gaps.append(f"{len(head_only)} test(s) the change adds or edits pass on the code before it and fail after it: "
+                        + ', '.join(head_only[:3]) + (f' and {len(head_only) - 3} more' if len(head_only) > 3 else ''))
         shown = {row['id'] for row in rows}
         for flip in executed['predicted_failures']:
             if flip['id'] not in shown:
@@ -384,7 +423,12 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
             summary += (f" {edited} of the failures pass, are skipped or are gone only because the test was edited; as it was, "
                         f"it still fails on the changed code: {shadow.EDITED}.")
         if executed.get('unstable'):
-            summary += f" {len(executed['unstable'])} flipped once and not on a rerun: unstable, not counted."
+            summary += f" {len(executed['unstable'])} flipped and did not fail again in every rerun: unstable, not counted."
+        if executed.get('not_caused'):
+            summary += f" {len(executed['not_caused'])} flipped without running any changed line: {trust.NOT_CAUSED}, not counted."
+        if executed.get('replayed'):
+            summary += (f" {len(executed['replayed'])} test(s) the change adds or edits replayed on the code before it: "
+                        f"{len(executed['change_evidence'])} fail there and pass after ({replay.EVIDENCE}).")
     elif executed is not None and executed.get('aborted'):
         # The runner starts on the code before the change and not after it: the change broke it.
         aborted = executed['aborted']
@@ -411,6 +455,13 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
                       gaps=report['gaps'], **{k: v for k, v in report.items() if k not in ('predicted_failures', 'gaps')})
         if executed.get('unstable'):
             report['unstable'] = executed['unstable']
+        if executed.get('flip_trust'):
+            # Every flip with its label (fails, unstable, not caused by this change), why, and each rerun's outcome.
+            report['flip_trust'] = executed['flip_trust']
+            report['order'] = executed.get('order')
+        if executed.get('replayed'):
+            report['change_evidence'] = executed['change_evidence']
+            report['replayed'] = executed['replayed']
         if executed.get('original_tests'):
             # Which tests of an edited test file were also run as they were before the edit, and how they did.
             report['original_tests'] = executed['original_tests']
@@ -422,7 +473,8 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         if executed is not None:
             # How much actually ran, for readers that must not claim more (the pull request comment).
             report['executed'] = dict({k: executed.get(k) for k in ('ran', 'candidates', 'unrunnable', 'seconds', 'runner')},
-                                      budget=budget)
+                                      budget=budget, replayed=len(executed.get('replayed') or []), selection=executed.get('selection'),
+                                      base_cache=executed.get('base_cache'))
         report['changed_functions'] = functions
         return report
     return compact(report, include_tests)

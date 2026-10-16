@@ -1,0 +1,4956 @@
+[
+ {
+  "run": "w12",
+  "engine": "old",
+  "seconds": 96.6,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/core/tests/test_expr.py::test_as_base_exp",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed"
+   }
+  ],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 150 of 150 candidate tests after the change with pytest in 35.4 s, failures confirmed before it: 1 now fail. 9154 tests reach the change. 9 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed.",
+  "executed": {
+   "ran": 150,
+   "candidates": 150,
+   "unrunnable": 0,
+   "seconds": 35.4,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w01",
+  "engine": "old",
+  "seconds": 110.0,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed"
+   }
+  ],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 150 of 150 candidate tests after the change with pytest in 34.3 s, failures confirmed before it: 1 now fail. 3303 tests reach the change. 108 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed.",
+  "executed": {
+   "ran": 150,
+   "candidates": 150,
+   "unrunnable": 0,
+   "seconds": 34.3,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w02",
+  "engine": "old",
+  "seconds": 109.8,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed"
+   }
+  ],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 150 of 150 candidate tests after the change with pytest in 34.2 s, failures confirmed before it: 1 now fail. 3305 tests reach the change. 106 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed.",
+  "executed": {
+   "ran": 150,
+   "candidates": 150,
+   "unrunnable": 0,
+   "seconds": 34.2,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w03",
+  "engine": "old",
+  "seconds": 174.4,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/series/tests/test_series.py::test_issue_12791",
+    "before": "passed",
+    "after": "failed",
+    "label": "executed"
+   }
+  ],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 80 of 150 candidate tests after the change with pytest in 65.6 s, failures confirmed before it: 1 now fail. 3626 tests reach the change.",
+  "executed": {
+   "ran": 80,
+   "candidates": 150,
+   "unrunnable": 0,
+   "seconds": 65.6,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w04",
+  "engine": "old",
+  "seconds": 175.5,
+  "flips": 0,
+  "predicted_failures": [],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 120 of 150 candidate tests after the change with pytest in 65.0 s, failures confirmed before it: 0 now fail. 3622 tests reach the change.",
+  "executed": {
+   "ran": 120,
+   "candidates": 150,
+   "unrunnable": 0,
+   "seconds": 65.0,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w05",
+  "engine": "old",
+  "seconds": 157.9,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/polys/tests/test_ring_series.py::test_nth_root",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed"
+   }
+  ],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 150 of 150 candidate tests after the change with pytest in 56.1 s, failures confirmed before it: 1 now fail. 3642 tests reach the change. 37 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed.",
+  "executed": {
+   "ran": 150,
+   "candidates": 150,
+   "unrunnable": 0,
+   "seconds": 56.1,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w06",
+  "engine": "old",
+  "seconds": 178.6,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/core/tests/test_expr.py::test_as_base_exp",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed"
+   }
+  ],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 150 of 150 candidate tests after the change with pytest in 60.7 s, failures confirmed before it: 1 now fail. 9154 tests reach the change. 9 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed.",
+  "executed": {
+   "ran": 150,
+   "candidates": 150,
+   "unrunnable": 0,
+   "seconds": 60.7,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w07",
+  "engine": "old",
+  "seconds": 200.9,
+  "flips": 0,
+  "predicted_failures": [],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 40 of 150 candidate tests after the change with pytest in 71.6 s, failures confirmed before it: 0 now fail. 8134 tests reach the change.",
+  "executed": {
+   "ran": 40,
+   "candidates": 150,
+   "unrunnable": 0,
+   "seconds": 71.6,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w08",
+  "engine": "old",
+  "seconds": 227.3,
+  "flips": 3,
+  "predicted_failures": [
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed"
+   }
+  ],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 150 of 150 candidate tests after the change with pytest in 53.7 s, failures confirmed before it: 3 now fail. 5314 tests reach the change. 33 test(s) from edited test files also run as they were before the edit. 3 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed.",
+  "executed": {
+   "ran": 150,
+   "candidates": 150,
+   "unrunnable": 0,
+   "seconds": 53.7,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w09",
+  "engine": "old",
+  "seconds": 134.2,
+  "flips": 0,
+  "predicted_failures": [],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 150 of 150 candidate tests after the change with pytest in 63.2 s, failures confirmed before it: 0 now fail. 1457 tests reach the change.",
+  "executed": {
+   "ran": 150,
+   "candidates": 150,
+   "unrunnable": 0,
+   "seconds": 63.2,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w10",
+  "engine": "old",
+  "seconds": 95.0,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/polys/tests/test_ring_series.py::test_nth_root",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed"
+   }
+  ],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 14 of 14 candidate tests after the change with pytest in 20.5 s, failures confirmed before it: 1 now fail. 14 tests reach the change. 12 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed.",
+  "executed": {
+   "ran": 14,
+   "candidates": 14,
+   "unrunnable": 0,
+   "seconds": 20.5,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w11",
+  "engine": "old",
+  "seconds": 98.1,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/interactive/tests/test_interactive.py::test_int_to_Integer",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed"
+   }
+  ],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 8 of 8 candidate tests after the change with pytest in 11.4 s, failures confirmed before it: 1 now fail. 8 tests reach the change. 8 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed.",
+  "executed": {
+   "ran": 8,
+   "candidates": 8,
+   "unrunnable": 0,
+   "seconds": 11.4,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w13",
+  "engine": "old",
+  "seconds": 152.6,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed"
+   }
+  ],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 150 of 150 candidate tests after the change with pytest in 62.6 s, failures confirmed before it: 1 now fail. 5313 tests reach the change. 11 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed.",
+  "executed": {
+   "ran": 150,
+   "candidates": 150,
+   "unrunnable": 0,
+   "seconds": 62.6,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w14",
+  "engine": "old",
+  "seconds": 168.0,
+  "flips": 0,
+  "predicted_failures": [],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 80 of 150 candidate tests after the change with pytest in 61.4 s, failures confirmed before it: 0 now fail. 8134 tests reach the change.",
+  "executed": {
+   "ran": 80,
+   "candidates": 150,
+   "unrunnable": 0,
+   "seconds": 61.4,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w15",
+  "engine": "old",
+  "seconds": 167.7,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/core/tests/test_assumptions.py::test_Pow_is_algebraic",
+    "before": "passed",
+    "after": "failed",
+    "label": "executed"
+   }
+  ],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 40 of 150 candidate tests after the change with pytest in 66.4 s, failures confirmed before it: 1 now fail. 8135 tests reach the change.",
+  "executed": {
+   "ran": 40,
+   "candidates": 150,
+   "unrunnable": 0,
+   "seconds": 66.4,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w16",
+  "engine": "old",
+  "seconds": 251.3,
+  "flips": 0,
+  "predicted_failures": [],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 117 of 150 candidate tests after the change with pytest in 109.8 s, failures confirmed before it: 0 now fail. 8134 tests reach the change.",
+  "executed": {
+   "ran": 117,
+   "candidates": 150,
+   "unrunnable": 3,
+   "seconds": 109.8,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w17",
+  "engine": "old",
+  "seconds": 150.0,
+  "flips": 0,
+  "predicted_failures": [],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 150 of 150 candidate tests after the change with pytest in 49.9 s, failures confirmed before it: 0 now fail. 3778 tests reach the change. 1 test(s) from edited test files also run as they were before the edit.",
+  "executed": {
+   "ran": 150,
+   "candidates": 150,
+   "unrunnable": 0,
+   "seconds": 49.9,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w18",
+  "engine": "old",
+  "seconds": 159.3,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/series/tests/test_series.py::test_issue_12791",
+    "before": "passed",
+    "after": "failed",
+    "label": "executed"
+   }
+  ],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 80 of 150 candidate tests after the change with pytest in 65.9 s, failures confirmed before it: 1 now fail. 3622 tests reach the change.",
+  "executed": {
+   "ran": 80,
+   "candidates": 150,
+   "unrunnable": 0,
+   "seconds": 65.9,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w19",
+  "engine": "old",
+  "seconds": 159.4,
+  "flips": 4,
+  "predicted_failures": [
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_convert_array_to_matrix_scalar_addends",
+    "before": "passed",
+    "after": "failed",
+    "label": "executed"
+   }
+  ],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 150 of 150 candidate tests after the change with pytest in 64.9 s, failures confirmed before it: 4 now fail. 5313 tests reach the change. 33 test(s) from edited test files also run as they were before the edit. 3 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed.",
+  "executed": {
+   "ran": 150,
+   "candidates": 150,
+   "unrunnable": 0,
+   "seconds": 64.9,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w20",
+  "engine": "old",
+  "seconds": 141.1,
+  "flips": 0,
+  "predicted_failures": [],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 150 of 150 candidate tests after the change with pytest in 49.9 s, failures confirmed before it: 0 now fail. 3778 tests reach the change. 1 test(s) from edited test files also run as they were before the edit.",
+  "executed": {
+   "ran": 150,
+   "candidates": 150,
+   "unrunnable": 0,
+   "seconds": 49.9,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w21",
+  "engine": "old",
+  "seconds": 96.7,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/interactive/tests/test_interactive.py::test_int_to_Integer",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed"
+   }
+  ],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 9 of 9 candidate tests after the change with pytest in 12.2 s, failures confirmed before it: 1 now fail. 9 tests reach the change. 8 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed.",
+  "executed": {
+   "ran": 9,
+   "candidates": 9,
+   "unrunnable": 0,
+   "seconds": 12.2,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w22",
+  "engine": "old",
+  "seconds": 156.0,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/core/tests/test_expr.py::test_as_base_exp",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed"
+   }
+  ],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 150 of 150 candidate tests after the change with pytest in 59.8 s, failures confirmed before it: 1 now fail. 9154 tests reach the change. 9 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed.",
+  "executed": {
+   "ran": 150,
+   "candidates": 150,
+   "unrunnable": 0,
+   "seconds": 59.8,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w23",
+  "engine": "old",
+  "seconds": 148.3,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/core/tests/test_expr.py::test_as_base_exp",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed"
+   }
+  ],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 150 of 150 candidate tests after the change with pytest in 55.7 s, failures confirmed before it: 1 now fail. 9154 tests reach the change. 9 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed.",
+  "executed": {
+   "ran": 150,
+   "candidates": 150,
+   "unrunnable": 0,
+   "seconds": 55.7,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w24",
+  "engine": "old",
+  "seconds": 152.1,
+  "flips": 4,
+  "predicted_failures": [
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_convert_array_to_matrix_scalar_addends",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed"
+   }
+  ],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 150 of 150 candidate tests after the change with pytest in 63.6 s, failures confirmed before it: 4 now fail. 5314 tests reach the change. 34 test(s) from edited test files also run as they were before the edit. 4 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed.",
+  "executed": {
+   "ran": 150,
+   "candidates": 150,
+   "unrunnable": 0,
+   "seconds": 63.6,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w25",
+  "engine": "old",
+  "seconds": 96.4,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/interactive/tests/test_interactive.py::test_int_to_Integer",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed"
+   }
+  ],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 8 of 8 candidate tests after the change with pytest in 9.6 s, failures confirmed before it: 1 now fail. 8 tests reach the change. 8 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed.",
+  "executed": {
+   "ran": 8,
+   "candidates": 8,
+   "unrunnable": 0,
+   "seconds": 9.6,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w26",
+  "engine": "old",
+  "seconds": 141.8,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/polys/tests/test_ring_series.py::test_nth_root",
+    "before": "passed",
+    "after": "failed",
+    "label": "executed"
+   }
+  ],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 15 of 15 candidate tests after the change with pytest in 17.9 s, failures confirmed before it: 1 now fail. 15 tests reach the change.",
+  "executed": {
+   "ran": 15,
+   "candidates": 15,
+   "unrunnable": 0,
+   "seconds": 17.9,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w27",
+  "engine": "old",
+  "seconds": 132.6,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed"
+   }
+  ],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 150 of 150 candidate tests after the change with pytest in 38.3 s, failures confirmed before it: 1 now fail. 3304 tests reach the change. 107 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed.",
+  "executed": {
+   "ran": 150,
+   "candidates": 150,
+   "unrunnable": 0,
+   "seconds": 38.3,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w28",
+  "engine": "old",
+  "seconds": 130.4,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed"
+   }
+  ],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 150 of 150 candidate tests after the change with pytest in 39.9 s, failures confirmed before it: 1 now fail. 3304 tests reach the change. 107 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed.",
+  "executed": {
+   "ran": 150,
+   "candidates": 150,
+   "unrunnable": 0,
+   "seconds": 39.9,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w29",
+  "engine": "old",
+  "seconds": 92.6,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/interactive/tests/test_interactive.py::test_int_to_Integer",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed"
+   }
+  ],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 9 of 9 candidate tests after the change with pytest in 8.8 s, failures confirmed before it: 1 now fail. 9 tests reach the change. 8 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed.",
+  "executed": {
+   "ran": 9,
+   "candidates": 9,
+   "unrunnable": 0,
+   "seconds": 8.8,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w30",
+  "engine": "old",
+  "seconds": 100.9,
+  "flips": 3,
+  "predicted_failures": [
+   {
+    "id": "sympy/polys/tests/test_ring_series.py::test_nth_root",
+    "before": "passed",
+    "after": "failed",
+    "label": "executed"
+   },
+   {
+    "id": "sympy/polys/tests/test_ring_series.py::test1",
+    "before": "passed",
+    "after": "failed",
+    "label": "executed"
+   },
+   {
+    "id": "sympy/polys/tests/test_ring_series.py::test_puiseux",
+    "before": "passed",
+    "after": "failed",
+    "label": "executed"
+   }
+  ],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 14 of 14 candidate tests after the change with pytest in 14.9 s, failures confirmed before it: 3 now fail. 14 tests reach the change.",
+  "executed": {
+   "ran": 14,
+   "candidates": 14,
+   "unrunnable": 0,
+   "seconds": 14.9,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w31",
+  "engine": "old",
+  "seconds": 131.5,
+  "flips": 0,
+  "predicted_failures": [],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 150 of 150 candidate tests after the change with pytest in 47.9 s, failures confirmed before it: 0 now fail. 3778 tests reach the change. 1 test(s) from edited test files also run as they were before the edit.",
+  "executed": {
+   "ran": 150,
+   "candidates": 150,
+   "unrunnable": 0,
+   "seconds": 47.9,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w32",
+  "engine": "old",
+  "seconds": 121.8,
+  "flips": 0,
+  "predicted_failures": [],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 150 of 150 candidate tests after the change with pytest in 42.2 s, failures confirmed before it: 0 now fail. 3778 tests reach the change. 1 test(s) from edited test files also run as they were before the edit.",
+  "executed": {
+   "ran": 150,
+   "candidates": 150,
+   "unrunnable": 0,
+   "seconds": 42.2,
+   "runner": "pytest",
+   "budget": 60
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w01",
+  "engine": "final2",
+  "seconds": 170.6,
+  "flips": 2,
+  "predicted_failures": [
+   {
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 11 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 11
+   },
+   {
+    "id": "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 13 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 13
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 11 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 11
+   },
+   {
+    "id": "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 13 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 13
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 720 of 720 candidate tests after the change with pytest in 101.6 s, failures confirmed before it: 2 now fail. 3303 tests reach the change. 329 test(s) from edited test files also run as they were before the edit. 2 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 3 test(s) the change adds or edits replayed on the code before it: 3 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 720,
+   "candidates": 720,
+   "unrunnable": 0,
+   "seconds": 101.6,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 3,
+   "selection": {
+    "closure_files": 1327,
+    "closure_tests": 12901,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 1,
+    "depth_cap": 10,
+    "candidates": 12902
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 5,
+    "stored": 2
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/printing/tests/test_latex.py::test_ArrayElementwiseApplyFunc",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/printing/tests/test_latex.py::test_ArrayElementwiseApplyFunc",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   }
+  ],
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ },
+ {
+  "run": "w02",
+  "engine": "final2",
+  "seconds": 192.0,
+  "flips": 2,
+  "predicted_failures": [
+   {
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 13 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 13
+   },
+   {
+    "id": "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 13 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 13
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 13 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 13
+   },
+   {
+    "id": "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 13 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 13
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 720 of 720 candidate tests after the change with pytest in 123.5 s, failures confirmed before it: 2 now fail. 3305 tests reach the change. 329 test(s) from edited test files also run as they were before the edit. 2 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 5 test(s) the change adds or edits replayed on the code before it: 5 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 720,
+   "candidates": 720,
+   "unrunnable": 0,
+   "seconds": 123.5,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 5,
+   "selection": {
+    "closure_files": 1327,
+    "closure_tests": 12903,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 1,
+    "depth_cap": 10,
+    "candidates": 12904
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 7,
+    "stored": 2
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_ArrayElementwiseApplyFunc",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/printing/tests/test_conventions.py::test_elementwise_function",
+    "before": "unloadable",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/printing/tests/test_latex.py::test_ArrayElementwiseApplyFunc",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_ArrayElementwiseApplyFunc",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/printing/tests/test_conventions.py::test_elementwise_function",
+    "head": "passed",
+    "base": "unloadable",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/printing/tests/test_latex.py::test_ArrayElementwiseApplyFunc",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   }
+  ],
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ },
+ {
+  "run": "w03",
+  "engine": "final2",
+  "seconds": 172.2,
+  "flips": 2,
+  "predicted_failures": [
+   {
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issue_4032",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 40 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 40
+   },
+   {
+    "id": "sympy/series/tests/test_series.py::test_issue_12791",
+    "before": "passed",
+    "after": "failed",
+    "label": "executed",
+    "trust": "fails",
+    "why": "failed again in every rerun; ran 21 changed line(s); not rerun: the rerun after the rest of the candidate set",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": null
+    },
+    "reach": 21
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issue_4032",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 40 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 40
+   },
+   {
+    "id": "sympy/series/tests/test_series.py::test_issue_12791",
+    "label": "fails",
+    "why": "failed again in every rerun; ran 21 changed line(s); not rerun: the rerun after the rest of the candidate set",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": null
+    },
+    "reach": 21
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 160 of 720 candidate tests after the change with pytest in 104.8 s, failures confirmed before it: 2 now fail. 3626 tests reach the change. 27 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 2 test(s) the change adds or edits replayed on the code before it: 2 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 160,
+   "candidates": 720,
+   "unrunnable": 0,
+   "seconds": 104.8,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 2,
+   "selection": {
+    "closure_files": 1322,
+    "closure_tests": 12941,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 2,
+    "depth_cap": 10,
+    "candidates": 12943
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 4,
+    "stored": 2
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issue_4032",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_leaves_unrelated_terms",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issue_4032",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_leaves_unrelated_terms",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   }
+  ],
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ },
+ {
+  "run": "w04",
+  "engine": "final2",
+  "seconds": 147.3,
+  "flips": 0,
+  "predicted_failures": [],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 160 of 720 candidate tests after the change with pytest in 69.8 s, failures confirmed before it: 0 now fail. 3622 tests reach the change. 27 test(s) from edited test files also run as they were before the edit. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 160,
+   "candidates": 720,
+   "unrunnable": 0,
+   "seconds": 69.8,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 1,
+   "selection": {
+    "closure_files": 1322,
+    "closure_tests": 12941,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 2,
+    "depth_cap": 10,
+    "candidates": 12943
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 1,
+    "stored": 0
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_leaves_independent_terms",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_leaves_independent_terms",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   }
+  ],
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w05",
+  "engine": "final2",
+  "seconds": 158.0,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/polys/tests/test_ring_series.py::test_nth_root",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 1
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/polys/tests/test_ring_series.py::test_nth_root",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 1
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 320 of 720 candidate tests after the change with pytest in 81.3 s, failures confirmed before it: 1 now fail. 3642 tests reach the change. 37 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 320,
+   "candidates": 720,
+   "unrunnable": 0,
+   "seconds": 81.3,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 1,
+   "selection": {
+    "closure_files": 1321,
+    "closure_tests": 12887,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 14,
+    "depth_cap": 10,
+    "candidates": 12901
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 2,
+    "stored": 1
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/polys/tests/test_ring_series.py::test_nth_root",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/polys/tests/test_ring_series.py::test_nth_root",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   }
+  ],
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ },
+ {
+  "run": "w06",
+  "engine": "final2",
+  "seconds": 154.4,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/core/tests/test_expr.py::test_as_base_exp",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 1
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/core/tests/test_expr.py::test_as_base_exp",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 1
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 280 of 720 candidate tests after the change with pytest in 81.1 s, failures confirmed before it: 1 now fail. 9154 tests reach the change. 19 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 280,
+   "candidates": 720,
+   "unrunnable": 0,
+   "seconds": 81.1,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 1,
+   "selection": {
+    "closure_files": 1322,
+    "closure_tests": 12944,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 71,
+    "depth_cap": 10,
+    "candidates": 13015
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 2,
+    "stored": 1
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/core/tests/test_expr.py::test_as_base_exp",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/core/tests/test_expr.py::test_as_base_exp",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   }
+  ],
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ },
+ {
+  "run": "w07",
+  "engine": "final2",
+  "seconds": 178.0,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/core/tests/test_assumptions.py::test_Pow_is_algebraic",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 5 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 5
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/core/tests/test_assumptions.py::test_Pow_is_algebraic",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 5 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 5
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 117 of 720 candidate tests after the change with pytest in 102.0 s, failures confirmed before it: 1 now fail. 8134 tests reach the change. 1 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 117,
+   "candidates": 720,
+   "unrunnable": 3,
+   "seconds": 102.0,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 1,
+   "selection": {
+    "closure_files": 1320,
+    "closure_tests": 12875,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 55,
+    "depth_cap": 10,
+    "candidates": 12930
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 2,
+    "stored": 1
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/core/tests/test_assumptions.py::test_Pow_is_algebraic",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/core/tests/test_assumptions.py::test_Pow_is_algebraic",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   }
+  ],
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ },
+ {
+  "run": "w08",
+  "engine": "final2",
+  "seconds": 154.4,
+  "flips": 4,
+  "predicted_failures": [
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_convert_array_to_matrix_scalar_addends",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 9 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 9
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 11 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 11
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 13 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 13
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 13 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 13
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_convert_array_to_matrix_scalar_addends",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 9 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 9
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 11 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 11
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 13 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 13
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 13 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 13
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 240 of 720 candidate tests after the change with pytest in 79.6 s, failures confirmed before it: 4 now fail. 5314 tests reach the change. 41 test(s) from edited test files also run as they were before the edit. 4 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 5 test(s) the change adds or edits replayed on the code before it: 5 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 240,
+   "candidates": 720,
+   "unrunnable": 0,
+   "seconds": 79.6,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 5,
+   "selection": {
+    "closure_files": 1321,
+    "closure_tests": 12922,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 10,
+    "depth_cap": 10,
+    "candidates": 12932
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 9,
+    "stored": 4
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_array_add_scalar_arguments",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_convert_array_to_matrix_scalar_addends",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_array_add_scalar_arguments",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_convert_array_to_matrix_scalar_addends",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   }
+  ],
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ },
+ {
+  "run": "w09",
+  "engine": "final2",
+  "seconds": 139.6,
+  "flips": 0,
+  "predicted_failures": [],
+  "flip_trust": null,
+  "unstable": null,
+  "summary": "EXECUTED 160 of 720 candidate tests after the change with pytest in 69.3 s, failures confirmed before it: 0 now fail. 1457 tests reach the change. 27 test(s) from edited test files also run as they were before the edit. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 160,
+   "candidates": 720,
+   "unrunnable": 0,
+   "seconds": 69.3,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 1,
+   "selection": {
+    "closure_files": 1322,
+    "closure_tests": 12941,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 0,
+    "depth_cap": 10,
+    "candidates": 12941
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 1,
+    "stored": 0
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_leaves_unrelated_terms",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_leaves_unrelated_terms",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   }
+  ],
+  "order": null,
+  "failure": null
+ },
+ {
+  "run": "w10",
+  "engine": "final2",
+  "seconds": 143.9,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/polys/tests/test_ring_series.py::test_nth_root",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 3 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 3
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/polys/tests/test_ring_series.py::test_nth_root",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 3 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 3
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 520 of 720 candidate tests after the change with pytest in 75.8 s, failures confirmed before it: 1 now fail. 14 tests reach the change. 12 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 520,
+   "candidates": 720,
+   "unrunnable": 0,
+   "seconds": 75.8,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 1,
+   "selection": {
+    "closure_files": 1321,
+    "closure_tests": 12887,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 0,
+    "depth_cap": 10,
+    "candidates": 12887
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 2,
+    "stored": 1
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/polys/tests/test_ring_series.py::test_nth_root",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/polys/tests/test_ring_series.py::test_nth_root",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   }
+  ],
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ },
+ {
+  "run": "w11",
+  "engine": "final2",
+  "seconds": 79.0,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/interactive/tests/test_interactive.py::test_int_to_Integer",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 10 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 10
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/interactive/tests/test_interactive.py::test_int_to_Integer",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 10 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 10
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 8 of 8 candidate tests after the change with pytest in 10.9 s, failures confirmed before it: 1 now fail. 8 tests reach the change. 8 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 2 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 8,
+   "candidates": 8,
+   "unrunnable": 0,
+   "seconds": 10.9,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 2,
+   "selection": {
+    "closure_files": 6,
+    "closure_tests": 8,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py"
+    ],
+    "observed": 0,
+    "static_only": 0,
+    "depth_cap": 10,
+    "candidates": 8
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 3,
+    "stored": 1
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/interactive/tests/test_interactive.py::test_int_to_Integer",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/interactive/tests/test_interactive.py::test_int_to_Integer",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/interactive/tests/test_ipython.py::test_int_to_Integer",
+    "head": "skipped",
+    "base": "skipped",
+    "verdict": "none"
+   }
+  ],
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ },
+ {
+  "run": "w12",
+  "engine": "final2",
+  "seconds": 144.3,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/core/tests/test_expr.py::test_as_base_exp",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 1
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/core/tests/test_expr.py::test_as_base_exp",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 1
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 320 of 720 candidate tests after the change with pytest in 78.9 s, failures confirmed before it: 1 now fail. 9154 tests reach the change. 19 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 320,
+   "candidates": 720,
+   "unrunnable": 0,
+   "seconds": 78.9,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 1,
+   "selection": {
+    "closure_files": 1322,
+    "closure_tests": 12944,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 71,
+    "depth_cap": 10,
+    "candidates": 13015
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 2,
+    "stored": 1
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/core/tests/test_expr.py::test_as_base_exp",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/core/tests/test_expr.py::test_as_base_exp",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   }
+  ],
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ },
+ {
+  "run": "w13",
+  "engine": "final2",
+  "seconds": 142.1,
+  "flips": 4,
+  "predicted_failures": [
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_convert_array_to_matrix_scalar_addends",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 11 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 11
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 13 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 13
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 15 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 15
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 16 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 16
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_convert_array_to_matrix_scalar_addends",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 11 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 11
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 13 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 13
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 15 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 15
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 16 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 16
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 200 of 720 candidate tests after the change with pytest in 77.7 s, failures confirmed before it: 4 now fail. 5313 tests reach the change. 15 test(s) from edited test files also run as they were before the edit. 4 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 5 test(s) the change adds or edits replayed on the code before it: 5 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 200,
+   "candidates": 720,
+   "unrunnable": 0,
+   "seconds": 77.7,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 5,
+   "selection": {
+    "closure_files": 1321,
+    "closure_tests": 12921,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 10,
+    "depth_cap": 10,
+    "candidates": 12931
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 9,
+    "stored": 4
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_expressions_no_canonicalization",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_convert_array_to_matrix_scalar_addends",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_expressions_no_canonicalization",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_convert_array_to_matrix_scalar_addends",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   }
+  ],
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ },
+ {
+  "run": "w14",
+  "engine": "final2",
+  "seconds": 152.4,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/core/tests/test_assumptions.py::test_Pow_is_algebraic",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 5 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 5
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/core/tests/test_assumptions.py::test_Pow_is_algebraic",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 5 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 5
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 117 of 720 candidate tests after the change with pytest in 86.1 s, failures confirmed before it: 1 now fail. 8134 tests reach the change. 1 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 117,
+   "candidates": 720,
+   "unrunnable": 3,
+   "seconds": 86.1,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 1,
+   "selection": {
+    "closure_files": 1320,
+    "closure_tests": 12875,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 55,
+    "depth_cap": 10,
+    "candidates": 12930
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 2,
+    "stored": 1
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/core/tests/test_assumptions.py::test_Pow_is_algebraic",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/core/tests/test_assumptions.py::test_Pow_is_algebraic",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   }
+  ],
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ },
+ {
+  "run": "w15",
+  "engine": "final2",
+  "seconds": 190.1,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/core/tests/test_assumptions.py::test_Pow_is_algebraic",
+    "before": "passed",
+    "after": "failed",
+    "label": "executed",
+    "trust": "fails",
+    "why": "failed again in every rerun; ran 5 changed line(s); not rerun: the rerun after the rest of the candidate set",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": null
+    },
+    "reach": 5
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/core/tests/test_assumptions.py::test_Pow_is_algebraic",
+    "label": "fails",
+    "why": "failed again in every rerun; ran 5 changed line(s); not rerun: the rerun after the rest of the candidate set",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": null
+    },
+    "reach": 5
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 117 of 720 candidate tests after the change with pytest in 126.0 s, failures confirmed before it: 1 now fail. 8135 tests reach the change. 19 test(s) from edited test files also run as they were before the edit. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 117,
+   "candidates": 720,
+   "unrunnable": 3,
+   "seconds": 126.0,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 1,
+   "selection": {
+    "closure_files": 1320,
+    "closure_tests": 12876,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 55,
+    "depth_cap": 10,
+    "candidates": 12931
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 2,
+    "stored": 1
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/core/tests/test_power.py::test_zero_base_is_algebraic",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/core/tests/test_power.py::test_zero_base_is_algebraic",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   }
+  ],
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ },
+ {
+  "run": "w16",
+  "engine": "final2",
+  "seconds": 153.5,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/core/tests/test_assumptions.py::test_Pow_is_algebraic",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 5 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 5
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/core/tests/test_assumptions.py::test_Pow_is_algebraic",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 5 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 5
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 117 of 720 candidate tests after the change with pytest in 88.8 s, failures confirmed before it: 1 now fail. 8134 tests reach the change. 1 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 117,
+   "candidates": 720,
+   "unrunnable": 3,
+   "seconds": 88.8,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 1,
+   "selection": {
+    "closure_files": 1320,
+    "closure_tests": 12875,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 55,
+    "depth_cap": 10,
+    "candidates": 12930
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 2,
+    "stored": 1
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/core/tests/test_assumptions.py::test_Pow_is_algebraic",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/core/tests/test_assumptions.py::test_Pow_is_algebraic",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   }
+  ],
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ },
+ {
+  "run": "w17",
+  "engine": "final2",
+  "seconds": 152.1,
+  "flips": 2,
+  "predicted_failures": [
+   {
+    "id": "sympy/functions/elementary/tests/test_hyperbolic.py::test_acoth",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 1
+   },
+   {
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_evenodd_rewrite",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 1
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/functions/elementary/tests/test_hyperbolic.py::test_acoth",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 1
+   },
+   {
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_evenodd_rewrite",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 1
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 280 of 720 candidate tests after the change with pytest in 84.3 s, failures confirmed before it: 2 now fail. 3778 tests reach the change. 5 test(s) from edited test files also run as they were before the edit. 2 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 3 test(s) the change adds or edits replayed on the code before it: 2 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 280,
+   "candidates": 720,
+   "unrunnable": 0,
+   "seconds": 84.3,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 3,
+   "selection": {
+    "closure_files": 1321,
+    "closure_tests": 12916,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 8,
+    "depth_cap": 10,
+    "candidates": 12924
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 5,
+    "stored": 3
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/functions/elementary/tests/test_hyperbolic.py::test_acoth",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_acot",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/functions/elementary/tests/test_hyperbolic.py::test_acoth",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_acot",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_evenodd_rewrite",
+    "head": "passed",
+    "base": "passed",
+    "verdict": "none"
+   }
+  ],
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ },
+ {
+  "run": "w18",
+  "engine": "final2",
+  "seconds": 172.1,
+  "flips": 2,
+  "predicted_failures": [
+   {
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issue_4032",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 12 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 12
+   },
+   {
+    "id": "sympy/series/tests/test_series.py::test_issue_12791",
+    "before": "passed",
+    "after": "failed",
+    "label": "executed",
+    "trust": "fails",
+    "why": "failed again in every rerun; ran 6 changed line(s); not rerun: the rerun after the rest of the candidate set",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": null
+    },
+    "reach": 6
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issue_4032",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 12 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 12
+   },
+   {
+    "id": "sympy/series/tests/test_series.py::test_issue_12791",
+    "label": "fails",
+    "why": "failed again in every rerun; ran 6 changed line(s); not rerun: the rerun after the rest of the candidate set",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": null
+    },
+    "reach": 6
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 160 of 720 candidate tests after the change with pytest in 103.2 s, failures confirmed before it: 2 now fail. 3622 tests reach the change. 27 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 2 test(s) the change adds or edits replayed on the code before it: 2 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 160,
+   "candidates": 720,
+   "unrunnable": 0,
+   "seconds": 103.2,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 2,
+   "selection": {
+    "closure_files": 1322,
+    "closure_tests": 12941,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 2,
+    "depth_cap": 10,
+    "candidates": 12943
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 4,
+    "stored": 2
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issue_4032",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_nontrig_terms_untouched",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issue_4032",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_nontrig_terms_untouched",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   }
+  ],
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ },
+ {
+  "run": "w19",
+  "engine": "final2",
+  "seconds": 167.9,
+  "flips": 4,
+  "predicted_failures": [
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 31 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 31
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 19 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 19
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 18 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 18
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_convert_array_to_matrix_scalar_addends",
+    "before": "passed",
+    "after": "failed",
+    "label": "executed",
+    "trust": "fails",
+    "why": "failed again in every rerun; ran 14 changed line(s); not rerun: the rerun after the rest of the candidate set",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": null
+    },
+    "reach": 14
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 31 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 31
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 19 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 19
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 18 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 18
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_convert_array_to_matrix_scalar_addends",
+    "label": "fails",
+    "why": "failed again in every rerun; ran 14 changed line(s); not rerun: the rerun after the rest of the candidate set",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": null
+    },
+    "reach": 14
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 240 of 720 candidate tests after the change with pytest in 98.8 s, failures confirmed before it: 4 now fail. 5313 tests reach the change. 33 test(s) from edited test files also run as they were before the edit. 3 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 4 test(s) the change adds or edits replayed on the code before it: 4 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 240,
+   "candidates": 720,
+   "unrunnable": 0,
+   "seconds": 98.8,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 4,
+   "selection": {
+    "closure_files": 1321,
+    "closure_tests": 12921,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 10,
+    "depth_cap": 10,
+    "candidates": 12931
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 8,
+    "stored": 4
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_expressions_no_canonicalization",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_expressions_no_canonicalization",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   }
+  ],
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ },
+ {
+  "run": "w20",
+  "engine": "final2",
+  "seconds": 152.8,
+  "flips": 2,
+  "predicted_failures": [
+   {
+    "id": "sympy/functions/elementary/tests/test_hyperbolic.py::test_acoth",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 1
+   },
+   {
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_evenodd_rewrite",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 1
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/functions/elementary/tests/test_hyperbolic.py::test_acoth",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 1
+   },
+   {
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_evenodd_rewrite",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 1
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 280 of 720 candidate tests after the change with pytest in 84.3 s, failures confirmed before it: 2 now fail. 3778 tests reach the change. 5 test(s) from edited test files also run as they were before the edit. 2 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 3 test(s) the change adds or edits replayed on the code before it: 3 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 280,
+   "candidates": 720,
+   "unrunnable": 0,
+   "seconds": 84.3,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 3,
+   "selection": {
+    "closure_files": 1321,
+    "closure_tests": 12916,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 8,
+    "depth_cap": 10,
+    "candidates": 12924
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 5,
+    "stored": 2
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/functions/elementary/tests/test_hyperbolic.py::test_acoth",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_acot",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_evenodd_rewrite",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/functions/elementary/tests/test_hyperbolic.py::test_acoth",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_acot",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_evenodd_rewrite",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   }
+  ],
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ },
+ {
+  "run": "w21",
+  "engine": "final2",
+  "seconds": 79.6,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/interactive/tests/test_interactive.py::test_int_to_Integer",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 14 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 14
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/interactive/tests/test_interactive.py::test_int_to_Integer",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 14 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 14
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 9 of 9 candidate tests after the change with pytest in 11.3 s, failures confirmed before it: 1 now fail. 9 tests reach the change. 8 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 2 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 9,
+   "candidates": 9,
+   "unrunnable": 0,
+   "seconds": 11.3,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 2,
+   "selection": {
+    "closure_files": 6,
+    "closure_tests": 9,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py"
+    ],
+    "observed": 0,
+    "static_only": 0,
+    "depth_cap": 10,
+    "candidates": 9
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 3,
+    "stored": 1
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/interactive/tests/test_interactive.py::test_int_to_Integer",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/interactive/tests/test_interactive.py::test_int_to_Integer",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/interactive/tests/test_ipython.py::test_int_to_Integer_history",
+    "head": "skipped",
+    "base": "skipped",
+    "verdict": "none"
+   }
+  ],
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ },
+ {
+  "run": "w22",
+  "engine": "final2",
+  "seconds": 150.5,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/core/tests/test_expr.py::test_as_base_exp",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 1
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/core/tests/test_expr.py::test_as_base_exp",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 1
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 320 of 720 candidate tests after the change with pytest in 78.0 s, failures confirmed before it: 1 now fail. 9154 tests reach the change. 19 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 320,
+   "candidates": 720,
+   "unrunnable": 0,
+   "seconds": 78.0,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 1,
+   "selection": {
+    "closure_files": 1322,
+    "closure_tests": 12944,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 71,
+    "depth_cap": 10,
+    "candidates": 13015
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 2,
+    "stored": 1
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/core/tests/test_expr.py::test_as_base_exp",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/core/tests/test_expr.py::test_as_base_exp",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   }
+  ],
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ },
+ {
+  "run": "w23",
+  "engine": "final2",
+  "seconds": 149.3,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/core/tests/test_expr.py::test_as_base_exp",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 1
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/core/tests/test_expr.py::test_as_base_exp",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 1
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 280 of 720 candidate tests after the change with pytest in 78.0 s, failures confirmed before it: 1 now fail. 9154 tests reach the change. 19 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 280,
+   "candidates": 720,
+   "unrunnable": 0,
+   "seconds": 78.0,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 1,
+   "selection": {
+    "closure_files": 1322,
+    "closure_tests": 12944,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 71,
+    "depth_cap": 10,
+    "candidates": 13015
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 2,
+    "stored": 1
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/core/tests/test_expr.py::test_as_base_exp",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/core/tests/test_expr.py::test_as_base_exp",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   }
+  ],
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ },
+ {
+  "run": "w24",
+  "engine": "final2",
+  "seconds": 151.5,
+  "flips": 4,
+  "predicted_failures": [
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_convert_array_to_matrix_scalar_addends",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 9 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 9
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 11 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 11
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 13 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 13
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 13 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 13
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_convert_array_to_matrix_scalar_addends",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 9 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 9
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 11 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 11
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 13 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 13
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 13 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 13
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 240 of 720 candidate tests after the change with pytest in 79.5 s, failures confirmed before it: 4 now fail. 5314 tests reach the change. 41 test(s) from edited test files also run as they were before the edit. 4 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 5 test(s) the change adds or edits replayed on the code before it: 4 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 240,
+   "candidates": 720,
+   "unrunnable": 0,
+   "seconds": 79.5,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 5,
+   "selection": {
+    "closure_files": 1321,
+    "closure_tests": 12922,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 10,
+    "depth_cap": 10,
+    "candidates": 12932
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 9,
+    "stored": 5
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_add_scalar_arguments",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_add_scalar_arguments",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_convert_array_to_matrix_scalar_addends",
+    "head": "passed",
+    "base": "passed",
+    "verdict": "none"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   }
+  ],
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ },
+ {
+  "run": "w25",
+  "engine": "final2",
+  "seconds": 82.5,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/interactive/tests/test_interactive.py::test_int_to_Integer",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 11 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 11
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/interactive/tests/test_interactive.py::test_int_to_Integer",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 11 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 11
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 8 of 8 candidate tests after the change with pytest in 11.3 s, failures confirmed before it: 1 now fail. 8 tests reach the change. 8 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 2 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 8,
+   "candidates": 8,
+   "unrunnable": 0,
+   "seconds": 11.3,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 2,
+   "selection": {
+    "closure_files": 6,
+    "closure_tests": 8,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py"
+    ],
+    "observed": 0,
+    "static_only": 0,
+    "depth_cap": 10,
+    "candidates": 8
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 3,
+    "stored": 1
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/interactive/tests/test_interactive.py::test_int_to_Integer",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/interactive/tests/test_interactive.py::test_int_to_Integer",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/interactive/tests/test_ipython.py::test_int_to_Integer",
+    "head": "skipped",
+    "base": "skipped",
+    "verdict": "none"
+   }
+  ],
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ },
+ {
+  "run": "w26",
+  "engine": "final2",
+  "seconds": 155.5,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/polys/tests/test_ring_series.py::test_nth_root",
+    "before": "passed",
+    "after": "failed",
+    "label": "executed",
+    "trust": "fails",
+    "why": "failed again in every rerun; ran 1 changed line(s); not rerun: the rerun after the rest of the candidate set",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": null
+    },
+    "reach": 1
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/polys/tests/test_ring_series.py::test_nth_root",
+    "label": "fails",
+    "why": "failed again in every rerun; ran 1 changed line(s); not rerun: the rerun after the rest of the candidate set",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": null
+    },
+    "reach": 1
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 480 of 720 candidate tests after the change with pytest in 84.2 s, failures confirmed before it: 1 now fail. 15 tests reach the change.",
+  "executed": {
+   "ran": 480,
+   "candidates": 720,
+   "unrunnable": 0,
+   "seconds": 84.2,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 0,
+   "selection": {
+    "closure_files": 1322,
+    "closure_tests": 12888,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 0,
+    "depth_cap": 10,
+    "candidates": 12888
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 2,
+    "stored": 1
+   }
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ },
+ {
+  "run": "w27",
+  "engine": "final2",
+  "seconds": 176.5,
+  "flips": 2,
+  "predicted_failures": [
+   {
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 11 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 11
+   },
+   {
+    "id": "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 11 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 11
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 11 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 11
+   },
+   {
+    "id": "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 11 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 11
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 720 of 720 candidate tests after the change with pytest in 104.0 s, failures confirmed before it: 2 now fail. 3304 tests reach the change. 329 test(s) from edited test files also run as they were before the edit. 2 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 4 test(s) the change adds or edits replayed on the code before it: 4 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 720,
+   "candidates": 720,
+   "unrunnable": 0,
+   "seconds": 104.0,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 4,
+   "selection": {
+    "closure_files": 1327,
+    "closure_tests": 12902,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 1,
+    "depth_cap": 10,
+    "candidates": 12903
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 6,
+    "stored": 2
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_pretty_ArrayElementwiseApplyFunc",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/printing/tests/test_latex.py::test_ArrayElementwiseApplyFunc_printing",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_pretty_ArrayElementwiseApplyFunc",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/printing/tests/test_latex.py::test_ArrayElementwiseApplyFunc_printing",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   }
+  ],
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ },
+ {
+  "run": "w28",
+  "engine": "final2",
+  "seconds": 176.6,
+  "flips": 2,
+  "predicted_failures": [
+   {
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 11 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 11
+   },
+   {
+    "id": "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 11 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 11
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 11 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 11
+   },
+   {
+    "id": "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 11 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 11
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 720 of 720 candidate tests after the change with pytest in 106.1 s, failures confirmed before it: 2 now fail. 3304 tests reach the change. 329 test(s) from edited test files also run as they were before the edit. 2 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 4 test(s) the change adds or edits replayed on the code before it: 4 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 720,
+   "candidates": 720,
+   "unrunnable": 0,
+   "seconds": 106.1,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 4,
+   "selection": {
+    "closure_files": 1327,
+    "closure_tests": 12902,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 1,
+    "depth_cap": 10,
+    "candidates": 12903
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 6,
+    "stored": 2
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_pretty_ArrayElementwiseApplyFunc",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/printing/tests/test_latex.py::test_ArrayElementwiseApplyFunc",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_pretty_ArrayElementwiseApplyFunc",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/printing/tests/test_latex.py::test_ArrayElementwiseApplyFunc",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   }
+  ],
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ },
+ {
+  "run": "w29",
+  "engine": "final2",
+  "seconds": 84.4,
+  "flips": 1,
+  "predicted_failures": [
+   {
+    "id": "sympy/interactive/tests/test_interactive.py::test_int_to_Integer",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 10 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 10
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/interactive/tests/test_interactive.py::test_int_to_Integer",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 10 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 10
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 9 of 9 candidate tests after the change with pytest in 11.5 s, failures confirmed before it: 1 now fail. 9 tests reach the change. 8 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 2 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 9,
+   "candidates": 9,
+   "unrunnable": 0,
+   "seconds": 11.5,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 2,
+   "selection": {
+    "closure_files": 6,
+    "closure_tests": 9,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py"
+    ],
+    "observed": 0,
+    "static_only": 0,
+    "depth_cap": 10,
+    "candidates": 9
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 3,
+    "stored": 1
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/interactive/tests/test_interactive.py::test_int_to_Integer",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/interactive/tests/test_interactive.py::test_int_to_Integer",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/interactive/tests/test_ipython.py::test_int_to_Integer_history",
+    "head": "skipped",
+    "base": "skipped",
+    "verdict": "none"
+   }
+  ],
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ },
+ {
+  "run": "w30",
+  "engine": "final2",
+  "seconds": 161.3,
+  "flips": 3,
+  "predicted_failures": [
+   {
+    "id": "sympy/polys/tests/test_ring_series.py::test_nth_root",
+    "before": "passed",
+    "after": "failed",
+    "label": "executed",
+    "trust": "fails",
+    "why": "failed again in every rerun; ran 1 changed line(s); not rerun: the rerun after the rest of the candidate set",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": null
+    },
+    "reach": 1
+   },
+   {
+    "id": "sympy/polys/tests/test_ring_series.py::test1",
+    "before": "passed",
+    "after": "failed",
+    "label": "executed",
+    "trust": "fails",
+    "why": "failed again in every rerun; ran 1 changed line(s); not rerun: the rerun after the rest of the candidate set",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": null
+    },
+    "reach": 1
+   },
+   {
+    "id": "sympy/polys/tests/test_ring_series.py::test_puiseux",
+    "before": "passed",
+    "after": "failed",
+    "label": "executed",
+    "trust": "fails",
+    "why": "failed again in every rerun; ran 1 changed line(s); not rerun: the rerun after the rest of the candidate set",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": null
+    },
+    "reach": 1
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/polys/tests/test_ring_series.py::test_nth_root",
+    "label": "fails",
+    "why": "failed again in every rerun; ran 1 changed line(s); not rerun: the rerun after the rest of the candidate set",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": null
+    },
+    "reach": 1
+   },
+   {
+    "id": "sympy/polys/tests/test_ring_series.py::test1",
+    "label": "fails",
+    "why": "failed again in every rerun; ran 1 changed line(s); not rerun: the rerun after the rest of the candidate set",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": null
+    },
+    "reach": 1
+   },
+   {
+    "id": "sympy/polys/tests/test_ring_series.py::test_puiseux",
+    "label": "fails",
+    "why": "failed again in every rerun; ran 1 changed line(s); not rerun: the rerun after the rest of the candidate set",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": null
+    },
+    "reach": 1
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 520 of 720 candidate tests after the change with pytest in 89.1 s, failures confirmed before it: 3 now fail. 14 tests reach the change.",
+  "executed": {
+   "ran": 520,
+   "candidates": 720,
+   "unrunnable": 0,
+   "seconds": 89.1,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 0,
+   "selection": {
+    "closure_files": 1321,
+    "closure_tests": 12887,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 0,
+    "depth_cap": 10,
+    "candidates": 12887
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 3,
+    "stored": 3
+   }
+  },
+  "change_evidence": null,
+  "replayed": null,
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ },
+ {
+  "run": "w31",
+  "engine": "final2",
+  "seconds": 154.4,
+  "flips": 2,
+  "predicted_failures": [
+   {
+    "id": "sympy/functions/elementary/tests/test_hyperbolic.py::test_acoth",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 1
+   },
+   {
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_evenodd_rewrite",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 1
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/functions/elementary/tests/test_hyperbolic.py::test_acoth",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 1
+   },
+   {
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_evenodd_rewrite",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 1
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 280 of 720 candidate tests after the change with pytest in 82.4 s, failures confirmed before it: 2 now fail. 3778 tests reach the change. 5 test(s) from edited test files also run as they were before the edit. 2 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 3 test(s) the change adds or edits replayed on the code before it: 3 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 280,
+   "candidates": 720,
+   "unrunnable": 0,
+   "seconds": 82.4,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 3,
+   "selection": {
+    "closure_files": 1321,
+    "closure_tests": 12916,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 8,
+    "depth_cap": 10,
+    "candidates": 12924
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 5,
+    "stored": 2
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/functions/elementary/tests/test_hyperbolic.py::test_acoth",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_acot",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_evenodd_rewrite",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/functions/elementary/tests/test_hyperbolic.py::test_acoth",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_acot",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_evenodd_rewrite",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   }
+  ],
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ },
+ {
+  "run": "w32",
+  "engine": "final2",
+  "seconds": 147.7,
+  "flips": 2,
+  "predicted_failures": [
+   {
+    "id": "sympy/functions/elementary/tests/test_hyperbolic.py::test_acoth",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 1
+   },
+   {
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_evenodd_rewrite",
+    "before": "passed",
+    "after": "failed",
+    "label": "test edited, not fixed",
+    "edited_form": "passed",
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 1
+   }
+  ],
+  "flip_trust": [
+   {
+    "id": "sympy/functions/elementary/tests/test_hyperbolic.py::test_acoth",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 1
+   },
+   {
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_evenodd_rewrite",
+    "label": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)",
+    "reruns": {
+     "in_process": "failed",
+     "fresh_process": "failed",
+     "after_set": "failed"
+    },
+    "reach": 1
+   }
+  ],
+  "unstable": null,
+  "summary": "EXECUTED 280 of 720 candidate tests after the change with pytest in 78.2 s, failures confirmed before it: 2 now fail. 3778 tests reach the change. 5 test(s) from edited test files also run as they were before the edit. 2 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 3 test(s) the change adds or edits replayed on the code before it: 3 fail there and pass after (change evidence: the PR's own test).",
+  "executed": {
+   "ran": 280,
+   "candidates": 720,
+   "unrunnable": 0,
+   "seconds": 78.2,
+   "runner": "pytest",
+   "budget": 60,
+   "replayed": 3,
+   "selection": {
+    "closure_files": 1321,
+    "closure_tests": 12916,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 8,
+    "depth_cap": 10,
+    "candidates": 12924
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 5,
+    "stored": 2
+   }
+  },
+  "change_evidence": [
+   {
+    "id": "sympy/functions/elementary/tests/test_hyperbolic.py::test_acoth",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_acot",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_evenodd_rewrite",
+    "before": "failed",
+    "after": "passed",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "replayed": [
+   {
+    "id": "sympy/functions/elementary/tests/test_hyperbolic.py::test_acoth",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_acot",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_evenodd_rewrite",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   }
+  ],
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "failure": null
+ }
+]

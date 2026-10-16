@@ -1,0 +1,483 @@
+{
+ "summary": {
+  "runs": 32,
+  "errors": [],
+  "old_confirmed": 33,
+  "labels": {
+   "fails": 54
+  },
+  "lost": [],
+  "unlabelled": [],
+  "old_confirmed_labelled": {
+   "fails": 33
+  }
+ },
+ "table": [
+  {
+   "run": "w01",
+   "old_flips": 1,
+   "new_fails": 2,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 1
+   },
+   "new_only": [
+    "sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions"
+   ],
+   "lost": [],
+   "seconds_old": 110.0,
+   "seconds_new": 170.6
+  },
+  {
+   "run": "w02",
+   "old_flips": 1,
+   "new_fails": 2,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 1
+   },
+   "new_only": [
+    "sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions"
+   ],
+   "lost": [],
+   "seconds_old": 109.8,
+   "seconds_new": 192.0
+  },
+  {
+   "run": "w03",
+   "old_flips": 1,
+   "new_fails": 2,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 1
+   },
+   "new_only": [
+    "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issue_4032"
+   ],
+   "lost": [],
+   "seconds_old": 174.4,
+   "seconds_new": 172.2
+  },
+  {
+   "run": "w04",
+   "old_flips": 0,
+   "new_fails": 0,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {},
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 175.5,
+   "seconds_new": 147.3
+  },
+  {
+   "run": "w05",
+   "old_flips": 1,
+   "new_fails": 1,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 1
+   },
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 157.9,
+   "seconds_new": 158.0
+  },
+  {
+   "run": "w06",
+   "old_flips": 1,
+   "new_fails": 1,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 1
+   },
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 178.6,
+   "seconds_new": 154.4
+  },
+  {
+   "run": "w07",
+   "old_flips": 0,
+   "new_fails": 1,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {},
+   "new_only": [
+    "sympy/core/tests/test_assumptions.py::test_Pow_is_algebraic"
+   ],
+   "lost": [],
+   "seconds_old": 200.9,
+   "seconds_new": 178.0
+  },
+  {
+   "run": "w08",
+   "old_flips": 3,
+   "new_fails": 4,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 3
+   },
+   "new_only": [
+    "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_convert_array_to_matrix_scalar_addends"
+   ],
+   "lost": [],
+   "seconds_old": 227.3,
+   "seconds_new": 154.4
+  },
+  {
+   "run": "w09",
+   "old_flips": 0,
+   "new_fails": 0,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {},
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 134.2,
+   "seconds_new": 139.6
+  },
+  {
+   "run": "w10",
+   "old_flips": 1,
+   "new_fails": 1,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 1
+   },
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 95.0,
+   "seconds_new": 143.9
+  },
+  {
+   "run": "w11",
+   "old_flips": 1,
+   "new_fails": 1,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 1
+   },
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 98.1,
+   "seconds_new": 79.0
+  },
+  {
+   "run": "w12",
+   "old_flips": 1,
+   "new_fails": 1,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 1
+   },
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 96.6,
+   "seconds_new": 144.3
+  },
+  {
+   "run": "w13",
+   "old_flips": 1,
+   "new_fails": 4,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 1
+   },
+   "new_only": [
+    "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_convert_array_to_matrix_scalar_addends",
+    "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars",
+    "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array"
+   ],
+   "lost": [],
+   "seconds_old": 152.6,
+   "seconds_new": 142.1
+  },
+  {
+   "run": "w14",
+   "old_flips": 0,
+   "new_fails": 1,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {},
+   "new_only": [
+    "sympy/core/tests/test_assumptions.py::test_Pow_is_algebraic"
+   ],
+   "lost": [],
+   "seconds_old": 168.0,
+   "seconds_new": 152.4
+  },
+  {
+   "run": "w15",
+   "old_flips": 1,
+   "new_fails": 1,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 1
+   },
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 167.7,
+   "seconds_new": 190.1
+  },
+  {
+   "run": "w16",
+   "old_flips": 0,
+   "new_fails": 1,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {},
+   "new_only": [
+    "sympy/core/tests/test_assumptions.py::test_Pow_is_algebraic"
+   ],
+   "lost": [],
+   "seconds_old": 251.3,
+   "seconds_new": 153.5
+  },
+  {
+   "run": "w17",
+   "old_flips": 0,
+   "new_fails": 2,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {},
+   "new_only": [
+    "sympy/functions/elementary/tests/test_hyperbolic.py::test_acoth",
+    "sympy/functions/elementary/tests/test_trigonometric.py::test_evenodd_rewrite"
+   ],
+   "lost": [],
+   "seconds_old": 150.0,
+   "seconds_new": 152.1
+  },
+  {
+   "run": "w18",
+   "old_flips": 1,
+   "new_fails": 2,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 1
+   },
+   "new_only": [
+    "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issue_4032"
+   ],
+   "lost": [],
+   "seconds_old": 159.3,
+   "seconds_new": 172.1
+  },
+  {
+   "run": "w19",
+   "old_flips": 4,
+   "new_fails": 4,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 4
+   },
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 159.4,
+   "seconds_new": 167.9
+  },
+  {
+   "run": "w20",
+   "old_flips": 0,
+   "new_fails": 2,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {},
+   "new_only": [
+    "sympy/functions/elementary/tests/test_hyperbolic.py::test_acoth",
+    "sympy/functions/elementary/tests/test_trigonometric.py::test_evenodd_rewrite"
+   ],
+   "lost": [],
+   "seconds_old": 141.1,
+   "seconds_new": 152.8
+  },
+  {
+   "run": "w21",
+   "old_flips": 1,
+   "new_fails": 1,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 1
+   },
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 96.7,
+   "seconds_new": 79.6
+  },
+  {
+   "run": "w22",
+   "old_flips": 1,
+   "new_fails": 1,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 1
+   },
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 156.0,
+   "seconds_new": 150.5
+  },
+  {
+   "run": "w23",
+   "old_flips": 1,
+   "new_fails": 1,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 1
+   },
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 148.3,
+   "seconds_new": 149.3
+  },
+  {
+   "run": "w24",
+   "old_flips": 4,
+   "new_fails": 4,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 4
+   },
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 152.1,
+   "seconds_new": 151.5
+  },
+  {
+   "run": "w25",
+   "old_flips": 1,
+   "new_fails": 1,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 1
+   },
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 96.4,
+   "seconds_new": 82.5
+  },
+  {
+   "run": "w26",
+   "old_flips": 1,
+   "new_fails": 1,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 1
+   },
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 141.8,
+   "seconds_new": 155.5
+  },
+  {
+   "run": "w27",
+   "old_flips": 1,
+   "new_fails": 2,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 1
+   },
+   "new_only": [
+    "sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions"
+   ],
+   "lost": [],
+   "seconds_old": 132.6,
+   "seconds_new": 176.5
+  },
+  {
+   "run": "w28",
+   "old_flips": 1,
+   "new_fails": 2,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 1
+   },
+   "new_only": [
+    "sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions"
+   ],
+   "lost": [],
+   "seconds_old": 130.4,
+   "seconds_new": 176.6
+  },
+  {
+   "run": "w29",
+   "old_flips": 1,
+   "new_fails": 1,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 1
+   },
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 92.6,
+   "seconds_new": 84.4
+  },
+  {
+   "run": "w30",
+   "old_flips": 3,
+   "new_fails": 3,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 3
+   },
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 100.9,
+   "seconds_new": 161.3
+  },
+  {
+   "run": "w31",
+   "old_flips": 0,
+   "new_fails": 2,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {},
+   "new_only": [
+    "sympy/functions/elementary/tests/test_hyperbolic.py::test_acoth",
+    "sympy/functions/elementary/tests/test_trigonometric.py::test_evenodd_rewrite"
+   ],
+   "lost": [],
+   "seconds_old": 131.5,
+   "seconds_new": 154.4
+  },
+  {
+   "run": "w32",
+   "old_flips": 0,
+   "new_fails": 2,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {},
+   "new_only": [
+    "sympy/functions/elementary/tests/test_hyperbolic.py::test_acoth",
+    "sympy/functions/elementary/tests/test_trigonometric.py::test_evenodd_rewrite"
+   ],
+   "lost": [],
+   "seconds_old": 121.8,
+   "seconds_new": 147.7
+  }
+ ]
+}

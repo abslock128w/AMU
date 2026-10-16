@@ -1,0 +1,25 @@
+{
+  "case_id": "h2-itsdangerous-177196d3",
+  "function_recall10": 1.0,
+  "file_recall10": 1.0,
+  "function_hits": [
+    "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_malformed_future_timestamp"
+  ],
+  "missing_from_parent": [],
+  "recommended": 10,
+  "top10": [
+    "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_malformed_future_timestamp",
+    "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_future_age",
+    "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_sig_error_date_signed",
+    "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_malformed_timestamp",
+    "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_max_age",
+    "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_timestamp_missing",
+    "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_return_timestamp",
+    "tests/test_itsdangerous/test_signer.py::TestSigner::test_broken_signature",
+    "tests/test_itsdangerous/test_signer.py::TestSigner::test_changed_value",
+    "tests/test_itsdangerous/test_signer.py::TestSigner::test_no_separator"
+  ],
+  "seconds": 0.0992826250003418,
+  "bytes": 1964,
+  "noise10": 9
+}

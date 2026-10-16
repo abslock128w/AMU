@@ -63,22 +63,56 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None):
         first = f'**AMU: no flip count** at {short(head)}: no candidate test ran'
     else:
         first = f"**AMU: {plural(flips, 'flip')}** at {short(head)}, among {plural(ran, 'test')} run"
+    evidence = [row for row in report.get('change_evidence') or [] if isinstance(row, dict) and row.get('id')]
+    if evidence and not report.get('error'):
+        first += f"; {plural(len(evidence), 'test')} of the pull request's own fail on the merge base and pass on the head"
     out = [first, '']
     if failures and not report.get('error'):
         out += [f'### Flips ({len(failures)})', '',
                 f'Pass on the merge base {short(base)}, fail on the head. Each was rerun on the merge base to confirm '
-                'it passed there.', '']
+                'it passed there, and failed again on the head in every rerun made: in the same process, alone in a fresh '
+                'process, and after the rest of the candidates, unless its row says it is order-dependent. A rerun that was '
+                'not made is named on its row.', '']
+        missing = {row.get('id'): [leg for leg, state in (row.get('reruns') or {}).items() if state is None]
+                   for row in report.get('flip_trust') or [] if isinstance(row, dict)}
+        leaks = {row.get('id'): row.get('why', '') for row in report.get('flip_trust') or [] if isinstance(row, dict)
+                 and row.get('label') == 'fails: order-dependent, new with this change'}
+        names = dict(in_process='in the same process', fresh_process='alone in a fresh process', after_set='after the rest')
 
         def flip(row):
             label = row.get('label') if isinstance(row, dict) else None
-            return code(failure_id(row)) + (' (fails as the test was before it was edited)' if label == 'test edited, not fixed' else '')
+            gone = [names.get(leg, str(leg)) for leg in missing.get(failure_id(row), [])]
+            return (code(failure_id(row)) + (' (fails as the test was before it was edited)' if label == 'test edited, not fixed' else '')
+                    + (f" (order-dependent, new with this change: {code(leaks[failure_id(row)], 200)})" if failure_id(row) in leaks else '')
+                    + (f" (not rerun {', '.join(gone)})" if gone else ''))
         out += rows(failures, flip, listed) + ['']
         if verify and verify.get('checked'):
             out += [f"Rerun on the merge base in a fresh job: {verify.get('held', 0)} passed again, "
                     f"{verify.get('false', 0)} failed there too, so not the change, "
                     f"{verify.get('other', 0)} could not be rerun.", '']
+    replayed = [row for row in report.get('replayed') or [] if isinstance(row, dict)]
+    if replayed and not report.get('error'):
+        out += [f"### Change evidence: the pull request's own tests ({len(evidence)})", '',
+                f"The {plural(len(replayed), 'test')} this pull request adds or edits ran on the head and on the merge base "
+                f"{short(base)} with the tests as the pull request leaves them.", '']
+        if evidence:
+            out += ['Fail on the merge base and pass on the head, so the change does what they check. Each failure on the '
+                    'merge base repeated in a fresh process.', '']
+
+            def shown(row):
+                return code(row['id']) + (' (does not load on the merge base)' if row.get('before') == 'unloadable' else '')
+            out += rows(evidence, shown, listed) + ['']
+        quiet = sum(row.get('verdict') == 'none' for row in replayed)
+        if quiet:
+            out += [f"{plural(quiet, 'test')} pass on the merge base too, so they show nothing about the change.", '']
+    labelled = [row for row in report.get('flip_trust') or [] if isinstance(row, dict) and row.get('id')
+                and not str(row.get('label', '')).startswith('fails')]
     unstable = report.get('unstable') or []
-    if unstable:
+    if labelled and not report.get('error'):
+        out += [f'### Flips not counted ({len(labelled)})', '',
+                'Pass on the merge base and fail on the head, but did not pass the checks a flip needs to count:', '']
+        out += rows(labelled, lambda row: f"{code(row['id'])}: {code(row.get('label', '?'), 40)}, {code(row.get('why', ''), 200)}", listed) + ['']
+    elif unstable:
         out += [f'Flipped once and not on a rerun, so not counted: {len(unstable)}.', '']
         out += rows(unstable, lambda row: code(failure_id(row)), listed) + ['']
     if aborted:
@@ -98,7 +132,16 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None):
             out.append(f"{executed.get('ran')} of {executed.get('candidates', '?')} candidate tests on the head, "
                        f"{executed.get('seconds', '?')} s with {code(executed.get('runner') or report.get('runner') or '?')}"
                        f"{', budget ' + str(executed['budget']) + ' s per side' if executed.get('budget') else ''}. "
-                       'Failures were rerun on the merge base. Tests outside the candidates were not run.')
+                       'Failures were rerun on the merge base. Tests outside the candidates were not run.'
+                       + (f" Order: {code(report['order'], 120)}." if report.get('order') else ''))
+            cached = executed.get('base_cache') or {}
+            if cached.get('answered') and not cached.get('ran'):
+                out.append(f"The merge base side was not run: all {cached['answered']} outcomes it needed are passes "
+                           'cached from an earlier run, keyed on the content of each test file and what it imports, the '
+                           'interpreter, the lock files and the runner arguments.')
+            elif cached.get('answered'):
+                out.append(f"On the merge base, {cached['answered']} outcomes came from the cache of earlier passes and "
+                           f"{cached['ran']} ran.")
         else:
             out.append('No test ran, so nothing here says whether the change breaks one.')
         out.append('')

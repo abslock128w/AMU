@@ -1,0 +1,17 @@
+{
+  "case_id": "h2-requests-bc7dd0fc",
+  "function_recall10": 0.0,
+  "file_recall10": 1.0,
+  "function_hits": [],
+  "missing_from_parent": [],
+  "recommended": 4,
+  "top10": [
+    "tests/test_requests.py::test_json_encodes_as_bytes",
+    "tests/test_requests.py::test_prepared_copy",
+    "tests/test_requests.py::test_data_argument_accepts_tuples",
+    "tests/test_requests.py::test_proxy_env_vars_override_default"
+  ],
+  "seconds": 0.3711102499946719,
+  "bytes": 1929,
+  "noise10": 4
+}

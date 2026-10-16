@@ -338,14 +338,15 @@ def state(root, index_dir=None):
     from .graph import Graph
     cache, sources, hashes, gaps = _scan(root, index_dir)
     key = hashlib.sha256(json.dumps(sorted(hashes.items())).encode()).hexdigest()
-    dest = cache/('state-'+key+'.json')
+    # state2: snapshots carry each file's imported modules (deps) for the import closure (select module).
+    dest = cache/('state2-'+key+'.json')
     try:
         saved = json.loads(dest.read_text())
         return saved['facts'], hashes, sorted(set(gaps) | set(saved['gaps'])), 0, Graph(saved['facts'], saved['graph'])
     except (OSError, ValueError, KeyError, TypeError):
         pass
     built, facts, parsed = None, None, 0
-    for earlier in sorted(cache.glob('state-*.json'), key=lambda p: p.stat().st_mtime, reverse=True)[:1]:
+    for earlier in sorted(cache.glob('state2-*.json'), key=lambda p: p.stat().st_mtime, reverse=True)[:1]:
         # An edited tree: reuse the latest snapshot's graph and facts, and relink only the files that differ.
         try:
             saved = json.loads(earlier.read_text())
@@ -368,11 +369,12 @@ def state(root, index_dir=None):
     if built is None:
         facts, parsed = _facts(cache, sources, gaps)
         built = Graph(facts)
-    slim = {path: dict(fact, records={ident: {k: v for k, v in record.items() if k not in SLIM_DROP}
+    from .select import deps
+    slim = {path: dict(fact, deps=deps(fact), records={ident: {k: v for k, v in record.items() if k not in SLIM_DROP}
                                       for ident, record in fact['records'].items()}) for path, fact in facts.items()}
     try:
         cache.mkdir(parents=True, exist_ok=True)
-        for old in sorted(cache.glob('state-*.json'), key=lambda p: p.stat().st_mtime)[:-STATE_KEEP]:
+        for old in [*cache.glob('state-*.json'), *sorted(cache.glob('state2-*.json'), key=lambda p: p.stat().st_mtime)[:-STATE_KEEP]]:
             old.unlink(missing_ok=True)
         temporary = dest.with_suffix('.'+str(os.getpid())+'.tmp')
         temporary.write_text(json.dumps(dict(facts=slim, hashes=hashes, gaps=sorted(g for g in set(gaps) if 'relinked' not in g),

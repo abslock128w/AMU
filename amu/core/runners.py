@@ -5,6 +5,7 @@ label its command line accepts, so a row in the packet can be pasted into the pr
 """
 from __future__ import annotations
 
+import json
 import os
 import re
 import subprocess
@@ -54,8 +55,11 @@ class Runner:
     def cwd(self, tree):
         return tree
 
+    extra = ()  # arguments added to every run, such as the ordering seed (trust.ordering)
+    durations = None  # {id: seconds} measured by the runs of this instance, where the runner reports them
+
     def command(self, python, labels, report):
-        return [python, '-m', 'pytest', *labels, '-q', '-p', 'no:cacheprovider', '--junitxml=' + str(report)]
+        return [python, '-m', 'pytest', *labels, '-q', '-p', 'no:cacheprovider', *self.extra, '--junitxml=' + str(report)]
 
     def paste(self, ident):
         return 'python -m pytest ' + self.label(ident)
@@ -64,7 +68,8 @@ class Runner:
         """The ids pytest still selects under the project's own configuration (a marker filter in addopts deselects
         tests even when they are named); None when that cannot be read."""
         try:
-            done = subprocess.run([python, '-m', 'pytest', '--collect-only', '-q', '-p', 'no:cacheprovider', *[self.label(i) for i in ids]],
+            done = subprocess.run([python, '-m', 'pytest', '--collect-only', '-q', '-p', 'no:cacheprovider', *self.extra,
+                                   *[self.label(i) for i in ids]],
                                   cwd=self.cwd(tree), env=env, capture_output=True, timeout=timeout, stdin=subprocess.DEVNULL)
         except (subprocess.TimeoutExpired, OSError):
             return None
@@ -84,6 +89,13 @@ class Runner:
             else:
                 continue
             ident = '::'.join(['/'.join(parts[:cut]) + '.py', *parts[cut:], case.get('name', '').split('[')[0]])
+            try:
+                took = float(case.get('time') or 0)
+            except ValueError:
+                took = 0.0
+            if self.durations is None:
+                self.durations = {}
+            self.durations[ident] = round(self.durations.get(ident, 0.0) + took, 3) if ident in found else round(took, 3)
             state = next((child.tag for child in case if child.tag in ('failure', 'error', 'skipped')), 'passed')
             state = 'failed' if state in ('failure', 'error') else state
             # A function fails if any of its parameter instances fails.
@@ -187,13 +199,84 @@ def get(root, name=None):
     return RUNNERS.get(name or detect(root), Runner)()
 
 
-def execute(runner, python, tree, ids, report, timeout):
+# Plugins never loaded for a comparison: they reorder, rerun, select or decorate tests, and the comparison does that
+# itself (pytest-randomly is loaded again with a fixed seed when present: trust.ordering).
+SKIPPED_PLUGINS = ('xdist', 'testmon', 'pytest_cov', 'rerunfailures', 'pytest_rerunfailures', 'flaky', 'sugar', 'pytest_sugar',
+                   'pytest_html', 'picked', 'pytest_picked', 'randomly', 'pytest_randomly', 'pytest_randomly.', 'random_order',
+                   'pytest_random_order', 'instafail', 'pytest_instafail')
+_PLUGINS = {}
+
+
+def plugins(python):
+    """The pytest plugins installed for ``python`` (entry point group pytest11), as importable module names."""
+    if python not in _PLUGINS:
+        code = ('import importlib.metadata as m, json; '
+                'print(json.dumps(sorted({(e.name, e.value.split(":")[0]) for e in m.entry_points(group="pytest11")})))')
+        try:
+            done = subprocess.run([python, '-c', code], capture_output=True, text=True, timeout=60)
+            _PLUGINS[python] = [tuple(item) for item in json.loads(done.stdout)]
+        except (OSError, subprocess.TimeoutExpired, ValueError):
+            _PLUGINS[python] = None
+    return _PLUGINS[python]
+
+
+def plugin_args(runner, python):
+    """With plugin autoload off (environment), the installed plugins a comparison keeps, each named with -p. Empty
+    when the list cannot be read; autoload then stays on."""
+    if runner.name != 'pytest':
+        return []
+    found = plugins(python)
+    if found is None:
+        return []
+    runner.autoload_off = True
+    kept = [module for name, module in found
+            if not any(name == skip or module == skip or module.startswith(skip.rstrip('.') + '.') for skip in SKIPPED_PLUGINS)]
+    if any(module.split('.')[0] == 'pytest_randomly' for _, module in found):
+        kept.append('pytest_randomly')
+    return [arg for module in kept for arg in ('-p', module)]
+
+
+def environment(tree, extra_env=None, autoload=True):
+    """The environment a test run gets: the tree importable, no bytecode written, a fixed hash seed so both sides
+    iterate sets and dicts of strings alike. ``AMU_TRUST_PATH`` in ``extra_env`` goes first on the path (trust)."""
+    extra = dict(extra_env or {})
+    first = extra.get('AMU_TRUST_PATH')
+    if not autoload:
+        extra.setdefault('PYTEST_DISABLE_PLUGIN_AUTOLOAD', '1')
+    return dict(os.environ, PYTHONDONTWRITEBYTECODE='1', PYTHONHASHSEED='0', **extra,
+                PYTHONPATH=os.pathsep.join(filter(None, [first, str(tree/'src'), str(tree), os.environ.get('PYTHONPATH')])))
+
+
+def sequence(runner, python, tree, ids, timeout):
+    """Each label's outcomes in the order a unittest-style runner reported them: {id: [state, ...]}. A label given
+    twice runs twice in the same process."""
+    try:
+        done = subprocess.run(runner.command(python, [runner.label(i) for i in ids], None), cwd=runner.cwd(tree),
+                              env=environment(tree, autoload=not getattr(runner, 'autoload_off', False)), capture_output=True,
+                              timeout=timeout, stdin=subprocess.DEVNULL)
+    except (subprocess.TimeoutExpired, OSError):
+        return {}
+    by_label = {runner.label(ident): ident for ident in ids}
+    found, pending = {}, None
+    for line in (done.stderr + done.stdout).decode(errors='replace').splitlines():
+        match = VERBOSE.match(line)
+        if match:
+            pending = match[2]
+        state = STATE.search(line)
+        if state and pending:
+            value = 'passed' if state[1] == 'ok' else 'skipped' if state[1] in ('skipped', 'expected failure') else 'failed'
+            if pending in by_label:
+                found.setdefault(by_label[pending], []).append(value)
+            pending = None
+    return found
+
+
+def execute(runner, python, tree, ids, report, timeout, extra_env=None, extra_args=None):
     """Run ``ids`` in ``tree``. Returns ({id: state}, problem or None)."""
     usable = [ident for ident in ids if not runner.needs_class or ident.count('::') >= 2]
     if not usable:
         return {}, None
-    env = dict(os.environ, PYTHONDONTWRITEBYTECODE='1',
-               PYTHONPATH=os.pathsep.join(filter(None, [str(tree/'src'), str(tree), os.environ.get('PYTHONPATH')])))
+    env = environment(tree, extra_env, autoload=not getattr(runner, 'autoload_off', False))
     found, problem = {}, None
     # One batch first. A single label the runner cannot load can abort the whole batch and leave it with
     # no outcomes, so a batch that comes back short is split in two and retried until the labels that
@@ -202,7 +285,10 @@ def execute(runner, python, tree, ids, report, timeout):
     while batches:
         batch = batches.pop(0)
         try:
-            done = subprocess.run(runner.command(python, [runner.label(i) for i in batch], report), cwd=runner.cwd(tree), env=env,
+            command = runner.command(python, [runner.label(i) for i in batch], report)
+            if extra_args:
+                command = [*command[:3], *extra_args, *command[3:]] if runner.name == 'pytest' else command
+            done = subprocess.run(command, cwd=runner.cwd(tree), env=env,
                                   capture_output=True, timeout=timeout, stdin=subprocess.DEVNULL)
         except subprocess.TimeoutExpired:
             return found, 'timed out'

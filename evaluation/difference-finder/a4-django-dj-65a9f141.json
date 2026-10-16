@@ -1,0 +1,238 @@
+{
+ "case": "dj-65a9f141",
+ "budget": 120,
+ "runs": [
+  {
+   "run": 1,
+   "wall": 63.9,
+   "flips": 2,
+   "summary": "EXECUTED 440 of 5760 candidate tests after the change with django-runtests in 42.4 s, failures confirmed before it: 2 now fail. 6925 tests reach the change.",
+   "executed": {
+    "ran": 440,
+    "candidates": 5760,
+    "unrunnable": 40,
+    "seconds": 42.4,
+    "runner": "django-runtests",
+    "budget": 120,
+    "replayed": 0,
+    "selection": {
+     "closure_files": 1146,
+     "closure_tests": 14216,
+     "hubs": 29,
+     "hubs_reached": [
+      "django/apps/__init__.py",
+      "django/conf/__init__.py",
+      "django/contrib/admin/__init__.py",
+      "django/contrib/auth/models.py",
+      "django/core/checks/__init__.py",
+      "django/core/management/__init__.py",
+      "django/core/management/base.py",
+      "django/db/__init__.py",
+      "django/db/migrations/__init__.py",
+      "django/db/models/__init__.py",
+      "django/db/models/expressions.py",
+      "django/db/models/functions/__init__.py",
+      "django/db/transaction.py",
+      "django/forms/__init__.py",
+      "django/http/__init__.py",
+      "django/template/__init__.py",
+      "django/template/defaultfilters.py",
+      "django/test/__init__.py",
+      "django/test/utils.py",
+      "django/urls/__init__.py"
+     ],
+     "observed": 0,
+     "static_only": 1467,
+     "depth_cap": 10,
+     "candidates": 16607
+    },
+    "base_cache": {
+     "answered": 0,
+     "ran": 2,
+     "stored": 2
+    }
+   },
+   "flip_trust": [
+    {
+     "id": "tests/auth_tests/test_validators.py::PasswordValidationTest::test_get_password_validators_custom_invalid",
+     "label": "fails",
+     "why": "failed again in every rerun; ran 15 changed line(s); not rerun: the rerun in the same process",
+     "reruns": {
+      "in_process": null,
+      "fresh_process": "failed",
+      "after_set": "failed"
+     },
+     "reach": 15
+    },
+    {
+     "id": "tests/auth_tests/test_models.py::UserWithPermTestCase::test_invalid_backend_submodule",
+     "label": "fails",
+     "why": "failed again in every rerun; ran 11 changed line(s); not rerun: the rerun in the same process",
+     "reruns": {
+      "in_process": null,
+      "fresh_process": "failed",
+      "after_set": "failed"
+     },
+     "reach": 11
+    }
+   ],
+   "predicted_failures": [
+    {
+     "id": "tests/auth_tests/test_validators.py::PasswordValidationTest::test_get_password_validators_custom_invalid",
+     "before": "passed",
+     "after": "failed",
+     "label": "executed",
+     "trust": "fails",
+     "why": "failed again in every rerun; ran 15 changed line(s); not rerun: the rerun in the same process",
+     "reruns": {
+      "in_process": null,
+      "fresh_process": "failed",
+      "after_set": "failed"
+     },
+     "reach": 15
+    },
+    {
+     "id": "tests/auth_tests/test_models.py::UserWithPermTestCase::test_invalid_backend_submodule",
+     "before": "passed",
+     "after": "failed",
+     "label": "executed",
+     "trust": "fails",
+     "why": "failed again in every rerun; ran 11 changed line(s); not rerun: the rerun in the same process",
+     "reruns": {
+      "in_process": null,
+      "fresh_process": "failed",
+      "after_set": "failed"
+     },
+     "reach": 11
+    }
+   ],
+   "gaps": [
+    "10847 lower-ranked candidate(s) not run: about 15 tests/s per process fit 5760 in the 120 s allowed",
+    "40 candidate(s) could not be run by django-runtests and are not covered by this result",
+    "99381 call sites unresolved repo-wide; dynamic dispatch may reach more",
+    "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+    "shadow run stopped at its 120 s budget: 320 of 5760 candidates run",
+    "tests/test_runner_apps/tagged/tests_syntax_error.py: SyntaxError"
+   ]
+  },
+  {
+   "run": 2,
+   "wall": 54.2,
+   "flips": 2,
+   "summary": "EXECUTED 440 of 2880 candidate tests after the change with django-runtests in 51.4 s, failures confirmed before it: 2 now fail. 6925 tests reach the change.",
+   "executed": {
+    "ran": 440,
+    "candidates": 2880,
+    "unrunnable": 40,
+    "seconds": 51.4,
+    "runner": "django-runtests",
+    "budget": 120,
+    "replayed": 0,
+    "selection": {
+     "closure_files": 1146,
+     "closure_tests": 14216,
+     "hubs": 29,
+     "hubs_reached": [
+      "django/apps/__init__.py",
+      "django/conf/__init__.py",
+      "django/contrib/admin/__init__.py",
+      "django/contrib/auth/models.py",
+      "django/core/checks/__init__.py",
+      "django/core/management/__init__.py",
+      "django/core/management/base.py",
+      "django/db/__init__.py",
+      "django/db/migrations/__init__.py",
+      "django/db/models/__init__.py",
+      "django/db/models/expressions.py",
+      "django/db/models/functions/__init__.py",
+      "django/db/transaction.py",
+      "django/forms/__init__.py",
+      "django/http/__init__.py",
+      "django/template/__init__.py",
+      "django/template/defaultfilters.py",
+      "django/test/__init__.py",
+      "django/test/utils.py",
+      "django/urls/__init__.py"
+     ],
+     "observed": 0,
+     "static_only": 1467,
+     "depth_cap": 10,
+     "candidates": 15311
+    },
+    "base_cache": {
+     "answered": 2,
+     "ran": 0,
+     "stored": 0
+    }
+   },
+   "flip_trust": [
+    {
+     "id": "tests/auth_tests/test_validators.py::PasswordValidationTest::test_get_password_validators_custom_invalid",
+     "label": "fails",
+     "why": "failed again in every rerun; ran 15 changed line(s); not rerun: the rerun in the same process",
+     "reruns": {
+      "in_process": null,
+      "fresh_process": "failed",
+      "after_set": "failed"
+     },
+     "reach": 15
+    },
+    {
+     "id": "tests/auth_tests/test_models.py::UserWithPermTestCase::test_invalid_backend_submodule",
+     "label": "fails",
+     "why": "failed again in every rerun; ran 11 changed line(s); not rerun: the rerun in the same process",
+     "reruns": {
+      "in_process": null,
+      "fresh_process": "failed",
+      "after_set": "failed"
+     },
+     "reach": 11
+    }
+   ],
+   "predicted_failures": [
+    {
+     "id": "tests/auth_tests/test_validators.py::PasswordValidationTest::test_get_password_validators_custom_invalid",
+     "before": "passed",
+     "after": "failed",
+     "label": "executed",
+     "trust": "fails",
+     "why": "failed again in every rerun; ran 15 changed line(s); not rerun: the rerun in the same process",
+     "reruns": {
+      "in_process": null,
+      "fresh_process": "failed",
+      "after_set": "failed"
+     },
+     "reach": 15
+    },
+    {
+     "id": "tests/auth_tests/test_models.py::UserWithPermTestCase::test_invalid_backend_submodule",
+     "before": "passed",
+     "after": "failed",
+     "label": "executed",
+     "trust": "fails",
+     "why": "failed again in every rerun; ran 11 changed line(s); not rerun: the rerun in the same process",
+     "reruns": {
+      "in_process": null,
+      "fresh_process": "failed",
+      "after_set": "failed"
+     },
+     "reach": 11
+    }
+   ],
+   "gaps": [
+    "12431 lower-ranked candidate(s) not run: about 8 tests/s per process fit 2880 in the 120 s allowed",
+    "40 candidate(s) could not be run by django-runtests and are not covered by this result",
+    "99381 call sites unresolved repo-wide; dynamic dispatch may reach more",
+    "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+    "shadow run stopped at its 120 s budget: 320 of 2880 candidates run",
+    "tests/test_runner_apps/tagged/tests_syntax_error.py: SyntaxError"
+   ],
+   "comment": "**AMU: 2 flips** at `0000000`, among 440 tests run\n\n### Flips (2)\n\nPass on the merge base `1111111`, fail on the head. Each was rerun on the merge base to confirm it passed there, and failed again on the head in the same process, alone in a fresh process, and after the rest of the candidates.\n\n- `tests/auth_tests/test_validators.py::PasswordValidationTest::test_get_password_validators_custom_invalid`\n- `tests/auth_tests/test_models.py::UserWithPermTestCase::test_invalid_backend_submodule`\n\n### Gaps (6)\n\nNot run or not seen:\n\n- `12431 lower-ranked candidate(s) not run: about 8 tests/s per process fit 2880 in the 120 s allowed`\n- `40 candidate(s) could not be run by django-runtests and are not covered by this result`\n- `99381 call sites unresolved repo-wide; dynamic dispatch may reach more`\n- `shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.`\n- `shadow run stopped at its 120 s budget: 320 of 2880 candidates run`\n- `tests/test_runner_apps/tagged/tests_syntax_error.py: SyntaxError`\n\n### What ran\n\n440 of 2880 candidate tests on the head, 51.4 s with `django-runtests`, budget 120 s per side. Failures were rerun on the merge base. Tests outside the candidates were not run. Order: `the same explicit order on both sides (fixed hash seed)`.\nThe merge base side was not run: all 2 outcomes it needed are passes cached from an earlier run, keyed on the content of each test file and what it imports, the interpreter, the lock files and the runner arguments.\n\n<sub>AMU `?` from `?`, report `379ac3ca900c`. Full JSON is in the workflow run's artifact.</sub>\n\n<!-- amu-ci-comment v1 -->"
+  }
+ ],
+ "warm_stubbed_seconds": [
+  1.79,
+  1.77,
+  1.75
+ ]
+}
