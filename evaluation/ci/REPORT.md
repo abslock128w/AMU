@@ -267,3 +267,51 @@ PR #4 was then closed without merging.
   `download-artifact`, all v4 or v5) are being run on Node 24. They work, and nothing in the action depends on the
   Node version.
 - On PR #2 the diff is over 2 MiB, so AMU inspected only the first 2 MiB. The comment lists that as a gap.
+
+## Status (2026-10-16)
+
+### What main contains
+
+- **PR #2 is merged** with a merge commit (4b2d51d), after CI was green on its last head (56053a8): Ubuntu and
+  macOS on Python 3.11 and 3.14, the viewer check, and AMU's own check. It brings in everything above:
+  - the `amu/core` engine with shadow execution;
+  - the slow-suite trial record and its post hoc re-analysis;
+  - the composite action `action.yml` and the `amu.ci` package (run, render, post, verify, counters);
+  - the workflow templates in `ci/`;
+  - this report and `INSTALL-NOTE.md`.
+- **The distribution is `anti-messup`, version 0.1.0.** The PyPI name `amu` belongs to an unrelated project, and the
+  owner chose `anti-messup`. The import name stays `amu`.
+- **Workflows:**
+  - `.github/workflows/amu-pr.yml` and `amu-pr-comment.yml` pin `abslock128w/AMU@v0.1.0` (cb67c27);
+  - `ci.yml` holds the existing release checks;
+  - `publish.yml` uploads a tag to PyPI, only when started by hand.
+
+### The release
+
+- **Tag and release:** `v0.1.0` is on 4b2d51d, and the GitHub release "AMU 0.1.0" has the install note as its body
+  (https://github.com/abslock128w/AMU/releases/tag/v0.1.0).
+- **The action installs AMU** from that tag (`anti-messup @ git+https://github.com/abslock128w/AMU@v0.1.0`).
+- **Checked on a fresh pull request:** PR #5, a one-word code-comment change, got AMU's comment from the v0.1.0 pins.
+  Its footer reads "AMU `0.1.0` from `v0.1.0`". No test reaches a comment, so the first line correctly gave no flip
+  count. PR #5 was closed without merging.
+- **PyPI: not uploaded yet.** `publish.yml` needs the repository Actions secret `PYPI_API_TOKEN`. On 2026-10-16 the
+  repository's Actions secrets list was empty, so the upload was not started.
+  - Building from the tag was rehearsed locally: sdist and wheel `anti_messup-0.1.0`, the archive check, and the
+    installed-wheel smoke all pass.
+  - Once the package is on PyPI, the action can install `anti-messup==0.1.0` instead of the git URL, in a v0.1.1.
+
+### The three adoption bars, with current numbers
+
+1. **Commenting on every pull request in this repository this week: on track.**
+   - Every pull request opened since the workflows reached main got the comment: PR #4, PR #5, and PR #2 on its
+     next push.
+   - PR #3, which added the workflows, could not get one, because the posting workflow was not yet on the default
+     branch.
+2. **Three external repositories with slow suites within four weeks of release: 0 of 3.** The owner is bringing the
+   names. The install note is the release body.
+3. **Across the first 50 pull requests commented on: 3 of 50 so far.**
+   From `python -m amu.ci.counters abslock128w/AMU` on 2026-10-16:
+   - with a flip: 1 (PR #4, the deliberate one);
+   - flips rerun on the merge base in a fresh job: 1, false: 0, so a false-flip rate of 0 of 1 (bar: under 5%);
+   - cleared by a push before merge: 0 of 1 (bar: at least half), because PR #4 was closed, as intended.
+   - These are dogfood pull requests. External ones have not started, so neither bar says anything yet.
