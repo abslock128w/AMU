@@ -1,0 +1,569 @@
+{
+ "summary": {
+  "runs": 32,
+  "errors": [],
+  "old_confirmed": 33,
+  "labels": {
+   "fails": 12
+  },
+  "lost": [
+   [
+    "w01",
+    "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction"
+   ],
+   [
+    "w02",
+    "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction"
+   ],
+   [
+    "w05",
+    "sympy/polys/tests/test_ring_series.py::test_nth_root"
+   ],
+   [
+    "w06",
+    "sympy/core/tests/test_expr.py::test_as_base_exp"
+   ],
+   [
+    "w08",
+    "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars"
+   ],
+   [
+    "w08",
+    "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array"
+   ],
+   [
+    "w08",
+    "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients"
+   ],
+   [
+    "w10",
+    "sympy/polys/tests/test_ring_series.py::test_nth_root"
+   ],
+   [
+    "w12",
+    "sympy/core/tests/test_expr.py::test_as_base_exp"
+   ],
+   [
+    "w13",
+    "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients"
+   ],
+   [
+    "w19",
+    "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars"
+   ],
+   [
+    "w19",
+    "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array"
+   ],
+   [
+    "w19",
+    "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients"
+   ],
+   [
+    "w22",
+    "sympy/core/tests/test_expr.py::test_as_base_exp"
+   ],
+   [
+    "w23",
+    "sympy/core/tests/test_expr.py::test_as_base_exp"
+   ],
+   [
+    "w24",
+    "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_convert_array_to_matrix_scalar_addends"
+   ],
+   [
+    "w24",
+    "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars"
+   ],
+   [
+    "w24",
+    "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array"
+   ],
+   [
+    "w24",
+    "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients"
+   ],
+   [
+    "w27",
+    "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction"
+   ],
+   [
+    "w28",
+    "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction"
+   ]
+  ],
+  "unlabelled": [],
+  "old_confirmed_labelled": {
+   "lost": 21,
+   "fails": 12
+  }
+ },
+ "table": [
+  {
+   "run": "w01",
+   "old_flips": 1,
+   "new_fails": 0,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "lost": 1
+   },
+   "new_only": [],
+   "lost": [
+    "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction"
+   ],
+   "seconds_old": 110.0,
+   "seconds_new": 173.6
+  },
+  {
+   "run": "w02",
+   "old_flips": 1,
+   "new_fails": 0,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "lost": 1
+   },
+   "new_only": [],
+   "lost": [
+    "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction"
+   ],
+   "seconds_old": 109.8,
+   "seconds_new": 197.8
+  },
+  {
+   "run": "w03",
+   "old_flips": 1,
+   "new_fails": 1,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 1
+   },
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 174.4,
+   "seconds_new": 174.0
+  },
+  {
+   "run": "w04",
+   "old_flips": 0,
+   "new_fails": 0,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {},
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 175.5,
+   "seconds_new": 151.6
+  },
+  {
+   "run": "w05",
+   "old_flips": 1,
+   "new_fails": 0,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "lost": 1
+   },
+   "new_only": [],
+   "lost": [
+    "sympy/polys/tests/test_ring_series.py::test_nth_root"
+   ],
+   "seconds_old": 157.9,
+   "seconds_new": 151.8
+  },
+  {
+   "run": "w06",
+   "old_flips": 1,
+   "new_fails": 0,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "lost": 1
+   },
+   "new_only": [],
+   "lost": [
+    "sympy/core/tests/test_expr.py::test_as_base_exp"
+   ],
+   "seconds_old": 178.6,
+   "seconds_new": 146.8
+  },
+  {
+   "run": "w07",
+   "old_flips": 0,
+   "new_fails": 0,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {},
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 200.9,
+   "seconds_new": 191.8
+  },
+  {
+   "run": "w08",
+   "old_flips": 3,
+   "new_fails": 0,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "lost": 3
+   },
+   "new_only": [],
+   "lost": [
+    "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars",
+    "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array",
+    "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients"
+   ],
+   "seconds_old": 227.3,
+   "seconds_new": 151.6
+  },
+  {
+   "run": "w09",
+   "old_flips": 0,
+   "new_fails": 0,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {},
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 134.2,
+   "seconds_new": 144.5
+  },
+  {
+   "run": "w10",
+   "old_flips": 1,
+   "new_fails": 0,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "lost": 1
+   },
+   "new_only": [],
+   "lost": [
+    "sympy/polys/tests/test_ring_series.py::test_nth_root"
+   ],
+   "seconds_old": 95.0,
+   "seconds_new": 147.0
+  },
+  {
+   "run": "w11",
+   "old_flips": 1,
+   "new_fails": 1,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 1
+   },
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 98.1,
+   "seconds_new": 92.6
+  },
+  {
+   "run": "w12",
+   "old_flips": 1,
+   "new_fails": 0,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "lost": 1
+   },
+   "new_only": [],
+   "lost": [
+    "sympy/core/tests/test_expr.py::test_as_base_exp"
+   ],
+   "seconds_old": 96.6,
+   "seconds_new": 147.9
+  },
+  {
+   "run": "w13",
+   "old_flips": 1,
+   "new_fails": 0,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "lost": 1
+   },
+   "new_only": [],
+   "lost": [
+    "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients"
+   ],
+   "seconds_old": 152.6,
+   "seconds_new": 145.9
+  },
+  {
+   "run": "w14",
+   "old_flips": 0,
+   "new_fails": 0,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {},
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 168.0,
+   "seconds_new": 172.9
+  },
+  {
+   "run": "w15",
+   "old_flips": 1,
+   "new_fails": 1,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 1
+   },
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 167.7,
+   "seconds_new": 217.9
+  },
+  {
+   "run": "w16",
+   "old_flips": 0,
+   "new_fails": 0,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {},
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 251.3,
+   "seconds_new": 168.6
+  },
+  {
+   "run": "w17",
+   "old_flips": 0,
+   "new_fails": 0,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {},
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 150.0,
+   "seconds_new": 144.3
+  },
+  {
+   "run": "w18",
+   "old_flips": 1,
+   "new_fails": 1,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 1
+   },
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 159.3,
+   "seconds_new": 170.3
+  },
+  {
+   "run": "w19",
+   "old_flips": 4,
+   "new_fails": 1,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 1,
+    "lost": 3
+   },
+   "new_only": [],
+   "lost": [
+    "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars",
+    "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array",
+    "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients"
+   ],
+   "seconds_old": 159.4,
+   "seconds_new": 168.9
+  },
+  {
+   "run": "w20",
+   "old_flips": 0,
+   "new_fails": 0,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {},
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 141.1,
+   "seconds_new": 142.9
+  },
+  {
+   "run": "w21",
+   "old_flips": 1,
+   "new_fails": 1,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 1
+   },
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 96.7,
+   "seconds_new": 88.0
+  },
+  {
+   "run": "w22",
+   "old_flips": 1,
+   "new_fails": 0,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "lost": 1
+   },
+   "new_only": [],
+   "lost": [
+    "sympy/core/tests/test_expr.py::test_as_base_exp"
+   ],
+   "seconds_old": 156.0,
+   "seconds_new": 143.9
+  },
+  {
+   "run": "w23",
+   "old_flips": 1,
+   "new_fails": 0,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "lost": 1
+   },
+   "new_only": [],
+   "lost": [
+    "sympy/core/tests/test_expr.py::test_as_base_exp"
+   ],
+   "seconds_old": 148.3,
+   "seconds_new": 141.7
+  },
+  {
+   "run": "w24",
+   "old_flips": 4,
+   "new_fails": 0,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "lost": 4
+   },
+   "new_only": [],
+   "lost": [
+    "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_convert_array_to_matrix_scalar_addends",
+    "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars",
+    "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array",
+    "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients"
+   ],
+   "seconds_old": 152.1,
+   "seconds_new": 139.6
+  },
+  {
+   "run": "w25",
+   "old_flips": 1,
+   "new_fails": 1,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 1
+   },
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 96.4,
+   "seconds_new": 89.0
+  },
+  {
+   "run": "w26",
+   "old_flips": 1,
+   "new_fails": 1,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 1
+   },
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 141.8,
+   "seconds_new": 157.2
+  },
+  {
+   "run": "w27",
+   "old_flips": 1,
+   "new_fails": 0,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "lost": 1
+   },
+   "new_only": [],
+   "lost": [
+    "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction"
+   ],
+   "seconds_old": 132.6,
+   "seconds_new": 163.7
+  },
+  {
+   "run": "w28",
+   "old_flips": 1,
+   "new_fails": 0,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "lost": 1
+   },
+   "new_only": [],
+   "lost": [
+    "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction"
+   ],
+   "seconds_old": 130.4,
+   "seconds_new": 164.3
+  },
+  {
+   "run": "w29",
+   "old_flips": 1,
+   "new_fails": 1,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 1
+   },
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 92.6,
+   "seconds_new": 88.7
+  },
+  {
+   "run": "w30",
+   "old_flips": 3,
+   "new_fails": 3,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {
+    "fails": 3
+   },
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 100.9,
+   "seconds_new": 163.5
+  },
+  {
+   "run": "w31",
+   "old_flips": 0,
+   "new_fails": 0,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {},
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 131.5,
+   "seconds_new": 144.3
+  },
+  {
+   "run": "w32",
+   "old_flips": 0,
+   "new_fails": 0,
+   "unstable": 0,
+   "not_caused": 0,
+   "old_confirmed_now": {},
+   "new_only": [],
+   "lost": [],
+   "seconds_old": 121.8,
+   "seconds_new": 139.6
+  }
+ ]
+}

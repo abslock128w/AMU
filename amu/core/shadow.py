@@ -206,9 +206,9 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
             edited = {path for path in edits if before_src.get(path) and any(_path(i) == path for i in ids)}
             checked = [i for i in ids if _path(i) in edited and states['after'].get(i) in ('passed', 'skipped', 'unrunnable', 'removed')
                        and _existed(i, before_src, trees['after'])]
-            if checked and left <= 1:
-                gaps.append(f'{len(checked)} test(s) from edited test files not run as they were before the edit: the budget was used up')
-            elif checked:
+            # These are tests the change touches, and every test the change touches runs (select): the check gets at least
+            # the confirmation allowance even when the candidates used up the budget.
+            if checked:
                 # The copy holds one side of every changed file; overwrite it into "changed code, tests as they were".
                 for path in edits:
                     _write(other/path, before_src[path] if path in edited else after_src[path])
