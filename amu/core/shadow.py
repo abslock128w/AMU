@@ -254,8 +254,10 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
             spec_targets, skipped = sidebyside.targets(functions, before_src, after_src)
             ran_ids = [i for i in ids if states['after'].get(i) in OUTCOMES]
             began = time.perf_counter()
+            added = [a for path in edits if path.endswith('.py') and not replay.is_test_file(path)
+                     for a in sidebyside.additions(before_src.get(path) or '', after_src.get(path) or '', path)]
             side, behaviour, more = sidebyside.run(runner, python, trees['before'], ran_ids, spec_targets, skipped, scratch,
-                                                   max(min(budget, SIDE_BY_SIDE), CONFIRM))
+                                                   max(min(budget, SIDE_BY_SIDE), CONFIRM), added)
             side['seconds'] = round(time.perf_counter() - began, 1)
             gaps += more
         if own and not aborted:

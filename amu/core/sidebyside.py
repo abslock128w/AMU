@@ -85,31 +85,21 @@ if _spec_path and _sys.version_info >= (3, 12):
                 text = "<repr failed: " + type(exc).__name__ + ">"
             return kind.__qualname__ + ":" + _ADDRESS.sub(" at 0x?", text)[:2000]
 
-        _namespaces = {}
-
-        def _namespace(target, globs):
-            """The module's globals as the change leaves them: a copy of the running module's, with the top-level
-            statements the change adds (a new helper, a new import, a new constant) run in it."""
-            found = _namespaces.get(target["file"])
-            if found is None:
-                found = _namespaces[target["file"]] = dict(globs)
-                for statement in target.get("additions") or []:
-                    try:
-                        exec(compile(statement, target["file"], "exec"), found)
-                    except Exception:
-                        pass
-            return found
-
         def _build(target, which, globs):
             source = target.get(which)
             if source is None:
                 return None
             if which == "after":
-                globs = _namespace(target, globs)
+                _prepare_swaps()
+                _swapped(True)
             template = ("def __amu_outer__():\n    __class__ = None\n" + textwrap.indent(source, "    ")
                         + "\n    return " + target["name"] + "\n")
             space = dict(globs)
-            exec(compile(template, target["file"], "exec"), space)
+            try:
+                exec(compile(template, target["file"], "exec"), space)
+            finally:
+                if which == "after":
+                    _swapped(False)
             made = space["__amu_outer__"]()
             parts = target["qual"].split(".")
             owner = None
@@ -152,7 +142,7 @@ if _spec_path and _sys.version_info >= (3, 12):
                 _local.calls.append(name)
             return None
 
-        _modules, _swaps = {}, []
+        _modules, _swaps, _MISSING = {}, [], object()
 
         def _module_for(path):
             found = _modules.get(path)
@@ -169,27 +159,80 @@ if _spec_path and _sys.version_info >= (3, 12):
                 _modules[path] = found
             return found
 
+        def _owner(module, parts):
+            owner = module
+            for part in parts:
+                owner = vars(owner).get(part) if isinstance(owner, type) or owner is module else None
+                if owner is None:
+                    return None
+            return owner
+
+        def _rebind(value, cls):
+            """A member built outside its class, with super() and __class__ pointing at the real class."""
+            kind = type(value)
+            if kind is types.FunctionType:
+                if "__class__" not in value.__code__.co_freevars:
+                    return value
+                cells = tuple(types.CellType(cls) if name == "__class__" else cell
+                              for name, cell in zip(value.__code__.co_freevars, value.__closure__ or ()))
+                fn = types.FunctionType(value.__code__, value.__globals__, value.__name__, value.__defaults__, cells)
+                fn.__kwdefaults__, fn.__dict__ = value.__kwdefaults__, dict(value.__dict__)
+                return fn
+            if kind in (staticmethod, classmethod):
+                return kind(_rebind(value.__func__, cls))
+            if kind is property:
+                return property(*(_rebind(f, cls) if f is not None else None for f in (value.fget, value.fset, value.fdel)), value.__doc__)
+            return value
+
         def _prepare_swaps():
-            """For every changed function that can be found in its module or class: (owner, name, as changed, as it was).
-            A changed function calling another changed one must call it as changed too, or the comparison mixes versions."""
+            """What the as-changed runs swap in, as (owner, name, as changed, as it was or _MISSING): the top-level
+            statements and class members the change adds, and every changed function that can be found in its module or
+            class. A changed function must see the rest of the change, or the comparison mixes versions."""
             if _swaps:
                 return _swaps
+            for addition in _spec.get("additions", []):
+                module = _module_for(_os.path.realpath(addition["file"]))
+                if not module:
+                    continue
+                space = vars(module)
+                before = dict(space)
+                try:
+                    if addition["owner"]:
+                        owner = _owner(module, addition["owner"].split("."))
+                        if not isinstance(owner, type):
+                            continue
+                        exec(compile("class __amu_members__:\n" + textwrap.indent(addition["source"], "    "), addition["file"], "exec"), space)
+                        members = {k: v for k, v in vars(space["__amu_members__"]).items()
+                                   if k not in ("__module__", "__qualname__", "__dict__", "__weakref__", "__doc__", "__firstlineno__", "__static_attributes__")}
+                        for name, value in members.items():
+                            _swaps.append((owner, name, _rebind(value, owner), vars(owner).get(name, _MISSING)))
+                    else:
+                        exec(compile(addition["source"], addition["file"], "exec"), space)
+                        for name, value in list(space.items()):
+                            if before.get(name, _MISSING) is not value:
+                                _swaps.append((module, name, value, before.get(name, _MISSING)))
+                except Exception:
+                    pass
+                finally:
+                    for name in [n for n in space if n not in before]:
+                        del space[name]
+                    space.update(before)
             for target in _spec["targets"]:
                 module = _module_for(_os.path.realpath(target["file"]))
                 if not module:
                     continue
-                owner = module
-                for part in target["qual"].split(".")[:-1]:
-                    owner = vars(owner).get(part) if isinstance(owner, type) or owner is module else None
-                    if owner is None:
-                        break
+                owner = _owner(module, target["qual"].split(".")[:-1])
                 if owner is None:
                     continue
                 original = vars(owner).get(target["name"])
                 kind = type(original)
                 if kind not in (types.FunctionType, staticmethod, classmethod):
                     continue
-                changed = _build(target, "after", vars(module))
+                _swaps.append(None)  # mark prepared before building, which applies what is prepared so far
+                try:
+                    changed = _build(target, "after", vars(module))
+                finally:
+                    _swaps.pop()
                 if changed is None:
                     continue
                 _swaps.append((owner, target["name"], changed if kind is types.FunctionType else kind(changed), original))
@@ -197,13 +240,19 @@ if _spec_path and _sys.version_info >= (3, 12):
             return _swaps
 
         def _swapped(on):
-            for item in _swaps:
-                if item is not None:
-                    owner, name, changed, original = item
-                    try:
-                        setattr(owner, name, changed if on else original)
-                    except Exception:
-                        pass
+            for item in (_swaps if on else reversed(_swaps)):
+                if item is None:
+                    continue
+                owner, name, changed, original = item
+                try:
+                    if on:
+                        setattr(owner, name, changed)
+                    elif original is _MISSING:
+                        delattr(owner, name)
+                    else:
+                        setattr(owner, name, original)
+                except Exception:
+                    pass
 
         def _thaw(blob):
             return pickle.loads(blob[1]) if blob[0] == "pickle" else copy.deepcopy(blob[1]) if blob[0] == "copy" else blob[1]
@@ -389,8 +438,7 @@ def targets(functions, before_src, after_src):
         if any(isinstance(n, (ast.Yield, ast.YieldFrom)) for n in ast.walk(old)) != any(isinstance(n, (ast.Yield, ast.YieldFrom)) for n in ast.walk(new)):
             skipped[ident] = 'a generator on one side only'
             continue
-        found.append(dict(id=ident, file=path, qual=qual, name=qual.rsplit('.', 1)[-1], before=old_text, after=new_text,
-                          additions=additions(before, after)))
+        found.append(dict(id=ident, file=path, qual=qual, name=qual.rsplit('.', 1)[-1], before=old_text, after=new_text))
     return found, skipped
 
 
@@ -406,39 +454,50 @@ def _defined(statement):
     return names
 
 
-def additions(before, after):
-    """Source of the top-level statements in ``after`` that define a name ``before`` does not, in file order."""
+def additions(before, after, path=''):
+    """What the change adds next to its changed functions, for the as-changed runs: top-level statements of ``after`` that
+    define a name ``before`` does not (owner ''), and members of a class on both sides that only ``after`` defines (owner
+    the class's qualified name), in file order, as {file, owner, source}."""
     try:
         old, new = ast.parse(before), ast.parse(after)
     except (SyntaxError, ValueError):
         return []
-    known = set().union(*(_defined(s) for s in old.body)) if old.body else set()
-    lines = after.splitlines()
-    found = []
-    for statement in new.body:
-        names = _defined(statement)
-        if names and not names <= known:
-            start = min([statement.lineno, *(d.lineno for d in getattr(statement, 'decorator_list', []))])
-            found.append(textwrap.dedent('\n'.join(lines[start - 1:statement.end_lineno])) + '\n')
+    lines, found = after.splitlines(), []
+
+    def segment(statement):
+        start = min([statement.lineno, *(d.lineno for d in getattr(statement, 'decorator_list', []))])
+        return textwrap.dedent('\n'.join(lines[start - 1:statement.end_lineno])) + '\n'
+
+    def walk(old_body, new_body, owner):
+        known = set().union(*(_defined(s) for s in old_body)) if old_body else set()
+        classes = {s.name: s for s in old_body if isinstance(s, ast.ClassDef)}
+        for statement in new_body:
+            names = _defined(statement)
+            if isinstance(statement, ast.ClassDef) and statement.name in classes:
+                walk(classes[statement.name].body, statement.body, (owner + '.' if owner else '') + statement.name)
+            elif names and not names <= known:
+                found.append(dict(file=path, owner=owner, source=segment(statement)))
+    walk(old.body, new.body, '')
     return found
 
 
-def support(scratch, tree, spec_targets):
+def support(scratch, tree, spec_targets, added=()):
     folder = Path(scratch)/'side-by-side'
     (folder/'out').mkdir(parents=True, exist_ok=True)
     (folder/'hook').mkdir(exist_ok=True)
     (folder/'hook'/'sitecustomize.py').write_text(HOOK)
     rows = [dict(t, file=str(Path(tree)/t['file'])) for t in spec_targets]
-    (folder/'spec.json').write_text(json.dumps(dict(root=str(tree), targets=rows, calls=CALLS)))
+    extra = [dict(a, file=str(Path(tree)/a['file'])) for a in added]
+    (folder/'spec.json').write_text(json.dumps(dict(root=str(tree), targets=rows, additions=extra, calls=CALLS)))
     return folder
 
 
-def run(runner, python, before_tree, ids, spec_targets, skipped, scratch, timeout):
+def run(runner, python, before_tree, ids, spec_targets, skipped, scratch, timeout, added=()):
     """Run ``ids`` on the code before the change with the hook. Returns (info, differences, gaps)."""
     gaps = []
     if not spec_targets:
         return dict(targets=0, skipped=skipped), [], gaps
-    folder = support(scratch, before_tree, spec_targets)
+    folder = support(scratch, before_tree, spec_targets, added)
     env = dict(AMU_TRUST_PATH=str(folder/'hook'), AMU_SBS_SPEC=str(folder/'spec.json'), AMU_SBS_OUT=str(folder/'out'))
     _, problem = runners.execute(runner, python, before_tree, ids, Path(scratch)/'side-by-side.xml', timeout, extra_env=env)
     if problem and problem != 'timed out':

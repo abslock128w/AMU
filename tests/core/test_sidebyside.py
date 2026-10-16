@@ -95,3 +95,18 @@ def test_arguments_that_cannot_be_copied_are_used_live_only_when_no_run_changes_
     found = {row['target']: row for row in report['behaviour_differences']}
     assert set(found) == {'lib.py#Site.size'}, found
     assert report['side_by_side']['not_compared'] == {'lib.py#Site.bump': 'changes arguments that cannot be copied; not compared on them'}
+
+
+def test_the_as_changed_run_sees_new_class_members_and_names_added_to_other_modules(tmp_path):
+    # Found on Django 4ea38d54 (a method added to the class) and 27137e65 (a function added to another module).
+    util0 = 'def base():\n    return 1\n'
+    util1 = util0 + '\n\ndef extra():\n    return 10\n'
+    lib0 = ('import util\n\n\nclass Site:\n    def urls(self):\n        return [util.base()]\n')
+    lib1 = ('import util\n\n\nclass Site:\n    def shortcut(self):\n        return util.extra()\n\n'
+            '    @property\n    def flag(self):\n        return True\n\n    def urls(self):\n        return [util.base(), self.shortcut(), self.flag]\n')
+    tests = 'from lib import Site\n\n\ndef test_urls():\n    assert Site().urls()\n'
+    report = change(tmp_path, {'util.py': util0, 'lib.py': lib0, 'tests/test_lib.py': tests},
+                    {'util.py': util1, 'lib.py': lib1, 'tests/test_lib.py': tests})
+    [row] = report['behaviour_differences']
+    assert row['after']['result'] == ['return', ['list', ['1', '10', 'True']]], row
+    assert row['before']['result'] == ['return', ['list', ['1']]]
