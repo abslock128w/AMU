@@ -141,3 +141,17 @@ def test_comparisons_made_before_the_time_limit_are_kept(tmp_path, monkeypatch):
              'def test_slow():\n    time.sleep(30)\n')
     report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1, 'tests/test_lib.py': tests})
     assert [row['target'] for row in report['behaviour_differences']] == ['lib.py#clamp'], report.get('side_by_side')
+
+
+def test_a_changed_signature_and_names_imported_by_value(tmp_path):
+    # Found on Django 65a9f141: cached_import(module_path, class_name) became cached_import(module_path); old call sites'
+    # inputs do not fit it, and a module that did `from module_loading import import_string` kept the old caller.
+    loading0 = 'def cached(path, name):\n    return path + "." + name\n\n\ndef load(dotted):\n    path, name = dotted.rsplit(".", 1)\n    return cached(path, name)\n'
+    loading1 = 'def cached(dotted):\n    return dotted\n\n\ndef load(dotted):\n    return cached(dotted).upper()\n'
+    user = 'from loading import load\n\n\ndef validators(names):\n    return [load(n) for n in names]\n'
+    tests = 'from user import validators\n\n\ndef test_v():\n    assert validators(["a.b"])\n'
+    report = change(tmp_path, {'loading.py': loading0, 'user.py': user, 'tests/test_v.py': tests},
+                    {'loading.py': loading1, 'user.py': user, 'tests/test_v.py': tests})
+    found = {row['target'].split('#')[1]: row for row in report['behaviour_differences']}
+    assert 'cached' not in found and report['side_by_side']['calls_not_fitting_a_changed_signature'] >= 1, report['side_by_side']
+    assert found['load']['after']['result'] == ['return', "'A.B'"], found

@@ -1,6 +1,17 @@
-# Brief 4, Phase B, B1: first-hit edge tracer on sys.monitoring (2026-10-16)
+# Brief 4, Phase B: the edge tracer (B1) and side-by-side execution of changed functions (B2), 2026-10-16 and 17
 
-Branch `tracer-b1`, from main at v0.2.1 (cc943c4). No agent trial; Django's suite and Click's suite in scratch copies.
+Branch `tracer-b1`, from main at v0.2.1 (cc943c4). No agent trial. Django, Click and sympy suites ran in scratch copies.
+
+## Summary
+
+| Item | Check | Result |
+|---|---|---|
+| B1 tracer | overhead on Django's suite beside coverage contexts | +14% against +48%; 4.2 MB against 104 MB |
+| B1 tracer | static graphs hold about half of runtime edges (DyPyBench 49%) | 53% on Click (56% for Click's own code) |
+| B2 side-by-side | Django's 102 non-breaking commits: share with a stable difference; precision on a hand check | 4 of 102 commits (4 of the 59 where the tests called a changed function); precision 30% in pass 1 (6 of 20 rows, measured), 100% in pass 2 (8 of 8) after fixing the artifacts pass 1 showed |
+| B2 on breaking commits | each difference: intended or not | 20 rows on 5 of 13 commits: 13 real, all intended; 7 comparison artifacts, since fixed |
+
+The ChangeGuard target (above 70% precision on the hand sample) was missed by the first measurement and met by the second. The second pass ran on code fixed after seeing the first, so it is development evidence, not a held-out measurement.
 
 ## What was built (`amu/core/edges.py`)
 
@@ -91,11 +102,20 @@ DyPyBench found 49% of dynamically observed edges in PyCG's static graph. AMU's 
 
 ## Files
 
-`amu/core/edges.py` (new); `amu/core/trust.py`, `amu/core/shadow.py`, `amu/core/__init__.py`, `amu/core/__main__.py`,
-`amu/ci/render.py`, `amu/ci/run.py`; `tests/core/test_edges.py` (5 tests); `evaluation/tracer/*`.
+`amu/core/edges.py`, `amu/core/sidebyside.py` (new); `amu/core/trust.py`, `amu/core/shadow.py`, `amu/core/__init__.py`,
+`amu/core/__main__.py`, `amu/ci/render.py`, `amu/ci/run.py`; `tests/core/test_edges.py` (5 tests),
+`tests/core/test_sidebyside.py` (10 tests); `evaluation/tracer/*`.
 
-AMU's suite (`pytest tests scripts/test_before_tests_harness.py`): 2,665 passed, 14 skipped, 1 failed (the known
-`test_mcp_verification`).
+Upstream code executed:
+- Django's whole suite, six times (overhead);
+- Click's whole suite, twice (edges);
+- Django's tests for 102 commits, twice in full plus nine reruns, after three discarded partial starts (B2);
+- the 5 Django Phase 0 cases and the 8 sympy tasks once each.
+
+All of it ran in scratch copies.
+
+AMU's suite (`pytest tests scripts/test_before_tests_harness.py`) at the end of Phase B: 2,675 passed, 14 skipped,
+1 failed (the known `test_mcp_verification`).
 
 ## Tried and rejected
 
@@ -105,8 +125,126 @@ AMU's suite (`pytest tests scripts/test_before_tests_harness.py`): 2,665 passed,
 - A call path ending at the first code object whose line range holds the changed line: module and class bodies span
   their functions. The path now ends at the narrowest code holding the line.
 
-## Not done in B1
+## B2: side-by-side execution of changed functions (`amu/core/sidebyside.py`)
 
-- Scoring the recording as a candidate source on the frozen sets, as the coverage recording was scored.
-- Replacing the coverage recorder for untested-function rows, which need line-level data.
-- A release tag with the tracer: v0.2.1 does not have it.
+**How it works**
+- After the comparison of test outcomes, the tests that ran are run once more on the code before the change, with a
+  sys.monitoring hook watching the changed functions.
+- When a changed function starts, its arguments are copied, by pickle or else a deep copy. The function then runs
+  right there, in the test's own process and state: twice as it was and twice as changed, each time on a fresh copy.
+- Compared: the return value or the exception raised; the arguments afterwards (mutation); what was printed; and the
+  sequence of calls from first-party code to code outside it.
+- A difference is kept only when both versions repeat themselves exactly. It is reported as
+  `behaviour differs on captured input`, with the input and both outcomes, and gets its own section in the comment.
+- Limits per call site and in time:
+  - 5 calls per changed function;
+  - 120 s for the run, at most the per-side budget;
+  - every comparison is written the moment it is made.
+
+**What the as-changed run sees: everything the change brings.** This was built from what the Django runs showed:
+- every comparable changed function, swapped into its module or class, and into modules that imported it by name;
+- the top-level statements and class members the change adds, in every edited production file, put on the real
+  objects for the run and taken off after.
+
+**What is set aside and counted, not reported**
+- **Nondeterministic:** a version that does not repeat itself.
+- **Input built before the change:** an object built by the code before the change, when another changed method of
+  its class now gives it state.
+- **Call does not fit:** a call captured from old code that no longer fits a changed signature.
+- **Arguments that cannot be copied** are used live, only when no run changes them.
+
+**Not compared:** coroutines, nested functions, functions using a private name a class body would mangle, and
+functions that exist on one side only.
+
+### Check: Django's 102 non-breaking commits
+
+These are the 102 commits of the untested-row scoring (Phase 0 screening, production-only change, no existing test
+broken). For each, bare amu ran with execution on the parent tree, with the commit's production diff, the Django
+runner and 60 s per side.
+
+| | Pass 1 (1e9bee9, measured) | Pass 2 (bf6bfae; 9 commits rerun on 81b5bc0) |
+|---|---:|---:|
+| Commits with a comparable changed function | 87 | 87 |
+| Commits where the tests run called one | 50 | 59 |
+| Calls compared | 450 | 491 |
+| Nondeterministic, not reported | 9 | 9 |
+| Set aside: input built before the change | 0 | 5 |
+| Side-by-side run reaching its limit | 11 (results lost, see below) | 6 (results kept) |
+| **Commits with a stable difference** | **4 of 102** | **4 of 102** |
+| Difference rows | 20 | 8 |
+| **Real behaviour changes (hand check)** | **6 (30%)** | **8 (100%)** |
+| Of them intended by the commit | 6 | 8 |
+
+Hand check of pass 1, all 20 rows:
+
+| Commit | Rows | Verdict |
+|---|---:|---|
+| 7b8504ea, migrations track all changes to unmanaged models | 2 | real: the autodetector now keeps unmanaged model keys; intended |
+| 2936a0a9, ordering by `Model.__str__` in the admin | 1 | real: `label_for_field` returns the model's `__str__` rather than `str`; intended |
+| d992705f, old-signature `from_db()` overrides | 3 | real: `RelatedPopulator.__init__` now stores `from_db`; intended |
+| d992705f | 5 | artifact: `populate` as changed ran on an object the old `__init__` built |
+| 0398417c, new `qualname()` helper | 9 | artifact: `NameError` on `qualname`. The edited import of a helper added in another file ran before that helper was there |
+
+Hand check of pass 2, all 8 rows, all real and intended:
+- 7b8504ea, 2 rows, as above;
+- d992705f, 3 rows (`__init__`), as above;
+- 2936a0a9, 1 row, as above;
+- 6ade6258, 2 rows: `RelatedPopulator.__init__` now starts a `peers` list, enabling FETCH_PEERS batching for
+  `select_related`, as the commit says.
+
+The 0398417c refactor compares with no difference in pass 2, which is right for a change that keeps behaviour.
+
+**Found during these runs and fixed (one commit each, with a unit test built from the Django case)**
+- **Changed functions that call each other** ran one as changed against the other as it was (7b8504ea, before pass 1).
+- **New module-level names, and arguments that do not pickle** (27137e65; 17 functions).
+- **Arguments that copy neither way** (Django admin objects with locks and modules) are now used live, when unchanged.
+- **New class members, and names added to other modules,** were missing from the as-changed run (4ea38d54, 27137e65).
+- **After pass 1:** the order of additions across files (0398417c), and objects built by the old `__init__` (d992705f).
+- **During pass 2:** results were written only at exit, so a run stopped at its limit lost them. That is how pass 2
+  first missed 2936a0a9's real difference; its 9 limit-reaching commits were rerun with the fix. Pass 1's 11
+  limit-reaching commits were not rerun: pass 1 stands as measured.
+
+Three earlier starts on the 102 commits were stopped and discarded, after 27 or 28 commits each, when each showed one
+of the defects above.
+
+**What B2 does not reach**
+- 43 of the 102 commits had no changed function that the tests run in 60 s called.
+- 15 had no comparable changed function at all: coroutines, nested or new functions.
+- Of the 59 commits it did compare, 4 show a stable difference.
+- Recall against all real behaviour changes in the 102 is not measured: there are no labels for that.
+
+### B2 on breaking commits: the 5 Django Phase 0 cases and the 8 sympy tasks, run once (81b5bc0)
+
+| Case | Commit message, short | Flips | Calls compared | Differences | Verdict |
+|---|---|---:|---:|---:|---|
+| dj-f1d11117 | UnorderedObjectListWarning skips Django frames | 1 | 5 | 0 | |
+| dj-80ea222c | allow `Address` objects as email addresses | 2 | 15 | 1 | real, intended: the error message now names `Address` objects |
+| dj-7dee35f5 | rename the RAISE fetch mode to FETCH_RAISE | 18 | 0 | 0 | no comparable function (a method of a renamed class) |
+| dj-537c6df3 | suppress fewer ImportErrors in management commands | 0 | 19 | 5 | real, intended: `ManagementUtility.__init__` now keeps a `style` attribute |
+| dj-65a9f141 | `import_string()` supports modules and submodules | 2 | 20 | 7 | **artifacts**: 4 calls of `cached_import`, whose parameters the change altered, did not fit; 3 via `password_validation`, which held the old `import_string` by name |
+| sy-434184cd | `as_base_exp` literal | 1 | 23 | 0 | `Mul.as_base_exp` removed: not comparable |
+| sy-aa1004e2 | precision in `rs_nth_root` | 1 | 5 | 0 | |
+| sy-30eb1f6c | `trigsimp` more targeted | 2 | 15 | 0 | |
+| sy-1837fd2a | isympy keeps the original input | 1 | 5 | 5 | real, intended: `int_to_Integer` now keeps the original spacing |
+| sy-97cf00f4 | `ArrayAdd` refuses scalar arguments | 2 | 40 | 0 | |
+| sy-94f14043 | `acot`, `acoth` keep the sign at a branch point | 0 | 2 | 0 | |
+| sy-253f564d | elementwise application notation in printing | 2 | 6 | 2 | real, intended: `sin_o(X)` printed instead of a lambda |
+| sy-c3882307 | algebraicity of negative powers of zero | 1 | 5 | 0 | |
+
+- **Overall:** 20 difference rows on 5 of the 13 commits: 13 real and all intended, 7 artifacts.
+- **No unintended difference was found.** The breaking tests in these commits are ones upstream rewrote for the new
+  behaviour (Phase 0 and the sympy trial records), so "intended" is the expected answer.
+- **Where B2 found nothing,** the breaking behaviour sat on inputs the tests did not pass to the changed function
+  before the change, or in functions B2 does not compare.
+- **The 7 artifacts are fixed after this run (one commit, with a unit test)**, unmeasured on these sets:
+  - a call that does not fit a changed signature is set aside and counted;
+  - modules that imported a changed function by name get the changed one during the as-changed run.
+
+## Not done in Phase B
+
+- **Scoring:** the call recording has not been scored as a candidate source on the frozen sets, as the coverage
+  recording was.
+- **Untested-function rows** still need line-level data from coverage.
+- **B2 does not compare** coroutines or nested functions, and gets no inputs when the tests run within the budget
+  never call the changed function. Generating inputs is Phase C.
+- **No release tag:** v0.2.1 has neither B1 nor B2.

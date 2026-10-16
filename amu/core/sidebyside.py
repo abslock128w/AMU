@@ -255,6 +255,20 @@ if _spec_path and _sys.version_info >= (3, 12):
                 if changed is None:
                     continue
                 _swaps.append((owner, target["name"], changed if kind is types.FunctionType else kind(changed), original))
+                if owner is module and kind is types.FunctionType:
+                    # `from module import f` elsewhere holds the old function under its own name: rebind those copies too
+                    # (first-party modules only), or old callers reach it as it was.
+                    for other in list(_sys.modules.values()):
+                        try:
+                            name = object.__getattribute__(other, "__file__")
+                            space = object.__getattribute__(other, "__dict__")
+                        except Exception:
+                            continue
+                        if other is module or not isinstance(name, str) or not _os.path.realpath(name).startswith(_root):
+                            continue
+                        for alias, value in list(space.items()):
+                            if value is original:
+                                _swaps.append((other, alias, changed, original))
             _swaps.append(None)  # prepared, even if empty
             return _swaps
 
@@ -451,7 +465,8 @@ def targets(functions, before_src, after_src):
         if any(isinstance(n, (ast.Yield, ast.YieldFrom)) for n in ast.walk(old)) != any(isinstance(n, (ast.Yield, ast.YieldFrom)) for n in ast.walk(new)):
             skipped[ident] = 'a generator on one side only'
             continue
-        found.append(dict(id=ident, file=path, qual=qual, name=qual.rsplit('.', 1)[-1], before=old_text, after=new_text))
+        found.append(dict(id=ident, file=path, qual=qual, name=qual.rsplit('.', 1)[-1], before=old_text, after=new_text,
+                          signature_changed=ast.dump(old.args) != ast.dump(new.args)))
     return found, skipped
 
 
@@ -540,9 +555,16 @@ def run(runner, python, before_tree, ids, spec_targets, skipped, scratch, timeou
     # was built by the old code, not that the method behaves differently: set aside, and counted.
     stateful = {row['target'].rsplit('.', 1)[0] for row in results
                 if row['stable'] and 'args_after' in row['differs'] and '.' in row['target'].split('#', 1)[1]}
-    seen, differences, built_before = set(), [], 0
+    # A call captured from the old code does not fit a function whose parameters the change altered: the as-changed
+    # version refuses it at the call. That is a different signature, not a behaviour seen on the input: set aside.
+    reshaped = {t['id'] for t in spec_targets if t.get('signature_changed')}
+    seen, differences, built_before, misfit = set(), [], 0, 0
     for row in results:
         after = row['after']['result']
+        if (row['target'] in reshaped and after[0] == 'raise' and after[1] == 'TypeError'
+                and after[2].startswith('__amu_outer__.<locals>.') and 'argument' in after[2]):
+            misfit += 1
+            continue
         if (row['stable'] and row['differs'] and row['target'].rsplit('.', 1)[0] in stateful and 'args_after' not in row['differs']
                 and after[0] == 'raise' and after[1] == 'AttributeError' and row['before']['result'][0] != 'raise'):
             built_before += 1
@@ -554,7 +576,7 @@ def run(runner, python, before_tree, ids, spec_targets, skipped, scratch, timeou
                 differences.append(dict(row, label=KIND))
     info = dict(targets=len(spec_targets), compared_calls=len(results), functions_called=len(captured),
                 unstable=sum(not r['stable'] for r in results), differences=len(differences), skipped=skipped,
-                input_built_before_the_change=built_before)
+                input_built_before_the_change=built_before, calls_not_fitting_a_changed_signature=misfit)
     if not results:
         gaps.append(f'side-by-side: none of the {len(spec_targets)} changed function(s) was called by the tests run on the code before the change')
     return info, differences, gaps
