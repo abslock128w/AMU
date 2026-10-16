@@ -102,3 +102,13 @@ def test_flips_that_fail_the_trust_checks_are_listed_with_their_label_not_counte
     assert '### Flips not counted (2)' in body and '`unstable`' in body and '`not caused by this change`' in body
     assert "### Change evidence: the pull request's own tests (1)" in body and '`tests/t.py::test_new`' in body
     assert '1 test pass on the merge base too' in body and 'pytest-randomly' in body
+
+
+def test_a_rerun_the_runner_could_not_make_is_named_on_the_flip():
+    from amu.ci.render import render
+    report = dict(flips=1, predicted_failures=[dict(id='tests/t.py::T::test_a', before='passed', after='failed')],
+                  flip_trust=[dict(id='tests/t.py::T::test_a', label='fails', why='',
+                                   reruns=dict(in_process=None, fresh_process='failed', after_set='failed'))],
+                  gaps=[], executed=dict(ran=3, candidates=3, runner='django-runtests'))
+    body = render(report, dict(head='a' * 40, merge_base='b' * 40))
+    assert '`tests/t.py::T::test_a` (not rerun in the same process)' in body, body

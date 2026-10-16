@@ -70,12 +70,17 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None):
     if failures and not report.get('error'):
         out += [f'### Flips ({len(failures)})', '',
                 f'Pass on the merge base {short(base)}, fail on the head. Each was rerun on the merge base to confirm '
-                'it passed there, and failed again on the head in the same process, alone in a fresh process, and after '
-                'the rest of the candidates.', '']
+                'it passed there, and failed again on the head in every rerun made: in the same process, alone in a fresh '
+                'process, and after the rest of the candidates. A rerun that was not made is named on its row.', '']
+        missing = {row.get('id'): [leg for leg, state in (row.get('reruns') or {}).items() if state is None]
+                   for row in report.get('flip_trust') or [] if isinstance(row, dict)}
+        names = dict(in_process='in the same process', fresh_process='alone in a fresh process', after_set='after the rest')
 
         def flip(row):
             label = row.get('label') if isinstance(row, dict) else None
-            return code(failure_id(row)) + (' (fails as the test was before it was edited)' if label == 'test edited, not fixed' else '')
+            gone = [names.get(leg, str(leg)) for leg in missing.get(failure_id(row), [])]
+            return (code(failure_id(row)) + (' (fails as the test was before it was edited)' if label == 'test edited, not fixed' else '')
+                    + (f" (not rerun {', '.join(gone)})" if gone else ''))
         out += rows(failures, flip, listed) + ['']
         if verify and verify.get('checked'):
             out += [f"Rerun on the merge base in a fresh job: {verify.get('held', 0)} passed again, "

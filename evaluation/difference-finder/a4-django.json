@@ -1,0 +1,99 @@
+{
+ "case": "dj-537c6df3",
+ "budget": 120,
+ "runs": [
+  {
+   "run": 1,
+   "wall": 52.3,
+   "flips": 0,
+   "summary": "EXECUTED 478 of 3715 candidate tests after the change with django-runtests in 27.7 s, failures confirmed before it: 0 now fail. 3649 tests reach the change.",
+   "executed": {
+    "ran": 478,
+    "candidates": 3715,
+    "unrunnable": 162,
+    "seconds": 27.7,
+    "runner": "django-runtests",
+    "budget": 120,
+    "replayed": 0,
+    "selection": {
+     "closure_files": 11,
+     "closure_tests": 99,
+     "hubs": 29,
+     "hubs_reached": [
+      "django/conf/__init__.py",
+      "django/core/management/__init__.py",
+      "django/core/management/base.py"
+     ],
+     "observed": 0,
+     "static_only": 3555,
+     "depth_cap": 10,
+     "candidates": 3715
+    },
+    "base_cache": {
+     "answered": 0,
+     "ran": 0,
+     "stored": 0
+    }
+   },
+   "flip_trust": null,
+   "predicted_failures": [],
+   "gaps": [
+    "162 candidate(s) could not be run by django-runtests and are not covered by this result",
+    "99451 call sites unresolved repo-wide; dynamic dispatch may reach more",
+    "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+    "shadow run stopped at its 120 s budget: 480 of 3715 candidates run",
+    "tests/test_runner_apps/tagged/tests_syntax_error.py: SyntaxError"
+   ]
+  },
+  {
+   "run": 2,
+   "wall": 8.7,
+   "flips": 0,
+   "summary": "EXECUTED 120 of 1958 candidate tests after the change with django-runtests in 5.9 s, failures confirmed before it: 0 now fail. 3649 tests reach the change.",
+   "executed": {
+    "ran": 120,
+    "candidates": 1958,
+    "unrunnable": 40,
+    "seconds": 5.9,
+    "runner": "django-runtests",
+    "budget": 120,
+    "replayed": 0,
+    "selection": {
+     "closure_files": 11,
+     "closure_tests": 99,
+     "hubs": 29,
+     "hubs_reached": [
+      "django/conf/__init__.py",
+      "django/core/management/__init__.py",
+      "django/core/management/base.py"
+     ],
+     "observed": 0,
+     "static_only": 3555,
+     "depth_cap": 10,
+     "candidates": 3144
+    },
+    "base_cache": {
+     "answered": 0,
+     "ran": 0,
+     "stored": 0
+    }
+   },
+   "flip_trust": null,
+   "predicted_failures": [],
+   "gaps": [
+    "1186 lower-ranked candidate(s) not run: about 5 tests/s per process fit 1958 in the 120 s allowed",
+    "40 candidate(s) could not be run by django-runtests and are not covered by this result",
+    "99451 call sites unresolved repo-wide; dynamic dispatch may reach more",
+    "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+    "shadow run stopped at its 120 s budget: 0 of 1958 candidates run",
+    "tests/test_runner_apps/tagged/tests_syntax_error.py: SyntaxError"
+   ],
+   "comment": "**AMU: 0 flips** at `0000000`, among 120 tests run\n\n### Gaps (6)\n\nNot run or not seen:\n\n- `1186 lower-ranked candidate(s) not run: about 5 tests/s per process fit 1958 in the 120 s allowed`\n- `40 candidate(s) could not be run by django-runtests and are not covered by this result`\n- `99451 call sites unresolved repo-wide; dynamic dispatch may reach more`\n- `shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.`\n- `shadow run stopped at its 120 s budget: 0 of 1958 candidates run`\n- `tests/test_runner_apps/tagged/tests_syntax_error.py: SyntaxError`\n\n### What ran\n\n120 of 1958 candidate tests on the head, 5.9 s with `django-runtests`, budget 120 s per side. Failures were rerun on the merge base. Tests outside the candidates were not run.\n\n<sub>AMU `?` from `?`, report `62875e5cd435`. Full JSON is in the workflow run's artifact.</sub>\n\n<!-- amu-ci-comment v1 -->"
+  }
+ ],
+ "warm_stubbed_seconds": [
+  2.61,
+  2.06,
+  1.98
+ ]
+}
