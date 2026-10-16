@@ -16,7 +16,7 @@ from .patch import align, applied, candidate, changes, original, renumber
 LIMIT = 2000
 MAX_TESTS = 40
 MIXIN_COPIES = 6  # concrete subclasses run for a test method that lives on a mixin
-RUN_CANDIDATES = 150  # executing is cheap next to guessing; --run looks well past the ranked list
+RUN_CANDIDATES = 150  # inheriting copies of failing base-class tests run at most
 
 
 def encoded(value):
@@ -291,8 +291,8 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         best.setdefault(ident, (0.5, (1, 2, True), [ident], [], True, None))
     # Likely failures lead; each group keeps its own relevance order.
     first = rank.diverse({t: v for t, v in scores.items() if t in likely}, MAX_TESTS)
-    order = first + rank.diverse({t: v for t, v in scores.items() if t not in likely},
-                                 RUN_CANDIDATES * (2 if observed else 1) if run else MAX_TESTS)
+    # The diverse pick orders what is shown; what runs is chosen by subtraction (select), with scores as a tiebreaker.
+    order = first + rank.diverse({t: v for t, v in scores.items() if t not in likely}, MAX_TESTS)
     rows = []
     for ident, gain in order[:MAX_TESTS]:
         _, position, path, shared, broad, exactness = best[ident]
@@ -328,7 +328,6 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     if run:
         # Exact beats ranked: run the candidates on both sides of the change and report what flips.
         # With a recording, the candidates are the tests seen executing the change; run more of them.
-        cap = RUN_CANDIDATES * (2 if observed else 1)
         # Selection by subtraction (select module): the import closure of the changed files, hubs passed only on
         # recorded evidence, plus what static reach found; ordered by recent flips and measured durations, the
         # ranking only breaking ties. The time the budget allows caps it, not a count.
@@ -360,7 +359,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         executed['selection'] = dict(selection, candidates=len(wide))
         gaps.extend(run_gaps)
         # A failing test defined on a base class is run again in every subclass that inherits it.
-        by_id = {tests[ident]['path'] + '::' + tests[ident]['qual'].replace('.', '::'): ident for ident, _ in order[:cap]}
+        by_id = {tests[ident]['path'] + '::' + tests[ident]['qual'].replace('.', '::'): ident for ident in picked}
         copies = sorted({copy for flip in flips if flip['after'] == 'failed' and flip['id'] in by_id
                          and flip.get('trust', trust.CONFIRMED) == trust.CONFIRMED
                          for copy in inheritors(by_id[flip['id']])} - set(wide))[:RUN_CANDIDATES]
