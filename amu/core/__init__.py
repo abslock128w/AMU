@@ -7,7 +7,7 @@ import math
 import re
 from pathlib import Path
 
-from . import consequences, coverage, lexical, rank, replay, runners, shadow, trust, vanished
+from . import consequences, coverage, lexical, rank, replay, runners, select, shadow, trust, vanished
 from .git import working_diff
 from .index import cache_dir, parse_or_none
 from .index import state as load_state
@@ -168,7 +168,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         if parsed_old:
             taken.update(parsed_old['records'])
     removed = vanished.gone(taken, after)
-    scores, best, impacted, untested, functions = {}, {}, {}, [], []
+    scores, best, impacted, untested, functions, observed_tests = {}, {}, {}, [], [], set()
     for symbol, fallback in symbols.items():
         record = graph.records[symbol]
         names = rank.symbol_tokens(record)
@@ -183,6 +183,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
             # The more tests merely mention the class, the less each mention says about this member.
             broad_weight = 0.5 / math.log2(2 + sum(ident in tests for ident in extra))
         seen = coverage.tests_for(observed, record, tests, where.get(symbol, ()), identify)
+        observed_tests.update(seen)
         if record['kind'] == 'function' and symbol in where:
             lines = sorted(where[symbol])
             span = f'{lines[0]}-{lines[-1]}' if len(lines) > 1 else str(lines[0])
@@ -328,7 +329,18 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         # Exact beats ranked: run the candidates on both sides of the change and report what flips.
         # With a recording, the candidates are the tests seen executing the change; run more of them.
         cap = RUN_CANDIDATES * (2 if observed else 1)
-        wide = list(dict.fromkeys(run_id for ident, _ in order[:cap] for run_id in run_ids(ident)))[:cap]
+        # Selection by subtraction (select module): the import closure of the changed files, hubs passed only on
+        # recorded evidence, plus what static reach found; ordered by recent flips and measured durations, the
+        # ranking only breaking ties. The time the budget allows caps it, not a count.
+        picked, selection = select.candidates(graph, facts, list(edits), tests, observed_tests, scores)
+        position = {ident: n for n, (ident, _) in enumerate(order)}
+        tail = sorted((i for i in picked if i not in position), key=lambda i: (-max(scores.get(i, {'': 0}).values() or [0]), i))
+        position.update({ident: len(position) + n for n, ident in enumerate(tail)})
+        memo = cache_dir(root, index_dir)/'shadow-memo.json'
+        flipped_at, durations = shadow.history(memo)
+        expanded = list(dict.fromkeys(run_id for ident in sorted(picked, key=position.get) for run_id in run_ids(ident)))
+        tiebreak = {run_id: n for n, run_id in enumerate(expanded)}
+        wide = select.order(expanded, flips=flipped_at, durations=durations, tiebreak=tiebreak)
         if only:
             # A caller that already knows which tests matter (a hook re-checking earlier failures) names them.
             wide = list(dict.fromkeys(only))
@@ -338,8 +350,8 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         # Every test the change adds or edits runs, first, and is replayed on the code before the change.
         own = [] if only else replay.touched(root, edits, chosen.name)
         wide = list(dict.fromkeys([*own, *wide]))
-        memo = cache_dir(root, index_dir)/'shadow-memo.json'
         flips, executed, run_gaps = shadow.run(root, edits, wide, python, budget, runner, memo=memo, own=own)
+        executed['selection'] = dict(selection, candidates=len(wide))
         gaps.extend(run_gaps)
         # A failing test defined on a base class is run again in every subclass that inherits it.
         by_id = {tests[ident]['path'] + '::' + tests[ident]['qual'].replace('.', '::'): ident for ident, _ in order[:cap]}
@@ -455,7 +467,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         if executed is not None:
             # How much actually ran, for readers that must not claim more (the pull request comment).
             report['executed'] = dict({k: executed.get(k) for k in ('ran', 'candidates', 'unrunnable', 'seconds', 'runner')},
-                                      budget=budget, replayed=len(executed.get('replayed') or []))
+                                      budget=budget, replayed=len(executed.get('replayed') or []), selection=executed.get('selection'))
         report['changed_functions'] = functions
         return report
     return compact(report, include_tests)

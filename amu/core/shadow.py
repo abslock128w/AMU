@@ -41,11 +41,23 @@ def parent_key(root):
 
 
 def load_memo(memo, key):
+    """The memo for the code before the change ``key``. Outcomes before the change hold only for the same key; the
+    measured rate, per-test durations and when each test last flipped carry over to any key."""
     try:
         data = json.loads(Path(memo).read_text())
     except (OSError, ValueError, TypeError):
-        return dict(key=key, before={}, rate=None)
-    return data if data.get('key') == key else dict(key=key, before={}, rate=data.get('rate'))
+        return dict(key=key, before={}, rate=None, durations={}, flips={})
+    kept = dict(rate=data.get('rate'), durations=data.get('durations') or {}, flips=data.get('flips') or {})
+    return dict(data, **kept) if data.get('key') == key else dict(key=key, before={}, **kept)
+
+
+def history(memo):
+    """({id: when it last flipped}, {id: seconds}) from earlier runs in this tree; empty when there were none."""
+    try:
+        data = json.loads(Path(memo).read_text())
+    except (OSError, ValueError, TypeError):
+        return {}, {}
+    return data.get('flips') or {}, data.get('durations') or {}
 
 
 def execute(runner, python, tree, ids, scratch, name, timeout, parts):
@@ -78,7 +90,7 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
     parts = PARTS if runner.parallel else 1
     runner.extra, order = trust.ordering(runner, python)
     key = parent_key(root) if memo else None
-    remembered = load_memo(memo, key) if key else dict(before={}, rate=None)
+    remembered = load_memo(memo, key) if key else dict(before={}, rate=None, durations={}, flips={})
     rate = remembered.get('rate') or RATE
     cap = max(CHUNK, int(rate * parts * budget * 0.8))
     if len(ids) > cap:
@@ -231,6 +243,9 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
                                      own, states['after'], scratch, left)
             gaps += more
     ran_after = sum(state in OUTCOMES for state in states['after'].values())
+    remembered.setdefault('durations', {}).update(runner.durations or {})
+    now = round(time.time())
+    remembered.setdefault('flips', {}).update({i: now for i, v in verdicts.items() if v['label'] == trust.CONFIRMED})
     if key and memo:
         if ran_after >= CHUNK and after_seconds > 0:
             remembered['rate'] = round(ran_after / after_seconds / max(1, parts if runner.parallel else 1), 1)

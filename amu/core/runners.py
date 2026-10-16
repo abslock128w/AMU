@@ -55,6 +55,7 @@ class Runner:
         return tree
 
     extra = ()  # arguments added to every run, such as the ordering seed (trust.ordering)
+    durations = None  # {id: seconds} measured by the runs of this instance, where the runner reports them
 
     def command(self, python, labels, report):
         return [python, '-m', 'pytest', *labels, '-q', '-p', 'no:cacheprovider', *self.extra, '--junitxml=' + str(report)]
@@ -86,6 +87,13 @@ class Runner:
             else:
                 continue
             ident = '::'.join(['/'.join(parts[:cut]) + '.py', *parts[cut:], case.get('name', '').split('[')[0]])
+            try:
+                took = float(case.get('time') or 0)
+            except ValueError:
+                took = 0.0
+            if self.durations is None:
+                self.durations = {}
+            self.durations[ident] = round(self.durations.get(ident, 0.0) + took, 3) if ident in found else round(took, 3)
             state = next((child.tag for child in case if child.tag in ('failure', 'error', 'skipped')), 'passed')
             state = 'failed' if state in ('failure', 'error') else state
             # A function fails if any of its parameter instances fails.

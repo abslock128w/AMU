@@ -1,0 +1,25 @@
+{
+  "case_id": "03-594452f6",
+  "function_recall10": 1.0,
+  "file_recall10": 1.0,
+  "function_hits": [
+    "tests/test_routing.py::test_converter"
+  ],
+  "missing_from_parent": [],
+  "recommended": 10,
+  "top10": [
+    "tests/middleware/test_proxy_fix.py::test_proxy_fix",
+    "tests/test_routing.py::test_nested_regex_groups",
+    "tests/test_routing.py::test_converter",
+    "tests/test_routing.py::test_converter_with_tuples",
+    "tests/test_routing.py::test_default_converters",
+    "tests/test_routing.py::test_multiple_converters_per_part",
+    "tests/test_routing.py::test_part_converter_order",
+    "tests/test_routing.py::test_uuid_converter",
+    "tests/test_routing.py::test_adapter_match_return_rule",
+    "tests/test_routing.py::test_alias_redirects"
+  ],
+  "seconds": 1.1250402919977205,
+  "bytes": 1897,
+  "noise10": 9
+}

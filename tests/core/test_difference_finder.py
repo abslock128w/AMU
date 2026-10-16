@@ -99,3 +99,26 @@ def test_the_in_process_rerun_works_for_unittest_runners(tmp_path):
                         runner='unittest')
     [row] = result['flip_trust']
     assert row['label'] == 'fails' and row['reruns'] == dict(in_process='failed', fresh_process='failed', after_set='failed'), row
+
+
+def test_selection_is_the_import_closure_with_hubs_passed_only_on_evidence():
+    from amu.core import select
+    facts = {'pkg/core.py': dict(deps=[]), 'pkg/__init__.py': dict(deps=['pkg.core']), 'pkg/util.py': dict(deps=['pkg.core.thing']),
+             **{f'tests/test_{n}.py': dict(deps=['pkg']) for n in range(150)}, 'tests/test_util.py': dict(deps=['pkg.util'])}
+    modules = {'pkg': 'pkg/__init__.py', 'pkg.core': 'pkg/core.py', 'pkg.util': 'pkg/util.py'}
+    table = select.importers(facts, modules)
+    hubs = select.hubs(table, facts)
+    assert hubs == {'pkg/__init__.py'}
+    files, reached = select.closure(table, ['pkg/core.py'], hubs)
+    assert set(files) == {'pkg/core.py', 'pkg/__init__.py', 'pkg/util.py', 'tests/test_util.py'} and reached == {'pkg/__init__.py'}
+    deep = {f'm{n}.py': dict(deps=[f'm{n - 1}']) for n in range(1, 15)}
+    chain = select.importers({'m0.py': dict(deps=[]), **deep}, {f'm{n}': f'm{n}.py' for n in range(15)})
+    assert max(select.closure(chain, ['m0.py'], set())[0].values()) == select.DEPTH
+
+
+def test_run_order_is_touched_then_recent_flip_then_duration_then_ranking():
+    from amu.core import select
+    ids = ['a', 'b', 'c', 'd', 'e']
+    got = select.order(ids, touched=['e'], flips={'d': 100, 'c': 50}, durations={'a': 5.0, 'b': 0.1}, tiebreak={'a': 0, 'b': 1})
+    assert got == ['e', 'd', 'c', 'b', 'a']
+    assert select.order(['x', 'y', 'z'], tiebreak={'z': 0, 'y': 1, 'x': 2}) == ['z', 'y', 'x']

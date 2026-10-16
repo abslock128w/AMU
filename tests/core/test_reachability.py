@@ -59,7 +59,7 @@ def test_graph_snapshot_of_an_unchanged_tree_gives_the_same_report(tmp_path):
     source = 'def work():\n    return 1\n'
     repository(tmp_path, {'a.py': source, 'tests/test_a.py': 'from a import work\ndef test_work():\n    assert work()\n'})
     first = run(tmp_path, 'a.py', source, source.replace('1', '2'))
-    assert list((tmp_path/'.index').rglob('state-*.json'))
+    assert list((tmp_path/'.index').rglob('state2-*.json'))
     second = run(tmp_path, 'a.py', source, source.replace('1', '2'))
     assert first['tests'] == second['tests'] and first['report_hash'] == second['report_hash']
 
@@ -426,7 +426,8 @@ def test_shadow_execution_reports_exactly_the_tests_that_flip(tmp_path):
             (tmp_path/'lib.py').write_text(changed)
         result = analyze(tmp_path, patch('lib.py', source, changed), index_dir=tmp_path/'.index', run=True, python=sys.executable)
         assert result['predicted_failures'] == ['tests/test_lib.py::test_work'], result
-        assert result['summary'].startswith('EXECUTED 2 of 2 candidate tests after the change') and '1 now fail' in result['summary']
+        # Every test in a file that imports the changed module is a candidate (selection by subtraction, brief 4 A3).
+        assert result['summary'].startswith('EXECUTED 3 of 3 candidate tests after the change') and '1 now fail' in result['summary']
         assert result['tests'] == []
 
 
@@ -679,7 +680,7 @@ def test_remembered_outcomes_before_the_change_expire_with_the_commit(tmp_path):
     memo = tmp_path/'memo.json'
     memo.write_text(json.dumps(dict(key='a', before={'t': 'passed'}, rate=12.0)))
     assert load_memo(memo, 'a')['before'] == {'t': 'passed'}
-    assert load_memo(memo, 'b') == dict(key='b', before={}, rate=12.0)
+    assert load_memo(memo, 'b') == dict(key='b', before={}, rate=12.0, durations={}, flips={})
 
 
 def test_a_failing_test_made_to_pass_by_editing_it_stays_listed(tmp_path):
@@ -707,7 +708,7 @@ def test_a_failing_test_made_to_pass_by_editing_it_stays_listed(tmp_path):
     quiet = analyze(tmp_path, patch('lib.py', source, harmless) + patch('tests/test_lib.py', tests, added), index_dir=tmp_path/'.index',
                     run=True, python=sys.executable, full_evidence=True)
     assert quiet['predicted_failures'] == [] and quiet['flips'] == 0, quiet
-    assert quiet['original_tests'] == {'tests/test_lib.py::test_other': 'passed'}, quiet.get('original_tests')
+    assert quiet['original_tests'] == {'tests/test_lib.py::test_other': 'passed', 'tests/test_lib.py::test_work': 'passed'}, quiet.get('original_tests')
 
 
 def test_a_flip_that_does_not_repeat_is_unstable_not_a_failure(tmp_path):
