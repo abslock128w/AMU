@@ -265,7 +265,8 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
         before, after = states['before'].get(ident), states['after'].get(ident)
         if ident in verdicts:
             rows.append(dict(id=ident, before=before, after=after, label='executed', trust=verdicts[ident]['label'],
-                             why=verdicts[ident]['why'], reruns=verdicts[ident]['reruns'], reach=verdicts[ident]['reach']))
+                             why=verdicts[ident]['why'], reruns=verdicts[ident]['reruns'], reach=verdicts[ident]['reach'],
+                             **{k: verdicts[ident][k] for k in ('path', 'raised') if k in verdicts[ident]}))
         elif ident in edited_flips:
             verdict = edited_verdicts.get(ident) or dict(label=trust.CONFIRMED, why='', reruns=None, reach=None)
             rows.append(dict(id=ident, before='passed', after='failed', label=EDITED, edited_form=after, trust=verdict['label'],

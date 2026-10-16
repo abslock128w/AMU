@@ -7,7 +7,7 @@ import math
 import re
 from pathlib import Path
 
-from . import basecache, consequences, coverage, lexical, rank, replay, runners, select, shadow, trust, vanished
+from . import basecache, consequences, coverage, edges, lexical, rank, replay, runners, select, shadow, trust, vanished
 from .git import working_diff
 from .index import cache_dir, parse_or_none
 from .index import state as load_state
@@ -227,6 +227,12 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
             scores.setdefault(ident, {})[symbol] = value
             if ident not in best or best[ident][5] is None or value > best[ident][0]:
                 best[ident] = (value, (1, 0, False), [ident, symbol], shared, False, (exactness, on_line))
+    calls = edges.load(cache_dir(root, index_dir))
+    if calls:
+        # A per-test call recording (edges module): tests seen entering a changed function are candidates with evidence,
+        # however they reached it. Matched by function name, so it holds across edits made since.
+        entered = {identify(label) for label in edges.tests_entering(calls, set(symbols))} - {None}
+        observed_tests.update(ident for ident in entered if ident in tests)
     named = {}
     if removed:
         extra_scores, extra_best = vanished.candidates(root, graph, tests, removed, affinity, content, taken)
@@ -386,7 +392,8 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
                 row['expect'] = 'unchanged'
         rows.sort(key=lambda row: row['expect'] != 'fails')
         executed['predicted_failures'] = [flip for flip in flips if flip['after'] == 'failed']
-        executed['flip_trust'] = [dict(id=f['id'], label=f['trust'], why=f.get('why', ''), reruns=f.get('reruns'), reach=f.get('reach'))
+        executed['flip_trust'] = [dict(id=f['id'], label=f['trust'], why=f.get('why', ''), reruns=f.get('reruns'), reach=f.get('reach'),
+                                       **{k: f[k] for k in ('path', 'raised') if k in f})
                                   for f in labelled]
         replayed = executed.get('replayed') or []
         executed['change_evidence'] = [dict(id=row['id'], before=row['base'], after=row['head'], label=replay.EVIDENCE)
@@ -447,6 +454,9 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         row['run'] = chosen.paste(row['id']) if not chosen.needs_class or row['id'].count('::') >= 2 else None
     if coverage_status:
         report['coverage'] = coverage_status
+    if calls:
+        report['call_recording'] = dict(tests=len(calls['tests']), recorded_at=calls.get('recorded_at'),
+                                        seconds=calls.get('seconds'))
     if executed is not None:
         report['predicted_failures'] = executed['predicted_failures']
         # What flipped comes first, then what could not be seen.

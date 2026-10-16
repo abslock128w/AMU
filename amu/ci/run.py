@@ -77,26 +77,29 @@ def bounded(command, cwd, seconds):
     return subprocess.CompletedProcess(command, process.returncode, stdout, stderr), None
 
 
-def recording(repo):
-    return cache_dir(repo)/'observed'
+def recording(repo, calls=False):
+    return cache_dir(repo)/('edges' if calls else 'observed')
 
 
 def observe(repo, found, python, runner, seconds):
-    """Record the suite under coverage on the merge base and keep the recording with the head's index.
-    Returns a note for the gaps, or None."""
-    if recording(repo).is_dir():
+    """Record the suite on the merge base and keep the recording with the head's index: per-test call edges on
+    Python 3.12 and later (the sys.monitoring tracer), coverage contexts below that. Returns a note for the gaps, or
+    None."""
+    from ..core.edges import supported
+    calls = supported(python)
+    if recording(repo, calls).is_dir():
         return None
     scratch = Path(tempfile.mkdtemp(prefix='amu-base-'))
     tree = scratch/'tree'
     try:
         if git(repo, 'worktree', 'add', '--detach', '--quiet', str(tree), found) is None:
             return 'recording skipped: the merge base could not be checked out'
-        command = [sys.executable, *SAFE, '-m', 'amu.core', '--repo', str(tree), '--observe', '--python', python]
+        command = [sys.executable, *SAFE, '-m', 'amu.core', '--repo', str(tree), '--observe-calls' if calls else '--observe', '--python', python]
         done, problem = bounded(command + (['--runner', runner] if runner else []), tree, seconds)
-        source = recording(tree)
+        source = recording(tree, calls)
         if problem or not source.is_dir():
             return f"recording on the merge base {'stopped at the wall cap' if problem else 'produced nothing'}; static ranking only"
-        shutil.copytree(source, recording(repo), dirs_exist_ok=True)
+        shutil.copytree(source, recording(repo, calls), dirs_exist_ok=True)
         return None
     finally:
         git(repo, 'worktree', 'remove', '--force', str(tree))
@@ -138,7 +141,7 @@ def run(repo, base, head, out, python=None, runner=None, pr=None, budget=None, i
                     else:
                         note = observe(repo, found, python or sys.executable, runner, spare or 7200)
                         notes += [note] if note else []
-                meta['recording'] = recording(repo).is_dir()
+                meta['recording'] = recording(repo).is_dir() or recording(repo, calls=True).is_dir()
                 seconds = left()
                 if seconds is not None and seconds < 1:
                     report = dict(error=f'stopped at the wall cap of {wall_cap} s before amu ran')

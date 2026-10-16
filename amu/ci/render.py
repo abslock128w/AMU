@@ -77,6 +77,22 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None):
                    for row in report.get('flip_trust') or [] if isinstance(row, dict)}
         leaks = {row.get('id'): row.get('why', '') for row in report.get('flip_trust') or [] if isinstance(row, dict)
                  and row.get('label') == 'fails: order-dependent, new with this change'}
+        routes = {row.get('id'): row for row in report.get('flip_trust') or [] if isinstance(row, dict)}
+
+        def short_id(ident):
+            path, _, qual = str(ident).partition('#')
+            return (qual or path.rsplit('/', 1)[-1]) if qual else path.rsplit('/', 1)[-1]
+
+        def route(ident):
+            row = routes.get(ident) or {}
+            parts = []
+            if isinstance(row.get('path'), list) and row['path']:
+                parts.append('path ' + code(' > '.join(short_id(step) for step in row['path'][-6:]), 200))
+            raised = row.get('raised') if isinstance(row.get('raised'), dict) else None
+            if raised and isinstance(raised.get('through'), list):
+                parts.append(code(raised.get('exception', '?'), 60) + ' raised through '
+                             + code(' > '.join(short_id(step) for step in raised['through'][:6]), 200))
+            return ('; ' + '; '.join(parts)) if parts else ''
         names = dict(in_process='in the same process', fresh_process='alone in a fresh process', after_set='after the rest')
 
         def flip(row):
@@ -84,6 +100,7 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None):
             gone = [names.get(leg, str(leg)) for leg in missing.get(failure_id(row), [])]
             return (code(failure_id(row)) + (' (fails as the test was before it was edited)' if label == 'test edited, not fixed' else '')
                     + (f" (order-dependent, new with this change: {code(leaks[failure_id(row)], 200)})" if failure_id(row) in leaks else '')
+                    + route(failure_id(row))
                     + (f" (not rerun {', '.join(gone)})" if gone else ''))
         out += rows(failures, flip, listed) + ['']
         if verify and verify.get('checked'):
