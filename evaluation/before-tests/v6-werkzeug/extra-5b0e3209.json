@@ -1,0 +1,17 @@
+{
+  "case_id": "extra-5b0e3209",
+  "function_recall10": 0.0,
+  "file_recall10": 1.0,
+  "function_hits": [],
+  "missing_from_parent": [
+    "tests/test_http.py::TestHTTPUtility::test_is_hop_by_hop_header"
+  ],
+  "recommended": 2,
+  "top10": [
+    "tests/test_http.py::TestHTTPUtility::test_remove_hop_by_hop_headers",
+    "tests/middleware/test_http_proxy.py::test_http_proxy"
+  ],
+  "seconds": 0.5207625420007389,
+  "bytes": 1615,
+  "noise10": 2
+}

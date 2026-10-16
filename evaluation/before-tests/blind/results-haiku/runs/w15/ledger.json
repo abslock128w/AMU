@@ -1,0 +1,69 @@
+[
+ {
+  "tool": "hook",
+  "seconds": 14.84,
+  "at": 1791969454.3,
+  "detail": "before ./rt"
+ },
+ {
+  "tool": "hook",
+  "seconds": 8.94,
+  "at": 1791969479.9,
+  "detail": "after edit"
+ },
+ {
+  "tool": "hook",
+  "seconds": 7.61,
+  "at": 1791969491.2,
+  "detail": "after edit"
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.56,
+  "at": 1791969506.5,
+  "labels": [
+   "sites_tests"
+  ],
+  "problems": [],
+  "ran": 29,
+  "failed": [
+   "sites_tests.tests.SitesFrameworkTests.test_clear_site_cache",
+   "sites_tests.tests.SitesFrameworkTests.test_clear_site_cache_domain"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.51,
+  "at": 1791969514.6,
+  "labels": [
+   "sites_tests"
+  ],
+  "problems": [],
+  "ran": 29,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 1.16,
+  "at": 1791969515.7,
+  "labels": [
+   "admin_checks",
+   "contenttypes_tests.test_checks",
+   "migrations.test_commands"
+  ],
+  "problems": [],
+  "ran": 236,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 175.19,
+  "at": 1791969693.6,
+  "labels": [],
+  "problems": [],
+  "ran": 19061,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ }
+]

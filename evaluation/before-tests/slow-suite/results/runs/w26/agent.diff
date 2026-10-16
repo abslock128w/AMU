@@ -1,0 +1,30 @@
+diff --git a/sympy/polys/ring_series.py b/sympy/polys/ring_series.py
+index 67959d9..5ba0ffe 100644
+--- a/sympy/polys/ring_series.py
++++ b/sympy/polys/ring_series.py
+@@ -968,7 +968,7 @@ def rs_nth_root(p, n, x, prec):
+     index = R.gens.index(x)
+     m = min(p, key=lambda k: k[index])[index]
+     p = mul_xin(p, index, -m)
+-    prec -= m
++    prec = math.ceil(prec - QQ(m) / n)
+ 
+     if _has_constant_term(p - 1, x):
+         zm = R.zero_monom
+diff --git a/sympy/polys/tests/test_tmpnth.py b/sympy/polys/tests/test_tmpnth.py
+new file mode 100644
+index 0000000..5c2a0a6
+--- /dev/null
++++ b/sympy/polys/tests/test_tmpnth.py
+@@ -0,0 +1,11 @@
++from sympy.polys.domains import QQ
++from sympy.polys.rings import ring
++from sympy.polys.puiseux import puiseux_ring
++from sympy.polys.ring_series import rs_nth_root, rs_sin
++
++def test_a():
++    R, x, y = puiseux_ring('x, y', QQ)
++    r = rs_nth_root(8*x + x**2*y + x**3, 3, x, 4)
++    r2 = rs_nth_root(8*x + x**2 + x**3, 3, x, 5)
++    r3 = rs_nth_root(8*x + x**2 + x**3, 3, x, 3)
++    assert 0, (repr(r), repr(r2), repr(r3))

@@ -1,0 +1,25 @@
+{
+  "case_id": "h2-requests-01353d3b",
+  "function_recall10": 1.0,
+  "file_recall10": 1.0,
+  "function_hits": [
+    "tests/test_requests.py::test_content_length_for_string_data_counts_bytes"
+  ],
+  "missing_from_parent": [],
+  "recommended": 10,
+  "top10": [
+    "tests/test_requests.py::test_content_length_for_string_data_counts_bytes",
+    "tests/test_utils.py::TestSuperLen::test_io_streams",
+    "tests/test_utils.py::TestSuperLen::test_string",
+    "tests/test_utils.py::TestSuperLen::test_super_len_correctly_calculates_len_of_partially_read_file",
+    "tests/test_utils.py::TestSuperLen::test_super_len_with_tell",
+    "tests/test_utils.py::TestSuperLen::test_file",
+    "tests/test_utils.py::TestSuperLen::test_super_len_handles_files_raising_weird_errors_in_tell",
+    "tests/test_utils.py::TestSuperLen::test_super_len_tell_ioerror",
+    "tests/test_utils.py::TestSuperLen::test_super_len_with__len__",
+    "tests/test_utils.py::TestSuperLen::test_super_len_with_fileno"
+  ],
+  "seconds": 0.20720254099433077,
+  "bytes": 1979,
+  "noise10": 9
+}

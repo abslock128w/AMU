@@ -260,7 +260,7 @@ def package_build(package: Path) -> dict:
 def runtime_identity(*, enable_patch_analysis: bool = False) -> dict:
     """Operator diagnostics for this loaded runtime, without SDK/provider imports."""
     try:
-        distribution_version = importlib.metadata.version("amu")
+        distribution_version = importlib.metadata.version("anti-messup")
     except importlib.metadata.PackageNotFoundError:
         distribution_version = None
     build = package_build(Path(__file__).parent)

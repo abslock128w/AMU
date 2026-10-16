@@ -1,0 +1,632 @@
+{
+ "rule": "Phase 0 holdout: commits whose change breaks an existing test that lexical search would not surface.\n\nExecutes the upstream repository's tests (owner approved Django on 2026-10-13). For each commit, walking\nbackwards from the frozen HEAD, the test modules the commit itself touched are run on the parent tree and\nagain with only the production part of the commit applied. A test that passed and now fails is breaking.\nA breaking test outside the 40 tests most lexically similar to the diff is indirect. The first commits with\nan indirect breaking test are kept. AMU's reachability ranking is never consulted during selection.",
+ "repository": "https://github.com/django/django",
+ "head": "1a9fba7a6c2a0acead19bbb45c25ceb0fdcca7c8",
+ "skipped_newest": 476,
+ "screened": [
+  [
+   "920b43eb5b",
+   "no production or no test change"
+  ],
+  [
+   "fba9413a32",
+   "no production or no test change"
+  ],
+  [
+   "50bbf71bbd",
+   "no production or no test change"
+  ],
+  [
+   "5dfb6586f7",
+   "no production or no test change"
+  ],
+  [
+   "ac010061fd",
+   "no production or no test change"
+  ],
+  [
+   "5bd7a66c2c",
+   "no production or no test change"
+  ],
+  [
+   "12dcba45cb",
+   "blind: subject does not start with \"Fixed #\""
+  ],
+  [
+   "9f790ef1a0",
+   "no existing test modified or removed"
+  ],
+  [
+   "8726605e2d",
+   "no production or no test change"
+  ],
+  [
+   "8c8b833d32",
+   "no existing test modified or removed"
+  ],
+  [
+   "02a7d43d02",
+   "no production or no test change"
+  ],
+  [
+   "3f912ee418",
+   "no existing test modified or removed"
+  ],
+  [
+   "60a9c70496",
+   "kept"
+  ],
+  [
+   "61941b6fc1",
+   "no production or no test change"
+  ],
+  [
+   "604695cddb",
+   "no production or no test change"
+  ],
+  [
+   "5b3cfce517",
+   "blind: subject does not start with \"Fixed #\""
+  ],
+  [
+   "f3ff680c76",
+   "no production or no test change"
+  ],
+  [
+   "5d911f2d2f",
+   "no existing test modified or removed"
+  ],
+  [
+   "e8c6322b4f",
+   "no production or no test change"
+  ],
+  [
+   "fb292a5493",
+   "lexical"
+  ],
+  [
+   "32a3b4aa69",
+   "blind: subject does not start with \"Fixed #\""
+  ],
+  [
+   "a49be25e61",
+   "no production or no test change"
+  ],
+  [
+   "c63591d4da",
+   "no production or no test change"
+  ],
+  [
+   "017d7f6f12",
+   "no production or no test change"
+  ],
+  [
+   "526b548cfb",
+   "no existing test modified or removed"
+  ],
+  [
+   "ad073338d0",
+   "no production or no test change"
+  ],
+  [
+   "29eac2648c",
+   "no production or no test change"
+  ],
+  [
+   "d24160ab48",
+   "no production or no test change"
+  ],
+  [
+   "183e6505b6",
+   "no production or no test change"
+  ],
+  [
+   "fa2a3de6ed",
+   "no existing test modified or removed"
+  ],
+  [
+   "a586f03f36",
+   "blind: subject does not start with \"Fixed #\""
+  ],
+  [
+   "61a62be313",
+   "no existing test modified or removed"
+  ],
+  [
+   "63c56cda13",
+   "kept"
+  ],
+  [
+   "dc467fdc3b",
+   "no existing test modified or removed"
+  ],
+  [
+   "e1bdebc84e",
+   "no production or no test change"
+  ],
+  [
+   "84db026228",
+   "no existing test modified or removed"
+  ],
+  [
+   "512e348bb2",
+   "no production or no test change"
+  ],
+  [
+   "a77be30a43",
+   "no production or no test change"
+  ],
+  [
+   "2c87f519f4",
+   "no production or no test change"
+  ],
+  [
+   "5cf9c7fde7",
+   "no production or no test change"
+  ],
+  [
+   "673fa46d80",
+   "no production or no test change"
+  ],
+  [
+   "d3ccbde034",
+   "no production or no test change"
+  ],
+  [
+   "fc0a0ebd4f",
+   "no production or no test change"
+  ],
+  [
+   "47789e3a2b",
+   "no production or no test change"
+  ],
+  [
+   "290fefe6f8",
+   "no production or no test change"
+  ],
+  [
+   "3af5cb17b8",
+   "no production or no test change"
+  ],
+  [
+   "8ddc5b444c",
+   "no production or no test change"
+  ],
+  [
+   "250434861e",
+   "no production or no test change"
+  ],
+  [
+   "a284a49153",
+   "no existing test breaks (88 run)"
+  ],
+  [
+   "d33364c7ba",
+   "no production or no test change"
+  ],
+  [
+   "179aa21b6d",
+   "lexical"
+  ],
+  [
+   "aad47fe1bf",
+   "no production or no test change"
+  ],
+  [
+   "7142667340",
+   "no production or no test change"
+  ],
+  [
+   "1b0d46f715",
+   "no production or no test change"
+  ],
+  [
+   "820c7d3248",
+   "no existing test modified or removed"
+  ],
+  [
+   "241b8e1aab",
+   "no production or no test change"
+  ],
+  [
+   "4a6f797e48",
+   "no production or no test change"
+  ],
+  [
+   "ed79c5959a",
+   "no existing test breaks (204 run)"
+  ],
+  [
+   "d687d412a9",
+   "no production or no test change"
+  ],
+  [
+   "378481165d",
+   "no production or no test change"
+  ],
+  [
+   "5a0c099140",
+   "no production or no test change"
+  ],
+  [
+   "8bb01b1b11",
+   "no production or no test change"
+  ],
+  [
+   "5a79a092af",
+   "no production or no test change"
+  ],
+  [
+   "4593ae93ae",
+   "no production or no test change"
+  ],
+  [
+   "82a2465f71",
+   "no production or no test change"
+  ],
+  [
+   "86cea4145d",
+   "no production or no test change"
+  ],
+  [
+   "8f36420364",
+   "no production or no test change"
+  ],
+  [
+   "89d2298fbb",
+   "no production or no test change"
+  ],
+  [
+   "d6e58765f5",
+   "no production or no test change"
+  ],
+  [
+   "339879620a",
+   "no production or no test change"
+  ],
+  [
+   "f8a9290f30",
+   "no production or no test change"
+  ],
+  [
+   "3157285e27",
+   "no existing test modified or removed"
+  ],
+  [
+   "8d326336c5",
+   "no production or no test change"
+  ],
+  [
+   "f0b75f46fd",
+   "no production or no test change"
+  ],
+  [
+   "746f5fd23e",
+   "no production or no test change"
+  ],
+  [
+   "7dc826b975",
+   "no production or no test change"
+  ],
+  [
+   "d61f33f03b",
+   "no production or no test change"
+  ],
+  [
+   "3ef48ca6c1",
+   "no production or no test change"
+  ],
+  [
+   "a8ef1a697b",
+   "no production or no test change"
+  ],
+  [
+   "36ccdcc511",
+   "no production or no test change"
+  ],
+  [
+   "60f07e81c5",
+   "no production or no test change"
+  ],
+  [
+   "9391beeb87",
+   "no production or no test change"
+  ],
+  [
+   "4d8cc40c73",
+   "no production or no test change"
+  ],
+  [
+   "6f030e8e5d",
+   "no production or no test change"
+  ],
+  [
+   "09f27cc373",
+   "no production or no test change"
+  ],
+  [
+   "280256499c",
+   "no production or no test change"
+  ],
+  [
+   "f86eb5f89b",
+   "no production or no test change"
+  ],
+  [
+   "e2abe321a6",
+   "no existing test modified or removed"
+  ],
+  [
+   "74e73dc131",
+   "no production or no test change"
+  ],
+  [
+   "8cf3114def",
+   "no production or no test change"
+  ],
+  [
+   "e27f23b268",
+   "no existing test modified or removed"
+  ],
+  [
+   "78a3ffbb4c",
+   "no production or no test change"
+  ],
+  [
+   "1c584b0b1e",
+   "no production or no test change"
+  ],
+  [
+   "3330dc2dd9",
+   "no production or no test change"
+  ],
+  [
+   "2dbec93531",
+   "no production or no test change"
+  ],
+  [
+   "953c238058",
+   "blind: subject does not start with \"Fixed #\""
+  ],
+  [
+   "7e9885f99c",
+   "blind: subject does not start with \"Fixed #\""
+  ],
+  [
+   "6afe7ce939",
+   "blind: subject does not start with \"Fixed #\""
+  ],
+  [
+   "ef8b25dcc0",
+   "blind: subject does not start with \"Fixed #\""
+  ],
+  [
+   "caf90a971f",
+   "blind: subject does not start with \"Fixed #\""
+  ],
+  [
+   "33bfc66add",
+   "no existing test modified or removed"
+  ],
+  [
+   "eb244b0117",
+   "no production or no test change"
+  ],
+  [
+   "dadf5df6a0",
+   "no production or no test change"
+  ],
+  [
+   "3b161e6096",
+   "no existing test modified or removed"
+  ],
+  [
+   "123fa3a3f3",
+   "no production or no test change"
+  ],
+  [
+   "fcf916884d",
+   "lexical"
+  ],
+  [
+   "04bcc99133",
+   "no production or no test change"
+  ],
+  [
+   "cec10f992b",
+   "no existing test breaks (390 run)"
+  ],
+  [
+   "3fb37ef411",
+   "no production or no test change"
+  ],
+  [
+   "253f552c58",
+   "no existing test breaks (450 run)"
+  ],
+  [
+   "90cd510b3b",
+   "no production or no test change"
+  ],
+  [
+   "2ee757ee50",
+   "no production or no test change"
+  ],
+  [
+   "a32c7075cf",
+   "no existing test modified or removed"
+  ],
+  [
+   "856c915326",
+   "lexical"
+  ],
+  [
+   "08aa1b5ac8",
+   "no production or no test change"
+  ],
+  [
+   "6be668b0cc",
+   "no production or no test change"
+  ],
+  [
+   "dff1980d61",
+   "no production or no test change"
+  ],
+  [
+   "afa026cd80",
+   "no production or no test change"
+  ],
+  [
+   "9c9a43b45e",
+   "no production or no test change"
+  ],
+  [
+   "6c9ef6282e",
+   "no production or no test change"
+  ],
+  [
+   "8f50bae618",
+   "no production or no test change"
+  ],
+  [
+   "edd8997868",
+   "no production or no test change"
+  ],
+  [
+   "4fd9e85b60",
+   "no production or no test change"
+  ],
+  [
+   "a1188fc76a",
+   "no production or no test change"
+  ],
+  [
+   "8b7ea2bcdd",
+   "blind: subject does not start with \"Fixed #\""
+  ],
+  [
+   "f6167b8bc8",
+   "no production or no test change"
+  ],
+  [
+   "26f8929f16",
+   "no existing test modified or removed"
+  ],
+  [
+   "386257b33e",
+   "blind: subject does not start with \"Fixed #\""
+  ],
+  [
+   "10ea59be19",
+   "no production or no test change"
+  ],
+  [
+   "72e8fdd603",
+   "no production or no test change"
+  ],
+  [
+   "b38cddf8f9",
+   "no production or no test change"
+  ],
+  [
+   "f3bdfd2065",
+   "no production or no test change"
+  ],
+  [
+   "f2169ef368",
+   "no production or no test change"
+  ],
+  [
+   "d9adcfbd5e",
+   "no production or no test change"
+  ],
+  [
+   "994fa7780d",
+   "no production or no test change"
+  ],
+  [
+   "9b2cc7a950",
+   "no production or no test change"
+  ],
+  [
+   "468d47fb90",
+   "no production or no test change"
+  ],
+  [
+   "8401071c52",
+   "no production or no test change"
+  ],
+  [
+   "2d7f899deb",
+   "no existing test modified or removed"
+  ],
+  [
+   "1786cd881f",
+   "blind: subject does not start with \"Fixed #\""
+  ],
+  [
+   "5146449a38",
+   "blind: subject does not start with \"Fixed #\""
+  ],
+  [
+   "f05fac88c4",
+   "kept"
+  ],
+  [
+   "4b2b4bf0ac",
+   "no existing test modified or removed"
+  ],
+  [
+   "2e33abe57c",
+   "no existing test modified or removed"
+  ],
+  [
+   "ba4751e0ca",
+   "no production or no test change"
+  ],
+  [
+   "37284896f0",
+   "no production or no test change"
+  ],
+  [
+   "3abf898879",
+   "no production or no test change"
+  ],
+  [
+   "142659133a",
+   "no production or no test change"
+  ],
+  [
+   "0ed8d4e7d1",
+   "no existing test modified or removed"
+  ],
+  [
+   "4b2edb3418",
+   "no production or no test change"
+  ],
+  [
+   "2333d56696",
+   "lexical"
+  ]
+ ],
+ "kept": {
+  "blind": [
+   "dj-60a9c704",
+   "dj-fb292a54",
+   "dj-63c56cda",
+   "dj-179aa21b",
+   "dj-fcf91688",
+   "dj-856c9153",
+   "dj-f05fac88",
+   "dj-2333d566"
+  ]
+ },
+ "environment": {
+  "python": "Python 3.14.6",
+  "database": "sqlite, default test settings",
+  "dependencies": "asgiref, sqlparse only; tests needing optional packages skip"
+ },
+ "hashes": {
+  "blind.json": "f166712514545996fd1651c7de08e1bd227ba9b42a21f2055368dbb913ea0f7f"
+ }
+}

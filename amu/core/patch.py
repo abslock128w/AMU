@@ -42,7 +42,7 @@ def changes(root, patch):
                 before_line, after_line = int(match[1]), int(match[3])
                 removed_in_hunk = False
                 if current is not None:
-                    current['hunks'].append([before_line, []])
+                    current['hunks'].append([before_line, [], after_line])
             else:
                 gaps.append('Unrecognized diff hunk')
                 current = None
@@ -82,7 +82,17 @@ def applied(root, path, edit):
 
     new, old = share(edit['added']), share(edit['removed'])
     if new is None:
-        return old == 0 and bool(edit['removed'])
+        if not edit['removed']:
+            return False
+        if old == 0:
+            return True
+        # A removal whose lines repeat in what shifts into place (`return self`, `pass`): each hunk's surviving lines
+        # sit together at the patched-side start, and the hunk as it was does not sit at the parent-side start.
+        def at(start, rows):
+            rows = [row[1:].rstrip('\r\n') for row in rows]
+            return start >= 1 and lines[start - 1:start - 1 + len(rows)] == rows
+        return all(len(hunk) > 2 and at(hunk[2], [row for row in hunk[1] if row[:1] == ' '])
+                   and not at(hunk[0], [row for row in hunk[1] if row[:1] in ' -']) for hunk in edit['hunks'])
     return new == 1 and (old is None or old < 1)
 
 
@@ -95,7 +105,7 @@ def candidate(root, path, edit):
     if applied(root, path, edit):
         return source
     lines, out, position = source.splitlines(keepends=True), [], 0
-    for start, body in edit['hunks']:
+    for start, body, *_ in edit['hunks']:
         start = max(start - 1, 0)
         if start < position or start > len(lines):
             return None
@@ -122,7 +132,7 @@ def renumber(edit):
     still counts as evidence about the changed lines.
     """
     table, breaks, offset = {}, [], 0
-    for start, body in edit['hunks']:
+    for start, body, *_ in edit['hunks']:
         old, new = start, start + offset
         if start == 0:
             old, new = 1, 1 + offset
@@ -159,12 +169,12 @@ def original(root, path, edit):
         return None
     if not applied(root, path, edit):
         return source
-    flipped = dict(edit, hunks=[[start, [('+' if row[:1] == '-' else '-' if row[:1] == '+' else ' ') + row[1:] for row in body]]
-                               for start, body in edit['hunks']])
-    # Hunk starts are parent positions; walking the patched file needs patched positions.
+    # Walk the patched file from each hunk's patched-side start, as the hunk header gives it. Mapping the
+    # parent start through renumber() lands after lines a hunk inserts first, such as new imports at the top.
     place, moved = renumber(edit), []
-    for (start, _), (_, body) in zip(edit['hunks'], flipped['hunks']):
-        moved.append([place(start) if start else 0, body])
+    for start, body, *patched in edit['hunks']:
+        flipped = [('+' if row[:1] == '-' else '-' if row[:1] == '+' else ' ') + row[1:] for row in body]
+        moved.append([patched[0] if patched else (place(start) if start else 0), flipped])
     lines, out, position = source.splitlines(keepends=True), [], 0
     for start, body in moved:
         start = max(start - 1, 0)
@@ -184,3 +194,14 @@ def original(root, path, edit):
                 position += 1
     out.extend(lines[position:])
     return ''.join(out)
+
+
+def align(old_text, new_text):
+    """Map line numbers of ``old_text`` to ``new_text`` for the lines the two versions share."""
+    import difflib
+    old, new = old_text.splitlines(), new_text.splitlines()
+    table = {}
+    for a, b, size in difflib.SequenceMatcher(None, old, new, autojunk=False).get_matching_blocks():
+        for offset in range(size):
+            table[a + offset + 1] = b + offset + 1
+    return table

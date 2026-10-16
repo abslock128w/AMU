@@ -1,0 +1,361 @@
+[
+ {
+  "case_id": "h3-click-a1d87858",
+  "suite": "holdout3",
+  "candidates": 150,
+  "hits": [
+   "tests/test_termui.py::test_edit",
+   "tests/test_termui.py::test_fast_edit"
+  ],
+  "before": 2,
+  "truth": 2,
+  "seconds": 0.5
+ },
+ {
+  "case_id": "h3-click-bc32a92c",
+  "suite": "holdout3",
+  "candidates": 150,
+  "hits": [
+   "tests/test_termui.py::test_get_pager_file_flushes_stream_on_exception",
+   "tests/test_termui.py::test_get_pager_file_nullpager_keeps_stringio_stream",
+   "tests/test_termui.py::test_get_pager_file_nullpager_wraps_textio_stream",
+   "tests/test_termui.py::test_tempfile_pager_accepts_text",
+   "tests/test_termui.py::test_tempfile_pager_handles_ansi",
+   "tests/test_utils/test_echo_via_pager.py::test_echo_via_pager_yields_before_exception"
+  ],
+  "before": 6,
+  "truth": 6,
+  "seconds": 0.5
+ },
+ {
+  "case_id": "h3-click-c2ed4149",
+  "suite": "holdout3",
+  "candidates": 150,
+  "hits": [
+   "tests/test_arguments.py::test_file_args",
+   "tests/test_arguments.py::test_file_atomics",
+   "tests/test_basic.py::test_file_lazy_mode",
+   "tests/test_basic.py::test_file_option",
+   "tests/test_basic.py::test_path_option",
+   "tests/test_shell_completion.py::test_files_closed",
+   "tests/test_testing.py::test_isolated_runner",
+   "tests/test_testing.py::test_isolated_runner_custom_tempdir",
+   "tests/test_utils/test_open_file.py::test_open_file",
+   "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_existing_file",
+   "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_new_file",
+   "tests/test_utils/test_open_file.py::test_open_file_ignore_invalid_utf8",
+   "tests/test_utils/test_open_file.py::test_open_file_ignore_no_encoding",
+   "tests/test_utils/test_open_file.py::test_open_file_respects_ignore"
+  ],
+  "before": 14,
+  "truth": 14,
+  "seconds": 0.5
+ },
+ {
+  "case_id": "h3-click-8ee83ddb",
+  "suite": "holdout3",
+  "candidates": 150,
+  "hits": [
+   "tests/test_arguments.py::test_file_args",
+   "tests/test_arguments.py::test_file_atomics",
+   "tests/test_basic.py::test_file_lazy_mode",
+   "tests/test_basic.py::test_file_option",
+   "tests/test_basic.py::test_path_option",
+   "tests/test_testing.py::test_isolated_runner",
+   "tests/test_testing.py::test_isolated_runner_custom_tempdir",
+   "tests/test_utils/test_open_file.py::test_open_file",
+   "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_existing_file",
+   "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_new_file"
+  ],
+  "before": 10,
+  "truth": 14,
+  "seconds": 0.5
+ },
+ {
+  "case_id": "h3-click-fbdd4340",
+  "suite": "holdout3",
+  "candidates": 150,
+  "hits": [
+   "tests/test_arguments.py::test_file_args",
+   "tests/test_arguments.py::test_file_atomics",
+   "tests/test_basic.py::test_file_lazy_mode",
+   "tests/test_basic.py::test_file_option",
+   "tests/test_basic.py::test_path_option",
+   "tests/test_shell_completion.py::test_files_closed",
+   "tests/test_testing.py::test_isolated_runner",
+   "tests/test_testing.py::test_isolated_runner_custom_tempdir",
+   "tests/test_utils/test_open_file.py::test_open_file",
+   "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_existing_file",
+   "tests/test_utils/test_open_file.py::test_open_file_atomic_permissions_new_file",
+   "tests/test_utils/test_open_file.py::test_open_file_ignore_invalid_utf8",
+   "tests/test_utils/test_open_file.py::test_open_file_ignore_no_encoding",
+   "tests/test_utils/test_open_file.py::test_open_file_respects_ignore"
+  ],
+  "before": 14,
+  "truth": 14,
+  "seconds": 0.4
+ },
+ {
+  "case_id": "h3-click-051725fa",
+  "suite": "holdout3",
+  "candidates": 150,
+  "hits": [
+   "tests/test_testing.py::test_echo_stdin_stream",
+   "tests/test_testing.py::test_runner",
+   "tests/test_testing.py::test_runner_with_stream"
+  ],
+  "before": 3,
+  "truth": 3,
+  "seconds": 0.5
+ },
+ {
+  "case_id": "h3-click-7a0a3447",
+  "suite": "holdout3",
+  "candidates": 150,
+  "hits": [
+   "tests/test_testing.py::test_echo_stdin_stream",
+   "tests/test_testing.py::test_runner",
+   "tests/test_testing.py::test_runner_with_stream",
+   "tests/test_utils/test_KeepOpenFile.py::test_iter_keepopenfile",
+   "tests/test_utils/test_LazyFile.py::test_iter_lazyfile",
+   "tests/test_utils/test_make_default_short_help.py::test_make_default_short_help"
+  ],
+  "before": 4,
+  "truth": 6,
+  "seconds": 0.6
+ },
+ {
+  "case_id": "h3-click-71f2bafa",
+  "suite": "holdout3",
+  "candidates": 150,
+  "hits": [
+   "tests/test_formatting.py::test_wrap_text_visible_width",
+   "tests/test_utils/test_style.py::test_unstyle_other_ansi"
+  ],
+  "before": 2,
+  "truth": 2,
+  "seconds": 0.4
+ },
+ {
+  "case_id": "02-0c419f95",
+  "suite": "werkzeug",
+  "candidates": 33,
+  "hits": [
+   "tests/test_http.py::TestRange::test_range_parsing"
+  ],
+  "before": 1,
+  "truth": 1,
+  "seconds": 0.6
+ },
+ {
+  "case_id": "03-594452f6",
+  "suite": "werkzeug",
+  "candidates": 149,
+  "hits": [
+   "tests/test_routing.py::test_converter"
+  ],
+  "before": 1,
+  "truth": 1,
+  "seconds": 0.5
+ },
+ {
+  "case_id": "05-2c453bf3",
+  "suite": "werkzeug",
+  "candidates": 1,
+  "hits": [
+   "tests/middleware/test_proxy_fix.py::test_proxy_fix"
+  ],
+  "before": 1,
+  "truth": 1,
+  "seconds": 0.6
+ },
+ {
+  "case_id": "16-658bf5ed",
+  "suite": "werkzeug",
+  "candidates": 150,
+  "hits": [
+   "tests/sansio/test_utils.py::test_get_host_invalid"
+  ],
+  "before": 1,
+  "truth": 1,
+  "seconds": 0.6
+ },
+ {
+  "case_id": "extra-6b495d0d",
+  "suite": "werkzeug",
+  "candidates": 143,
+  "hits": [
+   "tests/test_formparser.py::TestFormParser::test_parse_bad_content_type",
+   "tests/test_formparser.py::TestFormParser::test_parse_form_data_get_without_content",
+   "tests/test_formparser.py::TestFormParser::test_parse_form_data_put_without_content",
+   "tests/test_formparser.py::TestMultiPart::test_empty_multipart",
+   "tests/test_test.py::test_environ_builder_empty_file",
+   "tests/test_test.py::test_environ_builder_stream_switch"
+  ],
+  "before": 0,
+  "truth": 6,
+  "seconds": 0.6
+ },
+ {
+  "case_id": "extra-97d9f22a",
+  "suite": "werkzeug",
+  "candidates": 1,
+  "hits": [
+   "tests/test_utils.py::test_append_slash_redirect"
+  ],
+  "before": 0,
+  "truth": 1,
+  "seconds": 0.6
+ },
+ {
+  "case_id": "extra-0743179b",
+  "suite": "werkzeug",
+  "candidates": 150,
+  "hits": [
+   "tests/test_wsgi.py::test_get_host",
+   "tests/test_wsgi.py::test_get_host_fallback"
+  ],
+  "before": 2,
+  "truth": 2,
+  "seconds": 0.8
+ },
+ {
+  "case_id": "extra-45768395",
+  "suite": "werkzeug",
+  "candidates": 149,
+  "hits": [
+   "tests/test_wsgi.py::test_get_current_url_invalid_utf8",
+   "tests/test_wsgi.py::test_get_current_url_unicode"
+  ],
+  "before": 0,
+  "truth": 2,
+  "seconds": 0.8
+ },
+ {
+  "case_id": "extra-dc199349",
+  "suite": "werkzeug",
+  "candidates": 14,
+  "hits": [
+   "tests/test_wsgi.py::test_path_info_and_script_name_fetching"
+  ],
+  "before": 1,
+  "truth": 1,
+  "seconds": 0.7
+ },
+ {
+  "case_id": "extra-f359a67e",
+  "suite": "werkzeug",
+  "candidates": 150,
+  "hits": [
+   "tests/test_wrappers.py::test_other_method_payload",
+   "tests/test_wsgi.py::test_limited_stream",
+   "tests/test_wsgi.py::test_limited_stream_disconnection",
+   "tests/test_wsgi.py::test_limited_stream_json_load",
+   "tests/test_wsgi.py::test_limited_stream_read_with_raw_io"
+  ],
+  "before": 2,
+  "truth": 5,
+  "seconds": 0.7
+ },
+ {
+  "case_id": "h2-requests-f0198e6d",
+  "suite": "holdout2",
+  "candidates": 39,
+  "hits": [
+   "tests/test_utils.py::test__parse_content_type_header",
+   "tests/test_utils.py::test_get_encoding_from_headers"
+  ],
+  "before": 2,
+  "truth": 2,
+  "seconds": 0.3
+ },
+ {
+  "case_id": "h2-requests-bc7dd0fc",
+  "suite": "holdout2",
+  "candidates": 4,
+  "hits": [],
+  "before": 0,
+  "truth": 1,
+  "seconds": 0.2
+ },
+ {
+  "case_id": "h2-requests-f8bec2f7",
+  "suite": "holdout2",
+  "candidates": 150,
+  "hits": [
+   "tests/test_requests.py::TestRequests::test_invalid_ca_certificate_path",
+   "tests/test_requests.py::TestRequests::test_invalid_ssl_certificate_files"
+  ],
+  "before": 2,
+  "truth": 2,
+  "seconds": 0.3
+ },
+ {
+  "case_id": "h2-requests-01353d3b",
+  "suite": "holdout2",
+  "candidates": 150,
+  "hits": [
+   "tests/test_requests.py::test_content_length_for_string_data_counts_bytes"
+  ],
+  "before": 1,
+  "truth": 1,
+  "seconds": 0.2
+ },
+ {
+  "case_id": "h2-itsdangerous-7f4dcf83",
+  "suite": "holdout2",
+  "candidates": 35,
+  "hits": [
+   "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_iter_unsigners"
+  ],
+  "before": 1,
+  "truth": 1,
+  "seconds": 0.0
+ },
+ {
+  "case_id": "h2-itsdangerous-177196d3",
+  "suite": "holdout2",
+  "candidates": 29,
+  "hits": [
+   "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_malformed_future_timestamp"
+  ],
+  "before": 1,
+  "truth": 1,
+  "seconds": 0.0
+ },
+ {
+  "case_id": "h2-itsdangerous-aed5b260",
+  "suite": "holdout2",
+  "candidates": 46,
+  "hits": [
+   "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_alt_salt",
+   "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_bad_payload_exception",
+   "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_bad_signature_exception",
+   "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_changed_value",
+   "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_fallback_signers",
+   "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_file",
+   "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_iter_unsigners",
+   "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_loads_unsafe",
+   "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_serializer",
+   "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_signer_cls",
+   "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_signer_kwargs",
+   "tests/test_itsdangerous/test_signer.py::test_abstract_algorithm"
+  ],
+  "before": 12,
+  "truth": 12,
+  "seconds": 0.1
+ },
+ {
+  "case_id": "h2-itsdangerous-526b1ea0",
+  "suite": "holdout2",
+  "candidates": 33,
+  "hits": [
+   "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_future_age",
+   "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_malformed_timestamp",
+   "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_timestamp_missing"
+  ],
+  "before": 3,
+  "truth": 3,
+  "seconds": 0.0
+ }
+]

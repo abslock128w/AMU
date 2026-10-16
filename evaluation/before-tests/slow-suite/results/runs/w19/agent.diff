@@ -1,0 +1,227 @@
+diff --git a/sympy/tensor/array/expressions/array_expressions.py b/sympy/tensor/array/expressions/array_expressions.py
+index 162d5ab..00a618c 100644
+--- a/sympy/tensor/array/expressions/array_expressions.py
++++ b/sympy/tensor/array/expressions/array_expressions.py
+@@ -12,6 +12,7 @@
+ from sympy.core.numbers import Integer
+ from sympy.core.relational import Equality
+ from sympy.functions.special.tensor_functions import KroneckerDelta
++from sympy.core.add import Add
+ from sympy.core.basic import Basic
+ from sympy.core.containers import Tuple
+ from sympy.core.expr import Expr
+@@ -536,7 +537,8 @@ class ArrayAdd(_ArrayExpr):
+     Class for elementwise array additions.
+     """
+ 
+-    def __new__(cls, *args, **kwargs):
++    @staticmethod
++    def _normalize_args(args):
+         args = [_sympify(arg) for arg in args]
+ 
+         # A Mul argument containing an array-shaped factor (e.g.
+@@ -551,9 +553,14 @@ def __new__(cls, *args, **kwargs):
+                     normalized_args.append(ArrayTensorProduct(coeff, array))
+                     continue
+             normalized_args.append(arg)
+-        args = normalized_args
++        return normalized_args
++
++    def __new__(cls, *args, **kwargs):
++        args = cls._normalize_args(args)
+ 
+         ndims = [get_ndim(arg) for arg in args]
++        if any(i == 0 for i in ndims):
++            raise TypeError("ArrayAdd does not accept scalar arguments")
+         ndims = list(set(ndims))
+         if len(ndims) != 1:
+             raise ValueError("summing arrays of different number of dims")
+@@ -606,21 +613,15 @@ def _collect_scalar_coefficients(cls, args):
+         summed coefficient is zero are dropped.
+         """
+         coeff_map: dict[tuple, Expr] = {}
+-        scalar_terms = []
+         for arg in args:
+             coeff, arrays = _array_term_as_coeff_arrays(arg)
+-            if not arrays:
+-                # Rank-0 scalar addends are kept untouched, so that a sum
+-                # of scalars remains an ArrayAdd:
+-                scalar_terms.append(arg)
+-                continue
+             if arrays in coeff_map:
+                 coeff_map[arrays] = coeff_map[arrays] + coeff
+             else:
+                 coeff_map[arrays] = coeff
+ 
+         if all(coeff is S.One for coeff in coeff_map.values()) and \
+-                len(coeff_map) + len(scalar_terms) == len(args):
++                len(coeff_map) == len(args):
+             # Nothing to merge:
+             return args
+ 
+@@ -629,7 +630,7 @@ def _collect_scalar_coefficients(cls, args):
+             if coeff.is_zero is True:
+                 continue
+             new_args.append(_array_term_from_coeff_arrays(coeff, arrays))
+-        return new_args + scalar_terms
++        return new_args
+ 
+     @classmethod
+     def _flatten_args(cls, args):
+@@ -2298,6 +2299,9 @@ def _permute_dims(expr, permutation, **kwargs):
+ 
+ 
+ def _array_add(*args, **kwargs):
++    args = ArrayAdd._normalize_args(args)
++    if args and all(get_ndim(arg) == 0 for arg in args):
++        return Add(*args)
+     return ArrayAdd(*args, canonicalize=True, **kwargs)
+ 
+ 
+diff --git a/sympy/tensor/array/expressions/arrayexpr_derivatives.py b/sympy/tensor/array/expressions/arrayexpr_derivatives.py
+index d48e118..d416fb0 100644
+--- a/sympy/tensor/array/expressions/arrayexpr_derivatives.py
++++ b/sympy/tensor/array/expressions/arrayexpr_derivatives.py
+@@ -5,6 +5,7 @@
+ from sympy.core.singleton import S
+ from sympy import MatrixBase, derive_by_array, Integer, Determinant, Function, MatPow, Dummy, Pow, Mul
+ from sympy.tensor.array import NDimArray
++from sympy.core.add import Add
+ from sympy.core.expr import Expr
+ from sympy.matrices.expressions.diagonal import DiagMatrix, DiagonalMatrix
+ from sympy.matrices.expressions.hadamard import HadamardProduct
+@@ -48,6 +49,11 @@ def _(expr: Expr, x: _ArrayExpr):
+     return ZeroArray(*x.shape)
+ 
+ 
++@array_derive.register(Add)
++def _(expr: Add, x: _ArrayExpr):
++    return _array_add(*[array_derive(arg, x) for arg in expr.args])
++
++
+ @array_derive.register(Mul)
+ def _(expr: Mul, x: _ArrayExpr):
+     args = expr.args
+diff --git a/sympy/tensor/array/expressions/from_array_to_indexed.py b/sympy/tensor/array/expressions/from_array_to_indexed.py
+index 9d8b622..2a4b3b2 100644
+--- a/sympy/tensor/array/expressions/from_array_to_indexed.py
++++ b/sympy/tensor/array/expressions/from_array_to_indexed.py
+@@ -56,7 +56,7 @@ def do_convert(self, expr, indices):
+         if isinstance(expr, PermuteDims):
+             permuted_indices = _apply_permutation_to_list(expr.permutation, indices)
+             return self.do_convert(expr.expr, permuted_indices)
+-        if isinstance(expr, ArrayAdd):
++        if isinstance(expr, (ArrayAdd, Add)):
+             return Add.fromiter(self.do_convert(arg, indices) for arg in expr.args)
+         if isinstance(expr, ArrayElementwiseApplyFunc):
+             return expr.function(self.do_convert(expr.expr, indices))
+diff --git a/sympy/tensor/array/expressions/from_array_to_matrix.py b/sympy/tensor/array/expressions/from_array_to_matrix.py
+index 60aac43..9720136 100644
+--- a/sympy/tensor/array/expressions/from_array_to_matrix.py
++++ b/sympy/tensor/array/expressions/from_array_to_matrix.py
+@@ -6,6 +6,7 @@
+ 
+ from sympy import MatMul, Basic, Wild, KroneckerProduct, NDimArray
+ from sympy.assumptions.ask import (Q, ask)
++from sympy.core.add import Add
+ from sympy.core.mul import Mul
+ from sympy.core.singleton import S
+ from sympy.matrices.expressions.diagonal import DiagMatrix
+@@ -386,6 +387,11 @@ def _(expr: ArrayAdd):
+     return _a2m_add(*addends)
+ 
+ 
++@_array2matrix.register(Add)
++def _(expr: Add):
++    return _a2m_add(*[_array2matrix(arg) for arg in expr.args])
++
++
+ @_array2matrix.register(ArrayElementwiseApplyFunc)
+ def _(expr: ArrayElementwiseApplyFunc):
+     subexpr = _array2matrix(expr.expr)
+@@ -892,7 +898,6 @@ def _a2m_add(*args):
+     if not any(isinstance(i, _ArrayExpr) for i in args):
+         if not any(isinstance(i, MatrixExpr) for i in args):
+             # All addends are scalars (e.g. traces):
+-            from sympy.core.add import Add
+             return Add(*args)
+         from sympy.matrices.expressions.matadd import MatAdd
+         return MatAdd(*args).doit()
+diff --git a/sympy/tensor/array/expressions/tests/test_array_expressions.py b/sympy/tensor/array/expressions/tests/test_array_expressions.py
+index 9966514..431ce97 100644
+--- a/sympy/tensor/array/expressions/tests/test_array_expressions.py
++++ b/sympy/tensor/array/expressions/tests/test_array_expressions.py
+@@ -742,6 +742,13 @@ def test_array_expressions_no_canonicalization():
+     assert expr.doit() == ArrayAdd(ArrayTensorProduct(2, M), N, P)
+     assert expr._canonicalize() == ArrayAdd(M, N, ArrayAdd(P, M))
+ 
++    sx, sy = symbols("sx sy")
++    raises(TypeError, lambda: ArrayAdd(sx, sy))
++    raises(TypeError, lambda: ArrayAdd(M, sx))
++    raises(TypeError, lambda: ArrayAdd(ArrayContraction(M, (0, 1)), sx))
++    assert _array_add(sx, sy) == sx + sy
++    assert _array_add(sx, ArrayContraction(M, (0, 1))) == sx + ArrayContraction(M, (0, 1))
++
+     expr = ArrayAdd(M, ZeroArray(k, k), N)
+     assert str(expr) == "ArrayAdd(M, ZeroArray(k, k), N)"
+     assert expr.doit() == ArrayAdd(M, N)
+diff --git a/sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py b/sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py
+index 744e879..bc73122 100644
+--- a/sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py
++++ b/sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py
+@@ -300,7 +300,7 @@ def test_convert_indexed_to_array_scalars_stay_scalars():
+     tr = Sum(M[i, i], (i, 0, k - 1))
+     trace = ArrayContraction(M, (0, 1))
+     assert convert_indexed_to_array(tr) == trace
+-    assert convert_indexed_to_array(tr + x) == ArrayAdd(x, trace)
++    assert convert_indexed_to_array(tr + x) == x + trace
+     assert convert_indexed_to_array(tr**2) == \
+         ArrayContraction(ArrayTensorProduct(M, M), (0, 1), (2, 3))
+     d = Dummy("d")
+diff --git a/sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py b/sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py
+index 95f05ca..7a64f88 100644
+--- a/sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py
++++ b/sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py
+@@ -10,7 +10,7 @@
+ from sympy.matrices.expressions.trace import Trace
+ from sympy.matrices.expressions.transpose import Transpose
+ from sympy.tensor.array.expressions.array_expressions import ArrayTensorProduct, ArrayContraction, \
+-    PermuteDims, ArrayDiagonal, ArrayElementwiseApplyFunc, _array_contraction, _array_tensor_product, Reshape, ArrayAdd
++    PermuteDims, ArrayDiagonal, ArrayElementwiseApplyFunc, _array_contraction, _array_tensor_product, Reshape
+ from sympy.tensor.array.expressions.from_array_to_matrix import convert_array_to_matrix
+ from sympy.tensor.array.expressions.from_matrix_to_array import convert_matrix_to_array
+ 
+@@ -93,7 +93,7 @@ def test_arrayexpr_convert_matrix_to_array():
+     assert convert_matrix_to_array(expr) == result
+ 
+     expr = Trace(M) + Trace(N)
+-    result = ArrayAdd(ArrayContraction(M, (0, 1)), ArrayContraction(N, (0, 1)))
++    result = ArrayContraction(M, (0, 1)) + ArrayContraction(N, (0, 1))
+     assert convert_matrix_to_array(expr) == result
+ 
+     expr = HadamardProduct(M, N)
+diff --git a/sympy/tensor/array/expressions/tests/test_simplification.py b/sympy/tensor/array/expressions/tests/test_simplification.py
+index eb34bce..50d2f3e 100644
+--- a/sympy/tensor/array/expressions/tests/test_simplification.py
++++ b/sympy/tensor/array/expressions/tests/test_simplification.py
+@@ -4,7 +4,7 @@
+ from sympy.matrices.expressions.special import Identity
+ from sympy.tensor.array.expressions import ArrayAdd, ArrayContraction, ArrayTensorProduct, \
+     ArraySymbol, PermuteDims, collect_tensor_products
+-from sympy.tensor.array.expressions.array_expressions import ZeroArray
++from sympy.tensor.array.expressions.array_expressions import ZeroArray, _array_add
+ 
+ x, y, k = symbols("x y k")
+ 
+@@ -42,9 +42,9 @@ def test_array_add_collect_coefficients():
+     # A Mul argument containing an array factor is normalized:
+     assert ArrayAdd(2*Ra, Rc).doit() == ArrayAdd(ArrayTensorProduct(2, Ra), Rc)
+ 
+-    # Sums of scalars remain ArrayAdd objects:
+     M3 = MatrixSymbol("M3", 3, 3)
+-    e = ArrayAdd(M3[0, 0], M3[1, 1])
++    e = _array_add(M3[0, 0], M3[1, 1])
++    assert e == M3[0, 0] + M3[1, 1]
+     assert e.doit() == e
+ 
+ 

@@ -1,0 +1,47 @@
+diff --git a/sympy/polys/puiseux.py b/sympy/polys/puiseux.py
+index 1840d03..764e08b 100644
+--- a/sympy/polys/puiseux.py
++++ b/sympy/polys/puiseux.py
+@@ -104,7 +104,7 @@ class PuiseuxRing(Generic[Er]):
+     -1*x**(-2)
+ 
+     >>> rs_nth_root(8*x + x**2 + x**3, 3, x, 5)
+-    2*x**(1/3) + 1/12*x**(4/3) + 23/288*x**(7/3) + -139/20736*x**(10/3)
++    2*x**(1/3) + 1/12*x**(4/3) + 23/288*x**(7/3) + -139/20736*x**(10/3) + -689/248832*x**(13/3)
+ 
+     See Also
+     ========
+diff --git a/sympy/polys/ring_series.py b/sympy/polys/ring_series.py
+index 67959d9..5ba0ffe 100644
+--- a/sympy/polys/ring_series.py
++++ b/sympy/polys/ring_series.py
+@@ -968,7 +968,7 @@ def rs_nth_root(p, n, x, prec):
+     index = R.gens.index(x)
+     m = min(p, key=lambda k: k[index])[index]
+     p = mul_xin(p, index, -m)
+-    prec -= m
++    prec = math.ceil(prec - QQ(m) / n)
+ 
+     if _has_constant_term(p - 1, x):
+         zm = R.zero_monom
+diff --git a/sympy/polys/tests/test_ring_series.py b/sympy/polys/tests/test_ring_series.py
+index de9e78e..bd1b1da 100644
+--- a/sympy/polys/tests/test_ring_series.py
++++ b/sympy/polys/tests/test_ring_series.py
+@@ -250,9 +250,14 @@ def test_nth_root():
+         5*x**4*y**5/27 - 10*x**4*y**4/243 - 2*x**3*y**4/9 + 5*x**3*y**3/81 + \
+         x**2*y**3/3 - x**2*y**2/9 + x*y/3 + 1
+     assert rs_nth_root(8*x, 3, x, 3) == 2*x**QQ(1, 3)
+-    assert rs_nth_root(8*x + x**2 + x**3, 3, x, 3) == x**QQ(4,3)/12 + 2*x**QQ(1,3)
++    assert rs_nth_root(x**2, 2, x, 3) == x
++    assert rs_nth_root(x**2 + x**3, 2, x, 3) == x + x**2/2
++    assert rs_nth_root(x**2 + x**3, 2, x, 4) == x + x**2/2 - x**3/8
++    assert rs_nth_root(8*x + x**2 + x**3, 3, x, 3) == \
++        23*x**QQ(7,3)/288 + x**QQ(4,3)/12 + 2*x**QQ(1,3)
+     r = rs_nth_root(8*x + x**2*y + x**3, 3, x, 4)
+-    assert r == -x**QQ(7,3)*y**2/288 + x**QQ(7,3)/12 + x**QQ(4,3)*y/12 + 2*x**QQ(1,3)
++    assert r == 5*x**QQ(10,3)*y**3/20736 - x**QQ(10,3)*y/144 - \
++        x**QQ(7,3)*y**2/288 + x**QQ(7,3)/12 + x**QQ(4,3)*y/12 + 2*x**QQ(1,3)
+ 
+     # Constant term in series
+     a = symbols('a')

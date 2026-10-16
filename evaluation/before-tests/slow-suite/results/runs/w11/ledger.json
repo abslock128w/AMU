@@ -1,0 +1,27 @@
+[
+ {
+  "tool": "hook",
+  "seconds": 0.98,
+  "at": 1792049910.0,
+  "detail": "before ./rt"
+ },
+ {
+  "tool": "rt",
+  "seconds": 1.58,
+  "at": 1792049940.0,
+  "labels": [
+   "sympy/interactive",
+   "sympy/interactive/session.py"
+  ],
+  "k": null,
+  "problems": [],
+  "ran": 8,
+  "failed": []
+ },
+ {
+  "tool": "hook",
+  "seconds": 9.07,
+  "at": 1792049949.1,
+  "detail": "after Bash"
+ }
+]

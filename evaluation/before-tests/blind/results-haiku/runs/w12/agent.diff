@@ -1,0 +1,498 @@
+diff --git a/django/core/mail/__init__.py b/django/core/mail/__init__.py
+index 4d7f8bf..3136bfd 100644
+--- a/django/core/mail/__init__.py
++++ b/django/core/mail/__init__.py
+@@ -61,6 +61,28 @@ def get_connection(backend=None, *, fail_silently=False, **kwds):
+     return klass(fail_silently=fail_silently, **kwds)
+ 
+ 
++def _get_connection_for_send(
++    *, fail_silently, auth_user, auth_password, connection
++):
++    """
++    Return the connection to send with. Raise TypeError if a connection is
++    given along with arguments that can only be passed to get_connection().
++    """
++    if connection is None:
++        return get_connection(
++            username=auth_user,
++            password=auth_password,
++            fail_silently=bool(fail_silently),
++        )
++    if fail_silently is not None:
++        raise TypeError(_FAIL_SILENTLY_WITH_CONNECTION_MSG)
++    if auth_user is not None:
++        raise TypeError(_AUTH_USER_WITH_CONNECTION_MSG)
++    if auth_password is not None:
++        raise TypeError(_AUTH_PASSWORD_WITH_CONNECTION_MSG)
++    return connection
++
++
+ @deprecate_posargs(
+     RemovedInDjango70Warning,
+     [
+@@ -77,7 +99,7 @@ def send_mail(
+     from_email,
+     recipient_list,
+     *,
+-    fail_silently=False,
++    fail_silently=None,
+     auth_user=None,
+     auth_password=None,
+     connection=None,
+@@ -94,10 +116,11 @@ def send_mail(
+     Note: The API for this method is frozen. New code wanting to extend the
+     functionality should use the EmailMessage class directly.
+     """
+-    connection = connection or get_connection(
+-        username=auth_user,
+-        password=auth_password,
++    connection = _get_connection_for_send(
+         fail_silently=fail_silently,
++        auth_user=auth_user,
++        auth_password=auth_password,
++        connection=connection,
+     )
+     mail = EmailMultiAlternatives(
+         subject, message, from_email, recipient_list, connection=connection
+@@ -120,7 +143,7 @@ def send_mail(
+ def send_mass_mail(
+     datatuple,
+     *,
+-    fail_silently=False,
++    fail_silently=None,
+     auth_user=None,
+     auth_password=None,
+     connection=None,
+@@ -137,10 +160,11 @@ def send_mass_mail(
+     Note: The API for this method is frozen. New code wanting to extend the
+     functionality should use the EmailMessage class directly.
+     """
+-    connection = connection or get_connection(
+-        username=auth_user,
+-        password=auth_password,
++    connection = _get_connection_for_send(
+         fail_silently=fail_silently,
++        auth_user=auth_user,
++        auth_password=auth_password,
++        connection=connection,
+     )
+     messages = [
+         EmailMessage(subject, message, sender, recipient, connection=connection)
+@@ -155,7 +179,7 @@ def _send_server_message(
+     subject,
+     message,
+     html_message=None,
+-    fail_silently=False,
++    fail_silently=None,
+     connection=None,
+ ):
+     recipients = getattr(settings, setting_name)
+@@ -195,7 +219,7 @@ def _send_server_message(
+     RemovedInDjango70Warning, ["fail_silently", "connection", "html_message"]
+ )
+ def mail_admins(
+-    subject, message, *, fail_silently=False, connection=None, html_message=None
++    subject, message, *, fail_silently=None, connection=None, html_message=None
+ ):
+     """Send a message to the admins, as defined by the ADMINS setting."""
+     _send_server_message(
+@@ -212,7 +236,7 @@ def mail_admins(
+     RemovedInDjango70Warning, ["fail_silently", "connection", "html_message"]
+ )
+ def mail_managers(
+-    subject, message, *, fail_silently=False, connection=None, html_message=None
++    subject, message, *, fail_silently=None, connection=None, html_message=None
+ ):
+     """Send a message to the managers, as defined by the MANAGERS setting."""
+     _send_server_message(
+@@ -225,6 +249,20 @@ def mail_managers(
+     )
+ 
+ 
++_FAIL_SILENTLY_WITH_CONNECTION_MSG = (
++    "fail_silently cannot be used with a connection. "
++    "(Pass fail_silently to get_connection() instead.)"
++)
++_AUTH_USER_WITH_CONNECTION_MSG = (
++    "auth_user cannot be used with a connection. "
++    "(Pass username to get_connection() instead.)"
++)
++_AUTH_PASSWORD_WITH_CONNECTION_MSG = (
++    "auth_password cannot be used with a connection. "
++    "(Pass password to get_connection() instead.)"
++)
++
++
+ # RemovedInDjango70Warning.
+ _deprecate_on_import = {
+     "BadHeaderError": "BadHeaderError is deprecated. Replace with ValueError.",
+diff --git a/django/core/mail/message.py b/django/core/mail/message.py
+index 66d5efe..6b46728 100644
+--- a/django/core/mail/message.py
++++ b/django/core/mail/message.py
+@@ -305,11 +305,16 @@ class EmailMessage:
+         self.extra_headers = headers or {}
+         self.connection = connection
+ 
+-    def get_connection(self, fail_silently=False):
++    def get_connection(self, fail_silently=None):
+         from django.core.mail import get_connection
+ 
+         if not self.connection:
+-            self.connection = get_connection(fail_silently=fail_silently)
++            self.connection = get_connection(fail_silently=bool(fail_silently))
++        elif fail_silently is not None:
++            raise TypeError(
++                "fail_silently cannot be used with a connection. "
++                "(Pass fail_silently to get_connection() instead.)"
++            )
+         return self.connection
+ 
+     def message(self, *, policy=email.policy.default):
+@@ -349,13 +354,22 @@ class EmailMessage:
+         """
+         return [email for email in (self.to + self.cc + self.bcc) if email]
+ 
+-    def send(self, fail_silently=False):
++    def send(self, fail_silently=None):
+         """Send the email message."""
+         if not self.recipients():
+             # Don't bother creating the network connection if there's nobody to
+             # send to.
+             return 0
+-        return self.get_connection(fail_silently).send_messages([self])
++        if self.connection:
++            # Validate fail_silently against the connection, but don't cache a
++            # connection created here, so that send() can be called again with
++            # different arguments.
++            connection = self.get_connection(fail_silently)
++        else:
++            from django.core.mail import get_connection
++
++            connection = get_connection(fail_silently=bool(fail_silently))
++        return connection.send_messages([self])
+ 
+     def attach(self, filename=None, content=None, mimetype=None):
+         """
+diff --git a/django/utils/log.py b/django/utils/log.py
+index d4e96a9..9a3a7d9 100644
+--- a/django/utils/log.py
++++ b/django/utils/log.py
+@@ -132,7 +132,7 @@ class AdminEmailHandler(logging.Handler):
+             reporter.get_traceback_text(),
+         )
+         html_message = reporter.get_traceback_html() if self.include_html else None
+-        self.send_mail(subject, message, fail_silently=True, html_message=html_message)
++        self.send_mail(subject, message, html_message=html_message)
+ 
+     def send_mail(self, subject, message, *args, **kwargs):
+         mail.mail_admins(
+diff --git a/docs/releases/6.1.txt b/docs/releases/6.1.txt
+index 67891c5..5361a9e 100644
+--- a/docs/releases/6.1.txt
++++ b/docs/releases/6.1.txt
+@@ -454,6 +454,20 @@ Dropped support for MariaDB < 10.11
+ Upstream support for MariaDB 10.6 ends in July 2026, and MariaDB 10.7-10.10 are
+ short-term maintenance releases. Django 6.1 supports MariaDB 10.11 and higher.
+ 
++Passing ``fail_silently``, ``auth_user``, or ``auth_password`` with a ``connection`` to email functions raises ``TypeError``
++----------------------------------------------------------------------------------------------------------------------------
++
++Previously, :func:`~django.core.mail.send_mail`,
++:func:`~django.core.mail.send_mass_mail`, and
++:meth:`EmailMessage.send() <django.core.mail.EmailMessage.send>` silently
++ignored ``fail_silently``, ``auth_user``, and ``auth_password`` when a
++``connection`` was also provided. Those arguments must now be passed to
++:func:`~django.core.mail.get_connection` instead, and passing them along with
++a ``connection`` raises :exc:`TypeError`.
++
++The default for ``fail_silently`` in these APIs is now ``None``, rather than
++``False``.
++
+ Miscellaneous
+ -------------
+ 
+diff --git a/docs/topics/email.txt b/docs/topics/email.txt
+index 6a32a07..2ec56d7 100644
+--- a/docs/topics/email.txt
++++ b/docs/topics/email.txt
+@@ -75,7 +75,7 @@ a secure connection is used.
+ ``send_mail()``
+ ===============
+ 
+-.. function:: send_mail(subject, message, from_email, recipient_list, *, fail_silently=False, auth_user=None, auth_password=None, connection=None, html_message=None)
++.. function:: send_mail(subject, message, from_email, recipient_list, *, fail_silently=None, auth_user=None, auth_password=None, connection=None, html_message=None)
+ 
+ In most cases, you can send email using ``django.core.mail.send_mail()``.
+ 
+@@ -96,13 +96,16 @@ if used.
+ * ``fail_silently``: A boolean. When it's ``False``, ``send_mail()`` will raise
+   an :exc:`smtplib.SMTPException` if an error occurs. See the :mod:`smtplib`
+   docs for a list of possible exceptions, all of which are subclasses of
+-  :exc:`~smtplib.SMTPException`.
++  :exc:`~smtplib.SMTPException`. Cannot be used with ``connection``; pass
++  ``fail_silently`` to :func:`~django.core.mail.get_connection` instead.
+ * ``auth_user``: The optional username to use to authenticate to the SMTP
+   server. If this isn't provided, Django will use the value of the
+-  :setting:`EMAIL_HOST_USER` setting.
++  :setting:`EMAIL_HOST_USER` setting. Cannot be used with ``connection``; pass
++  ``username`` to :func:`~django.core.mail.get_connection` instead.
+ * ``auth_password``: The optional password to use to authenticate to the
+   SMTP server. If this isn't provided, Django will use the value of the
+-  :setting:`EMAIL_HOST_PASSWORD` setting.
++  :setting:`EMAIL_HOST_PASSWORD` setting. Cannot be used with ``connection``;
++  pass ``password`` to :func:`~django.core.mail.get_connection` instead.
+ * ``connection``: The optional email backend to use to send the mail.
+   If unspecified, an instance of the default backend will be used.
+   See the documentation on :ref:`Email backends <topic-email-backends>`
+@@ -115,6 +118,12 @@ if used.
+ The return value will be the number of successfully delivered messages (which
+ can be ``0`` or ``1`` since it can only send one message).
+ 
++.. versionchanged:: 6.1
++
++    Passing ``fail_silently``, ``auth_user`` or ``auth_password`` along with
++    ``connection`` now raises :exc:`TypeError`. Previously, these arguments were
++    silently ignored.
++
+ .. deprecated:: 6.0
+ 
+     Passing ``fail_silently`` and later parameters as positional arguments is
+@@ -123,7 +132,7 @@ can be ``0`` or ``1`` since it can only send one message).
+ ``send_mass_mail()``
+ ====================
+ 
+-.. function:: send_mass_mail(datatuple, *, fail_silently=False, auth_user=None, auth_password=None, connection=None)
++.. function:: send_mass_mail(datatuple, *, fail_silently=None, auth_user=None, auth_password=None, connection=None)
+ 
+ ``django.core.mail.send_mass_mail()`` is intended to handle mass emailing.
+ 
+@@ -133,7 +142,8 @@ can be ``0`` or ``1`` since it can only send one message).
+ 
+ ``fail_silently``, ``auth_user``, ``auth_password`` and ``connection`` have the
+ same functions as in :func:`send_mail`. They must be given as keyword arguments
+-if used.
++if used. As in :func:`send_mail`, ``fail_silently``, ``auth_user`` and
++``auth_password`` cannot be used with ``connection``.
+ 
+ Each separate element of ``datatuple`` results in a separate email message.
+ As in :func:`send_mail`, recipients in the same ``recipient_list`` will all see
+@@ -159,6 +169,12 @@ mail server would be opened::
+ 
+ The return value will be the number of successfully delivered messages.
+ 
++.. versionchanged:: 6.1
++
++    Passing ``fail_silently``, ``auth_user`` or ``auth_password`` along with
++    ``connection`` now raises :exc:`TypeError`. Previously, these arguments were
++    silently ignored.
++
+ .. deprecated:: 6.0
+ 
+     Passing ``fail_silently`` and later parameters as positional arguments is
+@@ -175,7 +191,7 @@ messages. This makes :func:`send_mass_mail` slightly more efficient.
+ ``mail_admins()``
+ =================
+ 
+-.. function:: mail_admins(subject, message, *, fail_silently=False, connection=None, html_message=None)
++.. function:: mail_admins(subject, message, *, fail_silently=None, connection=None, html_message=None)
+ 
+ ``django.core.mail.mail_admins()`` is a shortcut for sending an email to the
+ site admins, as defined in the :setting:`ADMINS` setting.
+@@ -201,7 +217,7 @@ If ``html_message`` is provided, the resulting email will be a
+ ``mail_managers()``
+ ===================
+ 
+-.. function:: mail_managers(subject, message, *, fail_silently=False, connection=None, html_message=None)
++.. function:: mail_managers(subject, message, *, fail_silently=None, connection=None, html_message=None)
+ 
+ ``django.core.mail.mail_managers()`` is just like ``mail_admins()``, except it
+ sends an email to the site managers, as defined in the :setting:`MANAGERS`
+@@ -393,7 +409,7 @@ email backend API :ref:`provides an alternative
+ 
+     The class has the following methods:
+ 
+-    .. method:: send(fail_silently=False)
++    .. method:: send(fail_silently=None)
+ 
+         Sends the message. If a connection was specified when the email was
+         constructed, that connection will be used. Otherwise, an instance of
+@@ -403,6 +419,12 @@ email backend API :ref:`provides an alternative
+         an exception. It will return ``1`` if the message was sent
+         successfully, otherwise ``0``.
+ 
++        .. versionchanged:: 6.1
++
++            Passing ``fail_silently`` when the message was constructed with a
++            ``connection`` now raises :exc:`TypeError`. Previously, it was
++            silently ignored.
++
+     .. method:: message(policy=email.policy.default)
+ 
+         Constructs and returns a Python :class:`email.message.EmailMessage`
+diff --git a/tests/mail/tests.py b/tests/mail/tests.py
+index 851d1c3..e598733 100644
+--- a/tests/mail/tests.py
++++ b/tests/mail/tests.py
+@@ -2000,6 +2000,134 @@ class MailTests(MailTestsMixin, SimpleTestCase):
+         )
+ 
+ 
++class MailConnectionConflictTests(SimpleTestCase):
++    """
++    fail_silently, auth_user and auth_password can only be passed to
++    get_connection() when a connection is given to the mail APIs.
++    """
++
++    def setUp(self):
++        self.connection = locmem.EmailBackend()
++
++    def assertConflict(self, msg, **kwargs):
++        with self.assertRaisesMessage(TypeError, msg):
++            send_mail(
++                "subject",
++                "message",
++                "from@example.com",
++                ["to@example.com"],
++                connection=self.connection,
++                **kwargs,
++            )
++
++    def test_send_mail_fail_silently_with_connection(self):
++        msg = (
++            "fail_silently cannot be used with a connection. "
++            "(Pass fail_silently to get_connection() instead.)"
++        )
++        for value in (True, False):
++            with self.subTest(fail_silently=value):
++                self.assertConflict(msg, fail_silently=value)
++
++    def test_send_mail_auth_with_connection(self):
++        with self.subTest("auth_user"):
++            self.assertConflict(
++                "auth_user cannot be used with a connection.", auth_user="user"
++            )
++        with self.subTest("auth_password"):
++            self.assertConflict(
++                "auth_password cannot be used with a connection.",
++                auth_password="password",
++            )
++
++    def test_send_mass_mail_conflicts_with_connection(self):
++        datatuple = [("subject", "message", "from@example.com", ["to@example.com"])]
++        with self.assertRaisesMessage(
++            TypeError, "fail_silently cannot be used with a connection."
++        ):
++            send_mass_mail(datatuple, fail_silently=True, connection=self.connection)
++        with self.assertRaisesMessage(
++            TypeError, "auth_user cannot be used with a connection."
++        ):
++            send_mass_mail(datatuple, auth_user="user", connection=self.connection)
++        with self.assertRaisesMessage(
++            TypeError, "auth_password cannot be used with a connection."
++        ):
++            send_mass_mail(
++                datatuple, auth_password="password", connection=self.connection
++            )
++
++    @override_settings(
++        ADMINS=["admin@example.com"],
++        MANAGERS=["manager@example.com"],
++        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
++    )
++    def test_mail_admins_and_managers_conflict_with_connection(self):
++        for func in (mail_admins, mail_managers):
++            with self.subTest(func=func.__name__):
++                with self.assertRaisesMessage(
++                    TypeError, "fail_silently cannot be used with a connection."
++                ):
++                    func(
++                        "subject",
++                        "message",
++                        fail_silently=True,
++                        connection=self.connection,
++                    )
++
++    def test_email_message_send_fail_silently_with_connection(self):
++        email = EmailMessage(
++            "subject",
++            "body",
++            "from@example.com",
++            ["to@example.com"],
++            connection=self.connection,
++        )
++        with self.assertRaisesMessage(
++            TypeError, "fail_silently cannot be used with a connection."
++        ):
++            email.send(fail_silently=True)
++        with self.assertRaisesMessage(
++            TypeError, "fail_silently cannot be used with a connection."
++        ):
++            email.get_connection(fail_silently=False)
++        # Without fail_silently, the given connection is used.
++        self.assertEqual(email.send(), 1)
++
++    @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
++    def test_send_mail_fail_silently_is_passed_to_get_connection(self):
++        with mock.patch("django.core.mail.get_connection") as get_connection:
++            send_mail("subject", "message", "from@example.com", ["to@example.com"])
++        get_connection.assert_called_once_with(
++            username=None, password=None, fail_silently=False
++        )
++        with mock.patch("django.core.mail.get_connection") as get_connection:
++            send_mail(
++                "subject",
++                "message",
++                "from@example.com",
++                ["to@example.com"],
++                fail_silently=True,
++                auth_user="user",
++                auth_password="password",
++            )
++        get_connection.assert_called_once_with(
++            username="user", password="password", fail_silently=True
++        )
++
++    @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
++    def test_email_message_send_fail_silently_is_passed_to_get_connection(self):
++        email = EmailMessage("subject", "body", "from@example.com", ["to@example.com"])
++        with mock.patch("django.core.mail.get_connection") as get_connection:
++            get_connection.return_value = self.connection
++            email.send()
++            get_connection.assert_called_once_with(fail_silently=False)
++        # send() doesn't cache a connection, so fail_silently can be given on a
++        # later call.
++        self.assertIsNone(email.connection)
++        self.assertEqual(email.send(fail_silently=True), 1)
++
++
+ # RemovedInDjango70Warning.
+ class MailDeprecatedPositionalArgsTests(SimpleTestCase):
+ 
+@@ -2029,9 +2157,9 @@ class MailDeprecatedPositionalArgsTests(SimpleTestCase):
+                 "from@example.com",
+                 ["to@example.com"],
+                 # Deprecated positional args:
+-                True,
+-                "username",
+-                "password",
++                None,
++                None,
++                None,
+                 mail.get_connection(),
+                 "html message",
+             )
+@@ -2044,9 +2172,9 @@ class MailDeprecatedPositionalArgsTests(SimpleTestCase):
+             send_mass_mail(
+                 [],
+                 # Deprecated positional args:
+-                True,
+-                "username",
+-                "password",
++                None,
++                None,
++                None,
+                 mail.get_connection(),
+             )
+ 

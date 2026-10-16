@@ -337,3 +337,187 @@ Nobody has yet said whether an `untested[]` row changed what they did. Before mo
 work on it: take ten of the non-breaking Django commits, show the row to a reviewer blind to
 the commit, and ask whether they would have asked for a test. That is a half-day and it is
 the only evidence that output deserves to be the headline.
+
+## 10. After the runner adapter, the Django rerun and the untested scoring (2026-10-14)
+
+Three results landed together, commits 7689306 to ac5ec78, merged to main.
+
+| Result | Number | Status |
+|---|---|---|
+| Shadow execution on the five Django cases, Django runner | 4 of 5 indirect tests, 13 to 46 s each | debugging run, cases exposed |
+| Agents in Phase 0, same cases | 3 of 5 without AMU, 2 of 5 with static packet | trial |
+| Warm analysis on Django, 2,923 files | 2.7 s to 1.2 s | budget met |
+| First call after an edit | 8.4 s to 2.9 s | over budget |
+| Cold | 16 s to 10 s | at budget |
+| Static `untested` rows on 102 Django commits | 13% author agreement, later-fix rate not significant | demoted by the rule set beforehand |
+
+### What they mean together
+
+AMU's default packet without execution is now close to empty on most commits: `likely_fail`
+fires on 1 in 5 breaking cases, static `untested` is out, and the reach list is out. That is
+the honest state and it is correct. The product is shadow execution. Everything static is
+candidate selection for it, plus a fallback when execution is not allowed.
+
+The untested scoring found the same root cause as case 4 and as the hub-class problem on
+Click: **Django tests this code, but reaches it dynamically.** Descriptors, signal receivers,
+template tags, module `__getattr__`, constructors called through class tables, a
+`manage.py` subprocess. Static analysis cannot see those edges and never will. A coverage
+recording sees every one of them except the subprocess. That is why the `observed` signal
+moves from "nice to have" to the next piece of work: it is the only thing that turns
+`static_only` rows into rows with evidence, and the only thing that puts dynamically-reached
+tests into the candidate set for shadow execution.
+
+### Next four pieces, in order
+
+1. **Make shadow execution the default** when a runner is detected and the tree is the
+   developer's own. `amu` with no arguments runs it with a 60 s budget per side and prints
+   what flipped, then the gaps. `--static` gives the old packet. The packet's first line is
+   the flip count.
+2. **Coverage recording as the candidate source.** One recording per repository state,
+   per-test contexts, kept under `.amu/index/` keyed by file sha with per-file staleness as
+   already built. Record it on demand with `--observe`, or read an existing `.coverage` or
+   CI artefact. Use it for three things: candidate selection for shadow execution, the
+   coverage-backed `untested` row, and recall on dynamically reached tests. For subprocess
+   tests, set `COVERAGE_PROCESS_START` in the recording environment and report what it adds.
+   Score it the same way static was scored: author agreement and later-fix rate on the same
+   102 commits, run once.
+3. **The claim run.** Fetch Django history deeper than 400 commits. Freeze a fresh set by
+   the Phase 0 script, indirect cases plus an equal number of breaking-but-lexical cases, no
+   case from the exposed five. Ten agents, same model, same wall-clock budget per arm,
+   shadow execution's runs inside the AMU arm's budget. The record states the budget and
+   the rule before the first agent starts. This is the first number that can be called a
+   claim about the product that exists now.
+4. **Edited-tree speed.** 2.9 s after an edit on Django, target 2 s. Relink is already
+   bounded to changed files; profile what remains.
+
+Presence (Phase 3 of v3) starts after the claim run reports, whichever way it goes, because
+the no-argument command and the Claude Code hook are the same work either way.
+
+### A rule added after the merge
+
+The builder merged the pull request into main when the decision said not to, under a CI
+auto-fix event it read as standing authorization. The merge was safe: all checks passed, a
+merge commit preserved cited hashes. Rule from here: a CI auto-fix authorization covers
+fixing checks and conflicts on the branch. Merging, deleting branches and changing remotes
+need the owner's words in chat.
+
+## 11. After three trials: what was actually measured (2026-10-14, commit 8262822)
+
+| Trial | Design | Result |
+|---|---|---|
+| Click smoke, 5 tasks | agent told breakage exists, given the diff, static packet | AMU lost, 13 vs 15 of 17 |
+| Django Phase 0, 5 indirect cases | same, static packet | AMU lost, 2 vs 3 of 5 |
+| Django claim run, 6 tasks | same, shadow execution available, wall-clock budget | tie, 15 vs 15 of 15; 0 of 6 AMU agents ran the tool |
+
+Engine state: shadow execution with the coverage recording found all five exposed indirect
+tests including the subprocess case; alone on the six claim tasks it was exactly right on
+five and gave one false all-clear, since fixed. Warm 1.1 s, after-edit 1.5 s on Django.
+Coverage-backed untested rows scored 23 percent author agreement and no later-fix signal,
+so `untested` is out of the default packet entirely.
+
+**All three trials measured the same thing, and it is not the product moment.** Each agent
+was told that existing tests break and was handed the diff. Finding the failing test under
+those conditions is a search task, and a capable agent searches callers and runs modules in
+seconds. It never needed a tool, so it never ran one. The moment AMU exists for is the one
+where the agent does not know anything broke: it has just implemented a change, believes it
+is done, and is about to run whatever tests it thinks of. No trial has measured that yet.
+
+Three untested hypotheses remain, in order of how cheaply they can be killed:
+
+1. **Unasked.** AMU runs from a hook after every Python edit and the flip count is in front
+   of the agent before it decides what to run. The claim-run agents never chose the tool;
+   a hook removes the choice.
+2. **Blind tasks.** The agent is given the upstream issue or commit message, not the diff,
+   and asked to implement the change. The measure is regressions on the hidden upstream
+   tests at the moment the agent declares done, and whether it ran the breaking test before
+   declaring. This is the original M7 design and it has never been run.
+3. **Slow suites.** Where the relevant modules take minutes, shadow-executing 150
+   candidates in 60 s is a real saving. Django modules ran in seconds, so this was never
+   exercised.
+
+The next trial combines 1 and 2. Section 12 is the brief for it.
+
+## 12. The blind, unasked trial (2026-10-14, commit ca77f9c)
+
+Eight unseen Django tickets, 32 desktop sessions, agent given ticket and commit message, never
+the diff. AMU arm had a hook after every edit and before every test run. Scored on hidden
+upstream tests.
+
+| | AMU arm | Control |
+|---|---:|---:|
+| Runs with a regression, by the pre-set rule | 6 of 16 | 7 of 16 |
+| Real regressions after removing the task 3 import artefact | 0 | 7, in 2 runs |
+| Frozen breaking tests run before declaring done | 16 of 16 | 16 of 16 |
+| Test time charged | 2,453 s, hook 1,303 s | 1,506 s |
+
+**Decision: not won.** The one-run difference is a control bug no AMU agent wrote, and on
+that tree the hook could not run because the agent's broken system check aborted Django's
+runner at startup. Phase 3 does not start on this result.
+
+**What it did show, for the first time.** On task 6 the hook listed two breaking tests in
+both AMU runs and both agents fixed their change; the control run shipped both broken. No
+AMU run shipped a regression the hook had printed. No agent ignored a hook message. That is
+the mechanism working. It is one task.
+
+**Why the effect is small and will stay small on this design.** A capable agent on a
+well-specified Django ticket ran every frozen breaking test on its own in all 32 runs. Real
+control regressions happened in 2 runs of 16. With a base rate that low, no trial of this
+size can show a tool reducing it. The room for AMU is where the base rate is high.
+
+### Three things that follow, in order
+
+1. **Runner abort is a failure, not a gap.** When the test runner cannot start on the
+   edited tree, the packet's first line says so as a failure, with the runner's own error,
+   and the hook makes the agent read it. That would have caught w07, the one real regression
+   the control arm shipped. Small change, no trial needed, ships now.
+2. **Hook cost.** 1,303 s of test time across 55 hook runs is 24 s each. Skip the run when
+   no production file changed since the last run, reuse the parent-side results across
+   runs in the same session, and cap candidates by time left in budget. Target under 10 s
+   per hook run on Django.
+3. **Raise the base rate, then rerun.** Same eight tasks, same harness, same hook, with a
+   cheaper model as the agent. If the hook cuts regressions where a cheap agent makes them,
+   the product claim is "makes cheap agents ship safely", which is a real claim with a real
+   buyer. If it does not help even there, the agent-facing hook line is closed and what
+   remains is humans, slow suites, and CI.
+
+## 13. The slow-suite trial on sympy (2026-10-15, commit 3378be2): lost
+
+Eight unseen sympy tasks, all indirect, 185 s test budget (a third of the suite), Sonnet in both
+arms, dumb hook versus AMU hook, 32 runs.
+
+| | AMU arm | Dumb hook |
+|---|---:|---:|
+| Runs with a regression (the pre-set rule) | 8 of 16 | 6 of 16 |
+| Without the run blocked on a permission prompt past the hard stop | 7 | 6 |
+| Regressions in tests upstream left alone | 4 in 3 runs | 2 in 2 runs |
+| Runs leaving a red test in the agent's own tree | 1 | 4 |
+| Runs where the agent ran every frozen breaking test | 9 | 6 |
+| Median session wall time | 279 s | 589 s |
+
+**Decision: lost, by the rule.** Seven trials now, across Click, Django and sympy, fast and
+slow suites, Sonnet and Haiku, no hook, dumb hook and AMU hook. AMU has never reduced the
+number of runs that ship a regression. The agent-facing product is closed on the evidence.
+
+What the loss is made of: tasks 1 and 5 identical in all four runs; task 2 a permission-prompt
+artefact; task 3 both AMU runs diverging from a test upstream rewrote, the same category that
+hit both dumb-hook runs on task 8. On the substance the arms tie on regressions.
+
+What the trial showed that was not the win condition: the AMU arm finished in half the median
+wall time, ran the frozen breaking test in more runs, and left fewer red tests behind. That is
+a post-hoc observation on six clean tasks, not a claim.
+
+**AMU defect found:** `consequences.handlers` walks caller paths for a new `raise` with no memo,
+exponential on dense call graphs; it spent the whole budget in both task-5 AMU runs. Fix it
+regardless of what happens to the product.
+
+### What follows
+
+1. Fix the exponential walk, with a test on a dense fixture and a time bound as a test.
+2. One re-analysis of the existing 32 runs, no new sessions: paired per task, excluding
+   prompt-blocked runs, wall time to declared done and red tests left behind, AMU versus dumb
+   hook. If the AMU arm is faster on at least five of six clean tasks, that is a pre-registered
+   hypothesis for one last trial whose win condition is time to a clean tree with regressions
+   as a guard. If not, the agent line is closed with nothing further to test.
+3. The CI line is untouched by any of this and is the remaining product: a pull-request comment
+   with flips and gaps, for humans, on repositories whose suites are slow. It needs its own
+   brief and its own measurement, which is adoption, not a trial.

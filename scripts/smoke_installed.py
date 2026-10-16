@@ -17,7 +17,7 @@ def main():
 
     package = Path(amu.__file__).resolve()
     assert package.is_relative_to(Path(sys.prefix).resolve()), package
-    assert amu.__version__ == importlib.metadata.version('amu'), 'package version mismatch'
+    assert amu.__version__ == importlib.metadata.version('anti-messup'), 'package version mismatch'
     for module in (mcp_manifest, mcp_verification, repository_diagnostics, diagnostics, impact, impact_report):
         assert Path(module.__file__).resolve().is_relative_to(Path(sys.prefix).resolve()), module.__file__
     identity = mcp_manifest.runtime_identity()
@@ -110,7 +110,8 @@ def main():
                                     '--validated', 'validated.json', '--json']))
         assert relations['reports']['raw_provider']['counts']['tn'] > 0, relations
         assert relations['reports']['amu_source_validated']['counts']['tn'] == 0, relations
-        transcript = run([cli], input='/help\n/docs --bad-option\n/help\n/quit\n', terminal=True)
+        # Bare `amu` runs the tests of an uncommitted Python change, and this tree has one; `amu repl` is the guide.
+        transcript = run([cli, 'repl'], input='/help\n/docs --bad-option\n/help\n/quit\n', terminal=True)
         assert transcript.count('AMU command guide') == 2, transcript
         assert 'No such option' in transcript and 'Traceback' not in transcript, transcript
         # Real wrapper-to-CLI subprocess, not a patched adapter.

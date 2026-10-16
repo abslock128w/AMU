@@ -314,6 +314,585 @@ is function-level: the fix's diff touches lines inside the same qualified name i
 tracking across intervening edits was not attempted. The optional model judge was skipped: (a) and (b) did not
 tie, so there was nothing for it to break.
 
+## Piece 1: shadow execution is the default for the developer's own change
+
+| Invocation | Before | After |
+|---|---|---|
+| bare `amu`, uncommitted Python change | opens the interactive terminal | runs candidates on both sides, prints flips first |
+| bare `amu`, no change waiting | interactive terminal | unchanged; `amu repl` also opens it |
+| `amu before-tests` on the working tree | static packet | executes; `--static` gives the static packet |
+| `amu before-tests --patch-file` | static packet | unchanged; `--run` executes |
+| nothing could be run | not applicable | `flips` is null, summary starts NOT EXECUTED |
+
+"The developer's own tree" is defined operationally: no patch was supplied, so the change is the working
+tree's uncommitted diff. A supplied patch can describe a tree that is not the caller's to execute.
+
+Check on a real repository: a git copy of Click at the parent of bc32a92c with that commit's production
+change uncommitted. Bare `amu` printed `flips: 3` and the three breaking tests (all three in the frozen
+ground truth) in 6.1 s wall time, 147 candidates per side. That case is an exposed one; this is a functional
+check, not a measurement.
+
+Files: `amu/core/__init__.py`, `amu/core/runners.py`, `amu/core/__main__.py`, `amu/cli.py`,
+`tests/core/test_reachability.py`, `docs/before-tests.md`. Rejected: executing for supplied patches by
+default, and reporting zero failures when the runner could not start. Upstream code executed: Click's tests,
+147 candidates on each side, in a scratch copy.
+
+## Piece 2: a coverage recording as the candidate source
+
+`amu before-tests --observe` runs the project's whole suite once under Coverage.py with a context per test
+and stores the result beside the index (`.amu/index/<version>/observed/`): one shard per source file, named
+by the file's content hash, holding which test ran which line and which test ran which function. A file
+edited since the recording is judged by function name; a file whose only difference is the patch being
+analysed has its recorded lines moved through the patch. An existing `.coverage`, `coverage.json` or AMU
+artefact is still read when no stored recording exists.
+
+Child processes: the recorder installs its own start-up hook in the interpreter for the duration of the run
+and passes the running test's name to children through the environment. Coverage's standard
+`COVERAGE_PROCESS_START` could not be used on Django, whose runner overwrites it with its own configuration.
+
+Django recording (state 7ab2d803, the parent of the oldest screened commit; sqlite, two required dependencies):
+
+| Measure | Value |
+|---|---:|
+| Suite time under recording | 686 s |
+| Tests attributed | 16,213 |
+| Source files with attribution | 2,004 |
+| Child processes recorded | 235 |
+| Test-to-function links seen only through child processes | 60,023, for 216 tests |
+| Stored size | 86 MB |
+
+### Use 1 and 3: shadow candidates and dynamically reached tests (debugging run, exposed cases)
+
+Same five Phase 0 cases. Not a trial: these cases have been used for development since Phase 0.
+
+| Case | Rank of the indirect test, static | Rank with recording | Shadow, static candidates | Shadow, recording candidates | Wall time |
+|---|---:|---:|---|---|---:|
+| 1 | 13 | 13 | found | found | 22 s |
+| 2 | not ranked | found via its base class | found | found | 51 s |
+| 3 | 3 | among 12 likely failures | found | found | 136 s |
+| 4 subprocess | not ranked | 74 | missed | found | 125 s |
+| 5 | 129 | 42 | found | found | 117 s |
+| Indirect test found | | | 4 of 5 | 5 of 5 | |
+
+Case 4 is the test that drives `manage.py` in a child process. It had no static call path; the recording
+attributes `ManagementUtility.execute` to it through the child. Shadow execution now runs candidates in
+chunks of 40, each chunk on both sides before the next, so reaching the 60 s per-side budget keeps
+everything already compared and reports how many candidates were left. Before this, one timeout discarded
+the whole run, which is what happened to case 4 on the first attempt. With a recording the candidate cap is
+300 instead of 150, which is why these runs are slower than the static ones (13 to 46 s).
+
+### Use 2: coverage-backed untested rows, scored from history (run once)
+
+Same 102 non-breaking Django commits and the same two scores as the static rows. The recording predates all
+of them; files changed since are judged by function name.
+
+| Score | Untested rows (48, from 13 commits) | Covered rows (234) | Static untested rows, for comparison (31) |
+|---|---:|---:|---:|
+| (a) Author added or modified a reaching test | 11 (23%) | 97 (41%) | 4 (13%) |
+| (b) A later bug-fix commit changed the function | 2 (4%) | 9 (4%) | 3 (10%) |
+
+(a) is lower for untested rows than for covered ones (p = 0.022) and (b) is identical (p = 1.0).
+**Decision by the same rule: demoted.** `untested[]` is no longer in the default packet at all; both kinds
+remain in `--full-evidence`. Twenty of the 48 rows come from one sweeping commit, and nine sit in code whose
+tests need optional packages the recording environment lacked; without those nine the picture is the same
+(11 of 39 against 85 of 177 for (a); 2 of 39 against 3 of 177 for (b), p = 0.22).
+
+### Two runs lost to my own edits
+
+The first recording and the first claim-set screening were both invalid. Each started before I edited
+`amu/core/index.py`; their parallel parser workers are fresh interpreters and imported the edited module
+with the running process's old job format, so every file failed to parse silently. The recording stored
+line data without function maps, and the screening's lexical ranking came back empty, which made every
+breaking test look indirect (22 "indirect", 0 lexical). Both were discarded and rerun with no core edits in
+flight. The recording was caught by an impossible number (235 child processes, zero child-only links) and
+the screening by a ratio that contradicted Phase 0.
+
+Files: `amu/core/observe.py` (new), `amu/core/coverage.py`, `amu/core/shadow.py`, `amu/core/__init__.py`,
+`amu/core/index.py`, `amu/core/__main__.py`, `amu/cli.py`, `scripts/score_untested.py`,
+`scripts/freeze_holdout.py`. Rejected: `COVERAGE_PROCESS_START` for children; one JSON file for the whole
+recording (the Click one was 92 MB and Django's would be far larger and slow to load); keeping
+coverage-backed untested rows in the packet. Upstream code executed: Django's full suite twice under
+recording (once discarded), and the shadow runs on the five cases.
+
+## Piece 4: speed after an edit (Django, 2,923 files, quiet machine, three runs each)
+
+| Path | Before | After |
+|---|---:|---:|
+| First call after editing a file | 2.9 s | 1.5 to 1.65 s |
+| Warm, unchanged tree | 1.2 s | 1.1 to 1.3 s |
+
+What the profile showed after the bounded relink, and what was done:
+
+| Cost | Before | Change |
+|---|---:|---|
+| Decoding all 2,920 per-file fact files | 1.2 s | Untouched files keep the slim records from the last snapshot; a file's full facts load only when changed code refers into it |
+| Rebuilding one dictionary per saved graph link | 0.5 to 0.9 s | Links stay in the list form they are stored in |
+| Re-reading and hashing every file | 0.5 s | A size-and-modification-time ledger skips unchanged files; files modified within two seconds of the last scan are re-hashed, as git does |
+| Class tables for every record | part of the above | Built per class on first use |
+
+Checked on Django: the relinked graph ranks the same tests as a full rebuild of the edited tree. Rejected:
+writing the new snapshot in a background process, which would make a repeat call race its own cache.
+
+## Piece 3: the claim run (first number that counts as a claim)
+
+Full record, written before the start and extended with the result: `claim/TRIAL-RECORD.md`.
+
+Six unseen Django tasks, frozen by script from history older than every Phase 0 commit: three indirect, three
+lexical. Twelve agents (Sonnet), one per task and arm. Both arms had 180 seconds of tool wall-clock time,
+enforced by a ledger; the AMU arm's `./amu` charged its index build, tree copy and every test it ran to the
+same ledger. Twelve agents instead of ten, to keep the equal split.
+
+| | Without AMU | AMU arm |
+|---|---:|---:|
+| Tasks with every breaking test found | 6 of 6 | 6 of 6 |
+| Breaking tests found | 15 of 15 | 15 of 15 |
+| Wrong reports | 0 | 0 |
+| Tool time used per task | 1 to 63 s | 1 to 13 s |
+| Agents that ran `./amu` | not available | 0 of 6 |
+
+**Result: a tie, so AMU does not win the claim.** No agent given AMU chose to run it. Each searched for
+callers of the changed function or for the changed message and ran the matching test modules in seconds.
+
+The tool run alone on the same six tasks after the trial, at the tested commit b9123df: five exactly right,
+no wrong flip, and one false all-clear (task 2: "0 now fail" while four tests break). A test method on a
+mixin class crashed Django's runner before anything ran and AMU read the empty result as no failures. That
+is fixed, with tests, and the summary now says how many candidates produced an outcome.
+
+What this run established:
+
+- With a time budget instead of a run count, a capable agent on a repository whose test modules run in
+  seconds does not need AMU and does not reach for it.
+- The indirect filter did not select hard cases. "Outside the lexical top 40" is still inside "tests that
+  call the changed function", which is what agents search for.
+- AMU's execution result was right on five of six unseen tasks and silently wrong on one. A tool whose
+  worth is an exact answer cannot afford a silent wrong one; the specific cause is fixed, the class of
+  failure (a runner that produces nothing) is now reported instead of read as a pass.
+
+What it did not establish: whether AMU helps when the agent is not offered a choice (a hook that runs it
+after every edit), on repositories where relevant tests take minutes instead of seconds, or on changes whose
+breaking tests cannot be found by searching, such as Phase 0 case 4. That last kind exists but was 1 commit
+in 250.
+
+Also changed during this piece, from a dry run on the exposed Phase 0 cases before the trial: shadow
+execution runs the changed side first and reruns only failures on the unchanged side, and a recording's
+lines are carried through edits made after it.
+
+## The blind, unasked trial (2026-10-14)
+
+Full record, rules written before the start, pilot and result: `blind/TRIAL-RECORD.md`.
+
+**By the pre-set rule the AMU arm shipped fewer regressions, 6 of 16 runs against 7 of 16, but the one-run
+difference is a control bug (task 4, w07) that no AMU-arm agent wrote and the hook could not have executed
+against. This trial does not show the hook reducing regressions.**
+
+Eight fresh Django tasks, frozen by script and hash-pinned before any analysis; the agent got the ticket
+and commit message, never the diff, and was not told anything broke. 32 desktop sessions (Sonnet), 900 s of
+test time per run in both arms, hook time charged. AMU arm: bare `amu` from a hook after every `.py` change
+(Edit, Write, or a Bash command that changed a `.py` file) and before every test run.
+
+| | AMU arm | Control |
+|---|---:|---:|
+| Runs with a regression | 6 of 16 | 7 of 16 |
+| Regression tests | 1,712 | 1,719 |
+| Regressions in tests upstream left alone, without the task 3 artefact | 0 | 7 in 2 runs |
+| Test time charged | 2,453 s | 1,506 s |
+| Session wall time, total | 3,802 s | 3,206 s |
+
+- Task 3's 854 per run, both arms, are upstream test modules importing a helper only upstream has.
+- Tasks 5 and 6 add one regression to every run in both arms: tests upstream rewrote for its own behaviour.
+- The one place the hook changed an outcome: task 6. It listed `test_simple_save` and `test_options` in both
+  AMU-arm runs and both agents fixed their implementation; one control run (w32) shipped both broken.
+- No AMU-arm run shipped a regression the hook had printed. The four hook checks that executed nothing were
+  runner aborts on a half-edited tree.
+- **Corrected after the report:** the hook could not have caught w07 because of an AMU defect, not the
+  runner (see the record's correction). With the defect fixed, `amu` names all five of w07's regressions.
+- A pilot of six runs showed an Edit/Write-only hook misses agents that edit through Bash (two of three).
+
+## After the blind trial, piece 1: a runner that aborts is a failure
+
+When the test runner starts on the code before the change and runs nothing on the code after it, the packet
+now opens with `failure` (the runner's own last exception line and the deepest frame inside the tree) and the
+summary reads `FAILED: the test runner (...) aborts on the changed code before running any test: ...`. The
+hook injects that line and nothing else. Before, the same case was `NOT EXECUTED` with the error buried in a
+gap, and the batch was split up to twelve more times, restarting the runner each time; a split that fails
+exactly as the whole batch did now stops the splitting.
+
+Checked on a copy of w07's tree with one module-level `NameError` added to the file w07 changed, the kind of
+error that stopped four trial hook runs (w04, w18):
+
+```
+FAILED: the test runner (django-runtests) aborts on the changed code before running any test:
+NameError: name 'NOT_PROVIDED' is not defined (at django/contrib/sites/checks.py:24).
+On the code before the change it ran 40 of the same 40 candidates.
+```
+
+The hook printed exactly that, in 5 s with a warm index (`blind/results/piece1-hook-on-aborting-w07-copy.txt`).
+
+**Found on the way, and the bigger fix:** rebuilding the "before" side failed whenever a hunk began with
+inserted lines, such as new imports at the top of a file, and AMU then ran nothing. That is what hid w07's five
+regressions; after the fix `amu` on w07's tree names exactly those five in 23 s
+(`blind/results/counterfactual-w07-after-fix.json`). The trial record carries a correction. The defect did not
+fire in any of the trial's 55 hook runs.
+
+Ranking, before and after these changes, run with the frozen manifests (static, nothing executed): every case's
+top 10 is identical. Werkzeug 10/16 function and 16/16 file, requests and itsdangerous 6/8 and 8/8, Click
+holdout 3 8/8 and 8/8 (`blind/results/ranking/`).
+
+AMU's tests: `tests/core` 48 passed and 4 failed, the same 4 that fail without these changes. pytest is not
+installed on this machine and those four shell out to it; the full suite could not be run, and installing
+pytest needs a download that was not approved. Files: `amu/core/patch.py`, `amu/core/runners.py`,
+`amu/core/shadow.py`, `amu/core/__init__.py`, `tests/core/test_reachability.py`, `blind/hook.py`.
+Upstream code executed: Django's tests on copies of w07's tree (three `amu` runs).
+
+## After the blind trial, piece 2: hook cost
+
+In the trial a hook run cost 24 s on average (1,303 s over 55 runs): about 300 candidates run one after
+another in one Django process, a 20 s allowance for confirming each failure on the unchanged code, and a full
+check after edits that touched only tests. Changes:
+
+- **Parallel parts.** For Django's `runtests.py` the candidates of each chunk run in up to four processes side
+  by side (half the cores). Each process gets its own in-memory databases. Other runners stay serial; pytest
+  projects can share files between tests.
+- **Outcomes before the change are remembered** in the index directory, keyed by the commit plus any non-`.py`
+  uncommitted change. A failure already confirmed against that code is not run there again.
+- **Candidates are capped by the time allowed**: the measured tests per second per process times the parts
+  times the seconds allowed. Lower-ranked candidates beyond that are named in a gap, not silently dropped.
+- **The hook** passes a per-side allowance of a third of the budget left, at most 60 s. When only test files
+  changed since the last check it reruns only the tests that flipped last time (new `--only` option), or
+  nothing when none did; an unchanged tree reuses the last result. Neither is charged.
+
+Same replay of all 16 AMU-arm runs from the trial (fresh parent tree, recording present, one workspace at a
+time; four events each: a test run on the clean tree, production edits, test edits, another test run):
+
+| | Old hook and engine (ca77f9c) | New |
+|---|---:|---:|
+| Hook runs charged, of 64 events | 48 | 38 |
+| Mean per charged run | 16.4 s | **9.7 s** |
+| Median per charged run | 12.5 s | 11.2 s |
+| Mean of the first, cold run in a workspace (index build) | 18.4 s | 11.4 s |
+| Mean of the later runs | 15.4 s | 8.5 s |
+| Total hook time, 16 runs | 789 s | 369 s |
+| Flips reported, every event | | identical to the old |
+
+The target, under 10 s per hook run, is met on the mean and not on the median. What holds the median up is the
+first call in each workspace, which builds the index from cold: 11 s whatever the change. In the trial the
+same old hook averaged 24 s rather than 16 s because four sessions ran at once.
+
+Ranking, base and after these changes: every case's top 10 identical. Werkzeug 10/16 and 16/16, requests and
+itsdangerous 6/8 and 8/8, Click holdout 3 8/8 and 8/8 (`blind/results/ranking/rank-p2-*.json`).
+
+AMU's tests: `tests/core` 50 passed, the same 4 failing for want of pytest. Files: `amu/core/shadow.py`,
+`amu/core/runners.py`, `amu/core/__init__.py`, `amu/core/__main__.py`, `tests/core/test_reachability.py`,
+`blind/hook.py`, `blind/replay_hook.py`. Upstream code executed: Django's tests in the 32 replay workspaces.
+
+## The Haiku rerun: the agent-facing hook line is closed
+
+**The hook does not cut regressions even with a cheap agent: 6 of 16 Haiku runs shipped a regression in each
+arm (1,714 regression tests with the hook, 1,712 without). By the owner's rule set before the rerun, the
+agent-facing hook line is closed.** What remains is humans, slow suites and CI, each needing its own trial.
+
+Same eight frozen tasks, prompt, budget, rules and scorer as the Sonnet run; agent Haiku in both arms; AMU at
+929cd0e. Full record: `blind/TRIAL-RECORD.md` (Haiku sections).
+
+| | AMU arm | Control |
+|---|---:|---:|
+| Runs with a regression | 6 of 16 | 6 of 16 |
+| Regression tests | 1,714 | 1,712 |
+| Without the task 3 artefact | 6 in 4 runs | 4 in 4 runs |
+| In tests upstream left alone, without task 3 | 2 in 1 run | 0 |
+| Test time charged | 4,320 s (hook 898 s, 63 runs) | 4,168 s |
+
+- The base rate did not rise. Haiku ran the full suite almost every time, ran every frozen breaking test in all
+  32 runs, and left no red test in its own tree. Apart from task 3, every regression in both arms but one is a
+  test upstream rewrote for its own behaviour, which no tool running the agent's tests can see.
+- The hook did its job in the sense it was built for: it listed real breakage in tasks 1, 3, 4, 6 and 8, including
+  the five system-check tests Sonnet's control run w07 shipped, and agents fixed what it listed. But the Haiku
+  control agents found the same breakage themselves with full-suite runs.
+- **The one regression the hook could have prevented, it let through (w21).** The agent made the two flagged
+  tests pass by editing them. Piece 2's shortcut reran only the earlier flips on the edited test files and
+  reported 0. A flip that disappears because its test changed should stay listed; that is a defect, recorded,
+  not fixed, since the line is closed.
+
+## Slow-suite brief, pieces 1 and 2 (2026-10-14)
+
+**Across the four sets testmon found 82 of 105 breaking tests and AMU 86 of 105: testmon more on Werkzeug (14 of
+21 against 9 of 21), AMU more on Click holdout 3 (55 of 61 against 46 of 61), level on requests and itsdangerous. Bare
+`amu` on an applied change found no candidate at all in 2 of the 10 Werkzeug cases (a defect, fixed in the next piece).**
+
+### Piece 1: a flagged test made to pass by editing it stays listed
+
+Shadow execution now also runs the tests of an edited test file in their form before the edit, against the changed
+code. A test that passed before and fails in its original form, but passes, is skipped or is gone as edited, is
+reported `test edited, not fixed`. The hook's `--only` recheck also compares each flagged test's file hash, and the
+hash of the test files as a whole, with those recorded when it was flagged; a flagged test that stops failing without
+its original form having been run, while only test files changed, stays listed.
+
+On a copy of Haiku w21's final tree, bare `amu` lists exactly `test_simple_save` and `test_options` as `test edited,
+not fixed` (`blind/results-pieces/piece1-bare-amu-on-haiku-w21.json`). Replayed through the hook in w21's order
+(production edit, then the test edits), the first check flags both (21 s) and the recheck after the test edits keeps
+both (6 s).
+
+Found while testing: a flagged test that was renamed or deleted made pytest report "no tests ran", which piece 1 of the
+previous brief (22f91ef) read as "the runner aborts on the changed code". Removed tests are now recognised by comparing
+what the test file defined directly before and after the edit.
+
+### Piece 2a: flake recheck
+
+Every flip runs once more on the changed side before it is reported. One that does not repeat alone runs again in the
+batch it first failed in (a failure can depend on the tests before it), and is `unstable`, never a failure, only if it
+does not repeat there either. A "before" outcome taken from the memo is confirmed afresh for a flip. Unstable tests are
+listed apart and are not counted.
+
+### Piece 2c: the dumb hook (`blind/dumb_hook.py`)
+
+The control arm from now on. Same triggers as `hook.py`, no AMU: for every `.py` file that differs from HEAD it runs
+the touched test modules, test modules under a touched `conftest.py`, test modules named after a touched file in its
+package's tests directory, and every test module that imports it (read with the parser), at most 25, with the same
+allowance and charging as the AMU hook. Results are read as the tests run, so a run cut short keeps what finished and is
+not cached.
+
+### Review
+
+An adversarial review (5 reviewers, 2 skeptics per finding) found 36 defects that survived refutation in these changes,
+among them: new tests in an edited file hiding the edited-test check; renamed classes read as runner aborts; the flake
+recheck demoting an order-dependent regression; the hook erasing flags after a run that executed nothing; the dumb hook
+losing parametrized failures and every result on a timeout; and the testmon harness scoring AMU from patch text rather
+than the applied change. All were fixed; a second pass (one agent per finding, by reproduction) found 27 closed and 9
+narrower variants, which were then fixed and covered by tests. Two of the 36 were older than this work: `is_test`
+classing `django/test/*.py` as tests, and a new failing test being reported as an existing test that now fails.
+
+### Piece 2b: testmon beside AMU (run once)
+
+pytest-testmon 2.2.0 in the evaluation environment, coverage's C tracer (Python 3.14's default sys.monitoring core
+cannot record testmon's contexts). testmon's baseline is the whole suite on the parent tree; its selection is read after
+the production patch is applied. AMU's set is what bare `amu` would run on a git working copy with the patch applied
+(execution stubbed). Recall counts ground-truth tests that existed before the commit and passed in the baseline; none was
+excluded. Click's `-m 'not stress'` and Werkzeug's live dev-server tests (which need pytest-timeout, not installed) are
+deselected by a plugin, since `-m` switches testmon's selection off.
+
+| Set | Case | Truth tests | testmon found | testmon selected: functions / items selected of collected | AMU found | AMU candidates |
+|---|---|---:|---:|---|---:|---:|
+| Click h3 | h3-click-a1d87858 | 2 | 2/2 | 88 / 426/32396 | 2/2 | 150 |
+| Click h3 | h3-click-bc32a92c | 6 | 6/6 | 43 / 152/31391 | 6/6 | 150 |
+| Click h3 | h3-click-c2ed4149 | 14 | 14/14 | 14 / 17/31408 | 14/14 | 150 |
+| Click h3 | h3-click-8ee83ddb | 14 | 2/14 | 3 / 3/31131 | 10/14 | 150 |
+| Click h3 | h3-click-fbdd4340 | 14 | 14/14 | 14 / 17/31408 | 14/14 | 150 |
+| Click h3 | h3-click-051725fa | 3 | 0/3 | 296 / 1092/32561 | 3/3 | 150 |
+| Click h3 | h3-click-7a0a3447 | 6 | 6/6 | 466 / 1676/32750 | 4/6 | 150 |
+| Click h3 | h3-click-71f2bafa | 2 | 2/2 | 327 / 1269/32714 | 2/2 | 150 |
+| Werkzeug | 02-0c419f95 | 1 | 1/1 | 10 / 13/394 | 1/1 | 33 |
+| Werkzeug | 03-594452f6 | 1 | 1/1 | 3 / 12/238 | 1/1 | 149 |
+| Werkzeug | 05-2c453bf3 | 1 | 1/1 | 2 / 18/68 | 1/1 | 1 |
+| Werkzeug | 16-658bf5ed | 1 | 1/1 | 102 / 186/466 | 1/1 | 150 |
+| Werkzeug | extra-6b495d0d | 6 | 0/6 | 10 / 10/147 | 0/6 | 0 |
+| Werkzeug | extra-97d9f22a | 1 | 1/1 | 225 / 361/775 | 0/1 | 0 |
+| Werkzeug | extra-0743179b | 2 | 2/2 | 282 / 466/605 | 2/2 | 150 |
+| Werkzeug | extra-45768395 | 2 | 2/2 | 242 / 378/671 | 0/2 | 149 |
+| Werkzeug | extra-dc199349 | 1 | 1/1 | 187 / 268/570 | 1/1 | 10 |
+| Werkzeug | extra-f359a67e | 5 | 4/5 | 156 / 235/488 | 2/5 | 150 |
+| requests | h2-requests-f0198e6d | 2 | 2/2 | 98 / 126/576 | 2/2 | 39 |
+| requests | h2-requests-bc7dd0fc | 1 | 1/1 | 192 / 285/583 | 0/1 | 4 |
+| requests | h2-requests-f8bec2f7 | 2 | 2/2 | 276 / 521/585 | 2/2 | 150 |
+| requests | h2-requests-01353d3b | 1 | 0/1 | 72 / 221/248 | 1/1 | 109 |
+| itsdangerous | h2-itsdangerous-7f4dcf83 | 1 | 1/1 | 129 / 289 | 1/1 | 35 |
+| itsdangerous | h2-itsdangerous-177196d3 | 1 | 1/1 | 53 / 97/231 | 1/1 | 29 |
+| itsdangerous | h2-itsdangerous-aed5b260 | 12 | 12/12 | 190 / 421 | 12/12 | 46 |
+| itsdangerous | h2-itsdangerous-526b1ea0 | 3 | 3/3 | 64 / 116/350 | 3/3 | 33 |
+
+| Set | Cases | Truth tests found, testmon | Truth tests found, AMU | Cases fully covered, testmon | Cases fully covered, AMU |
+|---|---:|---:|---:|---:|---:|
+| Click h3 | 8 | 46/61 | 55/61 | 6/8 | 6/8 |
+| Werkzeug | 10 | 14/21 | 9/21 | 8/10 | 6/10 |
+| requests | 4 | 5/6 | 5/6 | 3/4 | 3/4 |
+| itsdangerous | 4 | 17/17 | 17/17 | 4/4 | 4/4 |
+| All four | 26 | 82/105 | 86/105 | 21/26 | 19/26 |
+
+- testmon's misses: Click 051725fa renames `get_binary_stream`, and the breaking tests fail when their module is imported,
+  at collection, outside any test's coverage context, so testmon never links them (traced in its database). The misses in
+  Click 8ee83ddb and Werkzeug extra-6b495d0d and extra-f359a67e were not traced.
+- **AMU's misses include a defect.** In Werkzeug extra-6b495d0d and extra-97d9f22a, bare `amu` on the applied change has
+  no candidate at all; in patch-text mode (the ranking harness) it finds them. When a change renames or removes the
+  function the tests reach, the graph rebuilt from the edited tree no longer connects them. The hook runs bare `amu`.
+- testmon's selections are larger on most cases (up to 1,676 items of a 2,000-item Click suite).
+- requests and itsdangerous ran after their test dependencies were approved and installed (urllib3, idna, charset-normalizer,
+  certifi, pytest-httpbin, trustme, freezegun). requests' baseline had 8 to 11 environment failures; none is a truth test.
+  testmon's selection was the whole suite on itsdangerous 7f4dcf83 and aed5b260. The AMU column for these 8 cases was
+  recomputed with the committed engine and matched exactly; the run had loaded the engine before an edit made during it.
+- The first attempt was discarded: its AMU column came from patch-text mode, and Werkzeug's run hung because a live dev
+  server held the output pipe open past the timeout. Runs are now killed as a process group.
+
+### Ranking (static, nothing executed): unchanged
+
+Every case's top 10 is identical to the base: Werkzeug 10/16 and 16/16, requests and itsdangerous 6/8 and 8/8, Click
+holdout 3 8/8 and 8/8 (`blind/results/ranking/rank-p3-*.json`).
+
+AMU's suite (`pytest tests scripts/test_before_tests_harness.py`): 2,597 passed, 14 skipped, 1 failed, the installed
+package's build-hash check in `tests/test_mcp_verification.py`, which fails on any source change not yet installed.
+
+Files: `amu/core/shadow.py`, `amu/core/__init__.py`, `amu/core/__main__.py` (`--also`), `amu/core/runners.py`,
+`blind/hook.py`, `blind/dumb_hook.py`, `blind/testmon_baseline.py`, `tests/core/test_reachability.py`,
+`tests/core/test_blind_hook.py`. Upstream code executed: the Click holdout 3, Werkzeug, requests and itsdangerous suites under testmon
+(26 cases, baseline and collection), and Django's tests on copies of Haiku w21's tree.
+
+## Slow-suite brief, piece 3: the repository (no suite executed)
+
+Surveyed from each project's own files, CI logs and a blobless clone of its history; nothing of theirs was built,
+installed or run. Every history count was recounted by a second agent by a different method and matched exactly.
+Evidence: `slow-suite/survey.json`.
+
+| | pandas | scikit-learn | sympy |
+|---|---|---|---|
+| Runner | pytest + xdist (via pixi) | pytest + xdist | pytest + xdist (`-m 'not slow and not tooslow'` in addopts) |
+| Published full suite | 15 min (2 workers) + 9.5 min serial single_cpu tests, ubuntu py3.14 | 11.6-14.6 min, the one serial CI job (py3.13, coverage) | 6.7-13.4 min, 4 workers, py3.14 (median 13.1) |
+| Serial estimate on this Mac | about 20 min (15-30) | about 10 min | about 20-24 min |
+| Test functions (items) | 22,025 (about 262,000) | 5,512 (about 54,000) | 12,770 (14,365 in the default run) |
+| Last 300 commits touching production and an existing test | 149 | 82 | 128 |
+| Compiled extensions | yes: meson + Cython + C/C++, a build per task tree (1-2 min), rebuild on import after a .pyx edit, network on first build | yes: meson + Cython + C/C++, OpenMP needs libomp, about 1.5-2 min per build | none: pure Python, mpmath only |
+| External services | MySQL/Postgres tests (skip without them), local HTTP and S3 mocks | none by default (network tests skipped unless enabled) | none |
+| Python 3.14 | supported (conda-forge in CI) | supported | supported, CI's main version |
+
+**Recommendation: sympy.** It is the only one of the three where a task's parent tree runs as checked out: no build per
+tree, an agent's edit is live in the next test process, and shadow execution's tree copy works unchanged. Its suite is as
+long as pandas' in serial terms, so a budget of one third cannot hold it, and 128 of 300 commits give the blind freeze
+plenty to draw on. pandas and scikit-learn would make every task, every hook run and every scoring run pay a native
+build, and a `.pyx` edit by an agent would need one before any test sees it.
+
+Known risks with sympy, for the record before the trial: the addopts marker expression deselects `slow` tests even
+when they are named on the command line, so AMU's runner and the dumb hook must override it or they will see no outcome
+for slow candidates; per-test times are heavy-tailed (some solvers take seconds to minutes); a few tests use hypothesis.
+
+The owner approved sympy on 2026-10-15. Its test dependencies are installed in the evaluation virtualenv (mpmath 1.4.1,
+pytest-xdist 3.8.0, pytest-timeout 2.4.0, hypothesis 6.169.2).
+
+## Slow-suite brief: renamed and removed definitions (engine change, 2026-10-15)
+
+**On the 26 testmon cases, bare `amu` on the applied change now finds 100 of the 105 breaking tests, up from 86;
+testmon finds 82. I made the fix after seeing these cases, so this is development evidence, not a holdout result. The
+ranking is unchanged.**
+
+With the change on disk, the index is built from the edited tree. A function the change renames or removes is not in
+that tree, and nothing reaches it. `amu/core/vanished.py` finds its tests by the old name:
+- tests whose own source names it;
+- test files that import it or use it at module level, where every test in the file fails to load;
+- tests that reach code that still names it (its callers);
+- tests named like it;
+- tests in files that changed with its file in the last 200 commits.
+
+These rows are labelled `heuristic`, and the `why` field says what matched (for example `names lib.py#total, renamed or
+removed`). The changed symbols list the old name with `(renamed or removed)`.
+
+Guards, each from a review finding:
+- An edit that does not parse removes nothing.
+- A deleted or `git mv`'d file counts as removing everything it defined.
+- Closures and the methods of a removed class are covered by their enclosing definition.
+- A re-exported name is not removed. A name served only by a module `__getattr__` shim is, since the shim warns and the
+  tests turn warnings into errors.
+- A method's name counts only in files that name its class. A name still defined in another module counts only in
+  files that name the old module.
+- Co-change ignores root commits, a shallow clone's boundary commit and commits touching over 100 files, and a slow git
+  gives no evidence rather than an error.
+- `patch.applied` now recognises a pure deletion whose removed lines repeat in the lines that move up (`return self`,
+  `pass`). Before, such a deletion was read as not applied.
+
+| Set | AMU before | AMU after | testmon |
+|---|---:|---:|---:|
+| Werkzeug (10 cases) | 9/21 | 21/21 | 14/21 |
+| requests and itsdangerous (8) | 22/23 | 22/23 | 22/23 |
+| Click holdout 3 (8) | 55/61 | 57/61 | 46/61 |
+| All four (26) | 86/105 | 100/105 | 82/105 |
+
+The cases that moved: Werkzeug extra-6b495d0d 0→6 (its function went behind a deprecation shim), extra-97d9f22a 0→1,
+extra-45768395 0→2 and extra-f359a67e 2→5, and Click 7a0a3447 4→6. Analysis takes at most 0.8 s per case
+(`blind/results-pieces/amu-after-rename-fix.json`). Every case's ranking top 10 is identical to the base: Werkzeug 10/16
+and 16/16, requests and itsdangerous 6/8 and 8/8, Click holdout 3 8/8 and 8/8 (`blind/results/ranking/rank-p5-*.json`).
+
+Review: 3 reviewers made 15 findings and 2 or 3 skeptics checked each one; 13 survived. All 13 are fixed and have unit
+tests. The two refuted findings were the cost of repeated scans (under 1 s per case here) and treating a name served
+through `__getattr__` as still present. I applied the second anyway, and it took Werkzeug back to 9/21. I reverted it,
+and a test now covers it.
+
+Not fixed, and older than this change:
+- A pure deletion still lists the next definition as changed, because removed lines map to where their replacement
+  landed.
+- The lexical rule still reads a removed closure's name of six or more characters as a removed definition.
+
+The earlier pieces' last nine review variants were checked again by reproduction: 8 were closed. The ninth, a packet
+over 2,000 bytes when unstable test ids are long, is now fixed. `compact()` now shortens the unstable list, and its
+240-character gap cut, which was dead code, now takes effect.
+
+Three follow-ups the second check found are also fixed:
+- A deleted test was taken as moved to a base class whenever any edited file defined a function of the same name.
+- After a recheck that ran nothing, the hook did not name the tests still flagged.
+- A row kept by the hash rule said "as edited it passes" when it was only known not to fail.
+
+AMU's suite (`pytest tests scripts/test_before_tests_harness.py`, Werkzeug env): 2,611 passed, 14 skipped, 1 failed, the
+installed package's build-hash check in `tests/test_mcp_verification.py`, as before.
+
+Files: `amu/core/vanished.py`, `amu/core/__init__.py`, `amu/core/patch.py`, `tests/core/test_reachability.py`, and,
+for the review follow-ups, `amu/core/shadow.py`, `blind/hook.py` and `tests/core/test_blind_hook.py`. Nothing upstream
+was executed for this change: the AMU column stubs execution, and the ranking is static.
+
+## Slow-suite brief, piece 4: result
+
+**AMU did not beat the dumb hook: 8 of 16 AMU-arm runs shipped a regression, against 6 of 16 for the dumb hook (20
+regression tests against 16). By the owner's rule, the agent-facing product is closed.**
+
+Sonnet, sympy, 8 frozen indirect tasks, 185 s of test time per run (one third of the 555 s suite), with the same hook
+triggers in both arms. Full tables and root causes are in `slow-suite/TRIAL-RECORD.md` (Result).
+
+- **Tasks 1 and 5 were identical in all four runs.** The counted tests are mostly ones upstream rewrote, and task 5
+  also has one test upstream left alone.
+- **Tasks 4, 6 and 7 were clean in both arms.**
+- **The arms differ on three tasks:**
+  - Task 3: both AMU-arm agents' `trigsimp` fails upstream's rewritten `test_hyperbolic_simp`.
+  - Task 2: w30 was scored on its tree at the hard stop, mid-edit, while blocked on a permission prompt answered 38
+    minutes late. Its later tree passes upstream's tests.
+  - Task 8: both dumb-hook runs fail upstream's rewritten `test_Pow_is_algebraic`, against one AMU-arm run.
+  - Post hoc, without w30: 7 against 6, still not a win.
+- **An AMU defect cost the AMU arm all testing in both task 5 runs.** `consequences.handlers` enumerates caller paths
+  for a new `raise` without a memo, which is exponential on sympy's `ArrayAdd`. The first check ran 184 s and spent the
+  budget. Those runs shipped the same regressions as the dumb-hook runs.
+- The AMU-arm agents ran every frozen breaking test in 9 runs, against 6. Hook messages listed a frozen breaking test in
+  14 runs, against 12. That did not turn into fewer regressions: most counted tests are ones upstream rewrote, and no
+  tool that runs the agent's existing tests sees those.
+
+## Slow-suite: post hoc paired re-analysis (no new runs)
+
+**Post hoc. On the plan's six clean tasks (all but task 2, the prompt artefact, and task 5, the walk defect), the AMU
+arm reached a tree with no red test first on 5 of 6, at every wait threshold tried. That meets the owner's bar, so a
+win condition for one final trial is written in the record. It is not run. Over all 8 tasks the count is 6 of 8 (5 of
+8 at higher thresholds), which would not meet it.**
+
+Paired by task, excluding w26 and w30, with wall time corrected for permission-prompt waits of up to about 2,500 s.
+Details, the table, the method and the written trial condition are in `slow-suite/TRIAL-RECORD.md` (Post hoc paired
+re-analysis), with `slow-suite/posthoc.py`.
+- Two of the five wins (tasks 3 and 8) are wins only because dumb-hook agents left a red test in their own trees. In
+  task 3 upstream's rewritten test accepts that behaviour, and the AMU arm is the one that shipped regressions.
+- One win (task 4) is by 1 to 2 s. Only tasks 1 and 6 are won by a margin.
+- On the six: less test time charged on 4, fewer red tests on 2 (4 ties), larger share of frozen breaking tests run
+  on 4 (2 ties), lower active time on 4.
+
+## Slow-suite brief, piece 4: preparation (no agent session yet)
+
+**sympy's full suite takes 555 s serially with its own runner, so each run gets a 185 s test budget. Eight tasks are
+frozen. Three engine defects that would have crippled AMU on sympy were found and fixed before the record names the
+commit under test (b4fb71f).**
+
+- **Measured once, before anything else:** `bin/test` (pytest under sympy's configuration), serial, at 92e2a7e6. It took
+  555 s wall: 13,297 passed, 737 skipped, 263 deselected, 329 xfailed, 2 xpassed, 0 failed. Its ids are pytest node ids
+  and paste into pytest, so no adapter was needed.
+- **Freeze (ee101a5, committed before any analysis):** 86 commits screened, eight kept, all indirect; see the record for
+  why the mix differs from the brief.
+- **Engine fixes, each its own commit:**
+  - ebffb45: a candidate deselected by the project's marker filter is skipped, not split out with up to 12 pytest restarts.
+  - 11479c7: bare `amu` now executes in trees whose tests live inside packages. On sympy it had executed nothing.
+  - b4fb71f: tests named `test1` or `testSquare` count, and functions nested in a test do not. A mechanics check on a
+    non-task tree had AMU list 9 of the 10 tests the dumb hook saw failing; it now lists all 10. The ranking is
+    unchanged (`blind/results/ranking/rank-p6-*.json`).
+- AMU's suite at b4fb71f: 2,614 passed, 14 skipped, 1 failed (the known build-hash check).
+- Record, rules and scripts: `slow-suite/` (`TRIAL-RECORD.md`, `rules.json`, `symrun.py`, `build_workspaces.py`,
+  `prebuild_index.py`, `desktop_prepare.py`, `make_tasks.py`, `score.py`).
+
 ## Milestones (state at b3747c8)
 
 - **M1 harness.** `scripts/before_tests_harness.py`; protocol and manifests are hash-pinned.

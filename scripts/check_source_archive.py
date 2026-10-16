@@ -162,8 +162,8 @@ def check_archive(path):
                         parts = _parts(member.name, directory=member.isdir())
                         if root is None:
                             root = parts[0]
-                            if not root.startswith("amu-") or root == "amu-":
-                                raise ArchiveError("archive needs one amu-version root directory")
+                            if not root.startswith("anti_messup-") or root == "anti_messup-":
+                                raise ArchiveError("archive needs one anti_messup-version root directory")
                         if parts[0] != root:
                             raise ArchiveError("archive has multiple root directories")
                         name = "/".join(parts)

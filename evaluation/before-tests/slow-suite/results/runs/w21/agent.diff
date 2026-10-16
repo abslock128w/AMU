@@ -1,0 +1,137 @@
+diff --git a/sympy/interactive/session.py b/sympy/interactive/session.py
+index fe08b44..4334054 100644
+--- a/sympy/interactive/session.py
++++ b/sympy/interactive/session.py
+@@ -98,7 +98,8 @@ def int_to_Integer(s):
+     This is based on the decistmt example from
+     https://docs.python.org/3/library/tokenize.html.
+ 
+-    Only integer literals are converted.  Float literals are left alone.
++    Only integer literals are converted.  Float literals are left alone.  The
++    rest of the source, including whitespace and comments, is preserved.
+ 
+     Examples
+     ========
+@@ -107,16 +108,16 @@ def int_to_Integer(s):
+     >>> from sympy.interactive.session import int_to_Integer
+     >>> s = '1.2 + 1/2 - 0x12 + a1'
+     >>> int_to_Integer(s)
+-    '1.2 +Integer (1 )/Integer (2 )-Integer (0x12 )+a1 '
++    '1.2 + Integer(1)/Integer(2) - Integer(0x12) + a1'
+     >>> s = 'print (1/2)'
+     >>> int_to_Integer(s)
+-    'print (Integer (1 )/Integer (2 ))'
++    'print (Integer(1)/Integer(2))'
+     >>> exec(s)
+     0.5
+     >>> exec(int_to_Integer(s))
+     1/2
+     """
+-    from tokenize import generate_tokens, untokenize, NUMBER, NAME, OP
++    from tokenize import generate_tokens, NUMBER
+     from io import StringIO
+ 
+     def _is_int(num):
+@@ -128,19 +129,33 @@ def _is_int(num):
+             return False
+         return True
+ 
+-    result = []
+-    g = generate_tokens(StringIO(s).readline)  # tokenize the string
+-    for toknum, tokval, _, _, _ in g:
+-        if toknum == NUMBER and _is_int(tokval):  # replace NUMBER tokens
+-            result.extend([
+-                (NAME, 'Integer'),
+-                (OP, '('),
+-                (NUMBER, tokval),
+-                (OP, ')')
+-            ])
+-        else:
+-            result.append((toknum, tokval))
+-    return untokenize(result)
++    lines = StringIO(s).readlines()
++    line_offsets = [0]
++    for line in lines:
++        line_offsets.append(line_offsets[-1] + len(line))
++
++    spans = []
++    for toknum, tokval, start, end, _ in generate_tokens(StringIO(s).readline):
++        if toknum == NUMBER and _is_int(tokval):
++            spans.append((line_offsets[start[0] - 1] + start[1],
++                          line_offsets[end[0] - 1] + end[1]))
++
++    for start, end in reversed(spans):
++        s = s[:start] + 'Integer(' + s[start:end] + ')' + s[end:]
++    return s
++
++
++def _int_to_Integer_transformer(lines):
++    """IPython input transformer applying :func:`int_to_Integer` to a cell. """
++    import ast
++    cell = ''.join(lines)
++    try:
++        # Syntax errors should be reported for the original input, not the
++        # transformed input.
++        ast.parse(cell)
++    except SyntaxError:
++        return lines
++    return int_to_Integer(cell).splitlines(True)
+ 
+ 
+ def enable_automatic_int_sympification(shell):
+@@ -148,6 +163,13 @@ def enable_automatic_int_sympification(shell):
+     Allow IPython to automatically convert integer literals to Integer.
+     """
+     import ast
++
++    if hasattr(shell, 'input_transformers_post'):
++        # The transformer runs after IPython has stored the raw cell, so the
++        # history keeps the original input.
++        shell.input_transformers_post.append(_int_to_Integer_transformer)
++        return
++
+     old_run_cell = shell.run_cell
+ 
+     def my_run_cell(cell, *args, **kwargs):
+diff --git a/sympy/interactive/tests/test_interactive.py b/sympy/interactive/tests/test_interactive.py
+index 8a79fc8..6f9ec8a 100644
+--- a/sympy/interactive/tests/test_interactive.py
++++ b/sympy/interactive/tests/test_interactive.py
+@@ -4,8 +4,11 @@
+ 
+ def test_int_to_Integer():
+     assert int_to_Integer("1 + 2.2 + 0x3 + 40") == \
+-        'Integer (1 )+2.2 +Integer (0x3 )+Integer (40 )'
+-    assert int_to_Integer("0b101") == 'Integer (0b101 )'
+-    assert int_to_Integer("ab1 + 1 + '1 + 2'") == "ab1 +Integer (1 )+'1 + 2'"
+-    assert int_to_Integer("(2 + \n3)") == '(Integer (2 )+\nInteger (3 ))'
+-    assert int_to_Integer("2 + 2.0 + 2j + 2e-10") == 'Integer (2 )+2.0 +2j +2e-10 '
++        'Integer(1) + 2.2 + Integer(0x3) + Integer(40)'
++    assert int_to_Integer("0b101") == 'Integer(0b101)'
++    assert int_to_Integer("ab1 + 1 + '1 + 2'") == "ab1 + Integer(1) + '1 + 2'"
++    assert int_to_Integer("(2 + \n3)") == '(Integer(2) + \nInteger(3))'
++    assert int_to_Integer("2 + 2.0 + 2j + 2e-10") == 'Integer(2) + 2.0 + 2j + 2e-10'
++    assert int_to_Integer("f (1)  # 2\n") == 'f (Integer(1))  # 2\n'
++    assert int_to_Integer("a = 1\nb =  2\n") == 'a = Integer(1)\nb =  Integer(2)\n'
++    assert int_to_Integer("x = 'é'; y = 3") == "x = 'é'; y = Integer(3)"
+diff --git a/sympy/interactive/tests/test_ipython.py b/sympy/interactive/tests/test_ipython.py
+index 720bda9..48e884f 100644
+--- a/sympy/interactive/tests/test_ipython.py
++++ b/sympy/interactive/tests/test_ipython.py
+@@ -76,6 +76,16 @@ def test_int_to_Integer():
+     # input, not the transformed input?
+ 
+ 
++def test_int_to_Integer_history():
++    app = init_ipython_session()
++    app.run_cell("from sympy import Integer")
++    enable_automatic_int_sympification(app)
++    cell = "eo =  (1 + 2)  # comment"
++    app.run_cell(cell, store_history=True)
++    assert isinstance(app.user_ns['eo'], Integer)
++    assert app.user_ns['In'][-1].strip() == cell
++
++
+ def test_ipythonprinting():
+     # Initialize and setup IPython session
+     app = init_ipython_session()

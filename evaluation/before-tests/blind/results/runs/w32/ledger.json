@@ -1,0 +1,73 @@
+[
+ {
+  "tool": "rt",
+  "seconds": 1.11,
+  "at": 1791956190.7,
+  "labels": [
+   "model_formsets",
+   "model_formsets_regress",
+   "inline_formsets",
+   "admin_views.test_forms"
+  ],
+  "problems": [],
+  "ran": 118,
+  "failed": [
+   "model_formsets.tests.ModelFormsetTest.test_simple_save"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 1.25,
+  "at": 1791956194.0,
+  "labels": [
+   "model_formsets.tests.ModelFormsetTest.test_simple_save"
+  ],
+  "problems": [],
+  "ran": 0,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 21.71,
+  "at": 1791956228.2,
+  "labels": [
+   "model_formsets",
+   "model_formsets_regress",
+   "inline_formsets",
+   "admin_views",
+   "generic_inline_admin",
+   "forms_tests"
+  ],
+  "problems": [],
+  "ran": 1684,
+  "failed": [
+   "model_formsets.tests.ModelFormsetTest.test_simple_save"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 1.38,
+  "at": 1791956233.8,
+  "labels": [
+   "model_formsets"
+  ],
+  "problems": [],
+  "ran": 80,
+  "failed": [
+   "model_formsets.tests.ModelFormsetTest.test_simple_save"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 17.96,
+  "at": 1791956265.4,
+  "labels": [
+   "model_formsets",
+   "model_formsets_regress",
+   "admin_views"
+  ],
+  "problems": [],
+  "ran": 610,
+  "failed": []
+ }
+]

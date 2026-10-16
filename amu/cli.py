@@ -192,7 +192,26 @@ def main(ctx: typer.Context, version: bool = typer.Option(False, "--version", he
         typer.echo(f"amu {__version__} · TWC Thugs · entire {entire.version()} · entire-graph {entire.graph_version()}")
         raise typer.Exit()
     if ctx.invoked_subcommand is None:
+        if _uncommitted_python_change():
+            # An edit is waiting: answer the question that matters before tests, not open a terminal.
+            from amu import core
+
+            typer.echo(core.encoded(core.analyze(".")).decode())
+            raise typer.Exit()
         _repl(None)
+
+
+def _uncommitted_python_change() -> bool:
+    from amu.core.git import working_diff
+
+    diff, _ = working_diff(".")
+    return any(line.startswith("+++ b/") and line.rstrip().endswith((".py", ".pyi")) for line in diff.splitlines())
+
+
+@app.command(name="repl")
+def repl_cmd():
+    """Open the interactive terminal (what bare `amu` does when no edit is waiting)."""
+    _repl(None)
 
 
 # ---------------------------------------------------------------------------
@@ -633,15 +652,23 @@ def before_tests_cmd(
     coverage: str | None = typer.Option(None, "--coverage", help="per-test coverage recording (.coverage, coverage.json or AMU artifact); default: auto-detect"),
     full_evidence: bool = typer.Option(False, "--full-evidence", help="all ranked tests, dependants and consequences instead of the 2 KB packet"),
     tests: bool = typer.Option(False, "--tests", help="also list tests that only reach the change"),
-    run: bool = typer.Option(False, "--run", help="execute candidate tests before and after the change and report which flip"),
+    run: bool = typer.Option(False, "--run", help="execute candidate tests before and after the change even for a supplied patch"),
+    static: bool = typer.Option(False, "--static", help="never execute tests; static packet only"),
+    observe: bool = typer.Option(False, "--observe", help="run the whole suite once under coverage and store a per-test recording beside the index"),
     runner: str | None = typer.Option(None, "--runner", help="pytest, unittest, django-runtests or django-manage; default: detected from the tree"),
     python: str | None = typer.Option(None, "--python", help="interpreter with pytest for --run; default: this one"),
     budget: int = typer.Option(60, "--budget", help="seconds allowed per side for --run"),
     repo: str = typer.Option(".", "--repo", help="repository root"),
 ):
-    """What a change reaches, what it likely breaks and what nothing tests. Executes tests only with --run."""
+    """Which existing tests a change breaks. For your own uncommitted change it runs candidate tests on both
+    sides and prints what flipped; --static never executes. A supplied patch is static unless --run."""
     from amu import core
 
+    if observe:
+        from amu.core import observe as recorder
+
+        typer.echo(core.encoded(recorder.record(repo, python, runner)).decode())
+        raise typer.Exit()
     if patch_file is None:
         patch = None
     elif patch_file == "-":
@@ -652,7 +679,7 @@ def before_tests_cmd(
         except OSError as exc:
             typer.echo(json.dumps({"error": f"cannot read patch file: {exc.strerror}"}))
             raise typer.Exit(code=2) from exc
-    result = core.analyze(repo, patch, full_evidence=full_evidence, coverage_evidence=coverage, run=run, python=python, budget=budget, include_tests=tests, runner=runner)
+    result = core.analyze(repo, patch, full_evidence=full_evidence, coverage_evidence=coverage, run=False if static else True if run else None, python=python, budget=budget, include_tests=tests, runner=runner)
     typer.echo(core.encoded(result).decode())
 
 

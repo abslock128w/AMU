@@ -1,0 +1,92 @@
+[
+ {
+  "tool": "hook",
+  "seconds": 11.83,
+  "at": 1791955618.4,
+  "detail": "before ./rt"
+ },
+ {
+  "tool": "hook",
+  "seconds": 10.62,
+  "at": 1791955680.7,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "hook",
+  "seconds": 36.52,
+  "at": 1791955726.2,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "hook",
+  "seconds": 74.43,
+  "at": 1791955813.5,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.67,
+  "at": 1791955819.0,
+  "labels": [
+   "model_forms"
+  ],
+  "problems": [],
+  "ran": 189,
+  "failed": [
+   "model_forms.tests.BlankChoiceLabelTests.test_blank_choice_dash_deprecated"
+  ]
+ },
+ {
+  "tool": "hook",
+  "seconds": 36.4,
+  "at": 1791955855.6,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 11.8,
+  "at": 1791955875.1,
+  "labels": [
+   "model_forms",
+   "admin_views",
+   "admin_filters",
+   "admin_changelist",
+   "forms_tests",
+   "settings_tests",
+   "model_fields"
+  ],
+  "problems": [],
+  "ran": 2507,
+  "failed": []
+ },
+ {
+  "tool": "hook",
+  "seconds": 42.19,
+  "at": 1791955917.5,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 183.03,
+  "at": 1791956104.6,
+  "labels": [],
+  "problems": [],
+  "ran": 19062,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.57,
+  "at": 1791956111.1,
+  "labels": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests"
+  ],
+  "problems": [],
+  "ran": 1,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ }
+]

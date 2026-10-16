@@ -1,0 +1,98 @@
+diff --git a/django/forms/models.py b/django/forms/models.py
+index 104369c..64899d1 100644
+--- a/django/forms/models.py
++++ b/django/forms/models.py
+@@ -773,11 +773,15 @@ class BaseModelFormSet(BaseFormSet, AltersData):
+             else:
+                 qs = self.model._default_manager.get_queryset()
+ 
+-            # If the queryset isn't already ordered we need to add an
++            # If the queryset isn't already totally ordered we need to add an
+             # artificial ordering here to make sure that all formsets
+-            # constructed from this queryset have the same form order.
+-            if not qs.ordered:
+-                qs = qs.order_by(self.model._meta.pk.name)
++            # constructed from this queryset have the same form order. Any
++            # existing ordering is kept, with the primary key as a tiebreaker.
++            if not qs.totally_ordered:
++                ordering = qs.query.order_by or (
++                    qs.model._meta.ordering if qs.ordered else ()
++                )
++                qs = qs.order_by(*ordering, self.model._meta.pk.name)
+ 
+             # Removed queryset limiting here. As per discussion re: #13023
+             # on django-dev, max_num should not prevent existing
+diff --git a/tests/model_formsets/tests.py b/tests/model_formsets/tests.py
+index 40f2062..e99b7dc 100644
+--- a/tests/model_formsets/tests.py
++++ b/tests/model_formsets/tests.py
+@@ -222,7 +222,7 @@ class ModelFormsetTest(TestCase):
+         # queryset to restrict the Author objects we edit, but in this case
+         # we'll use it to display them in alphabetical order by name.
+ 
+-        qs = Author.objects.order_by("name")
++        qs = Author.objects.order_by("name", "pk")
+         AuthorFormSet = modelformset_factory(
+             Author, fields="__all__", extra=1, can_delete=False
+         )
+@@ -278,7 +278,7 @@ class ModelFormsetTest(TestCase):
+         # This probably shouldn't happen, but it will. If an add form was
+         # marked for deletion, make sure we don't save that form.
+ 
+-        qs = Author.objects.order_by("name")
++        qs = Author.objects.order_by("name", "pk")
+         AuthorFormSet = modelformset_factory(
+             Author, fields="__all__", extra=1, can_delete=True
+         )
+@@ -423,7 +423,7 @@ class ModelFormsetTest(TestCase):
+         a2 = Author.objects.create(name="Paul Verlaine")
+         a3 = Author.objects.create(name="Walt Whitman")
+ 
+-        qs = Author.objects.order_by("name")
++        qs = Author.objects.order_by("name", "pk")
+ 
+         AuthorFormSet = modelformset_factory(
+             Author, fields="__all__", max_num=None, extra=3
+@@ -1784,6 +1784,42 @@ class ModelFormsetTest(TestCase):
+         queryset = formset.get_queryset()
+         self.assertEqual(queryset.query.order_by, ("id",))
+ 
++    def test_get_queryset_adds_pk_tiebreaker_when_ordering_not_total(self):
++        # Author is ordered by a non-unique field, so its ordering is not
++        # totally ordered and the formset must add a pk tiebreaker while
++        # keeping the model's ordering.
++        self.assertIs(Author._default_manager.get_queryset().ordered, True)
++        self.assertIs(Author._default_manager.get_queryset().totally_ordered, False)
++
++        AuthorFormSet = modelformset_factory(Author, fields="__all__")
++        formset = AuthorFormSet()
++
++        queryset = formset.get_queryset()
++        self.assertIs(queryset.totally_ordered, True)
++        self.assertEqual(queryset.query.order_by, ("name", "id"))
++
++    def test_get_queryset_keeps_explicit_ordering_when_not_total(self):
++        # An explicit, non-unique ordering given to the formset is respected
++        # and only gets the pk tiebreaker appended.
++        AuthorFormSet = modelformset_factory(Author, fields="__all__")
++        formset = AuthorFormSet(queryset=Author.objects.order_by("-name"))
++
++        queryset = formset.get_queryset()
++        self.assertIs(queryset.totally_ordered, True)
++        self.assertEqual(queryset.query.order_by, ("-name", "id"))
++
++    def test_get_queryset_keeps_totally_ordered_queryset(self):
++        # Book is ordered by its unique pk, so the queryset is already
++        # totally ordered and the formset must not override its ordering.
++        self.assertIs(Book._default_manager.get_queryset().totally_ordered, True)
++
++        BookFormSet = modelformset_factory(Book, fields="__all__")
++        formset = BookFormSet()
++
++        queryset = formset.get_queryset()
++        self.assertEqual(queryset.query.order_by, ())
++        self.assertIs(queryset.query.default_ordering, True)
++
+     def test_prevent_duplicates_from_with_the_same_formset(self):
+         FormSet = modelformset_factory(Product, fields="__all__", extra=2)
+         data = {

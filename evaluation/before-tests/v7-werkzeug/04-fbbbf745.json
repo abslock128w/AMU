@@ -1,0 +1,21 @@
+{
+  "case_id": "04-fbbbf745",
+  "function_recall10": null,
+  "file_recall10": null,
+  "function_hits": [],
+  "missing_from_parent": [],
+  "recommended": 8,
+  "top10": [
+    "tests/test_datastructures.py::test_etag_strong_comparison",
+    "tests/test_datastructures.py::test_etag_weak_comparison",
+    "tests/test_wrappers.py::test_ranges",
+    "tests/test_wrappers.py::test_range_request_without_complete_length",
+    "tests/test_wrappers.py::test_range_request_with_complete_file",
+    "tests/test_wrappers.py::test_etag_response",
+    "tests/test_wrappers.py::test_range_request_out_of_bound",
+    "tests/test_wrappers.py::test_range_request_basic"
+  ],
+  "seconds": 0.5004215830049361,
+  "bytes": 1917,
+  "noise10": 8
+}

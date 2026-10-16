@@ -1,0 +1,121 @@
+diff --git a/django/db/models/fields/related.py b/django/db/models/fields/related.py
+index f1bc664..2f78aff 100644
+--- a/django/db/models/fields/related.py
++++ b/django/db/models/fields/related.py
+@@ -720,24 +720,29 @@ class ForeignObject(RelatedField):
+         return []
+ 
+     def _check_conflict_with_managers(self):
++        # The reverse accessor is set on the target model, so it can only clash
++        # with the managers of the target model.
++        if isinstance(self.remote_field.model, str):
++            return []
+         errors = []
+-        manager_names = {manager.name for manager in self.opts.managers}
+-        for rel_objs in self.model._meta.related_objects:
+-            related_object_name = rel_objs.name
+-            if related_object_name in manager_names:
+-                field_name = f"{self.model._meta.object_name}.{self.name}"
+-                errors.append(
+-                    checks.Error(
+-                        f"Related name '{related_object_name}' for '{field_name}' "
+-                        "clashes with the name of a model manager.",
+-                        hint=(
+-                            "Rename the model manager or change the related_name "
+-                            f"argument in the definition for field '{field_name}'."
+-                        ),
+-                        obj=self,
+-                        id="fields.E348",
+-                    )
++        manager_names = {
++            manager.name for manager in self.remote_field.model._meta.managers
++        }
++        related_object_name = self.remote_field.accessor_name
++        if related_object_name in manager_names:
++            field_name = f"{self.model._meta.object_name}.{self.name}"
++            errors.append(
++                checks.Error(
++                    f"Related name '{related_object_name}' for '{field_name}' "
++                    "clashes with the name of a model manager.",
++                    hint=(
++                        "Rename the model manager or change the related_name "
++                        f"argument in the definition for field '{field_name}'."
++                    ),
++                    obj=self,
++                    id="fields.E348",
+                 )
++            )
+         return errors
+ 
+     def deconstruct(self):
+diff --git a/tests/invalid_models_tests/test_relative_fields.py b/tests/invalid_models_tests/test_relative_fields.py
+index 51b1de1..e9d637a 100644
+--- a/tests/invalid_models_tests/test_relative_fields.py
++++ b/tests/invalid_models_tests/test_relative_fields.py
+@@ -1591,6 +1591,66 @@ class RelatedQueryNameClashWithManagerTests(SimpleTestCase):
+             ],
+         )
+ 
++    def test_clash_between_related_name_and_target_manager(self):
++        class Author(models.Model):
++            books_by = models.Manager()
++
++        class Book(models.Model):
++            author = models.ForeignKey(
++                Author, related_name="books_by", on_delete=models.CASCADE
++            )
++
++        self.assertEqual(
++            Book.check(),
++            [
++                Error(
++                    "Related name 'books_by' for 'Book.author' clashes with the name "
++                    "of a model manager.",
++                    hint=(
++                        "Rename the model manager or change the related_name argument "
++                        "in the definition for field 'Book.author'."
++                    ),
++                    obj=Book._meta.get_field("author"),
++                    id="fields.E348",
++                )
++            ],
++        )
++
++    def test_clash_between_default_accessor_and_target_manager(self):
++        class Publisher(models.Model):
++            imprint_set = models.Manager()
++
++        class Imprint(models.Model):
++            publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
++
++        self.assertEqual(
++            Imprint.check(),
++            [
++                Error(
++                    "Related name 'imprint_set' for 'Imprint.publisher' clashes with "
++                    "the name of a model manager.",
++                    hint=(
++                        "Rename the model manager or change the related_name argument "
++                        "in the definition for field 'Imprint.publisher'."
++                    ),
++                    obj=Imprint._meta.get_field("publisher"),
++                    id="fields.E348",
++                )
++            ],
++        )
++
++    def test_no_clash_with_own_manager(self):
++        class Author(models.Model):
++            books_by = models.Manager()
++
++        class Book(models.Model):
++            author = models.ForeignKey(
++                Author, related_name="books", on_delete=models.CASCADE
++            )
++
++        self.assertEqual(Book.check(), [])
++        self.assertEqual(Author.check(), [])
++
+ 
+ @isolate_apps("invalid_models_tests")
+ class SelfReferentialM2MClashTests(SimpleTestCase):

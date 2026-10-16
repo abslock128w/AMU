@@ -1,0 +1,736 @@
+[
+ {
+  "id": "w02",
+  "task": "task1",
+  "production_files": 1,
+  "test_files": 1,
+  "hook_seconds": [
+   24.8,
+   13.2,
+   11.4
+  ],
+  "events": [
+   {
+    "trigger": "before ./rt",
+    "cached": null,
+    "only": null,
+    "flips": null,
+    "failing": [],
+    "seconds": 24.77
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 1,
+    "failing": [
+     "deprecation.tests.DjangoFilePrefixesTests.test_with_file"
+    ],
+    "seconds": 13.2
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": 11.38
+   },
+   {
+    "trigger": "before ./rt",
+    "cached": true,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": null
+   }
+  ]
+ },
+ {
+  "id": "w04",
+  "task": "task3",
+  "production_files": 11,
+  "test_files": 2,
+  "hook_seconds": [
+   23.1,
+   43.5,
+   35.6
+  ],
+  "events": [
+   {
+    "trigger": "before ./rt",
+    "cached": null,
+    "only": null,
+    "flips": null,
+    "failing": [],
+    "seconds": 23.15
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 1,
+    "failing": [
+     "model_forms.tests.ModelFormBasicTests.test_callable_choices_are_lazy"
+    ],
+    "seconds": 43.46
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": 35.62
+   },
+   {
+    "trigger": "before ./rt",
+    "cached": true,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": null
+   }
+  ]
+ },
+ {
+  "id": "w06",
+  "task": "task2",
+  "production_files": 1,
+  "test_files": 1,
+  "hook_seconds": [
+   25.5,
+   16.6,
+   15.6
+  ],
+  "events": [
+   {
+    "trigger": "before ./rt",
+    "cached": null,
+    "only": null,
+    "flips": null,
+    "failing": [],
+    "seconds": 25.51
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": 16.61
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": 15.55
+   },
+   {
+    "trigger": "before ./rt",
+    "cached": true,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": null
+   }
+  ]
+ },
+ {
+  "id": "w09",
+  "task": "task2",
+  "production_files": 1,
+  "test_files": 1,
+  "hook_seconds": [
+   32.7,
+   32.2,
+   46.1
+  ],
+  "events": [
+   {
+    "trigger": "before ./rt",
+    "cached": null,
+    "only": null,
+    "flips": null,
+    "failing": [],
+    "seconds": 32.66
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": 32.21
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": 46.07
+   },
+   {
+    "trigger": "before ./rt",
+    "cached": true,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": null
+   }
+  ]
+ },
+ {
+  "id": "w10",
+  "task": "task4",
+  "production_files": 1,
+  "test_files": 1,
+  "hook_seconds": [
+   53.9,
+   15.4,
+   17.1
+  ],
+  "events": [
+   {
+    "trigger": "before ./rt",
+    "cached": null,
+    "only": null,
+    "flips": null,
+    "failing": [],
+    "seconds": 53.85
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": 15.39
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": 17.1
+   },
+   {
+    "trigger": "before ./rt",
+    "cached": true,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": null
+   }
+  ]
+ },
+ {
+  "id": "w11",
+  "task": "task6",
+  "production_files": 1,
+  "test_files": 1,
+  "hook_seconds": [
+   19.2,
+   22.8,
+   23.1
+  ],
+  "events": [
+   {
+    "trigger": "before ./rt",
+    "cached": null,
+    "only": null,
+    "flips": null,
+    "failing": [],
+    "seconds": 19.19
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": 22.83
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": 23.09
+   },
+   {
+    "trigger": "before ./rt",
+    "cached": true,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": null
+   }
+  ]
+ },
+ {
+  "id": "w12",
+  "task": "task8",
+  "production_files": 5,
+  "test_files": 1,
+  "hook_seconds": [
+   13.9,
+   7.2,
+   6.8
+  ],
+  "events": [
+   {
+    "trigger": "before ./rt",
+    "cached": null,
+    "only": null,
+    "flips": null,
+    "failing": [],
+    "seconds": 13.89
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 2,
+    "failing": [
+     "mail.tests.MailDeprecatedPositionalArgsTests.test_send_mail",
+     "mail.tests.MailDeprecatedPositionalArgsTests.test_send_mass_mail"
+    ],
+    "seconds": 7.2
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": 6.79
+   },
+   {
+    "trigger": "before ./rt",
+    "cached": true,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": null
+   }
+  ]
+ },
+ {
+  "id": "w15",
+  "task": "task4",
+  "production_files": 1,
+  "test_files": 1,
+  "hook_seconds": [
+   11.7,
+   6.8,
+   7.2
+  ],
+  "events": [
+   {
+    "trigger": "before ./rt",
+    "cached": null,
+    "only": null,
+    "flips": null,
+    "failing": [],
+    "seconds": 11.71
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": 6.8
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": 7.19
+   },
+   {
+    "trigger": "before ./rt",
+    "cached": true,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": null
+   }
+  ]
+ },
+ {
+  "id": "w16",
+  "task": "task7",
+  "production_files": 4,
+  "test_files": 3,
+  "hook_seconds": [
+   11.4,
+   13.4,
+   14.0
+  ],
+  "events": [
+   {
+    "trigger": "before ./rt",
+    "cached": null,
+    "only": null,
+    "flips": null,
+    "failing": [],
+    "seconds": 11.4
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": 13.39
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": 14.01
+   },
+   {
+    "trigger": "before ./rt",
+    "cached": true,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": null
+   }
+  ]
+ },
+ {
+  "id": "w18",
+  "task": "task3",
+  "production_files": 11,
+  "test_files": 1,
+  "hook_seconds": [
+   11.5,
+   19.9,
+   20.8
+  ],
+  "events": [
+   {
+    "trigger": "before ./rt",
+    "cached": null,
+    "only": null,
+    "flips": null,
+    "failing": [],
+    "seconds": 11.51
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 1,
+    "failing": [
+     "model_forms.tests.ModelFormBasicTests.test_callable_choices_are_lazy"
+    ],
+    "seconds": 19.85
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": 20.76
+   },
+   {
+    "trigger": "before ./rt",
+    "cached": true,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": null
+   }
+  ]
+ },
+ {
+  "id": "w21",
+  "task": "task6",
+  "production_files": 1,
+  "test_files": 1,
+  "hook_seconds": [
+   11.2,
+   8.4,
+   8.6
+  ],
+  "events": [
+   {
+    "trigger": "before ./rt",
+    "cached": null,
+    "only": null,
+    "flips": null,
+    "failing": [],
+    "seconds": 11.15
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": 8.45
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": 8.61
+   },
+   {
+    "trigger": "before ./rt",
+    "cached": true,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": null
+   }
+  ]
+ },
+ {
+  "id": "w22",
+  "task": "task8",
+  "production_files": 5,
+  "test_files": 1,
+  "hook_seconds": [
+   11.2,
+   7.3,
+   7.0
+  ],
+  "events": [
+   {
+    "trigger": "before ./rt",
+    "cached": null,
+    "only": null,
+    "flips": null,
+    "failing": [],
+    "seconds": 11.17
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 2,
+    "failing": [
+     "mail.tests.MailDeprecatedPositionalArgsTests.test_send_mail",
+     "mail.tests.MailDeprecatedPositionalArgsTests.test_send_mass_mail"
+    ],
+    "seconds": 7.26
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": 7.03
+   },
+   {
+    "trigger": "before ./rt",
+    "cached": true,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": null
+   }
+  ]
+ },
+ {
+  "id": "w23",
+  "task": "task1",
+  "production_files": 1,
+  "test_files": 1,
+  "hook_seconds": [
+   11.3,
+   5.7,
+   5.3
+  ],
+  "events": [
+   {
+    "trigger": "before ./rt",
+    "cached": null,
+    "only": null,
+    "flips": null,
+    "failing": [],
+    "seconds": 11.28
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 1,
+    "failing": [
+     "deprecation.tests.DjangoFilePrefixesTests.test_with_file"
+    ],
+    "seconds": 5.69
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": 5.3
+   },
+   {
+    "trigger": "before ./rt",
+    "cached": true,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": null
+   }
+  ]
+ },
+ {
+  "id": "w26",
+  "task": "task7",
+  "production_files": 5,
+  "test_files": 3,
+  "hook_seconds": [
+   11.2,
+   13.3,
+   13.2
+  ],
+  "events": [
+   {
+    "trigger": "before ./rt",
+    "cached": null,
+    "only": null,
+    "flips": null,
+    "failing": [],
+    "seconds": 11.24
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": 13.27
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": 13.23
+   },
+   {
+    "trigger": "before ./rt",
+    "cached": true,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": null
+   }
+  ]
+ },
+ {
+  "id": "w30",
+  "task": "task5",
+  "production_files": 1,
+  "test_files": 1,
+  "hook_seconds": [
+   11.3,
+   8.6,
+   8.8
+  ],
+  "events": [
+   {
+    "trigger": "before ./rt",
+    "cached": null,
+    "only": null,
+    "flips": null,
+    "failing": [],
+    "seconds": 11.29
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": 8.63
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": 8.78
+   },
+   {
+    "trigger": "before ./rt",
+    "cached": true,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": null
+   }
+  ]
+ },
+ {
+  "id": "w31",
+  "task": "task5",
+  "production_files": 1,
+  "test_files": 1,
+  "hook_seconds": [
+   11.2,
+   9.5,
+   9.2
+  ],
+  "events": [
+   {
+    "trigger": "before ./rt",
+    "cached": null,
+    "only": null,
+    "flips": null,
+    "failing": [],
+    "seconds": 11.25
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": 9.54
+   },
+   {
+    "trigger": "after Bash",
+    "cached": null,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": 9.2
+   },
+   {
+    "trigger": "before ./rt",
+    "cached": true,
+    "only": null,
+    "flips": 0,
+    "failing": [],
+    "seconds": null
+   }
+  ]
+ }
+]

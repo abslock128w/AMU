@@ -1,0 +1,37 @@
+[
+ {
+  "tool": "rt",
+  "seconds": 0.72,
+  "at": 1791970620.8,
+  "labels": [
+   "invalid_models_tests"
+  ],
+  "problems": [],
+  "ran": 337,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 231.19,
+  "at": 1791970855.1,
+  "labels": [],
+  "problems": [],
+  "ran": 19086,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.57,
+  "at": 1791971125.2,
+  "labels": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ],
+  "problems": [],
+  "ran": 1,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ }
+]

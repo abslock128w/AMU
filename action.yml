@@ -1,0 +1,198 @@
+name: AMU pull request check
+description: Runs a pull request's candidate tests on its merge base and on its head, and saves which ones flip.
+author: abslock128w
+branding:
+  icon: git-pull-request
+  color: blue
+
+# The calling job checks out the pull request head with history:
+#   - uses: actions/checkout@v4
+#     with: {ref: '${{ github.event.pull_request.head.sha }}', fetch-depth: 0, persist-credentials: false}
+# This step always succeeds. What happened is in the saved JSON, not in the step's status.
+# Linux and macOS runners only.
+
+inputs:
+  install:
+    description: Shell command that installs the project and its test dependencies into the selected Python.
+    required: false
+    default: python -m pip install -e .
+  python-version:
+    description: Python for the project and for AMU (3.11 or later).
+    required: false
+    default: '3.12'
+  runner:
+    description: Test runner (pytest, unittest, django-runtests, django-manage). Empty means detected from the tree.
+    required: false
+    default: ''
+  amu-ref:
+    description: Tag of github.com/abslock128w/AMU that AMU is installed from.
+    required: false
+    default: v0.1.0
+  base-sha:
+    description: Base commit of the pull request.
+    required: false
+    default: ${{ github.event.pull_request.base.sha }}
+  head-sha:
+    description: Head commit of the pull request.
+    required: false
+    default: ${{ github.event.pull_request.head.sha }}
+  artifact-name:
+    description: Name of the artifact holding report.json and meta.json.
+    required: false
+    default: amu-report
+  budget:
+    description: Seconds of test time allowed per side (head, then merge base).
+    required: false
+    default: '300'
+  wall-cap:
+    description: Seconds for AMU's whole run, recording included. Past it the run stops and the comment says so.
+    required: false
+    default: '1200'
+  observe:
+    description: "'true' records the suite under coverage on the merge base when the cache has no recording."
+    required: false
+    default: 'false'
+  cache:
+    description: "'false' turns off caching of .amu/index (index and recording), keyed on the merge base."
+    required: false
+    default: 'true'
+  counters:
+    description: "'true' opts in to counters kept in a hidden block of the comment: counts and SHAs only, never source."
+    required: false
+    default: 'false'
+  mode:
+    description: "'run' compares the head with the merge base. 'verify' runs in a fresh job checked out at the merge base
+      and reruns each flip there, to measure false flips."
+    required: false
+    default: run
+
+outputs:
+  merge-base:
+    description: The merge base the pull request was compared against.
+    value: ${{ steps.run.outputs.merge-base }}
+  flips:
+    description: Tests that pass on the merge base and fail on the head; empty when nothing ran.
+    value: ${{ steps.run.outputs.flips }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Find the merge base
+      id: base
+      if: inputs.mode != 'verify'
+      shell: bash
+      env:
+        AMU_BASE: ${{ inputs.base-sha }}
+        AMU_HEAD: ${{ inputs.head-sha }}
+      run: |
+        head="${AMU_HEAD:-HEAD}"
+        found=$(git merge-base "$AMU_BASE" "$head" 2> /dev/null) || {
+          git fetch --no-tags --quiet origin "$AMU_BASE" 2> /dev/null || true
+          found=$(git merge-base "$AMU_BASE" "$head" 2> /dev/null) || found=""
+        }
+        echo "sha=$found" >> "$GITHUB_OUTPUT"
+
+    # Caches written by a pull request are visible only to that pull request; the base branch's are shared.
+    # Only .amu/index (index and recording): a repository may track other files under .amu.
+    - uses: actions/cache@v4
+      if: inputs.mode != 'verify' && inputs.cache == 'true' && steps.base.outputs.sha != ''
+      with:
+        path: .amu/index
+        key: amu-${{ runner.os }}-py${{ inputs.python-version }}-${{ steps.base.outputs.sha }}
+        restore-keys: amu-${{ runner.os }}-py${{ inputs.python-version }}-
+
+    - name: Install the project
+      id: install
+      shell: bash
+      env:
+        AMU_INSTALL: ${{ inputs.install }}
+      run: |
+        mkdir -p "$RUNNER_TEMP/amu-out"
+        echo "python=$(python -c 'import sys; print(sys.executable)')" >> "$GITHUB_OUTPUT"
+        if bash -c "$AMU_INSTALL" > "$RUNNER_TEMP/amu-out/install.log" 2>&1; then
+          echo "ok=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "ok=false" >> "$GITHUB_OUTPUT"
+          echo "::warning::The install command failed; AMU runs anyway and reports what could not run."
+          tail -n 40 "$RUNNER_TEMP/amu-out/install.log"
+        fi
+
+    - name: Install AMU
+      shell: bash
+      env:
+        AMU_REF: ${{ inputs.amu-ref }}
+      run: |
+        python -m venv "$RUNNER_TEMP/amu-venv"
+        if ! "$RUNNER_TEMP/amu-venv/bin/python" -m pip install --quiet --disable-pip-version-check \
+            "anti-messup @ git+https://github.com/abslock128w/AMU@${AMU_REF}" > "$RUNNER_TEMP/amu-out/amu-install.log" 2>&1; then
+          echo "::warning::AMU could not be installed from ${AMU_REF}."
+          tail -n 20 "$RUNNER_TEMP/amu-out/amu-install.log"
+        fi
+
+    - name: Run AMU
+      id: run
+      if: inputs.mode != 'verify'
+      shell: bash
+      env:
+        AMU_BASE: ${{ inputs.base-sha }}
+        AMU_HEAD: ${{ inputs.head-sha }}
+        AMU_PR: ${{ github.event.pull_request.number }}
+        AMU_RUNNER: ${{ inputs.runner }}
+        AMU_REF: ${{ inputs.amu-ref }}
+        AMU_PYTHON: ${{ steps.install.outputs.python }}
+        AMU_INSTALL_OK: ${{ steps.install.outputs.ok }}
+        AMU_BUDGET: ${{ inputs.budget }}
+        AMU_WALL_CAP: ${{ inputs.wall-cap }}
+        AMU_OBSERVE: ${{ inputs.observe }}
+        AMU_COUNTERS: ${{ inputs.counters }}
+      run: |
+        out="$RUNNER_TEMP/amu-out"
+        if "$RUNNER_TEMP/amu-venv/bin/python" -P -c 'import amu.ci.run' 2> /dev/null; then
+          "$RUNNER_TEMP/amu-venv/bin/python" -P -m amu.ci.run --base "$AMU_BASE" --head "$AMU_HEAD" --out "$out" \
+            --python "$AMU_PYTHON" ${AMU_RUNNER:+--runner "$AMU_RUNNER"} ${AMU_PR:+--pr "$AMU_PR"} \
+            --install-ok "${AMU_INSTALL_OK:-false}" --amu-ref "$AMU_REF" \
+            ${AMU_BUDGET:+--budget "$AMU_BUDGET"} ${AMU_WALL_CAP:+--wall-cap "$AMU_WALL_CAP"} \
+            $([ "$AMU_OBSERVE" = true ] && echo --observe) $([ "$AMU_COUNTERS" = true ] && echo --counters) || true
+        else
+          python -c 'import json, sys; json.dump({"error": "AMU could not be installed from " + sys.argv[1]}, open(sys.argv[2], "w"))' \
+            "$AMU_REF" "$out/report.json"
+        fi
+        # A preview of the comment; the posting job renders it again from the JSON with the pinned AMU.
+        "$RUNNER_TEMP/amu-venv/bin/python" -P -m amu.ci.render "$out" > "$out/comment.md" 2> /dev/null || true
+
+    - uses: actions/upload-artifact@v4
+      if: always() && inputs.mode != 'verify'
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ${{ runner.temp }}/amu-out
+        if-no-files-found: warn
+        retention-days: 14
+
+    # Verify mode: the run job's artifact, rerun on the merge base this job checked out.
+    - uses: actions/download-artifact@v4
+      if: inputs.mode == 'verify'
+      continue-on-error: true
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ${{ runner.temp }}/amu-in
+
+    - name: Rerun the flips on the merge base
+      if: inputs.mode == 'verify'
+      shell: bash
+      env:
+        AMU_PYTHON: ${{ steps.install.outputs.python }}
+      run: |
+        "$RUNNER_TEMP/amu-venv/bin/python" -P -m amu.ci.verify --dir "$RUNNER_TEMP/amu-in" --out "$RUNNER_TEMP/amu-verify" \
+          --python "$AMU_PYTHON" || true
+
+    - uses: actions/upload-artifact@v4
+      if: always() && inputs.mode == 'verify'
+      with:
+        name: ${{ inputs.artifact-name }}-verify
+        path: ${{ runner.temp }}/amu-verify
+        if-no-files-found: warn
+        retention-days: 14

@@ -1,0 +1,23 @@
+{
+  "case_id": "08-23002fd6",
+  "function_recall10": null,
+  "file_recall10": null,
+  "function_hits": [],
+  "missing_from_parent": [],
+  "recommended": 10,
+  "top10": [
+    "tests/test_http.py::TestRange::test_if_range_parsing",
+    "tests/test_http.py::TestHTTPUtility::test_is_resource_modified_for_range_requests",
+    "tests/test_http.py::TestHTTPUtility::test_is_resource_modified",
+    "tests/test_wrappers.py::test_range_request_with_complete_file",
+    "tests/test_wrappers.py::test_range_request_with_file",
+    "tests/test_wrappers.py::test_range_request_basic",
+    "tests/test_wrappers.py::test_range_request_out_of_bound",
+    "tests/test_wrappers.py::test_invalid_range_request",
+    "tests/test_wrappers.py::test_range_request_without_complete_length",
+    "tests/test_wrappers.py::test_advertise_accept_ranges"
+  ],
+  "seconds": 0.7025812909996603,
+  "bytes": 1910,
+  "noise10": 10
+}

@@ -1,0 +1,22 @@
+﻿id,summary,reporter,owner,description,type,status,component,version,severity,resolution,keywords,cc,stage,has_patch,needs_docs,needs_tests,needs_better_patch,easy,ui_ux
+37004,BaseModelFormSet could leverage totally_ordered property,Jacob Walls,Rodrigo Vieira,"#36857 added a new property `totally_ordered` on `QuerySet` to capture the difference between a queryset having ''some'' ordering versus a ""stable, deterministic"" ordering.
+
+I noticed that we probably want to use that new property here in `BaseModelFormSet` for the purpose described in #10163:
+
+{{{#!diff
+diff --git a/django/forms/models.py b/django/forms/models.py
+index 104369c0b0..3843203a1d 100644
+--- a/django/forms/models.py
++++ b/django/forms/models.py
+@@ -776,7 +776,7 @@ class BaseModelFormSet(BaseFormSet, AltersData):
+             # If the queryset isn't already ordered we need to add an
+             # artificial ordering here to make sure that all formsets
+             # constructed from this queryset have the same form order.
+-            if not qs.ordered:
++            if not qs.totally_ordered:
+                 qs = qs.order_by(self.model._meta.pk.name)
+ 
+             # Removed queryset limiting here. As per discussion re: #13023
+}}}
+
+Tentatively assigning to Sarah to see if a good fit for any Djangonauts this session. This would involve cooking up a test.",Cleanup/optimization,closed,Forms,dev,Normal,fixed,,,Ready for checkin,1,0,0,0,0,0

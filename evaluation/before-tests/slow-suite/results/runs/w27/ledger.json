@@ -1,0 +1,73 @@
+[
+ {
+  "tool": "hook",
+  "seconds": 0.83,
+  "at": 1792052261.6,
+  "detail": "before ./rt"
+ },
+ {
+  "tool": "hook",
+  "seconds": 1.18,
+  "at": 1792052274.8,
+  "detail": "after edit"
+ },
+ {
+  "tool": "hook",
+  "seconds": 1.17,
+  "at": 1792052276.0,
+  "detail": "after edit"
+ },
+ {
+  "tool": "hook",
+  "seconds": 1.19,
+  "at": 1792052281.2,
+  "detail": "after edit"
+ },
+ {
+  "tool": "hook",
+  "seconds": 31.69,
+  "at": 1792052319.6,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "hook",
+  "seconds": 32.89,
+  "at": 1792052400.3,
+  "detail": "after edit"
+ },
+ {
+  "tool": "hook",
+  "seconds": 30.26,
+  "at": 1792052430.6,
+  "detail": "after edit"
+ },
+ {
+  "tool": "hook",
+  "seconds": 17.0,
+  "at": 1792052463.0,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 2.18,
+  "at": 1792052468.7,
+  "labels": [
+   "sympy/printing/tests/test_latex.py"
+  ],
+  "k": [
+   "ElementwiseApply"
+  ],
+  "problems": [],
+  "ran": 2,
+  "failed": [
+   "sympy/printing/tests/test_latex.py::test_ArrayElementwiseApplyFunc_printing",
+   "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction"
+  ]
+ },
+ {
+  "tool": "hook",
+  "seconds": 35.31,
+  "at": 1792052511.9,
+  "detail": "after edit"
+ }
+]

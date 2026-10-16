@@ -1,0 +1,44 @@
+[
+ {
+  "tool": "hook",
+  "seconds": 11.83,
+  "at": 1791953173.0,
+  "detail": "before ./rt"
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.63,
+  "at": 1791953191.3,
+  "labels": [
+   "sites_tests"
+  ],
+  "problems": [],
+  "ran": 27,
+  "failed": [
+   "sites_tests.tests.SitesFrameworkTests.test_check_site_id_invalid_types"
+  ]
+ },
+ {
+  "tool": "hook",
+  "seconds": 14.59,
+  "at": 1791953206.1,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.51,
+  "at": 1791953216.4,
+  "labels": [
+   "sites_tests"
+  ],
+  "problems": [],
+  "ran": 27,
+  "failed": []
+ },
+ {
+  "tool": "hook",
+  "seconds": 13.79,
+  "at": 1791953230.4,
+  "detail": "after Bash"
+ }
+]

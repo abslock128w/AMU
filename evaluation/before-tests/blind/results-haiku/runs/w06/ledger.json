@@ -1,0 +1,49 @@
+[
+ {
+  "tool": "hook",
+  "seconds": 13.68,
+  "at": 1791972403.9,
+  "detail": "before ./rt"
+ },
+ {
+  "tool": "hook",
+  "seconds": 10.54,
+  "at": 1791972472.0,
+  "detail": "after edit"
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.67,
+  "at": 1791972479.4,
+  "labels": [
+   "queries.test_q"
+  ],
+  "problems": [],
+  "ran": 34,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 238.2,
+  "at": 1791972724.6,
+  "labels": [],
+  "problems": [],
+  "ran": 19111,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.62,
+  "at": 1791972745.9,
+  "labels": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests"
+  ],
+  "problems": [],
+  "ran": 1,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ }
+]

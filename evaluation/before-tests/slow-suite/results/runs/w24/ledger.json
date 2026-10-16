@@ -1,0 +1,92 @@
+[
+ {
+  "tool": "hook",
+  "seconds": 12.39,
+  "at": 1792058036.6,
+  "detail": "after edit"
+ },
+ {
+  "tool": "hook",
+  "seconds": 13.89,
+  "at": 1792058050.6,
+  "detail": "after edit"
+ },
+ {
+  "tool": "hook",
+  "seconds": 13.11,
+  "at": 1792058063.7,
+  "detail": "after edit"
+ },
+ {
+  "tool": "hook",
+  "seconds": 12.23,
+  "at": 1792058076.1,
+  "detail": "after edit"
+ },
+ {
+  "tool": "hook",
+  "seconds": 12.21,
+  "at": 1792058088.3,
+  "detail": "after edit"
+ },
+ {
+  "tool": "rt",
+  "seconds": 1.91,
+  "at": 1792058097.9,
+  "labels": [
+   "sympy/matrices/expressions/tests/test_derivatives.py",
+   "sympy/matrices/expressions/tests/test_indexing.py"
+  ],
+  "k": [
+   "24021 or 23492 or 24725 or 25118 or from_index_summation"
+  ],
+  "problems": [],
+  "ran": 5,
+  "failed": [
+   "sympy/matrices/expressions/tests/test_derivatives.py::test_fix_issue_24021",
+   "sympy/matrices/expressions/tests/test_derivatives.py::test_issue_23492",
+   "sympy/matrices/expressions/tests/test_derivatives.py::test_issue_24725",
+   "sympy/matrices/expressions/tests/test_derivatives.py::test_issue_25118",
+   "sympy/matrices/expressions/tests/test_indexing.py::test_matrix_expression_from_index_summation"
+  ]
+ },
+ {
+  "tool": "hook",
+  "seconds": 11.73,
+  "at": 1792058216.0,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "hook",
+  "seconds": 13.03,
+  "at": 1792058239.7,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 17.98,
+  "at": 1792058423.5,
+  "labels": [
+   "sympy/tensor/array",
+   "sympy/matrices/expressions"
+  ],
+  "k": null,
+  "problems": [],
+  "ran": 464,
+  "failed": [
+   "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_add_scalar_arguments"
+  ]
+ },
+ {
+  "tool": "hook",
+  "seconds": 20.66,
+  "at": 1792058444.3,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "hook",
+  "seconds": 23.44,
+  "at": 1792058496.0,
+  "detail": "after Bash"
+ }
+]

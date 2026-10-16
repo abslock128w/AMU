@@ -1,0 +1,41 @@
+diff --git a/django/forms/models.py b/django/forms/models.py
+index 104369c..6d646a1 100644
+--- a/django/forms/models.py
++++ b/django/forms/models.py
+@@ -776,8 +776,13 @@ class BaseModelFormSet(BaseFormSet, AltersData):
+             # If the queryset isn't already ordered we need to add an
+             # artificial ordering here to make sure that all formsets
+             # constructed from this queryset have the same form order.
+-            if not qs.ordered:
+-                qs = qs.order_by(self.model._meta.pk.name)
++            if not qs.totally_ordered:
++                # Keep any existing (non-deterministic) ordering and append
++                # the primary key as a tie-breaker.
++                ordering = list(qs.query.order_by)
++                if not ordering and qs.query.default_ordering:
++                    ordering = list(qs.query.get_meta().ordering)
++                qs = qs.order_by(*ordering, self.model._meta.pk.name)
+ 
+             # Removed queryset limiting here. As per discussion re: #13023
+             # on django-dev, max_num should not prevent existing
+diff --git a/tests/model_formsets/tests.py b/tests/model_formsets/tests.py
+index 40f2062..00cd880 100644
+--- a/tests/model_formsets/tests.py
++++ b/tests/model_formsets/tests.py
+@@ -1784,6 +1784,16 @@ class ModelFormsetTest(TestCase):
+         queryset = formset.get_queryset()
+         self.assertEqual(queryset.query.order_by, ("id",))
+ 
++    def test_get_queryset_adds_pk_when_ordering_not_total(self):
++        # Author.Meta.ordering is ("name",), which is not unique, so the
++        # queryset isn't totally ordered and pk is appended as a tie-breaker.
++        self.assertIs(Author._default_manager.get_queryset().ordered, True)
++        self.assertIs(Author._default_manager.get_queryset().totally_ordered, False)
++
++        AuthorFormSet = modelformset_factory(Author, fields="__all__")
++        queryset = AuthorFormSet().get_queryset()
++        self.assertEqual(queryset.query.order_by, ("name", "id"))
++
+     def test_prevent_duplicates_from_with_the_same_formset(self):
+         FormSet = modelformset_factory(Product, fields="__all__", extra=2)
+         data = {

@@ -1,0 +1,130 @@
+diff --git a/sympy/simplify/tests/test_trigsimp.py b/sympy/simplify/tests/test_trigsimp.py
+index 27103fc..0123a8b 100644
+--- a/sympy/simplify/tests/test_trigsimp.py
++++ b/sympy/simplify/tests/test_trigsimp.py
+@@ -230,8 +230,8 @@ def test_trigsimp_issue_3826():
+ 
+ def test_trigsimp_issue_4032():
+     n = Symbol('n', integer=True, positive=True)
+-    assert trigsimp(2**(n/2)*cos(pi*n/4)/2 + 2**(n - 1)/2) == \
+-        2**(n/2)*cos(pi*n/4)/2 + 2**n/4
++    e = 2**(n/2)*cos(pi*n/4)/2 + 2**(n - 1)/2
++    assert trigsimp(e) == e
+ 
+ 
+ def test_trigsimp_issue_7761():
+@@ -526,3 +526,11 @@ def test_trigsimp_inverse():
+             assert angle_inverted != angle  # assures simplification happened
+             assert sin(angle_inverted) == trigsimp(sin(angle))
+             assert cos(angle_inverted) == trigsimp(cos(angle))
++
++
++def test_trigsimp_leaves_unrelated_terms():
++    assert trigsimp((x**2 - 1)/(x - 1) + sin(x)**2 + cos(x)**2) == \
++        1 + (x**2 - 1)/(x - 1)
++    assert trigsimp(1/x + 1/(x + 1) + sin(x)**2 + cos(x)**2) == \
++        1 + 1/x + 1/(x + 1)
++    assert trigsimp(2 - 2*cos(x)**2) == 2*sin(x)**2
+diff --git a/sympy/simplify/trigsimp.py b/sympy/simplify/trigsimp.py
+index 7107a59..26e04cf 100644
+--- a/sympy/simplify/trigsimp.py
++++ b/sympy/simplify/trigsimp.py
+@@ -464,14 +464,9 @@ def f(rv):
+ def trigsimp(expr, inverse=False, **opts):
+     """Returns a reduced expression by using known trig identities.
+ 
+-    While ``trigsimp`` primarily simplifies trigonometric and hyperbolic
+-    expressions, it also performs general algebraic simplifications on
+-    non-trigonometric parts. This can lead to broader simplification
+-    beyond just trigonometric identities, including factoring and term
+-    cancellation, which may make its output resemble ``simplify``.
+-
+-    For targeted trigonometric simplifications that leave other algebraic
+-    components untouched, consider using :func:`~sympy.simplify.fu.fu`.
++    ``trigsimp`` simplifies trigonometric and hyperbolic expressions. Terms
++    of a sum that contain no trigonometric functions and that do not take
++    part in a trigonometric identity with the other terms are left untouched.
+ 
+     Parameters
+     ==========
+@@ -518,20 +513,12 @@ def trigsimp(expr, inverse=False, **opts):
+     >>> trigsimp(log(e))
+     log(2)
+ 
+-    Note that `trigsimp` also performs general algebraic simplifications on
+-    non-trigonometric parts of the expression:
++    Non-trigonometric terms that are unrelated to the trigonometric
++    identity are not modified:
+ 
+     >>> x = Symbol('x')
+     >>> expr = (x**2 - 1)/(x - 1) + sin(x)**2 + cos(x)**2
+     >>> trigsimp(expr)
+-    x + 2
+-
+-    For a more targeted trigonometric simplification, such as only simplifying
+-    `sin(x)**2 + cos(x)**2` to `1` without affecting `(x**2 - 1)/(x - 1)`,
+-    you can use functions from the `sympy.simplify.fu` module:
+-
+-    >>> from sympy.simplify.fu import TR5
+-    >>> TR5(expr)
+     1 + (x**2 - 1)/(x - 1)
+ 
+     Using ``method='groebner'`` (or ``method='combined'``) might lead to
+@@ -1203,6 +1190,36 @@ def futrig(e, *, hyper=True, **kwargs):
+     return e
+ 
+ 
++def _split_inert_terms(e):
++    """Split the Add ``e`` into ``(inert, rest)`` where ``inert`` is the sum
++    of the terms that are free of trigonometric functions and cannot take
++    part in a trigonometric identity with the remaining terms (``rest``).
++
++    A trig-free term takes part in an identity when its non-numeric part
++    matches the trig-free coefficient of a term containing trig functions
++    (e.g. the ``1`` in ``1 - cos(x)**2`` or the ``x**2`` in
++    ``x**2 - x**2*cos(x)**2``).
++    """
++    if not e.is_commutative:
++        return S.Zero, e
++    ind, dep = e.as_independent(TrigonometricFunction, as_Add=True)
++    if ind is S.Zero:
++        return S.Zero, e
++    keys = set()
++    for t in Add.make_args(dep):
++        c = t.as_independent(TrigonometricFunction)[0]
++        for ci in Add.make_args(expand_mul(c)) + (c,):
++            keys.add(ci.as_coeff_Mul()[1])
++    inert = []
++    rest = [dep]
++    for t in Add.make_args(ind):
++        if t.as_coeff_Mul()[1] in keys:
++            rest.append(t)
++        else:
++            inert.append(t)
++    return Add(*inert), Add(*rest)
++
++
+ def _futrig(e):
+     """Helper for futrig."""
+     from sympy.simplify.fu import (
+@@ -1213,8 +1230,11 @@ def _futrig(e):
+     if not e.has(TrigonometricFunction):
+         return e
+ 
++    coeff_is_factor = e.is_Mul
+     if e.is_Mul:
+         coeff, e = e.as_independent(TrigonometricFunction)
++    elif e.is_Add:
++        coeff, e = _split_inert_terms(e)
+     else:
+         coeff = None
+ 
+@@ -1261,7 +1281,7 @@ def _futrig(e):
+     e = greedy(tree, objective=Lops)(e)
+ 
+     if coeff is not None:
+-        e = coeff * e
++        e = coeff*e if coeff_is_factor else coeff + e
+ 
+     return e
+ 

@@ -1,0 +1,82 @@
+[
+ {
+  "tool": "hook",
+  "seconds": 12.19,
+  "at": 1791954781.2,
+  "detail": "before ./rt"
+ },
+ {
+  "tool": "rt",
+  "seconds": 1.58,
+  "at": 1791954888.4,
+  "labels": [
+   "queries",
+   "expressions",
+   "annotations",
+   "aggregation"
+  ],
+  "problems": [],
+  "ran": 964,
+  "failed": [
+   "queries.tests.Queries1Tests.test_subquery_condition"
+  ]
+ },
+ {
+  "tool": "hook",
+  "seconds": 25.64,
+  "at": 1791954914.2,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "hook",
+  "seconds": 28.35,
+  "at": 1791955044.0,
+  "detail": "after edit"
+ },
+ {
+  "tool": "rt",
+  "seconds": 124.83,
+  "at": 1791955173.4,
+  "labels": [],
+  "problems": [],
+  "ran": 19043,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option",
+   "filtered_relation.tests.FilteredRelationTests.test_internal_queryset_alias_mapping"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.52,
+  "at": 1791955180.4,
+  "labels": [
+   "filtered_relation"
+  ],
+  "problems": [],
+  "ran": 63,
+  "failed": []
+ },
+ {
+  "tool": "hook",
+  "seconds": 25.36,
+  "at": 1791955206.0,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 115.15,
+  "at": 1791955327.9,
+  "labels": [],
+  "problems": [],
+  "ran": 19044,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ },
+ {
+  "tool": "hook",
+  "seconds": 23.97,
+  "at": 1791955352.0,
+  "detail": "after Bash"
+ }
+]

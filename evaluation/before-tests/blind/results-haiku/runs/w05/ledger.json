@@ -1,0 +1,37 @@
+[
+ {
+  "tool": "rt",
+  "seconds": 2.68,
+  "at": 1791972009.7,
+  "labels": [
+   "mail",
+   "logging_tests"
+  ],
+  "problems": [],
+  "ran": 310,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 18.44,
+  "at": 1791972033.6,
+  "labels": [
+   "auth_tests",
+   "middleware"
+  ],
+  "problems": [],
+  "ran": 967,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 178.2,
+  "at": 1791972218.4,
+  "labels": [],
+  "problems": [],
+  "ran": 19038,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ }
+]

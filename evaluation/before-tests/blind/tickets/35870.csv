@@ -1,0 +1,27 @@
+﻿id,summary,reporter,owner,description,type,status,component,version,severity,resolution,keywords,cc,stage,has_patch,needs_docs,needs_tests,needs_better_patch,easy,ui_ux
+35870,Allow customization of the blank option in select dropdowns,Marijke Luttekes,Annabelle Wiegart,"Select dropdown inputs (`<select>`) may have an empty first choice meant to leave a blank value or inform the user that they need to pick an option.
+
+The default current value for this option is `""---------""` and cannot be customized for the entire project at once. A developer must override each form field individually if they wish to change this value on their website, which is tedious and prone to errors.
+
+The empty choice value is defined as `BLANK_CHOICE_DASH` in [https://github.com/django/django/blob/main/django/db/models/fields/__init__.py django.db.models.fields].
+
+== Accessibility
+
+The current blank option is also inaccessible; I quote this description from a private ticket that was assigned to me, and therefore cannot be linked directly:
+
+> **Problem**
+> 
+> Whenever a <select> dropdown has no option selected by default, a line of dashes is used inside of an <option>. The majority of screen reader/speech synthesiser combinations don't speak this, and so it can be confusing to hear essentially nothing. This is particularly true when navigating to the first choice from an option with text.
+> 
+> **Solution**
+> 
+> Use a more perceivable placeholder string for the first option, e.g. ""(select an option)"", using parentheses to disrupt first-letter keyboard navigation as little as possible.
+
+== Proposed change
+
+I foresee two options:
+
+1. Replace `BLANK_CHOICE_DASH` with a new, optional setting, which allows users to set the blank option for their project. For backwards compatibility, the default value of the new setting equals `""---------""`.
+2. Replace `BLANK_CHOICE_DASH` with a new, more descriptive value in core.
+
+Option 1 will be less disruptive, as this will not break existing behaviors. Option 2 will fix this problem for all users, but it would require translations for every language we offer.",Bug,closed,Forms,5.0,Normal,fixed,accessibility,Marijke Luttekes Annabelle Wiegart,Ready for checkin,1,0,0,0,0,0

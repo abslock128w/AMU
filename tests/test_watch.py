@@ -49,9 +49,12 @@ def test_live_watch_updates_state_json(fake_entire, tmp_path):
                                   "nodes": [{**n, "symbol": None, "risk": "unknown", "feature": "F", "order": 1, "action": "edit", "via": None, "reason": "r"} for n in MAP["nodes"]]}, str(tmp_path))
 
     def edit():
-        time.sleep(1.0)
-        (tmp_path / "b.py").write_text("x = 2\n")
+        # The watcher snapshots the tree once it has started, and a slow runner can take seconds to import it; an edit
+        # before that snapshot is never seen. Keep editing through the window so at least one lands after it.
+        for value in range(2, 8):
+            time.sleep(1.0)
+            (tmp_path / "b.py").write_text(f"x = {value}\n")
     threading.Thread(target=edit, daemon=True).start()
-    r = subprocess.run([sys.executable, "-m", "amu.cli", "watch", "--phase", "1", "--no-live", "--seconds", "3"], cwd=tmp_path, capture_output=True, text=True, timeout=30)
+    r = subprocess.run([sys.executable, "-m", "amu.cli", "watch", "--phase", "1", "--no-live", "--seconds", "8"], cwd=tmp_path, capture_output=True, text=True, timeout=60)
     st = json.loads((tmp_path / ".amu" / "state.json").read_text())
     assert st["nodes"].get("n1") == "drift", r.stdout + r.stderr

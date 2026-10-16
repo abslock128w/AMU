@@ -14,6 +14,27 @@ from pathlib import Path
 VERBOSE = re.compile(r'^(\w+) \(([\w.]+)\)')
 STATE = re.compile(r'\.\.\. (ok|FAIL|ERROR|skipped|expected failure|unexpected success)')
 ORDER = {'failed': 3, 'passed': 2, 'skipped': 1}
+MAX_SPLITS = 12  # extra runner starts allowed to isolate labels that abort a batch
+EXCEPTION = re.compile(r'^([A-Za-z_][\w.]*(Error|Exception|Exit|Interrupt|Warning)|LookupError|KeyError)\b.*')
+FRAME = re.compile(r'^\s*File "([^"]+)", line (\d+)')
+DESELECTED = re.compile(r'\b\d+ deselected\b')
+
+
+def abort_reason(output, tree):
+    """The runner's own last exception line, with the deepest frame inside the tree when there is one."""
+    # pytest prints the underlying exception indented after "E", below its own summary line.
+    lines = [re.sub(r'^E\s+', '', line.strip()) for line in output.strip().splitlines()]
+    exception = next((line for line in reversed(lines) if EXCEPTION.match(line)), None)
+    if exception is None:
+        return (lines[-1].strip() if lines else 'no output')[:300]
+    where = None
+    roots = sorted({str(Path(tree)), str(Path(tree).resolve())}, key=len, reverse=True)
+    for line in lines:
+        frame = FRAME.match(line)
+        root = next((r for r in roots if frame and frame[1].startswith(r + '/')), None)
+        if root and '/tests/runtests.py' not in frame[1]:
+            where = f'{frame[1][len(root) + 1:]}:{frame[2]}'
+    return (exception[:300] + (f' (at {where})' if where else ''))
 
 
 def dotted(ident, strip=''):
@@ -25,6 +46,7 @@ def dotted(ident, strip=''):
 class Runner:
     name = 'pytest'
     needs_class = False
+    parallel = False  # whether several processes may run tests in the same tree at once
 
     def label(self, ident):
         return ident
@@ -37,6 +59,16 @@ class Runner:
 
     def paste(self, ident):
         return 'python -m pytest ' + self.label(ident)
+
+    def selected(self, python, tree, ids, env, timeout):
+        """The ids pytest still selects under the project's own configuration (a marker filter in addopts deselects
+        tests even when they are named); None when that cannot be read."""
+        try:
+            done = subprocess.run([python, '-m', 'pytest', '--collect-only', '-q', '-p', 'no:cacheprovider', *[self.label(i) for i in ids]],
+                                  cwd=self.cwd(tree), env=env, capture_output=True, timeout=timeout, stdin=subprocess.DEVNULL)
+        except (subprocess.TimeoutExpired, OSError):
+            return None
+        return {re.sub(r'\[.*\]$', '', line.strip()) for line in done.stdout.decode(errors='replace').splitlines() if '::' in line}
 
     def outcomes(self, tree, output, report, ids):
         found = {}
@@ -100,6 +132,7 @@ class Unittest(Runner):
 class DjangoRuntests(Unittest):
     name = 'django-runtests'
     strip = 'tests/'
+    parallel = True  # each process gets its own in-memory test databases
 
     def cwd(self, tree):
         return tree/'tests'
@@ -162,9 +195,10 @@ def execute(runner, python, tree, ids, report, timeout):
     env = dict(os.environ, PYTHONDONTWRITEBYTECODE='1',
                PYTHONPATH=os.pathsep.join(filter(None, [str(tree/'src'), str(tree), os.environ.get('PYTHONPATH')])))
     found, problem = {}, None
-    # One batch first. A single unloadable label can abort a unittest-style batch, so what is
-    # left without an outcome is retried one test file at a time.
-    batches = [usable]
+    # One batch first. A single label the runner cannot load can abort the whole batch and leave it with
+    # no outcomes, so a batch that comes back short is split in two and retried until the labels that
+    # cannot be run stand alone. Those are returned as 'unrunnable': never silently as "did not fail".
+    batches, splits = [usable], 0
     while batches:
         batch = batches.pop(0)
         try:
@@ -178,12 +212,55 @@ def execute(runner, python, tree, ids, report, timeout):
         got = runner.outcomes(tree, output, report, batch)
         found.update(got)
         missing = [i for i in batch if i not in got]
-        if not got and batch is usable and len({i.split('::')[0] for i in batch}) == 1:
-            tail = output.strip().splitlines()[-1:] or ['no output']
-            problem = 'no outcomes read: ' + tail[0][:120]
-        elif missing and batch is usable and runner.needs_class:
-            files = {}
+        if missing and runner.name == 'pytest' and DESELECTED.search(output):
+            # Deselected by the project's configuration, not lost to an abort: skipped, and not split to find out.
+            kept = runner.selected(python, tree, missing, env, timeout)
+            if kept is not None:
+                found.update({ident: 'skipped' for ident in missing if ident not in kept})
+                missing = [ident for ident in missing if ident in kept]
+        if not missing:
+            continue
+        if batch is usable and not got:
+            first_error = abort_reason(output, tree)
+        elif (not got and splits and len(batch) > 1 and not any(state != 'unrunnable' for state in found.values())
+              and abort_reason(output, tree) == locals().get('first_error')):
+            # Half a batch failing exactly as the whole batch did: the runner aborts before any test, whatever
+            # the labels. Splitting further only restarts it; every remaining candidate is unrunnable.
+            for ident in [*missing, *(i for rest in batches for i in rest)]:
+                found[ident] = 'unrunnable'
+            batches = []
+            continue
+        if len(missing) == 1 or splits >= MAX_SPLITS:
             for ident in missing:
-                files.setdefault(ident.split('::')[0], []).append(ident)
-            batches.extend(files.values())
+                found[ident] = 'unrunnable'
+            continue
+        splits += 1
+        half = len(missing) // 2
+        batches.extend([missing[:half], missing[half:]])
+    if usable and all(found.get(i) == 'unrunnable' for i in usable):
+        problem = 'no outcomes read: ' + locals().get('first_error', 'the runner produced no result for any candidate')
     return found, problem
+
+
+def evident(root):
+    """Whether the tree visibly has tests to run: a runner entry point or at least one test module, in a top-level
+    tests directory or in a package's own (sympy/core/tests/test_basic.py). Hidden directories are not searched."""
+    root = Path(root)
+    if (root/'tests'/'runtests.py').is_file() or any(root.glob('tests/**/test*.py')) or any(root.glob('test_*.py')):
+        return True
+    for folder, dirs, files in os.walk(root):
+        dirs[:] = [d for d in dirs if not d.startswith('.') and d not in ('node_modules', '__pycache__')]
+        if 'tests.py' in files or (Path(folder).name == 'tests' and any(f.startswith('test_') and f.endswith('.py') for f in files)):
+            return True
+    return False
+
+
+def interpreter(root):
+    """The project's own interpreter when one is visible, else the one running AMU."""
+    import sys
+    root = Path(root)
+    for candidate in filter(None, [os.environ.get('VIRTUAL_ENV') and Path(os.environ['VIRTUAL_ENV'])/'bin'/'python',
+                                   root/'.venv'/'bin'/'python', root/'venv'/'bin'/'python']):
+        if Path(candidate).is_file():
+            return str(candidate)
+    return sys.executable

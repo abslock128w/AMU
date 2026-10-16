@@ -1,0 +1,94 @@
+[
+ {
+  "tool": "hook",
+  "seconds": 1.0,
+  "at": 1792060891.0,
+  "detail": "before ./rt"
+ },
+ {
+  "tool": "hook",
+  "seconds": 29.76,
+  "at": 1792062816.1,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "hook",
+  "seconds": 30.35,
+  "at": 1792063557.7,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "hook",
+  "seconds": 15.4,
+  "at": 1792063586.2,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 1.97,
+  "at": 1792063591.5,
+  "labels": [
+   "sympy/printing/tests/test_latex.py"
+  ],
+  "k": [
+   "Elementwise"
+  ],
+  "problems": [],
+  "ran": 2,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 1.92,
+  "at": 1792063593.5,
+  "labels": [
+   "sympy/printing/pretty/tests/test_pretty.py"
+  ],
+  "k": [
+   "MatrixExpressions"
+  ],
+  "problems": [],
+  "ran": 1,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 2.12,
+  "at": 1792063595.6,
+  "labels": [
+   "sympy/printing/tests/test_conventions.py",
+   "sympy/printing/tests/test_str.py"
+  ],
+  "k": null,
+  "problems": [],
+  "ran": 115,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 2.8,
+  "at": 1792063600.9,
+  "labels": [
+   "sympy/printing/tests/test_latex.py",
+   "sympy/printing/tests/test_repr.py"
+  ],
+  "k": null,
+  "problems": [],
+  "ran": 224,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 8.23,
+  "at": 1792063610.8,
+  "labels": [
+   "sympy/printing/pretty",
+   "sympy/tensor/array/expressions",
+   "sympy/matrices/expressions"
+  ],
+  "k": null,
+  "problems": [],
+  "ran": 564,
+  "failed": []
+ }
+]

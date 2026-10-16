@@ -1,6 +1,7 @@
 import difflib
 import json
 import subprocess
+import time
 
 from amu.core import LIMIT, analyze, encoded
 from amu.core.index import build
@@ -185,6 +186,26 @@ def test_exception_chain_is_reported_only_through_located_handlers(tmp_path):
     assert [step.split(' ')[0] for step in row['path']] == ['conv.py:7', 'match.py:7', 'app.py:7']
 
 
+def test_exception_walk_on_a_dense_call_graph_is_bounded(tmp_path):
+    # Four layers of 60 functions, each calling every function below: 13 million caller paths, 241 nodes.
+    # A walk without a memo spent 11 s here (and the whole hook budget on sympy's ArrayAdd).
+    source = 'class Invalid(Exception):\n    pass\ndef convert(v):\n    return int(v)\n'
+    files, below, module = {'conv.py': source}, ['convert'], 'conv'
+    for layer in range(4):
+        names = [f'f{layer}_{i}' for i in range(60)]
+        files[f'layer{layer}.py'] = f'from {module} import {", ".join(below)}\n' + ''.join(
+            f'def {name}(v):\n' + ''.join(f'    {callee}(v)\n' for callee in below) + '    return v\n' for name in names)
+        below, module = names, f'layer{layer}'
+    files['top.py'] = ('from conv import Invalid\nfrom layer2 import f2_0\nclass Stop(Exception):\n    pass\n'
+                       'def top(v):\n    try:\n        return f2_0(v)\n    except Invalid:\n        raise Stop()\n')
+    repository(tmp_path, files)
+    run(tmp_path, 'conv.py', source, source)  # index outside the timed call
+    started = time.perf_counter()
+    result = run(tmp_path, 'conv.py', source, source.replace('    return int(v)\n', '    raise Invalid(v)\n'))
+    assert time.perf_counter() - started < 3
+    assert [(row['from'], row['to']) for row in result['consequences']] == [('convert raises Invalid', 'top raises Stop')]
+
+
 def test_no_consequence_without_a_located_consumer(tmp_path):
     source = 'def convert(v):\n    return int(v)\n'
     repository(tmp_path, {'conv.py': source})
@@ -247,7 +268,7 @@ def test_default_packet_stays_under_two_kilobytes_and_keeps_ten_tests(tmp_path):
                           'tests/integration/test_library_module_operations.py': tests})
     result = analyze(tmp_path, patch('package_with_long_name/library_module.py', source, source.replace('return 1', 'return 2')), index_dir=tmp_path/'.index', include_tests=True)
     assert len(encoded(result)) < LIMIT and len(json.dumps(result, separators=(',', ':')).encode()) < LIMIT
-    assert len(result['tests']) == 10 and set(result) >= {'summary', 'changed_symbols', 'untested', 'tests', 'consequences', 'gaps', 'caveats', 'report_hash'}
+    assert len(result['tests']) == 10 and set(result) >= {'summary', 'changed_symbols', 'tests', 'consequences', 'gaps', 'caveats', 'report_hash'}
     assert list(result)[0] == 'summary'
 
 
@@ -363,7 +384,7 @@ def test_changed_function_nothing_reaches_is_reported_untested(tmp_path):
     assert result['untested'] == [dict(symbol='orphan', file='lib.py', lines='6', basis='static_only')]
     assert run(tmp_path, 'lib.py', source, source.replace('return 1', 'return 5'))['untested'] == []
     default = analyze(tmp_path, patch('lib.py', source, source.replace('return 2', 'return 3')), index_dir=tmp_path/'.index')
-    assert default['untested'] == [] and default['summary'].startswith('0 likely_fail, 0 untested'), 'static-only rows stay out of the default packet'
+    assert 'untested' not in default and default['summary'].startswith('0 likely_fail, '), 'untested rows stay out of the default packet'
 
 
 def test_test_expecting_a_removed_warning_is_likely_to_fail(tmp_path):
@@ -405,7 +426,7 @@ def test_shadow_execution_reports_exactly_the_tests_that_flip(tmp_path):
             (tmp_path/'lib.py').write_text(changed)
         result = analyze(tmp_path, patch('lib.py', source, changed), index_dir=tmp_path/'.index', run=True, python=sys.executable)
         assert result['predicted_failures'] == ['tests/test_lib.py::test_work'], result
-        assert result['summary'].startswith('EXECUTED 2 candidate tests') and '1 now fail' in result['summary']
+        assert result['summary'].startswith('EXECUTED 2 of 2 candidate tests after the change') and '1 now fail' in result['summary']
         assert result['tests'] == []
 
 
@@ -484,3 +505,564 @@ def test_edited_tree_relinks_only_changed_files_and_matches_a_full_rebuild(tmp_p
     rebuilt = analyze(tmp_path, diff, index_dir=tmp_path/'.fresh', include_tests=True)
     assert any('relinked' in gap for gap in relinked['gaps']) and not any('relinked' in gap for gap in rebuilt['gaps'])
     assert ids(relinked) == ids(rebuilt) and set(ids(relinked)) == {'tests/test_x.py::test_call', 'tests/test_x.py::test_other'}
+
+
+def test_own_uncommitted_change_is_executed_by_default_and_flips_come_first(tmp_path):
+    import sys
+    source = 'def work():\n    return 1\n'
+    repository(tmp_path, {'lib.py': source, 'tests/test_lib.py': 'from lib import work\ndef test_exact():\n    assert work() == 1\ndef test_loose():\n    assert work()\n'})
+    git = ['git', '-C', str(tmp_path), '-c', 'user.email=a@b.c', '-c', 'user.name=a']
+    for args in (['init', '-q'], ['add', '.'], ['commit', '-qm', 'base']):
+        subprocess.run([*git, *args], check=True)
+    (tmp_path/'lib.py').write_text(source.replace('1', '2'))
+    result = analyze(tmp_path, index_dir=tmp_path/'.index', python=sys.executable)
+    assert list(result)[:3] == ['flips', 'predicted_failures', 'gaps'] and result['flips'] == 1
+    assert result['predicted_failures'] == ['tests/test_lib.py::test_exact']
+    static = analyze(tmp_path, index_dir=tmp_path/'.index', run=False)
+    assert 'flips' not in static and list(static)[0] == 'summary'
+    supplied = analyze(tmp_path, patch('lib.py', source, source.replace('1', '2')), index_dir=tmp_path/'.index')
+    assert 'flips' not in supplied, 'a supplied patch is not executed unless asked'
+
+
+def test_nothing_executed_is_not_reported_as_zero_failures(tmp_path):
+    source = 'def work():\n    return 1\n'
+    repository(tmp_path, {'lib.py': source, 'tests/test_lib.py': 'from lib import work\ndef test_exact():\n    assert work() == 1\n'})
+    result = analyze(tmp_path, patch('lib.py', source, source.replace('1', '2')), index_dir=tmp_path/'.index', run=True, python='/nonexistent/python')
+    assert result['flips'] is None and result['summary'].startswith('NOT EXECUTED') and any('shadow run' in gap for gap in result['gaps'])
+
+
+def test_recording_attributes_inherited_tests_and_child_processes(tmp_path):
+    import sys
+
+    import pytest
+    pytest.importorskip('coverage')
+    from amu.core import observe
+    source = 'def direct():\n    return 1\n\n\ndef from_child():\n    return 2\n\n\ndef orphan():\n    return 3\n'
+    tests = ('import subprocess, sys, unittest\nimport lib\n'
+             'class Base(unittest.TestCase):\n    def test_direct(self):\n        self.assertEqual(lib.direct(), 1)\n'
+             'class Variant(Base):\n    pass\n'
+             'class Spawns(unittest.TestCase):\n    def test_child(self):\n'
+             '        out = subprocess.run([sys.executable, "-c", "import lib; print(lib.from_child())"], capture_output=True, text=True)\n'
+             '        self.assertEqual(out.stdout.strip(), "2")\n')
+    repository(tmp_path, {'lib.py': source, 'tests/__init__.py': '', 'tests/test_a.py': tests})
+    info = observe.record(tmp_path, sys.executable, index_dir=tmp_path/'.index')
+    assert not info['gaps'] and info['tests'] >= 2 and info['links_only_through_child_processes'] >= 1, info
+    changed = source.replace('return 2', 'return 20').replace('return 3', 'return 30')
+    result = analyze(tmp_path, patch('lib.py', source, changed), index_dir=tmp_path/'.index', full_evidence=True)
+    assert result['coverage']['evidence'] == 'recording'
+    by_id = {r['id']: r for r in result['tests']}
+    assert by_id['tests/test_a.py::Spawns::test_child']['confidence'] == 'observed', 'a test that only reaches the code through a child process'
+    assert result['untested'] == [dict(symbol='orphan', file='lib.py', lines='10', basis='coverage')]
+    flips = analyze(tmp_path, patch('lib.py', source, source.replace('return 1', 'return 9')), index_dir=tmp_path/'.index', run=True, python=sys.executable)
+    assert sorted(flips['predicted_failures']) == ['python -m unittest tests.test_a.Base.test_direct', 'python -m unittest tests.test_a.Variant.test_direct']
+
+
+def test_recorded_lines_follow_the_file_through_edits_made_after_the_recording(tmp_path):
+    import sys
+
+    import pytest
+    pytest.importorskip('coverage')
+    from amu.core import observe
+    source = 'def parse(v):\n    if v:\n        return 1\n    return 2\n'
+    tests = ('import unittest\nimport lib\nclass T(unittest.TestCase):\n'
+             '    def test_truthy(self):\n        self.assertEqual(lib.parse(1), 1)\n'
+             '    def test_falsy(self):\n        self.assertEqual(lib.parse(0), 2)\n')
+    repository(tmp_path, {'lib.py': source, 'tests/__init__.py': '', 'tests/test_a.py': tests})
+    assert not observe.record(tmp_path, sys.executable, index_dir=tmp_path/'.index')['gaps']
+    # Someone else edits the file after the recording: every line moves down.
+    later = '"""A docstring added later."""\nimport os\n\n\n' + source
+    (tmp_path/'lib.py').write_text(later)
+    result = analyze(tmp_path, patch('lib.py', later, later.replace('return 2', 'return 3')), index_dir=tmp_path/'.index', full_evidence=True)
+    assert result['coverage']['edited_since'] == 1
+    first = result['tests'][0]
+    assert first['id'] == 'tests/test_a.py::T::test_falsy' and 'ran the changed lines of parse' in first['why'], result['tests']
+    flips = analyze(tmp_path, patch('lib.py', later, later.replace('return 2', 'return 3')), index_dir=tmp_path/'.index', run=True, python=sys.executable)
+    assert flips['predicted_failures'] == ['python -m unittest tests.test_a.T.test_falsy'] and flips['flips'] == 1
+
+
+def test_test_method_on_a_mixin_is_run_in_its_concrete_subclasses_not_reported_as_all_clear(tmp_path):
+    import sys
+    source = 'def key(v):\n    return "k:" + v\n'
+    tests = ('import unittest\nimport lib\n'
+             'class KeyTestsMixin:\n    def test_key(self):\n        self.assertEqual(lib.key("a"), "k:a")\n'
+             'class LocalKeyTests(KeyTestsMixin, unittest.TestCase):\n    pass\n'
+             'class RemoteKeyTests(KeyTestsMixin, unittest.TestCase):\n    pass\n')
+    repository(tmp_path, {'lib.py': source, 'tests/__init__.py': '', 'tests/test_a.py': tests})
+    result = analyze(tmp_path, patch('lib.py', source, source.replace('"k:"', '"key:"')), index_dir=tmp_path/'.index', run=True, python=sys.executable)
+    assert sorted(result['predicted_failures']) == ['python -m unittest tests.test_a.LocalKeyTests.test_key',
+                                                    'python -m unittest tests.test_a.RemoteKeyTests.test_key'], result
+    assert result['flips'] == 2 and 'EXECUTED 2 of 2' in result['summary']
+
+
+def test_label_that_aborts_the_runner_is_isolated_and_reported(tmp_path):
+    import sys
+
+    from amu.core import runners
+    tests = ('import unittest\nclass Mixin:\n    def test_mixin(self):\n        pass\n'
+             'class Real(unittest.TestCase):\n    def test_ok(self):\n        pass\n    def test_bad(self):\n        self.fail("x")\n')
+    repository(tmp_path, {'tests/__init__.py': '', 'tests/test_a.py': tests})
+    ids = ['tests/test_a.py::Real::test_ok', 'tests/test_a.py::Mixin::test_mixin', 'tests/test_a.py::Real::test_bad']
+    found, problem = runners.execute(runners.get(tmp_path, 'unittest'), sys.executable, tmp_path, ids, tmp_path/'r.xml', 60)
+    assert found == {'tests/test_a.py::Real::test_ok': 'passed', 'tests/test_a.py::Mixin::test_mixin': 'unrunnable',
+                     'tests/test_a.py::Real::test_bad': 'failed'} and problem is None
+
+
+def test_original_rebuilds_a_file_whose_hunk_starts_with_inserted_lines(tmp_path):
+    """New imports at the top of a file: the parent side must still be rebuilt (blind trial, w07)."""
+    from amu.core.patch import changes, original
+    before = 'import os\nimport re\nimport sys\n\n\ndef f():\n    return 1\n'
+    after = 'from unittest import mock\n\nimport os\nimport re\nimport sys\n\n\ndef f():\n    return 2\n'
+    (tmp_path/'m.py').write_text(after)
+    patch = ('--- a/m.py\n+++ b/m.py\n@@ -1,3 +1,5 @@\n+from unittest import mock\n+\n import os\n import re\n import sys\n'
+             '@@ -4,4 +6,4 @@ import sys\n \n \n def f():\n-    return 1\n+    return 2\n')
+    edits, _ = changes(tmp_path, patch)
+    assert original(tmp_path, 'm.py', edits['m.py']) == before
+
+
+def test_runner_reason_names_the_exception_and_the_frame_in_the_tree(tmp_path):
+    from amu.core.runners import abort_reason
+    output = ('Traceback (most recent call last):\n'
+              f'  File "{tmp_path}/tests/runtests.py", line 782, in <module>\n'
+              f'  File "{tmp_path}/django/contrib/sites/checks.py", line 11, in check_site_id\n'
+              '    Site = apps.get_model("sites", "Site")\n'
+              f'  File "{tmp_path}/django/apps/registry.py", line 165, in get_app_config\n'
+              "LookupError: No installed app with label 'sites'.\n")
+    assert abort_reason(output, tmp_path) == "LookupError: No installed app with label 'sites'. (at django/apps/registry.py:165)"
+
+
+def test_a_runner_that_aborts_only_on_the_changed_code_is_a_failure(tmp_path):
+    """Blind trial w04 and w07: nothing ran after the change. That is the change's failure, not a gap."""
+    from pathlib import Path
+
+    from amu.core import runners, shadow
+    from amu.core.patch import changes
+    (tmp_path/'tests').mkdir()
+    (tmp_path/'tests'/'test_lib.py').write_text('import unittest\n\nclass T(unittest.TestCase):\n    def test_a(self):\n        pass\n')
+    (tmp_path/'lib.py').write_text('VALUE = 2\n')
+    patch = '--- a/lib.py\n+++ b/lib.py\n@@ -1 +1 @@\n-VALUE = 1\n+VALUE = 2\n'
+    edits, _ = changes(tmp_path, patch)
+    real = runners.execute
+
+    def fake(runner, python, tree, ids, report, timeout):
+        if Path(tree) == tmp_path:
+            return {i: 'unrunnable' for i in ids}, "no outcomes read: NameError: name 'VALUE' is not defined (at lib.py:1)"
+        return {i: 'passed' for i in ids}, None
+    runners.execute = fake
+    try:
+        rows, info, gaps = shadow.run(tmp_path, edits, ['tests/test_lib.py::T::test_a'], runner='unittest')
+    finally:
+        runners.execute = real
+    assert rows == []
+    assert info['aborted'] == dict(error="NameError: name 'VALUE' is not defined (at lib.py:1)", ran_before=1, probed=1)
+
+
+def test_parallel_parts_cover_every_candidate_once(tmp_path):
+    from amu.core import runners, shadow
+    seen, real = [], runners.execute
+
+    def fake(runner, python, tree, ids, report, timeout):
+        seen.append(list(ids))
+        return {i: 'passed' for i in ids}, None
+    runners.execute = fake
+    try:
+        found, problems = shadow.execute(runners.get(tmp_path, 'django-runtests'), 'python', tmp_path, [f't{i}' for i in range(10)], tmp_path, 'after', 5, 4)
+    finally:
+        runners.execute = real
+    assert len(seen) == 4 and sorted(i for part in seen for i in part) == sorted(f't{i}' for i in range(10))
+    assert found == {f't{i}': 'passed' for i in range(10)} and problems == []
+
+
+def test_remembered_outcomes_before_the_change_expire_with_the_commit(tmp_path):
+    import json
+
+    from amu.core.shadow import load_memo
+    memo = tmp_path/'memo.json'
+    memo.write_text(json.dumps(dict(key='a', before={'t': 'passed'}, rate=12.0)))
+    assert load_memo(memo, 'a')['before'] == {'t': 'passed'}
+    assert load_memo(memo, 'b') == dict(key='b', before={}, rate=12.0)
+
+
+def test_a_failing_test_made_to_pass_by_editing_it_stays_listed(tmp_path):
+    """Blind trial, Haiku w21: the agent edited the two flagged tests instead of its code."""
+    import sys
+
+    source = 'def work():\n    return 1\n\n\ndef other():\n    return 5\n'
+    changed = source.replace('return 1', 'return 2')
+    tests = 'from lib import work, other\ndef test_work():\n    assert work() == 1\ndef test_other():\n    assert other() == 5\n'
+    edited = tests.replace('assert work() == 1', 'assert work() == 2')
+    repository(tmp_path, {'lib.py': changed, 'tests/test_lib.py': edited})
+    diff = patch('lib.py', source, changed) + patch('tests/test_lib.py', tests, edited)
+    result = analyze(tmp_path, diff, index_dir=tmp_path/'.index', run=True, python=sys.executable, full_evidence=True)
+    flagged = {row['id']: row['label'] for row in result['predicted_failures']}
+    assert flagged == {'tests/test_lib.py::test_work': 'test edited, not fixed'}, result
+    assert 'test edited, not fixed' in result['summary'] and 'also run as they were before the edit' in result['summary'], result['summary']
+    assert result['original_tests']['tests/test_lib.py::test_work'] == 'failed'
+    compact = analyze(tmp_path, diff, index_dir=tmp_path/'.index', run=True, python=sys.executable)
+    assert compact['predicted_failures'] == ['tests/test_lib.py::test_work'], compact
+    assert compact['test_edited_not_fixed'] == ['tests/test_lib.py::test_work'], compact
+    # A change that breaks nothing, with an unrelated edit in the same test file, flags nothing.
+    harmless = source.replace('return 5', 'return 2 + 3')
+    added = tests + 'def test_new():\n    assert other() == 5\n'
+    repository(tmp_path, {'lib.py': harmless, 'tests/test_lib.py': added})
+    quiet = analyze(tmp_path, patch('lib.py', source, harmless) + patch('tests/test_lib.py', tests, added), index_dir=tmp_path/'.index',
+                    run=True, python=sys.executable, full_evidence=True)
+    assert quiet['predicted_failures'] == [] and quiet['flips'] == 0, quiet
+    assert quiet['original_tests'] == {'tests/test_lib.py::test_other': 'passed'}, quiet.get('original_tests')
+
+
+def test_a_flip_that_does_not_repeat_is_unstable_not_a_failure(tmp_path):
+    import sys
+
+    marker = tmp_path/'failed-once'
+    source = 'def flag():\n    return 1\n'
+    changed = 'def flag():\n    return 2\n'
+    tests = ('import pathlib\nfrom lib import flag\n'
+             f'MARK = pathlib.Path({str(marker)!r})\n'
+             'def test_flaky():\n    if flag() == 2 and not MARK.exists():\n        MARK.write_text("x")\n        assert False\n'
+             'def test_steady():\n    assert flag() == 1\n')
+    repository(tmp_path, {'lib.py': changed, 'tests/test_lib.py': tests})
+    result = analyze(tmp_path, patch('lib.py', source, changed), index_dir=tmp_path/'.index', run=True, python=sys.executable)
+    assert result['predicted_failures'] == ['tests/test_lib.py::test_steady'], result
+    assert result['unstable'] == ['tests/test_lib.py::test_flaky'] and 'unstable, not counted' in result['summary'], result
+
+
+def _shadow(tmp_path, files_before, files_after, ids, runner='pytest'):
+    """shadow.run on a tree that holds ``files_after``, with the change from ``files_before``."""
+    import sys
+
+    from amu.core import shadow
+    from amu.core.patch import changes
+    repository(tmp_path, files_after)
+    diff = ''.join(patch(path, files_before.get(path, ''), files_after.get(path, '')) for path in files_after if files_before.get(path) != files_after[path])
+    edits, _ = changes(tmp_path, diff)
+    return shadow.run(tmp_path, edits, ids, python=sys.executable, runner=runner)
+
+
+def test_new_tests_in_an_edited_file_do_not_hide_an_edited_failing_test(tmp_path):
+    lib0, lib1 = 'def work():\n    return 1\n', 'def work():\n    return 2\n'
+    tests0 = 'from lib import work\ndef test_value():\n    assert work() == 1\n'
+    tests1 = ('from lib import work\ndef test_new_a():\n    assert work() == 2\ndef test_new_b():\n    assert isinstance(work(), int)\n'
+              'def test_value():\n    assert work() == 2\n')
+    rows, info, gaps = _shadow(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests0}, {'lib.py': lib1, 'tests/test_lib.py': tests1},
+                               ['tests/test_lib.py::test_new_a', 'tests/test_lib.py::test_new_b', 'tests/test_lib.py::test_value'])
+    assert [(r['id'], r['label']) for r in rows] == [('tests/test_lib.py::test_value', 'test edited, not fixed')], (rows, gaps)
+
+
+def test_a_renamed_class_or_a_deleted_same_named_method_is_removed_not_an_abort(tmp_path):
+    lib0, lib1 = 'def work():\n    return 1\n', 'def work():\n    return 2\n'
+    tests0 = ('from lib import work\nclass TestA:\n    def test_basic(self):\n        assert work() == 1\n'
+              'class TestB:\n    def test_basic(self):\n        assert work() == 1\n')
+    tests1 = 'from lib import work\nclass TestA:\n    def test_basic(self):\n        assert work() == 2\n'
+    rows, info, gaps = _shadow(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests0}, {'lib.py': lib1, 'tests/test_lib.py': tests1},
+                               ['tests/test_lib.py::TestB::test_basic'])
+    assert 'aborted' not in info, info
+    assert [(r['id'], r['label']) for r in rows] == [('tests/test_lib.py::TestB::test_basic', 'test edited, not fixed')], (rows, gaps)
+    assert any('no longer defined' in g for g in gaps), gaps
+
+
+def test_a_broken_test_module_with_inherited_tests_is_still_a_runner_abort(tmp_path):
+    base = 'class Base:\n    def test_inherited(self):\n        assert True\n'
+    sub0 = 'from tests.base import Base\n\n\nclass TestSub(Base):\n    pass\n'
+    sub1 = 'from tests.base import Base, Nope\n\n\nclass TestSub(Base):\n    pass\n'
+    files = {'tests/__init__.py': '', 'tests/base.py': base}
+    rows, info, gaps = _shadow(tmp_path, {**files, 'tests/test_sub.py': sub0}, {**files, 'tests/test_sub.py': sub1},
+                               ['tests/test_sub.py::TestSub::test_inherited'])
+    assert info.get('aborted') and 'Nope' in info['aborted']['error'], (info, gaps)
+
+
+def test_an_order_dependent_regression_is_not_demoted_to_unstable(tmp_path):
+    lib0 = 'def collect(x, acc=None):\n    acc = [] if acc is None else acc\n    acc.append(x)\n    return acc\n'
+    lib1 = 'def collect(x, acc=[]):\n    acc.append(x)\n    return acc\n'
+    tests = 'from lib import collect\ndef test_p():\n    assert collect(1)\ndef test_t():\n    assert collect(2) == [2]\n'
+    rows, info, gaps = _shadow(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1, 'tests/test_lib.py': tests},
+                               ['tests/test_lib.py::test_p', 'tests/test_lib.py::test_t'])
+    assert [r['id'] for r in rows] == ['tests/test_lib.py::test_t'] and not info.get('unstable'), (rows, info.get('unstable'), gaps)
+
+
+def test_a_new_failing_test_is_not_an_existing_test_that_now_fails(tmp_path):
+    lib = 'def work():\n    return 1\n'
+    tests0 = 'from lib import work\ndef test_work():\n    assert work() == 1\n'
+    tests1 = tests0 + 'def test_added():\n    assert work() == 3\n'
+    rows, info, gaps = _shadow(tmp_path, {'lib.py': lib, 'tests/test_lib.py': tests0}, {'lib.py': lib.replace('1', '1  # same'), 'tests/test_lib.py': tests1},
+                               ['tests/test_lib.py::test_added', 'tests/test_lib.py::test_work'])
+    assert rows == [], rows
+
+
+def test_a_deleted_unittest_test_is_removed_not_a_failure(tmp_path):
+    lib = 'def work():\n    return 1\n'
+    tests0 = ('import unittest\nfrom lib import work\nclass T(unittest.TestCase):\n    def test_keep(self):\n        assert work() == 1\n'
+              '    def test_gone(self):\n        assert work() == 1\n')
+    tests1 = 'import unittest\nfrom lib import work\nclass T(unittest.TestCase):\n    def test_keep(self):\n        assert work() == 1\n'
+    files = {'tests/__init__.py': ''}
+    rows, info, gaps = _shadow(tmp_path, {**files, 'lib.py': lib, 'tests/test_u.py': tests0},
+                               {**files, 'lib.py': lib.replace('1', '1  # same'), 'tests/test_u.py': tests1},
+                               ['tests/test_u.py::T::test_gone', 'tests/test_u.py::T::test_keep'], runner='unittest')
+    assert rows == [] and any('no longer defined' in g for g in gaps), (rows, gaps)
+
+
+def test_a_broken_edited_test_module_is_not_reported_as_fully_executed(tmp_path):
+    import sys
+
+    from amu.core import analyze
+    lib0, lib1 = 'def f():\n    return 1\n', 'def f():\n    return 1  # tidy\n'
+    tf0 = 'from lib import f\ndef test_f1():\n    assert f() == 1\ndef test_f2():\n    assert f()\n'
+    tf1 = tf0.replace('from lib import f', 'from lib import f, missing_helper')
+    repository(tmp_path, {'lib.py': lib1, 'tests/test_f.py': tf1})
+    result = analyze(tmp_path, patch('lib.py', lib0, lib1) + patch('tests/test_f.py', tf0, tf1), index_dir=tmp_path/'.index', run=True,
+                     python=sys.executable, full_evidence=True)
+    assert not result['summary'].startswith('EXECUTED 2 of 2'), result['summary']
+
+
+def test_new_methods_in_a_subclassing_test_class_do_not_hide_an_edited_failing_test(tmp_path):
+    lib0, lib1 = 'def work():\n    return 1\n', 'def work():\n    return 2\n'
+    tests0 = 'import unittest\nfrom lib import work\nclass TestWork(unittest.TestCase):\n    def test_value(self):\n        assert work() == 1\n'
+    tests1 = ('import unittest\nfrom lib import work\nclass TestWork(unittest.TestCase):\n    def test_new_a(self):\n        assert work() == 2\n'
+              '    def test_new_b(self):\n        assert isinstance(work(), int)\n    def test_value(self):\n        assert work() == 2\n')
+    for _ in range(4):
+        rows, info, gaps = _shadow(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests0}, {'lib.py': lib1, 'tests/test_lib.py': tests1},
+                                   ['tests/test_lib.py::TestWork::test_new_a', 'tests/test_lib.py::TestWork::test_new_b', 'tests/test_lib.py::TestWork::test_value'])
+        assert [(r['id'], r['label']) for r in rows] == [('tests/test_lib.py::TestWork::test_value', 'test edited, not fixed')], (rows, gaps)
+
+
+def test_a_test_moved_into_an_edited_base_class_is_not_removed(tmp_path):
+    base0 = 'class Mixin:\n    pass\n'
+    base1 = 'class Mixin:\n    def test_x(self):\n        assert True\n'
+    sub0 = 'from tests.base import Mixin\n\n\nclass TestSub(Mixin):\n    def test_x(self):\n        assert True\n'
+    sub1 = 'from tests.base import Mixin, nope\n\n\nclass TestSub(Mixin):\n    pass\n'
+    rows, info, gaps = _shadow(tmp_path, {'tests/__init__.py': '', 'tests/base.py': base0, 'tests/test_sub.py': sub0},
+                               {'tests/__init__.py': '', 'tests/base.py': base1, 'tests/test_sub.py': sub1}, ['tests/test_sub.py::TestSub::test_x'])
+    assert info.get('aborted') and not any('no longer defined' in g for g in gaps), (info, gaps)
+
+
+def test_a_module_level_test_deleted_beside_an_unrelated_same_named_def_is_removed(tmp_path):
+    from amu.core.shadow import _removed
+    (tmp_path/'tests').mkdir()
+    (tmp_path/'tests/test_sub.py').write_text('class TestSub:\n    pass\n')
+    (tmp_path/'tests/test_other.py').write_text('def test_x():\n    assert True\n')
+    (tmp_path/'tests/test_mod.py').write_text('')
+    edits = {'tests/test_sub.py': '', 'tests/test_other.py': '', 'tests/test_mod.py': ''}
+    before = {'tests/test_sub.py': 'class TestSub:\n    def test_x(self):\n        assert True\n', 'tests/test_mod.py': 'def test_x():\n    pass\n'}
+    # A module-level def of the same name elsewhere is not a base class taking the method over.
+    assert _removed('tests/test_sub.py::TestSub::test_x', edits, before, tmp_path)
+    assert _removed('tests/test_mod.py::test_x', edits, before, tmp_path)
+
+
+def test_the_packet_stays_under_its_limit_with_many_long_unstable_ids():
+    from amu.core import LIMIT, compact, encoded
+    ids = [f'tests/integration/test_library_module_operations.py::TestConcurrentAccess::test_{"x" * 150}_{i:02d}' for i in range(12)]
+    gap = f'{len(ids)} test(s) flipped once and not on a rerun; reported as unstable, not as failures: ' + ', '.join(ids[:3]) + ' and 9 more'
+    report = dict(tests=[], caveats='', predicted_failures=[], unstable=ids, gaps=[gap], changed_symbols=['lib.py#flag'], impacted=[],
+                  consequences=[], runner='pytest', flips=0, summary='EXECUTED 12 of 12')
+    out = compact(report)
+    assert len(encoded(out)) < LIMIT and len(out['gaps'][0]) <= 240, out
+    assert out['unstable'][-1] == f"and {len(ids) - len(out['unstable']) + 1} more", out['unstable']
+
+
+def _git_tree(tmp_path, files):
+    import subprocess
+    repository(tmp_path, files)
+    for args in (['init', '-q'], ['add', '-A'], ['-c', 'user.email=t@example.invalid', '-c', 'user.name=t', 'commit', '-qm', 'start']):
+        subprocess.run(['git', '-C', str(tmp_path), *args], check=True, capture_output=True)
+
+
+def _bare_candidates(tmp_path):
+    """The ids bare amu would execute for the uncommitted change in tmp_path (execution stubbed)."""
+    from amu.core import shadow
+    seen, real = [], shadow.run
+    shadow.run = lambda root, edits, ids, *a, **k: (seen.extend(ids), ([], dict(ran=0, seconds=0.0, runner='rec'), []))[1]
+    try:
+        report = analyze(tmp_path, None, index_dir=tmp_path/'.index', run=True, full_evidence=True)
+    finally:
+        shadow.run = real
+    return seen, report
+
+
+def test_a_renamed_function_still_has_candidates_on_the_applied_change(tmp_path):
+    lib = ('def slash_redirect(path):\n    return path + "/"\n\n\n'
+           'def route(path):\n    return slash_redirect(path)\n')
+    files = {'lib.py': lib,
+             'tests/test_redirect.py': 'from lib import slash_redirect\ndef test_slash_redirect():\n    assert slash_redirect("a") == "a/"\n',
+             'tests/test_route.py': 'from lib import route\ndef test_route():\n    assert route("a") == "a/"\n',
+             'tests/test_other.py': 'def test_unrelated():\n    assert 1\n'}
+    _git_tree(tmp_path, files)
+    (tmp_path/'lib.py').write_text(lib.replace('def slash_redirect', 'def _slash_redirect'))
+    seen, report = _bare_candidates(tmp_path)
+    assert 'tests/test_redirect.py::test_slash_redirect' in seen, seen
+    assert 'tests/test_route.py::test_route' in seen, seen
+    assert 'tests/test_other.py::test_unrelated' not in seen
+    assert 'lib.py#slash_redirect (renamed or removed)' in report['changed_symbols'], report['changed_symbols']
+
+
+def test_a_removed_function_still_has_candidates_on_the_applied_change(tmp_path):
+    lib = ('def legacy_total(items):\n    return sum(items)\n\n\n'
+           'def report(items):\n    return f"total {legacy_total(items)}"\n\n\n'
+           'def keep():\n    return 1\n')
+    files = {'lib.py': lib,
+             'tests/test_total.py': 'import lib\ndef test_legacy_total():\n    assert lib.legacy_total([1, 2]) == 3\n',
+             'tests/test_report.py': 'from lib import report\ndef test_report():\n    assert report([1]) == "total 1"\n',
+             'tests/test_keep.py': 'from lib import keep\ndef test_keep():\n    assert keep() == 1\n'}
+    _git_tree(tmp_path, files)
+    (tmp_path/'lib.py').write_text(lib.replace('def legacy_total(items):\n    return sum(items)\n\n\n', ''))
+    seen, report = _bare_candidates(tmp_path)
+    assert 'tests/test_total.py::test_legacy_total' in seen and 'tests/test_report.py::test_report' in seen, seen
+    assert 'lib.py#legacy_total (renamed or removed)' in report['changed_symbols'], report['changed_symbols']
+
+
+def _rows(report):
+    return {row['id']: row for row in report['tests']}
+
+
+def test_a_name_found_by_text_is_labelled_as_such(tmp_path):
+    lib = 'def total(items):\n    return sum(items)\n'
+    _git_tree(tmp_path, {'lib.py': lib, 'tests/test_total.py': 'import lib\ndef test_total():\n    assert lib.total([1]) == 1\n'})
+    (tmp_path/'lib.py').write_text(lib.replace('def total', 'def _total'))
+    _, report = _bare_candidates(tmp_path)
+    row = _rows(report)['tests/test_total.py::test_total']
+    assert row['confidence'] == 'heuristic' and row['why'].startswith('names lib.py#total, renamed or removed'), row
+
+
+def test_a_syntax_error_mid_edit_is_not_a_removal(tmp_path):
+    lib = 'def alpha_one():\n    return 1\n\n\ndef beta_two():\n    return 2\n'
+    _git_tree(tmp_path, {'lib.py': lib, 'tests/test_lib.py': 'from lib import beta_two\ndef test_beta_two():\n    assert beta_two() == 2\n'})
+    (tmp_path/'lib.py').write_text(lib.replace('return 1', 'return (1'))
+    _, report = _bare_candidates(tmp_path)
+    assert not any('renamed or removed' in s for s in report['changed_symbols']), report['changed_symbols']
+
+
+def test_a_deleted_or_moved_module_still_has_candidates(tmp_path):
+    import subprocess
+    files = {'pkg/__init__.py': '', 'pkg/legacy.py': 'def legacy_total(items):\n    return sum(items)\n',
+             'pkg/core.py': 'def keep():\n    return 1\n',
+             'tests/test_legacy.py': 'from pkg.legacy import legacy_total\ndef test_legacy_total():\n    assert legacy_total([1]) == 1\n',
+             'tests/test_core.py': 'from pkg.core import keep\ndef test_keep():\n    assert keep() == 1\n'}
+    _git_tree(tmp_path, files)
+    (tmp_path/'pkg/legacy.py').unlink()
+    (tmp_path/'pkg/core.py').write_text('def keep():\n    return 2\n')
+    seen, report = _bare_candidates(tmp_path)
+    assert 'tests/test_legacy.py::test_legacy_total' in seen, (seen, report['changed_symbols'])
+    subprocess.run(['git', '-C', str(tmp_path), 'checkout', '-q', '--', '.'], check=True)
+    subprocess.run(['git', '-C', str(tmp_path), 'mv', 'pkg/legacy.py', 'pkg/totals.py'], check=True)
+    seen, report = _bare_candidates(tmp_path)
+    assert 'tests/test_legacy.py::test_legacy_total' in seen, (seen, report['changed_symbols'])
+
+
+def test_a_pure_deletion_whose_lines_repeat_below_is_applied(tmp_path):
+    lib = 'import os\n\n\ndef legacy_sep():\n    return os.sep\n\n\ndef keep_sep():\n    return os.sep\n'
+    _git_tree(tmp_path, {'lib.py': lib, 'tests/test_legacy.py': 'from lib import legacy_sep\ndef test_legacy_sep():\n    assert legacy_sep()\n'})
+    (tmp_path/'lib.py').write_text(lib.replace('def legacy_sep():\n    return os.sep\n\n\n', ''))
+    seen, report = _bare_candidates(tmp_path)
+    assert 'tests/test_legacy.py::test_legacy_sep' in seen and not any('did not apply' in g for g in report['gaps']), (seen, report['gaps'])
+    from amu.core.patch import applied, changes
+    edits, _ = changes(tmp_path, patch('lib.py', lib, lib.replace('def legacy_sep():\n    return os.sep\n\n\n', '')))
+    (tmp_path/'lib.py').write_text(lib)
+    assert not applied(tmp_path, 'lib.py', edits['lib.py'])
+
+
+def test_closures_common_method_names_and_names_defined_elsewhere_do_not_pull_in_unrelated_tests(tmp_path):
+    files = {'lib.py': ('import functools\n\n\ndef logged(fn):\n    @functools.wraps(fn)\n    def inner(*a):\n        return fn(*a)\n    return inner\n\n\n'
+                        'class Store:\n    def put(self, k, v):\n        self.d = {k: v}\n\n    def get(self, k):\n        return self.d[k]\n\n\n'
+                        'def get_host(env):\n    return env["HOST"]\n'),
+             'wsgi.py': 'def get_host(env):\n    return env.get("SERVER")\n',
+             'tests/test_dict.py': 'def test_dict():\n    inner = {"a": 1}\n    assert inner.get("a") == 1\n',
+             'tests/test_wsgi.py': 'from wsgi import get_host\ndef test_wsgi_get_host():\n    assert get_host({"SERVER": 1}) == 1\n',
+             'tests/test_store.py': 'from lib import Store\ndef test_store():\n    s = Store()\n    s.put(1, 2)\n    assert s.get(1) == 2\n'}
+    _git_tree(tmp_path, files)
+    lib = files['lib.py'].replace('    @functools.wraps(fn)\n    def inner(*a):\n        return fn(*a)\n    return inner\n', '    return fn\n')
+    lib = lib.replace('\n    def get(self, k):\n        return self.d[k]\n', '').replace('def get_host(env):\n    return env["HOST"]\n', '')
+    (tmp_path/'lib.py').write_text(lib)
+    seen, report = _bare_candidates(tmp_path)
+    assert 'tests/test_store.py::test_store' in seen, seen
+    assert 'tests/test_dict.py::test_dict' not in seen, seen
+    assert not any('inner' in s for s in report['changed_symbols']), report['changed_symbols']
+    assert _rows(report).get('tests/test_wsgi.py::test_wsgi_get_host', {}).get('confidence') in (None, 'heuristic'), report['tests']
+
+
+def test_a_test_module_importing_the_old_name_puts_all_its_tests_forward(tmp_path):
+    lib = 'def to_upper(s):\n    return s.upper()\n'
+    tests = ('import pytest\nfrom lib import to_upper\nCONVERTERS = [(to_upper, "A")]\n\n\n'
+             '@pytest.mark.parametrize("fn,want", CONVERTERS)\ndef test_converts(fn, want):\n    assert fn("a") == want\n')
+    _git_tree(tmp_path, {'lib.py': lib, 'tests/test_conv.py': tests})
+    (tmp_path/'lib.py').write_text(lib.replace('to_upper', 'upper_case'))
+    seen, report = _bare_candidates(tmp_path)
+    assert 'tests/test_conv.py::test_converts' in seen, (seen, report['gaps'])
+
+
+def test_co_change_ignores_root_and_wide_commits_and_git_failures(tmp_path, monkeypatch):
+    import subprocess
+
+    from amu.core import vanished
+    def commit(files, message):
+        repository(tmp_path, files)
+        for args in (['add', '-A'], ['-c', 'user.email=t@example.invalid', '-c', 'user.name=t', 'commit', '-qm', message]):
+            subprocess.run(['git', '-C', str(tmp_path), *args], check=True, capture_output=True)
+    subprocess.run(['git', '-C', str(tmp_path), 'init', '-q'], check=True)
+    commit({'lib.py': 'a = 1\n', 'tests/test_lib.py': 'x = 1\n', 'other.py': 'o = 1\n'}, 'root: everything')
+    commit({'lib.py': 'a = 2\n', 'tests/test_lib.py': 'x = 2\n'}, 'together')
+    commit({'lib.py': 'a = 3\n', **{f'gen/m{i}.py': '' for i in range(vanished.WIDE + 1)}}, 'wide')
+    assert vanished.co_changed(tmp_path, 'lib.py') == {'tests/test_lib.py': 1.0}
+    def slow(*args, **kwargs):
+        raise subprocess.TimeoutExpired('git', 30)
+    monkeypatch.setattr(vanished, '_git', slow)
+    assert vanished.co_changed(tmp_path, 'lib.py') == {}
+
+
+def test_a_function_moved_behind_a_deprecation_shim_still_has_candidates_but_a_re_export_does_not(tmp_path):
+    lib = 'def parse_form(data):\n    return dict(data)\n'
+    shim = ('import warnings\n\n\ndef _parse_form(data):\n    return dict(data)\n\n\n'
+            'def __getattr__(name):\n    if name == "parse_form":\n        warnings.warn("deprecated", DeprecationWarning)\n'
+            '        return _parse_form\n    raise AttributeError(name)\n')
+    _git_tree(tmp_path, {'lib.py': lib, 'tests/test_form.py': 'from lib import parse_form\ndef test_parse_form():\n    assert parse_form([]) == {}\n'})
+    (tmp_path/'lib.py').write_text(shim)
+    seen, report = _bare_candidates(tmp_path)
+    assert 'tests/test_form.py::test_parse_form' in seen, (seen, report['changed_symbols'])
+    (tmp_path/'forms.py').write_text(lib)
+    (tmp_path/'lib.py').write_text('from forms import parse_form\n')
+    _, report = _bare_candidates(tmp_path)
+    assert 'lib.py#parse_form (renamed or removed)' not in report['changed_symbols'], report['changed_symbols']
+
+
+def test_a_candidate_the_project_deselects_is_skipped_without_splitting(tmp_path, monkeypatch):
+    import subprocess
+    import sys
+
+    from amu.core import runners
+    repository(tmp_path, {
+        'pyproject.toml': '[tool.pytest.ini_options]\naddopts = "-m \'not slow\'"\nmarkers = ["slow"]\n',
+        'tests/test_lib.py': ('import pytest\n\n\ndef test_quick():\n    assert True\n\n\n'
+                              '@pytest.mark.slow\ndef test_slow():\n    assert True\n\n\n'
+                              'class TestGroup:\n    @pytest.mark.slow\n    def test_slow_method(self):\n        assert True\n')})
+    starts, real = [], subprocess.run
+
+    def counted(command, **kwargs):
+        starts.append(command)
+        return real(command, **kwargs)
+    monkeypatch.setattr(runners.subprocess, 'run', counted)
+    ids = ['tests/test_lib.py::test_quick', 'tests/test_lib.py::test_slow', 'tests/test_lib.py::TestGroup::test_slow_method']
+    found, problem = runners.execute(runners.get(tmp_path, 'pytest'), sys.executable, tmp_path, ids, tmp_path/'r.xml', 60)
+    assert found == {ids[0]: 'passed', ids[1]: 'skipped', ids[2]: 'skipped'} and problem is None, (found, problem)
+    assert len(starts) == 2, starts  # the batch and one collection, no splitting
+    only_slow, problem = runners.execute(runners.get(tmp_path, 'pytest'), sys.executable, tmp_path, ids[1:], tmp_path/'r.xml', 60)
+    assert only_slow == {ids[1]: 'skipped', ids[2]: 'skipped'} and problem is None, (only_slow, problem)
+
+
+def test_tests_inside_a_package_make_the_tree_evident(tmp_path):
+    from amu.core import runners
+    repository(tmp_path, {'pkg/core/basic.py': 'x = 1\n', 'pkg/core/tests/__init__.py': ''})
+    assert not runners.evident(tmp_path)
+    repository(tmp_path, {'.hidden/tests/test_x.py': 'def test_x():\n    pass\n'})
+    assert not runners.evident(tmp_path)
+    repository(tmp_path, {'pkg/core/tests/test_basic.py': 'def test_x():\n    pass\n'})
+    assert runners.evident(tmp_path)
+
+
+def test_a_test_named_with_the_bare_prefix_is_a_candidate(tmp_path):
+    lib = 'def nth_root(x, n):\n    return x ** (1 / n)\n'
+    tests = ('import pytest\nfrom lib import nth_root\n\n\ndef test1():\n    assert nth_root(4, 2) == 2\n\n\n'
+             'class TestRoots:\n    def testSquare(self):\n        assert nth_root(9, 2) == 3\n\n\n'
+             'def test_cli():\n    def test():\n        return nth_root(8, 3)\n    assert test()\n')
+    _git_tree(tmp_path, {'lib.py': lib, 'tests/test_roots.py': tests})
+    (tmp_path/'lib.py').write_text(lib.replace('1 / n', '1.0 / n'))
+    seen, _ = _bare_candidates(tmp_path)
+    assert 'tests/test_roots.py::test1' in seen and 'tests/test_roots.py::TestRoots::testSquare' in seen, seen
+    # A function named test inside a test is a local helper; pytest never collects it.
+    assert 'tests/test_roots.py::test_cli' in seen and not any(i.endswith('::test_cli::test') for i in seen), seen

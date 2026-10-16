@@ -1,0 +1,37 @@
+[
+ {
+  "tool": "rt",
+  "seconds": 0.56,
+  "at": 1791972410.6,
+  "labels": [
+   "deprecation"
+  ],
+  "problems": [],
+  "ran": 54,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 249.33,
+  "at": 1791972667.2,
+  "labels": [],
+  "problems": [],
+  "ran": 19113,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.57,
+  "at": 1791972680.2,
+  "labels": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests"
+  ],
+  "problems": [],
+  "ran": 1,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ }
+]

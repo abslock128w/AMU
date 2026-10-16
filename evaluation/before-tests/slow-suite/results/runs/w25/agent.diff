@@ -1,0 +1,145 @@
+diff --git a/sympy/interactive/session.py b/sympy/interactive/session.py
+index fe08b44..456ff0e 100644
+--- a/sympy/interactive/session.py
++++ b/sympy/interactive/session.py
+@@ -99,6 +99,7 @@ def int_to_Integer(s):
+     https://docs.python.org/3/library/tokenize.html.
+ 
+     Only integer literals are converted.  Float literals are left alone.
++    The rest of the source, including spacing and comments, is unchanged.
+ 
+     Examples
+     ========
+@@ -107,16 +108,16 @@ def int_to_Integer(s):
+     >>> from sympy.interactive.session import int_to_Integer
+     >>> s = '1.2 + 1/2 - 0x12 + a1'
+     >>> int_to_Integer(s)
+-    '1.2 +Integer (1 )/Integer (2 )-Integer (0x12 )+a1 '
++    '1.2 + Integer(1)/Integer(2) - Integer(0x12) + a1'
+     >>> s = 'print (1/2)'
+     >>> int_to_Integer(s)
+-    'print (Integer (1 )/Integer (2 ))'
++    'print (Integer(1)/Integer(2))'
+     >>> exec(s)
+     0.5
+     >>> exec(int_to_Integer(s))
+     1/2
+     """
+-    from tokenize import generate_tokens, untokenize, NUMBER, NAME, OP
++    from tokenize import generate_tokens, NUMBER
+     from io import StringIO
+ 
+     def _is_int(num):
+@@ -128,19 +129,20 @@ def _is_int(num):
+             return False
+         return True
+ 
+-    result = []
++    line_starts = [0]
++    for line in s.split('\n')[:-1]:
++        line_starts.append(line_starts[-1] + len(line) + 1)
++
++    spans = []
+     g = generate_tokens(StringIO(s).readline)  # tokenize the string
+-    for toknum, tokval, _, _, _ in g:
+-        if toknum == NUMBER and _is_int(tokval):  # replace NUMBER tokens
+-            result.extend([
+-                (NAME, 'Integer'),
+-                (OP, '('),
+-                (NUMBER, tokval),
+-                (OP, ')')
+-            ])
+-        else:
+-            result.append((toknum, tokval))
+-    return untokenize(result)
++    for toknum, tokval, (srow, scol), (erow, ecol), _ in g:
++        if toknum == NUMBER and _is_int(tokval):
++            spans.append((line_starts[srow - 1] + scol,
++                          line_starts[erow - 1] + ecol))
++
++    for start, end in reversed(spans):
++        s = s[:start] + 'Integer(' + s[start:end] + ')' + s[end:]
++    return s
+ 
+ 
+ def enable_automatic_int_sympification(shell):
+@@ -148,21 +150,29 @@ def enable_automatic_int_sympification(shell):
+     Allow IPython to automatically convert integer literals to Integer.
+     """
+     import ast
+-    old_run_cell = shell.run_cell
+ 
+-    def my_run_cell(cell, *args, **kwargs):
++    def transform(cell):
+         try:
+-            # Check the cell for syntax errors.  This way, the syntax error
+-            # will show the original input, not the transformed input.  The
+-            # downside here is that IPython magic like %timeit will not work
+-            # with transformed input (but on the other hand, IPython magic
+-            # that doesn't expect transformed input will continue to work).
++            # Leave cells with syntax errors alone.  This way, the syntax
++            # error will show the original input, not the transformed input.
+             ast.parse(cell)
+         except SyntaxError:
+-            pass
+-        else:
+-            cell = int_to_Integer(cell)
+-        return old_run_cell(cell, *args, **kwargs)
++            return cell
++        return int_to_Integer(cell)
++
++    if hasattr(shell, 'input_transformers_post'):
++        # Post transformers run after the input has been stored in the
++        # history, so the history keeps the original input.
++        def transform_lines(lines):
++            return transform(''.join(lines)).splitlines(True)
++
++        shell.input_transformers_post.append(transform_lines)
++        return
++
++    old_run_cell = shell.run_cell
++
++    def my_run_cell(cell, *args, **kwargs):
++        return old_run_cell(transform(cell), *args, **kwargs)
+ 
+     shell.run_cell = my_run_cell
+ 
+diff --git a/sympy/interactive/tests/test_interactive.py b/sympy/interactive/tests/test_interactive.py
+index 8a79fc8..2977b2c 100644
+--- a/sympy/interactive/tests/test_interactive.py
++++ b/sympy/interactive/tests/test_interactive.py
+@@ -4,8 +4,14 @@
+ 
+ def test_int_to_Integer():
+     assert int_to_Integer("1 + 2.2 + 0x3 + 40") == \
+-        'Integer (1 )+2.2 +Integer (0x3 )+Integer (40 )'
+-    assert int_to_Integer("0b101") == 'Integer (0b101 )'
+-    assert int_to_Integer("ab1 + 1 + '1 + 2'") == "ab1 +Integer (1 )+'1 + 2'"
+-    assert int_to_Integer("(2 + \n3)") == '(Integer (2 )+\nInteger (3 ))'
+-    assert int_to_Integer("2 + 2.0 + 2j + 2e-10") == 'Integer (2 )+2.0 +2j +2e-10 '
++        'Integer(1) + 2.2 + Integer(0x3) + Integer(40)'
++    assert int_to_Integer("0b101") == 'Integer(0b101)'
++    assert int_to_Integer("ab1 + 1 + '1 + 2'") == "ab1 + Integer(1) + '1 + 2'"
++    assert int_to_Integer("(2 + \n3)") == '(Integer(2) + \nInteger(3))'
++    assert int_to_Integer("2 + 2.0 + 2j + 2e-10") == \
++        'Integer(2) + 2.0 + 2j + 2e-10'
++    assert int_to_Integer("solveset (sin (x ),x ) # 1") == \
++        "solveset (sin (x ),x ) # 1"
++    assert int_to_Integer("f (1 ,\n  2) # c\n3") == \
++        "f (Integer(1) ,\n  Integer(2)) # c\nInteger(3)"
++    assert int_to_Integer("") == ""
+diff --git a/sympy/interactive/tests/test_ipython.py b/sympy/interactive/tests/test_ipython.py
+index 720bda9..75b6b89 100644
+--- a/sympy/interactive/tests/test_ipython.py
++++ b/sympy/interactive/tests/test_ipython.py
+@@ -72,6 +72,10 @@ def test_int_to_Integer():
+     assert isinstance(app.user_ns['a'], int)
+     app.run_cell("a = (1/\n2)")
+     assert app.user_ns['a'] == Rational(1, 2)
++    if hasattr(app, 'input_transformers_post'):
++        app.run_cell("b = (1 +  2)  # c", store_history=True)
++        assert app.user_ns['b'] == Integer(3)
++        assert app.history_manager.input_hist_raw[-1] == "b = (1 +  2)  # c"
+     # TODO: How can we test that the output of a SyntaxError is the original
+     # input, not the transformed input?
+ 

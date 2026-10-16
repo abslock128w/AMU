@@ -1,19 +1,27 @@
 # Before tests: what a change reaches and what to run first
 
 ```sh
-amu before-tests                       # uncommitted changes of the repository in the current directory
-amu before-tests --patch-file fix.diff # a proposed diff, applied or not yet applied
-git diff main | amu before-tests --patch-file -
+amu                                    # an edit is waiting: run candidate tests on both sides, print what flipped
+amu before-tests --static              # the same change, never executing anything
+amu before-tests --patch-file fix.diff # a supplied diff: static unless --run
+git diff main | amu before-tests --patch-file - --run
 amu before-tests --full-evidence       # every ranked test, dependant and consequence
 ```
 
-Nothing is imported or executed. The default answer is one JSON object under 2 KB:
+For your own uncommitted change, in a tree with tests, AMU executes: it copies the tree, rebuilds the code as
+it was before the edit in the copy, runs up to 150 candidate tests (300 with a recording), in chunks, on the changed code, and reruns only the failures on the code as it was to confirm they passed before with the project's runner
+(60 s per side, `--budget` to change), and prints `flips` and `predicted_failures` first, then `gaps`. It
+uses `$VIRTUAL_ENV`, `.venv` or `venv` when present, else the interpreter running AMU; `--python` overrides.
+If nothing could be run, `flips` is null and the summary says NOT EXECUTED, never "0 fail". Bare `amu` opens
+the interactive terminal only when no Python edit is waiting; `amu repl` always opens it.
+
+With `--static`, or for a supplied patch without `--run`:
+nothing is imported or executed, and the answer is one JSON object under 2 KB:
 
 | Field | Meaning |
 |---|---|
 | `summary` | Read this first: likely failures, untested functions, how many tests reach the change. |
 | `changed_symbols` | Declarations holding the changed lines, narrowest first. |
-| `untested` | Changed functions whose changed lines no recorded test ran. Needs a coverage recording. Functions with no statically visible call path are listed only in `--full-evidence`, because on Django history that mostly marked dynamically reached code. |
 | `tests` | Tests expected to fail, with the evidence in `why`. Tests that only reach the change are listed with `--tests`. |
 | `predicted_failures` | Only with `--run`: tests that passed before the change and fail after it. |
 | `consequences` | A changed exception, shared attribute or used return value, and the located consumer. |
@@ -39,15 +47,21 @@ shows the test executing it).
 
 ## Using recorded execution
 
-If `.amu/observed-tests.json`, `coverage.json` or `.coverage` exists it is read automatically; `--coverage`
-names another file. Record with per-test contexts, for example
-`pytest --cov=your_package --cov-context=test`. Reading a raw `.coverage` file needs the `coverage` package.
+```sh
+amu before-tests --observe             # run the whole suite once under coverage; store a per-test recording
+```
 
-A recording is judged per file. Files unchanged since the recording keep exact evidence. A file edited
-since is still used and marked as recorded before the edit; when the edit is the patch being analysed, the
-recorded line numbers are moved through it. A test that ran a changed line few other tests share ranks
-highest, and a gap names changed functions whose changed lines no recorded test ran. Recorded execution raises a test's rank and can
-add tests static analysis missed. It never removes a test.
+`--observe` needs the `coverage` package in the project's interpreter. It records which test ran which line,
+including code run in child processes a test starts, and stores it beside the index, one shard per source
+file keyed by content hash. Later runs use it automatically:
+
+- shadow execution takes its candidates from the tests recorded running the changed code, most specific
+  first, so tests reached through fixtures, signals, registries or subprocesses are included;
+- a file edited since the recording is still used, judged by function name instead of line number.
+
+Without a stored recording, `.amu/observed-tests.json`, `coverage.json` or `.coverage` is read if present and
+`--coverage` names another file. Recorded execution raises a test's rank and adds candidates. It never
+removes a test.
 
 ## How it ranks
 

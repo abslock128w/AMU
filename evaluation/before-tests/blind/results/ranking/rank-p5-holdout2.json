@@ -1,0 +1,205 @@
+[
+  {
+    "case_id": "h2-requests-f0198e6d",
+    "function_recall10": 1.0,
+    "file_recall10": 1.0,
+    "function_hits": [
+      "tests/test_utils.py::test__parse_content_type_header",
+      "tests/test_utils.py::test_get_encoding_from_headers"
+    ],
+    "missing_from_parent": [],
+    "recommended": 10,
+    "top10": [
+      "tests/test_utils.py::test__parse_content_type_header",
+      "tests/test_utils.py::test_get_encoding_from_headers",
+      "tests/test_lowlevel.py::test_conflicting_content_lengths",
+      "tests/test_lowlevel.py::test_chunked_encoding_error",
+      "tests/test_lowlevel.py::test_digestauth_401_count_reset_on_redirect",
+      "tests/test_lowlevel.py::test_fragment_update_on_redirect",
+      "tests/test_requests.py::TestPreparingURLs::test_different_connection_pool_for_mtls_settings",
+      "tests/test_requests.py::TestPreparingURLs::test_different_connection_pool_for_tls_settings_verify_True",
+      "tests/test_requests.py::TestPreparingURLs::test_different_connection_pool_for_tls_settings_verify_bundle_expired_cert",
+      "tests/test_requests.py::TestPreparingURLs::test_different_connection_pool_for_tls_settings_verify_bundle_unexpired_cert"
+    ],
+    "seconds": 0.20344775001285598,
+    "bytes": 1967,
+    "noise10": 8,
+    "wall_seconds": 0.2624853750166949
+  },
+  {
+    "case_id": "h2-requests-bc7dd0fc",
+    "function_recall10": 0.0,
+    "file_recall10": 1.0,
+    "function_hits": [],
+    "missing_from_parent": [],
+    "recommended": 4,
+    "top10": [
+      "tests/test_requests.py::test_json_encodes_as_bytes",
+      "tests/test_requests.py::test_prepared_copy",
+      "tests/test_requests.py::test_data_argument_accepts_tuples",
+      "tests/test_requests.py::test_proxy_env_vars_override_default"
+    ],
+    "seconds": 0.18844587498460896,
+    "bytes": 1929,
+    "noise10": 4,
+    "wall_seconds": 0.23207658299361356
+  },
+  {
+    "case_id": "h2-requests-f8bec2f7",
+    "function_recall10": 0.0,
+    "file_recall10": 0.3333333333333333,
+    "function_hits": [],
+    "missing_from_parent": [],
+    "recommended": 10,
+    "top10": [
+      "tests/test_requests.py::TestRequests::test_basic_auth_str_is_always_native",
+      "tests/test_help.py::test_idna_with_version_attribute",
+      "tests/test_help.py::test_idna_without_version_attribute",
+      "tests/test_help.py::test_system_ssl",
+      "tests/test_requests.py::TestRequests::test_set_basicauth",
+      "tests/test_requests.py::TestRequests::test_proxy_auth",
+      "tests/test_adapters.py::test_request_url_trims_leading_path_separators",
+      "tests/test_requests.py::TestRequests::test_proxy_auth_empty_pass",
+      "tests/test_requests.py::TestPreparingURLs::test_different_connection_pool_for_tls_settings_verify_bundle_expired_cert",
+      "tests/test_hooks.py::test_default_hooks"
+    ],
+    "seconds": 0.24883483300800435,
+    "bytes": 1963,
+    "noise10": 10,
+    "wall_seconds": 0.29546416699304245
+  },
+  {
+    "case_id": "h2-requests-01353d3b",
+    "function_recall10": 1.0,
+    "file_recall10": 1.0,
+    "function_hits": [
+      "tests/test_requests.py::test_content_length_for_string_data_counts_bytes"
+    ],
+    "missing_from_parent": [],
+    "recommended": 10,
+    "top10": [
+      "tests/test_requests.py::test_content_length_for_string_data_counts_bytes",
+      "tests/test_utils.py::TestSuperLen::test_io_streams",
+      "tests/test_utils.py::TestSuperLen::test_string",
+      "tests/test_utils.py::TestSuperLen::test_super_len_correctly_calculates_len_of_partially_read_file",
+      "tests/test_utils.py::TestSuperLen::test_super_len_with_tell",
+      "tests/test_utils.py::TestSuperLen::test_file",
+      "tests/test_utils.py::TestSuperLen::test_super_len_handles_files_raising_weird_errors_in_tell",
+      "tests/test_utils.py::TestSuperLen::test_super_len_tell_ioerror",
+      "tests/test_utils.py::TestSuperLen::test_super_len_with__len__",
+      "tests/test_utils.py::TestSuperLen::test_super_len_with_fileno"
+    ],
+    "seconds": 0.19414204100030474,
+    "bytes": 1979,
+    "noise10": 9,
+    "wall_seconds": 0.24033529101870954
+  },
+  {
+    "case_id": "h2-itsdangerous-7f4dcf83",
+    "function_recall10": 1.0,
+    "file_recall10": 1.0,
+    "function_hits": [
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_iter_unsigners"
+    ],
+    "missing_from_parent": [],
+    "recommended": 10,
+    "top10": [
+      "tests/test_itsdangerous/test_signer.py::TestSigner::test_secret_keys",
+      "tests/test_itsdangerous/test_signer.py::TestSigner::test_algorithm",
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_malformed_timestamp",
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_timestamp_missing",
+      "tests/test_itsdangerous/test_signer.py::TestSigner::test_digest_method",
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_iter_unsigners",
+      "tests/test_itsdangerous/test_signer.py::test_abstract_algorithm",
+      "tests/test_itsdangerous/test_serializer.py::test_digests",
+      "tests/test_itsdangerous/test_signer.py::TestSigner::test_broken_signature",
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_fallback_signers"
+    ],
+    "seconds": 0.04199479200178757,
+    "bytes": 1982,
+    "noise10": 9,
+    "wall_seconds": 0.07934504200238734
+  },
+  {
+    "case_id": "h2-itsdangerous-177196d3",
+    "function_recall10": 1.0,
+    "file_recall10": 1.0,
+    "function_hits": [
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_malformed_future_timestamp"
+    ],
+    "missing_from_parent": [],
+    "recommended": 10,
+    "top10": [
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_malformed_future_timestamp",
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_future_age",
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_sig_error_date_signed",
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_malformed_timestamp",
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_max_age",
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_timestamp_missing",
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_return_timestamp",
+      "tests/test_itsdangerous/test_signer.py::TestSigner::test_broken_signature",
+      "tests/test_itsdangerous/test_signer.py::TestSigner::test_changed_value",
+      "tests/test_itsdangerous/test_signer.py::TestSigner::test_no_separator"
+    ],
+    "seconds": 0.04051054100273177,
+    "bytes": 1964,
+    "noise10": 9,
+    "wall_seconds": 0.07806479101418518
+  },
+  {
+    "case_id": "h2-itsdangerous-aed5b260",
+    "function_recall10": 0.25,
+    "file_recall10": 0.8,
+    "function_hits": [
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_bad_payload_exception",
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_bad_signature_exception",
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_loads_unsafe"
+    ],
+    "missing_from_parent": [],
+    "recommended": 8,
+    "top10": [
+      "tests/test_itsdangerous/test_signer.py::TestSigner::test_secret_keys",
+      "tests/test_itsdangerous/test_jws.py::TestJWSSerializer::test_secret_keys",
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_bad_payload_exception",
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_malformed_timestamp",
+      "tests/test_itsdangerous/test_jws.py::TestJWSSerializer::test_load_payload_exceptions",
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_loads_unsafe",
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_timestamp_missing",
+      "tests/test_itsdangerous/test_serializer.py::TestSerializer::test_bad_signature_exception"
+    ],
+    "seconds": 0.07132562500191852,
+    "bytes": 1653,
+    "noise10": 5,
+    "wall_seconds": 0.1091260829998646
+  },
+  {
+    "case_id": "h2-itsdangerous-526b1ea0",
+    "function_recall10": 0.75,
+    "file_recall10": 1.0,
+    "function_hits": [
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_future_age",
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_malformed_timestamp",
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_timestamp_missing"
+    ],
+    "missing_from_parent": [
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_sig_error_date_signed"
+    ],
+    "recommended": 10,
+    "top10": [
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_future_age",
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_malformed_timestamp",
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_max_age",
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_return_timestamp",
+      "tests/test_itsdangerous/test_timed.py::TestTimestampSigner::test_timestamp_missing",
+      "tests/test_itsdangerous/test_signer.py::TestSigner::test_algorithm",
+      "tests/test_itsdangerous/test_signer.py::TestSigner::test_broken_signature",
+      "tests/test_itsdangerous/test_signer.py::TestSigner::test_changed_value",
+      "tests/test_itsdangerous/test_signer.py::TestSigner::test_digest_method",
+      "tests/test_itsdangerous/test_signer.py::TestSigner::test_key_derivation"
+    ],
+    "seconds": 0.043247666995739564,
+    "bytes": 1990,
+    "noise10": 7,
+    "wall_seconds": 0.08048404200235382
+  }
+]

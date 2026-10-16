@@ -1,0 +1,10 @@
+{
+ "flips": null,
+ "predicted_failures": [],
+ "summary": "NOT EXECUTED: no candidate test could be run; static analysis only. 0 likely_fail, 198 tests reach the change.",
+ "gaps": [
+  "98014 call sites unresolved repo-wide; dynamic dispatch may reach more",
+  "tests/sites_tests/tests.py: other side of the change could not be built; nothing executed",
+  "tests/test_runner_apps/tagged/tests_syntax_error.py: SyntaxError"
+ ]
+}

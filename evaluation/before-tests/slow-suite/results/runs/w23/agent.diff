@@ -1,0 +1,39 @@
+diff --git a/sympy/core/mul.py b/sympy/core/mul.py
+index dcc24d2..31e3da2 100644
+--- a/sympy/core/mul.py
++++ b/sympy/core/mul.py
+@@ -1276,21 +1276,6 @@ def as_numer_denom(self):
+         numers, denoms = list(zip(*[f.as_numer_denom() for f in self.args]))
+         return self.func(*numers), self.func(*denoms)
+ 
+-    def as_base_exp(self):
+-        e1 = None
+-        bases = []
+-        nc = 0
+-        for m in self.args:
+-            b, e = m.as_base_exp()
+-            if not b.is_commutative:
+-                nc += 1
+-            if e1 is None:
+-                e1 = e
+-            elif e != e1 or nc > 1 or not e.is_Integer:
+-                return self, S.One
+-            bases.append(b)
+-        return self.func(*bases), e1
+-
+     def _eval_is_polynomial(self, syms):
+         return all(term._eval_is_polynomial(syms) for term in self.args)
+ 
+diff --git a/sympy/core/tests/test_expr.py b/sympy/core/tests/test_expr.py
+index e96900a..69e3f06 100644
+--- a/sympy/core/tests/test_expr.py
++++ b/sympy/core/tests/test_expr.py
+@@ -1546,7 +1546,7 @@ def test_as_base_exp():
+     assert (x*y*z).as_base_exp() == (x*y*z, S.One)
+     assert (x + y + z).as_base_exp() == (x + y + z, S.One)
+     assert ((x + y)**z).as_base_exp() == (x + y, z)
+-    assert (x**2*y**2).as_base_exp() == (x*y, 2)
++    assert (x**2*y**2).as_base_exp() == (x**2*y**2, S.One)
+     assert (x**z*y**z).as_base_exp() == (x**z*y**z, S.One)
+ 
+ 

@@ -1,0 +1,65 @@
+[
+ {
+  "tool": "hook",
+  "seconds": 41.1,
+  "at": 1792055145.7,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "hook",
+  "seconds": 46.71,
+  "at": 1792055213.1,
+  "detail": "after edit"
+ },
+ {
+  "tool": "rt",
+  "seconds": 5.66,
+  "at": 1792055221.6,
+  "labels": [
+   "sympy/simplify/tests/test_powsimp.py",
+   "sympy/simplify/tests/test_radsimp.py",
+   "sympy/printing/tests/test_str.py",
+   "sympy/core/tests/test_exprtools.py",
+   "sympy/functions/elementary/tests/test_exponential.py"
+  ],
+  "k": null,
+  "problems": [],
+  "ran": 219,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 13.42,
+  "at": 1792055240.0,
+  "labels": [
+   "sympy/simplify/tests/test_simplify.py",
+   "sympy/simplify/tests/test_fu.py",
+   "sympy/simplify/tests/test_gammasimp.py",
+   "sympy/polys/tests/test_fields.py",
+   "sympy/polys/tests/test_rings.py",
+   "sympy/series/tests/test_limitseq.py",
+   "sympy/functions/combinatorial/tests/test_comb_numbers.py"
+  ],
+  "k": null,
+  "problems": [],
+  "ran": 274,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 42.73,
+  "at": 1792055285.3,
+  "labels": [
+   "sympy/solvers/tests/test_solvers.py",
+   "sympy/solvers/tests/test_solveset.py",
+   "sympy/integrals/tests/test_manual.py",
+   "sympy/series/tests/test_gruntz.py",
+   "sympy/series/tests/test_formal.py",
+   "sympy/holonomic"
+  ],
+  "k": null,
+  "problems": [],
+  "ran": 486,
+  "failed": []
+ }
+]

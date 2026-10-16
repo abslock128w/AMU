@@ -1,0 +1,79 @@
+[
+ {
+  "tool": "rt",
+  "seconds": 1.56,
+  "at": 1791971965.5,
+  "labels": [
+   "queries",
+   "expressions",
+   "annotations",
+   "aggregation",
+   "lookup"
+  ],
+  "problems": [],
+  "ran": 1088,
+  "failed": [
+   "queries.tests.Queries1Tests.test_subquery_condition"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 1.44,
+  "at": 1791971987.0,
+  "labels": [
+   "queries"
+  ],
+  "problems": [],
+  "ran": 501,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 168.72,
+  "at": 1791972158.3,
+  "labels": [],
+  "problems": [],
+  "ran": 19044,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option",
+   "filtered_relation.tests.FilteredRelationTests.test_internal_queryset_alias_mapping"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 1.09,
+  "at": 1791972170.2,
+  "labels": [
+   "filtered_relation"
+  ],
+  "problems": [],
+  "ran": 63,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.98,
+  "at": 1791972171.4,
+  "labels": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests"
+  ],
+  "problems": [],
+  "ran": 1,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 2.59,
+  "at": 1791972183.1,
+  "labels": [
+   "queries",
+   "ordering",
+   "extra_regress"
+  ],
+  "problems": [],
+  "ran": 556,
+  "failed": []
+ }
+]

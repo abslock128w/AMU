@@ -1,0 +1,32 @@
+[
+ {
+  "tool": "hook",
+  "seconds": 12.96,
+  "at": 1791955462.8,
+  "detail": "before ./rt"
+ },
+ {
+  "tool": "hook",
+  "seconds": 12.46,
+  "at": 1791955490.7,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.67,
+  "at": 1791955496.8,
+  "labels": [
+   "queries.test_q",
+   "expressions"
+  ],
+  "problems": [],
+  "ran": 246,
+  "failed": []
+ },
+ {
+  "tool": "hook",
+  "seconds": 11.14,
+  "at": 1791955508.1,
+  "detail": "after Bash"
+ }
+]

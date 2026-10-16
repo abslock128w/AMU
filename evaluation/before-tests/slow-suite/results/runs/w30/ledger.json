@@ -1,0 +1,124 @@
+[
+ {
+  "tool": "hook",
+  "seconds": 0.94,
+  "at": 1792041677.7,
+  "detail": "before ./rt"
+ },
+ {
+  "tool": "hook",
+  "seconds": 12.93,
+  "at": 1792042454.4,
+  "detail": "after edit"
+ },
+ {
+  "tool": "rt",
+  "seconds": 1.9,
+  "at": 1792042458.8,
+  "labels": [
+   "sympy/polys/tests/test_ring_series.py::test_nth_root"
+  ],
+  "k": null,
+  "problems": [],
+  "ran": 1,
+  "failed": [
+   "sympy/polys/tests/test_ring_series.py::test_nth_root"
+  ]
+ },
+ {
+  "tool": "hook",
+  "seconds": 10.66,
+  "at": 1792047551.2,
+  "detail": "after edit",
+  "after_hard_stop": true
+ },
+ {
+  "tool": "rt",
+  "seconds": 1.6,
+  "at": 1792047555.5,
+  "labels": [
+   "sympy/polys/tests/test_ring_series.py::test_nth_root"
+  ],
+  "k": null,
+  "problems": [],
+  "ran": 1,
+  "failed": [
+   "sympy/polys/tests/test_ring_series.py::test_nth_root"
+  ],
+  "after_hard_stop": true
+ },
+ {
+  "tool": "hook",
+  "seconds": 14.19,
+  "at": 1792049871.4,
+  "detail": "after edit",
+  "after_hard_stop": true
+ },
+ {
+  "tool": "rt",
+  "seconds": 2.08,
+  "at": 1792049876.2,
+  "labels": [
+   "sympy/polys/tests/test_ring_series.py"
+  ],
+  "k": null,
+  "problems": [],
+  "ran": 36,
+  "failed": [
+   "sympy/polys/tests/test_ring_series.py::test1",
+   "sympy/polys/tests/test_ring_series.py::test_nth_root",
+   "sympy/polys/tests/test_ring_series.py::test_puiseux"
+  ],
+  "after_hard_stop": true
+ },
+ {
+  "tool": "hook",
+  "seconds": 13.98,
+  "at": 1792049896.3,
+  "detail": "after edit",
+  "after_hard_stop": true
+ },
+ {
+  "tool": "rt",
+  "seconds": 1.61,
+  "at": 1792049900.4,
+  "labels": [
+   "sympy/polys/tests/test_ring_series.py::test_nth_root"
+  ],
+  "k": null,
+  "problems": [],
+  "ran": 1,
+  "failed": [
+   "sympy/polys/tests/test_ring_series.py::test_nth_root"
+  ],
+  "after_hard_stop": true
+ },
+ {
+  "tool": "hook",
+  "seconds": 9.32,
+  "at": 1792049918.0,
+  "detail": "after edit",
+  "after_hard_stop": true
+ },
+ {
+  "tool": "rt",
+  "seconds": 2.31,
+  "at": 1792049924.0,
+  "labels": [
+   "sympy/polys/tests/test_ring_series.py",
+   "sympy/polys/tests/test_puiseux.py"
+  ],
+  "k": null,
+  "problems": [],
+  "ran": 49,
+  "failed": [],
+  "after_hard_stop": true
+ },
+ {
+  "tool": "hook",
+  "seconds": 43.04,
+  "at": 1792049976.3,
+  "detail": "after edit",
+  "after_hard_stop": true
+ }
+]

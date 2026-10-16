@@ -1,0 +1,94 @@
+[
+ {
+  "tool": "hook",
+  "seconds": 11.96,
+  "at": 1791953207.2,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "hook",
+  "seconds": 11.02,
+  "at": 1791953230.1,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "hook",
+  "seconds": 12.56,
+  "at": 1791953249.0,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 12.75,
+  "at": 1791953266.2,
+  "labels": [
+   "model_fields",
+   "forms_tests",
+   "model_forms",
+   "admin_views"
+  ],
+  "problems": [],
+  "ran": 2296,
+  "failed": [
+   "model_forms.tests.ModelFormBasicTests.test_callable_choices_are_lazy"
+  ]
+ },
+ {
+  "tool": "hook",
+  "seconds": 39.8,
+  "at": 1791953306.3,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "hook",
+  "seconds": 41.32,
+  "at": 1791953357.1,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 11.83,
+  "at": 1791953382.9,
+  "labels": [
+   "model_fields",
+   "model_forms",
+   "forms_tests",
+   "admin_views",
+   "admin_filters",
+   "modeladmin"
+  ],
+  "problems": [],
+  "ran": 2537,
+  "failed": []
+ },
+ {
+  "tool": "hook",
+  "seconds": 37.62,
+  "at": 1791953420.7,
+  "detail": "after Bash"
+ },
+ {
+  "tool": "rt",
+  "seconds": 161.37,
+  "at": 1791953585.0,
+  "labels": [],
+  "problems": [],
+  "ran": 19061,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.51,
+  "at": 1791953588.5,
+  "labels": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests"
+  ],
+  "problems": [],
+  "ran": 1,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ }
+]

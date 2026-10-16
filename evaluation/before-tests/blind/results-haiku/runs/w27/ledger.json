@@ -1,0 +1,50 @@
+[
+ {
+  "tool": "rt",
+  "seconds": 0.62,
+  "at": 1791968923.9,
+  "labels": [
+   "deprecation"
+  ],
+  "problems": [],
+  "ran": 54,
+  "failed": [
+   "deprecation.tests.DjangoFilePrefixesTests.test_trailing_separator_excludes_sibling_packages"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.51,
+  "at": 1791968927.8,
+  "labels": [
+   "deprecation"
+  ],
+  "problems": [],
+  "ran": 54,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 236.9,
+  "at": 1791969167.3,
+  "labels": [],
+  "problems": [],
+  "ran": 19113,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ },
+ {
+  "tool": "rt",
+  "seconds": 0.57,
+  "at": 1791969185.2,
+  "labels": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests"
+  ],
+  "problems": [],
+  "ran": 1,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ }
+]

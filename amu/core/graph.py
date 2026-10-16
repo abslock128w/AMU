@@ -2,11 +2,17 @@
 from collections import defaultdict, deque
 
 AMBIGUITY_LIMIT = 8
+# An edge is [line, specificity, approximate]: the list as stored, so a saved graph loads without rebuilding.
+LINE, SPECIFICITY, APPROXIMATE = 0, 1, 2
 
 
 class Graph:
-    def __init__(self, facts, snapshot=None, relink=None):
+    def __init__(self, facts, snapshot=None, relink=None, loader=None):
         self.records = {k: r for f in facts.values() for k, r in f['records'].items()}
+        # ``loader(path)`` returns the complete facts of a file whose records here are the slim form.
+        self.loader, self.loaded = loader, set()
+        self.children = defaultdict(list)
+        self.class_state = {}
         self.modules = {f['module']: f['path'] for f in facts.values()}
         self.members = defaultdict(list)
         self.methods = defaultdict(list)
@@ -20,20 +26,20 @@ class Graph:
         for ident, r in self.records.items():
             if r['qual']:
                 self.members[(r['owner'], r['qual'].rsplit('.', 1)[-1])].append(ident)
+                self.children[r['owner']].append(ident)
                 if self.records.get(r['owner'], {}).get('kind') == 'class':
                     self.methods[r['qual'].rsplit('.', 1)[-1]].append(ident)
             if r.get('fixture'):
                 self.fixtures[r.get('fixture_name', r['qual'].rsplit('.', 1)[-1])].append(ident)
         self.subclasses = defaultdict(set)
-        self.state = defaultdict(list)
         if snapshot is not None and relink is None:
             # Edges of an unchanged tree are reused; only the reverse map is rebuilt.
             self.unresolved_count, self.ambiguous = snapshot['unresolved'], snapshot['ambiguous']
-            for caller, targets in snapshot['edges'].items():
-                for target, (line, specificity, approximate) in targets.items():
-                    row = dict(line=line, specificity=specificity, approximate=bool(approximate))
-                    self.edges[caller][target] = row
-                    self.reverse[target][caller] = row
+            self.edges = snapshot['edges']
+            reverse = self.reverse
+            for caller, targets in self.edges.items():
+                for target, row in targets.items():
+                    reverse[target][caller] = row
             for parent, subs in snapshot.get('subclasses', {}).items():
                 self.subclasses[parent] = set(subs)
             return
@@ -42,28 +48,29 @@ class Graph:
             # untouched file, and work out afresh only what the changed files reference.
             for caller, targets in snapshot['edges'].items():
                 if caller in self.records and self.records[caller]['path'] not in relink:
-                    for target, (line, specificity, approximate) in targets.items():
-                        if target in self.records:
-                            self.edges[caller][target] = dict(line=line, specificity=specificity, approximate=bool(approximate))
+                    kept = {target: row for target, row in targets.items() if target in self.records}
+                    if kept:
+                        self.edges[caller] = kept
             self.ambiguous = snapshot['ambiguous']
+            # Class hierarchy of untouched files is taken as it was.
+            for parent, subs in snapshot.get('subclasses', {}).items():
+                kept = {sub for sub in subs if sub in self.records and self.records[sub]['path'] not in relink}
+                if parent in self.records and kept:
+                    self.subclasses[parent] = kept
         for ident, r in self.records.items():
-            if r['kind'] == 'class':
-                for base in r['bases']:
+            if r['kind'] == 'class' and (relink is None or r['path'] in relink):
+                for base in self.full(ident)['bases']:
                     for parent in self.resolve(base, r['owner']):
                         if self.records.get(parent, {}).get('kind') == 'class':
                             self.subclasses[parent].add(ident)
-            elif r['kind'] == 'function' and self.records.get(r['owner'], {}).get('kind') == 'class':
-                # Instance state may be assigned by any method, not only the constructor.
-                for key, values in r['bindings'].items():
-                    if key.startswith('self.') and key.count('.') == 1:
-                        self.state[(r['owner'], key[5:])].extend((ident, value) for value in values)
         self.memo.clear()
         autouse = {name for name, found in self.fixtures.items() if any(self.records[f].get('autouse') for f in found)}
         for ident, r in self.records.items():
             if r['kind'] not in ('function', 'variable') or (relink is not None and r['path'] not in relink):
                 continue
             scope = ident if r['kind'] == 'function' else r['owner']
-            for expr, kind, line in r['refs']:
+            r = self.full(ident)
+            for expr, kind, line in r.get('refs', []):
                 targets = self.resolve(expr, scope)
                 approximate = False
                 if not targets and expr and expr[0] == 'attr':
@@ -108,8 +115,33 @@ class Graph:
     def snapshot(self):
         return dict(unresolved=self.unresolved_count, ambiguous=self.ambiguous,
                     subclasses={parent: sorted(subs) for parent, subs in self.subclasses.items()},
-                    edges={caller: {target: [e['line'], e['specificity'], int(e['approximate'])] for target, e in targets.items()}
-                           for caller, targets in self.edges.items()})
+                    edges={caller: dict(targets) for caller, targets in self.edges.items() if targets})
+
+    def full(self, ident):
+        """The complete record: slim records are replaced by their file's full facts on first need."""
+        r = self.records.get(ident)
+        if r is not None and 'refs' not in r and self.loader is not None and r['path'] not in self.loaded:
+            self.loaded.add(r['path'])
+            fact = self.loader(r['path'])
+            if fact:
+                for key, record in fact['records'].items():
+                    if key in self.records:
+                        self.records[key] = record
+            r = self.records.get(ident)
+        return r
+
+    def instance_state(self, cls):
+        """{attribute: [(method, value expression)]} assigned on ``self`` by any method of the class."""
+        if cls not in self.class_state:
+            found = defaultdict(list)
+            for child in self.children.get(cls, ()):
+                record = self.full(child)
+                if record and record['kind'] == 'function':
+                    for key, values in record.get('bindings', {}).items():
+                        if key.startswith('self.') and key.count('.') == 1:
+                            found[key[5:]].extend((child, value) for value in values)
+            self.class_state[cls] = found
+        return self.class_state[cls]
 
     def descendants(self, cls):
         if cls not in self.subclasses:
@@ -125,11 +157,14 @@ class Graph:
         self.below[cls] = seen
         return seen
 
-    @staticmethod
-    def is_test(r):
+    def is_test(self, r):
+        """A function the test runner collects: named test* (pytest's and unittest's prefix, so test1 and testSquare
+        count), in a test file, defined in a module or a class. A function nested in another is never collected."""
         name = r['qual'].rsplit('.', 1)[-1]
         path = r['path'].split('/')
-        return r['kind'] == 'function' and name.startswith('test_') and ('tests' in path or path[-1].startswith('test_') or path[-1].endswith('_test.py'))
+        if not (r['kind'] == 'function' and name.startswith('test') and ('tests' in path or path[-1].startswith('test_') or path[-1].endswith('_test.py'))):
+            return False
+        return (self.records.get(r.get('owner')) or {}).get('kind') != 'function'
 
     @staticmethod
     def visible_fixture(test, fixture):
@@ -137,9 +172,9 @@ class Graph:
         return path == test['path'] or path.endswith('conftest.py') and test['path'].startswith(path.rsplit('/', 1)[0]+'/')
 
     def add(self, caller, target, line, specificity, approximate):
-        row = dict(line=line, specificity=specificity, approximate=approximate)
+        row = [line, specificity, int(approximate)]
         old = self.edges[caller].get(target)
-        if old is None or (approximate, specificity, line) < (old['approximate'], old['specificity'], old['line']):
+        if old is None or (row[APPROXIMATE], specificity, line) < (old[APPROXIMATE], old[SPECIFICITY], old[LINE]):
             self.edges[caller][target] = row
 
     def imported(self, name, seen, depth):
@@ -151,7 +186,7 @@ class Graph:
         prefix, _, tail = name.rpartition('.')
         if prefix in self.modules:
             module = self.modules[prefix]
-            r = self.records[module]
+            r = self.full(module)
             result = set(self.members.get((module, tail), []))
             if tail in r['imports']:
                 result |= self.imported(r['imports'][tail], seen, depth+1)
@@ -169,7 +204,7 @@ class Graph:
         if depth > 12:
             return result
         for base in bases:
-            r = self.records.get(base)
+            r = self.full(base)
             if not r:
                 continue
             result.update(self.members.get((base, name), []))
@@ -180,7 +215,7 @@ class Graph:
             if r['kind'] == 'class':
                 for parent in r['bases']:
                     result |= self.attribute(self.resolve(parent, base, seen, depth+1), name, scope, seen, depth+1)
-                for method, expr in self.state.get((base, name), ()):
+                for method, expr in self.instance_state(base).get(name, ()):
                     result |= self.resolve(expr, method, seen, depth+1)
         return result
 
@@ -197,12 +232,12 @@ class Graph:
         seen = seen | {key}
         kind = expr[0]
         result = set()
-        r = self.records.get(scope, {})
+        r = self.full(scope) or {}
         if kind == 'symbol':
             result.add(expr[1])
         elif kind == 'var':
             result.add(expr[1])
-            var = self.records.get(expr[1], {})
+            var = self.full(expr[1]) or {}
             for value in var.get('values', []):
                 result |= self.resolve(value, var.get('owner'), seen, depth+1)
         elif kind == 'name':
@@ -220,13 +255,13 @@ class Graph:
             if not result:
                 for fixture in self.fixtures.get(name, []):
                     if self.visible_fixture(r, self.records[fixture]):
-                        for value in self.records[fixture]['returns']:
+                        for value in (self.full(fixture) or {}).get('returns', []):
                             result |= self.resolve(value, fixture, seen, depth+1)
         elif kind == 'attr':
             result |= self.attribute(self.resolve(expr[1], scope, seen, depth+1), expr[2], scope, seen, depth+1)
         elif kind == 'call':
             for target in self.resolve(expr[1], scope, seen, depth+1):
-                dest = self.records.get(target, {})
+                dest = self.full(target) or {}
                 if dest.get('kind') == 'class':
                     result.add(target)
                 else:
@@ -251,7 +286,7 @@ class Graph:
         queue = deque((ident, [ident], [], 0, 0) for ident in changed if ident in self.records)
         while queue:
             target, path, evidence, specificity, depth = queue.popleft()
-            rank = (depth, specificity, any(e['approximate'] for e in evidence))
+            rank = (depth, specificity, any(e[APPROXIMATE] for e in evidence))
             if target in visited and visited[target] <= rank:
                 continue
             visited[target] = rank
@@ -261,7 +296,7 @@ class Graph:
                 if caller in path:
                     continue
                 contained = self.records[target].get('owner') == caller and self.records[caller]['kind'] == 'function'
-                step = (caller, [caller, *path], [edge, *evidence], max(specificity, 0 if contained else edge['specificity']),
+                step = (caller, [caller, *path], [edge, *evidence], max(specificity, 0 if contained else edge[SPECIFICITY]),
                         depth + (0 if contained else 1))
                 if contained:
                     queue.appendleft(step)

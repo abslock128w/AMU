@@ -1,0 +1,25 @@
+[
+ {
+  "tool": "rt",
+  "seconds": 2.25,
+  "at": 1791974553.4,
+  "labels": [
+   "mail",
+   "logging_tests"
+  ],
+  "problems": [],
+  "ran": 312,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 130.92,
+  "at": 1791974689.8,
+  "labels": [],
+  "problems": [],
+  "ran": 19040,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ }
+]

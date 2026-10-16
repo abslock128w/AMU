@@ -1,0 +1,91 @@
+diff --git a/sympy/functions/elementary/hyperbolic.py b/sympy/functions/elementary/hyperbolic.py
+index 7e312c8..6cf816c 100644
+--- a/sympy/functions/elementary/hyperbolic.py
++++ b/sympy/functions/elementary/hyperbolic.py
+@@ -1830,7 +1830,7 @@ def eval(cls, arg):
+             if i_coeff is not None:
+                 return -I * acot(i_coeff)
+             else:
+-                if arg.could_extract_minus_sign():
++                if arg.is_nonzero and arg.could_extract_minus_sign():
+                     return -cls(-arg)
+ 
+         if arg.is_zero:
+diff --git a/sympy/functions/elementary/tests/test_hyperbolic.py b/sympy/functions/elementary/tests/test_hyperbolic.py
+index ece55e2..6e94f11 100644
+--- a/sympy/functions/elementary/tests/test_hyperbolic.py
++++ b/sympy/functions/elementary/tests/test_hyperbolic.py
+@@ -1192,6 +1192,8 @@ def test_atanh_fdiff():
+ 
+ def test_acoth():
+     x = Symbol('x')
++    n = Symbol('n', negative=True)
++    p = Symbol('p', positive=True)
+ 
+     #at specific points
+     assert acoth(0) == I*pi/2
+@@ -1209,7 +1211,10 @@ def test_acoth():
+     assert acoth(zoo) == 0
+ 
+     #properties
+-    assert acoth(-x) == -acoth(x)
++    assert acoth(-x) != -acoth(x)
++    assert acoth(-x).subs(x, 0) == acoth(0) == I*pi/2
++    assert acoth(-n) == -acoth(n)
++    assert acoth(-p) == -acoth(p)
+ 
+     assert acoth(I/sqrt(3)) == -I*pi/3
+     assert acoth(-I/sqrt(3)) == I*pi/3
+diff --git a/sympy/functions/elementary/tests/test_trigonometric.py b/sympy/functions/elementary/tests/test_trigonometric.py
+index e46a2f9..b07502c 100644
+--- a/sympy/functions/elementary/tests/test_trigonometric.py
++++ b/sympy/functions/elementary/tests/test_trigonometric.py
+@@ -1290,6 +1290,13 @@ def test_acot():
+     assert unchanged(acot, tan(x))
+     assert acot(cot(Rational(1, 4))) == Rational(1, 4)
+     assert acot(tan(Rational(-1, 4))) == Rational(1, 4) - pi/2
++    assert acot(-n) == -acot(n)
++    assert acot(-p) == -acot(p)
++    assert acot(-1) == -pi/4
++    assert acot(-sqrt(2)) == -acot(sqrt(2))
++    assert acot(-x) != -acot(x)
++    assert acot(-x).subs(x, 0) == acot(0) == pi/2
++    assert acot(-x).subs(x, 2) == -acot(2)
+ 
+ 
+ def test_acot_rewrite():
+@@ -1361,7 +1368,7 @@ def test_evenodd_rewrite():
+     a = cos(2)  # negative
+     b = sin(1)  # positive
+     even = [cos]
+-    odd = [sin, tan, cot, asin, atan, acot]
++    odd = [sin, tan, cot, asin, atan]
+     with_minus = [-1, -2**1024 * E, -pi/105, -x*y, -x - y]
+     for func in even:
+         for expr in with_minus:
+@@ -1375,6 +1382,12 @@ def test_evenodd_rewrite():
+         assert _check_no_rewrite(func, a*b)
+         assert func(
+             x - y) == -func(y - x)  # it doesn't matter which form is canonical
++    # acot is odd only away from its branch point z = 0
++    for expr in with_minus[:3]:
++        assert _check_odd_rewrite(acot, expr)
++    assert _check_odd_rewrite(acot, -Symbol('q', positive=True))
++    assert _check_no_rewrite(acot, -x*y)
++    assert _check_no_rewrite(acot, a*b)
+ 
+ 
+ def test_as_leading_term_issue_5272():
+diff --git a/sympy/functions/elementary/trigonometric.py b/sympy/functions/elementary/trigonometric.py
+index a58b85a..4da0800 100644
+--- a/sympy/functions/elementary/trigonometric.py
++++ b/sympy/functions/elementary/trigonometric.py
+@@ -3027,7 +3027,7 @@ def eval(cls, arg):
+         if arg is S.ComplexInfinity:
+             return S.Zero
+ 
+-        if arg.could_extract_minus_sign():
++        if arg.is_nonzero and arg.could_extract_minus_sign():
+             return -cls(-arg)
+ 
+         if arg.is_number:

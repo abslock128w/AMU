@@ -28,9 +28,9 @@ spec = importlib.util.find_spec('amu.mcp_server')
 data = {'amu_version': amu.__version__, 'version': amu.__version__,
         'python_version': platform.python_version(), 'executable': sys.executable,
         'module': spec.origin if spec is not None else None}
-for package in ('amu', 'mcp', 'pydantic'):
-    try: data['distribution_version' if package == 'amu' else package + '_version'] = importlib.metadata.version(package)
-    except importlib.metadata.PackageNotFoundError: data['distribution_version' if package == 'amu' else package + '_version'] = None
+for package in ('anti-messup', 'mcp', 'pydantic'):
+    try: data['distribution_version' if package == 'anti-messup' else package + '_version'] = importlib.metadata.version(package)
+    except importlib.metadata.PackageNotFoundError: data['distribution_version' if package == 'anti-messup' else package + '_version'] = None
 print(json.dumps(data, allow_nan=False))
 """
 

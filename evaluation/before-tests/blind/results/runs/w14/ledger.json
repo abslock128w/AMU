@@ -1,0 +1,26 @@
+[
+ {
+  "tool": "rt",
+  "seconds": 1.06,
+  "at": 1791953939.5,
+  "labels": [
+   "invalid_models_tests",
+   "model_fields",
+   "m2m_through"
+  ],
+  "problems": [],
+  "ran": 954,
+  "failed": []
+ },
+ {
+  "tool": "rt",
+  "seconds": 191.17,
+  "at": 1791954133.9,
+  "labels": [],
+  "problems": [],
+  "ran": 19085,
+  "failed": [
+   "admin_scripts.tests.CommandDBOptionChoiceTests.test_invalid_choice_db_option"
+  ]
+ }
+]

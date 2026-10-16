@@ -1,0 +1,13 @@
+{
+ "model": "claude-haiku-5-5",
+ "budget_seconds": 900,
+ "hard_cap_seconds": 3600,
+ "rt_shards": 4,
+ "score_shards": 8,
+ "suite_minutes_told": "3 to 5",
+ "pairs_at_once": 2,
+ "seed": 20261014,
+ "amu_args": [
+  "--full-evidence"
+ ]
+}

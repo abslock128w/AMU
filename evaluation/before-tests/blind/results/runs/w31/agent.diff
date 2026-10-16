@@ -1,0 +1,120 @@
+diff --git a/django/db/models/fields/related.py b/django/db/models/fields/related.py
+index f1bc664..08f6af1 100644
+--- a/django/db/models/fields/related.py
++++ b/django/db/models/fields/related.py
+@@ -130,6 +130,31 @@ class RelatedField(FieldCacheMixin, Field):
+             *self._check_relation_model_exists(),
+             *self._check_referencing_to_swapped_model(),
+             *self._check_clashes(),
++            *self._check_conflict_with_managers(),
++        ]
++
++    def _check_conflict_with_managers(self):
++        # Skip nonexistent models.
++        if isinstance(self.remote_field.model, str):
++            return []
++        accessor_name = self.remote_field.get_accessor_name()
++        if not accessor_name or accessor_name.endswith("+"):
++            return []
++        remote_opts = self.remote_field.model._meta
++        if accessor_name not in {manager.name for manager in remote_opts.managers}:
++            return []
++        field_name = f"{self.model._meta.object_name}.{self.name}"
++        return [
++            checks.Error(
++                f"Related name '{accessor_name}' for '{field_name}' "
++                "clashes with the name of a model manager.",
++                hint=(
++                    "Rename the model manager or change the related_name "
++                    f"argument in the definition for field '{field_name}'."
++                ),
++                obj=self,
++                id="fields.E348",
++            )
+         ]
+ 
+     def _check_related_name_is_valid(self):
+@@ -589,7 +614,6 @@ class ForeignObject(RelatedField):
+             *self._check_to_fields_exist(),
+             *self._check_to_fields_composite_pk(),
+             *self._check_unique_target(),
+-            *self._check_conflict_with_managers(),
+         ]
+ 
+     def _check_to_fields_exist(self):
+@@ -719,27 +743,6 @@ class ForeignObject(RelatedField):
+                 ]
+         return []
+ 
+-    def _check_conflict_with_managers(self):
+-        errors = []
+-        manager_names = {manager.name for manager in self.opts.managers}
+-        for rel_objs in self.model._meta.related_objects:
+-            related_object_name = rel_objs.name
+-            if related_object_name in manager_names:
+-                field_name = f"{self.model._meta.object_name}.{self.name}"
+-                errors.append(
+-                    checks.Error(
+-                        f"Related name '{related_object_name}' for '{field_name}' "
+-                        "clashes with the name of a model manager.",
+-                        hint=(
+-                            "Rename the model manager or change the related_name "
+-                            f"argument in the definition for field '{field_name}'."
+-                        ),
+-                        obj=self,
+-                        id="fields.E348",
+-                    )
+-                )
+-        return errors
+-
+     def deconstruct(self):
+         name, path, args, kwargs = super().deconstruct()
+         kwargs["on_delete"] = self.remote_field.on_delete
+diff --git a/tests/invalid_models_tests/test_relative_fields.py b/tests/invalid_models_tests/test_relative_fields.py
+index 51b1de1..5a1c692 100644
+--- a/tests/invalid_models_tests/test_relative_fields.py
++++ b/tests/invalid_models_tests/test_relative_fields.py
+@@ -1591,6 +1591,43 @@ class RelatedQueryNameClashWithManagerTests(SimpleTestCase):
+             ],
+         )
+ 
++    def test_clash_between_related_name_and_manager_on_other_model(self):
++        class Target(models.Model):
++            objs = models.Manager()
++
++        class Source(models.Model):
++            fk = models.ForeignKey(
++                Target, related_name="objs", on_delete=models.CASCADE
++            )
++            m2m = models.ManyToManyField(Target, related_name="objs")
++
++        for name in ["fk", "m2m"]:
++            with self.subTest(name):
++                errors = Source._meta.get_field(name).check(from_model=Source)
++                self.assertIn("fields.E348", [e.id for e in errors])
++
++    def test_default_accessor_name_clash_with_manager(self):
++        class Target(models.Model):
++            source_set = models.Manager()
++
++        class Source(models.Model):
++            fk = models.ForeignKey(Target, on_delete=models.CASCADE)
++
++        self.assertEqual(
++            [e.id for e in Source._meta.get_field("fk").check()], ["fields.E348"]
++        )
++
++    def test_field_name_matching_manager_name_is_not_a_clash(self):
++        class Target(models.Model):
++            fk = models.Manager()
++
++        class Source(models.Model):
++            fk = models.ForeignKey(
++                Target, related_name="sources", on_delete=models.CASCADE
++            )
++
++        self.assertEqual(Source._meta.get_field("fk").check(), [])
++
+ 
+ @isolate_apps("invalid_models_tests")
+ class SelfReferentialM2MClashTests(SimpleTestCase):
