@@ -18,7 +18,7 @@ def test_record_keeps_counts_and_shas_only():
     nasty['error'] = 'source line: password = "hunter2"'
     row = counters.record(nasty, dict(head=H1, merge_base='not a sha', seconds='12', pr=3), dict(checked=2, held='x', false=1))
     assert row == dict(head=H1, merge_base=None, flips=2, ran=10, candidates=10, gaps=1, checked=2, held=None, false=1,
-                       aborted=False, error=True, seconds=None, evidence=None, replayed=None)
+                       aborted=False, error=True, seconds=None, evidence=None, replayed=None, unstable=None, not_caused=None)
     text = counters.block([row])
     assert 'secret' not in text and 'hunter2' not in text and '-->' not in text[:-3]
 
@@ -42,7 +42,8 @@ def test_summary_measures_both_bars():
     out = counters.summarize([('o/r', 1, True, flagged_then_cleared), ('o/r', 2, True, flagged_not_cleared),
                               ('o/r', 3, True, clear_throughout), ('o/r', 4, False, cleared_but_closed)])
     assert out == dict(pull_requests=4, with_a_flip=3, cleared_before_merge=1, cleared_share=0.333,
-                       flips_rerun=5, false_flips=1, false_flip_rate=0.2)
+                       flips_rerun=5, false_flips=1, false_flip_rate=0.2, flips_labelled_unstable=0,
+                       flips_labelled_not_caused=0, change_evidence_rows=0)
     assert counters.summarize([('o/r', n, True, clear_throughout) for n in range(80)])['pull_requests'] == 50
 
 

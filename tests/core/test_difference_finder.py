@@ -75,3 +75,27 @@ def test_a_test_whose_parametrize_table_changed_counts_as_edited():
     after = before.replace('{"a": 1}', '{"a": 1, "b": 2}')
     old, new = replay.definitions(before), replay.definitions(after)
     assert [name for name in new if old.get(name) != new[name]] == ['test_table']
+
+
+def test_a_flip_is_a_failure_only_after_the_reach_check_and_three_reruns(tmp_path):
+    tests = ('import pathlib\nfrom lib import work\n'
+             'def test_work():\n    assert work() == 1\n'
+             'def test_reads_the_source():\n    assert "return 1" in (pathlib.Path(__file__).parent.parent/"lib.py").read_text()\n')
+    result = run_change(tmp_path, {'lib.py': LIB0, 'tests/test_lib.py': tests}, {'lib.py': LIB1, 'tests/test_lib.py': tests},
+                        also=['tests/test_lib.py::test_reads_the_source'])
+    labels = {row['id'].split('::')[-1]: row for row in result['flip_trust']}
+    assert labels['test_work']['label'] == 'fails' and labels['test_work']['reach'] >= 1, labels
+    assert set(labels['test_work']['reruns'].values()) == {'failed'}
+    assert labels['test_reads_the_source']['label'] == 'not caused by this change', labels
+    assert 'none of the changed lines' in labels['test_reads_the_source']['why']
+    assert result['predicted_failures'] == [dict(result['predicted_failures'][0], id='tests/test_lib.py::test_work')]
+    assert result['flips'] == 1 and 'not caused by this change, not counted' in result['summary'], result['summary']
+    assert result['order'].startswith(('pytest-randomly', 'the same explicit order'))
+
+
+def test_the_in_process_rerun_works_for_unittest_runners(tmp_path):
+    tests = 'import unittest\nfrom lib import work\nclass TestWork(unittest.TestCase):\n    def test_work(self):\n        self.assertEqual(work(), 1)\n'
+    result = run_change(tmp_path, {'lib.py': LIB0, 'tests/test_lib.py': tests}, {'lib.py': LIB1, 'tests/test_lib.py': tests},
+                        runner='unittest')
+    [row] = result['flip_trust']
+    assert row['label'] == 'fails' and row['reruns'] == dict(in_process='failed', fresh_process='failed', after_set='failed'), row

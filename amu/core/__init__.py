@@ -7,7 +7,7 @@ import math
 import re
 from pathlib import Path
 
-from . import consequences, coverage, lexical, rank, replay, runners, shadow, vanished
+from . import consequences, coverage, lexical, rank, replay, runners, shadow, trust, vanished
 from .git import working_diff
 from .index import cache_dir, parse_or_none
 from .index import state as load_state
@@ -344,6 +344,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         # A failing test defined on a base class is run again in every subclass that inherits it.
         by_id = {tests[ident]['path'] + '::' + tests[ident]['qual'].replace('.', '::'): ident for ident, _ in order[:cap]}
         copies = sorted({copy for flip in flips if flip['after'] == 'failed' and flip['id'] in by_id
+                         and flip.get('trust', trust.CONFIRMED) == trust.CONFIRMED
                          for copy in inheritors(by_id[flip['id']])} - set(wide))[:RUN_CANDIDATES]
         if copies:
             more, again, more_gaps = shadow.run(root, edits, copies, python, budget, runner, memo=memo)
@@ -353,8 +354,12 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
                             candidates=executed.get('candidates', 0) + again.get('candidates', 0),
                             outcomes={**executed.get('outcomes', {}), **again.get('outcomes', {})},
                             unstable=sorted({*executed.get('unstable', []), *again.get('unstable', [])}),
+                            not_caused=sorted({*executed.get('not_caused', []), *again.get('not_caused', [])}),
                             ran_original=executed.get('ran_original', 0) + again.get('ran_original', 0),
                             original_tests={**executed.get('original_tests', {}), **again.get('original_tests', {})})
+        # Only a flip that passed the trust checks is a failure; the others stay listed with their label.
+        labelled = [flip for flip in flips if flip.get('trust') and flip['after'] == 'failed']
+        flips = [flip for flip in flips if flip.get('trust', trust.CONFIRMED) == trust.CONFIRMED]
         state = {flip['id']: flip for flip in flips}
         for row in rows:
             if row['id'] in state:
@@ -363,6 +368,8 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
                 row['expect'] = 'unchanged'
         rows.sort(key=lambda row: row['expect'] != 'fails')
         executed['predicted_failures'] = [flip for flip in flips if flip['after'] == 'failed']
+        executed['flip_trust'] = [dict(id=f['id'], label=f['trust'], why=f.get('why', ''), reruns=f.get('reruns'), reach=f.get('reach'))
+                                  for f in labelled]
         replayed = executed.get('replayed') or []
         executed['change_evidence'] = [dict(id=row['id'], before=row['base'], after=row['head'], label=replay.EVIDENCE)
                                        for row in replayed if row['verdict'] == 'evidence']
@@ -398,7 +405,9 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
             summary += (f" {edited} of the failures pass, are skipped or are gone only because the test was edited; as it was, "
                         f"it still fails on the changed code: {shadow.EDITED}.")
         if executed.get('unstable'):
-            summary += f" {len(executed['unstable'])} flipped once and not on a rerun: unstable, not counted."
+            summary += f" {len(executed['unstable'])} flipped and did not fail again in every rerun: unstable, not counted."
+        if executed.get('not_caused'):
+            summary += f" {len(executed['not_caused'])} flipped without running any changed line: {trust.NOT_CAUSED}, not counted."
         if executed.get('replayed'):
             summary += (f" {len(executed['replayed'])} test(s) the change adds or edits replayed on the code before it: "
                         f"{len(executed['change_evidence'])} fail there and pass after ({replay.EVIDENCE}).")
@@ -428,6 +437,10 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
                       gaps=report['gaps'], **{k: v for k, v in report.items() if k not in ('predicted_failures', 'gaps')})
         if executed.get('unstable'):
             report['unstable'] = executed['unstable']
+        if executed.get('flip_trust'):
+            # Every flip with its label (fails, unstable, not caused by this change), why, and each rerun's outcome.
+            report['flip_trust'] = executed['flip_trust']
+            report['order'] = executed.get('order')
         if executed.get('replayed'):
             report['change_evidence'] = executed['change_evidence']
             report['replayed'] = executed['replayed']

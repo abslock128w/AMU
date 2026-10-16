@@ -70,7 +70,8 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None):
     if failures and not report.get('error'):
         out += [f'### Flips ({len(failures)})', '',
                 f'Pass on the merge base {short(base)}, fail on the head. Each was rerun on the merge base to confirm '
-                'it passed there.', '']
+                'it passed there, and failed again on the head in the same process, alone in a fresh process, and after '
+                'the rest of the candidates.', '']
 
         def flip(row):
             label = row.get('label') if isinstance(row, dict) else None
@@ -95,8 +96,13 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None):
         quiet = sum(row.get('verdict') == 'none' for row in replayed)
         if quiet:
             out += [f"{plural(quiet, 'test')} pass on the merge base too, so they show nothing about the change.", '']
+    labelled = [row for row in report.get('flip_trust') or [] if isinstance(row, dict) and row.get('id') and row.get('label') != 'fails']
     unstable = report.get('unstable') or []
-    if unstable:
+    if labelled and not report.get('error'):
+        out += [f'### Flips not counted ({len(labelled)})', '',
+                'Pass on the merge base and fail on the head, but did not pass the checks a flip needs to count:', '']
+        out += rows(labelled, lambda row: f"{code(row['id'])}: {code(row.get('label', '?'), 40)}, {code(row.get('why', ''), 200)}", listed) + ['']
+    elif unstable:
         out += [f'Flipped once and not on a rerun, so not counted: {len(unstable)}.', '']
         out += rows(unstable, lambda row: code(failure_id(row)), listed) + ['']
     if aborted:
@@ -116,7 +122,8 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None):
             out.append(f"{executed.get('ran')} of {executed.get('candidates', '?')} candidate tests on the head, "
                        f"{executed.get('seconds', '?')} s with {code(executed.get('runner') or report.get('runner') or '?')}"
                        f"{', budget ' + str(executed['budget']) + ' s per side' if executed.get('budget') else ''}. "
-                       'Failures were rerun on the merge base. Tests outside the candidates were not run.')
+                       'Failures were rerun on the merge base. Tests outside the candidates were not run.'
+                       + (f" Order: {code(report['order'], 120)}." if report.get('order') else ''))
         else:
             out.append('No test ran, so nothing here says whether the change breaks one.')
         out.append('')

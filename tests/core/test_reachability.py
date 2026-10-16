@@ -770,13 +770,16 @@ def test_a_broken_test_module_with_inherited_tests_is_still_a_runner_abort(tmp_p
     assert info.get('aborted') and 'Nope' in info['aborted']['error'], (info, gaps)
 
 
-def test_an_order_dependent_regression_is_not_demoted_to_unstable(tmp_path):
+def test_an_order_dependent_regression_is_listed_as_unstable_with_its_cause(tmp_path):
+    # Brief 4 (A2): a flip that does not fail in all three reruns is unstable, never dropped, and says which rerun passed.
+    # An order dependence the change brings is named as such.
     lib0 = 'def collect(x, acc=None):\n    acc = [] if acc is None else acc\n    acc.append(x)\n    return acc\n'
     lib1 = 'def collect(x, acc=[]):\n    acc.append(x)\n    return acc\n'
     tests = 'from lib import collect\ndef test_p():\n    assert collect(1)\ndef test_t():\n    assert collect(2) == [2]\n'
     rows, info, gaps = _shadow(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1, 'tests/test_lib.py': tests},
                                ['tests/test_lib.py::test_p', 'tests/test_lib.py::test_t'])
-    assert [r['id'] for r in rows] == ['tests/test_lib.py::test_t'] and not info.get('unstable'), (rows, info.get('unstable'), gaps)
+    assert [(r['id'], r['trust']) for r in rows] == [('tests/test_lib.py::test_t', 'unstable')], (rows, gaps)
+    assert 'alone in a fresh process' in rows[0]['why'] and 'order dependence this change brings' in rows[0]['why'], rows
 
 
 def test_a_new_failing_test_is_not_an_existing_test_that_now_fails(tmp_path):

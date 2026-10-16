@@ -17,9 +17,9 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from . import replay, runners
+from . import replay, runners, trust
 from .git import _git
-from .patch import applied, candidate, original
+from .patch import applied, candidate, original, renumber
 
 CHUNK = 40
 CONFIRM = 20  # seconds always allowed for confirming a failure on the unchanged code
@@ -76,6 +76,7 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
     if not ids:
         return [], dict(ran=0, seconds=0.0, runner=runner.name), gaps
     parts = PARTS if runner.parallel else 1
+    runner.extra, order = trust.ordering(runner, python)
     key = parent_key(root) if memo else None
     remembered = load_memo(memo, key) if key else dict(before={}, rate=None)
     rate = remembered.get('rate') or RATE
@@ -157,32 +158,29 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
         removed = [i for i in ids if i in states['after'] and _removed(i, edits, before_src, trees['after'])]
         for ident in removed:
             states['after'][ident] = 'removed'
-        unstable, edited_flips, originals, replayed = [], [], {}, []
+        unstable, edited_flips, originals, replayed, verdicts = [], [], {}, [], {}
         if not aborted:
-            # A flip is believed only if it repeats: every flipped test runs once more on the changed code. One that does
-            # not repeat alone runs again in the batch it first failed in, since a failure can depend on the tests before
-            # it; it is unstable only if it does not repeat there either. A "before" outcome taken from the memo is
-            # confirmed afresh, so a test that is flaky on the unchanged code is not a flip.
-            flipped = [i for i in ids if _flip(states['before'].get(i), states['after'].get(i))]
+            # A flip is believed only after the trust checks (trust module): the reach check and three reruns on the
+            # changed code. A "before" outcome taken from the memo is confirmed afresh, so a test that is flaky on the
+            # unchanged code is not a flip. Nothing is dropped: every flip leaves with a label.
+            flipped = [i for i in ids if _flip(states['before'].get(i), states['after'].get(i)) and states['after'][i] == 'failed']
             if flipped:
+                ran = [i for i in ids if states['after'].get(i) in OUTCOMES]
+                changed = trust.changed_lines(trees['after'], edits, _after_lines)
                 began = time.perf_counter()
-                again, problems = execute(runner, python, trees['after'], flipped, scratch, 'recheck', max(left, CONFIRM), parts)
+                verdicts, more = trust.triad(runner, python, trees['after'], flipped, ran, scratch, max(left, CONFIRM), changed,
+                                             before_tree=trees['before'])
                 left -= time.perf_counter() - began
-                differs = [i for i in flipped if again.get(i) in OUTCOMES and again[i] != states['after'][i]]
-                unchecked = [i for i in flipped if again.get(i) not in OUTCOMES]
-                for part in {tuple(context[i]) for i in differs if i in context}:
-                    began = time.perf_counter()
-                    inside, _ = runners.execute(runner, python, trees['after'], list(part), Path(scratch)/'recheck-context.xml', max(left, CONFIRM))
-                    left -= time.perf_counter() - began
-                    unstable += [i for i in differs if i in part and inside.get(i) != states['after'][i]]
-                remembered_flips = [i for i in flipped if i in from_memo and i not in unstable]
+                gaps += more
+                remembered_flips = [i for i in flipped if i in from_memo and verdicts[i]['label'] != trust.UNSTABLE]
                 if remembered_flips:
                     began = time.perf_counter()
                     fresh, _ = runners.execute(runner, python, trees['before'], remembered_flips, Path(scratch)/'before-fresh.xml', max(left, CONFIRM))
                     left -= time.perf_counter() - began
-                    unstable += [i for i in remembered_flips if fresh.get(i) in OUTCOMES and fresh[i] != states['before'][i]]
-                if unchecked:
-                    gaps.append(f'{len(unchecked)} flip(s) could not be rerun ({"; ".join(problems) or "no outcome"}); reported without a recheck')
+                    for i in remembered_flips:
+                        if fresh.get(i) in OUTCOMES and fresh[i] != states['before'][i]:
+                            verdicts[i].update(label=trust.UNSTABLE, why='passed and failed on the code before the change')
+                unstable += [i for i in flipped if verdicts[i]['label'] == trust.UNSTABLE]
             # A test file the change edited: its tests as they were are also run against the changed code. A test that
             # passed before and fails in its original form on the changed code, but passes, is skipped or is gone as
             # edited, was dealt with by changing the test, not the code: "test edited, not fixed". Only tests the file
@@ -245,15 +243,20 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
     rows, unstable = [], sorted(set(unstable))
     for ident in ids:
         before, after = states['before'].get(ident), states['after'].get(ident)
-        if ident in unstable:
+        if ident in verdicts:
+            rows.append(dict(id=ident, before=before, after=after, label='executed', trust=verdicts[ident]['label'],
+                             why=verdicts[ident]['why'], reruns=verdicts[ident]['reruns'], reach=verdicts[ident]['reach']))
+        elif ident in unstable:
             continue
-        if before in OUTCOMES and after in OUTCOMES and before != after:
+        elif before in OUTCOMES and after in OUTCOMES and before != after:
             rows.append(dict(id=ident, before=before, after=after, label='executed'))
         elif ident in edited_flips:
-            rows.append(dict(id=ident, before='passed', after='failed', label=EDITED, edited_form=after))
+            rows.append(dict(id=ident, before='passed', after='failed', label=EDITED, edited_form=after, trust=trust.CONFIRMED,
+                             why='failed again in a rerun, as the test was before the edit'))
     if unstable:
-        gaps.append(f'{len(unstable)} test(s) flipped once and not on a rerun; reported as unstable, not as failures: ' + ', '.join(unstable[:3])
+        gaps.append(f'{len(unstable)} test(s) flipped and did not fail again in every rerun; reported as unstable, not as failures: ' + ', '.join(unstable[:3])
                     + (f' and {len(unstable) - 3} more' if len(unstable) > 3 else ''))
+    unreached = [i for i in ids if verdicts.get(i, {}).get('label') == trust.NOT_CAUSED]
     if removed:
         gaps.append(f'{len(removed)} candidate(s) no longer defined after the change (renamed or deleted in an edited test file)')
     unrunnable = sorted(ident for ident, state in states['after'].items() if state == 'unrunnable')
@@ -264,6 +267,9 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
         info['aborted'] = aborted
     if unstable:
         info['unstable'] = unstable
+    if unreached:
+        info['not_caused'] = unreached
+    info['order'] = order
     if replayed:
         info['replayed'] = replayed
     if originals:
@@ -273,6 +279,13 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
 
 
 EDITED = 'test edited, not fixed'
+
+
+def _after_lines(path, edit):
+    """Changed lines of one file, numbered as on the changed side: added lines, and where removed lines' replacements
+    landed."""
+    place = renumber(edit)
+    return set(edit['new']) | {place(line) for line in edit['old']}
 
 
 def _replay(runner, python, after_tree, other, edits, before_src, after_src, live_is_after, own, after_states, scratch, left):

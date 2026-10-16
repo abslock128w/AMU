@@ -85,3 +85,20 @@ def test_upsert_creates_when_none():
     github = FakeGitHub([dict(id=1, body='hello', user=dict(login=post.AUTHOR))])
     assert post.upsert(github, 'o/r', 5, 'new') == ('created', 99)
     assert github.calls[0][:2] == ('POST', '/repos/o/r/issues/5/comments')
+
+
+def test_flips_that_fail_the_trust_checks_are_listed_with_their_label_not_counted():
+    from amu.ci.render import render
+    report = dict(flips=1, predicted_failures=[dict(id='tests/t.py::test_a', before='passed', after='failed')],
+                  flip_trust=[dict(id='tests/t.py::test_a', label='fails', why='failed again in every rerun'),
+                              dict(id='tests/t.py::test_b', label='unstable', why='passed in the rerun alone in a fresh process'),
+                              dict(id='tests/t.py::test_c', label='not caused by this change', why='it ran none of the changed lines')],
+                  change_evidence=[dict(id='tests/t.py::test_new', before='failed', after='passed')],
+                  replayed=[dict(id='tests/t.py::test_new', verdict='evidence'), dict(id='tests/t.py::test_old', verdict='none')],
+                  order='pytest-randomly, seed 1, on both sides', gaps=[], executed=dict(ran=9, candidates=9, runner='pytest'))
+    body = render(report, dict(head='a' * 40, merge_base='b' * 40))
+    first = body.splitlines()[0]
+    assert first.startswith('**AMU: 1 flip**') and "1 test of the pull request's own fail on the merge base" in first, first
+    assert '### Flips not counted (2)' in body and '`unstable`' in body and '`not caused by this change`' in body
+    assert "### Change evidence: the pull request's own tests (1)" in body and '`tests/t.py::test_new`' in body
+    assert '1 test pass on the merge base too' in body and 'pytest-randomly' in body

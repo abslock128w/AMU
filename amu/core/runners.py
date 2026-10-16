@@ -54,8 +54,10 @@ class Runner:
     def cwd(self, tree):
         return tree
 
+    extra = ()  # arguments added to every run, such as the ordering seed (trust.ordering)
+
     def command(self, python, labels, report):
-        return [python, '-m', 'pytest', *labels, '-q', '-p', 'no:cacheprovider', '--junitxml=' + str(report)]
+        return [python, '-m', 'pytest', *labels, '-q', '-p', 'no:cacheprovider', *self.extra, '--junitxml=' + str(report)]
 
     def paste(self, ident):
         return 'python -m pytest ' + self.label(ident)
@@ -187,13 +189,44 @@ def get(root, name=None):
     return RUNNERS.get(name or detect(root), Runner)()
 
 
-def execute(runner, python, tree, ids, report, timeout):
+def environment(tree, extra_env=None):
+    """The environment a test run gets: the tree importable, no bytecode written, a fixed hash seed so both sides
+    iterate sets and dicts of strings alike. ``AMU_TRUST_PATH`` in ``extra_env`` goes first on the path (trust)."""
+    extra = dict(extra_env or {})
+    first = extra.get('AMU_TRUST_PATH')
+    return dict(os.environ, PYTHONDONTWRITEBYTECODE='1', PYTHONHASHSEED='0', **extra,
+                PYTHONPATH=os.pathsep.join(filter(None, [first, str(tree/'src'), str(tree), os.environ.get('PYTHONPATH')])))
+
+
+def sequence(runner, python, tree, ids, timeout):
+    """Each label's outcomes in the order a unittest-style runner reported them: {id: [state, ...]}. A label given
+    twice runs twice in the same process."""
+    try:
+        done = subprocess.run(runner.command(python, [runner.label(i) for i in ids], None), cwd=runner.cwd(tree),
+                              env=environment(tree), capture_output=True, timeout=timeout, stdin=subprocess.DEVNULL)
+    except (subprocess.TimeoutExpired, OSError):
+        return {}
+    by_label = {runner.label(ident): ident for ident in ids}
+    found, pending = {}, None
+    for line in (done.stderr + done.stdout).decode(errors='replace').splitlines():
+        match = VERBOSE.match(line)
+        if match:
+            pending = match[2]
+        state = STATE.search(line)
+        if state and pending:
+            value = 'passed' if state[1] == 'ok' else 'skipped' if state[1] in ('skipped', 'expected failure') else 'failed'
+            if pending in by_label:
+                found.setdefault(by_label[pending], []).append(value)
+            pending = None
+    return found
+
+
+def execute(runner, python, tree, ids, report, timeout, extra_env=None, extra_args=None):
     """Run ``ids`` in ``tree``. Returns ({id: state}, problem or None)."""
     usable = [ident for ident in ids if not runner.needs_class or ident.count('::') >= 2]
     if not usable:
         return {}, None
-    env = dict(os.environ, PYTHONDONTWRITEBYTECODE='1',
-               PYTHONPATH=os.pathsep.join(filter(None, [str(tree/'src'), str(tree), os.environ.get('PYTHONPATH')])))
+    env = environment(tree, extra_env)
     found, problem = {}, None
     # One batch first. A single label the runner cannot load can abort the whole batch and leave it with
     # no outcomes, so a batch that comes back short is split in two and retried until the labels that
@@ -202,7 +235,10 @@ def execute(runner, python, tree, ids, report, timeout):
     while batches:
         batch = batches.pop(0)
         try:
-            done = subprocess.run(runner.command(python, [runner.label(i) for i in batch], report), cwd=runner.cwd(tree), env=env,
+            command = runner.command(python, [runner.label(i) for i in batch], report)
+            if extra_args:
+                command = [*command[:3], *extra_args, *command[3:]] if runner.name == 'pytest' else command
+            done = subprocess.run(command, cwd=runner.cwd(tree), env=env,
                                   capture_output=True, timeout=timeout, stdin=subprocess.DEVNULL)
         except subprocess.TimeoutExpired:
             return found, 'timed out'
