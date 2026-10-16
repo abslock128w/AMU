@@ -24,7 +24,7 @@ def main(path):
         by.setdefault(row['run'], {})[row['engine']] = row
     table, labels, lost, unlabelled, errors = [], Counter(), [], [], []
     for run in sorted(by):
-        old, new = by[run].get('old'), by[run].get('a2')
+        old, new = by[run].get('old'), by[run].get(sys.argv[2] if len(sys.argv) > 2 else 'a2')
         if not old or not new or 'error' in old or 'error' in new:
             errors.append(run)
             continue
