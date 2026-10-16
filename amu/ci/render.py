@@ -19,7 +19,7 @@ from pathlib import Path
 MARKER = '<!-- amu-ci-comment v1 -->'
 LIMIT = 60_000      # GitHub rejects comment bodies over 65,536 characters
 FIELD = 300         # characters kept from any one untrusted string
-LISTED = 50         # rows shown per list before "and N more"
+LISTED = 50         # rows shown per list before "and N more" in the artifact
 
 
 def code(text, limit=FIELD):
