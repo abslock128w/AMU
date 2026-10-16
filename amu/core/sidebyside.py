@@ -135,10 +135,66 @@ if _spec_path and _sys.version_info >= (3, 12):
                 _local.calls.append(name)
             return None
 
-        def _run(fn, blob, generator):
+        _modules, _swaps = {}, []
+
+        def _module_for(path):
+            found = _modules.get(path)
+            if found is None:
+                found = False
+                for module in list(_sys.modules.values()):
+                    try:
+                        name = object.__getattribute__(module, "__file__")
+                    except Exception:
+                        continue
+                    if isinstance(name, str) and _os.path.realpath(name) == path:
+                        found = module
+                        break
+                _modules[path] = found
+            return found
+
+        def _prepare_swaps():
+            """For every changed function that can be found in its module or class: (owner, name, as changed, as it was).
+            A changed function calling another changed one must call it as changed too, or the comparison mixes versions."""
+            if _swaps:
+                return _swaps
+            for target in _spec["targets"]:
+                module = _module_for(_os.path.realpath(target["file"]))
+                if not module:
+                    continue
+                owner = module
+                for part in target["qual"].split(".")[:-1]:
+                    owner = vars(owner).get(part) if isinstance(owner, type) or owner is module else None
+                    if owner is None:
+                        break
+                if owner is None:
+                    continue
+                original = vars(owner).get(target["name"])
+                kind = type(original)
+                if kind not in (types.FunctionType, staticmethod, classmethod):
+                    continue
+                changed = _build(target, "after", vars(module))
+                if changed is None:
+                    continue
+                _swaps.append((owner, target["name"], changed if kind is types.FunctionType else kind(changed), original))
+            _swaps.append(None)  # prepared, even if empty
+            return _swaps
+
+        def _swapped(on):
+            for item in _swaps:
+                if item is not None:
+                    owner, name, changed, original = item
+                    try:
+                        setattr(owner, name, changed if on else original)
+                    except Exception:
+                        pass
+
+        def _run(fn, blob, generator, changed=False):
             pos, kw = pickle.loads(blob)
             out = io.StringIO()
             _local.calls = []
+            if changed:
+                _prepare_swaps()
+                _swapped(True)
             try:
                 with contextlib.redirect_stdout(out):
                     try:
@@ -149,6 +205,8 @@ if _spec_path and _sys.version_info >= (3, 12):
                     except BaseException as exc:
                         result = ["raise", type(exc).__qualname__, _ADDRESS.sub(" at 0x?", str(exc))[:500]]
             finally:
+                if changed:
+                    _swapped(False)
                 calls, _local.calls = _local.calls, None
             return dict(result=result, args_after=_fp([pos, kw]), stdout=out.getvalue()[:2000], calls=calls)
 
@@ -179,7 +237,8 @@ if _spec_path and _sys.version_info >= (3, 12):
                 fns = _built[target["id"]] = (_build(target, "before", frame.f_globals), _build(target, "after", frame.f_globals))
             base, head = fns
             generator = bool(flags & 0x20)
-            runs = [_run(base, blob, generator), _run(base, blob, generator), _run(head, blob, generator), _run(head, blob, generator)]
+            runs = [_run(base, blob, generator), _run(base, blob, generator),
+                    _run(head, blob, generator, True), _run(head, blob, generator, True)]
             stable = runs[0] == runs[1] and runs[2] == runs[3]
             differs = [field for field in ("result", "args_after", "stdout", "calls") if runs[0][field] != runs[2][field]]
             try:

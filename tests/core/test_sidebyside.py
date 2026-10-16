@@ -58,3 +58,17 @@ def test_a_method_using_super_is_compared_with_its_class(tmp_path):
     report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1, 'tests/test_lib.py': tests})
     [row] = report['behaviour_differences']
     assert row['target'] == 'lib.py#Box.size' and row['before']['result'] == ['return', '3'] and row['after']['result'] == ['return', '2'], row
+
+
+def test_changed_functions_that_call_each_other_run_as_changed_together(tmp_path):
+    # Found on Django 7b8504eaab: the changed caller needs state the changed callee now sets. Mixing versions raised.
+    lib0 = ('class Detector:\n    def prepare(self):\n        self.keys = [1]\n\n    def detect(self):\n        self.prepare()\n'
+            '        return len(self.keys)\n')
+    lib1 = ('class Detector:\n    def prepare(self):\n        self.keys = [1]\n        self.extra = [2]\n\n    def detect(self):\n'
+            '        self.prepare()\n        return len(self.keys) + len(self.extra)\n')
+    tests = 'from lib import Detector\n\n\ndef test_detect():\n    assert Detector().detect()\n'
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1, 'tests/test_lib.py': tests})
+    found = {row['target']: row for row in report['behaviour_differences']}
+    assert found['lib.py#Detector.detect']['after']['result'] == ['return', '2'], found
+    assert found['lib.py#Detector.detect']['before']['result'] == ['return', '1']
+    assert found['lib.py#Detector.prepare']['differs'] == ['args_after']
