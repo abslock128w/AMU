@@ -317,3 +317,17 @@ PR #4 was then closed without merging.
    - flips rerun on the merge base in a fresh job: 1, false: 0, so a false-flip rate of 0 of 1 (bar: under 5%);
    - cleared by a push before merge: 0 of 1 (bar: at least half), because PR #4 was closed, as intended.
    - These are dogfood pull requests. External ones have not started, so neither bar says anything yet.
+
+## Brief 4, Phase A: the difference finder (v0.2.0, 2026-10-16)
+
+Full record: `evaluation/difference-finder/REPORT.md`. The comment now also has:
+- **Change evidence: the pull request's own tests.** Tests the pull request adds or edits are run on the merge base
+  with the tests as the pull request leaves them; those that fail there and pass on the head are listed.
+- **Flips not counted.** A flip counts only after the same order on both sides, a reach check (it ran a changed line)
+  and three reruns on the head. The others are listed as `unstable` or `not caused by this change`, with the reason.
+- **What ran** names the ordering, and says when the merge base side was answered entirely from the cache of earlier
+  passes.
+
+Counters gain `evidence`, `replayed`, `unstable` and `not_caused` per push; the fresh-job rerun covers counted flips
+only, so its false-flip rate is the trust layer's. Collector on 2026-10-16, before the v0.2.0 comments: 3 pull
+requests, 1 flip rerun, 0 false.
