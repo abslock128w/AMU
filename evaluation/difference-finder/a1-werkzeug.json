@@ -122,5 +122,109 @@
   "gaps": [],
   "seconds": 1.9,
   "manifest": "werkzeug-v2.json"
+ },
+ {
+  "case_id": "01-4da3786f",
+  "truth": [
+   "tests/test_urls.py::test_uri_empty_auth",
+   "tests/test_urls.py::test_uri_port_0"
+  ],
+  "new_tests_only": true,
+  "touched": [
+   "tests/test_urls.py::test_uri_empty_auth",
+   "tests/test_urls.py::test_uri_port_0"
+  ],
+  "replayed": [
+   {
+    "id": "tests/test_urls.py::test_uri_empty_auth",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   },
+   {
+    "id": "tests/test_urls.py::test_uri_port_0",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   }
+  ],
+  "evidence": [
+   "tests/test_urls.py::test_uri_empty_auth",
+   "tests/test_urls.py::test_uri_port_0"
+  ],
+  "evidence_in_truth": [
+   "tests/test_urls.py::test_uri_empty_auth",
+   "tests/test_urls.py::test_uri_port_0"
+  ],
+  "head_states": {
+   "tests/test_urls.py::test_uri_empty_auth": "passed",
+   "tests/test_urls.py::test_uri_port_0": "passed"
+  },
+  "flips": [],
+  "gaps": [],
+  "seconds": 1.1,
+  "manifest": "werkzeug-v2.json"
+ },
+ {
+  "case_id": "13-1b8bc581",
+  "truth": [
+   "tests/test_http.py::TestHTTPUtility::test_authorization_basic_validate"
+  ],
+  "new_tests_only": true,
+  "touched": [
+   "tests/test_http.py::TestHTTPUtility::test_authorization_basic_validate"
+  ],
+  "replayed": [
+   {
+    "id": "tests/test_http.py::TestHTTPUtility::test_authorization_basic_validate",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   }
+  ],
+  "evidence": [
+   "tests/test_http.py::TestHTTPUtility::test_authorization_basic_validate"
+  ],
+  "evidence_in_truth": [
+   "tests/test_http.py::TestHTTPUtility::test_authorization_basic_validate"
+  ],
+  "head_states": {
+   "tests/test_http.py::TestHTTPUtility::test_authorization_basic_validate": "passed"
+  },
+  "flips": [],
+  "gaps": [],
+  "seconds": 1.2,
+  "manifest": "werkzeug-v2.json"
+ },
+ {
+  "case_id": "extra-5b0e3209",
+  "truth": [
+   "tests/test_http.py::TestHTTPUtility::test_is_hop_by_hop_header"
+  ],
+  "new_tests_only": true,
+  "touched": [
+   "tests/test_http.py::TestHTTPUtility::test_is_hop_by_hop_header"
+  ],
+  "replayed": [
+   {
+    "id": "tests/test_http.py::TestHTTPUtility::test_is_hop_by_hop_header",
+    "head": "passed",
+    "base": "failed",
+    "verdict": "evidence"
+   }
+  ],
+  "evidence": [
+   "tests/test_http.py::TestHTTPUtility::test_is_hop_by_hop_header"
+  ],
+  "evidence_in_truth": [
+   "tests/test_http.py::TestHTTPUtility::test_is_hop_by_hop_header"
+  ],
+  "head_states": {
+   "tests/test_http.py::TestHTTPUtility::test_is_hop_by_hop_header": "passed"
+  },
+  "flips": [],
+  "gaps": [],
+  "seconds": 1.1,
+  "manifest": "werkzeug-v2.json"
  }
 ]

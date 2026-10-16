@@ -6,7 +6,7 @@ Branch `difference-finder`, one commit per item. Measured on the frozen sets and
 
 | Item | Check | Result |
 |---|---|---|
-| A1 replay the PR's own tests on the base | every "new tests only" case gives a change-evidence row; none from a pass-to-pass test | 8 of 9 cases run; the ninth (Click 405a5481) is a refactor whose new tests pass on the base too; 0 rows from pass-to-pass. 3 Werkzeug cases not run (outside the approved routing suite) |
+| A1 replay the PR's own tests on the base | every "new tests only" case gives a change-evidence row; none from a pass-to-pass test | 11 of 12 cases; the twelfth (Click 405a5481) is a refactor whose new tests pass on the base too; 0 rows from pass-to-pass |
 | A2 flip-trust layer | sympy 32 trees: no confirmed flip lost, every flip labelled | 33 of 33 kept, 54 of 54 labelled; 21 more flips found, each a frozen breaking test or scored regression. Two defects found by the check on the way, both fixed |
 | A3 selection by subtraction | ranking does not drop; candidates and time beside the old | ranking top 10 identical on all 39 cases; truth tests among candidates 100 → 104 of 105; candidate lists 2 to 5 times longer |
 | A4 base cache, plugin autoload off | a second run against the same Django base skips the base side, and the comment says so | dj-65a9f141: 0 run, 2 from cache, comment says so; dj-7dee35f5: 1 of 362 ran again (not a pass) |
@@ -42,15 +42,18 @@ Check, `evaluation/difference-finder/a1_replay.py` (only the touched tests execu
 | 12-6d7c0b4e | yes | 1 | 1 | 1 | 0 | 0 | 1.9 |
 | 14-c678a231 | yes | 1 | 1 | 1 | 0 | 0 | 2.2 |
 | 15-ab16e62d | yes | 1 | 1 | 1 | 0 | 0 | 1.9 |
+| 01-4da3786f | yes | 2 | 2 | 2 | 0 | 0 | 1.1 |
+| 13-1b8bc581 | yes | 1 | 1 | 1 | 0 | 0 | 1.2 |
+| extra-5b0e3209 | yes | 1 | 1 | 1 | 0 | 0 | 1.1 |
 
-- The tests AMU treats as touched equal the frozen truth in all 14 cases.
+- The tests AMU treats as touched equal the frozen truth in all 17 cases.
 - **The check as written fails on one case, correctly.** Click 405a5481 moves `help` from `Option` and `Argument` to
   `Parameter`; its two new tests pass on the base, because both classes already handled `help` there. "Pass on both"
   is the right answer; the comment says those tests show nothing about the change.
 - No evidence row comes from a pass-to-pass test: every evidence row has a failing (or unloadable) base outcome that
   repeated in a fresh process.
-- Not run: Werkzeug 01-4da3786f (`tests/test_urls.py`), 13-1b8bc581 and extra-5b0e3209 (`tests/test_http.py`). The
-  brief approves "Werkzeug routing"; I asked before running them and had no answer.
+- Werkzeug 01-4da3786f (`tests/test_urls.py`), 13-1b8bc581 and extra-5b0e3209 (`tests/test_http.py`) ran after the owner
+  approved them on 2026-10-16; all three give change evidence.
 - The Click set is holdout 1 (`click-sealed-v2.json`), exposed since its first run. Werkzeug 03 was missed by the first
   version (its edit is a new row in a module-level table); the fingerprint was widened after seeing it.
 
@@ -187,5 +190,5 @@ Comment size: the cap is unchanged (60,000 characters, halving lists to fit) and
 
 ## What executed upstream code
 
-Click holdout 1 and Werkzeug routing touched tests (A1); sympy's tests on 32 recorded trial trees, twice per engine
+Click holdout 1 and Werkzeug's touched tests in `test_routing.py`, `test_urls.py` and `test_http.py` (A1); sympy's tests on 32 recorded trial trees, twice per engine
 (A2); Django's tests on three Phase 0 case copies, twice each (A4). All in scratch copies.
