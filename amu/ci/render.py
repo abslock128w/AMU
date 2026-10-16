@@ -107,6 +107,23 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None):
             out += [f"Rerun on the merge base in a fresh job: {verify.get('held', 0)} passed again, "
                     f"{verify.get('false', 0)} failed there too, so not the change, "
                     f"{verify.get('other', 0)} could not be rerun.", '']
+    behaviour = [row for row in report.get('behaviour_differences') or [] if isinstance(row, dict)]
+    side = report.get('side_by_side') if isinstance(report.get('side_by_side'), dict) else None
+    if side is not None and not report.get('error'):
+        out += [f"### Behaviour differs on captured input ({len(behaviour)})", '']
+        out += [f"Each changed function the tests called on the merge base ran there twice as it was and twice as changed, on "
+                f"copies of the same arguments: {side.get('compared_calls', 0)} call(s) of {side.get('functions_called', 0)} of "
+                f"{side.get('targets', 0)} comparable changed function(s). Only differences both versions repeat are listed.", '']
+
+        def outcome(side_result):
+            result = side_result.get('result') if isinstance(side_result, dict) else None
+            return code(json.dumps(result, ensure_ascii=False)[:160] if result is not None else '?', 170)
+
+        def difference(row):
+            fields = ', '.join(str(f) for f in row.get('differs') or [])
+            return (f"{code(row.get('target', '?'), 120)} on {code(row.get('input', ''), 160)}: as it was {outcome(row.get('before'))}, "
+                    f"as changed {outcome(row.get('after'))} (differs in: {code(fields, 60)})")
+        out += rows(behaviour, difference, listed) + ['']
     replayed = [row for row in report.get('replayed') or [] if isinstance(row, dict)]
     if replayed and not report.get('error'):
         out += [f"### Change evidence: the pull request's own tests ({len(evidence)})", '',

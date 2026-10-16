@@ -361,7 +361,8 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
                    for path, fact in facts.items()}
         cache = basecache.BaseCache(cache_dir(root, index_dir)/'base-passes', forward, root, python,
                                     [chosen.name, *runners.plugin_args(runners.get(root, runner), python), trust.SEED])
-        flips, executed, run_gaps = shadow.run(root, edits, wide, python, budget, runner, memo=memo, own=own, base_cache=cache)
+        flips, executed, run_gaps = shadow.run(root, edits, wide, python, budget, runner, memo=memo, own=own, base_cache=cache,
+                                               functions=functions)
         executed['selection'] = dict(selection, candidates=len(wide))
         gaps.extend(run_gaps)
         # A failing test defined on a base class is run again in every subclass that inherits it.
@@ -469,6 +470,12 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
             # Every flip with its label (fails, unstable, not caused by this change), why, and each rerun's outcome.
             report['flip_trust'] = executed['flip_trust']
             report['order'] = executed.get('order')
+        if executed.get('side_by_side') is not None:
+            # Changed functions run side by side on the inputs the tests called them with (sidebyside).
+            report['behaviour_differences'] = [{k: row[k] for k in ('target', 'input', 'differs', 'before', 'after', 'test', 'label')}
+                                               for row in executed.get('behaviour', [])]
+            report['side_by_side'] = {k: v for k, v in executed['side_by_side'].items() if k != 'skipped'}
+            report['side_by_side']['not_compared'] = executed['side_by_side'].get('skipped', {})
         if executed.get('replayed'):
             report['change_evidence'] = executed['change_evidence']
             report['replayed'] = executed['replayed']
