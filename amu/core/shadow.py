@@ -158,7 +158,7 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
         removed = [i for i in ids if i in states['after'] and _removed(i, edits, before_src, trees['after'])]
         for ident in removed:
             states['after'][ident] = 'removed'
-        unstable, edited_flips, originals, replayed, verdicts = [], [], {}, [], {}
+        unstable, edited_flips, originals, replayed, verdicts, edited_verdicts = [], [], {}, [], {}, {}
         if not aborted:
             # A flip is believed only after the trust checks (trust module): the reach check and three reruns on the
             # changed code. A "before" outcome taken from the memo is confirmed afresh, so a test that is flaky on the
@@ -201,15 +201,13 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
                     left -= time.perf_counter() - began
                     failing = [i for i in checked if originals.get(i) == 'failed']
                     if failing:
+                        # The same trust checks as any flip, on the changed code with the tests as they were. Reach
+                        # counts production lines only: the edited test files are in their earlier form here.
+                        changed = trust.changed_lines(other, {p: e for p, e in edits.items() if p not in edited}, _after_lines)
                         began = time.perf_counter()
-                        again, recheck_problems = execute(runner, python, other, failing, scratch, 'original-recheck', max(left, CONFIRM), parts)
+                        edited_verdicts, more = trust.triad(runner, python, other, failing, checked, scratch, max(left, CONFIRM), changed)
                         left -= time.perf_counter() - began
-                        unstable += [i for i in failing if again.get(i) in ('passed', 'skipped')]
-                        failing = [i for i in failing if again.get(i) not in ('passed', 'skipped')]
-                        unchecked = [i for i in failing if again.get(i) not in OUTCOMES]
-                        if unchecked:
-                            gaps.append(f'{len(unchecked)} test(s) failing as they were before the edit could not be rerun '
-                                        f'({"; ".join(recheck_problems) or "no outcome"}); reported without a recheck')
+                        gaps += more
                     for problem in problems:
                         gaps.append(f'shadow run (original tests on the changed code, {runner.name}): {problem}')
                 finally:
@@ -227,6 +225,7 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
                     if problem:
                         gaps.append(f'shadow run (before the change, original tests, {runner.name}): {problem}')
                 edited_flips = [i for i in failing if known.get(i) == 'passed']
+                unstable += [i for i in edited_flips if edited_verdicts.get(i, {}).get('label') == trust.UNSTABLE]
         if own and not aborted:
             replayed, more = _replay(runner, python, trees['after'], other, edits, before_src, after_src, live_is_after,
                                      own, states['after'], scratch, left)
@@ -246,17 +245,20 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
         if ident in verdicts:
             rows.append(dict(id=ident, before=before, after=after, label='executed', trust=verdicts[ident]['label'],
                              why=verdicts[ident]['why'], reruns=verdicts[ident]['reruns'], reach=verdicts[ident]['reach']))
+        elif ident in edited_flips:
+            verdict = edited_verdicts.get(ident) or dict(label=trust.CONFIRMED, why='', reruns=None, reach=None)
+            rows.append(dict(id=ident, before='passed', after='failed', label=EDITED, edited_form=after, trust=verdict['label'],
+                             why=('as the test was before the edit: ' + verdict['why']).rstrip(': '), reruns=verdict['reruns'],
+                             reach=verdict['reach']))
         elif ident in unstable:
             continue
         elif before in OUTCOMES and after in OUTCOMES and before != after:
             rows.append(dict(id=ident, before=before, after=after, label='executed'))
-        elif ident in edited_flips:
-            rows.append(dict(id=ident, before='passed', after='failed', label=EDITED, edited_form=after, trust=trust.CONFIRMED,
-                             why='failed again in a rerun, as the test was before the edit'))
     if unstable:
         gaps.append(f'{len(unstable)} test(s) flipped and did not fail again in every rerun; reported as unstable, not as failures: ' + ', '.join(unstable[:3])
                     + (f' and {len(unstable) - 3} more' if len(unstable) > 3 else ''))
-    unreached = [i for i in ids if verdicts.get(i, {}).get('label') == trust.NOT_CAUSED]
+    labels = {**{i: v['label'] for i, v in verdicts.items()}, **{i: edited_verdicts[i]['label'] for i in edited_flips if i in edited_verdicts}}
+    unreached = [i for i in ids if labels.get(i) == trust.NOT_CAUSED]
     if removed:
         gaps.append(f'{len(removed)} candidate(s) no longer defined after the change (renamed or deleted in an edited test file)')
     unrunnable = sorted(ident for ident, state in states['after'].items() if state == 'unrunnable')
