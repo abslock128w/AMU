@@ -94,7 +94,7 @@ def after_facts(root, facts, edits, gaps):
 
 
 def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, index_dir=None, run=None, python=None,
-            budget=60, include_tests=False, runner=None, only=None, also=None):
+            budget=60, include_tests=False, runner=None, only=None, also=None, generate=None):
     """What a change reaches, which existing tests to run first, and what could not be seen.
 
     ``patch`` is unified-diff text, applied or not yet applied to ``root``. Without one,
@@ -362,7 +362,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         cache = basecache.BaseCache(cache_dir(root, index_dir)/'base-passes', forward, root, python,
                                     [chosen.name, *runners.plugin_args(runners.get(root, runner), python), trust.SEED])
         flips, executed, run_gaps = shadow.run(root, edits, wide, python, budget, runner, memo=memo, own=own, base_cache=cache,
-                                               functions=functions)
+                                               functions=functions, generate_with=generate)
         executed['selection'] = dict(selection, candidates=len(wide))
         gaps.extend(run_gaps)
         # A failing test defined on a base class is run again in every subclass that inherits it.
@@ -476,6 +476,10 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
                                                for row in executed.get('behaviour', [])]
             report['side_by_side'] = {k: v for k, v in executed['side_by_side'].items() if k != 'skipped'}
             report['side_by_side']['not_compared'] = executed['side_by_side'].get('skipped', {})
+        if executed.get('generated') is not None:
+            # Model-written probes for changed functions no test called, kept only on execution evidence (generate).
+            report['generated'] = executed['generated']
+            report['generated_differences'] = executed.get('generated_differences', [])
         if executed.get('replayed'):
             report['change_evidence'] = executed['change_evidence']
             report['replayed'] = executed['replayed']

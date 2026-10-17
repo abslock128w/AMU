@@ -36,6 +36,12 @@ jobs:
           # budget: '300'      # seconds of test time per side
           # wall-cap: '1200'   # seconds for AMU's whole run
           # observe: 'true'    # record the suite on the merge base when the cache has none
+          # Generated probes for changed functions no test calls (C1): opt in by giving a key; the default caps are
+          # $0.10 and 20 minutes per run. The key reaches this job, which runs the pull request's code: forks never
+          # get it, but a same-repository pull request could read it.
+          # anthropic-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # generate-dollars: '0.10'
+          # generate-minutes: '20'
 
   # Optional, for the false-flip measure: reruns each flip on the merge base in a fresh job.
   verify-flips:

@@ -6,6 +6,7 @@ is sent anywhere else. Each record has:
 - the flip count, tests run and candidates, and the number of gaps;
 - tests the pull request adds or edits that were replayed on the merge base, and how many of them are change evidence;
 - flips the trust checks labelled unstable or not caused by this change (the flip count holds only those that passed);
+- generated tests: probes proposed, probes kept by the filter chain, and dollars spent.
 - whether the runner aborted or AMU errored, and seconds;
 - from the fresh-job rerun, flips checked, held and false.
 
@@ -24,7 +25,8 @@ import sys
 
 BLOCK = re.compile(r'<!-- amu-ci-counters (\{.*?\}) -->', re.S)
 SHA = re.compile(r'^[0-9a-f]{7,40}$')
-COUNTS = ('flips', 'ran', 'candidates', 'gaps', 'checked', 'held', 'false', 'evidence', 'replayed', 'unstable', 'not_caused')
+COUNTS = ('flips', 'ran', 'candidates', 'gaps', 'checked', 'held', 'false', 'evidence', 'replayed', 'unstable', 'not_caused',
+          'generated', 'generated_kept')
 FLAGS = ('aborted', 'error')
 KEEP = 100  # pushes kept per pull request
 
@@ -42,7 +44,10 @@ def record(report, meta, verify=None):
                       unstable=sum(row.get('label') == 'unstable' for row in report.get('flip_trust') or [] if isinstance(row, dict))
                       if 'flip_trust' in report else None,
                       not_caused=sum(row.get('label') == 'not caused by this change' for row in report.get('flip_trust') or []
-                                     if isinstance(row, dict)) if 'flip_trust' in report else None))
+                                     if isinstance(row, dict)) if 'flip_trust' in report else None,
+                      generated=(report.get('generated') or {}).get('proposed') if 'generated' in report else None,
+                      generated_kept=(report.get('generated') or {}).get('accepted') if 'generated' in report else None,
+                      generated_cost=(report.get('generated') or {}).get('cost') if 'generated' in report else None))
 
 
 def clean(raw):
@@ -57,6 +62,9 @@ def clean(raw):
         out[key] = raw.get(key) is True
     seconds = raw.get('seconds')
     out['seconds'] = round(float(seconds), 1) if isinstance(seconds, (int, float)) and not isinstance(seconds, bool) else None
+    spent = raw.get('generated_cost')
+    out['generated_cost'] = (round(float(spent), 4) if isinstance(spent, (int, float)) and not isinstance(spent, bool)
+                             and 0 <= spent < 1000 else None)
     return out
 
 
@@ -106,9 +114,18 @@ def summarize(prs, first=50):
         checked += rerun
         false += wrong
     labelled = {key: sum(push.get(key) or 0 for row in rows for push in row[3]) for key in ('unstable', 'not_caused', 'evidence')}
+    # Generated tests (C1): the filter chain's acceptance rate over every probe proposed, and the dollars per pull request
+    # where generation ran.
+    proposed = sum(push.get('generated') or 0 for row in rows for push in row[3])
+    kept = sum(push.get('generated_kept') or 0 for row in rows for push in row[3])
+    per_pr = [sum(push.get('generated_cost') or 0 for push in row[3]) for row in rows
+              if any(push.get('generated_cost') is not None for push in row[3])]
     return dict(pull_requests=len(rows), with_a_flip=flagged, cleared_before_merge=cleared,
                 flips_labelled_unstable=labelled['unstable'], flips_labelled_not_caused=labelled['not_caused'],
                 change_evidence_rows=labelled['evidence'],
+                generated_probes=proposed, generated_kept=kept,
+                generated_acceptance=round(kept / proposed, 3) if proposed else None,
+                generated_prs=len(per_pr), generated_cost_per_pr=round(sum(per_pr) / len(per_pr), 4) if per_pr else None,
                 cleared_share=round(cleared / flagged, 3) if flagged else None,
                 flips_rerun=checked, false_flips=false, false_flip_rate=round(false / checked, 3) if checked else None)
 

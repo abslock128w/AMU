@@ -50,9 +50,12 @@ def merge_base(repo, base, head):
     return found
 
 
-def amu_command(patch, python, runner, budget):
+def amu_command(patch, python, runner, budget, generate=None):
     command = [sys.executable, *SAFE, '-m', 'amu.core', '--repo', '.', '--patch-file', str(patch), '--run', '--full-evidence',
                '--python', python]
+    if generate and generate[0] > 0:
+        dollars, minutes, model = generate
+        command += ['--generate-dollars', str(dollars), '--generate-minutes', str(minutes), '--generate-model', model]
     if runner:
         command += ['--runner', runner]
     if budget:
@@ -107,7 +110,7 @@ def observe(repo, found, python, runner, seconds):
 
 
 def run(repo, base, head, out, python=None, runner=None, pr=None, budget=None, install_ok=None, amu_ref=None,
-        wall_cap=None, record=False, counters=False):
+        wall_cap=None, record=False, counters=False, generate=None):
     repo, out = Path(repo).resolve(), Path(out)
     out.mkdir(parents=True, exist_ok=True)
     meta = dict(pr=pr, base=base, head=head, merge_base=None, amu_version=__version__, amu_ref=amu_ref,
@@ -146,7 +149,7 @@ def run(repo, base, head, out, python=None, runner=None, pr=None, budget=None, i
                 if seconds is not None and seconds < 1:
                     report = dict(error=f'stopped at the wall cap of {wall_cap} s before amu ran')
                 else:
-                    done, problem = bounded(amu_command(patch, python or sys.executable, runner, budget), repo,
+                    done, problem = bounded(amu_command(patch, python or sys.executable, runner, budget, generate), repo,
                                             seconds if seconds is not None else 24 * 3600)
                     if problem:
                         report = dict(error=f'stopped at the wall cap of {wall_cap} s; amu reported nothing')
@@ -184,13 +187,17 @@ def main(argv=None):
     p.add_argument('--wall-cap', type=int, help='seconds for everything, recording included; past it the run is stopped')
     p.add_argument('--observe', action='store_true', help='record the suite on the merge base when the cache has no recording')
     p.add_argument('--counters', action='store_true', help='opt in to the counters kept in the comment (counts and SHAs only)')
+    p.add_argument('--generate-dollars', type=float, default=0.0, help='dollar cap for generated tests per run (needs ANTHROPIC_API_KEY)')
+    p.add_argument('--generate-minutes', type=float, default=20.0, help='minute cap for generated tests per run')
+    p.add_argument('--generate-model', default='claude-opus-5-5')
     p.add_argument('--pr', type=int)
     p.add_argument('--install-ok', choices=['true', 'false'])
     p.add_argument('--amu-ref')
     a = p.parse_args(argv)
     try:
         report, meta = run(a.repo, a.base, a.head or None, a.out, a.python, a.runner, a.pr, a.budget,
-                           None if a.install_ok is None else a.install_ok == 'true', a.amu_ref, a.wall_cap, a.observe, a.counters)
+                           None if a.install_ok is None else a.install_ok == 'true', a.amu_ref, a.wall_cap, a.observe, a.counters,
+                           (a.generate_dollars, a.generate_minutes, a.generate_model) if a.generate_dollars > 0 else None)
         print(f"amu: {meta['status']}; flips: {report.get('flips')}; {report.get('error') or report.get('summary', '')}"[:500])
     except Exception as exc:  # the job never fails because of AMU
         print(f'amu ci run failed: {type(exc).__name__}: {exc}')
