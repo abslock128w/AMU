@@ -14,7 +14,8 @@ def change(tmp_path, files_before, files_after):
     for name, text in files_after.items():
         (tmp_path/name).parent.mkdir(parents=True, exist_ok=True)
         (tmp_path/name).write_text(text)
-    diff = ''.join(''.join(difflib.unified_diff(files_before[n].splitlines(True), files_after[n].splitlines(True), 'a/' + n, 'b/' + n))
+    diff = ''.join(''.join(difflib.unified_diff(files_before.get(n, '').splitlines(True), files_after[n].splitlines(True),
+                                                'a/' + n if n in files_before else '/dev/null', 'b/' + n))
                    for n in files_after if files_before.get(n) != files_after[n])
     return analyze(tmp_path, diff, full_evidence=True, index_dir=tmp_path/'.index', run=True, python=sys.executable)
 
@@ -172,3 +173,17 @@ def test_the_hooks_load_where_the_interpreter_has_no_sitecustomize_of_its_own(tm
         # -S: no site at start-up, so no sitecustomize is already imported and none other is on the path.
         done = subprocess.run([sys.executable, '-S', '-c', code], capture_output=True, text=True)
         assert done.returncode == 0 and 'loaded' in done.stdout, (name, done.stderr[-500:])
+
+
+def test_the_as_changed_run_can_import_a_module_the_change_adds(tmp_path):
+    # Found on AMU's own PR #13: shadow.run as changed called a new module (amu/core/isolate.py) the base did not have.
+    (tmp_path/'pkg').mkdir()
+    init = ''
+    lib0 = 'def work(x):\n    return x\n'
+    lib1 = 'from pkg import helper\n\n\ndef work(x):\n    return helper.double(x)\n'
+    helper = 'def double(x):\n    return x * 2\n'
+    tests = 'from pkg.lib import work\n\n\ndef test_work():\n    assert work(3)\n'
+    report = change(tmp_path, {'pkg/__init__.py': init, 'pkg/lib.py': lib0, 'tests/test_lib.py': tests},
+                    {'pkg/__init__.py': init, 'pkg/lib.py': lib1, 'pkg/helper.py': helper, 'tests/test_lib.py': tests})
+    [row] = report['behaviour_differences']
+    assert row['before']['result'] == ['return', '3'] and row['after']['result'] == ['return', '6'], row
