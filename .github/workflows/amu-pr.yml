@@ -33,6 +33,7 @@ jobs:
           python-version: '3.14'
           install: python -m pip install -c constraints.txt -e '.[dev]'
           counters: 'true'
+          anthropic-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
           # budget: '300'      # seconds of test time per side
           # wall-cap: '1200'   # seconds for AMU's whole run
           # observe: 'true'    # record the suite on the merge base when the cache has none

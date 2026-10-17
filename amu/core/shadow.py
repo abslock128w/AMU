@@ -17,7 +17,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from . import basecache, replay, runners, sidebyside, trust
+from . import basecache, generate, replay, runners, sidebyside, trust
 from .git import _git
 from .patch import applied, candidate, original, renumber
 
@@ -76,7 +76,7 @@ def execute(runner, python, tree, ids, scratch, name, timeout, parts):
     return found, problems
 
 
-def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=(), base_cache=None, functions=()):
+def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=(), base_cache=None, functions=(), generate_with=None):
     """Outcomes of ``ids`` before and after the change. Returns (rows, info, gaps).
 
     ``own`` are the tests the change adds or edits (replay.touched); they are also run on the code before the change
@@ -85,6 +85,9 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
     ``functions`` are the changed functions (analyze's changed_functions): with Python 3.12 or later, the tests that ran
     run once more on the code before the change while each changed function is executed side by side on the inputs
     they call it with (sidebyside); stable differences go to ``info['behaviour']``.
+
+    ``generate_with`` (dollars, minutes, model): changed functions the tests never called get model-written probes, kept
+    only on execution evidence (generate); results go to ``info['generated']``.
 
     ``base_cache`` (basecache.BaseCache) answers passing outcomes on the code before the change from earlier runs;
     only what it cannot answer runs there.
@@ -180,7 +183,7 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
         for ident in removed:
             states['after'][ident] = 'removed'
         unstable, edited_flips, originals, replayed, verdicts, edited_verdicts, trust_seconds = [], [], {}, [], {}, {}, 0.0
-        side, behaviour = None, []
+        side, behaviour, made, generated = None, [], None, []
         if not aborted:
             # A flip is believed only after the trust checks (trust module): the reach check and three reruns on the
             # changed code. A "before" outcome taken from the memo is confirmed afresh, so a test that is flaky on the
@@ -260,6 +263,19 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
                                                    max(min(budget, SIDE_BY_SIDE), CONFIRM), added)
             side['seconds'] = round(time.perf_counter() - began, 1)
             gaps += more
+        if functions and not aborted and generate_with and generate_with[0] > 0:
+            spec_targets, _ = sidebyside.targets(functions, before_src, after_src)
+            called = set((side or {}).get('called') or ())
+            uncalled = [t for t in spec_targets if t['id'] not in called]
+            example = next((_read(Path(trees['after'])/_path(i)) for i in ids if _path(i).endswith('.py')), '')
+            changed = {path: _after_lines(path, edit) for path, edit in edits.items()
+                       if path.endswith('.py') and not replay.is_test_file(path)}
+            dollars, minutes, model = generate_with
+            # The code before the change is the working tree itself when the change is not on disk; it is copied then,
+            # never written to.
+            made, generated, more = generate.run(runner, python, trees['after'], trees['before'], uncalled, changed, example,
+                                                 scratch, dollars, minutes, model, copy_before=not live_is_after)
+            gaps += more
         if own and not aborted:
             replayed, more = _replay(runner, python, trees['after'], other, edits, before_src, after_src, live_is_after,
                                      own, states['after'], scratch, left, base_cache)
@@ -318,6 +334,8 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
         info['replayed'] = replayed
     if not aborted and side is not None:
         info['side_by_side'], info['behaviour'] = side, behaviour
+    if not aborted and made is not None:
+        info['generated'], info['generated_differences'] = made, generated
     if originals:
         info['original_tests'] = {i: state for i, state in originals.items() if state != 'unrunnable'}
         info['ran_original'] = len(info['original_tests'])

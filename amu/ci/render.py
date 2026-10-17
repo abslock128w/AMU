@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 import re
 import sys
+import textwrap
 from pathlib import Path
 
 MARKER = '<!-- amu-ci-comment v1 -->'
@@ -124,6 +125,26 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None):
             return (f"{code(row.get('target', '?'), 120)} on {code(row.get('input', ''), 160)}: as it was {outcome(row.get('before'))}, "
                     f"as changed {outcome(row.get('after'))} (differs in: {code(fields, 60)})")
         out += rows(behaviour, difference, listed) + ['']
+    made = report.get('generated') if isinstance(report.get('generated'), dict) else None
+    produced = [row for row in report.get('generated_differences') or [] if isinstance(row, dict)]
+    if made is not None and not report.get('error') and made.get('proposed'):
+        out += [f"### Generated tests showing a difference ({len(produced)})", '']
+        out += [f"For changed functions no test called, {code(made.get('model', '?'), 40)} proposed "
+                f"{made.get('proposed', 0)} probe(s) for {made.get('functions', 0)} function(s), at "
+                f"${float(made.get('cost') or 0):.3f} of a ${float(made.get('dollars_cap') or 0):.2f} cap. Each was kept only if it "
+                f"compiled ({made.get('compiled', 0)}), ran on the head ({made.get('ran', 0)}), gave the same outcome five times "
+                f"there ({made.get('stable', 0)}), ran a changed line ({made.get('reached', 0)}), and gave one stable, different "
+                f"outcome on the merge base ({made.get('accepted', 0)}). The outcomes come from running the code, not from the model.", '']
+
+        def shown(row):
+            before, after = row.get('before') or ['?', '?', '?'], row.get('after') or ['?', '?', '?']
+            text = (f"{code(row.get('target', '?'), 120)}: {code(row.get('call', ''), 160)} gives "
+                    f"{code(' '.join(str(x) for x in before[:1] + before[2:3]), 160)} on the merge base and "
+                    f"{code(' '.join(str(x) for x in after[:1] + after[2:3]), 160)} on the head")
+            body = str(row.get('test', ''))[:1500].replace('`', "'")
+            return text + ('\n  <details><summary>generated test</summary>\n\n  ```python\n'
+                           + textwrap.indent(body, '  ') + '  ```\n  </details>' if body else '')
+        out += rows(produced, shown, listed) + ['']
     replayed = [row for row in report.get('replayed') or [] if isinstance(row, dict)]
     if replayed and not report.get('error'):
         out += [f"### Change evidence: the pull request's own tests ({len(evidence)})", '',

@@ -243,7 +243,9 @@ def environment(tree, extra_env=None, autoload=True):
     first = extra.get('AMU_TRUST_PATH')
     if not autoload:
         extra.setdefault('PYTEST_DISABLE_PLUGIN_AUTOLOAD', '1')
-    return dict(os.environ, PYTHONDONTWRITEBYTECODE='1', PYTHONHASHSEED='0', **extra,
+    # The project's tests never see AMU's model credentials: the change under test is someone else's code.
+    inherited = {k: v for k, v in os.environ.items() if not k.startswith('ANTHROPIC_')}
+    return dict(inherited, PYTHONDONTWRITEBYTECODE='1', PYTHONHASHSEED='0', **extra,
                 PYTHONPATH=os.pathsep.join(filter(None, [first, str(tree/'src'), str(tree), os.environ.get('PYTHONPATH')])))
 
 

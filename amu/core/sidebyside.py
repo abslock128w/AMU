@@ -574,7 +574,7 @@ def run(runner, python, before_tree, ids, spec_targets, skipped, scratch, timeou
             if key not in seen:
                 seen.add(key)
                 differences.append(dict(row, label=KIND))
-    info = dict(targets=len(spec_targets), compared_calls=len(results), functions_called=len(captured),
+    info = dict(targets=len(spec_targets), compared_calls=len(results), functions_called=len(captured), called=sorted(captured),
                 unstable=sum(not r['stable'] for r in results), differences=len(differences), skipped=skipped,
                 input_built_before_the_change=built_before, calls_not_fitting_a_changed_signature=misfit)
     if not results:
