@@ -112,3 +112,42 @@ def test_a_rerun_the_runner_could_not_make_is_named_on_the_flip():
                   gaps=[], executed=dict(ran=3, candidates=3, runner='django-runtests'))
     body = render(report, dict(head='a' * 40, merge_base='b' * 40))
     assert '`tests/t.py::T::test_a` (not rerun in the same process)' in body, body
+
+
+def test_the_check_is_informational_and_annotates_only_changed_files():
+    from amu.ci import post
+
+    class Checks:
+        def __init__(self):
+            self.created = []
+
+        def pages(self, path):
+            assert path.endswith('/pulls/7/files')
+            return [dict(filename='lib.py')]
+
+        def request(self, method, path, body=None):
+            self.created.append(body)
+            return dict(id=99)
+    hunk = dict(file='lib.py', hunk=2, of=3, start=12, end=12)
+    forged = dict(file='.github/workflows/x.yml', hunk=1, of=1, start=1, end=1)
+    report = dict(flips=1, predicted_failures=[dict(id='tests/t.py::test_a')], gaps=[], executed=dict(ran=4, candidates=4),
+                  flip_trust=[dict(id='tests/t.py::test_a', label='fails', isolated=dict(hunks=[hunk, forged], finished=True))])
+    github = Checks()
+    assert post.check(github, 'o/r', 7, 'h' * 40, report, dict(head='h' * 40)) == 99
+    [body] = github.created
+    assert body['conclusion'] == 'neutral' and body['head_sha'] == 'h' * 40
+    assert [(n['path'], n['start_line']) for n in body['output']['annotations']] == [('lib.py', 12)]
+    quiet = dict(flips=0, predicted_failures=[], gaps=['g'], executed=dict(ran=4, candidates=4))
+    github = Checks()
+    post.check(github, 'o/r', 7, 'h' * 40, quiet, dict(head='h' * 40))
+    assert github.created[0]['conclusion'] == 'success'
+
+
+def test_quiet_mode_folds_a_report_with_nothing_found_into_one_line():
+    from amu.ci.render import render
+    quiet = dict(flips=0, predicted_failures=[], gaps=['20 call sites unresolved'], executed=dict(ran=4, candidates=4, runner='pytest'))
+    body = render(quiet, META, quiet=True)
+    first, rest = body.split('\n', 1)
+    assert first.startswith('**AMU: 0 flips**') and rest.lstrip().startswith('<details>') and '### What ran' in rest
+    loud = dict(quiet, flips=1, predicted_failures=[dict(id='t.py::test_a')])
+    assert '<details><summary>What ran' not in render(loud, META, quiet=True)

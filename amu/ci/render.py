@@ -49,7 +49,24 @@ def rows(items, render, limit=LISTED):
     return lines
 
 
-def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None):
+def quiet_body(report, meta, first, extra):
+    """Nothing found: the first line, and what ran and what was not seen, collapsed."""
+    full = render(report, meta, extra='', quiet=False).split('\n', 1)[1].rsplit(MARKER, 1)[0].strip()
+    return '\n'.join([first, '', '<details><summary>What ran and what was not seen</summary>', '', full, '', '</details>',
+                      extra, MARKER]).replace('\n\n\n', '\n\n')
+
+
+def nothing_found(report):
+    executed = report.get('executed') or {}
+    return (not report.get('error') and not report.get('failure') and report.get('flips') == 0 and executed.get('ran')
+            and not any(report.get(k) for k in ('change_evidence', 'behaviour_differences', 'generated_differences', 'unstable'))
+            and not any(isinstance(r, dict) and not str(r.get('label', '')).startswith('fails') for r in report.get('flip_trust') or []))
+
+
+def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quiet=False):
+    if quiet and nothing_found(report):
+        body = render(report, meta, limit, listed, '', verify)
+        return quiet_body(report, meta, body.splitlines()[0], extra)
     head, base = meta.get('head'), meta.get('merge_base') or meta.get('base')
     executed = report.get('executed') or {}
     ran = executed.get('ran') or 0
@@ -93,6 +110,11 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None):
             if raised and isinstance(raised.get('through'), list):
                 parts.append(code(raised.get('exception', '?'), 60) + ' raised through '
                              + code(' > '.join(short_id(step) for step in raised['through'][:6]), 200))
+            found = row.get('isolated') if isinstance(row.get('isolated'), dict) else None
+            if found and isinstance(found.get('hunks'), list) and found['hunks']:
+                places = ', '.join(f"hunk {h.get('hunk', '?')} of {h.get('of', '?')} in {code(h.get('file', '?'), 120)} "
+                                   f"at line {h.get('start', '?')}" for h in found['hunks'][:3] if isinstance(h, dict))
+                parts.append(('caused by ' if found.get('finished') else 'narrowed to, search cut short: ') + places)
             return ('; ' + '; '.join(parts)) if parts else ''
         names = dict(in_process='in the same process', fresh_process='alone in a fresh process', after_set='after the rest')
 
@@ -204,7 +226,7 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None):
               f"report {code(report.get('report_hash') or '-', 20)}. Full JSON is in the workflow run's artifact.</sub>")
     body = '\n'.join(out + [footer, extra, MARKER]).replace('\n\n\n', '\n\n')
     if len(body) > limit and listed > 1:
-        return render(report, meta, limit, listed // 2, extra, verify)
+        return render(report, meta, limit, listed // 2, extra, verify, quiet)
     if len(body) > limit:
         body = first + '\n\nThe report is too long for a comment; see the artifact.\n\n' + MARKER
     return body

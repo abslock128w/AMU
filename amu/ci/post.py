@@ -67,6 +67,60 @@ def upsert(github, repo, pr, body, author=AUTHOR):
     return 'created', created['id']
 
 
+CHECK = 'AMU'
+ANNOTATIONS = 50  # GitHub accepts at most 50 per request
+
+
+def findings(report):
+    """How many rows of each kind the report holds; a report with none of them found nothing."""
+    trust_rows = [r for r in report.get('flip_trust') or [] if isinstance(r, dict)]
+    return dict(flips=report.get('flips') or 0, evidence=len(report.get('change_evidence') or []),
+                behaviour=len(report.get('behaviour_differences') or []),
+                generated=len(report.get('generated_differences') or []),
+                not_counted=sum(not str(r.get('label', '')).startswith('fails') for r in trust_rows),
+                aborted=int(bool(report.get('failure'))))
+
+
+def annotations(report, changed_files):
+    """Inline notes on the hunk each counted flip was isolated to. Paths and lines come from the artifact, so only a
+    file the pull request changes, with a positive line range, is kept; the text is plain."""
+    out = []
+    for row in report.get('flip_trust') or []:
+        if not isinstance(row, dict) or not str(row.get('label', '')).startswith('fails'):
+            continue
+        found = row.get('isolated') if isinstance(row.get('isolated'), dict) else {}
+        for hunk in found.get('hunks') or []:
+            if not isinstance(hunk, dict) or hunk.get('file') not in changed_files:
+                continue
+            start, end = hunk.get('start'), hunk.get('end')
+            if not (isinstance(start, int) and isinstance(end, int) and 0 < start <= end):
+                continue
+            test = str(row.get('id', '?'))[:300]
+            out.append(dict(path=hunk['file'], start_line=start, end_line=end, annotation_level='warning',
+                            title='AMU: a test that passed on the merge base fails with this hunk',
+                            message=(f'{test} fails with this hunk applied to the merge base'
+                                     + ('' if found.get('finished') else ' (search cut short)') + '.')))
+    return out[:ANNOTATIONS]
+
+
+def check(github, repo, pr, head, report, meta):
+    """An informational check on the head: neutral when something was found, success when not, never failure. It
+    carries the inline annotations. Returns the check run id, or None when it could not be created."""
+    found = findings(report)
+    files = {f.get('filename') for f in github.pages(f'/repos/{repo}/pulls/{pr}/files')}
+    notes = annotations(report, files)
+    title = render(report, meta).splitlines()[0].replace('**', '').replace('`', '')[:200]
+    summary = ('Informational only: AMU never fails a pull request. ' + ', '.join(f'{k}: {v}' for k, v in found.items())
+               + '. Details are in the pull request comment.')
+    body = dict(name=CHECK, head_sha=head, status='completed', conclusion='neutral' if any(found.values()) else 'success',
+                output=dict(title=title, summary=summary, annotations=notes))
+    try:
+        return github.request('POST', f'/repos/{repo}/check-runs', body).get('id')
+    except urllib.error.HTTPError as exc:  # an older workflow without checks: write
+        print(f'amu: no check run: HTTP {exc.code}')
+        return None
+
+
 def resolve(github, repo, event):
     """(pull request number, head SHA) for a workflow_run event, or (None, reason). Only open pull requests whose
     current head is the run's head count."""
@@ -121,9 +175,14 @@ def main(argv=None):
             extra = ''
             if meta.get('counters') is True:
                 extra = counters.block(counters.extend(previous, counters.record(report, meta, verify)))
-            return render(report, meta, extra=extra, verify=verify)
+            return render(report, meta, extra=extra, verify=verify, quiet=os.environ.get('AMU_QUIET', 'true') != 'false')
         action, ident = upsert(github, a.repo, number, body, a.author)
         print(f'amu: comment {ident} {action} on #{number}')
+        if meta.get('head'):
+            try:
+                print(f"amu: check run {check(github, a.repo, number, meta['head'], report, meta)}")
+            except Exception as exc:  # the comment is posted; the informational check must never fail the job
+                print(f'amu: no check run: {type(exc).__name__}: {exc}')
     except (KeyError, urllib.error.URLError, OSError, ValueError) as exc:
         print(f'amu: could not post the comment: {type(exc).__name__}: {exc}')
     return 0

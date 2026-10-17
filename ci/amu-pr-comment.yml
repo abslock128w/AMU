@@ -19,6 +19,7 @@ jobs:
     permissions:
       actions: read
       pull-requests: write
+      checks: write   # the informational AMU check with inline notes; it never fails
     steps:
       - uses: actions/download-artifact@v4
         continue-on-error: true
@@ -40,6 +41,7 @@ jobs:
       - name: Post the comment
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          AMU_QUIET: 'true'   # one line when nothing was found; 'false' for every section
           AMU_REF: v0.2.3
         run: |
           python -m venv "$RUNNER_TEMP/amu"

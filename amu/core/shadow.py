@@ -17,12 +17,14 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from . import basecache, generate, replay, runners, sidebyside, trust
+from . import basecache, generate, isolate, replay, runners, sidebyside, trust
 from .git import _git
 from .patch import applied, candidate, original, renumber
 
 CHUNK = 40
 SIDE_BY_SIDE = 120  # seconds at most for the side-by-side run on the code before the change
+ISOLATED = 3  # flips whose hunk is isolated
+ISOLATE_SECONDS = 120  # per flip
 CONFIRM = 20  # seconds always allowed for confirming a failure on the unchanged code
 PARTS = max(1, min(4, (os.cpu_count() or 2) // 2))  # processes side by side, for runners that allow it
 RATE = 15.0  # tests per second per process, until a run in this tree has measured it
@@ -253,6 +255,15 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
                         gaps.append(f'shadow run (before the change, original tests, {runner.name}): {problem}')
                 edited_flips = [i for i in failing if known.get(i) == 'passed']
                 unstable += [i for i in edited_flips if edited_verdicts.get(i, {}).get('label') == trust.UNSTABLE]
+        if not aborted:
+            # Which hunk makes each counted flip fail (isolate): delta debugging on a copy of the code before the change.
+            counted = [i for i in ids if i in verdicts and trust.counted(verdicts[i]['label'])][:ISOLATED]
+            for ident in counted:
+                began = time.perf_counter()
+                found = isolate.run(runner, python, trees['before'], edits, before_src, ident, scratch, ISOLATE_SECONDS)
+                trust_seconds += time.perf_counter() - began
+                if found:
+                    verdicts[ident]['isolated'] = found
         if functions and not aborted and _monitoring(python):
             spec_targets, skipped = sidebyside.targets(functions, before_src, after_src)
             ran_ids = [i for i in ids if states['after'].get(i) in OUTCOMES]
@@ -298,7 +309,7 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
         if ident in verdicts:
             rows.append(dict(id=ident, before=before, after=after, label='executed', trust=verdicts[ident]['label'],
                              why=verdicts[ident]['why'], reruns=verdicts[ident]['reruns'], reach=verdicts[ident]['reach'],
-                             **{k: verdicts[ident][k] for k in ('path', 'raised') if k in verdicts[ident]}))
+                             **{k: verdicts[ident][k] for k in ('path', 'raised', 'isolated') if k in verdicts[ident]}))
         elif ident in edited_flips:
             verdict = edited_verdicts.get(ident) or dict(label=trust.CONFIRMED, why='', reruns=None, reach=None)
             rows.append(dict(id=ident, before='passed', after='failed', label=EDITED, edited_form=after, trust=verdict['label'],
