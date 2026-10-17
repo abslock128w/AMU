@@ -30,7 +30,7 @@ jobs:
       - uses: abslock128w/AMU@v0.2.2
         id: amu
         with:
-          python-version: '3.11'
+          python-version: '3.14'
           install: python -m pip install -c constraints.txt -e '.[dev]'
           counters: 'true'
           # budget: '300'      # seconds of test time per side
@@ -51,5 +51,5 @@ jobs:
       - uses: abslock128w/AMU@v0.2.2
         with:
           mode: verify
-          python-version: '3.11'
+          python-version: '3.14'
           install: python -m pip install -c constraints.txt -e '.[dev]'
