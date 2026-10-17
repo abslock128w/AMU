@@ -26,7 +26,7 @@ import sys
 BLOCK = re.compile(r'<!-- amu-ci-counters (\{.*?\}) -->', re.S)
 SHA = re.compile(r'^[0-9a-f]{7,40}$')
 COUNTS = ('flips', 'ran', 'candidates', 'gaps', 'checked', 'held', 'false', 'evidence', 'replayed', 'unstable', 'not_caused',
-          'generated', 'generated_kept')
+          'generated', 'generated_kept', 'behaviour')
 FLAGS = ('aborted', 'error')
 KEEP = 100  # pushes kept per pull request
 
@@ -47,7 +47,8 @@ def record(report, meta, verify=None):
                                      if isinstance(row, dict)) if 'flip_trust' in report else None,
                       generated=(report.get('generated') or {}).get('proposed') if 'generated' in report else None,
                       generated_kept=(report.get('generated') or {}).get('accepted') if 'generated' in report else None,
-                      generated_cost=(report.get('generated') or {}).get('cost') if 'generated' in report else None))
+                      generated_cost=(report.get('generated') or {}).get('cost') if 'generated' in report else None,
+                      behaviour=len(report.get('behaviour_differences') or []) if 'side_by_side' in report else None))
 
 
 def clean(raw):
@@ -103,6 +104,25 @@ def outcome(pushes, merged):
     return flagged, flagged and cleared and merged, checked, false
 
 
+KINDS = dict(flips='flips', behaviour='behaviour differences', generated_kept='generated tests showing a difference')
+
+
+def acted_on(prs, kind):
+    """For one row kind: pull requests that got such rows, and those where a later push, among tests that ran, had none
+    and the pull request was merged (the rows were dealt with before merge)."""
+    flagged = cleared = 0
+    for _, _, merged, pushes in prs:
+        seen = done = False
+        for push in pushes:
+            if push.get(kind):
+                seen, done = True, False
+            elif seen and push.get(kind) == 0 and push.get('ran'):
+                done = True
+        flagged += seen
+        cleared += seen and done and merged
+    return dict(pull_requests=flagged, cleared_before_merge=cleared, share=round(cleared / flagged, 3) if flagged else None)
+
+
 def summarize(prs, first=50):
     """``prs``: [(repo, number, merged, pushes)] in the order AMU first commented."""
     rows = [row for row in prs if row[3]][:first]
@@ -126,6 +146,7 @@ def summarize(prs, first=50):
                 generated_probes=proposed, generated_kept=kept,
                 generated_acceptance=round(kept / proposed, 3) if proposed else None,
                 generated_prs=len(per_pr), generated_cost_per_pr=round(sum(per_pr) / len(per_pr), 4) if per_pr else None,
+                acted_on={name: acted_on(rows, kind) for kind, name in KINDS.items()},
                 cleared_share=round(cleared / flagged, 3) if flagged else None,
                 flips_rerun=checked, false_flips=false, false_flip_rate=round(false / checked, 3) if checked else None)
 

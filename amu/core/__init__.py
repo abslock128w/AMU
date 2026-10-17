@@ -394,7 +394,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         rows.sort(key=lambda row: row['expect'] != 'fails')
         executed['predicted_failures'] = [flip for flip in flips if flip['after'] == 'failed']
         executed['flip_trust'] = [dict(id=f['id'], label=f['trust'], why=f.get('why', ''), reruns=f.get('reruns'), reach=f.get('reach'),
-                                       **{k: f[k] for k in ('path', 'raised') if k in f})
+                                       **{k: f[k] for k in ('path', 'raised', 'isolated') if k in f})
                                   for f in labelled]
         replayed = executed.get('replayed') or []
         executed['change_evidence'] = [dict(id=row['id'], before=row['base'], after=row['head'], label=replay.EVIDENCE)
