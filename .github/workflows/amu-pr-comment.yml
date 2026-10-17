@@ -1,4 +1,4 @@
-# AMU on pull requests, part 2 of 2: posts the comment (from ci/amu-pr-comment.yml at v0.2.1).
+# AMU on pull requests, part 2 of 2: posts the comment (from ci/amu-pr-comment.yml at v0.2.2).
 # Runs from the default branch with a token that can comment. It never checks out or runs the pull request's code:
 # it reads the saved JSON as data, takes the pull request and head from the trusted workflow_run event, and
 # renders with AMU installed from a pinned tag.
@@ -40,7 +40,7 @@ jobs:
       - name: Post the comment
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          AMU_REF: v0.2.1
+          AMU_REF: v0.2.2
         run: |
           python -m venv "$RUNNER_TEMP/amu"
           "$RUNNER_TEMP/amu/bin/python" -m pip install --quiet --disable-pip-version-check --no-deps \
