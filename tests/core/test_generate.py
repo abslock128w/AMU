@@ -52,9 +52,11 @@ def test_only_probes_that_pass_every_filter_are_kept_and_their_outcomes_come_fro
     assert row['label'] == 'generated test shows a difference' and row['call'] == 'scale(50)'
     assert row['before'][::2] == ['return', '100'] and row['after'][::2] == ['return', '150'], row
     assert "assert repr(scale(50)) == '150'" in row['test']
-    # The request: only the changed function the tests never called, structured output, the default fallback.
+    # The request: the changed functions the tests never called (on Python 3.12+, where side-by-side execution says which
+    # were called; below that, every changed function), structured output, the default fallback.
     [params] = api.calls
-    assert 'lib.py#scale' in params['messages'][0]['content'] and 'lib.py#tested' not in params['messages'][0]['content']
+    assert 'lib.py#scale' in params['messages'][0]['content']
+    assert ('lib.py#tested' in params['messages'][0]['content']) == (sys.version_info < (3, 12))
     assert params['output_config']['format']['type'] == 'json_schema' and params['fallbacks'] == 'default'
     assert made['cost'] == round((4000 * 4 + 1500 * 20) / 1e6, 5)
     from amu.ci.render import render
