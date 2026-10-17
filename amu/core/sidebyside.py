@@ -199,6 +199,32 @@ if _spec_path and _sys.version_info >= (3, 12):
             class. A changed function must see the rest of the change, or the comparison mixes versions."""
             if _swaps:
                 return _swaps
+            # Modules the change adds as new files: loaded from their changed source and put in sys.modules and on their
+            # package for the as-changed runs, so changed code importing them finds them.
+            for _ in range(2):
+                for added in _spec.get("modules", []):
+                    name = added["name"]
+                    if any(item and item[0] is _sys.modules and item[1] == name for item in _swaps):
+                        continue
+                    module = types.ModuleType(name)
+                    module.__file__ = added["file"]
+                    module.__package__ = name if added["file"].endswith("__init__.py") else name.rpartition(".")[0]
+                    previous = _sys.modules.get(name, _MISSING)
+                    _sys.modules[name] = module
+                    try:
+                        exec(compile(added["source"], added["file"], "exec"), vars(module))
+                    except Exception:
+                        if previous is _MISSING:
+                            _sys.modules.pop(name, None)
+                        else:
+                            _sys.modules[name] = previous
+                        continue
+                    _swaps.append((_sys.modules, name, module, previous))
+                    parent, _, leaf = name.rpartition(".")
+                    if parent and parent in _sys.modules:
+                        holder = _sys.modules[parent]
+                        _swaps.append((holder, leaf, module, vars(holder).get(leaf, _MISSING)))
+                        setattr(holder, leaf, module)
             # Additions are applied as they are prepared and stay applied until all are, so an import in one file can
             # see a helper the change adds to another; one that fails is retried after the others.
             pending = list(_spec.get("additions", []))
@@ -278,7 +304,14 @@ if _spec_path and _sys.version_info >= (3, 12):
                     continue
                 owner, name, changed, original = item
                 try:
-                    if on:
+                    if isinstance(owner, dict):  # sys.modules
+                        if on:
+                            owner[name] = changed
+                        elif original is _MISSING:
+                            owner.pop(name, None)
+                        else:
+                            owner[name] = original
+                    elif on:
                         setattr(owner, name, changed)
                     elif original is _MISSING:
                         delattr(owner, name)
@@ -513,23 +546,24 @@ def additions(before, after, path=''):
     return found
 
 
-def support(scratch, tree, spec_targets, added=()):
+def support(scratch, tree, spec_targets, added=(), modules=()):
     folder = Path(scratch)/'side-by-side'
     (folder/'out').mkdir(parents=True, exist_ok=True)
     (folder/'hook').mkdir(exist_ok=True)
     (folder/'hook'/'sitecustomize.py').write_text(HOOK)
     rows = [dict(t, file=str(Path(tree)/t['file'])) for t in spec_targets]
     extra = [dict(a, file=str(Path(tree)/a['file'])) for a in added]
-    (folder/'spec.json').write_text(json.dumps(dict(root=str(tree), targets=rows, additions=extra, calls=CALLS)))
+    new = [dict(m, file=str(Path(tree)/m['file'])) for m in modules]
+    (folder/'spec.json').write_text(json.dumps(dict(root=str(tree), targets=rows, additions=extra, modules=new, calls=CALLS)))
     return folder
 
 
-def run(runner, python, before_tree, ids, spec_targets, skipped, scratch, timeout, added=()):
+def run(runner, python, before_tree, ids, spec_targets, skipped, scratch, timeout, added=(), modules=()):
     """Run ``ids`` on the code before the change with the hook. Returns (info, differences, gaps)."""
     gaps = []
     if not spec_targets:
         return dict(targets=0, skipped=skipped), [], gaps
-    folder = support(scratch, before_tree, spec_targets, added)
+    folder = support(scratch, before_tree, spec_targets, added, modules)
     env = dict(AMU_TRUST_PATH=str(folder/'hook'), AMU_SBS_SPEC=str(folder/'spec.json'), AMU_SBS_OUT=str(folder/'out'))
     _, problem = runners.execute(runner, python, before_tree, ids, Path(scratch)/'side-by-side.xml', timeout, extra_env=env)
     if problem and problem != 'timed out':
