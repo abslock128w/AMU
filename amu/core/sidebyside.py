@@ -409,6 +409,7 @@ if _spec_path and _sys.version_info >= (3, 12):
         pass
 _here = _os.path.dirname(_os.path.abspath(__file__))
 _kept = list(_sys.path)
+_self = _sys.modules.get("sitecustomize")
 try:
     _sys.path[:] = [p for p in _sys.path if _os.path.abspath(p or ".") != _here]
     del _sys.modules["sitecustomize"]
@@ -417,6 +418,9 @@ except Exception:
     pass
 finally:
     _sys.path[:] = _kept
+    if "sitecustomize" not in _sys.modules and _self is not None:
+        # The environment has none of its own: the import that loaded this file expects to find it here.
+        _sys.modules["sitecustomize"] = _self
 '''
 
 

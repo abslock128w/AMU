@@ -155,3 +155,20 @@ def test_a_changed_signature_and_names_imported_by_value(tmp_path):
     found = {row['target'].split('#')[1]: row for row in report['behaviour_differences']}
     assert 'cached' not in found and report['side_by_side']['calls_not_fitting_a_changed_signature'] >= 1, report['side_by_side']
     assert found['load']['after']['result'] == ['return', "'A.B'"], found
+
+
+def test_the_hooks_load_where_the_interpreter_has_no_sitecustomize_of_its_own(tmp_path):
+    # Found on GitHub's setup-python (PR #11): handing over to the environment's sitecustomize left none in sys.modules
+    # when there was none, and the import that loaded the hook raised KeyError. Homebrew's Python ships one, which hid it.
+    import subprocess
+
+    from amu.core import sidebyside, trust
+    for name, text in (('trust', trust.SITECUSTOMIZE), ('side', sidebyside.HOOK)):
+        folder = tmp_path/name
+        folder.mkdir()
+        (folder/'sitecustomize.py').write_text(text)
+        code = (f'import sys; sys.path[:] = [{str(folder)!r}]; import sitecustomize; '
+                'assert sys.modules["sitecustomize"] is sitecustomize; print("loaded")')
+        # -S: no site at start-up, so no sitecustomize is already imported and none other is on the path.
+        done = subprocess.run([sys.executable, '-S', '-c', code], capture_output=True, text=True)
+        assert done.returncode == 0 and 'loaded' in done.stdout, (name, done.stderr[-500:])
