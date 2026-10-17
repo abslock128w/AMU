@@ -17,11 +17,12 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from . import basecache, replay, runners, trust
+from . import basecache, replay, runners, sidebyside, trust
 from .git import _git
 from .patch import applied, candidate, original, renumber
 
 CHUNK = 40
+SIDE_BY_SIDE = 120  # seconds at most for the side-by-side run on the code before the change
 CONFIRM = 20  # seconds always allowed for confirming a failure on the unchanged code
 PARTS = max(1, min(4, (os.cpu_count() or 2) // 2))  # processes side by side, for runners that allow it
 RATE = 15.0  # tests per second per process, until a run in this tree has measured it
@@ -75,11 +76,15 @@ def execute(runner, python, tree, ids, scratch, name, timeout, parts):
     return found, problems
 
 
-def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=(), base_cache=None):
+def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=(), base_cache=None, functions=()):
     """Outcomes of ``ids`` before and after the change. Returns (rows, info, gaps).
 
     ``own`` are the tests the change adds or edits (replay.touched); they are also run on the code before the change
     with the tests as the change leaves them, and their verdicts go to ``info['replayed']``.
+
+    ``functions`` are the changed functions (analyze's changed_functions): with Python 3.12 or later, the tests that ran
+    run once more on the code before the change while each changed function is executed side by side on the inputs
+    they call it with (sidebyside); stable differences go to ``info['behaviour']``.
 
     ``base_cache`` (basecache.BaseCache) answers passing outcomes on the code before the change from earlier runs;
     only what it cannot answer runs there.
@@ -175,6 +180,7 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
         for ident in removed:
             states['after'][ident] = 'removed'
         unstable, edited_flips, originals, replayed, verdicts, edited_verdicts, trust_seconds = [], [], {}, [], {}, {}, 0.0
+        side, behaviour = None, []
         if not aborted:
             # A flip is believed only after the trust checks (trust module): the reach check and three reruns on the
             # changed code. A "before" outcome taken from the memo is confirmed afresh, so a test that is flaky on the
@@ -244,6 +250,16 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
                         gaps.append(f'shadow run (before the change, original tests, {runner.name}): {problem}')
                 edited_flips = [i for i in failing if known.get(i) == 'passed']
                 unstable += [i for i in edited_flips if edited_verdicts.get(i, {}).get('label') == trust.UNSTABLE]
+        if functions and not aborted and _monitoring(python):
+            spec_targets, skipped = sidebyside.targets(functions, before_src, after_src)
+            ran_ids = [i for i in ids if states['after'].get(i) in OUTCOMES]
+            began = time.perf_counter()
+            added = [a for path in edits if path.endswith('.py') and not replay.is_test_file(path)
+                     for a in sidebyside.additions(before_src.get(path) or '', after_src.get(path) or '', path)]
+            side, behaviour, more = sidebyside.run(runner, python, trees['before'], ran_ids, spec_targets, skipped, scratch,
+                                                   max(min(budget, SIDE_BY_SIDE), CONFIRM), added)
+            side['seconds'] = round(time.perf_counter() - began, 1)
+            gaps += more
         if own and not aborted:
             replayed, more = _replay(runner, python, trees['after'], other, edits, before_src, after_src, live_is_after,
                                      own, states['after'], scratch, left, base_cache)
@@ -265,7 +281,8 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
         before, after = states['before'].get(ident), states['after'].get(ident)
         if ident in verdicts:
             rows.append(dict(id=ident, before=before, after=after, label='executed', trust=verdicts[ident]['label'],
-                             why=verdicts[ident]['why'], reruns=verdicts[ident]['reruns'], reach=verdicts[ident]['reach']))
+                             why=verdicts[ident]['why'], reruns=verdicts[ident]['reruns'], reach=verdicts[ident]['reach'],
+                             **{k: verdicts[ident][k] for k in ('path', 'raised') if k in verdicts[ident]}))
         elif ident in edited_flips:
             verdict = edited_verdicts.get(ident) or dict(label=trust.CONFIRMED, why='', reruns=None, reach=None)
             rows.append(dict(id=ident, before='passed', after='failed', label=EDITED, edited_form=after, trust=verdict['label'],
@@ -299,6 +316,8 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
         info['base_cache'] = dict(answered=base_cache.hits, ran=base_cache.misses, stored=base_cache.stored)
     if replayed:
         info['replayed'] = replayed
+    if not aborted and side is not None:
+        info['side_by_side'], info['behaviour'] = side, behaviour
     if originals:
         info['original_tests'] = {i: state for i, state in originals.items() if state != 'unrunnable'}
         info['ran_original'] = len(info['original_tests'])
@@ -306,6 +325,11 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
 
 
 EDITED = 'test edited, not fixed'
+
+
+def _monitoring(python):
+    from .edges import supported
+    return supported(python)
 
 
 def _base(cache, runner, python, tree, ids, report, timeout):

@@ -19,7 +19,7 @@ import subprocess
 import time
 from pathlib import Path
 
-from . import runners
+from . import edges, runners
 
 CONFIRMED, UNSTABLE, NOT_CAUSED = 'fails', 'unstable', 'not caused by this change'
 ORDER_NEW = 'fails: order-dependent, new with this change'
@@ -82,6 +82,11 @@ if _targets:
             _threading.settrace(_global)
     except Exception:
         pass
+if _os.environ.get("AMU_EDGES_OUT"):
+    try:
+        import amu_edges_hook  # noqa: F401  call edges and exception paths of this rerun (edges module)
+    except Exception:
+        pass
 _here = _os.path.dirname(_os.path.abspath(__file__))
 _kept = list(_sys.path)
 try:
@@ -134,6 +139,7 @@ def support(scratch, changed):
     folder.mkdir(parents=True, exist_ok=True)
     (folder/'sitecustomize.py').write_text(SITECUSTOMIZE)
     (folder/'amu_trust_rerun.py').write_text(PLUGIN)
+    (folder/'amu_edges_hook.py').write_text(edges.HOOK)
     (folder/'targets.json').write_text(json.dumps({name: sorted(lines) for name, lines in changed.items()}))
     return folder
 
@@ -164,8 +170,12 @@ def ordering(runner, python):
     return [], 'the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)'
 
 
-def _env(folder, out=None, repeat=None, reach=None):
+def _env(folder, out=None, repeat=None, reach=None, calls=None, root=None):
     extra = dict(AMU_TRUST_PATH=str(folder))
+    if calls and root:
+        # Python 3.12+: the rerun's call edges and, with exception events on, each exception's path (edges module).
+        calls.mkdir(parents=True, exist_ok=True)
+        extra.update(AMU_EDGES_OUT=str(calls), AMU_EDGES_ROOT=str(root), AMU_EDGES_EXC='1')
     if reach:
         reach.mkdir(parents=True, exist_ok=True)
         extra.update(AMU_REACH_TARGETS=str(folder/'targets.json'), AMU_REACH_OUT=str(reach))
@@ -177,6 +187,35 @@ def _env(folder, out=None, repeat=None, reach=None):
 def _in_given_order(runner):
     """Arguments that make a run keep the order of the ids given: pytest-randomly, when loaded, must not reorder."""
     return ['--randomly-dont-reorganize'] if any('randomly' in str(arg) for arg in runner.extra) else None
+
+
+def _relative(tree, changed):
+    """``changed`` ({absolute file: lines}) keyed by path relative to ``tree``."""
+    out = {}
+    for name, lines in changed.items():
+        for base in {str(Path(tree)), str(Path(tree).resolve())}:
+            if name.startswith(base + '/'):
+                out[name[len(base) + 1:]] = set(lines)
+    return out
+
+
+def _path(calls, test_path, changed, test_name=None):
+    """From the rerun's recorded calls: the call path from the test to changed code, and the path of an exception that
+    passed through changed code. {} when there is neither or nothing was recorded (Python before 3.12)."""
+    names, recorded, chains = edges.merge(calls)
+    if not names:
+        return {}
+    found = {}
+    pairs = set().union(*recorded.values()) if recorded else set()
+    route = edges.path_to(names, pairs, test_path, changed, test_name)
+    if route:
+        found['path'] = route
+    hit = edges.holding(names, changed)
+    for kind, chain in chains:
+        if hit & set(chain):
+            found['raised'] = dict(exception=kind, through=list(dict.fromkeys(edges.record_id(names[i]) for i in chain))[:8])
+            break
+    return found
 
 
 def _hits(folder):
@@ -238,15 +277,17 @@ def triad(runner, python, tree, flipped, candidates, scratch, left, changed, bef
         return max(left - (time.perf_counter() - began), 20)
     legs = {leg: {} for leg in LEGS}
     legs['in_process'] = in_process(runner, python, tree, flipped, scratch, remaining())
-    reach = {}
+    reach, paths = {}, {}
+    relative = _relative(tree, changed)
     alone = flipped[:MAX_ALONE]
     for number, ident in enumerate(alone):
-        where = Path(scratch)/f'trust-reach-{number}'
+        where, calls = Path(scratch)/f'trust-reach-{number}', Path(scratch)/f'trust-calls-{number}'
         found, _ = runners.execute(runner, python, tree, [ident], Path(scratch)/f'trust-alone-{number}.xml', remaining(),
-                                   extra_env=_env(folder, reach=where))
+                                   extra_env=_env(folder, reach=where, calls=calls, root=tree))
         legs['fresh_process'][ident] = found.get(ident)
         hits = _hits(where)
         reach[ident] = None if hits is None else len(hits)
+        paths[ident] = _path(calls, ident.split('::')[0], relative, ident.split('::')[-1])
     rest = flipped[MAX_ALONE:]
     if rest:
         found, _ = runners.execute(runner, python, tree, rest, Path(scratch)/'trust-alone-rest.xml', remaining())
@@ -299,5 +340,5 @@ def triad(runner, python, tree, flipped, candidates, scratch, left, changed, bef
             why += '; not rerun: ' + ', '.join(NAMES[leg] for leg in missing)
         if reach.get(ident) is None and label == CONFIRMED:
             why += '; reach not measured'
-        verdicts[ident] = dict(label=label, reruns=reruns, reach=reach.get(ident), why=why)
+        verdicts[ident] = dict(label=label, reruns=reruns, reach=reach.get(ident), why=why, **(paths.get(ident) or {}))
     return verdicts, gaps

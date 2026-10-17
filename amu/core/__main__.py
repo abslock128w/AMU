@@ -21,7 +21,13 @@ def main(argv=None):
     p.add_argument('--only', nargs='+', metavar='TEST', help='run exactly these tests (path::Class::test) instead of the ranked candidates')
     p.add_argument('--also', nargs='+', metavar='TEST', help='run these tests (path::Class::test) as well as the ranked candidates, first')
     p.add_argument('--observe', action='store_true', help='run the whole suite once under coverage and store a per-test recording beside the index')
+    p.add_argument('--observe-calls', action='store_true',
+                   help='run the whole suite once with the sys.monitoring call tracer (Python 3.12+) and store per-test call edges')
     a = p.parse_args(argv)
+    if a.observe_calls:
+        from . import edges
+        sys.stdout.write(encoded(edges.record(a.repo, a.python, a.runner)).decode() + '\n')
+        return
     if a.observe:
         from . import observe
         sys.stdout.write(encoded(observe.record(a.repo, a.python, a.runner)).decode() + '\n')

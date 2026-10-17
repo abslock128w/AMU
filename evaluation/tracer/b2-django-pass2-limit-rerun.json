@@ -1,0 +1,1660 @@
+[
+ {
+  "commit": "92e1d9e3619ae5274a64b38f26177064486892f2",
+  "parent": "50e5264a458961134d34d6340a00d9a1b269df7a",
+  "message": "Fixed #37233 -- Prevented sort controls for unordered __str__ admin columns.",
+  "files": [
+   "django/contrib/admin/templatetags/admin_list.py"
+  ],
+  "flips": 0,
+  "summary": "EXECUTED 1551 of 1551 candidate tests after the change with django-runtests in 71.2 s, failures confirmed before it: 0 now fail. 0 tests reach the change.",
+  "behaviour_differences": [],
+  "side_by_side": {
+   "targets": 1,
+   "compared_calls": 5,
+   "functions_called": 1,
+   "unstable": 0,
+   "differences": 0,
+   "input_built_before_the_change": 0,
+   "seconds": 24.8,
+   "not_compared": {}
+  },
+  "executed": {
+   "ran": 1551,
+   "candidates": 1551,
+   "unrunnable": 0,
+   "seconds": 71.2,
+   "runner": "django-runtests",
+   "budget": 60,
+   "replayed": 0,
+   "selection": {
+    "closure_files": 58,
+    "closure_tests": 1554,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/contrib/admin/__init__.py"
+    ],
+    "observed": 0,
+    "static_only": 0,
+    "depth_cap": 10,
+    "candidates": 1551
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 0,
+    "stored": 0
+   }
+  },
+  "flip_trust": null,
+  "changed_functions": [
+   {
+    "symbol": "result_headers",
+    "file": "django/contrib/admin/templatetags/admin_list.py",
+    "lines": "119"
+   }
+  ],
+  "seconds": 451.1
+ },
+ {
+  "commit": "2936a0a99719e3c3777039a0d6968deecb55c752",
+  "parent": "e1feeee45ea8bcd4325554c9b94fcd75fcd8dbdc",
+  "message": "Fixed #27752 -- Fixed ordering by Model.__str__ in the admin.",
+  "files": [
+   "django/contrib/admin/utils.py",
+   "django/contrib/admin/views/main.py"
+  ],
+  "flips": 0,
+  "summary": "EXECUTED 1553 of 1553 candidate tests after the change with django-runtests in 72.6 s, failures confirmed before it: 0 now fail. 145 tests reach the change.",
+  "behaviour_differences": [
+   {
+    "target": "django/contrib/admin/utils.py#label_for_field",
+    "input": "(['__str__', <class 'admin_changelist.models.GrandChild'>, <ModelAdmin: model=GrandChild site=AdminSite(name='admin')>, True, None], {})",
+    "differs": [
+     "result"
+    ],
+    "before": {
+     "result": [
+      "return",
+      [
+       "tuple",
+       [
+        "'grand child'",
+        "type:<class 'str'>"
+       ]
+      ]
+     ],
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        [
+         "'__str__'",
+         "ModelBase:<class 'admin_changelist.models.GrandChild'>",
+         "ModelAdmin:<ModelAdmin: model=GrandChild site=AdminSite(name='admin')>",
+         "True",
+         "None"
+        ]
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "stdout": "",
+     "calls": []
+    },
+    "after": {
+     "result": [
+      "return",
+      [
+       "tuple",
+       [
+        "'grand child'",
+        "function:<function GrandChild.__str__ at 0x?>"
+       ]
+      ]
+     ],
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        [
+         "'__str__'",
+         "ModelBase:<class 'admin_changelist.models.GrandChild'>",
+         "ModelAdmin:<ModelAdmin: model=GrandChild site=AdminSite(name='admin')>",
+         "True",
+         "None"
+        ]
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "stdout": "",
+     "calls": []
+    },
+    "test": "admin_changelist.tests.ChangeListTests.test_default_str_column_is_not_sortable",
+    "label": "behaviour differs on captured input"
+   }
+  ],
+  "side_by_side": {
+   "targets": 2,
+   "compared_calls": 10,
+   "functions_called": 2,
+   "unstable": 0,
+   "differences": 1,
+   "input_built_before_the_change": 0,
+   "seconds": 23.7,
+   "not_compared": {}
+  },
+  "executed": {
+   "ran": 1553,
+   "candidates": 1553,
+   "unrunnable": 0,
+   "seconds": 72.6,
+   "runner": "django-runtests",
+   "budget": 60,
+   "replayed": 0,
+   "selection": {
+    "closure_files": 58,
+    "closure_tests": 1555,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/contrib/admin/__init__.py"
+    ],
+    "observed": 0,
+    "static_only": 1,
+    "depth_cap": 10,
+    "candidates": 1553
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 0,
+    "stored": 0
+   }
+  },
+  "flip_trust": null,
+  "changed_functions": [
+   {
+    "symbol": "label_for_field",
+    "file": "django/contrib/admin/utils.py",
+    "lines": "375"
+   },
+   {
+    "symbol": "ChangeList.get_ordering_field",
+    "file": "django/contrib/admin/views/main.py",
+    "lines": "362"
+   }
+  ],
+  "seconds": 452.4
+ },
+ {
+  "commit": "99d56e5cf15839995f62f24294584f1e2976b1ea",
+  "parent": "c6be0bf3bb744d234947cefd6def9f31d9655800",
+  "message": "Fixed #37262 -- Restored rendering of html-safe strings in form media.",
+  "files": [
+   "django/forms/widgets.py"
+  ],
+  "flips": 0,
+  "summary": "EXECUTED 2080 of 2880 candidate tests after the change with django-runtests in 124.0 s, failures confirmed before it: 0 now fail. 71 tests reach the change.",
+  "behaviour_differences": [],
+  "side_by_side": {
+   "targets": 2,
+   "compared_calls": 10,
+   "functions_called": 2,
+   "unstable": 0,
+   "differences": 0,
+   "input_built_before_the_change": 0,
+   "seconds": 57.9,
+   "not_compared": {}
+  },
+  "executed": {
+   "ran": 2080,
+   "candidates": 2880,
+   "unrunnable": 0,
+   "seconds": 124.0,
+   "runner": "django-runtests",
+   "budget": 60,
+   "replayed": 0,
+   "selection": {
+    "closure_files": 324,
+    "closure_tests": 5401,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/contrib/admin/__init__.py",
+     "django/forms/__init__.py",
+     "django/test/__init__.py",
+     "django/test/utils.py"
+    ],
+    "observed": 0,
+    "static_only": 2,
+    "depth_cap": 10,
+    "candidates": 5722
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 0,
+    "stored": 0
+   }
+  },
+  "flip_trust": null,
+  "changed_functions": [
+   {
+    "symbol": "Media._normalize_js",
+    "file": "django/forms/widgets.py",
+    "lines": "155"
+   },
+   {
+    "symbol": "Media._normalize_css",
+    "file": "django/forms/widgets.py",
+    "lines": "161"
+   }
+  ],
+  "seconds": 506.7
+ },
+ {
+  "commit": "812c08bd4e9da7b74ab9ee0db83da58a6da48d19",
+  "parent": "d6b73a6613f5e7de95fd8719198d0347c85ddf42",
+  "message": "Fixed #37273 -- Allowed F() expressions on the RHS of CompositePK lookups.",
+  "files": [
+   "django/db/models/fields/tuple_lookups.py"
+  ],
+  "flips": 0,
+  "summary": "EXECUTED 2880 of 2880 candidate tests after the change with django-runtests in 114.7 s, failures confirmed before it: 0 now fail. 75 tests reach the change.",
+  "behaviour_differences": [],
+  "side_by_side": {
+   "targets": 1,
+   "compared_calls": 1,
+   "functions_called": 1,
+   "unstable": 0,
+   "differences": 0,
+   "input_built_before_the_change": 0,
+   "seconds": 60.0,
+   "not_compared": {}
+  },
+  "executed": {
+   "ran": 2880,
+   "candidates": 2880,
+   "unrunnable": 0,
+   "seconds": 114.7,
+   "runner": "django-runtests",
+   "budget": 60,
+   "replayed": 0,
+   "selection": {
+    "closure_files": 539,
+    "closure_tests": 9052,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/contrib/admin/__init__.py",
+     "django/contrib/auth/models.py",
+     "django/core/management/base.py",
+     "django/db/migrations/__init__.py",
+     "django/db/models/__init__.py",
+     "django/db/models/expressions.py",
+     "django/db/models/functions/__init__.py",
+     "django/test/__init__.py",
+     "django/test/utils.py"
+    ],
+    "observed": 0,
+    "static_only": 6,
+    "depth_cap": 10,
+    "candidates": 9405
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 0,
+    "stored": 0
+   }
+  },
+  "flip_trust": null,
+  "changed_functions": [
+   {
+    "symbol": "TupleLookupMixin.check_rhs_is_supported_expression",
+    "file": "django/db/models/fields/tuple_lookups.py",
+    "lines": "77"
+   }
+  ],
+  "seconds": 130.5
+ },
+ {
+  "commit": "a3e6e7d3aa6e2aa793ba1d122a76cb007727197c",
+  "parent": "1a001208b0b9d79b15b27ca04d94f31f3d55d5ea",
+  "message": "Fixed #37275, Refs #24920 -- Fixed SQLite DecimalField conversion without precision.",
+  "files": [
+   "django/db/backends/sqlite3/operations.py"
+  ],
+  "flips": 0,
+  "summary": "EXECUTED 556 of 697 candidate tests after the change with django-runtests in 114.6 s, failures confirmed before it: 0 now fail. 403 tests reach the change.",
+  "behaviour_differences": [],
+  "side_by_side": {
+   "targets": 1,
+   "compared_calls": 5,
+   "functions_called": 1,
+   "unstable": 0,
+   "differences": 0,
+   "input_built_before_the_change": 0,
+   "seconds": 60.0,
+   "not_compared": {}
+  },
+  "executed": {
+   "ran": 556,
+   "candidates": 697,
+   "unrunnable": 84,
+   "seconds": 114.6,
+   "runner": "django-runtests",
+   "budget": 60,
+   "replayed": 0,
+   "selection": {
+    "closure_files": 8,
+    "closure_tests": 19,
+    "hubs": 29,
+    "hubs_reached": [],
+    "observed": 0,
+    "static_only": 402,
+    "depth_cap": 10,
+    "candidates": 697
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 0,
+    "stored": 0
+   }
+  },
+  "flip_trust": null,
+  "changed_functions": [
+   {
+    "symbol": "DatabaseOperations.get_decimalfield_converter",
+    "file": "django/db/backends/sqlite3/operations.py",
+    "lines": "318"
+   }
+  ],
+  "seconds": 130.7
+ },
+ {
+  "commit": "6ade6258480fba84a7e895b4b1e1716dfc954778",
+  "parent": "376909dc434395ae0156ac74e998d828e9551989",
+  "message": "Fixed #37344 -- Enabled FETCH_PEERS batching for instances loaded by select_related.",
+  "files": [
+   "django/db/models/query.py"
+  ],
+  "flips": 0,
+  "summary": "EXECUTED 2880 of 2880 candidate tests after the change with django-runtests in 118.3 s, failures confirmed before it: 0 now fail. 0 tests reach the change.",
+  "behaviour_differences": [
+   {
+    "target": "django/db/models/query.py#RelatedPopulator.__init__",
+    "input": "([<django.db.models.query.RelatedPopulator object at 0x?>, {'model': <class 'admin_changelist.models.Parent'>, 'field': <django.db.models.fields.related.ForeignKey: parent>, 'reverse': False, 'local_setter': <bound method FieldCacheMixin.set_cached_value of <django.db.models.fields.related.ForeignKey: parent>>, 'remote_setter': <function SQLCompiler.get_related_selections.<locals>.<lambda> at 0x?>",
+    "differs": [
+     "args_after"
+    ],
+    "before": {
+     "result": [
+      "return",
+      "None"
+     ],
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        [
+         [
+          "django.db.models.query.RelatedPopulator",
+          [
+           "dict",
+           [
+            [
+             "'cols_end'",
+             "7"
+            ],
+            [
+             "'cols_start'",
+             "5"
+            ],
+            [
+             "'db'",
+             "'default'"
+            ],
+            [
+             "'fetch_mode'",
+             "FetchOne:<django.db.models.fetch_modes.FetchOne object at 0x?>"
+            ],
+            [
+             "'from_db'",
+             "partial:functools.partial(<bound method Model.from_db of <class 'admin_changelist.models.Parent'>>, fetch_mode=<django.db.models.fetch_modes.FetchOne object at 0x?>)"
+            ],
+            [
+             "'init_list'",
+             [
+              "list",
+              [
+               "'id'",
+               "'name'"
+              ]
+             ]
+            ],
+            [
+             "'local_setter'",
+             "method:<bound method FieldCacheMixin.set_cached_value of <django.db.models.fields.related.ForeignKey: parent>>"
+            ],
+            [
+             "'model_cls'",
+             "ModelBase:<class 'admin_changelist.models.Parent'>"
+            ],
+            [
+             "'pk_idx'",
+             "0"
+            ],
+            [
+             "'related_populators'",
+             [
+              "list",
+              []
+             ]
+            ],
+            [
+             "'remote_setter'",
+             "function:<function SQLCompiler.get_related_selections.<locals>.<lambda> at 0x?>"
+            ],
+            [
+             "'reorder_for_init'",
+             "None"
+            ]
+           ]
+          ]
+         ],
+         [
+          "dict",
+          [
+           [
+            "'field'",
+            "ForeignKey:<django.db.models.fields.related.ForeignKey: parent>"
+           ],
+           [
+            "'from_parent'",
+            "False"
+           ],
+           [
+            "'local_setter'",
+            "method:<bound method FieldCacheMixin.set_cached_value of <django.db.models.fields.related.ForeignKey: parent>>"
+           ],
+           [
+            "'model'",
+            "ModelBase:<class 'admin_changelist.models.Parent'>"
+           ],
+           [
+            "'related_klass_infos'",
+            [
+             "list",
+             []
+            ]
+           ],
+           [
+            "'remote_setter'",
+            "function:<function SQLCompiler.get_related_selections.<locals>.<lambda> at 0x?>"
+           ],
+           [
+            "'reverse'",
+            "False"
+           ],
+           [
+            "'select_fields'",
+            [
+             "list",
+             [
+              "5",
+              "6"
+             ]
+            ]
+           ]
+          ]
+         ],
+         [
+          "list",
+          [
+           [
+            "tuple",
+            [
+             "Col:Col(admin_changelist_child, admin_changelist.Child.id)",
+             [
+              "tuple",
+              [
+               "'\"admin_changelist_child\".\"id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(admin_changelist_child, admin_changelist.Child.parent)",
+             [
+              "tuple",
+              [
+               "'\"admin_changelist_child\".\"parent_id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(admin_changelist_child, admin_changelist.Child.name)",
+             [
+              "tuple",
+              [
+               "'\"admin_changelist_child\".\"name\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(admin_changelist_child, admin_changelist.Child.age)",
+             [
+              "tuple",
+              [
+               "'\"admin_changelist_child\".\"age\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(admin_changelist_child, admin_changelist.Child.is_active)",
+             [
+              "tuple",
+              [
+               "'\"admin_changelist_child\".\"is_active\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(admin_changelist_parent, admin_changelist.Parent.id)",
+             [
+              "tuple",
+              [
+               "'\"admin_changelist_parent\".\"id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(admin_changelist_parent, admin_changelist.Parent.name)",
+             [
+              "tuple",
+              [
+               "'\"admin_changelist_parent\".\"name\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ]
+          ]
+         ],
+         "'default'",
+         "FetchOne:<django.db.models.fetch_modes.FetchOne object at 0x?>"
+        ]
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "stdout": "",
+     "calls": []
+    },
+    "after": {
+     "result": [
+      "return",
+      "None"
+     ],
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        [
+         [
+          "django.db.models.query.RelatedPopulator",
+          [
+           "dict",
+           [
+            [
+             "'cols_end'",
+             "7"
+            ],
+            [
+             "'cols_start'",
+             "5"
+            ],
+            [
+             "'db'",
+             "'default'"
+            ],
+            [
+             "'fetch_mode'",
+             "FetchOne:<django.db.models.fetch_modes.FetchOne object at 0x?>"
+            ],
+            [
+             "'from_db'",
+             "partial:functools.partial(<bound method Model.from_db of <class 'admin_changelist.models.Parent'>>, fetch_mode=<django.db.models.fetch_modes.FetchOne object at 0x?>)"
+            ],
+            [
+             "'init_list'",
+             [
+              "list",
+              [
+               "'id'",
+               "'name'"
+              ]
+             ]
+            ],
+            [
+             "'local_setter'",
+             "method:<bound method FieldCacheMixin.set_cached_value of <django.db.models.fields.related.ForeignKey: parent>>"
+            ],
+            [
+             "'model_cls'",
+             "ModelBase:<class 'admin_changelist.models.Parent'>"
+            ],
+            [
+             "'peers'",
+             [
+              "list",
+              []
+             ]
+            ],
+            [
+             "'pk_idx'",
+             "0"
+            ],
+            [
+             "'related_populators'",
+             [
+              "list",
+              []
+             ]
+            ],
+            [
+             "'remote_setter'",
+             "function:<function SQLCompiler.get_related_selections.<locals>.<lambda> at 0x?>"
+            ],
+            [
+             "'reorder_for_init'",
+             "None"
+            ]
+           ]
+          ]
+         ],
+         [
+          "dict",
+          [
+           [
+            "'field'",
+            "ForeignKey:<django.db.models.fields.related.ForeignKey: parent>"
+           ],
+           [
+            "'from_parent'",
+            "False"
+           ],
+           [
+            "'local_setter'",
+            "method:<bound method FieldCacheMixin.set_cached_value of <django.db.models.fields.related.ForeignKey: parent>>"
+           ],
+           [
+            "'model'",
+            "ModelBase:<class 'admin_changelist.models.Parent'>"
+           ],
+           [
+            "'related_klass_infos'",
+            [
+             "list",
+             []
+            ]
+           ],
+           [
+            "'remote_setter'",
+            "function:<function SQLCompiler.get_related_selections.<locals>.<lambda> at 0x?>"
+           ],
+           [
+            "'reverse'",
+            "False"
+           ],
+           [
+            "'select_fields'",
+            [
+             "list",
+             [
+              "5",
+              "6"
+             ]
+            ]
+           ]
+          ]
+         ],
+         [
+          "list",
+          [
+           [
+            "tuple",
+            [
+             "Col:Col(admin_changelist_child, admin_changelist.Child.id)",
+             [
+              "tuple",
+              [
+               "'\"admin_changelist_child\".\"id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(admin_changelist_child, admin_changelist.Child.parent)",
+             [
+              "tuple",
+              [
+               "'\"admin_changelist_child\".\"parent_id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(admin_changelist_child, admin_changelist.Child.name)",
+             [
+              "tuple",
+              [
+               "'\"admin_changelist_child\".\"name\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(admin_changelist_child, admin_changelist.Child.age)",
+             [
+              "tuple",
+              [
+               "'\"admin_changelist_child\".\"age\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(admin_changelist_child, admin_changelist.Child.is_active)",
+             [
+              "tuple",
+              [
+               "'\"admin_changelist_child\".\"is_active\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(admin_changelist_parent, admin_changelist.Parent.id)",
+             [
+              "tuple",
+              [
+               "'\"admin_changelist_parent\".\"id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(admin_changelist_parent, admin_changelist.Parent.name)",
+             [
+              "tuple",
+              [
+               "'\"admin_changelist_parent\".\"name\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ]
+          ]
+         ],
+         "'default'",
+         "FetchOne:<django.db.models.fetch_modes.FetchOne object at 0x?>"
+        ]
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "stdout": "",
+     "calls": []
+    },
+    "test": "admin_changelist.tests.ChangeListTests.test_dynamic_list_display",
+    "label": "behaviour differs on captured input"
+   },
+   {
+    "target": "django/db/models/query.py#RelatedPopulator.__init__",
+    "input": "([<django.db.models.query.RelatedPopulator object at 0x?>, {'model': <class 'admin_changelist.models.GrandChild'>, 'field': <django.db.models.fields.related.ForeignKey: sibling>, 'reverse': False, 'local_setter': <bound method FieldCacheMixin.set_cached_value of <django.db.models.fields.related.ForeignKey: sibling>>, 'remote_setter': <function SQLCompiler.get_related_selections.<locals>.<lambda> a",
+    "differs": [
+     "args_after"
+    ],
+    "before": {
+     "result": [
+      "return",
+      "None"
+     ],
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        [
+         [
+          "django.db.models.query.RelatedPopulator",
+          [
+           "dict",
+           [
+            [
+             "'cols_end'",
+             "8"
+            ],
+            [
+             "'cols_start'",
+             "4"
+            ],
+            [
+             "'db'",
+             "'default'"
+            ],
+            [
+             "'fetch_mode'",
+             "FetchOne:<django.db.models.fetch_modes.FetchOne object at 0x?>"
+            ],
+            [
+             "'from_db'",
+             "partial:functools.partial(<bound method Model.from_db of <class 'admin_changelist.models.GrandChild'>>, fetch_mode=<django.db.models.fetch_modes.FetchOne object at 0x?>)"
+            ],
+            [
+             "'init_list'",
+             [
+              "list",
+              [
+               "'id'",
+               "'parent_id'",
+               "'name'",
+               "'sibling_id'"
+              ]
+             ]
+            ],
+            [
+             "'local_setter'",
+             "method:<bound method FieldCacheMixin.set_cached_value of <django.db.models.fields.related.ForeignKey: sibling>>"
+            ],
+            [
+             "'model_cls'",
+             "ModelBase:<class 'admin_changelist.models.GrandChild'>"
+            ],
+            [
+             "'pk_idx'",
+             "0"
+            ],
+            [
+             "'related_populators'",
+             [
+              "list",
+              []
+             ]
+            ],
+            [
+             "'remote_setter'",
+             "function:<function SQLCompiler.get_related_selections.<locals>.<lambda> at 0x?>"
+            ],
+            [
+             "'reorder_for_init'",
+             "None"
+            ]
+           ]
+          ]
+         ],
+         [
+          "dict",
+          [
+           [
+            "'field'",
+            "ForeignKey:<django.db.models.fields.related.ForeignKey: sibling>"
+           ],
+           [
+            "'from_parent'",
+            "False"
+           ],
+           [
+            "'local_setter'",
+            "method:<bound method FieldCacheMixin.set_cached_value of <django.db.models.fields.related.ForeignKey: sibling>>"
+           ],
+           [
+            "'model'",
+            "ModelBase:<class 'admin_changelist.models.GrandChild'>"
+           ],
+           [
+            "'related_klass_infos'",
+            [
+             "list",
+             []
+            ]
+           ],
+           [
+            "'remote_setter'",
+            "function:<function SQLCompiler.get_related_selections.<locals>.<lambda> at 0x?>"
+           ],
+           [
+            "'reverse'",
+            "False"
+           ],
+           [
+            "'select_fields'",
+            [
+             "list",
+             [
+              "4",
+              "5",
+              "6",
+              "7"
+             ]
+            ]
+           ]
+          ]
+         ],
+         [
+          "list",
+          [
+           [
+            "tuple",
+            [
+             "Col:Col(admin_changelist_grandchild, admin_changelist.GrandChild.id)",
+             [
+              "tuple",
+              [
+               "'\"admin_changelist_grandchild\".\"id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(admin_changelist_grandchild, admin_changelist.GrandChild.parent)",
+             [
+              "tuple",
+              [
+               "'\"admin_changelist_grandchild\".\"parent_id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(admin_changelist_grandchild, admin_changelist.GrandChild.name)",
+             [
+              "tuple",
+              [
+               "'\"admin_changelist_grandchild\".\"name\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(admin_changelist_grandchild, admin_changelist.GrandChild.sibling)",
+             [
+              "tuple",
+              [
+               "'\"admin_changelist_grandchild\".\"sibling_id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(T2, admin_changelist.GrandChild.id)",
+             [
+              "tuple",
+              [
+               "'\"T2\".\"id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(T2, admin_changelist.GrandChild.parent)",
+             [
+              "tuple",
+              [
+               "'\"T2\".\"parent_id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(T2, admin_changelist.GrandChild.name)",
+             [
+              "tuple",
+              [
+               "'\"T2\".\"name\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(T2, admin_changelist.GrandChild.sibling)",
+             [
+              "tuple",
+              [
+               "'\"T2\".\"sibling_id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ]
+          ]
+         ],
+         "'default'",
+         "FetchOne:<django.db.models.fetch_modes.FetchOne object at 0x?>"
+        ]
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "stdout": "",
+     "calls": []
+    },
+    "after": {
+     "result": [
+      "return",
+      "None"
+     ],
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        [
+         [
+          "django.db.models.query.RelatedPopulator",
+          [
+           "dict",
+           [
+            [
+             "'cols_end'",
+             "8"
+            ],
+            [
+             "'cols_start'",
+             "4"
+            ],
+            [
+             "'db'",
+             "'default'"
+            ],
+            [
+             "'fetch_mode'",
+             "FetchOne:<django.db.models.fetch_modes.FetchOne object at 0x?>"
+            ],
+            [
+             "'from_db'",
+             "partial:functools.partial(<bound method Model.from_db of <class 'admin_changelist.models.GrandChild'>>, fetch_mode=<django.db.models.fetch_modes.FetchOne object at 0x?>)"
+            ],
+            [
+             "'init_list'",
+             [
+              "list",
+              [
+               "'id'",
+               "'parent_id'",
+               "'name'",
+               "'sibling_id'"
+              ]
+             ]
+            ],
+            [
+             "'local_setter'",
+             "method:<bound method FieldCacheMixin.set_cached_value of <django.db.models.fields.related.ForeignKey: sibling>>"
+            ],
+            [
+             "'model_cls'",
+             "ModelBase:<class 'admin_changelist.models.GrandChild'>"
+            ],
+            [
+             "'peers'",
+             [
+              "list",
+              []
+             ]
+            ],
+            [
+             "'pk_idx'",
+             "0"
+            ],
+            [
+             "'related_populators'",
+             [
+              "list",
+              []
+             ]
+            ],
+            [
+             "'remote_setter'",
+             "function:<function SQLCompiler.get_related_selections.<locals>.<lambda> at 0x?>"
+            ],
+            [
+             "'reorder_for_init'",
+             "None"
+            ]
+           ]
+          ]
+         ],
+         [
+          "dict",
+          [
+           [
+            "'field'",
+            "ForeignKey:<django.db.models.fields.related.ForeignKey: sibling>"
+           ],
+           [
+            "'from_parent'",
+            "False"
+           ],
+           [
+            "'local_setter'",
+            "method:<bound method FieldCacheMixin.set_cached_value of <django.db.models.fields.related.ForeignKey: sibling>>"
+           ],
+           [
+            "'model'",
+            "ModelBase:<class 'admin_changelist.models.GrandChild'>"
+           ],
+           [
+            "'related_klass_infos'",
+            [
+             "list",
+             []
+            ]
+           ],
+           [
+            "'remote_setter'",
+            "function:<function SQLCompiler.get_related_selections.<locals>.<lambda> at 0x?>"
+           ],
+           [
+            "'reverse'",
+            "False"
+           ],
+           [
+            "'select_fields'",
+            [
+             "list",
+             [
+              "4",
+              "5",
+              "6",
+              "7"
+             ]
+            ]
+           ]
+          ]
+         ],
+         [
+          "list",
+          [
+           [
+            "tuple",
+            [
+             "Col:Col(admin_changelist_grandchild, admin_changelist.GrandChild.id)",
+             [
+              "tuple",
+              [
+               "'\"admin_changelist_grandchild\".\"id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(admin_changelist_grandchild, admin_changelist.GrandChild.parent)",
+             [
+              "tuple",
+              [
+               "'\"admin_changelist_grandchild\".\"parent_id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(admin_changelist_grandchild, admin_changelist.GrandChild.name)",
+             [
+              "tuple",
+              [
+               "'\"admin_changelist_grandchild\".\"name\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(admin_changelist_grandchild, admin_changelist.GrandChild.sibling)",
+             [
+              "tuple",
+              [
+               "'\"admin_changelist_grandchild\".\"sibling_id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(T2, admin_changelist.GrandChild.id)",
+             [
+              "tuple",
+              [
+               "'\"T2\".\"id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(T2, admin_changelist.GrandChild.parent)",
+             [
+              "tuple",
+              [
+               "'\"T2\".\"parent_id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(T2, admin_changelist.GrandChild.name)",
+             [
+              "tuple",
+              [
+               "'\"T2\".\"name\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(T2, admin_changelist.GrandChild.sibling)",
+             [
+              "tuple",
+              [
+               "'\"T2\".\"sibling_id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ]
+          ]
+         ],
+         "'default'",
+         "FetchOne:<django.db.models.fetch_modes.FetchOne object at 0x?>"
+        ]
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "stdout": "",
+     "calls": []
+    },
+    "test": "admin_changelist.tests.ChangeListTests.test_list_display_first_degree_relation",
+    "label": "behaviour differs on captured input"
+   }
+  ],
+  "side_by_side": {
+   "targets": 2,
+   "compared_calls": 10,
+   "functions_called": 2,
+   "unstable": 0,
+   "differences": 2,
+   "input_built_before_the_change": 0,
+   "seconds": 60.0,
+   "not_compared": {}
+  },
+  "executed": {
+   "ran": 2880,
+   "candidates": 2880,
+   "unrunnable": 0,
+   "seconds": 118.3,
+   "runner": "django-runtests",
+   "budget": 60,
+   "replayed": 0,
+   "selection": {
+    "closure_files": 600,
+    "closure_tests": 9654,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/contrib/admin/__init__.py",
+     "django/contrib/auth/models.py",
+     "django/core/management/base.py",
+     "django/db/migrations/__init__.py",
+     "django/db/models/__init__.py",
+     "django/db/models/expressions.py",
+     "django/db/models/functions/__init__.py",
+     "django/test/__init__.py",
+     "django/test/utils.py"
+    ],
+    "observed": 0,
+    "static_only": 0,
+    "depth_cap": 10,
+    "candidates": 10011
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 0,
+    "stored": 0
+   }
+  },
+  "flip_trust": null,
+  "changed_functions": [
+   {
+    "symbol": "RelatedPopulator.__init__",
+    "file": "django/db/models/query.py",
+    "lines": "3103"
+   },
+   {
+    "symbol": "RelatedPopulator.populate",
+    "file": "django/db/models/query.py",
+    "lines": "3119"
+   }
+  ],
+  "seconds": 136.1
+ },
+ {
+  "commit": "581deb9402edc70f85b63c170c199a393f0f2183",
+  "parent": "6ade6258480fba84a7e895b4b1e1716dfc954778",
+  "message": "Fixed #37339 -- Allowed ipaddress objects in GenericIPAddressField.",
+  "files": [
+   "django/db/models/fields/__init__.py"
+  ],
+  "flips": 0,
+  "summary": "EXECUTED 2880 of 2880 candidate tests after the change with django-runtests in 122.7 s, failures confirmed before it: 0 now fail. 64 tests reach the change.",
+  "behaviour_differences": [],
+  "side_by_side": {
+   "targets": 1,
+   "compared_calls": 0,
+   "functions_called": 0,
+   "unstable": 0,
+   "differences": 0,
+   "input_built_before_the_change": 0,
+   "seconds": 60.0,
+   "not_compared": {}
+  },
+  "executed": {
+   "ran": 2880,
+   "candidates": 2880,
+   "unrunnable": 0,
+   "seconds": 122.7,
+   "runner": "django-runtests",
+   "budget": 60,
+   "replayed": 0,
+   "selection": {
+    "closure_files": 603,
+    "closure_tests": 9655,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/contrib/admin/__init__.py",
+     "django/contrib/auth/models.py",
+     "django/core/management/base.py",
+     "django/db/migrations/__init__.py",
+     "django/db/models/__init__.py",
+     "django/db/models/expressions.py",
+     "django/db/models/functions/__init__.py",
+     "django/test/__init__.py",
+     "django/test/utils.py"
+    ],
+    "observed": 0,
+    "static_only": 16,
+    "depth_cap": 10,
+    "candidates": 10028
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 0,
+    "stored": 0
+   }
+  },
+  "flip_trust": null,
+  "changed_functions": [
+   {
+    "symbol": "GenericIPAddressField.get_prep_value",
+    "file": "django/db/models/fields/__init__.py",
+    "lines": "2369-2376"
+   }
+  ],
+  "seconds": 140.3
+ },
+ {
+  "commit": "50eef95591b1e5d8c47b2e8c96066cb0c516753a",
+  "parent": "479ba6d2812bb0613d1646d445be43f7c6ab7bc7",
+  "message": "Fixed #37291 -- Prevented tuple lookups from hanging on F() expressions.",
+  "files": [
+   "django/db/models/fields/tuple_lookups.py"
+  ],
+  "flips": 0,
+  "summary": "EXECUTED 2880 of 2880 candidate tests after the change with django-runtests in 123.1 s, failures confirmed before it: 0 now fail. 75 tests reach the change.",
+  "behaviour_differences": [],
+  "side_by_side": {
+   "targets": 1,
+   "compared_calls": 5,
+   "functions_called": 1,
+   "unstable": 0,
+   "differences": 0,
+   "input_built_before_the_change": 0,
+   "seconds": 60.0,
+   "not_compared": {}
+  },
+  "executed": {
+   "ran": 2880,
+   "candidates": 2880,
+   "unrunnable": 0,
+   "seconds": 123.1,
+   "runner": "django-runtests",
+   "budget": 60,
+   "replayed": 0,
+   "selection": {
+    "closure_files": 540,
+    "closure_tests": 9134,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/contrib/admin/__init__.py",
+     "django/contrib/auth/models.py",
+     "django/core/management/base.py",
+     "django/db/migrations/__init__.py",
+     "django/db/models/__init__.py",
+     "django/db/models/expressions.py",
+     "django/db/models/functions/__init__.py",
+     "django/test/__init__.py",
+     "django/test/utils.py"
+    ],
+    "observed": 0,
+    "static_only": 6,
+    "depth_cap": 10,
+    "candidates": 9488
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 0,
+    "stored": 0
+   }
+  },
+  "flip_trust": null,
+  "changed_functions": [
+   {
+    "symbol": "TupleLookupMixin.get_lhs_str",
+    "file": "django/db/models/fields/tuple_lookups.py",
+    "lines": "88"
+   }
+  ],
+  "seconds": 140.4
+ },
+ {
+  "commit": "c88b304cc2d90fc37d3bd1f5f3829706fa6c13bc",
+  "parent": "08e4c0d8e7db6343567e7b02e25da8ea2226a7e0",
+  "message": "Fixed CVE-2026-77050 -- Prevented memory exhaustion in get_supported_language_variant().",
+  "files": [
+   "django/utils/translation/trans_real.py"
+  ],
+  "flips": 0,
+  "summary": "EXECUTED 2880 of 2880 candidate tests after the change with django-runtests in 116.5 s, failures confirmed before it: 0 now fail. 2 tests reach the change.",
+  "behaviour_differences": [],
+  "side_by_side": {
+   "targets": 2,
+   "compared_calls": 10,
+   "functions_called": 2,
+   "unstable": 0,
+   "differences": 0,
+   "input_built_before_the_change": 0,
+   "seconds": 60.0,
+   "not_compared": {}
+  },
+  "executed": {
+   "ran": 2880,
+   "candidates": 2880,
+   "unrunnable": 0,
+   "seconds": 116.5,
+   "runner": "django-runtests",
+   "budget": 60,
+   "replayed": 0,
+   "selection": {
+    "closure_files": 130,
+    "closure_tests": 3398,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/contrib/admin/__init__.py",
+     "django/test/__init__.py",
+     "django/test/utils.py",
+     "django/utils/translation/__init__.py"
+    ],
+    "observed": 0,
+    "static_only": 0,
+    "depth_cap": 10,
+    "candidates": 3710
+   },
+   "base_cache": {
+    "answered": 0,
+    "ran": 0,
+    "stored": 0
+   }
+  },
+  "flip_trust": null,
+  "changed_functions": [
+   {
+    "symbol": "reset_cache",
+    "file": "django/utils/translation/trans_real.py",
+    "lines": "71"
+   },
+   {
+    "symbol": "get_supported_language_variant",
+    "file": "django/utils/translation/trans_real.py",
+    "lines": "505-554"
+   }
+  ],
+  "seconds": 128.0
+ }
+]

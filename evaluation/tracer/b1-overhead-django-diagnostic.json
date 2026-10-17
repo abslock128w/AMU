@@ -1,0 +1,61 @@
+[
+ {
+  "runner": "django-runtests",
+  "python": "/Users/Abslock128/Documents/ChatGPT/AMU/phase0-django-2026-10-13/env/bin/python",
+  "gaps": [],
+  "mode": "plain",
+  "exit": 0,
+  "suite": "System check identified no issues (17 silenced).",
+  "failures": [],
+  "summary": [
+   "Ran 19655 tests in 317.588s",
+   "OK (skipped=1911, expected failures=4)"
+  ],
+  "command": "/Users/Abslock128/Documents/ChatGPT/AMU/phase0-django-2026-10-13/env/bin/python runtests.py --parallel 1 --noinput",
+  "seconds": 326.3,
+  "processes": 0,
+  "total_seconds": 326.4,
+  "stored_bytes": 0,
+  "labels": []
+ },
+ {
+  "runner": "django-runtests",
+  "python": "/Users/Abslock128/Documents/ChatGPT/AMU/phase0-django-2026-10-13/env/bin/python",
+  "gaps": [],
+  "mode": "edges",
+  "exit": 1,
+  "suite": "System check identified no issues (17 silenced).",
+  "failures": [
+   "ERROR: test_acheck_password_calls_make_password_to_fake_runtime (auth_tests.test_hashers.TestUtilsHashPass.test_acheck_password_calls_make_password_to_fake_runtime) (encoded=None)",
+   "ERROR: test_acheck_password_calls_make_password_to_fake_runtime (auth_tests.test_hashers.TestUtilsHashPass.test_acheck_password_calls_make_password_to_fake_runtime) (encoded='!I6PEp7edHN2y2oWqMjqaIUSb",
+   "ERROR: test_acheck_password_calls_make_password_to_fake_runtime (auth_tests.test_hashers.TestUtilsHashPass.test_acheck_password_calls_make_password_to_fake_runtime) (encoded='pbkdf2_sha256$1800000$GAU",
+   "ERROR: test_check_password_calls_make_password_to_fake_runtime (auth_tests.test_hashers.TestUtilsHashPass.test_check_password_calls_make_password_to_fake_runtime) (encoded=None)",
+   "ERROR: test_check_password_calls_make_password_to_fake_runtime (auth_tests.test_hashers.TestUtilsHashPass.test_check_password_calls_make_password_to_fake_runtime) (encoded='!h5BaNHr8aSQTFdWlUsTWhz9Ccg",
+   "ERROR: test_check_password_calls_make_password_to_fake_runtime (auth_tests.test_hashers.TestUtilsHashPass.test_check_password_calls_make_password_to_fake_runtime) (encoded='pbkdf2_sha256$1800000$cfTfq",
+   "ERROR: test_caching_repeated_calls (template_tests.filter_tests.test_urlize.FunctionTests.test_caching_repeated_calls)",
+   "ERROR: test_caching_repeated_words (template_tests.filter_tests.test_urlize.FunctionTests.test_caching_repeated_words)",
+   "ERROR: test_watch_for_template_changes (template_tests.test_autoreloader.TemplateReloadTests.test_watch_for_template_changes)",
+   "ERROR: test_bpython (shell.tests.ShellCommandTestCase.test_bpython)",
+   "ERROR: test_ipython (shell.tests.ShellCommandTestCase.test_ipython)",
+   "ERROR: test_python (shell.tests.ShellCommandTestCase.test_python)",
+   "ERROR: test_skip_checks (admin_scripts.tests.ManageRunserver.test_skip_checks)",
+   "ERROR: test_multiple_recursive_globs (utils_tests.test_autoreload.StatReloaderTests.test_multiple_recursive_globs)",
+   "FAIL: test_reporting_frames_for_cyclic_reference (view_tests.tests.test_debug.ExceptionReporterTests.test_reporting_frames_for_cyclic_reference)",
+   "FAILED (failures=1, errors=14, skipped=1911, expected failures=4)"
+  ],
+  "summary": [
+   "Ran 19655 tests in 364.538s",
+   "FAILED (failures=1, errors=14, skipped=1911, expected failures=4)"
+  ],
+  "command": "/Users/Abslock128/Documents/ChatGPT/AMU/phase0-django-2026-10-13/env/bin/python runtests.py --parallel 1 --noinput",
+  "seconds": 377.7,
+  "processes": 236,
+  "tests": 17980,
+  "codes": 40332,
+  "edges": 4437957,
+  "stored": "/private/tmp/claude-502/-Users-Abslock128-Documents-ChatGPT-AMU/3bee62a4-7848-483d-a1e3-cd5e96127f7d/scratchpad/b1-diag/edges/index/8/edges",
+  "total_seconds": 389.1,
+  "stored_bytes": 4245355,
+  "labels": []
+ }
+]

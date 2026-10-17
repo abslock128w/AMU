@@ -77,6 +77,22 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None):
                    for row in report.get('flip_trust') or [] if isinstance(row, dict)}
         leaks = {row.get('id'): row.get('why', '') for row in report.get('flip_trust') or [] if isinstance(row, dict)
                  and row.get('label') == 'fails: order-dependent, new with this change'}
+        routes = {row.get('id'): row for row in report.get('flip_trust') or [] if isinstance(row, dict)}
+
+        def short_id(ident):
+            path, _, qual = str(ident).partition('#')
+            return (qual or path.rsplit('/', 1)[-1]) if qual else path.rsplit('/', 1)[-1]
+
+        def route(ident):
+            row = routes.get(ident) or {}
+            parts = []
+            if isinstance(row.get('path'), list) and row['path']:
+                parts.append('path ' + code(' > '.join(short_id(step) for step in row['path'][-6:]), 200))
+            raised = row.get('raised') if isinstance(row.get('raised'), dict) else None
+            if raised and isinstance(raised.get('through'), list):
+                parts.append(code(raised.get('exception', '?'), 60) + ' raised through '
+                             + code(' > '.join(short_id(step) for step in raised['through'][:6]), 200))
+            return ('; ' + '; '.join(parts)) if parts else ''
         names = dict(in_process='in the same process', fresh_process='alone in a fresh process', after_set='after the rest')
 
         def flip(row):
@@ -84,12 +100,30 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None):
             gone = [names.get(leg, str(leg)) for leg in missing.get(failure_id(row), [])]
             return (code(failure_id(row)) + (' (fails as the test was before it was edited)' if label == 'test edited, not fixed' else '')
                     + (f" (order-dependent, new with this change: {code(leaks[failure_id(row)], 200)})" if failure_id(row) in leaks else '')
+                    + route(failure_id(row))
                     + (f" (not rerun {', '.join(gone)})" if gone else ''))
         out += rows(failures, flip, listed) + ['']
         if verify and verify.get('checked'):
             out += [f"Rerun on the merge base in a fresh job: {verify.get('held', 0)} passed again, "
                     f"{verify.get('false', 0)} failed there too, so not the change, "
                     f"{verify.get('other', 0)} could not be rerun.", '']
+    behaviour = [row for row in report.get('behaviour_differences') or [] if isinstance(row, dict)]
+    side = report.get('side_by_side') if isinstance(report.get('side_by_side'), dict) else None
+    if side is not None and not report.get('error'):
+        out += [f"### Behaviour differs on captured input ({len(behaviour)})", '']
+        out += [f"Each changed function the tests called on the merge base ran there twice as it was and twice as changed, on "
+                f"copies of the same arguments: {side.get('compared_calls', 0)} call(s) of {side.get('functions_called', 0)} of "
+                f"{side.get('targets', 0)} comparable changed function(s). Only differences both versions repeat are listed.", '']
+
+        def outcome(side_result):
+            result = side_result.get('result') if isinstance(side_result, dict) else None
+            return code(json.dumps(result, ensure_ascii=False)[:160] if result is not None else '?', 170)
+
+        def difference(row):
+            fields = ', '.join(str(f) for f in row.get('differs') or [])
+            return (f"{code(row.get('target', '?'), 120)} on {code(row.get('input', ''), 160)}: as it was {outcome(row.get('before'))}, "
+                    f"as changed {outcome(row.get('after'))} (differs in: {code(fields, 60)})")
+        out += rows(behaviour, difference, listed) + ['']
     replayed = [row for row in report.get('replayed') or [] if isinstance(row, dict)]
     if replayed and not report.get('error'):
         out += [f"### Change evidence: the pull request's own tests ({len(evidence)})", '',
