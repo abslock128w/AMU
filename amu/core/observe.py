@@ -92,6 +92,7 @@ with open(f"{out}/contexts.json", "w") as handle:
 print(files)
 '''
 
+HOOK_FILES = ('amu_observe_hook.py', 'zzz_amu_observe.pth')  # what ``record`` puts in the interpreter's site-packages
 SUITE = {'pytest': lambda py: [py, '-m', 'pytest', '-q', '-p', 'no:cacheprovider', '-p', 'amu_observe_hook'],
          'unittest': lambda py: [py, '-m', 'unittest', 'discover'],
          'django-runtests': lambda py: [py, 'runtests.py', '--parallel', '1', '--noinput'],
@@ -130,10 +131,9 @@ def record(root, python=None, runner=None, index_dir=None, timeout=7200, labels=
         installed = []
         try:
             # The hook must load in every interpreter the tests start, whatever they do to PYTHONPATH.
-            (purelib/'amu_observe_hook.py').write_text(HOOK)
-            installed.append(purelib/'amu_observe_hook.py')
-            (purelib/'zzz_amu_observe.pth').write_text('import amu_observe_hook\n')
-            installed.append(purelib/'zzz_amu_observe.pth')
+            for name, text in zip(HOOK_FILES, (HOOK, 'import amu_observe_hook\n')):
+                (purelib/name).write_text(text)
+                installed.append(purelib/name)
         except OSError:
             info['gaps'].append('could not install the recording hook in the interpreter; nothing recorded')
             for path in installed:

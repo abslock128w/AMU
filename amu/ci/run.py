@@ -12,7 +12,8 @@ Under GitHub Actions, ``merge-base`` and ``flips`` are also written to ``$GITHUB
 
 The index and any per-test recording live in ``.amu/index/`` (the action caches that folder on the merge base). ``--observe`` records
 one on the merge base, in a temporary worktree, when the cache has none. ``--wall-cap`` bounds everything: past it the
-run is stopped and the report says so.
+run is stopped and the report says so. The recording gets only what the wall cap leaves after amu's own share, and is
+skipped when it would not fit there, so amu still runs and reports.
 """
 from __future__ import annotations
 
@@ -28,9 +29,15 @@ import time
 from pathlib import Path
 
 from .. import __version__
+from ..core import edges as core_edges
+from ..core import observe as core_observe
 from ..core.index import cache_dir
+from ..core.shadow import SIDE_BY_SIDE
 
 RESERVE = 60  # seconds kept back from the wall cap for reading results
+RECORDING_MIN = 120  # a recording is not started with less than this
+RECORDING_STORE = 60  # of the recording's share, kept for storing what it recorded
+ATTEMPT = 'recording-attempt.json'  # beside the index: how the last recording that did not finish went
 # The checkout may hold its own ``amu`` package (AMU's own repository does); -P keeps the current directory off
 # sys.path so the installed AMU runs, not the one under test.
 SAFE = ['-P']
@@ -84,27 +91,73 @@ def recording(repo, calls=False):
     return cache_dir(repo)/('edges' if calls else 'observed')
 
 
+def amu_share(budget):
+    """Seconds of the wall cap kept for amu itself before a recording may start: the budget for each side, the
+    side-by-side run's cap, and a minute for the index and the rest."""
+    return 2 * (budget or 60) + SIDE_BY_SIDE + 60
+
+
+def remove_hooks(python):
+    """Take the recorders' hook files out of the interpreter's site-packages. A recording stopped at its limit is
+    killed before it can remove them itself, and every test process the interpreter starts afterwards would load them."""
+    try:
+        purelib = Path(subprocess.check_output([python, '-c', 'import sysconfig; print(sysconfig.get_paths()["purelib"])'],
+                                               stderr=subprocess.DEVNULL, timeout=60).decode().strip())
+    except (OSError, subprocess.SubprocessError):
+        return
+    for name in (*core_edges.HOOK_FILES, *core_observe.HOOK_FILES):
+        try:
+            (purelib/name).unlink(missing_ok=True)
+        except OSError:
+            pass
+
+
+def earlier_attempt(repo, calls):
+    try:
+        attempt = json.loads((cache_dir(repo)/ATTEMPT).read_text())
+    except (OSError, ValueError):
+        return None
+    return attempt if isinstance(attempt, dict) and attempt.get('calls') == calls else None
+
+
 def observe(repo, found, python, runner, seconds):
-    """Record the suite on the merge base and keep the recording with the head's index: per-test call edges on
-    Python 3.12 and later (the sys.monitoring tracer), coverage contexts below that. Returns a note for the gaps, or
-    None."""
-    from ..core.edges import supported
-    calls = supported(python)
+    """Record the suite on the merge base, in at most ``seconds``, and keep the recording with the head's index:
+    per-test call edges on Python 3.12 and later (the sys.monitoring tracer), coverage contexts below that. A recording
+    that does not finish is not kept, and is not tried again with no more time than it had. Returns a note for the
+    gaps, or None."""
+    calls = core_edges.supported(python)
     if recording(repo, calls).is_dir():
         return None
+    earlier = earlier_attempt(repo, calls)
+    if earlier and earlier.get('seconds', 0) >= seconds:
+        return (f"recording skipped: an earlier one did not finish in {earlier['seconds']} s and this run has {seconds} s "
+                f"for it; static ranking only")
     scratch = Path(tempfile.mkdtemp(prefix='amu-base-'))
     tree = scratch/'tree'
     try:
         if git(repo, 'worktree', 'add', '--detach', '--quiet', str(tree), found) is None:
             return 'recording skipped: the merge base could not be checked out'
-        command = [sys.executable, *SAFE, '-m', 'amu.core', '--repo', str(tree), '--observe-calls' if calls else '--observe', '--python', python]
+        # The suite stops itself first, so the recorder removes its own hook; the kill at ``seconds`` is the backstop.
+        command = [sys.executable, *SAFE, '-m', 'amu.core', '--repo', str(tree), '--observe-calls' if calls else '--observe',
+                   '--python', python, '--observe-seconds', str(max(1, seconds - RECORDING_STORE))]
         done, problem = bounded(command + (['--runner', runner] if runner else []), tree, seconds)
+        try:
+            gaps = json.loads(done.stdout).get('gaps', []) if done else []
+        except (ValueError, AttributeError):
+            gaps = []
+        unfinished = problem or any('did not finish' in str(gap) for gap in gaps)
         source = recording(tree, calls)
-        if problem or not source.is_dir():
-            return f"recording on the merge base {'stopped at the wall cap' if problem else 'produced nothing'}; static ranking only"
+        if unfinished:
+            cache_dir(repo).mkdir(parents=True, exist_ok=True)
+            (cache_dir(repo)/ATTEMPT).write_text(json.dumps(dict(calls=calls, seconds=seconds, merge_base=found)))
+            return f'recording on the merge base did not finish in its share of {seconds} s; static ranking only'
+        if not source.is_dir():
+            return 'recording on the merge base produced nothing; static ranking only'
         shutil.copytree(source, recording(repo, calls), dirs_exist_ok=True)
+        (cache_dir(repo)/ATTEMPT).unlink(missing_ok=True)
         return None
     finally:
+        remove_hooks(python)
         git(repo, 'worktree', 'remove', '--force', str(tree))
         shutil.rmtree(scratch, ignore_errors=True)
 
@@ -137,12 +190,12 @@ def run(repo, base, head, out, python=None, runner=None, pr=None, budget=None, i
                 report = dict(error='the pull request changes nothing against its merge base; nothing was run')
             else:
                 if record:
-                    # The recording may take what the comparison does not need: twice the budget and a minute.
-                    spare = None if deadline is None else left() - 2 * (budget or 60) - 60
-                    if spare is not None and spare < 30:
-                        notes.append('recording skipped: the wall cap leaves no time for it')
+                    # The recording has its own share: what the wall cap leaves after amu's.
+                    share = None if deadline is None else int(left() - amu_share(budget))
+                    if share is not None and share < RECORDING_MIN:
+                        notes.append(f'recording skipped: the wall cap leaves {max(share, 0)} s for it after amu\'s share')
                     else:
-                        note = observe(repo, found, python or sys.executable, runner, spare or 7200)
+                        note = observe(repo, found, python or sys.executable, runner, 7200 if share is None else share)
                         notes += [note] if note else []
                 meta['recording'] = recording(repo).is_dir() or recording(repo, calls=True).is_dir()
                 seconds = left()
