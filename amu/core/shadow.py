@@ -266,7 +266,10 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
                     verdicts[ident]['isolated'] = found
         if functions and not aborted and _monitoring(python):
             spec_targets, skipped = sidebyside.targets(functions, before_src, after_src)
-            ran_ids = [i for i in ids if states['after'].get(i) in OUTCOMES]
+            # Not the change's own tests: this run uses the tests as they were, where an added test does not exist and
+            # an unknown label makes the runner reject the whole batch.
+            mine = set(own)
+            ran_ids = [i for i in ids if states['after'].get(i) in OUTCOMES and i not in mine]
             began = time.perf_counter()
             added = [a for path in edits if path.endswith('.py') and not replay.is_test_file(path)
                      for a in sidebyside.additions(before_src.get(path) or '', after_src.get(path) or '', path)]

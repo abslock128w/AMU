@@ -196,3 +196,18 @@ def test_the_third_rerun_replays_only_what_ran_before_the_flip_in_its_batch():
     assert trust._preceding(['flip1', 'flip2'], [*batch_a, *batch_b], context) == ['a1', 'a2', 'b1']
     # Without batch records, every other candidate goes first, as before.
     assert trust._preceding(['flip1'], ['a1', 'flip1', 'a3'], None) == ['a1', 'a3']
+
+
+def test_a_runner_limit_covers_the_splits_made_to_isolate_an_unknown_label(tmp_path):
+    # Found on PR #20: side-by-side, capped at 120 s, took 505 s. A label pytest rejected sent the batch into splits,
+    # and each split was given the full limit again.
+    import time
+
+    from amu.core import runners
+    (tmp_path/'tests').mkdir()
+    (tmp_path/'tests'/'test_slow.py').write_text('import time\n\n\ndef test_a():\n    time.sleep(4)\n\n\ndef test_b():\n    time.sleep(4)\n')
+    ids = ['tests/test_slow.py::test_a', 'tests/test_slow.py::test_gone', 'tests/test_slow.py::test_b']
+    began = time.monotonic()
+    found, problem = runners.execute(runners.get(tmp_path, 'pytest'), sys.executable, tmp_path, ids, tmp_path/'r.xml', 6)
+    assert time.monotonic() - began < 8, (found, problem, time.monotonic() - began)
+    assert found.get('tests/test_slow.py::test_a') == 'passed' and problem == 'timed out', (found, problem)

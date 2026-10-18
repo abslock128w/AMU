@@ -9,6 +9,7 @@ import json
 import os
 import re
 import subprocess
+import time
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -283,15 +284,19 @@ def execute(runner, python, tree, ids, report, timeout, extra_env=None, extra_ar
     # One batch first. A single label the runner cannot load can abort the whole batch and leave it with
     # no outcomes, so a batch that comes back short is split in two and retried until the labels that
     # cannot be run stand alone. Those are returned as 'unrunnable': never silently as "did not fail".
-    batches, splits = [usable], 0
+    # ``timeout`` bounds the whole call, splits included: each retry gets what is left, not the full limit again.
+    batches, splits, deadline = [usable], 0, time.monotonic() + timeout
     while batches:
         batch = batches.pop(0)
+        left = deadline - time.monotonic()
+        if left <= 0:
+            return found, 'timed out'
         try:
             command = runner.command(python, [runner.label(i) for i in batch], report)
             if extra_args:
                 command = [*command[:3], *extra_args, *command[3:]] if runner.name == 'pytest' else command
             done = subprocess.run(command, cwd=runner.cwd(tree), env=env,
-                                  capture_output=True, timeout=timeout, stdin=subprocess.DEVNULL)
+                                  capture_output=True, timeout=left, stdin=subprocess.DEVNULL)
         except subprocess.TimeoutExpired:
             return found, 'timed out'
         except OSError as exc:
@@ -302,7 +307,7 @@ def execute(runner, python, tree, ids, report, timeout, extra_env=None, extra_ar
         missing = [i for i in batch if i not in got]
         if missing and runner.name == 'pytest' and DESELECTED.search(output):
             # Deselected by the project's configuration, not lost to an abort: skipped, and not split to find out.
-            kept = runner.selected(python, tree, missing, env, timeout)
+            kept = runner.selected(python, tree, missing, env, max(deadline - time.monotonic(), 1))
             if kept is not None:
                 found.update({ident: 'skipped' for ident in missing if ident not in kept})
                 missing = [ident for ident in missing if ident in kept]

@@ -187,3 +187,25 @@ def test_the_as_changed_run_can_import_a_module_the_change_adds(tmp_path):
                     {'pkg/__init__.py': init, 'pkg/lib.py': lib1, 'pkg/helper.py': helper, 'tests/test_lib.py': tests})
     [row] = report['behaviour_differences']
     assert row['before']['result'] == ['return', '3'] and row['after']['result'] == ['return', '6'], row
+
+
+def test_tests_the_change_adds_are_not_run_on_the_code_before_it(tmp_path, monkeypatch):
+    # Found on PR #20: the side-by-side batch named a test the pull request adds; on the code before the change pytest
+    # rejected the whole batch, and isolating the label took longer than the comparison.
+    from amu.core import runners, sidebyside
+    sent = []
+    real = runners.execute
+
+    def recording(runner, python, tree, ids, *args, **kwargs):
+        if 'AMU_SBS_SPEC' in (kwargs.get('extra_env') or {}):
+            sent.extend(ids)
+        return real(runner, python, tree, ids, *args, **kwargs)
+    monkeypatch.setattr(sidebyside.runners, 'execute', recording)
+    lib0 = 'def clamp(v):\n    return min(v, 10)\n'
+    lib1 = 'def clamp(v):\n    return min(v, 9)\n'
+    old = 'from lib import clamp\n\n\ndef test_a():\n    assert clamp(50)\n'
+    new = 'from lib import clamp\n\n\ndef test_new():\n    assert clamp(50) == 9\n'
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': old},
+                    {'lib.py': lib1, 'tests/test_lib.py': old, 'tests/test_new.py': new})
+    assert sent == ['tests/test_lib.py::test_a'], sent
+    assert [row['target'] for row in report['behaviour_differences']] == ['lib.py#clamp'], report['behaviour_differences']
