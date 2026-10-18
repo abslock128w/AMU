@@ -138,14 +138,25 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
                 f"copies of the same arguments: {side.get('compared_calls', 0)} call(s) of {side.get('functions_called', 0)} of "
                 f"{side.get('targets', 0)} comparable changed function(s). Only differences both versions repeat are listed.", '']
 
-        def outcome(side_result):
-            result = side_result.get('result') if isinstance(side_result, dict) else None
-            return code(json.dumps(result, ensure_ascii=False)[:160] if result is not None else '?', 170)
+        def flat(side_result, field):
+            value = side_result.get(field) if isinstance(side_result, dict) else None
+            text = '?' if value is None else value if isinstance(value, str) else json.dumps(value, ensure_ascii=False)
+            return re.sub(r'\s+', ' ', text).replace('`', "'").strip()
 
         def difference(row):
-            fields = ', '.join(str(f) for f in row.get('differs') or [])
-            return (f"{code(row.get('target', '?'), 120)} on {code(row.get('input', ''), 160)}: as it was {outcome(row.get('before'))}, "
-                    f"as changed {outcome(row.get('after'))} (differs in: {code(fields, 60)})")
+            differs = [str(f) for f in row.get('differs') or []]
+            # Show the first field that differs, cut to a window around where the two versions part: outcomes that
+            # share a long prefix would otherwise both be cut before the part that differs.
+            field = next((f for f in differs if f in ('result', 'args_after', 'stdout', 'calls')), 'result')
+            was, now = flat(row.get('before'), field), flat(row.get('after'), field)
+            at = next((i for i, (a, b) in enumerate(zip(was, now)) if a != b), min(len(was), len(now)))
+            start = max(0, at - 40)
+
+            def window(text):
+                return ('…' if start else '') + text[start:start + 160] + ('…' if len(text) > start + 160 else '')
+            where = f", from character {at + 1}" if start else ''
+            return (f"{code(row.get('target', '?'), 120)} on {code(row.get('input', ''), 160)}: as it was {code(window(was), 170)}, "
+                    f"as changed {code(window(now), 170)} (differs in: {code(', '.join(differs), 60)}; shown: {field}{where})")
         out += rows(behaviour, difference, listed) + ['']
     made = report.get('generated') if isinstance(report.get('generated'), dict) else None
     produced = [row for row in report.get('generated_differences') or [] if isinstance(row, dict)]
