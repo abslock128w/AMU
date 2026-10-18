@@ -8,7 +8,7 @@ Built on main through PRs #9 to #15 and released as v0.2.3 (C1) and v0.2.4 (C2).
 |---|---|---|
 | C1 change-directed probes | on 50 PRs from the counter: acceptance rate of the filter chain and cost per PR, beside DiffTestGen's 78% and $0.04 | **Unmeasured.** No Anthropic credentials: none on this machine (no `ANTHROPIC_API_KEY`, no `ant` CLI) and no `ANTHROPIC_API_KEY` repository secret as of 2026-10-18. The counter fields and the collector are in place; 0 probes recorded so far |
 | C2 hunk isolation | name the hunk of a confirmed flip | Built; unit-tested (one cause, a pair, unresolved subsets, a cut-short search, an end-to-end flip). Not yet seen on a pull request with a flip |
-| C2 presentation | informational status check, inline notes on the hunk, quiet mode | Built in the posting job (v0.2.4); not yet exercised on a pull request, because each pull request's comment is posted by main's workflow and v0.2.4 reached main only with PR #15 |
+| C2 presentation | informational status check, inline notes on the hunk, quiet mode | Built in the posting job (v0.2.4). The `AMU` check first ran on PR #16 (the report itself): `success`, "no candidate test ran", with the informational summary. Inline notes and quiet mode need a pull request with an isolated flip, or with tests run and nothing found; neither has happened yet |
 | C2 acted-on per row kind | the counter says which row kinds get acted on | Collector reports it for flips, behaviour differences and generated tests. On AMU's own 13 pull requests: 5 got flips, 0 cleared before merge (below) |
 
 ## C1: probes written by a model, kept on execution evidence (`amu/core/generate.py`)
@@ -163,5 +163,6 @@ beyond AMU's own suite, locally and in CI.
 
 - **C1 measurement:** add the `ANTHROPIC_API_KEY` repository secret. Every AMU pull request then records probes
   proposed and kept and the cost; after 50, the collector gives the brief's two numbers.
-- **First sight of the check and quiet mode:** the next pull request after v0.2.4.
+- **Quiet mode and inline notes on a real pull request:** the check itself has run (PR #16). The other two wait for a
+  pull request with tests run and nothing found, and for one with an isolated flip.
 - **Profiling the AMU job on AMU's own pull requests** (3 to 6 minutes), if that matters for adoption.
