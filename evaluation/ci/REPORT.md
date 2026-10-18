@@ -345,3 +345,84 @@ Full record: `evaluation/generate/REPORT.md`.
   - quiet mode when nothing was found;
   - per-kind acted-on counters.
 - **Counter on 2026-10-18:** 13 pull requests, 20 flips rerun in a fresh job, 0 false.
+
+## AMU's job time on its own pull requests, profiled (v0.2.5, 2026-10-18)
+
+The job took 3 to 6 minutes on AMU's pull requests. One run was profiled locally:
+- the diff of PR #13, on a warm index, with Python 3.14;
+- every runner call, tree copy and index load was timed and attributed to its caller.
+
+| Step | Before | After PR #20 |
+|---|---:|---:|
+| Side-by-side run on the merge base (192 tests; capped at 120 s) | 121.8 s | 48.0 s |
+| Candidate run on the head (216 tests) | 109.3 s | 84.7 s |
+| Tree copies | 3.0 s | 3.0 s |
+| Trust reruns, replay, index | about 7 s | about 7 s |
+| **Total** | **240.3 s** | **141.5 s** |
+
+**Where the time went:** AMU's own tests, run twice, once per side.
+- One test, `test_comparisons_made_before_the_time_limit_are_kept`, slept 30 s and so took 34 s of the 144 s of
+  per-test time. It now sleeps 8 s, which still outlasts the 4 s limit it checks.
+- The rest is subprocess-heavy reachability tests, at 4 to 8 s each.
+
+**Cut in PR #20:**
+- the sleep;
+- the trust triad's third rerun. It replayed every other candidate before the flips; it now replays the tests that ran
+  before each flip in its own batch, which is the order the flip failed in.
+
+The third-rerun cut does not show on PR #13, whose flips were edited-test flips (2.6 s). With ordinary flips, that
+rerun had taken about 140 s.
+
+**Tried and dropped:**
+- running side-by-side in chunks of 40 with an early stop;
+- skipping a function whose one call takes over 2 s.
+
+Neither saved time on that diff, so neither shipped.
+
+**Found on PR #20's own job, fixed in PR #21.** PR #20's job took 714 s, and side-by-side took 505 s of it, past its
+120 s cap. Reproduced locally:
+1. The side-by-side batch on the merge base named a test the pull request adds.
+2. pytest rejected the whole batch.
+3. `runners.execute` split the batch to isolate that label and gave every split the full limit again.
+
+Fixes:
+- a runner call's limit is now one deadline, splits included;
+- side-by-side no longer names the change's own tests.
+
+PR #20's diff, locally: 497.8 s before, 217.7 s after. Both new tests fail on the old code. The release pull request
+(PR #22), the first job on v0.2.5, ran 1,040 tests in 306 s; the 0.2.4 release pull request (PR #15) ran 920 in 307 s.
+
+## Quiet mode and the inline note on real pull requests (2026-10-18)
+
+Two throwaway pull requests, both closed unmerged with their branches deleted. AMU ran from `v0.2.4`.
+
+**PR #18: a same-behaviour refactor of `plural()` in `amu/ci/render.py`.** 62 tests ran and nothing was found.
+- The comment, in full apart from its collapsed part:
+  > **AMU: 0 flips** at `76819fc`, among 62 tests run
+- The collapsed "What ran and what was not seen" holds:
+  - side-by-side: 5 calls of 1 comparable changed function, 0 differences;
+  - one gap: unresolved call sites repo-wide;
+  - the run: 62 of 62 candidates, 212 s.
+- The `AMU` check is `success`, titled "AMU: 0 flips at 76819fc, among 62 tests run", with 0 annotations.
+
+**PR #19: two hunks in `amu/ci/render.py`.** Hunk 1 is a same-behaviour rewrite of `short()`. Hunk 2 is a deliberate
+break of `plural()`: `count <= 1`, so 0 reads as singular.
+- The comment's first line:
+  > **AMU: 2 flips** at `98279f1`, among 62 tests run
+- Both flips, `test_zero_flips_is_a_count_among_what_ran_not_a_pass` and
+  `test_quiet_mode_folds_a_report_with_nothing_found_into_one_line`, read:
+  - `path ... > render > plural`;
+  - `caused by hunk 2 of 2 in amu/ci/render.py at line 43`.
+
+  Hunk 1 was not blamed.
+- The fresh-job rerun on the merge base found 2 passed again, 0 failed there too.
+- Side-by-side listed one difference: `plural(0, 'flip')` returned `'0 flips'` as it was and `'0 flip'` as changed.
+- The `AMU` check is `neutral`, with 2 inline notes (warning level). Both sit at `amu/ci/render.py` line 43, the
+  broken line, and are titled "AMU: a test that passed on the merge base fails with this hunk". Each note names its test.
+- The repository's own `verify` jobs failed on it, as intended.
+
+Both presentation pieces have now been seen on a pull request. Phase C's "what is left" no longer lists them.
+
+**Seen on PR #20, not fixed: behaviour differences can hide where the outputs differ.** PR #20 changed comment
+wording, and the 10 behaviour-difference rows for `render` and `shadow.run` cut both outcomes at the same prefix,
+before the words that differ. The difference was intended, but a reader cannot see it in the row.
