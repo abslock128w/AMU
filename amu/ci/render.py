@@ -31,7 +31,8 @@ def code(text, limit=FIELD):
 
 
 def short(sha):
-    return code((sha or 'unknown')[:7])
+    sha = sha or 'unknown'
+    return code(sha[:7])
 
 
 def failure_id(row):
@@ -39,7 +40,7 @@ def failure_id(row):
 
 
 def plural(count, word):
-    return f"{count} {word}{'' if count == 1 else 's'}"
+    return f"{count} {word}{'' if count <= 1 else 's'}"
 
 
 def rows(items, render, limit=LISTED):
