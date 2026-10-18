@@ -331,3 +331,17 @@ Full record: `evaluation/difference-finder/REPORT.md`. The comment now also has:
 Counters gain `evidence`, `replayed`, `unstable` and `not_caused` per push; the fresh-job rerun covers counted flips
 only, so its false-flip rate is the trust layer's. Collector on 2026-10-16, before the v0.2.0 comments: 3 pull
 requests, 1 flip rerun, 0 false.
+
+## Brief 4, Phase C (v0.2.3 and v0.2.4, 2026-10-17 and 18)
+
+Full record: `evaluation/generate/REPORT.md`.
+- **C1 (v0.2.3): model-written probes for changed functions no test calls,** kept only on execution evidence.
+  - Caps: `generate-dollars`, default 0.10, and `generate-minutes`, default 20.
+  - Turned on by an `anthropic-api-key` input.
+  - **Unmeasured:** the repository has no `ANTHROPIC_API_KEY` secret yet.
+- **C2 (v0.2.4):** for counted flips:
+  - hunk isolation;
+  - an informational `AMU` check (neutral or success, never failure) with inline notes on the hunk;
+  - quiet mode when nothing was found;
+  - per-kind acted-on counters.
+- **Counter on 2026-10-18:** 13 pull requests, 20 flips rerun in a fresh job, 0 false.
