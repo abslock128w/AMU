@@ -89,7 +89,7 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
         out += [f'### Flips ({len(failures)})', '',
                 f'Pass on the merge base {short(base)}, fail on the head. Each was rerun on the merge base to confirm '
                 'it passed there, and failed again on the head in every rerun made: in the same process, alone in a fresh '
-                'process, and after the rest of the candidates, unless its row says it is order-dependent. A rerun that was '
+                'process, and after the tests that ran before it, unless its row says it is order-dependent. A rerun that was '
                 'not made is named on its row.', '']
         missing = {row.get('id'): [leg for leg, state in (row.get('reruns') or {}).items() if state is None]
                    for row in report.get('flip_trust') or [] if isinstance(row, dict)}
@@ -116,7 +116,7 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
                                    f"at line {h.get('start', '?')}" for h in found['hunks'][:3] if isinstance(h, dict))
                 parts.append(('caused by ' if found.get('finished') else 'narrowed to, search cut short: ') + places)
             return ('; ' + '; '.join(parts)) if parts else ''
-        names = dict(in_process='in the same process', fresh_process='alone in a fresh process', after_set='after the rest')
+        names = dict(in_process='in the same process', fresh_process='alone in a fresh process', after_set='after the tests before it')
 
         def flip(row):
             label = row.get('label') if isinstance(row, dict) else None

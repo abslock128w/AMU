@@ -187,3 +187,12 @@ def test_the_bounded_diverse_pick_equals_the_full_scan():
         scores = {f't{n}': {f's{k}': round(generator.choice([0.0, 0.1, 0.3, 0.3, 1.0, 2.5]), 2) for k in generator.sample(range(6), 3)}
                   for n in range(generator.randint(1, 80))}
         assert rank.diverse(scores, 40) == full(scores, 40)
+
+
+def test_the_third_rerun_replays_only_what_ran_before_the_flip_in_its_batch():
+    from amu.core import trust
+    batch_a, batch_b = ['a1', 'a2', 'flip1', 'a3'], ['b1', 'flip2', 'b2']
+    context = {i: batch_a for i in batch_a} | {i: batch_b for i in batch_b}
+    assert trust._preceding(['flip1', 'flip2'], [*batch_a, *batch_b], context) == ['a1', 'a2', 'b1']
+    # Without batch records, every other candidate goes first, as before.
+    assert trust._preceding(['flip1'], ['a1', 'flip1', 'a3'], None) == ['a1', 'a3']
