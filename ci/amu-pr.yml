@@ -27,7 +27,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
           persist-credentials: false
-      - uses: abslock128w/AMU@v0.2.3
+      - uses: abslock128w/AMU@v0.2.4
         id: amu
         with:
           # The command that installs your project and its test dependencies.
@@ -54,7 +54,7 @@ jobs:
         with:
           ref: ${{ needs.amu.outputs.merge-base }}
           persist-credentials: false
-      - uses: abslock128w/AMU@v0.2.3
+      - uses: abslock128w/AMU@v0.2.4
         with:
           mode: verify
           install: python -m pip install -e .

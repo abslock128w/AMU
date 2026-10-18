@@ -7,7 +7,7 @@ For the owner's introductions to maintainers of Python repositories with slow su
 AMU runs the tests that a pull request's diff reaches on both sides of the change, the merge base and the head, and
 posts one comment listing the tests that flip from passing to failing. It edits that comment on every push, and it
 never blocks a merge. To try it, copy two workflow files from
-[github.com/abslock128w/AMU/tree/v0.2.3/ci](https://github.com/abslock128w/AMU/tree/v0.1.0/ci) into
+[github.com/abslock128w/AMU/tree/v0.2.4/ci](https://github.com/abslock128w/AMU/tree/v0.1.0/ci) into
 `.github/workflows/`. In `amu-pr.yml`, set `install:` to the command that installs your project and its test
 dependencies.
 - The first file runs your pull request's code under `pull_request`, with a read-only token, and only saves a JSON

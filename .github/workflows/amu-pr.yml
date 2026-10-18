@@ -1,4 +1,4 @@
-# AMU on pull requests, part 1 of 2: runs the pull request's code (from ci/amu-pr.yml at v0.2.3).
+# AMU on pull requests, part 1 of 2: runs the pull request's code (from ci/amu-pr.yml at v0.2.4).
 # Untrusted code runs only here, under pull_request, with a read-only token and no secrets. This job never
 # comments; it saves its JSON as an artifact, and amu-pr-comment.yml posts it. Never use pull_request_target.
 name: AMU pull request
@@ -27,7 +27,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
           persist-credentials: false
-      - uses: abslock128w/AMU@v0.2.3
+      - uses: abslock128w/AMU@v0.2.4
         id: amu
         with:
           python-version: '3.14'
@@ -49,7 +49,7 @@ jobs:
         with:
           ref: ${{ needs.amu.outputs.merge-base }}
           persist-credentials: false
-      - uses: abslock128w/AMU@v0.2.3
+      - uses: abslock128w/AMU@v0.2.4
         with:
           mode: verify
           python-version: '3.14'
