@@ -151,3 +151,17 @@ def test_quiet_mode_folds_a_report_with_nothing_found_into_one_line():
     assert first.startswith('**AMU: 0 flips**') and rest.lstrip().startswith('<details>') and '### What ran' in rest
     loud = dict(quiet, flips=1, predicted_failures=[dict(id='t.py::test_a')])
     assert '<details><summary>What ran' not in render(loud, META, quiet=True)
+
+
+def test_behaviour_row_shows_where_the_two_outcomes_diverge_past_a_long_shared_prefix():
+    shared = '<html><body>' + 'same header text ' * 40
+    before = dict(result=['return', repr(shared + 'old footer wording')], stdout='', calls=[], args_after='')
+    after = dict(result=['return', repr(shared + 'new footer wording')], stdout='', calls=[], args_after='')
+    report = dict(flips=0, predicted_failures=[], executed=EXECUTED,
+                  side_by_side=dict(compared_calls=1, functions_called=1, targets=1),
+                  behaviour_differences=[dict(target='amu.ci.render.render', input='(1,)', differs=['result'],
+                                              before=before, after=after)])
+    row = next(line for line in render(report, META).splitlines() if line.startswith('- `amu.ci.render.render`'))
+    assert 'old footer' in row and 'new footer' in row
+    assert row.index('old footer') < row.index('as changed') < row.index('new footer')
+    assert '…' in row and len(row) < 700
