@@ -1,0 +1,682 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "1a9fba7a6c2a0acead19bbb45c25ceb0fdcca7c8",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "7d983a05a3b0edb1d277abc3968f058b2525714c",
+  "install_ok": true,
+  "merge_base": "dab0a5c47f159eb58472110dcbc10bd4a9b01adb",
+  "pr": 22132,
+  "recording": true,
+  "runner": null,
+  "seconds": 10.5,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "1a9fba7a6c2a0acead19bbb45c25ceb0fdcca7c8",
+  "head_sha": "7d983a05a3b0edb1d277abc3968f058b2525714c",
+  "merge_base": "dab0a5c47f159eb58472110dcbc10bd4a9b01adb",
+  "merged_at": "2026-10-13T20:14:07Z",
+  "number": 22132,
+  "repo": "django",
+  "title": "Fixed #37418 -- Fixed JSONField/HStoreField crash on deeply nested JSON."
+ },
+ "probe_minutes": {
+  "end": 1792327789.164332,
+  "minutes": 7.9,
+  "start": 1792326185.419251,
+  "waited": 1132.6164669989957
+ },
+ "probe_targets": {
+  "all": 3,
+  "called": 2,
+  "targets": [
+   {
+    "after": "def to_python(self, value):\n    if not value:\n        return {}\n    if not isinstance(value, dict):\n        try:\n            value = json.loads(value)\n        except (json.JSONDecodeError, RecursionError):\n            raise ValidationError(\n                self.error_messages[\"invalid_json\"],\n                code=\"invalid_json\",\n            )\n\n    if not isinstance(value, dict):\n        raise ValidationError(\n            self.error_messages[\"invalid_format\"],\n            code=\"invalid_format\",\n        )\n\n    # Cast everything to strings for ease.\n    for key, val in value.items():\n        if val is not None:\n            val = str(val)\n        value[key] = val\n    return value\n",
+    "before": "def to_python(self, value):\n    if not value:\n        return {}\n    if not isinstance(value, dict):\n        try:\n            value = json.loads(value)\n        except json.JSONDecodeError:\n            raise ValidationError(\n                self.error_messages[\"invalid_json\"],\n                code=\"invalid_json\",\n            )\n\n    if not isinstance(value, dict):\n        raise ValidationError(\n            self.error_messages[\"invalid_format\"],\n            code=\"invalid_format\",\n        )\n\n    # Cast everything to strings for ease.\n    for key, val in value.items():\n        if val is not None:\n            val = str(val)\n        value[key] = val\n    return value\n",
+    "file": "django/contrib/postgres/forms/hstore.py",
+    "id": "django/contrib/postgres/forms/hstore.py#HStoreField.to_python",
+    "name": "to_python",
+    "qual": "HStoreField.to_python",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [],
+   "filter_seconds": 4.7,
+   "gaps": [],
+   "info": {
+    "accepted": 0,
+    "compiled": 1,
+    "cost": 0.0,
+    "differed": 0,
+    "dollars_cap": 0.1,
+    "functions": 1,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 1,
+    "ran": 0,
+    "reached": 0,
+    "requests": 1,
+    "seconds": 4.2,
+    "stable": 0
+   },
+   "probes": [
+    {
+     "call": "field.to_python('[' * 100000)",
+     "function": "django/contrib/postgres/forms/hstore.py#HStoreField.to_python",
+     "setup": "from django.contrib.postgres.forms.hstore import HStoreField\nfield = HStoreField()",
+     "why": "JSON nested past the recursion limit"
+    }
+   ],
+   "targets": [
+    "django/contrib/postgres/forms/hstore.py#HStoreField.to_python"
+   ],
+   "waited_seconds": 0.0
+  },
+  {
+   "attempt": 2,
+   "differences": [],
+   "filter_seconds": 26.1,
+   "gaps": [],
+   "info": {
+    "accepted": 0,
+    "compiled": 1,
+    "cost": 0.0,
+    "differed": 0,
+    "dollars_cap": 0.1,
+    "functions": 1,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 1,
+    "ran": 1,
+    "reached": 1,
+    "requests": 1,
+    "seconds": 23.6,
+    "stable": 1
+   },
+   "probes": [
+    {
+     "call": "field.to_python('[' * 100000)",
+     "function": "django/contrib/postgres/forms/hstore.py#HStoreField.to_python",
+     "setup": "import sys, importlib.abc, importlib.machinery\nfrom unittest import mock\n\nclass _StubDrivers(importlib.abc.MetaPathFinder, importlib.abc.Loader):\n    def find_spec(self, name, path, target=None):\n        if name.split('.')[0] in ('psycopg', 'psycopg2', 'psycopg_pool'):\n            return importlib.machinery.ModuleSpec(name, self, is_package=True)\n\n    def create_module(self, spec):\n        module = mock.MagicMock()\n        module.__path__, module.__spec__, module.__name__ = [], spec, spec.name\n        return module\n\n    def exec_module(self, module):\n        pass\n\nsys.meta_path.insert(0, _StubDrivers())\nfrom django.contrib.postgres.forms.hstore import HStoreField\nfield = HStoreField()",
+     "why": "rewrite: database drivers stubbed; JSON nested past the recursion limit"
+    }
+   ],
+   "targets": [
+    "django/contrib/postgres/forms/hstore.py#HStoreField.to_python"
+   ],
+   "waited_seconds": 1132.6
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_invalid_deeply_nested",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_redisplay_deeply_nested_input",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "django/contrib/postgres/forms/hstore.py",
+    "lines": "32",
+    "symbol": "HStoreField.to_python"
+   },
+   {
+    "file": "django/forms/fields.py",
+    "lines": "1366",
+    "symbol": "JSONField.to_python"
+   },
+   {
+    "file": "django/forms/fields.py",
+    "lines": "1384",
+    "symbol": "JSONField.bound_data"
+   },
+   {
+    "file": "tests/forms_tests/field_tests/test_jsonfield.py",
+    "lines": "33-39",
+    "symbol": "JSONFieldTest.test_invalid_deeply_nested"
+   },
+   {
+    "file": "tests/forms_tests/field_tests/test_jsonfield.py",
+    "lines": "153-160",
+    "symbol": "JSONFieldTest.test_redisplay_deeply_nested_input"
+   },
+   {
+    "file": "tests/postgres_tests/test_hstore.py",
+    "lines": "377-382",
+    "symbol": "TestFormField.test_invalid_json_deeply_nested"
+   }
+  ],
+  "changed_symbols": [
+   "django/contrib/postgres/forms/hstore.py#HStoreField.to_python",
+   "django/forms/fields.py#JSONField.bound_data",
+   "django/forms/fields.py#JSONField.to_python",
+   "tests/forms_tests/field_tests/test_jsonfield.py#JSONFieldTest.test_invalid_deeply_nested",
+   "tests/forms_tests/field_tests/test_jsonfield.py#JSONFieldTest.test_redisplay_deeply_nested_input",
+   "tests/forms_tests/field_tests/test_jsonfield.py#JSONFieldTest.test_redisplay_deeply_nested_input.JSONForm.json_field",
+   "tests/postgres_tests/test_hstore.py#TestFormField.test_invalid_json_deeply_nested",
+   "tests/forms_tests/field_tests/test_jsonfield.py#JSONFieldTest",
+   "tests/forms_tests/field_tests/test_jsonfield.py#JSONFieldTest.test_redisplay_deeply_nested_input.JSONForm",
+   "tests/postgres_tests/test_hstore.py#TestFormField",
+   "tests/forms_tests/field_tests/test_jsonfield.py",
+   "tests/postgres_tests/test_hstore.py"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 3,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 4783,
+   "ran": 121,
+   "replayed": 3,
+   "runner": "django-runtests",
+   "seconds": 7.5,
+   "selection": {
+    "candidates": 4783,
+    "closure_files": 219,
+    "closure_tests": 4443,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/contrib/admin/__init__.py",
+     "django/test/__init__.py",
+     "django/test/utils.py"
+    ],
+    "observed": 0,
+    "static_only": 33
+   },
+   "unrunnable": 39
+  },
+  "flips": 0,
+  "gaps": [
+   "101306 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "39 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "graph reused from the previous state; 10 changed file(s) relinked",
+   "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run stopped at its 300 s budget: 0 of 4783 candidates run"
+  ],
+  "impacted": {
+   "count": 29,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2931,
+   "parsed_files": 4
+  },
+  "original_tests": {
+   "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_converted_value": "passed",
+   "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_custom_encoder_decoder": "passed",
+   "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_custom_widget_attribute": "passed",
+   "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_custom_widget_kwarg": "passed",
+   "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_disabled_has_changed": "passed",
+   "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_formfield_disabled": "passed",
+   "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_has_changed": "passed",
+   "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_invalid": "passed",
+   "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_prepare_value": "passed",
+   "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_redisplay_none_input": "passed",
+   "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_redisplay_wrong_input": "passed",
+   "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_valid": "passed",
+   "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_valid_empty": "passed",
+   "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_widget": "passed",
+   "tests/postgres_tests/test_hstore.py::TestFormField::test_empty": "skipped",
+   "tests/postgres_tests/test_hstore.py::TestFormField::test_field_has_changed": "skipped",
+   "tests/postgres_tests/test_hstore.py::TestFormField::test_invalid_json": "skipped",
+   "tests/postgres_tests/test_hstore.py::TestFormField::test_model_field_formfield": "skipped",
+   "tests/postgres_tests/test_hstore.py::TestFormField::test_non_dict_json": "skipped",
+   "tests/postgres_tests/test_hstore.py::TestFormField::test_none_value": "skipped",
+   "tests/postgres_tests/test_hstore.py::TestFormField::test_not_string_values": "skipped",
+   "tests/postgres_tests/test_hstore.py::TestFormField::test_prepare_value": "skipped",
+   "tests/postgres_tests/test_hstore.py::TestFormField::test_valid": "skipped"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_invalid_deeply_nested",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_redisplay_deeply_nested_input",
+    "verdict": "evidence"
+   },
+   {
+    "base": "skipped",
+    "head": "skipped",
+    "id": "tests/postgres_tests/test_hstore.py::TestFormField::test_invalid_json_deeply_nested",
+    "verdict": "none"
+   }
+  ],
+  "report_hash": "6abe3a1bf094",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [
+    "django/forms/fields.py#JSONField.bound_data",
+    "django/forms/fields.py#JSONField.to_python"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 10,
+   "differences": 0,
+   "functions_called": 2,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "tests/forms_tests/field_tests/test_jsonfield.py#JSONFieldTest.test_invalid_deeply_nested": "not a module or class function on both sides (new, removed or nested)",
+    "tests/forms_tests/field_tests/test_jsonfield.py#JSONFieldTest.test_redisplay_deeply_nested_input": "not a module or class function on both sides (new, removed or nested)",
+    "tests/postgres_tests/test_hstore.py#TestFormField.test_invalid_json_deeply_nested": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 1.7,
+   "targets": 3,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 121 of 4783 candidate tests after the change with django-runtests in 7.5 s, failures confirmed before it: 0 now fail. 81 tests reach the change. 23 test(s) from edited test files also run as they were before the edit. 3 test(s) the change adds or edits replayed on the code before it: 2 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_redisplay_deeply_nested_input",
+    "line": 153,
+    "run": "cd tests && python runtests.py forms_tests.field_tests.test_jsonfield.JSONFieldTest.test_redisplay_deeply_nested_input",
+    "score": 7.387,
+    "why": "via JSONFieldTest.test_redisplay_deeply_nested_input.JSONForm (name: deeply,input,json,jsonfield,nested,redisplay)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/postgres_tests/test_hstore.py::TestFormField::test_invalid_json_deeply_nested",
+    "line": 377,
+    "run": "cd tests && python runtests.py postgres_tests.test_hstore.TestFormField.test_invalid_json_deeply_nested",
+    "score": 3.463,
+    "why": "via TestFormField (name: field,form,hstore)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_invalid_deeply_nested",
+    "line": 33,
+    "run": "cd tests && python runtests.py forms_tests.field_tests.test_jsonfield.JSONFieldTest.test_invalid_deeply_nested",
+    "score": 1.901,
+    "why": "via JSONFieldTest (name: field,json,jsonfield)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/postgres_tests/test_hstore.py::TestFormField::test_invalid_json",
+    "line": 370,
+    "run": "cd tests && python runtests.py postgres_tests.test_hstore.TestFormField.test_invalid_json",
+    "score": 1.837,
+    "why": "via TestFormField (name: field,form,hstore)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/postgres_tests/test_hstore.py::TestFormField::test_non_dict_json",
+    "line": 384,
+    "run": "cd tests && python runtests.py postgres_tests.test_hstore.TestFormField.test_non_dict_json",
+    "score": 1.334,
+    "why": "via TestFormField (name: field,form,hstore)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_redisplay_wrong_input",
+    "line": 134,
+    "run": "cd tests && python runtests.py forms_tests.field_tests.test_jsonfield.JSONFieldTest.test_redisplay_wrong_input",
+    "score": 1.215,
+    "why": "via JSONFieldTest (name: field,json,jsonfield)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_redisplay_none_input",
+    "line": 119,
+    "run": "cd tests && python runtests.py forms_tests.field_tests.test_jsonfield.JSONFieldTest.test_redisplay_none_input",
+    "score": 0.935,
+    "why": "via JSONFieldTest (name: field,json,jsonfield)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/postgres_tests/test_hstore.py::TestFormField::test_empty",
+    "line": 401,
+    "run": "cd tests && python runtests.py postgres_tests.test_hstore.TestFormField.test_empty",
+    "score": 0.91,
+    "why": "via TestFormField (name: field,form,hstore)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_invalid",
+    "line": 28,
+    "run": "cd tests && python runtests.py forms_tests.field_tests.test_jsonfield.JSONFieldTest.test_invalid",
+    "score": 0.816,
+    "why": "via JSONFieldTest (name: field,json,jsonfield)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/postgres_tests/test_hstore.py::TestFormField::test_none_value",
+    "line": 396,
+    "run": "cd tests && python runtests.py postgres_tests.test_hstore.TestFormField.test_none_value",
+    "score": 0.803,
+    "why": "via TestFormField (name: field,form,hstore)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/postgres_tests/test_hstore.py::TestFormField::test_not_string_values",
+    "line": 391,
+    "run": "cd tests && python runtests.py postgres_tests.test_hstore.TestFormField.test_not_string_values",
+    "score": 0.734,
+    "why": "via TestFormField (name: field,form,hstore)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_formfield_disabled",
+    "line": 112,
+    "run": "cd tests && python runtests.py forms_tests.field_tests.test_jsonfield.JSONFieldTest.test_formfield_disabled",
+    "score": 0.691,
+    "why": "via JSONFieldTest (name: field,json,jsonfield)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/postgres_tests/test_hstore.py::TestFormField::test_valid",
+    "line": 365,
+    "run": "cd tests && python runtests.py postgres_tests.test_hstore.TestFormField.test_valid",
+    "score": 0.689,
+    "why": "via TestFormField (name: field,form,hstore)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_valid",
+    "line": 18,
+    "run": "cd tests && python runtests.py forms_tests.field_tests.test_jsonfield.JSONFieldTest.test_valid",
+    "score": 0.655,
+    "why": "via JSONFieldTest (name: field,json,jsonfield)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/postgres_tests/test_hstore.py::TestFormField::test_prepare_value",
+    "line": 433,
+    "run": "cd tests && python runtests.py postgres_tests.test_hstore.TestFormField.test_prepare_value",
+    "score": 0.643,
+    "why": "via TestFormField (name: field,form,hstore)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_valid_empty",
+    "line": 23,
+    "run": "cd tests && python runtests.py forms_tests.field_tests.test_jsonfield.JSONFieldTest.test_valid_empty",
+    "score": 0.631,
+    "why": "via JSONFieldTest (name: field,json,jsonfield)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/postgres_tests/test_hstore.py::TestFormField::test_field_has_changed",
+    "line": 411,
+    "run": "cd tests && python runtests.py postgres_tests.test_hstore.TestFormField.test_field_has_changed",
+    "score": 0.621,
+    "why": "via TestFormField (name: field,form,hstore)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_widget",
+    "line": 53,
+    "run": "cd tests && python runtests.py forms_tests.field_tests.test_jsonfield.JSONFieldTest.test_widget",
+    "score": 0.616,
+    "why": "via JSONFieldTest (name: field,json,jsonfield)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/postgres_tests/test_hstore.py::TestFormField::test_model_field_formfield",
+    "line": 406,
+    "run": "cd tests && python runtests.py postgres_tests.test_hstore.TestFormField.test_model_field_formfield",
+    "score": 0.609,
+    "why": "via TestFormField (name: field,form,hstore)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_converted_value",
+    "line": 70,
+    "run": "cd tests && python runtests.py forms_tests.field_tests.test_jsonfield.JSONFieldTest.test_converted_value",
+    "score": 0.604,
+    "why": "via JSONFieldTest (name: field,json,jsonfield)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_custom_encoder_decoder",
+    "line": 96,
+    "run": "cd tests && python runtests.py forms_tests.field_tests.test_jsonfield.JSONFieldTest.test_custom_encoder_decoder",
+    "score": 0.599,
+    "why": "via JSONFieldTest (name: field,json,jsonfield)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_custom_widget_attribute",
+    "line": 61,
+    "run": "cd tests && python runtests.py forms_tests.field_tests.test_jsonfield.JSONFieldTest.test_custom_widget_attribute",
+    "score": 0.592,
+    "why": "via JSONFieldTest (name: field,json,jsonfield)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_custom_widget_kwarg",
+    "line": 57,
+    "run": "cd tests && python runtests.py forms_tests.field_tests.test_jsonfield.JSONFieldTest.test_custom_widget_kwarg",
+    "score": 0.59,
+    "why": "via JSONFieldTest (name: field,json,jsonfield)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_prepare_value",
+    "line": 41,
+    "run": "cd tests && python runtests.py forms_tests.field_tests.test_jsonfield.JSONFieldTest.test_prepare_value",
+    "score": 0.582,
+    "why": "via JSONFieldTest (name: field,json,jsonfield)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_disabled_has_changed",
+    "line": 92,
+    "run": "cd tests && python runtests.py forms_tests.field_tests.test_jsonfield.JSONFieldTest.test_disabled_has_changed",
+    "score": 0.578,
+    "why": "via JSONFieldTest (name: field,json,jsonfield)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/forms_tests/field_tests/test_jsonfield.py::JSONFieldTest::test_has_changed",
+    "line": 87,
+    "run": "cd tests && python runtests.py forms_tests.field_tests.test_jsonfield.JSONFieldTest.test_has_changed",
+    "score": 0.578,
+    "why": "via JSONFieldTest (name: field,json,jsonfield)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/forms_tests/tests/test_utils.py::FormsUtilsTestCase::test_field_mixin_as_widget_must_be_implemented",
+    "line": 308,
+    "run": "cd tests && python runtests.py forms_tests.tests.test_utils.FormsUtilsTestCase.test_field_mixin_as_widget_must_be_implemented",
+    "score": 0.271,
+    "why": "via BoundField.as_widget > BoundField.value > JSONField.bound_data (name: field)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/forms_tests/tests/test_forms.py::FormsTestCase::test_as_widget_custom_aria_describedby",
+    "line": 3348,
+    "run": "cd tests && python runtests.py forms_tests.tests.test_forms.FormsTestCase.test_as_widget_custom_aria_describedby",
+    "score": 0.12,
+    "why": "via BoundField.as_widget > BoundField.value > JSONField.bound_data"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/forms_tests/tests/tests.py::FormsModelTestCase::test_formfield_initial",
+    "line": 283,
+    "run": "cd tests && python runtests.py forms_tests.tests.tests.FormsModelTestCase.test_formfield_initial",
+    "score": 0.096,
+    "why": "via BoundField.as_widget > BoundField.value > JSONField.bound_data"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/forms_tests/field_tests/test_multivaluefield.py::MultiValueFieldTest::test_clean_disabled_multivalue",
+    "line": 85,
+    "run": "cd tests && python runtests.py forms_tests.field_tests.test_multivaluefield.MultiValueFieldTest.test_clean_disabled_multivalue",
+    "score": 0.086,
+    "why": "via BaseForm.full_clean > BaseForm._clean_fields > Field._clean_bound_field > Field.clean > JSONField.to_python (name: field)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/forms_tests/tests/test_forms.py::FormsTestCase::test_error_dict",
+    "line": 4404,
+    "run": "cd tests && python runtests.py forms_tests.tests.test_forms.FormsTestCase.test_error_dict",
+    "score": 0.076,
+    "why": "via BoundField.as_text > BoundField.as_widget > BoundField.value > JSONField.bound_data"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/forms_tests/tests/test_forms.py::FormsTestCase::test_hidden_data",
+    "line": 1262,
+    "run": "cd tests && python runtests.py forms_tests.tests.test_forms.FormsTestCase.test_hidden_data",
+    "score": 0.061,
+    "why": "via BoundField.as_hidden > BoundField.as_widget > BoundField.value > JSONField.bound_data (name: data)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/forms_tests/field_tests/test_datefield.py::DateFieldTest::test_form_field",
+    "line": 15,
+    "run": "cd tests && python runtests.py forms_tests.field_tests.test_datefield.DateFieldTest.test_form_field",
+    "score": 0.055,
+    "why": "via BoundField.as_hidden > BoundField.as_widget > BoundField.value > JSONField.bound_data (name: field)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/forms_tests/tests/test_forms.py::FormsTestCase::test_multivalue_field_validation",
+    "line": 3988,
+    "run": "cd tests && python runtests.py forms_tests.tests.test_forms.FormsTestCase.test_multivalue_field_validation",
+    "score": 0.052,
+    "why": "via BaseForm.full_clean > BaseForm._clean_fields > Field._clean_bound_field > Field.clean > JSONField.to_python (name: field)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/forms_tests/tests/test_forms.py::FormsTestCase::test_error_list_with_non_field_errors_has_correct_class",
+    "line": 4562,
+    "run": "cd tests && python runtests.py forms_tests.tests.test_forms.FormsTestCase.test_error_list_with_non_field_errors_has_correct_class",
+    "score": 0.05,
+    "why": "via BoundField.as_text > BoundField.as_widget > BoundField.value > JSONField.bound_data (name: field)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/forms_tests/tests/test_utils.py::FormsUtilsTestCase::test_field_mixin_as_hidden_must_be_implemented",
+    "line": 302,
+    "run": "cd tests && python runtests.py forms_tests.tests.test_utils.FormsUtilsTestCase.test_field_mixin_as_hidden_must_be_implemented",
+    "score": 0.048,
+    "why": "via BoundField.as_hidden > BoundField.as_widget > BoundField.value > JSONField.bound_data (name: field)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/forms_tests/tests/test_forms.py::FormsTestCase::test_form",
+    "line": 92,
+    "run": "cd tests && python runtests.py forms_tests.tests.test_forms.FormsTestCase.test_form",
+    "score": 0.038,
+    "why": "via BoundField.as_text > BoundField.as_widget > BoundField.value > JSONField.bound_data"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/forms_tests/tests/test_forms.py::FormsTestCase::test_unicode_values",
+    "line": 332,
+    "run": "cd tests && python runtests.py forms_tests.tests.test_forms.FormsTestCase.test_unicode_values",
+    "score": 0.037,
+    "why": "via BoundField.as_text > BoundField.as_widget > BoundField.value > JSONField.bound_data"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/model_fields/test_generatedfield.py::GeneratedFieldTestMixin::test_full_clean_with_check_constraint",
+    "line": 193,
+    "run": "cd tests && python runtests.py model_fields.test_generatedfield.GeneratedFieldTestMixin.test_full_clean_with_check_constraint",
+    "score": 0.036,
+    "why": "via BaseForm.full_clean > BaseForm._clean_fields > Field._clean_bound_field > Field.clean > JSONField.to_python (name: field)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/forms_tests/tests/test_forms.py::FormsTestCase::test_boundfield_subwidget_id_for_label",
+    "line": 4351,
+    "run": "cd tests && python runtests.py forms_tests.tests.test_forms.FormsTestCase.test_boundfield_subwidget_id_for_label",
+    "score": 0.036,
+    "why": "via BoundField.subwidgets > BoundField.value > JSONField.bound_data"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "django/contrib/postgres/forms/hstore.py",
+    "lines": "32",
+    "symbol": "HStoreField.to_python"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792326177.990237,
+  "job_seconds": 10.5,
+  "number": 22132,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 10.6,
+  "started": 1792326166.862093
+ },
+ "verify": null
+}

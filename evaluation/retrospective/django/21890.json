@@ -1,0 +1,427 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "8abacfc36d755d8e762a4d2074601b8dc412bfee",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "76c6331da2d55c299f99039f4f4d6d8b0b913851",
+  "install_ok": true,
+  "merge_base": "8abacfc36d755d8e762a4d2074601b8dc412bfee",
+  "pr": 21890,
+  "recording": true,
+  "runner": null,
+  "seconds": 11.0,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "8abacfc36d755d8e762a4d2074601b8dc412bfee",
+  "head_sha": "76c6331da2d55c299f99039f4f4d6d8b0b913851",
+  "merge_base": "8abacfc36d755d8e762a4d2074601b8dc412bfee",
+  "merged_at": "2026-10-05T23:01:58Z",
+  "number": 21890,
+  "repo": "django",
+  "title": "Fixed #37322 -- Avoided transforms on spatial fields with srid=None."
+ },
+ "probe_minutes": {
+  "end": 1792324537.719761,
+  "minutes": 0.3,
+  "start": 1792324411.860876,
+  "waited": 110.10279820900178
+ },
+ "probe_targets": {
+  "all": 2,
+  "called": 0,
+  "targets": [
+   {
+    "after": "def _must_transform_value(value, field):\n    if value is None:\n        return False\n    if value.srid == field.srid:\n        return False\n    if field.srid is None:\n        raise ValueError(\"Cannot transform a spatial value to an undefined SRID.\")\n    return True\n",
+    "before": "def _must_transform_value(value, field):\n    return value is not None and value.srid != field.srid\n",
+    "file": "django/contrib/gis/db/backends/base/operations.py",
+    "id": "django/contrib/gis/db/backends/base/operations.py#BaseSpatialOperations._must_transform_value",
+    "name": "_must_transform_value",
+    "qual": "BaseSpatialOperations._must_transform_value",
+    "signature_changed": false
+   },
+   {
+    "after": "def get_geom_placeholder_sql(self, f, value, compiler):\n    \"\"\"\n    Provide a proper substitution value for Geometries or rasters that are\n    not in the SRID of the field. Specifically, this routine will\n    substitute in the ST_Transform() function call.\n    \"\"\"\n    transform_func = self.spatial_function_name(\"Transform\")\n    if hasattr(value, \"as_sql\"):\n        sql, params = compiler.compile(value)\n        if self._must_transform_value(value.field, f):\n            sql = f\"{transform_func}({sql}, %s)\"\n            params = (*params, f.srid)\n        return sql, params\n\n    # Adding Transform() to the SQL placeholder if the value srid\n    # is not equal to the field srid.\n    if self._must_transform_value(value, f):\n        return f\"{transform_func}(%s, %s)\", (value, f.srid)\n    return \"%s\", (value,)\n",
+    "before": "def get_geom_placeholder_sql(self, f, value, compiler):\n    \"\"\"\n    Provide a proper substitution value for Geometries or rasters that are\n    not in the SRID of the field. Specifically, this routine will\n    substitute in the ST_Transform() function call.\n    \"\"\"\n    transform_func = self.spatial_function_name(\"Transform\")\n    if hasattr(value, \"as_sql\"):\n        sql, params = compiler.compile(value)\n        if value.field.srid != f.srid:\n            sql = f\"{transform_func}({sql}, %s)\"\n            params = (*params, f.srid)\n        return sql, params\n\n    # Get the srid for this object\n    if value is None:\n        value_srid = None\n    else:\n        value_srid = value.srid\n\n    # Adding Transform() to the SQL placeholder if the value srid\n    # is not equal to the field srid.\n    if value_srid is None or value_srid == f.srid:\n        return \"%s\", (value,)\n    else:\n        return f\"{transform_func}(%s, %s)\", (value, f.srid)\n",
+    "file": "django/contrib/gis/db/backends/postgis/operations.py",
+    "id": "django/contrib/gis/db/backends/postgis/operations.py#PostGISOperations.get_geom_placeholder_sql",
+    "name": "get_geom_placeholder_sql",
+    "qual": "PostGISOperations.get_geom_placeholder_sql",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [],
+   "filter_seconds": 4.3,
+   "gaps": [],
+   "info": {
+    "accepted": 0,
+    "compiled": 2,
+    "cost": 0.0,
+    "differed": 0,
+    "dollars_cap": 0.1,
+    "functions": 2,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 2,
+    "ran": 0,
+    "reached": 0,
+    "requests": 1,
+    "seconds": 3.9,
+    "stable": 0
+   },
+   "probes": [
+    {
+     "call": "(lambda: BaseSpatialOperations._must_transform_value(SimpleNamespace(srid=4326), SimpleNamespace(srid=None)))()",
+     "function": "django/contrib/gis/db/backends/base/operations.py#BaseSpatialOperations._must_transform_value",
+     "setup": "from types import SimpleNamespace\nfrom django.contrib.gis.db.backends.base.operations import BaseSpatialOperations",
+     "why": "a value with an SRID going to a field with srid=None"
+    },
+    {
+     "call": "PostGISOperations.get_geom_placeholder_sql",
+     "function": "django/contrib/gis/db/backends/postgis/operations.py#PostGISOperations.get_geom_placeholder_sql",
+     "setup": "from types import SimpleNamespace\nfrom django.contrib.gis.db.backends.postgis.operations import PostGISOperations",
+     "why": "postgis backend needs psycopg and GDAL"
+    }
+   ],
+   "targets": [
+    "django/contrib/gis/db/backends/base/operations.py#BaseSpatialOperations._must_transform_value",
+    "django/contrib/gis/db/backends/postgis/operations.py#PostGISOperations.get_geom_placeholder_sql"
+   ],
+   "waited_seconds": 110.1
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "changed_functions": [
+   {
+    "file": "django/contrib/gis/db/backends/base/operations.py",
+    "lines": "120-126",
+    "symbol": "BaseSpatialOperations._must_transform_value"
+   },
+   {
+    "file": "django/contrib/gis/db/backends/postgis/operations.py",
+    "lines": "316-325",
+    "symbol": "PostGISOperations.get_geom_placeholder_sql"
+   },
+   {
+    "file": "tests/gis_tests/geoapp/test_regress.py",
+    "lines": "114-121",
+    "symbol": "GeoRegressionTests.test_no_transform_attempted_for_invalid_srid_expression"
+   }
+  ],
+  "changed_symbols": [
+   "django/contrib/gis/db/backends/base/operations.py#BaseSpatialOperations._must_transform_value",
+   "django/contrib/gis/db/backends/postgis/operations.py#PostGISOperations.get_geom_placeholder_sql",
+   "tests/gis_tests/geoapp/models.py#NoneSRID.Meta.app_label",
+   "tests/gis_tests/geoapp/models.py#NoneSRID.Meta.db_table",
+   "tests/gis_tests/geoapp/models.py#NoneSRID.Meta.managed",
+   "tests/gis_tests/geoapp/models.py#NoneSRID.poly",
+   "tests/gis_tests/geoapp/test_regress.py#GeoRegressionTests.test_no_transform_attempted_for_invalid_srid_expression",
+   "tests/gis_tests/geoapp/models.py#NoneSRID",
+   "tests/gis_tests/geoapp/models.py#NoneSRID.Meta",
+   "tests/gis_tests/geoapp/test_regress.py#GeoRegressionTests",
+   "tests/gis_tests/geoapp/models.py",
+   "tests/gis_tests/geoapp/test_regress.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "BaseSpatialOperations._must_transform_value return changed",
+    "path": [
+     "django/contrib/gis/db/backends/base/operations.py:121 return",
+     "django/contrib/gis/db/backends/base/operations.py:137 BaseSpatialOperations.get_geom_placeholder_sql uses the result",
+     "django/contrib/gis/db/backends/postgis/operations.py:316 PostGISOperations.get_geom_placeholder_sql uses the result"
+    ],
+    "to": "2 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 0,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 164,
+   "ran": 0,
+   "replayed": 0,
+   "runner": "django-runtests",
+   "seconds": 7.2,
+   "selection": {
+    "candidates": 164,
+    "closure_files": 28,
+    "closure_tests": 157,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [],
+    "observed": 0,
+    "static_only": 7
+   },
+   "unrunnable": 160
+  },
+  "flips": null,
+  "gaps": [
+   "117906 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "160 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "Skipped 1 non-Python file(s)",
+   "graph reused from the previous state; 13 changed file(s) relinked",
+   "replaying the change's own tests (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run (original tests on the changed code, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run stopped at its 300 s budget: 0 of 164 candidates run",
+   "side-by-side: none of the 2 changed function(s) was called by the tests run on the code before the change"
+  ],
+  "impacted": {
+   "count": 74,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2931,
+   "parsed_files": 4
+  },
+  "predicted_failures": [],
+  "report_hash": "97a3c1658cb6",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 0,
+   "differences": 0,
+   "functions_called": 0,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "tests/gis_tests/geoapp/test_regress.py#GeoRegressionTests.test_no_transform_attempted_for_invalid_srid_expression": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 0.0,
+   "targets": 2,
+   "unstable": 0
+  },
+  "summary": "NOT EXECUTED: no candidate test could be run; static analysis only. 0 likely_fail, 22 tests reach the change.",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/geoapp/test_regress.py::GeoRegressionTests::test_no_transform_attempted_for_invalid_srid_expression",
+    "line": 114,
+    "run": "cd tests && python runtests.py gis_tests.geoapp.test_regress.GeoRegressionTests.test_no_transform_attempted_for_invalid_srid_expression",
+    "score": 5.597,
+    "why": "via GeoRegressionTests (name: geo,regres,regression)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/geoapp/test_regress.py::GeoRegressionTests::test_extent",
+    "line": 44,
+    "run": "cd tests && python runtests.py gis_tests.geoapp.test_regress.GeoRegressionTests.test_extent",
+    "score": 1.558,
+    "why": "via GeoRegressionTests (name: geo,regres,regression)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/geoapp/test_regress.py::GeoRegressionTests::test_empty_count",
+    "line": 71,
+    "run": "cd tests && python runtests.py gis_tests.geoapp.test_regress.GeoRegressionTests.test_empty_count",
+    "score": 1.184,
+    "why": "via GeoRegressionTests (name: geo,regres,regression)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/geoapp/test_regress.py::GeoRegressionTests::test_boolean_conversion",
+    "line": 98,
+    "run": "cd tests && python runtests.py gis_tests.geoapp.test_regress.GeoRegressionTests.test_boolean_conversion",
+    "score": 0.962,
+    "why": "via GeoRegressionTests (name: geo,regres,regression)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/model_fields/tests.py::BasicFieldTests::test_get_placeholder_sql_shim",
+    "line": 167,
+    "run": "cd tests && python runtests.py model_fields.tests.BasicFieldTests.test_get_placeholder_sql_shim",
+    "score": 0.941,
+    "why": "via BaseSpatialField.get_placeholder_sql > PostGISOperations.get_geom_placeholder_sql (name: get,placeholder,sql)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/geoapp/test_regress.py::GeoRegressionTests::test_unicode_date",
+    "line": 55,
+    "run": "cd tests && python runtests.py gis_tests.geoapp.test_regress.GeoRegressionTests.test_unicode_date",
+    "score": 0.825,
+    "why": "via GeoRegressionTests (name: geo,regres,regression)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/geoapp/test_regress.py::GeoRegressionTests::test_defer_or_only_with_annotate",
+    "line": 85,
+    "run": "cd tests && python runtests.py gis_tests.geoapp.test_regress.GeoRegressionTests.test_defer_or_only_with_annotate",
+    "score": 0.742,
+    "why": "via GeoRegressionTests (name: geo,regres,regression)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/geoapp/test_regress.py::GeoRegressionTests::test_update",
+    "line": 16,
+    "run": "cd tests && python runtests.py gis_tests.geoapp.test_regress.GeoRegressionTests.test_update",
+    "score": 0.677,
+    "why": "via GeoRegressionTests (name: geo,regres,regression)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/expressions/tests.py::ValueTests::test_compile_unresolved",
+    "line": 2503,
+    "run": "cd tests && python runtests.py expressions.tests.ValueTests.test_compile_unresolved",
+    "score": 0.273,
+    "why": "via GISLookup.as_sql > GISLookup.process_rhs > PostGISOperations.get_geom_placeholder_sql"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/expressions/tests.py::BasicExpressionsTests::test_subquery_sql",
+    "line": 750,
+    "run": "cd tests && python runtests.py expressions.tests.BasicExpressionsTests.test_subquery_sql",
+    "score": 0.204,
+    "why": "via GISLookup.as_sql > GISLookup.process_rhs > PostGISOperations.get_geom_placeholder_sql (name: sql)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/custom_lookups/tests.py::YearLteTests::test_custom_implementation_year_exact",
+    "line": 553,
+    "run": "cd tests && python runtests.py custom_lookups.tests.YearLteTests.test_custom_implementation_year_exact",
+    "score": 0.14,
+    "why": "via YearLteTests.test_custom_implementation_year_exact.CustomYearExact.as_custom_sql > GISLookup.process_rhs > PostGISOperations.get_geom_placeholder_sql"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/rasterapp/test_rasterfield.py::RasterFieldTest::test_all_gis_lookups_with_rasters",
+    "line": 171,
+    "run": "cd tests && python runtests.py gis_tests.rasterapp.test_rasterfield.RasterFieldTest.test_all_gis_lookups_with_rasters",
+    "score": 0.06,
+    "why": "via PostGISOperations (name: gis)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/tests.py::TestPostGISBackend::test_non_db_connection_classes",
+    "line": 102,
+    "run": "cd tests && python runtests.py gis_tests.tests.TestPostGISBackend.test_non_db_connection_classes",
+    "score": 0.036,
+    "why": "via PostGISOperations (name: gis,post)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/tests.py::TestPostGISVersionCheck::test_get_version",
+    "line": 57,
+    "run": "cd tests && python runtests.py gis_tests.tests.TestPostGISVersionCheck.test_get_version",
+    "score": 0.025,
+    "why": "via PostGISOperations.postgis_lib_version > PostGISOperations (name: get,gis,post)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/backends/sqlite/tests.py::Tests::test_distinct_aggregation",
+    "line": 53,
+    "run": "cd tests && python runtests.py backends.sqlite.tests.Tests.test_distinct_aggregation",
+    "score": 0.022,
+    "why": "via BaseSpatialOperations.check_expression_support > BaseSpatialOperations"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/tests.py::TestPostGISVersionCheck::test_no_version_number",
+    "line": 94,
+    "run": "cd tests && python runtests.py gis_tests.tests.TestPostGISVersionCheck.test_no_version_number",
+    "score": 0.021,
+    "why": "via PostGISOperations.spatial_version > PostGISOperations (name: gis,post)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/tests.py::TestPostGISVersionCheck::test_valid_version_numbers",
+    "line": 81,
+    "run": "cd tests && python runtests.py gis_tests.tests.TestPostGISVersionCheck.test_valid_version_numbers",
+    "score": 0.02,
+    "why": "via PostGISOperations.spatial_version > PostGISOperations (name: gis,post)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/tests.py::TestPostGISVersionCheck::test_version_classic_tuple",
+    "line": 63,
+    "run": "cd tests && python runtests.py gis_tests.tests.TestPostGISVersionCheck.test_version_classic_tuple",
+    "score": 0.02,
+    "why": "via PostGISOperations.postgis_version_tuple > PostGISOperations (name: gis,post)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/tests.py::TestPostGISVersionCheck::test_version_dev_tuple",
+    "line": 69,
+    "run": "cd tests && python runtests.py gis_tests.tests.TestPostGISVersionCheck.test_version_dev_tuple",
+    "score": 0.02,
+    "why": "via PostGISOperations.postgis_version_tuple > PostGISOperations (name: gis,post)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/tests.py::TestPostGISVersionCheck::test_version_loose_tuple",
+    "line": 75,
+    "run": "cd tests && python runtests.py gis_tests.tests.TestPostGISVersionCheck.test_version_loose_tuple",
+    "score": 0.02,
+    "why": "via PostGISOperations.postgis_version_tuple > PostGISOperations (name: gis,post)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/backends/sqlite/tests.py::Tests::test_distinct_aggregation_multiple_args_no_distinct",
+    "line": 65,
+    "run": "cd tests && python runtests.py backends.sqlite.tests.Tests.test_distinct_aggregation_multiple_args_no_distinct",
+    "score": 0.019,
+    "why": "via BaseSpatialOperations.check_expression_support > BaseSpatialOperations"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/geogapp/tests.py::GeographyFunctionTests::test_distance_function",
+    "line": 141,
+    "run": "cd tests && python runtests.py gis_tests.geogapp.tests.GeographyFunctionTests.test_distance_function",
+    "score": 0.017,
+    "why": "via PostGISOperations.spatial_version > PostGISOperations"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792324389.024608,
+  "job_seconds": 11.0,
+  "number": 21890,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 11.0,
+  "started": 1792324377.449379
+ },
+ "verify": null
+}

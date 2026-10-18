@@ -1,0 +1,917 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "cba0840623433aa28ed1646b3ca19ab4211f09d0",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "97fbdd4ba40faffff12273ffc608865133653bb8",
+  "install_ok": true,
+  "merge_base": "b8bc7724304a61606eccc5aabe88ee24df881d18",
+  "pr": 30558,
+  "recording": false,
+  "runner": null,
+  "seconds": 343.8,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "cba0840623433aa28ed1646b3ca19ab4211f09d0",
+  "head_sha": "97fbdd4ba40faffff12273ffc608865133653bb8",
+  "merge_base": "b8bc7724304a61606eccc5aabe88ee24df881d18",
+  "merged_at": "2026-10-16T16:17:08Z",
+  "number": 30558,
+  "repo": "sympy",
+  "title": "integrals: fix the floor terms added to atan(tan) and atan(cot) antiderivatives"
+ },
+ "probe_minutes": {
+  "end": 1792346565.6590238,
+  "minutes": 2.0,
+  "start": 1792346446.1509728,
+  "waited": 0.0005899579991819337
+ },
+ "probe_targets": {
+  "all": 4,
+  "called": 0,
+  "targets": [
+   {
+    "after": "def doit(self, **hints):\n    \"\"\"\n    Perform the integration using any hints given.\n\n    Examples\n    ========\n\n    >>> from sympy import Piecewise, S\n    >>> from sympy.abc import x, t\n    >>> p = x**2 + Piecewise((0, x/t < 0), (1, True))\n    >>> p.integrate((t, S(4)/5, 1), (x, -1, 1))\n    1/3\n\n    See Also\n    ========\n\n    sympy.integrals.trigonometry.trigintegrate\n    sympy.integrals.heurisch.heurisch\n    sympy.integrals.rationaltools.ratint\n    as_sum : Approximate the integral using a sum\n    \"\"\"\n    if not hints.get('integrals', True):\n        return self\n\n    deep = hints.get('deep', True)\n    meijerg = hints.get('meijerg', None)\n    conds = hints.get('conds', 'piecewise')\n    risch = hints.get('risch', None)\n    heurisch = hints.get('heurisch', None)\n    manual = hints.get('manual', None)\n    if len(list(filter(None, (manual, meijerg, risch, heurisch)))) > 1:\n        raise ValueError(\"At most one of manual, meijerg, risch, heurisch can be True\")\n    elif manual:\n        meijerg = risch = heurisch = False\n    elif meijerg:\n        manual = risch = heurisch = False\n    elif risch:\n        manual = meijerg = heurisch = False\n    elif heurisch:\n        manual = meijerg = risch = False\n    eval_kwargs = {\"meijerg\": meijerg, \"risch\": risch, \"manual\": manual, \"heurisch\": heurisch,\n        \"conds\": conds}\n\n    if conds not in ('separate', 'piecewise', 'none'):\n        raise ValueError('conds must be one of \"separate\", \"piecewise\", '\n                         '\"none\", got: %s' % conds)\n\n    if risch and any(len(xab) > 1 for xab in self.limits):\n        raise ValueError('risch=True is only allowed for indefinite integrals.')\n\n    # check for the trivial zero\n    if self.is_zero:\n        return S.Zero\n\n    # hacks to handle integrals of\n    # nested summations\n    from sympy.concrete.summations import Sum\n    if isinstance(self.function, Sum):\n        if any(v in self.function.limits[0] for v in self.variables):\n            raise ValueError('Limit of the sum cannot be an integration variable.')\n        if any(l.is_infinite for l in self.function.limits[0][1:]):\n            return self\n        _i = self\n        _sum = self.function\n        return _sum.func(_i.func(_sum.function, *_i.limits).doit(), *_sum.limits).doit()\n\n    # now compute and check the function\n    function = self.function\n\n    # hack to use a consistent Heaviside(x, 1/2)\n    function = function.replace(\n        lambda x: isinstance(x, Heaviside) and x.args[1]*2 != 1,\n        lambda x: Heaviside(x.args[0]))\n\n    if deep:\n        function = function.doit(**hints)\n    if function.is_zero:\n        return S.Zero\n\n    # hacks to handle special cases\n    if isinstance(function, MatrixBase):\n        return function.applyfunc(\n            lambda f: self.func(f, *self.limits).doit(**hints))\n\n    if isinstance(function, FormalPowerSeries):\n        if len(self.limits) > 1:\n            raise NotImplementedError\n        xab = self.limits[0]\n        if len(xab) > 1:\n            return function.integrate(xab, **eval_kwargs)\n        else:\n            return function.integrate(xab[0], **eval_kwargs)\n\n    # There is no trivial answer and special handling\n    # is done so continue\n\n    # first make sure any definite limits have integration\n    # variables with matching assumptions\n    reps = {}\n    for xab in self.limits:\n        if len(xab) != 3:\n            # it makes sense to just make\n            # all x real but in practice with the\n            # current state of integration...this\n            # doesn't work out well\n            # x = xab[0]\n            # if x not in reps and not x.is_real:\n            #     reps[x] = Dummy(real=True)\n            continue\n        x, a, b = xab\n        l = (a, b)\n        if all(i.is_nonnegative for i in l) and not x.is_nonnegative:\n            d = Dummy(positive=True)\n        elif all(i.is_nonpositive for i in l) and not x.is_nonpositive:\n            d = Dummy(negative=True)\n        elif all(i.is_real for i in l) and not x.is_real:\n            d = Dummy(real=True)\n        else:\n            d = None\n        if d:\n            reps[x] = d\n    if reps:\n        undo = {v: k for k, v in reps.items()}\n        did = self.xreplace(reps).doit(**hints)\n        if isinstance(did, tuple):  # when separate=True\n            did = tuple([i.xreplace(undo) for i in did])\n        else:\n            did = did.xreplace(undo)\n        return did\n\n    # continue with existing assumptions\n    undone_limits = []\n    # ulj = free symbols of any undone limits' upper and lower limits\n    ulj = set()\n    for xab in self.limits:\n        # compute uli, the free symbols in the\n        # Upper and Lower limits of limit I\n        if len(xab) == 1:\n            uli = set(xab[:1])\n        elif len(xab) == 2:\n            uli = xab[1].free_symbols\n        elif len(xab) == 3:\n            uli = xab[1].free_symbols.union(xab[2].free_symbols)\n        # this integral can be done as long as there is no blocking\n        # limit that has been undone. An undone limit is blocking if\n        # it contains an integration variable that is in this limit's\n        # upper or lower free symbols or vice versa\n        if xab[0] in ulj or any(v[0] in uli for v in undone_limits):\n            undone_limits.append(xab)\n            ulj.update(uli)\n            function = self.func(*([function] + [xab]))\n            factored_function = function.factor()\n            if not isinstance(factored_function, Integral):\n                function = factored_function\n            continue\n\n        if function.has(Abs, sign) and (\n            (len(xab) < 3 and all(x.is_extended_real for x in xab)) or\n            (len(xab) == 3 and all(x.is_extended_real and not x.is_infinite for\n             x in xab[1:]))):\n                # some improper integrals are better off with Abs\n                xr = Dummy(\"xr\", real=True)\n                function = (function.xreplace({xab[0]: xr})\n                    .rewrite(Piecewise).xreplace({xr: xab[0]}))\n        elif function.has(Min, Max):\n            function = function.rewrite(Piecewise)\n        if (function.has(Piecewise) and\n            not isinstance(function, Piecewise)):\n                function = piecewise_fold(function)\n        if isinstance(function, Piecewise):\n            if len(xab) == 1:\n                antideriv = function._eval_integral(xab[0],\n                    **eval_kwargs)\n            else:\n                antideriv = self._eval_integral(\n                    function, xab[0], **eval_kwargs)\n        else:\n            # There are a number of tradeoffs in using the\n            # Meijer G method. It can sometimes be a lot faster\n            # than other methods, and sometimes slower. And\n            # there are certain types of integrals for which it\n            # is more likely to work than others. These\n            # heuristics are incorporated in deciding what\n            # integration methods to try, in what order. See the\n            # integrate() docstring for details.\n            def try_meijerg(function, xab):\n                ret = None\n                if len(xab) == 3 and meijerg is not False:\n                    x, a, b = xab\n                    try:\n                        res = meijerint_definite(function, x, a, b)\n                    except NotImplementedError:\n                        _debug('NotImplementedError '\n                            'from meijerint_definite')\n                        res = None\n                    if res is not None:\n                        f, cond = res\n                        if conds == 'piecewise':\n                            u = self.func(function, (x, a, b))\n                            # if Piecewise modifies cond too\n                            # much it may not be recognized by\n                            # _condsimp pattern matching so just\n                            # turn off all evaluation\n                            return Piecewise((f, cond), (u, True),\n                                evaluate=False)\n                        elif conds == 'separate':\n                            if len(self.limits) != 1:\n                                raise ValueError(filldedent('''\n                                    conds=separate not supported in\n                                    multiple integrals'''))\n                            ret = f, cond\n                        else:\n                            ret = f\n                return ret\n\n            meijerg1 = meijerg\n            if (meijerg is not False and\n                    len(xab) == 3 and xab[1].is_extended_real and xab[2].is_extended_real\n                    and not function.is_Poly and\n                    (xab[1].has(oo, -oo) or xab[2].has(oo, -oo))):\n                ret = try_meijerg(function, xab)\n                if ret is not None:\n                    function = ret\n                    continue\n                meijerg1 = False\n            # If the special meijerg code did not succeed in\n            # finding a definite integral, then the code using\n            # meijerint_indefinite will not either (it might\n            # find an antiderivative, but the answer is likely\n            # to be nonsensical). Thus if we are requested to\n            # only use Meijer G-function methods, we give up at\n            # this stage. Otherwise we just disable G-function\n            # methods.\n            if meijerg1 is False and meijerg is True:\n                antideriv = None\n            else:\n                antideriv = self._eval_integral(\n                    function, xab[0], **eval_kwargs)\n                if antideriv is None and meijerg is True:\n                    ret = try_meijerg(function, xab)\n                    if ret is not None:\n                        function = ret\n                        continue\n\n        # The floor terms making atan and acot continuous are only\n        # needed to evaluate the antiderivative between limits, and\n        # doit may be iterated but they should only be added in the\n        # final round\n        if (len(xab) == 3 and hints.get('final', True) and\n                not isinstance(antideriv, Integral) and\n                antideriv is not None):\n            antideriv = _add_atan_floor_terms(antideriv, xab[0])\n\n        if antideriv is None:\n            undone_limits.append(xab)\n            function = self.func(*([function] + [xab])).factor()\n            factored_function = function.factor()\n            if not isinstance(factored_function, Integral):\n                function = factored_function\n            continue\n        else:\n            if len(xab) == 1:\n                function = antideriv\n            else:\n                if len(xab) == 3:\n                    x, a, b = xab\n                elif len(xab) == 2:\n                    x, b = xab\n                    a = None\n                else:\n                    raise NotImplementedError\n\n                if deep:\n                    if isinstance(a, Basic):\n                        a = a.doit(**hints)\n                    if isinstance(b, Basic):\n                        b = b.doit(**hints)\n\n                if antideriv.is_Poly:\n                    gens = list(antideriv.gens)\n                    gens.remove(x)\n\n                    antideriv = antideriv.as_expr()\n\n                    function = antideriv._eval_interval(x, a, b)\n                    function = Poly(function, *gens)\n                else:\n                    def is_indef_int(g, x):\n                        return (isinstance(g, Integral) and\n                                any(i == (x,) for i in g.limits))\n\n                    def eval_factored(f, x, a, b):\n                        # _eval_interval for integrals with\n                        # (constant) factors\n                        # a single indefinite integral is assumed\n                        args = []\n                        for g in Mul.make_args(f):\n                            if is_indef_int(g, x):\n                                args.append(g._eval_interval(x, a, b))\n                            else:\n                                args.append(g)\n                        return Mul(*args)\n\n                    integrals, others, piecewises = [], [], []\n                    for f in Add.make_args(antideriv):\n                        if any(is_indef_int(g, x)\n                               for g in Mul.make_args(f)):\n                            integrals.append(f)\n                        elif any(isinstance(g, Piecewise)\n                                 for g in Mul.make_args(f)):\n                            piecewises.append(piecewise_fold(f))\n                        else:\n                            others.append(f)\n                    uneval = Add(*[eval_factored(f, x, a, b)\n                                   for f in integrals])\n                    try:\n                        evalued = Add(*others)._eval_interval(x, a, b)\n                        evalued_pw = piecewise_fold(Add(*piecewises))._eval_interval(x, a, b)\n                        function = uneval + evalued + evalued_pw\n                    except NotImplementedError:\n                        # This can happen if _eval_interval depends in a\n                        # complicated way on limits that cannot be computed\n                        undone_limits.append(xab)\n                        function = self.func(*([function] + [xab]))\n                        factored_function = function.factor()\n                        if not isinstance(factored_function, Integral):\n                            function = factored_function\n    return function\n",
+    "before": "def doit(self, **hints):\n    \"\"\"\n    Perform the integration using any hints given.\n\n    Examples\n    ========\n\n    >>> from sympy import Piecewise, S\n    >>> from sympy.abc import x, t\n    >>> p = x**2 + Piecewise((0, x/t < 0), (1, True))\n    >>> p.integrate((t, S(4)/5, 1), (x, -1, 1))\n    1/3\n\n    See Also\n    ========\n\n    sympy.integrals.trigonometry.trigintegrate\n    sympy.integrals.heurisch.heurisch\n    sympy.integrals.rationaltools.ratint\n    as_sum : Approximate the integral using a sum\n    \"\"\"\n    if not hints.get('integrals', True):\n        return self\n\n    deep = hints.get('deep', True)\n    meijerg = hints.get('meijerg', None)\n    conds = hints.get('conds', 'piecewise')\n    risch = hints.get('risch', None)\n    heurisch = hints.get('heurisch', None)\n    manual = hints.get('manual', None)\n    if len(list(filter(None, (manual, meijerg, risch, heurisch)))) > 1:\n        raise ValueError(\"At most one of manual, meijerg, risch, heurisch can be True\")\n    elif manual:\n        meijerg = risch = heurisch = False\n    elif meijerg:\n        manual = risch = heurisch = False\n    elif risch:\n        manual = meijerg = heurisch = False\n    elif heurisch:\n        manual = meijerg = risch = False\n    eval_kwargs = {\"meijerg\": meijerg, \"risch\": risch, \"manual\": manual, \"heurisch\": heurisch,\n        \"conds\": conds}\n\n    if conds not in ('separate', 'piecewise', 'none'):\n        raise ValueError('conds must be one of \"separate\", \"piecewise\", '\n                         '\"none\", got: %s' % conds)\n\n    if risch and any(len(xab) > 1 for xab in self.limits):\n        raise ValueError('risch=True is only allowed for indefinite integrals.')\n\n    # check for the trivial zero\n    if self.is_zero:\n        return S.Zero\n\n    # hacks to handle integrals of\n    # nested summations\n    from sympy.concrete.summations import Sum\n    if isinstance(self.function, Sum):\n        if any(v in self.function.limits[0] for v in self.variables):\n            raise ValueError('Limit of the sum cannot be an integration variable.')\n        if any(l.is_infinite for l in self.function.limits[0][1:]):\n            return self\n        _i = self\n        _sum = self.function\n        return _sum.func(_i.func(_sum.function, *_i.limits).doit(), *_sum.limits).doit()\n\n    # now compute and check the function\n    function = self.function\n\n    # hack to use a consistent Heaviside(x, 1/2)\n    function = function.replace(\n        lambda x: isinstance(x, Heaviside) and x.args[1]*2 != 1,\n        lambda x: Heaviside(x.args[0]))\n\n    if deep:\n        function = function.doit(**hints)\n    if function.is_zero:\n        return S.Zero\n\n    # hacks to handle special cases\n    if isinstance(function, MatrixBase):\n        return function.applyfunc(\n            lambda f: self.func(f, *self.limits).doit(**hints))\n\n    if isinstance(function, FormalPowerSeries):\n        if len(self.limits) > 1:\n            raise NotImplementedError\n        xab = self.limits[0]\n        if len(xab) > 1:\n            return function.integrate(xab, **eval_kwargs)\n        else:\n            return function.integrate(xab[0], **eval_kwargs)\n\n    # There is no trivial answer and special handling\n    # is done so continue\n\n    # first make sure any definite limits have integration\n    # variables with matching assumptions\n    reps = {}\n    for xab in self.limits:\n        if len(xab) != 3:\n            # it makes sense to just make\n            # all x real but in practice with the\n            # current state of integration...this\n            # doesn't work out well\n            # x = xab[0]\n            # if x not in reps and not x.is_real:\n            #     reps[x] = Dummy(real=True)\n            continue\n        x, a, b = xab\n        l = (a, b)\n        if all(i.is_nonnegative for i in l) and not x.is_nonnegative:\n            d = Dummy(positive=True)\n        elif all(i.is_nonpositive for i in l) and not x.is_nonpositive:\n            d = Dummy(negative=True)\n        elif all(i.is_real for i in l) and not x.is_real:\n            d = Dummy(real=True)\n        else:\n            d = None\n        if d:\n            reps[x] = d\n    if reps:\n        undo = {v: k for k, v in reps.items()}\n        did = self.xreplace(reps).doit(**hints)\n        if isinstance(did, tuple):  # when separate=True\n            did = tuple([i.xreplace(undo) for i in did])\n        else:\n            did = did.xreplace(undo)\n        return did\n\n    # continue with existing assumptions\n    undone_limits = []\n    # ulj = free symbols of any undone limits' upper and lower limits\n    ulj = set()\n    for xab in self.limits:\n        # compute uli, the free symbols in the\n        # Upper and Lower limits of limit I\n        if len(xab) == 1:\n            uli = set(xab[:1])\n        elif len(xab) == 2:\n            uli = xab[1].free_symbols\n        elif len(xab) == 3:\n            uli = xab[1].free_symbols.union(xab[2].free_symbols)\n        # this integral can be done as long as there is no blocking\n        # limit that has been undone. An undone limit is blocking if\n        # it contains an integration variable that is in this limit's\n        # upper or lower free symbols or vice versa\n        if xab[0] in ulj or any(v[0] in uli for v in undone_limits):\n            undone_limits.append(xab)\n            ulj.update(uli)\n            function = self.func(*([function] + [xab]))\n            factored_function = function.factor()\n            if not isinstance(factored_function, Integral):\n                function = factored_function\n            continue\n\n        if function.has(Abs, sign) and (\n            (len(xab) < 3 and all(x.is_extended_real for x in xab)) or\n            (len(xab) == 3 and all(x.is_extended_real and not x.is_infinite for\n             x in xab[1:]))):\n                # some improper integrals are better off with Abs\n                xr = Dummy(\"xr\", real=True)\n                function = (function.xreplace({xab[0]: xr})\n                    .rewrite(Piecewise).xreplace({xr: xab[0]}))\n        elif function.has(Min, Max):\n            function = function.rewrite(Piecewise)\n        if (function.has(Piecewise) and\n            not isinstance(function, Piecewise)):\n                function = piecewise_fold(function)\n        if isinstance(function, Piecewise):\n            if len(xab) == 1:\n                antideriv = function._eval_integral(xab[0],\n                    **eval_kwargs)\n            else:\n                antideriv = self._eval_integral(\n                    function, xab[0], **eval_kwargs)\n        else:\n            # There are a number of tradeoffs in using the\n            # Meijer G method. It can sometimes be a lot faster\n            # than other methods, and sometimes slower. And\n            # there are certain types of integrals for which it\n            # is more likely to work than others. These\n            # heuristics are incorporated in deciding what\n            # integration methods to try, in what order. See the\n            # integrate() docstring for details.\n            def try_meijerg(function, xab):\n                ret = None\n                if len(xab) == 3 and meijerg is not False:\n                    x, a, b = xab\n                    try:\n                        res = meijerint_definite(function, x, a, b)\n                    except NotImplementedError:\n                        _debug('NotImplementedError '\n                            'from meijerint_definite')\n                        res = None\n                    if res is not None:\n                        f, cond = res\n                        if conds == 'piecewise':\n                            u = self.func(function, (x, a, b))\n                            # if Piecewise modifies cond too\n                            # much it may not be recognized by\n                            # _condsimp pattern matching so just\n                            # turn off all evaluation\n                            return Piecewise((f, cond), (u, True),\n                                evaluate=False)\n                        elif conds == 'separate':\n                            if len(self.limits) != 1:\n                                raise ValueError(filldedent('''\n                                    conds=separate not supported in\n                                    multiple integrals'''))\n                            ret = f, cond\n                        else:\n                            ret = f\n                return ret\n\n            meijerg1 = meijerg\n            if (meijerg is not False and\n                    len(xab) == 3 and xab[1].is_extended_real and xab[2].is_extended_real\n                    and not function.is_Poly and\n                    (xab[1].has(oo, -oo) or xab[2].has(oo, -oo))):\n                ret = try_meijerg(function, xab)\n                if ret is not None:\n                    function = ret\n                    continue\n                meijerg1 = False\n            # If the special meijerg code did not succeed in\n            # finding a definite integral, then the code using\n            # meijerint_indefinite will not either (it might\n            # find an antiderivative, but the answer is likely\n            # to be nonsensical). Thus if we are requested to\n            # only use Meijer G-function methods, we give up at\n            # this stage. Otherwise we just disable G-function\n            # methods.\n            if meijerg1 is False and meijerg is True:\n                antideriv = None\n            else:\n                antideriv = self._eval_integral(\n                    function, xab[0], **eval_kwargs)\n                if antideriv is None and meijerg is True:\n                    ret = try_meijerg(function, xab)\n                    if ret is not None:\n                        function = ret\n                        continue\n\n        final = hints.get('final', True)\n        # dotit may be iterated but floor terms making atan and acot\n        # continuous should only be added in the final round\n        if (final and not isinstance(antideriv, Integral) and\n            antideriv is not None):\n            for atan_term in antideriv.atoms(atan):\n                atan_arg = atan_term.args[0]\n                # Checking `atan_arg` to be linear combination of `tan` or `cot`\n                for tan_part in atan_arg.atoms(tan):\n                    x1 = Dummy('x1')\n                    tan_exp1 = atan_arg.subs(tan_part, x1)\n                    # The coefficient of `tan` should be constant\n                    coeff = tan_exp1.diff(x1)\n                    if x1 not in coeff.free_symbols:\n                        a = tan_part.args[0]\n                        antideriv = antideriv.subs(atan_term, Add(atan_term,\n                            sign(coeff)*pi*floor((a-pi/2)/pi)))\n                for cot_part in atan_arg.atoms(cot):\n                    x1 = Dummy('x1')\n                    cot_exp1 = atan_arg.subs(cot_part, x1)\n                    # The coefficient of `cot` should be constant\n                    coeff = cot_exp1.diff(x1)\n                    if x1 not in coeff.free_symbols:\n                        a = cot_part.args[0]\n                        antideriv = antideriv.subs(atan_term, Add(atan_term,\n                            sign(coeff)*pi*floor((a)/pi)))\n\n        if antideriv is None:\n            undone_limits.append(xab)\n            function = self.func(*([function] + [xab])).factor()\n            factored_function = function.factor()\n            if not isinstance(factored_function, Integral):\n                function = factored_function\n            continue\n        else:\n            if len(xab) == 1:\n                function = antideriv\n            else:\n                if len(xab) == 3:\n                    x, a, b = xab\n                elif len(xab) == 2:\n                    x, b = xab\n                    a = None\n                else:\n                    raise NotImplementedError\n\n                if deep:\n                    if isinstance(a, Basic):\n                        a = a.doit(**hints)\n                    if isinstance(b, Basic):\n                        b = b.doit(**hints)\n\n                if antideriv.is_Poly:\n                    gens = list(antideriv.gens)\n                    gens.remove(x)\n\n                    antideriv = antideriv.as_expr()\n\n                    function = antideriv._eval_interval(x, a, b)\n                    function = Poly(function, *gens)\n                else:\n                    def is_indef_int(g, x):\n                        return (isinstance(g, Integral) and\n                                any(i == (x,) for i in g.limits))\n\n                    def eval_factored(f, x, a, b):\n                        # _eval_interval for integrals with\n                        # (constant) factors\n                        # a single indefinite integral is assumed\n                        args = []\n                        for g in Mul.make_args(f):\n                            if is_indef_int(g, x):\n                                args.append(g._eval_interval(x, a, b))\n                            else:\n                                args.append(g)\n                        return Mul(*args)\n\n                    integrals, others, piecewises = [], [], []\n                    for f in Add.make_args(antideriv):\n                        if any(is_indef_int(g, x)\n                               for g in Mul.make_args(f)):\n                            integrals.append(f)\n                        elif any(isinstance(g, Piecewise)\n                                 for g in Mul.make_args(f)):\n                            piecewises.append(piecewise_fold(f))\n                        else:\n                            others.append(f)\n                    uneval = Add(*[eval_factored(f, x, a, b)\n                                   for f in integrals])\n                    try:\n                        evalued = Add(*others)._eval_interval(x, a, b)\n                        evalued_pw = piecewise_fold(Add(*piecewises))._eval_interval(x, a, b)\n                        function = uneval + evalued + evalued_pw\n                    except NotImplementedError:\n                        # This can happen if _eval_interval depends in a\n                        # complicated way on limits that cannot be computed\n                        undone_limits.append(xab)\n                        function = self.func(*([function] + [xab]))\n                        factored_function = function.factor()\n                        if not isinstance(factored_function, Integral):\n                            function = factored_function\n    return function\n",
+    "file": "sympy/integrals/integrals.py",
+    "id": "sympy/integrals/integrals.py#Integral.doit",
+    "name": "doit",
+    "qual": "Integral.doit",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_issue_8623():\n    assert integrate((1 + cos(2*x)) / (3 - 2*cos(2*x)), (x, 0, pi)) == -pi/2 + sqrt(5)*pi/2\n    assert integrate((1 + cos(2*x))/(3 - 2*cos(2*x))) == -x/2 + sqrt(5)*atan(sqrt(5)*tan(x))/2\n",
+    "before": "def test_issue_8623():\n    assert integrate((1 + cos(2*x)) / (3 - 2*cos(2*x)), (x, 0, pi)) == -pi/2 + sqrt(5)*pi/2\n    assert integrate((1 + cos(2*x))/(3 - 2*cos(2*x))) == -x/2 + sqrt(5)*(atan(sqrt(5)*tan(x)) + \\\n        pi*floor((x - pi/2)/pi))/2\n",
+    "file": "sympy/integrals/tests/test_integrals.py",
+    "id": "sympy/integrals/tests/test_integrals.py#test_issue_8623",
+    "name": "test_issue_8623",
+    "qual": "test_issue_8623",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_issue_9569():\n    assert integrate(1 / (2 - cos(x)), (x, 0, pi)) == pi/sqrt(3)\n    assert integrate(1/(2 - cos(x))) == 2*sqrt(3)*atan(sqrt(3)*tan(x/2))/3\n",
+    "before": "def test_issue_9569():\n    assert integrate(1 / (2 - cos(x)), (x, 0, pi)) == pi/sqrt(3)\n    assert integrate(1/(2 - cos(x))) == 2*sqrt(3)*(atan(sqrt(3)*tan(x/2)) + pi*floor((x/2 - pi/2)/pi))/3\n",
+    "file": "sympy/integrals/tests/test_integrals.py",
+    "id": "sympy/integrals/tests/test_integrals.py#test_issue_9569",
+    "name": "test_issue_9569",
+    "qual": "test_issue_9569",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_issue_13749():\n    assert integrate(1 / (2 + cos(x)), (x, 0, pi)) == pi/sqrt(3)\n    assert integrate(1/(2 + cos(x))) == 2*sqrt(3)*atan(sqrt(3)*tan(x/2)/3)/3\n",
+    "before": "def test_issue_13749():\n    assert integrate(1 / (2 + cos(x)), (x, 0, pi)) == pi/sqrt(3)\n    assert integrate(1/(2 + cos(x))) == 2*sqrt(3)*(atan(sqrt(3)*tan(x/2)/3) + pi*floor((x/2 - pi/2)/pi))/3\n",
+    "file": "sympy/integrals/tests/test_integrals.py",
+    "id": "sympy/integrals/tests/test_integrals.py#test_issue_13749",
+    "name": "test_issue_13749",
+    "qual": "test_issue_13749",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "return",
+      "str",
+      "'-pi + 2*atan(2*cot(1))'"
+     ],
+     "before": [
+      "return",
+      "str",
+      "'2*atan(2*cot(1)) + pi'"
+     ],
+     "call": "outcome(lambda: integrate(diff(atan(2*cot(x)), x), (x, -1, 1)))",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import atan, cot, diff, integrate, symbols, tan\nx = symbols('x', real=True)\ny = symbols('y', real=True)\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__",
+     "target": "sympy/integrals/integrals.py#Integral.doit",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import atan, cot, diff, integrate, symbols, tan\n    x = symbols('x', real=True)\n    y = symbols('y', real=True)\n\n    def outcome(f):\n        try:\n            return str(f())\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__\n    assert repr(outcome(lambda: integrate(diff(atan(2*cot(x)), x), (x, -1, 1)))) == \"'-pi + 2*atan(2*cot(1))'\"\n",
+     "why": "the atan(tan) and atan(cot) cases in the PR"
+    },
+    {
+     "after": [
+      "return",
+      "str",
+      "'0'"
+     ],
+     "before": [
+      "return",
+      "str",
+      "'-2*pi'"
+     ],
+     "call": "outcome(lambda: integrate(diff(atan(x*tan(x)), x), (x, -1, 1)))",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import atan, cot, diff, integrate, symbols, tan\nx = symbols('x', real=True)\ny = symbols('y', real=True)\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__",
+     "target": "sympy/integrals/tests/test_integrals.py#test_issue_8623",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import atan, cot, diff, integrate, symbols, tan\n    x = symbols('x', real=True)\n    y = symbols('y', real=True)\n\n    def outcome(f):\n        try:\n            return str(f())\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__\n    assert repr(outcome(lambda: integrate(diff(atan(x*tan(x)), x), (x, -1, 1)))) == \"'0'\"\n",
+     "why": "the atan(tan) and atan(cot) cases in the PR"
+    },
+    {
+     "after": [
+      "return",
+      "str",
+      "'x*atan(tan(y))'"
+     ],
+     "before": [
+      "return",
+      "str",
+      "'x*(atan(tan(y)) + pi*floor((y - pi/2)/pi))'"
+     ],
+     "call": "outcome(lambda: integrate(atan(tan(y)), x))",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import atan, cot, diff, integrate, symbols, tan\nx = symbols('x', real=True)\ny = symbols('y', real=True)\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__",
+     "target": "sympy/integrals/tests/test_integrals.py#test_issue_9569",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import atan, cot, diff, integrate, symbols, tan\n    x = symbols('x', real=True)\n    y = symbols('y', real=True)\n\n    def outcome(f):\n        try:\n            return str(f())\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__\n    assert repr(outcome(lambda: integrate(atan(tan(y)), x))) == \"'x*atan(tan(y))'\"\n",
+     "why": "the atan(tan) and atan(cot) cases in the PR"
+    }
+   ],
+   "dollars_cap": 0.1,
+   "filter_seconds": 63.0,
+   "gaps": [],
+   "info": {
+    "accepted": 3,
+    "compiled": 4,
+    "cost": 0.0,
+    "differed": 3,
+    "dollars_cap": 0.1,
+    "functions": 4,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 4,
+    "ran": 4,
+    "reached": 4,
+    "requests": 1,
+    "seconds": 62.5,
+    "stable": 4
+   },
+   "probes": [
+    {
+     "call": "outcome(lambda: integrate(diff(atan(2*cot(x)), x), (x, -1, 1)))",
+     "function": "sympy/integrals/integrals.py#Integral.doit",
+     "setup": "from sympy import atan, cot, diff, integrate, symbols, tan\nx = symbols('x', real=True)\ny = symbols('y', real=True)\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__",
+     "why": "the atan(tan) and atan(cot) cases in the PR"
+    },
+    {
+     "call": "outcome(lambda: integrate(diff(atan(x*tan(x)), x), (x, -1, 1)))",
+     "function": "sympy/integrals/tests/test_integrals.py#test_issue_8623",
+     "setup": "from sympy import atan, cot, diff, integrate, symbols, tan\nx = symbols('x', real=True)\ny = symbols('y', real=True)\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__",
+     "why": "the atan(tan) and atan(cot) cases in the PR"
+    },
+    {
+     "call": "outcome(lambda: integrate(atan(tan(y)), x))",
+     "function": "sympy/integrals/tests/test_integrals.py#test_issue_9569",
+     "setup": "from sympy import atan, cot, diff, integrate, symbols, tan\nx = symbols('x', real=True)\ny = symbols('y', real=True)\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__",
+     "why": "the atan(tan) and atan(cot) cases in the PR"
+    },
+    {
+     "call": "outcome(lambda: integrate(diff(atan(3*tan(x/2)), x), (x, 0, 2*3.14159265358979)))",
+     "function": "sympy/integrals/tests/test_integrals.py#test_issue_13749",
+     "setup": "from sympy import atan, cot, diff, integrate, symbols, tan\nx = symbols('x', real=True)\ny = symbols('y', real=True)\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__",
+     "why": "the atan(tan) and atan(cot) cases in the PR"
+    }
+   ],
+   "targets": [
+    "sympy/integrals/integrals.py#Integral.doit",
+    "sympy/integrals/tests/test_integrals.py#test_issue_8623",
+    "sympy/integrals/tests/test_integrals.py#test_issue_9569",
+    "sympy/integrals/tests/test_integrals.py#test_issue_13749"
+   ],
+   "waited_seconds": 0.0
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "unloadable",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_8623",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "unloadable",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_9569",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "unloadable",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_13749",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "unloadable",
+    "id": "sympy/integrals/tests/test_integrals.py::test_atan_floor_terms",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/integrals/integrals.py",
+    "lines": "42-119",
+    "symbol": "_add_atan_floor_terms"
+   },
+   {
+    "file": "sympy/integrals/integrals.py",
+    "lines": "122-212",
+    "symbol": "_atan_floor_correction"
+   },
+   {
+    "file": "sympy/integrals/integrals.py",
+    "lines": "807-814",
+    "symbol": "Integral.doit"
+   },
+   {
+    "file": "sympy/integrals/tests/test_integrals.py",
+    "lines": "414",
+    "symbol": "test_issue_8623"
+   },
+   {
+    "file": "sympy/integrals/tests/test_integrals.py",
+    "lines": "419",
+    "symbol": "test_issue_9569"
+   },
+   {
+    "file": "sympy/integrals/tests/test_integrals.py",
+    "lines": "432",
+    "symbol": "test_issue_13749"
+   },
+   {
+    "file": "sympy/integrals/tests/test_integrals.py",
+    "lines": "435-540",
+    "symbol": "test_atan_floor_terms"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/integrals/integrals.py#Integral.doit",
+   "sympy/integrals/integrals.py#_add_atan_floor_terms",
+   "sympy/integrals/integrals.py#_atan_floor_correction",
+   "sympy/integrals/tests/test_integrals.py#test_atan_floor_terms",
+   "sympy/integrals/tests/test_integrals.py#test_issue_13749",
+   "sympy/integrals/tests/test_integrals.py#test_issue_8623",
+   "sympy/integrals/tests/test_integrals.py#test_issue_9569",
+   "sympy/integrals/integrals.py",
+   "sympy/integrals/tests/test_integrals.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "_add_atan_floor_terms return changed",
+    "path": [
+     "sympy/integrals/integrals.py:96 return",
+     "sympy/integrals/integrals.py:814 Integral.doit uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   },
+   {
+    "evidence": "static source path",
+    "from": "_atan_floor_correction return changed",
+    "path": [
+     "sympy/integrals/integrals.py:127 return",
+     "sympy/integrals/integrals.py:102 _add_atan_floor_terms uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 7,
+    "stored": 3
+   },
+   "budget": 300,
+   "candidates": 1152,
+   "ran": 1152,
+   "replayed": 4,
+   "runner": "pytest",
+   "seconds": 284.5,
+   "selection": {
+    "candidates": 12916,
+    "closure_files": 1321,
+    "closure_tests": 12887,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 29
+   },
+   "unrunnable": 0
+  },
+  "flip_trust": [
+   {
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_8623",
+    "label": "fails",
+    "reach": 41,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "why": "as the test was before the edit: failed again in every rerun; ran 41 changed line(s)"
+   },
+   {
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_9569",
+    "label": "fails",
+    "reach": 41,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "why": "as the test was before the edit: failed again in every rerun; ran 41 changed line(s)"
+   },
+   {
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_13749",
+    "label": "fails",
+    "reach": 41,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "why": "as the test was before the edit: failed again in every rerun; ran 41 changed line(s)"
+   }
+  ],
+  "flips": 3,
+  "gaps": [
+   "11764 lower-ranked candidate(s) not run: about 5 tests/s per process fit 1152 in the 300 s allowed",
+   "63879 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "replaying the change's own tests (before the change, pytest): no outcomes read: ImportError: cannot import name '_add_atan_floor_terms' from 'sympy.integrals.integrals' (/Users/Shared/amu-retro-2026-10-18/tmp/amu-shadow-fmhgzkdy/tree/sympy/integrals/integrals.py)",
+   "side-by-side: none of the 4 changed function(s) was called by the tests run on the code before the change"
+  ],
+  "impacted": {
+   "count": 5406,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1607,
+   "parsed_files": 2
+  },
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "original_tests": {
+   "sympy/integrals/tests/test_integrals.py::test_issue_13749": "failed",
+   "sympy/integrals/tests/test_integrals.py::test_issue_8623": "failed",
+   "sympy/integrals/tests/test_integrals.py::test_issue_9569": "failed",
+   "sympy/integrals/tests/test_integrals.py::test_subs2": "passed"
+  },
+  "predicted_failures": [
+   {
+    "after": "failed",
+    "before": "passed",
+    "edited_form": "passed",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_8623",
+    "label": "test edited, not fixed",
+    "reach": 41,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 41 changed line(s)"
+   },
+   {
+    "after": "failed",
+    "before": "passed",
+    "edited_form": "passed",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_9569",
+    "label": "test edited, not fixed",
+    "reach": 41,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 41 changed line(s)"
+   },
+   {
+    "after": "failed",
+    "before": "passed",
+    "edited_form": "passed",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_13749",
+    "label": "test edited, not fixed",
+    "reach": 41,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 41 changed line(s)"
+   }
+  ],
+  "replayed": [
+   {
+    "base": "unloadable",
+    "head": "passed",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_8623",
+    "verdict": "evidence"
+   },
+   {
+    "base": "unloadable",
+    "head": "passed",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_9569",
+    "verdict": "evidence"
+   },
+   {
+    "base": "unloadable",
+    "head": "passed",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_13749",
+    "verdict": "evidence"
+   },
+   {
+    "base": "unloadable",
+    "head": "passed",
+    "id": "sympy/integrals/tests/test_integrals.py::test_atan_floor_terms",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "d5c677e61d89",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 0,
+   "differences": 0,
+   "functions_called": 0,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "sympy/integrals/integrals.py#_add_atan_floor_terms": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/integrals/integrals.py#_atan_floor_correction": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/integrals/tests/test_integrals.py#test_atan_floor_terms": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 61.9,
+   "targets": 4,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 1152 of 1152 candidate tests after the change with pytest in 284.5 s, failures confirmed before it: 3 now fail. 6021 tests reach the change. 4 test(s) from edited test files also run as they were before the edit. 3 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 4 test(s) the change adds or edits replayed on the code before it: 4 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "executed",
+    "expect": "fails",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_13749",
+    "line": 0,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_issue_13749",
+    "score": 0.0,
+    "why": "failed when executed after the change"
+   },
+   {
+    "confidence": "executed",
+    "expect": "fails",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_9569",
+    "line": 0,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_issue_9569",
+    "score": 0.0,
+    "why": "failed when executed after the change"
+   },
+   {
+    "confidence": "executed",
+    "expect": "fails",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_8623",
+    "line": 0,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_issue_8623",
+    "score": 0.0,
+    "why": "failed when executed after the change"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/integrals/tests/test_integrals.py::test_atan_floor_terms",
+    "line": 435,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_atan_floor_terms",
+    "score": 5.358,
+    "why": "calls _add_atan_floor_terms (name: atan,floor,integral,term)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_doit_integrals",
+    "line": 1023,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_doit_integrals",
+    "score": 3.415,
+    "why": "calls Integral.doit (name: doit,integral)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_nested_doit",
+    "line": 999,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_nested_doit",
+    "score": 2.376,
+    "why": "calls Integral.doit (name: doit,integral)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_expr.py::test_doit",
+    "line": 760,
+    "run": "python -m pytest sympy/core/tests/test_expr.py::test_doit",
+    "score": 1.408,
+    "why": "calls Integral.doit (name: doit)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_subs5",
+    "line": 870,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_subs5",
+    "score": 1.26,
+    "why": "calls Integral.doit (name: integral)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_transform",
+    "line": 580,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_transform",
+    "score": 1.157,
+    "why": "calls Integral.doit (name: integral)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_4665",
+    "line": 1005,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_issue_4665",
+    "score": 1.075,
+    "why": "calls Integral.doit (name: integral)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_li_integral",
+    "line": 1819,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_li_integral",
+    "score": 1.017,
+    "why": "calls Integral.doit (name: integral)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_15218",
+    "line": 1693,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_issue_15218",
+    "score": 0.971,
+    "why": "calls Integral.doit (name: integral)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_integrate_SingularityFunction",
+    "line": 713,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_integrate_SingularityFunction",
+    "score": 0.935,
+    "why": "calls Integral.doit (name: integral)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/sandbox/tests/test_indexed_integrals.py::test_indexed_integrals",
+    "line": 8,
+    "run": "python -m pytest sympy/sandbox/tests/test_indexed_integrals.py::test_indexed_integrals",
+    "score": 0.905,
+    "why": "calls Integral.doit (name: integral)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_5167",
+    "line": 1177,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_issue_5167",
+    "score": 0.882,
+    "why": "calls Integral.doit (name: integral)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_2708",
+    "line": 1478,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_issue_2708",
+    "score": 0.861,
+    "why": "calls Integral.doit (name: integral)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_conjugate_transpose",
+    "line": 202,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_conjugate_transpose",
+    "score": 0.845,
+    "why": "calls Integral.doit (name: integral)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_10567",
+    "line": 1550,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_issue_10567",
+    "score": 0.832,
+    "why": "calls Integral.doit (name: integral)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_subscheck.py::test_checksysodesol",
+    "line": 78,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_subscheck.py::test_checksysodesol",
+    "score": 0.557,
+    "why": "calls Integral.doit"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/functions/elementary/tests/test_piecewise.py::test_issue_8919",
+    "line": 1262,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_piecewise.py::test_issue_8919",
+    "score": 0.545,
+    "why": "calls Integral.doit"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_heurisch.py::test_heurisch_issue_26922",
+    "line": 404,
+    "run": "python -m pytest sympy/integrals/tests/test_heurisch.py::test_heurisch_issue_26922",
+    "score": 0.54,
+    "why": "calls Integral.doit"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_series.py::test_issue_11313",
+    "line": 102,
+    "run": "python -m pytest sympy/series/tests/test_series.py::test_issue_11313",
+    "score": 0.533,
+    "why": "calls Integral.doit"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/vector/tests/test_printing.py::test_issue_23058",
+    "line": 207,
+    "run": "python -m pytest sympy/vector/tests/test_printing.py::test_issue_23058",
+    "score": 0.529,
+    "why": "calls Integral.doit"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/functions/elementary/tests/test_piecewise.py::test_issue_5227",
+    "line": 1038,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_piecewise.py::test_issue_5227",
+    "score": 0.526,
+    "why": "calls Integral.doit"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/utilities/tests/test_wester.py::test_W10",
+    "line": 2514,
+    "run": "python -m pytest sympy/utilities/tests/test_wester.py::test_W10",
+    "score": 0.518,
+    "why": "calls Integral.doit"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/utilities/tests/test_wester.py::test_W9",
+    "line": 2504,
+    "run": "python -m pytest sympy/utilities/tests/test_wester.py::test_W9",
+    "score": 0.516,
+    "why": "calls Integral.doit"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_manual.py::test_issue_23566",
+    "line": 1168,
+    "run": "python -m pytest sympy/integrals/tests/test_manual.py::test_issue_23566",
+    "score": 0.512,
+    "why": "calls Integral.doit"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_15566",
+    "line": 2355,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_issue_15566",
+    "score": 0.486,
+    "why": "via integrate > Integral.doit (name: integral)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_definite_integral_with_floats_issue_27231",
+    "line": 2287,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_definite_integral_with_floats_issue_27231",
+    "score": 0.481,
+    "why": "via integrate > Integral.doit (name: integral)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_integrate_Abs_sign",
+    "line": 807,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_integrate_Abs_sign",
+    "score": 0.48,
+    "why": "via integrate > Integral.doit (name: integral)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_integrate_poly_definite",
+    "line": 280,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_integrate_poly_definite",
+    "score": 0.48,
+    "why": "via integrate > Integral.doit (name: integral)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_failing_integrals.py::test_integrate_Piecewise_rational_over_reals",
+    "line": 226,
+    "run": "python -m pytest sympy/integrals/tests/test_failing_integrals.py::test_integrate_Piecewise_rational_over_reals",
+    "score": 0.477,
+    "why": "via integrate > Integral.doit (name: integral)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_15292",
+    "line": 1710,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_issue_15292",
+    "score": 0.476,
+    "why": "via integrate > Integral.doit (name: integral)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_15457",
+    "line": 1720,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_issue_15457",
+    "score": 0.476,
+    "why": "via integrate > Integral.doit (name: integral)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_8368i",
+    "line": 1498,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_issue_8368i",
+    "score": 0.475,
+    "why": "via integrate > Integral.doit (name: integral)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_integrate_max_min",
+    "line": 792,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_integrate_max_min",
+    "score": 0.473,
+    "why": "via integrate > Integral.doit (name: integral)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_23718",
+    "line": 2045,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_issue_23718",
+    "score": 0.472,
+    "why": "via integrate > Integral.doit (name: integral)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_27374",
+    "line": 2303,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_issue_27374",
+    "score": 0.472,
+    "why": "via integrate > Integral.doit (name: integral)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_21024",
+    "line": 1926,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_issue_21024",
+    "score": 0.471,
+    "why": "via integrate > Integral.doit (name: integral)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_4992",
+    "line": 1366,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_issue_4992",
+    "score": 0.471,
+    "why": "via integrate > Integral.doit (name: integral)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_25886",
+    "line": 2243,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_issue_25886",
+    "score": 0.47,
+    "why": "via integrate > Integral.doit (name: integral)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_failing_integrals.py::test_issue_4212_real",
+    "line": 31,
+    "run": "python -m pytest sympy/integrals/tests/test_failing_integrals.py::test_issue_4212_real",
+    "score": 0.47,
+    "why": "via integrate > Integral.doit (name: integral)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_integral_issue_26566",
+    "line": 2266,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_integral_issue_26566",
+    "score": 0.47,
+    "why": "via integrate > Integral.doit (name: integral)"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/integrals/tests/test_integrals.py",
+    "lines": "414",
+    "symbol": "test_issue_8623"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/integrals/tests/test_integrals.py",
+    "lines": "419",
+    "symbol": "test_issue_9569"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/integrals/tests/test_integrals.py",
+    "lines": "432",
+    "symbol": "test_issue_13749"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/integrals/tests/test_integrals.py",
+    "lines": "435-540",
+    "symbol": "test_atan_floor_terms"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792346404.4160051,
+  "job_seconds": 343.8,
+  "number": 30558,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 343.8,
+  "started": 1792346049.419564,
+  "verify_seconds": 9.1
+ },
+ "verify": {
+  "checked": 3,
+  "false": 0,
+  "held": 3,
+  "merge_base": "b8bc7724304a61606eccc5aabe88ee24df881d18",
+  "other": 0,
+  "problem": null,
+  "states": {
+   "sympy/integrals/tests/test_integrals.py::test_issue_13749": "passed",
+   "sympy/integrals/tests/test_integrals.py::test_issue_8623": "passed",
+   "sympy/integrals/tests/test_integrals.py::test_issue_9569": "passed"
+  },
+  "v": 1
+ }
+}

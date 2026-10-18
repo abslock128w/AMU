@@ -1,0 +1,605 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "d701e5949291fcff55903d13dd2b711d75d4ee42",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "dbe117d40300574959d9e4e0b6f188909209685c",
+  "install_ok": true,
+  "merge_base": "d701e5949291fcff55903d13dd2b711d75d4ee42",
+  "pr": 30596,
+  "recording": false,
+  "runner": null,
+  "seconds": 279.6,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "d701e5949291fcff55903d13dd2b711d75d4ee42",
+  "head_sha": "dbe117d40300574959d9e4e0b6f188909209685c",
+  "merge_base": "d701e5949291fcff55903d13dd2b711d75d4ee42",
+  "merged_at": "2026-09-28T15:33:22Z",
+  "number": 30596,
+  "repo": "sympy",
+  "title": "Handle symbol-independent relationals in solveset"
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 1,
+  "called": 1,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_30584",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/solvers/tests/test_solveset.py::test_solveset_symbol_independent_relational",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/solvers/tests/test_solveset.py::test_solveset_symbol_independent_relational_after_expansion",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/solvers/solveset.py",
+    "lines": "1273-1282",
+    "symbol": "_solveset"
+   },
+   {
+    "file": "sympy/solvers/tests/test_solveset.py",
+    "lines": "3764-3769",
+    "symbol": "test_issue_30584"
+   },
+   {
+    "file": "sympy/solvers/tests/test_solveset.py",
+    "lines": "3772-3779",
+    "symbol": "test_solveset_symbol_independent_relational"
+   },
+   {
+    "file": "sympy/solvers/tests/test_solveset.py",
+    "lines": "3782-3796",
+    "symbol": "test_solveset_symbol_independent_relational_after_expansion"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/solvers/solveset.py#_solveset",
+   "sympy/solvers/tests/test_solveset.py#test_issue_30584",
+   "sympy/solvers/tests/test_solveset.py#test_solveset_symbol_independent_relational",
+   "sympy/solvers/tests/test_solveset.py#test_solveset_symbol_independent_relational_after_expansion",
+   "sympy/solvers/tests/test_solveset.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "_solveset return changed",
+    "path": [
+     "sympy/solvers/solveset.py:1277 return",
+     "sympy/solvers/solveset.py:790 _solve_as_rational uses the result",
+     "sympy/solvers/solveset.py:1810 _solve_exponential uses the result",
+     "sympy/solvers/solveset.py:1979 _solve_logarithm uses the result"
+    ],
+    "to": "5 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 3,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 552,
+   "ran": 552,
+   "replayed": 3,
+   "runner": "pytest",
+   "seconds": 260.0,
+   "selection": {
+    "candidates": 12912,
+    "closure_files": 1321,
+    "closure_tests": 12911,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 1
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "12360 lower-ranked candidate(s) not run: about 2 tests/s per process fit 552 in the 300 s allowed",
+   "69573 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "Skipped 1 non-Python file(s)",
+   "graph reused from the previous state; 6 changed file(s) relinked"
+  ],
+  "impacted": {
+   "count": 1305,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1607,
+   "parsed_files": 2
+  },
+  "original_tests": {
+   "sympy/solvers/tests/test_solveset.py::test_garbage_input": "passed",
+   "sympy/solvers/tests/test_solveset.py::test_issue_10397": "passed",
+   "sympy/solvers/tests/test_solveset.py::test_issue_11536": "passed",
+   "sympy/solvers/tests/test_solveset.py::test_issue_17580": "passed",
+   "sympy/solvers/tests/test_solveset.py::test_issue_20097": "passed",
+   "sympy/solvers/tests/test_solveset.py::test_issue_9556": "passed",
+   "sympy/solvers/tests/test_solveset.py::test_issue_9611": "passed",
+   "sympy/solvers/tests/test_solveset.py::test_issue_9849": "passed",
+   "sympy/solvers/tests/test_solveset.py::test_sol_zero_real": "passed",
+   "sympy/solvers/tests/test_solveset.py::test_solve_quintics": "skipped",
+   "sympy/solvers/tests/test_solveset.py::test_solveset_real_gen_is_pow": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_30584",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/solvers/tests/test_solveset.py::test_solveset_symbol_independent_relational",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/solvers/tests/test_solveset.py::test_solveset_symbol_independent_relational_after_expansion",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "7d169db0025e",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [
+    "sympy/solvers/solveset.py#_solveset"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 5,
+   "differences": 0,
+   "functions_called": 1,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "sympy/solvers/tests/test_solveset.py#test_issue_30584": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/solvers/tests/test_solveset.py#test_solveset_symbol_independent_relational": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/solvers/tests/test_solveset.py#test_solveset_symbol_independent_relational_after_expansion": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 34.4,
+   "targets": 1,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 552 of 552 candidate tests after the change with pytest in 260.0 s, failures confirmed before it: 0 now fail. 2140 tests reach the change. 11 test(s) from edited test files also run as they were before the edit. 3 test(s) the change adds or edits replayed on the code before it: 3 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solveset.py::test_solveset_symbol_independent_relational",
+    "line": 3772,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_solveset_symbol_independent_relational",
+    "score": 2.294,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solveset.py::test_solveset_symbol_independent_relational_after_expansion",
+    "line": 3782,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_solveset_symbol_independent_relational_after_expansion",
+    "score": 1.434,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_solve_trig",
+    "line": 931,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_solve_trig",
+    "score": 0.97,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_integer_domain_relational",
+    "line": 2820,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_integer_domain_relational",
+    "score": 0.766,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_exponential_real",
+    "line": 3045,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_exponential_real",
+    "score": 0.651,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_solve_modular",
+    "line": 3353,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_solve_modular",
+    "score": 0.6,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_solve_trig_hyp_symbolic",
+    "line": 1242,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_solve_trig_hyp_symbolic",
+    "score": 0.566,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_solve_abs",
+    "line": 736,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_solve_abs",
+    "score": 0.548,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_solve_exponential",
+    "line": 3202,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_solve_exponential",
+    "score": 0.54,
+    "why": "via _solve_exponential > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_solve_hyperbolic",
+    "line": 1199,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_solve_hyperbolic",
+    "score": 0.537,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_solve_trig_hyp_by_inversion",
+    "line": 1025,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_solve_trig_hyp_by_inversion",
+    "score": 0.523,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_exponential_symbols",
+    "line": 3142,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_exponential_symbols",
+    "score": 0.515,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_11534",
+    "line": 2874,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_issue_11534",
+    "score": 0.514,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_21236",
+    "line": 3665,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_issue_21236",
+    "score": 0.514,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_old_trig_issues",
+    "line": 1130,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_old_trig_issues",
+    "score": 0.514,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solveset.py::test_garbage_input",
+    "line": 395,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_garbage_input",
+    "score": 0.507,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_30584",
+    "line": 3764,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_issue_30584",
+    "score": 0.507,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_9556",
+    "line": 2732,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_issue_9556",
+    "score": 0.507,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_9778",
+    "line": 2750,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_issue_9778",
+    "score": 0.507,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_conditionset",
+    "line": 1523,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_conditionset",
+    "score": 0.503,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_conditionset_equality",
+    "line": 1543,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_conditionset_equality",
+    "score": 0.503,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_expo_conditionset",
+    "line": 3122,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_expo_conditionset",
+    "score": 0.503,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_improve_coverage",
+    "line": 1555,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_improve_coverage",
+    "score": 0.503,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_10555",
+    "line": 2846,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_issue_10555",
+    "score": 0.503,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_19506",
+    "line": 2950,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_issue_19506",
+    "score": 0.503,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_10214",
+    "line": 2759,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_issue_10214",
+    "score": 0.497,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_10876",
+    "line": 2383,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_issue_10876",
+    "score": 0.497,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_11184",
+    "line": 3736,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_issue_11184",
+    "score": 0.497,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_11536",
+    "line": 287,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_issue_11536",
+    "score": 0.497,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_12478",
+    "line": 2936,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_issue_12478",
+    "score": 0.497,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_13396",
+    "line": 2345,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_issue_13396",
+    "score": 0.497,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_14223",
+    "line": 2978,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_issue_14223",
+    "score": 0.497,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_17580",
+    "line": 3628,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_issue_17580",
+    "score": 0.497,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_20097",
+    "line": 3604,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_issue_20097",
+    "score": 0.497,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_9522",
+    "line": 1561,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_issue_9522",
+    "score": 0.497,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_9849",
+    "line": 2769,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_issue_9849",
+    "score": 0.497,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_no_sol",
+    "line": 679,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_no_sol",
+    "score": 0.497,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_solveset",
+    "line": 1411,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_solveset",
+    "score": 0.497,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_solveset_real_exp",
+    "line": 898,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_solveset_real_exp",
+    "score": 0.497,
+    "why": "via solveset > _solveset (name: solveset)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_solveset_domain",
+    "line": 1549,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_solveset_domain",
+    "score": 0.492,
+    "why": "via solveset > _solveset (name: solveset)"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/solvers/tests/test_solveset.py",
+    "lines": "3764-3769",
+    "symbol": "test_issue_30584"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/solvers/tests/test_solveset.py",
+    "lines": "3772-3779",
+    "symbol": "test_solveset_symbol_independent_relational"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/solvers/tests/test_solveset.py",
+    "lines": "3782-3796",
+    "symbol": "test_solveset_symbol_independent_relational_after_expansion"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792334976.830834,
+  "job_seconds": 279.6,
+  "number": 30596,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 279.9,
+  "started": 1792334696.266464
+ },
+ "verify": null
+}

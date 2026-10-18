@@ -1,0 +1,694 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "5ffd63560782f128df7632433b88bc144998087d",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "9fa6372fb5755660375052cc41a131e174d73fa7",
+  "install_ok": true,
+  "merge_base": "5ffd63560782f128df7632433b88bc144998087d",
+  "pr": 28853,
+  "recording": false,
+  "runner": null,
+  "seconds": 649.0,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "5ffd63560782f128df7632433b88bc144998087d",
+  "head_sha": "9fa6372fb5755660375052cc41a131e174d73fa7",
+  "merge_base": "5ffd63560782f128df7632433b88bc144998087d",
+  "merged_at": "2026-09-27T12:50:11Z",
+  "number": 28853,
+  "repo": "sympy",
+  "title": "agglomerate singleton matrices together in Kronecker product"
+ },
+ "probe_minutes": {
+  "end": 1792333982.948332,
+  "minutes": 0.4,
+  "start": 1792333540.253587,
+  "waited": 420.84830941600376
+ },
+ "probe_targets": {
+  "all": 1,
+  "called": 0,
+  "targets": [
+   {
+    "after": "def test_issue_15560():\n    a = MatrixSymbol('a', 1, 1)\n    e = pretty(MatMul(a, KroneckerProduct(a, a)))\n    result = 'a*(a x a)'\n    assert e == result\n",
+    "before": "def test_issue_15560():\n    a = MatrixSymbol('a', 1, 1)\n    e = pretty(a*(KroneckerProduct(a, a)))\n    result = 'a*(a x a)'\n    assert e == result\n",
+    "file": "sympy/printing/pretty/tests/test_pretty.py",
+    "id": "sympy/printing/pretty/tests/test_pretty.py#test_issue_15560",
+    "name": "test_issue_15560",
+    "qual": "test_issue_15560",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "return",
+      "list",
+      "[' 3\\na ', 'KroneckerProduct(a, a)']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['a*(a x a)', 'KroneckerProduct(a, a)']"
+     ],
+     "call": "[pretty(a*KroneckerProduct(a, a)), str(KroneckerProduct(a, a))]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import KroneckerProduct, MatrixSymbol, pretty\na = MatrixSymbol('a', 1, 1)",
+     "target": "sympy/printing/pretty/tests/test_pretty.py#test_issue_15560",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import KroneckerProduct, MatrixSymbol, pretty\n    a = MatrixSymbol('a', 1, 1)\n    assert repr([pretty(a*KroneckerProduct(a, a)), str(KroneckerProduct(a, a))]) == \"[' 3\\\\na ', 'KroneckerProduct(a, a)']\"\n",
+     "why": "the expression the edited test stopped building with *, since singleton Kronecker products now combine"
+    }
+   ],
+   "dollars_cap": 0.1,
+   "filter_seconds": 17.1,
+   "gaps": [],
+   "info": {
+    "accepted": 1,
+    "compiled": 1,
+    "cost": 0.0,
+    "differed": 1,
+    "dollars_cap": 0.1,
+    "functions": 1,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 1,
+    "ran": 1,
+    "reached": 1,
+    "requests": 1,
+    "seconds": 16.5,
+    "stable": 1
+   },
+   "probes": [
+    {
+     "call": "[pretty(a*KroneckerProduct(a, a)), str(KroneckerProduct(a, a))]",
+     "function": "sympy/printing/pretty/tests/test_pretty.py#test_issue_15560",
+     "setup": "from sympy import KroneckerProduct, MatrixSymbol, pretty\na = MatrixSymbol('a', 1, 1)",
+     "why": "the expression the edited test stopped building with *, since singleton Kronecker products now combine"
+    }
+   ],
+   "targets": [
+    "sympy/printing/pretty/tests/test_pretty.py#test_issue_15560"
+   ],
+   "waited_seconds": 420.8
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/matrices/expressions/tests/test_kronecker.py::test_KroneckerProduct_singletons",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/matrices/expressions/kronecker.py",
+    "lines": "358-360",
+    "symbol": "_has_commutative_entries"
+   },
+   {
+    "file": "sympy/matrices/expressions/kronecker.py",
+    "lines": "363-377",
+    "symbol": "kronecker_product_extract_singleton_matrices"
+   },
+   {
+    "file": "sympy/matrices/expressions/tests/test_kronecker.py",
+    "lines": "191-212",
+    "symbol": "test_KroneckerProduct_singletons"
+   },
+   {
+    "file": "sympy/printing/pretty/tests/test_pretty.py",
+    "lines": "7921",
+    "symbol": "test_issue_15560"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/matrices/expressions/kronecker.py#_has_commutative_entries",
+   "sympy/matrices/expressions/kronecker.py#kronecker_product_extract_singleton_matrices",
+   "sympy/matrices/expressions/kronecker.py#rules",
+   "sympy/matrices/expressions/tests/test_kronecker.py#test_KroneckerProduct_singletons",
+   "sympy/printing/pretty/tests/test_pretty.py#test_issue_15560",
+   "sympy/matrices/expressions/kronecker.py",
+   "sympy/matrices/expressions/tests/test_kronecker.py",
+   "sympy/printing/pretty/tests/test_pretty.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "_has_commutative_entries return changed",
+    "path": [
+     "sympy/matrices/expressions/kronecker.py:359 return",
+     "sympy/matrices/expressions/kronecker.py:369 kronecker_product_extract_singleton_matrices uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 3,
+    "stored": 2
+   },
+   "budget": 300,
+   "candidates": 792,
+   "ran": 760,
+   "replayed": 2,
+   "runner": "pytest",
+   "seconds": 435.8,
+   "selection": {
+    "candidates": 12913,
+    "closure_files": 1321,
+    "closure_tests": 12911,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 2
+   },
+   "unrunnable": 0
+  },
+  "flip_trust": [
+   {
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_issue_15560",
+    "label": "fails",
+    "reach": 15,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "why": "as the test was before the edit: failed again in every rerun; ran 15 changed line(s)"
+   }
+  ],
+  "flips": 1,
+  "gaps": [
+   "12121 lower-ranked candidate(s) not run: about 3 tests/s per process fit 792 in the 300 s allowed",
+   "63941 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "shadow run stopped at its 300 s budget: 760 of 792 candidates run",
+   "side-by-side: none of the 1 changed function(s) was called by the tests run on the code before the change"
+  ],
+  "impacted": {
+   "count": 2176,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1607,
+   "parsed_files": 4
+  },
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "original_tests": {
+   "sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions": "passed",
+   "sympy/printing/pretty/tests/test_pretty.py::test_Mul": "passed",
+   "sympy/printing/pretty/tests/test_pretty.py::test_issue_15560": "failed",
+   "sympy/printing/pretty/tests/test_pretty.py::test_tensor_ArrayElementwiseApplyFunc": "passed"
+  },
+  "predicted_failures": [
+   {
+    "after": "failed",
+    "before": "passed",
+    "edited_form": "passed",
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_issue_15560",
+    "label": "test edited, not fixed",
+    "reach": 15,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 15 changed line(s)"
+   }
+  ],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/matrices/expressions/tests/test_kronecker.py::test_KroneckerProduct_singletons",
+    "verdict": "evidence"
+   },
+   {
+    "base": "passed",
+    "head": "passed",
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_issue_15560",
+    "verdict": "none"
+   }
+  ],
+  "report_hash": "7ec8ceb9e495",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 0,
+   "differences": 0,
+   "functions_called": 0,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "sympy/matrices/expressions/kronecker.py#_has_commutative_entries": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/matrices/expressions/kronecker.py#kronecker_product_extract_singleton_matrices": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/matrices/expressions/tests/test_kronecker.py#test_KroneckerProduct_singletons": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 98.8,
+   "targets": 1,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 760 of 792 candidate tests after the change with pytest in 435.8 s, failures confirmed before it: 1 now fail. 2703 tests reach the change. 4 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 2 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "executed",
+    "expect": "fails",
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_issue_15560",
+    "line": 0,
+    "run": "python -m pytest sympy/printing/pretty/tests/test_pretty.py::test_issue_15560",
+    "score": 0.0,
+    "why": "failed when executed after the change"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/matrices/expressions/tests/test_kronecker.py::test_KroneckerProduct_singletons",
+    "line": 191,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_kronecker.py::test_KroneckerProduct_singletons",
+    "score": 1.448,
+    "why": "via KroneckerProduct.doit > canonicalize > kronecker_product_extract_singleton_matrices (name: kronecker,product,singleton)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_kronecker.py::test_KroneckerProduct_extracts_commutative_part",
+    "line": 103,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_kronecker.py::test_KroneckerProduct_extracts_commutative_part",
+    "score": 0.559,
+    "why": "via kronecker_product > KroneckerProduct.doit > canonicalize > kronecker_product_extract_singleton_matrices (name: extract,kronecker,product)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_kronecker.py::test_KroneckerProduct_combine_mul",
+    "line": 119,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_kronecker.py::test_KroneckerProduct_combine_mul",
+    "score": 0.384,
+    "why": "via kronecker_product > KroneckerProduct.doit > canonicalize > rules (name: kronecker)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_kronecker.py::test_tensor_product_adjoint",
+    "line": 55,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_kronecker.py::test_tensor_product_adjoint",
+    "score": 0.331,
+    "why": "via kronecker_product > KroneckerProduct.doit > canonicalize > rules (name: kronecker)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_kronecker.py::test_tensor_product_conjugate",
+    "line": 62,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_kronecker.py::test_tensor_product_conjugate",
+    "score": 0.293,
+    "why": "via kronecker_product > KroneckerProduct.doit > canonicalize > rules (name: kronecker)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_kronecker.py::test_tensor_product_transpose",
+    "line": 69,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_kronecker.py::test_tensor_product_transpose",
+    "score": 0.266,
+    "why": "via kronecker_product > KroneckerProduct.doit > canonicalize > rules (name: kronecker)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_kronecker.py::test_KroneckerProduct_combine_add",
+    "line": 113,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_kronecker.py::test_KroneckerProduct_combine_add",
+    "score": 0.24,
+    "why": "via kronecker_product > KroneckerProduct.doit > canonicalize > rules (name: kronecker)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_kronecker.py::test_KroneckerProduct_determinant",
+    "line": 88,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_kronecker.py::test_KroneckerProduct_determinant",
+    "score": 0.226,
+    "why": "via kronecker_product > KroneckerProduct.doit > canonicalize > rules (name: kronecker)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_kronecker.py::test_KroneckerProduct_inverse",
+    "line": 108,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_kronecker.py::test_KroneckerProduct_inverse",
+    "score": 0.215,
+    "why": "via kronecker_product > KroneckerProduct.doit > canonicalize > rules (name: kronecker)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_kronecker.py::test_KroneckerProduct_is_associative",
+    "line": 76,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_kronecker.py::test_KroneckerProduct_is_associative",
+    "score": 0.207,
+    "why": "via kronecker_product > KroneckerProduct.doit > canonicalize > rules (name: kronecker)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_kronecker.py::test_KroneckerProduct_is_bilinear",
+    "line": 83,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_kronecker.py::test_KroneckerProduct_is_bilinear",
+    "score": 0.201,
+    "why": "via kronecker_product > KroneckerProduct.doit > canonicalize > rules (name: kronecker)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_kronecker.py::test_KroneckerProduct_trace",
+    "line": 93,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_kronecker.py::test_KroneckerProduct_trace",
+    "score": 0.197,
+    "why": "via kronecker_product > KroneckerProduct.doit > canonicalize > rules (name: kronecker)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_kronecker.py::test_KroneckerProduct_combine_add_numeric",
+    "line": 148,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_kronecker.py::test_KroneckerProduct_combine_add_numeric",
+    "score": 0.167,
+    "why": "via KroneckerProduct.doit > canonicalize > rules (name: kronecker)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_products.py::test_KroneckerDelta_Product",
+    "line": 399,
+    "run": "python -m pytest sympy/concrete/tests/test_products.py::test_KroneckerDelta_Product",
+    "score": 0.161,
+    "why": "via KroneckerProduct.doit > canonicalize > rules (name: kronecker)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/vector/tests/test_field_functions.py::test_product_rules",
+    "line": 154,
+    "run": "python -m pytest sympy/vector/tests/test_field_functions.py::test_product_rules",
+    "score": 0.134,
+    "why": "via KroneckerProduct.doit > canonicalize > rules (name: rule)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/tests/test_matrices.py::test_power",
+    "line": 291,
+    "run": "python -m pytest sympy/matrices/tests/test_matrices.py::test_power",
+    "score": 0.117,
+    "why": "via KroneckerProduct.doit > canonicalize > kronecker_product_extract_singleton_matrices (name: matrice)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_diagonal.py::test_DiagMatrix",
+    "line": 95,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_diagonal.py::test_DiagMatrix",
+    "score": 0.11,
+    "why": "via KroneckerProduct.doit > canonicalize > kronecker_product_extract_singleton_matrices"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/physics/quantum/tests/test_operator.py::test_outer_product",
+    "line": 121,
+    "run": "python -m pytest sympy/physics/quantum/tests/test_operator.py::test_outer_product",
+    "score": 0.109,
+    "why": "via KroneckerProduct.doit > canonicalize > kronecker_product_extract_singleton_matrices (name: product)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_matadd.py::test_matadd_of_matrices",
+    "line": 25,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_matadd.py::test_matadd_of_matrices",
+    "score": 0.107,
+    "why": "via KroneckerProduct.doit > canonicalize > kronecker_product_extract_singleton_matrices (name: matrice)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_tensor_product_scalar_coefficients",
+    "line": 239,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_tensor_product_scalar_coefficients",
+    "score": 0.105,
+    "why": "via KroneckerProduct.doit > canonicalize > kronecker_product_extract_singleton_matrices (name: product)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/concrete/tests/test_sums_products.py::test_issue_28721",
+    "line": 1546,
+    "run": "python -m pytest sympy/concrete/tests/test_sums_products.py::test_issue_28721",
+    "score": 0.105,
+    "why": "via KroneckerProduct.doit > canonicalize > kronecker_product_extract_singleton_matrices (name: product)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/matrices/expressions/tests/test_applyfunc.py::test_applyfunc_matrix",
+    "line": 24,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_applyfunc.py::test_applyfunc_matrix",
+    "score": 0.104,
+    "why": "via KroneckerProduct.doit > canonicalize > kronecker_product_extract_singleton_matrices"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/tests/test_matrixbase.py::test_power",
+    "line": 1043,
+    "run": "python -m pytest sympy/matrices/tests/test_matrixbase.py::test_power",
+    "score": 0.103,
+    "why": "via KroneckerProduct.doit > canonicalize > kronecker_product_extract_singleton_matrices"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_sums_products.py::test_Sum_doit",
+    "line": 632,
+    "run": "python -m pytest sympy/concrete/tests/test_sums_products.py::test_Sum_doit",
+    "score": 0.102,
+    "why": "via KroneckerProduct.doit > canonicalize > kronecker_product_extract_singleton_matrices (name: product)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_derivatives.py::test_matrix_derivatives_of_traces",
+    "line": 242,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_derivatives.py::test_matrix_derivatives_of_traces",
+    "score": 0.102,
+    "why": "via KroneckerProduct.doit > canonicalize > kronecker_product_extract_singleton_matrices"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/matrices/expressions/tests/test_trace.py::test_Trace",
+    "line": 21,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_trace.py::test_Trace",
+    "score": 0.101,
+    "why": "via KroneckerProduct.doit > canonicalize > kronecker_product_extract_singleton_matrices"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_sums_products.py::test_expand_with_assumptions",
+    "line": 1355,
+    "run": "python -m pytest sympy/concrete/tests/test_sums_products.py::test_expand_with_assumptions",
+    "score": 0.101,
+    "why": "via KroneckerProduct.doit > canonicalize > kronecker_product_extract_singleton_matrices (name: product)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_sums_products.py::test_issue_14640",
+    "line": 1232,
+    "run": "python -m pytest sympy/concrete/tests/test_sums_products.py::test_issue_14640",
+    "score": 0.101,
+    "why": "via KroneckerProduct.doit > canonicalize > kronecker_product_extract_singleton_matrices (name: product)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_simplify.py::test_nc_simplify",
+    "line": 844,
+    "run": "python -m pytest sympy/simplify/tests/test_simplify.py::test_nc_simplify",
+    "score": 0.1,
+    "why": "via test_nc_simplify._check > KroneckerProduct.doit > canonicalize > kronecker_product_extract_singleton_matrices"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/stats/tests/test_stochastic_process.py::test_DiscreteMarkovChain",
+    "line": 40,
+    "run": "python -m pytest sympy/stats/tests/test_stochastic_process.py::test_DiscreteMarkovChain",
+    "score": 0.1,
+    "why": "via KroneckerProduct.doit > canonicalize > kronecker_product_extract_singleton_matrices"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_sums_products.py::test_Sum_interface",
+    "line": 686,
+    "run": "python -m pytest sympy/concrete/tests/test_sums_products.py::test_Sum_interface",
+    "score": 0.1,
+    "why": "via KroneckerProduct.doit > canonicalize > kronecker_product_extract_singleton_matrices (name: product)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_sums_products.py::test_arithmetic_sums",
+    "line": 235,
+    "run": "python -m pytest sympy/concrete/tests/test_sums_products.py::test_arithmetic_sums",
+    "score": 0.1,
+    "why": "via KroneckerProduct.doit > canonicalize > kronecker_product_extract_singleton_matrices (name: product)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_sums_products.py::test_simple_products",
+    "line": 498,
+    "run": "python -m pytest sympy/concrete/tests/test_sums_products.py::test_simple_products",
+    "score": 0.1,
+    "why": "via KroneckerProduct.doit > canonicalize > kronecker_product_extract_singleton_matrices (name: product)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_sums_products.py::test_failing_matrix_sum",
+    "line": 1043,
+    "run": "python -m pytest sympy/concrete/tests/test_sums_products.py::test_failing_matrix_sum",
+    "score": 0.099,
+    "why": "via KroneckerProduct.doit > canonicalize > kronecker_product_extract_singleton_matrices (name: product)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_sums_products.py::test_matrix_sum",
+    "line": 1030,
+    "run": "python -m pytest sympy/concrete/tests/test_sums_products.py::test_matrix_sum",
+    "score": 0.099,
+    "why": "via KroneckerProduct.doit > canonicalize > kronecker_product_extract_singleton_matrices (name: product)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_sums_products.py::test_matrixsymbol_summation_numerical_limits",
+    "line": 1521,
+    "run": "python -m pytest sympy/concrete/tests/test_sums_products.py::test_matrixsymbol_summation_numerical_limits",
+    "score": 0.099,
+    "why": "via KroneckerProduct.doit > canonicalize > kronecker_product_extract_singleton_matrices (name: product)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_sums_products.py::test_matrixsymbol_summation_symbolic_limits",
+    "line": 1557,
+    "run": "python -m pytest sympy/concrete/tests/test_sums_products.py::test_matrixsymbol_summation_symbolic_limits",
+    "score": 0.099,
+    "why": "via KroneckerProduct.doit > canonicalize > kronecker_product_extract_singleton_matrices (name: product)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_convert_matrix_to_array_matpow_composite_base",
+    "line": 159,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_convert_matrix_to_array_matpow_composite_base",
+    "score": 0.098,
+    "why": "via KroneckerProduct.doit > canonicalize > kronecker_product_extract_singleton_matrices"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/matrices/expressions/tests/test_hadamard.py::test_hadamard",
+    "line": 63,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_hadamard.py::test_hadamard",
+    "score": 0.098,
+    "why": "via KroneckerProduct.doit > canonicalize > kronecker_product_extract_singleton_matrices"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/tensor/tests/test_tensor.py::test_tensor_expand",
+    "line": 1903,
+    "run": "python -m pytest sympy/tensor/tests/test_tensor.py::test_tensor_expand",
+    "score": 0.098,
+    "why": "via KroneckerProduct.doit > canonicalize > kronecker_product_extract_singleton_matrices"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/matrices/expressions/tests/test_kronecker.py",
+    "lines": "191-212",
+    "symbol": "test_KroneckerProduct_singletons"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/printing/pretty/tests/test_pretty.py",
+    "lines": "7921",
+    "symbol": "test_issue_15560"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792333458.2681768,
+  "job_seconds": 649.0,
+  "number": 28853,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 649.3,
+  "started": 1792332798.299684,
+  "verify_seconds": 8.7
+ },
+ "verify": {
+  "checked": 1,
+  "false": 0,
+  "held": 1,
+  "merge_base": "5ffd63560782f128df7632433b88bc144998087d",
+  "other": 0,
+  "problem": null,
+  "states": {
+   "sympy/printing/pretty/tests/test_pretty.py::test_issue_15560": "passed"
+  },
+  "v": 1
+ }
+}

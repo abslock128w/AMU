@@ -1,0 +1,858 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "05008308547b4897a5e62cef1be301ee7f280ff0",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "99c830a6eb7dc032e5180bd0ea12894e853a86b9",
+  "install_ok": true,
+  "merge_base": "05008308547b4897a5e62cef1be301ee7f280ff0",
+  "pr": 30572,
+  "recording": false,
+  "runner": null,
+  "seconds": 225.3,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "05008308547b4897a5e62cef1be301ee7f280ff0",
+  "head_sha": "99c830a6eb7dc032e5180bd0ea12894e853a86b9",
+  "merge_base": "05008308547b4897a5e62cef1be301ee7f280ff0",
+  "merged_at": "2026-09-23T23:10:18Z",
+  "number": 30572,
+  "repo": "sympy",
+  "title": "printing: elementwise function application notation for array expressions"
+ },
+ "probe_minutes": {
+  "end": 1792330609.356329,
+  "minutes": 0.6,
+  "start": 1792330138.082918,
+  "waited": 435.2724710409966
+ },
+ "probe_targets": {
+  "all": 4,
+  "called": 0,
+  "targets": [
+   {
+    "after": "def _print_ElementwiseApplyFunction(self, expr):\n    return r\"{%s}_{\\circ}\\left({%s}\\right)\" % (\n        self._print(elementwise_function(expr.function)),\n        self._print(expr.expr),\n    )\n",
+    "before": "def _print_ElementwiseApplyFunction(self, expr):\n    return r\"{%s}_{\\circ}\\left({%s}\\right)\" % (\n        self._print(expr.function),\n        self._print(expr.expr),\n    )\n",
+    "file": "sympy/printing/latex.py",
+    "id": "sympy/printing/latex.py#LatexPrinter._print_ElementwiseApplyFunction",
+    "name": "_print_ElementwiseApplyFunction",
+    "qual": "LatexPrinter._print_ElementwiseApplyFunction",
+    "signature_changed": false
+   },
+   {
+    "after": "def _print_ElementwiseApplyFunction(self, e):\n    func = elementwise_function(e.function)\n    arg = e.expr\n    args = [arg]\n    return self._helper_print_function(func, args, delimiter=\"\", elementwise=True)\n",
+    "before": "def _print_ElementwiseApplyFunction(self, e):\n    func = e.function\n    arg = e.expr\n    args = [arg]\n    return self._helper_print_function(func, args, delimiter=\"\", elementwise=True)\n",
+    "file": "sympy/printing/pretty/pretty.py",
+    "id": "sympy/printing/pretty/pretty.py#PrettyPrinter._print_ElementwiseApplyFunction",
+    "name": "_print_ElementwiseApplyFunction",
+    "qual": "PrettyPrinter._print_ElementwiseApplyFunction",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_MatrixExpressions():\n    n = Symbol('n', integer=True)\n    X = MatrixSymbol('X', n, n)\n\n    assert pretty(X) == upretty(X) == \"X\"\n\n    # Apply function elementwise (`ElementwiseApplyFunc`):\n\n    expr = (X.T*X).applyfunc(sin)\n\n    ascii_str = \"\"\"\\\n    / T  \\\\\\n\\\nsin.\\\\X *X/\\\n\"\"\"\n    ucode_str = \"\"\"\\\n    \u239b T  \u239e\\n\\\nsin\u02f3\u239dX \u22c5X\u23a0\\\n\"\"\"\n    assert pretty(expr) == ascii_str\n    assert upretty(expr) == ucode_str\n\n    lamda = Lambda(x, 1/x)\n    expr = (n*X).applyfunc(lamda)\n    ascii_str = \"\"\"\\\n/     1\\\\      \\n\\\n|x -> -|.(n*X)\\n\\\n\\\\     x/      \\\n\"\"\"\n    ucode_str = \"\"\"\\\n\u239b    1\u239e      \\n\\\n\u239cx \u21a6 \u2500\u239f\u02f3(n\u22c5X)\\n\\\n\u239d    x\u23a0      \\\n\"\"\"\n    assert pretty(expr) == ascii_str\n    assert upretty(expr) == ucode_str\n",
+    "before": "def test_MatrixExpressions():\n    n = Symbol('n', integer=True)\n    X = MatrixSymbol('X', n, n)\n\n    assert pretty(X) == upretty(X) == \"X\"\n\n    # Apply function elementwise (`ElementwiseApplyFunc`):\n\n    expr = (X.T*X).applyfunc(sin)\n\n    ascii_str = \"\"\"\\\n              / T  \\\\\\n\\\n(d -> sin(d)).\\\\X *X/\\\n\"\"\"\n    ucode_str = \"\"\"\\\n             \u239b T  \u239e\\n\\\n(d \u21a6 sin(d))\u02f3\u239dX \u22c5X\u23a0\\\n\"\"\"\n    assert pretty(expr) == ascii_str\n    assert upretty(expr) == ucode_str\n\n    lamda = Lambda(x, 1/x)\n    expr = (n*X).applyfunc(lamda)\n    ascii_str = \"\"\"\\\n/     1\\\\      \\n\\\n|x -> -|.(n*X)\\n\\\n\\\\     x/      \\\n\"\"\"\n    ucode_str = \"\"\"\\\n\u239b    1\u239e      \\n\\\n\u239cx \u21a6 \u2500\u239f\u02f3(n\u22c5X)\\n\\\n\u239d    x\u23a0      \\\n\"\"\"\n    assert pretty(expr) == ascii_str\n    assert upretty(expr) == ucode_str\n",
+    "file": "sympy/printing/pretty/tests/test_pretty.py",
+    "id": "sympy/printing/pretty/tests/test_pretty.py#test_MatrixExpressions",
+    "name": "test_MatrixExpressions",
+    "qual": "test_MatrixExpressions",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_ElementwiseApplyFunction():\n    X = MatrixSymbol('X', 2, 2)\n    expr = (X.T*X).applyfunc(sin)\n    assert latex(expr) == r\"{\\sin}_{\\circ}\\left({X^{T} X}\\right)\"\n    assert latex(X.applyfunc(exp)) == r\"{\\exp}_{\\circ}\\left({X}\\right)\"\n    expr = X.applyfunc(Lambda(x, 1/x))\n    assert latex(expr) == r'{\\left( x \\mapsto \\frac{1}{x} \\right)}_{\\circ}\\left({X}\\right)'\n    expr = X.applyfunc(Lambda(x, Function(\"g\")(x, 1)))\n    assert latex(expr) == r'{\\left( x \\mapsto g{\\left(x,1 \\right)} \\right)}_{\\circ}\\left({X}\\right)'\n",
+    "before": "def test_ElementwiseApplyFunction():\n    X = MatrixSymbol('X', 2, 2)\n    expr = (X.T*X).applyfunc(sin)\n    assert latex(expr) == r\"{\\left( d \\mapsto \\sin{\\left(d \\right)} \\right)}_{\\circ}\\left({X^{T} X}\\right)\"\n    expr = X.applyfunc(Lambda(x, 1/x))\n    assert latex(expr) == r'{\\left( x \\mapsto \\frac{1}{x} \\right)}_{\\circ}\\left({X}\\right)'\n",
+    "file": "sympy/printing/tests/test_latex.py",
+    "id": "sympy/printing/tests/test_latex.py#test_ElementwiseApplyFunction",
+    "name": "test_ElementwiseApplyFunction",
+    "qual": "test_ElementwiseApplyFunction",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "return",
+      "list",
+      "['{\\\\exp}_{\\\\circ}\\\\left({X}\\\\right)', '{\\\\left( x \\\\mapsto x^{2} \\\\right)}_{\\\\circ}\\\\left({X}\\\\right)']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['{\\\\left( d \\\\mapsto e^{d} \\\\right)}_{\\\\circ}\\\\left({X}\\\\right)', '{\\\\left( x \\\\mapsto x^{2} \\\\right)}_{\\\\circ}\\\\left({X}\\\\right)']"
+     ],
+     "call": "[latex(c) for c in cases]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import Lambda, MatrixSymbol, exp, latex, pretty, symbols\nfrom sympy.matrices.expressions.applyfunc import ElementwiseApplyFunction\nx = symbols('x')\nX = MatrixSymbol('X', 2, 2)\ncases = [ElementwiseApplyFunction(exp, X), ElementwiseApplyFunction(Lambda(x, x**2), X)]",
+     "target": "sympy/printing/latex.py#LatexPrinter._print_ElementwiseApplyFunction",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import Lambda, MatrixSymbol, exp, latex, pretty, symbols\n    from sympy.matrices.expressions.applyfunc import ElementwiseApplyFunction\n    x = symbols('x')\n    X = MatrixSymbol('X', 2, 2)\n    cases = [ElementwiseApplyFunction(exp, X), ElementwiseApplyFunction(Lambda(x, x**2), X)]\n    assert repr([latex(c) for c in cases]) == \"['{\\\\\\\\exp}_{\\\\\\\\circ}\\\\\\\\left({X}\\\\\\\\right)', '{\\\\\\\\left( x \\\\\\\\mapsto x^{2} \\\\\\\\right)}_{\\\\\\\\circ}\\\\\\\\left({X}\\\\\\\\right)']\"\n",
+     "why": "LaTeX of an elementwise application"
+    },
+    {
+     "after": [
+      "return",
+      "list",
+      "['exp.(X)', '/      2\\\\    \\n\\\\x -> x /.(X)']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['/      d\\\\    \\n\\\\d -> e /.(X)', '/      2\\\\    \\n\\\\x -> x /.(X)']"
+     ],
+     "call": "[pretty(c, use_unicode=False) for c in cases]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import Lambda, MatrixSymbol, exp, latex, pretty, symbols\nfrom sympy.matrices.expressions.applyfunc import ElementwiseApplyFunction\nx = symbols('x')\nX = MatrixSymbol('X', 2, 2)\ncases = [ElementwiseApplyFunction(exp, X), ElementwiseApplyFunction(Lambda(x, x**2), X)]",
+     "target": "sympy/printing/pretty/pretty.py#PrettyPrinter._print_ElementwiseApplyFunction",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import Lambda, MatrixSymbol, exp, latex, pretty, symbols\n    from sympy.matrices.expressions.applyfunc import ElementwiseApplyFunction\n    x = symbols('x')\n    X = MatrixSymbol('X', 2, 2)\n    cases = [ElementwiseApplyFunction(exp, X), ElementwiseApplyFunction(Lambda(x, x**2), X)]\n    assert repr([pretty(c, use_unicode=False) for c in cases]) == \"['exp.(X)', '/      2\\\\\\\\    \\\\n\\\\\\\\x -> x /.(X)']\"\n",
+     "why": "pretty print of an elementwise application"
+    }
+   ],
+   "dollars_cap": 0.1,
+   "filter_seconds": 25.1,
+   "gaps": [],
+   "info": {
+    "accepted": 2,
+    "compiled": 4,
+    "cost": 0.0,
+    "differed": 2,
+    "dollars_cap": 0.1,
+    "functions": 4,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 4,
+    "ran": 4,
+    "reached": 4,
+    "requests": 1,
+    "seconds": 25.0,
+    "stable": 4
+   },
+   "probes": [
+    {
+     "call": "[latex(c) for c in cases]",
+     "function": "sympy/printing/latex.py#LatexPrinter._print_ElementwiseApplyFunction",
+     "setup": "from sympy import Lambda, MatrixSymbol, exp, latex, pretty, symbols\nfrom sympy.matrices.expressions.applyfunc import ElementwiseApplyFunction\nx = symbols('x')\nX = MatrixSymbol('X', 2, 2)\ncases = [ElementwiseApplyFunction(exp, X), ElementwiseApplyFunction(Lambda(x, x**2), X)]",
+     "why": "LaTeX of an elementwise application"
+    },
+    {
+     "call": "[pretty(c, use_unicode=False) for c in cases]",
+     "function": "sympy/printing/pretty/pretty.py#PrettyPrinter._print_ElementwiseApplyFunction",
+     "setup": "from sympy import Lambda, MatrixSymbol, exp, latex, pretty, symbols\nfrom sympy.matrices.expressions.applyfunc import ElementwiseApplyFunction\nx = symbols('x')\nX = MatrixSymbol('X', 2, 2)\ncases = [ElementwiseApplyFunction(exp, X), ElementwiseApplyFunction(Lambda(x, x**2), X)]",
+     "why": "pretty print of an elementwise application"
+    },
+    {
+     "call": "test_MatrixExpressions()",
+     "function": "sympy/printing/pretty/tests/test_pretty.py#test_MatrixExpressions",
+     "setup": "from sympy.printing.pretty.tests.test_pretty import test_MatrixExpressions",
+     "why": "runs the edited test"
+    },
+    {
+     "call": "test_ElementwiseApplyFunction()",
+     "function": "sympy/printing/tests/test_latex.py#test_ElementwiseApplyFunction",
+     "setup": "from sympy.printing.tests.test_latex import test_ElementwiseApplyFunction",
+     "why": "runs the edited test"
+    }
+   ],
+   "targets": [
+    "sympy/printing/latex.py#LatexPrinter._print_ElementwiseApplyFunction",
+    "sympy/printing/pretty/pretty.py#PrettyPrinter._print_ElementwiseApplyFunction",
+    "sympy/printing/pretty/tests/test_pretty.py#test_MatrixExpressions",
+    "sympy/printing/tests/test_latex.py#test_ElementwiseApplyFunction"
+   ],
+   "waited_seconds": 435.3
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_tensor_ArrayElementwiseApplyFunc",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/printing/tests/test_latex.py::test_ArrayElementwiseApplyFunc_printing",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/printing/conventions.py",
+    "lines": "92-104",
+    "symbol": "elementwise_function"
+   },
+   {
+    "file": "sympy/printing/latex.py",
+    "lines": "1043",
+    "symbol": "LatexPrinter._print_ElementwiseApplyFunction"
+   },
+   {
+    "file": "sympy/printing/pretty/pretty.py",
+    "lines": "1693",
+    "symbol": "PrettyPrinter._print_ElementwiseApplyFunction"
+   },
+   {
+    "file": "sympy/printing/pretty/tests/test_pretty.py",
+    "lines": "3811-3818",
+    "symbol": "test_tensor_ArrayElementwiseApplyFunc"
+   },
+   {
+    "file": "sympy/printing/pretty/tests/test_pretty.py",
+    "lines": "4029-4034",
+    "symbol": "test_MatrixExpressions"
+   },
+   {
+    "file": "sympy/printing/tests/test_latex.py",
+    "lines": "2266-2271",
+    "symbol": "test_ElementwiseApplyFunction"
+   },
+   {
+    "file": "sympy/printing/tests/test_latex.py",
+    "lines": "2902-2910",
+    "symbol": "test_ArrayElementwiseApplyFunc_printing"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/printing/conventions.py#elementwise_function",
+   "sympy/printing/latex.py#LatexPrinter._print_ArrayElementwiseApplyFunc",
+   "sympy/printing/latex.py#LatexPrinter._print_ElementwiseApplyFunction",
+   "sympy/printing/latex.py#accepted_latex_functions",
+   "sympy/printing/pretty/pretty.py#PrettyPrinter._print_ArrayElementwiseApplyFunc",
+   "sympy/printing/pretty/pretty.py#PrettyPrinter._print_ElementwiseApplyFunction",
+   "sympy/printing/pretty/tests/test_pretty.py#test_MatrixExpressions",
+   "sympy/printing/pretty/tests/test_pretty.py#test_tensor_ArrayElementwiseApplyFunc",
+   "sympy/printing/tests/test_latex.py#test_ArrayElementwiseApplyFunc_printing",
+   "sympy/printing/tests/test_latex.py#test_ElementwiseApplyFunction",
+   "sympy/printing/latex.py#LatexPrinter",
+   "sympy/printing/pretty/pretty.py#PrettyPrinter",
+   "sympy/printing/conventions.py",
+   "sympy/printing/latex.py",
+   "sympy/printing/pretty/pretty.py",
+   "sympy/printing/pretty/tests/test_pretty.py",
+   "sympy/printing/tests/test_latex.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "elementwise_function return changed",
+    "path": [
+     "sympy/printing/conventions.py:103 return",
+     "sympy/printing/latex.py:1043 LatexPrinter._print_ElementwiseApplyFunction uses the result",
+     "sympy/printing/pretty/pretty.py:1693 PrettyPrinter._print_ElementwiseApplyFunction uses the result"
+    ],
+    "to": "2 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 6,
+    "stored": 2
+   },
+   "budget": 300,
+   "candidates": 432,
+   "ran": 432,
+   "replayed": 4,
+   "runner": "pytest",
+   "seconds": 196.2,
+   "selection": {
+    "candidates": 12893,
+    "closure_files": 1327,
+    "closure_tests": 12892,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 1
+   },
+   "unrunnable": 0
+  },
+  "flip_trust": [
+   {
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions",
+    "label": "fails",
+    "reach": 11,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "why": "as the test was before the edit: failed again in every rerun; ran 11 changed line(s)"
+   },
+   {
+    "id": "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction",
+    "label": "fails",
+    "reach": 11,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "why": "as the test was before the edit: failed again in every rerun; ran 11 changed line(s)"
+   }
+  ],
+  "flips": 2,
+  "gaps": [
+   "12461 lower-ranked candidate(s) not run: about 2 tests/s per process fit 432 in the 300 s allowed",
+   "68480 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "graph reused from the previous state; 25 changed file(s) relinked",
+   "side-by-side: none of the 4 changed function(s) was called by the tests run on the code before the change"
+  ],
+  "impacted": {
+   "count": 2676,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1607,
+   "parsed_files": 18
+  },
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "original_tests": {
+   "sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions": "failed",
+   "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction": "failed"
+  },
+  "predicted_failures": [
+   {
+    "after": "failed",
+    "before": "passed",
+    "edited_form": "passed",
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions",
+    "label": "test edited, not fixed",
+    "reach": 11,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 11 changed line(s)"
+   },
+   {
+    "after": "failed",
+    "before": "passed",
+    "edited_form": "passed",
+    "id": "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction",
+    "label": "test edited, not fixed",
+    "reach": 11,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 11 changed line(s)"
+   }
+  ],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_tensor_ArrayElementwiseApplyFunc",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/printing/tests/test_latex.py::test_ArrayElementwiseApplyFunc_printing",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "e9ecd40ac924",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 0,
+   "differences": 0,
+   "functions_called": 0,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "sympy/printing/conventions.py#elementwise_function": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/printing/pretty/tests/test_pretty.py#test_tensor_ArrayElementwiseApplyFunc": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/printing/tests/test_latex.py#test_ArrayElementwiseApplyFunc_printing": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 29.6,
+   "targets": 4,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 432 of 432 candidate tests after the change with pytest in 196.2 s, failures confirmed before it: 2 now fail. 3304 tests reach the change. 2 test(s) from edited test files also run as they were before the edit. 2 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 4 test(s) the change adds or edits replayed on the code before it: 4 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "executed",
+    "expect": "fails",
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions",
+    "line": 0,
+    "run": "python -m pytest sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions",
+    "score": 0.0,
+    "why": "failed when executed after the change"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "fails",
+    "id": "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction",
+    "line": 2263,
+    "run": "python -m pytest sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction",
+    "score": 0.307,
+    "why": "via latex > LatexPrinter (name: latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/vector/tests/test_printing.py::test_latex_printer",
+    "line": 38,
+    "run": "python -m pytest sympy/physics/vector/tests/test_printing.py::test_latex_printer",
+    "score": 1.912,
+    "why": "via LatexPrinter.__init__ > LatexPrinter (name: latex,printer)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/utilities/tests/test_pickling.py::test_printing",
+    "line": 679,
+    "run": "python -m pytest sympy/utilities/tests/test_pickling.py::test_printing",
+    "score": 1.186,
+    "why": "via PrettyPrinter"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_function_print_latex",
+    "line": 1019,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_function_print_latex",
+    "score": 0.904,
+    "why": "via LatexPrinter (name: latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthPassiveDeGroote2016::test_function_print_latex",
+    "line": 537,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthPassiveDeGroote2016::test_function_print_latex",
+    "score": 0.692,
+    "why": "via LatexPrinter (name: latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthPassiveInverseDeGroote2016::test_function_print_latex",
+    "line": 721,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthPassiveInverseDeGroote2016::test_function_print_latex",
+    "score": 0.581,
+    "why": "via LatexPrinter (name: latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceVelocityDeGroote2016::test_function_print_latex",
+    "line": 1268,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceVelocityDeGroote2016::test_function_print_latex",
+    "score": 0.523,
+    "why": "via LatexPrinter (name: latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_matrixSymbolBold",
+    "line": 7977,
+    "run": "python -m pytest sympy/printing/pretty/tests/test_pretty.py::test_matrixSymbolBold",
+    "score": 0.497,
+    "why": "via test_matrixSymbolBold.boldpretty > sympy.printing.pretty.pretty (name: pretty)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceVelocityInverseDeGroote2016::test_function_print_latex",
+    "line": 1477,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceVelocityInverseDeGroote2016::test_function_print_latex",
+    "score": 0.488,
+    "why": "via LatexPrinter (name: latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestTendonForceLengthDeGroote2016::test_function_print_latex",
+    "line": 163,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestTendonForceLengthDeGroote2016::test_function_print_latex",
+    "score": 0.471,
+    "why": "via LatexPrinter (name: latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestTendonForceLengthInverseDeGroote2016::test_function_print_latex",
+    "line": 352,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestTendonForceLengthInverseDeGroote2016::test_function_print_latex",
+    "score": 0.46,
+    "why": "via LatexPrinter (name: latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_latex.py::test_latex_printer_tensor",
+    "line": 2934,
+    "run": "python -m pytest sympy/printing/tests/test_latex.py::test_latex_printer_tensor",
+    "score": 0.451,
+    "why": "via latex > LatexPrinter (name: latex,printer)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_expression_print_latex",
+    "line": 1024,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_expression_print_latex",
+    "score": 0.429,
+    "why": "via LatexPrinter (name: latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthPassiveDeGroote2016::test_expression_print_latex",
+    "line": 542,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthPassiveDeGroote2016::test_expression_print_latex",
+    "score": 0.426,
+    "why": "via LatexPrinter (name: latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthPassiveInverseDeGroote2016::test_expression_print_latex",
+    "line": 726,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthPassiveInverseDeGroote2016::test_expression_print_latex",
+    "score": 0.424,
+    "why": "via LatexPrinter (name: latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceVelocityDeGroote2016::test_expression_print_latex",
+    "line": 1273,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceVelocityDeGroote2016::test_expression_print_latex",
+    "score": 0.422,
+    "why": "via LatexPrinter (name: latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceVelocityInverseDeGroote2016::test_expression_print_latex",
+    "line": 1482,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceVelocityInverseDeGroote2016::test_expression_print_latex",
+    "score": 0.421,
+    "why": "via LatexPrinter (name: latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestTendonForceLengthDeGroote2016::test_expression_print_latex",
+    "line": 168,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestTendonForceLengthDeGroote2016::test_expression_print_latex",
+    "score": 0.419,
+    "why": "via LatexPrinter (name: latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestTendonForceLengthInverseDeGroote2016::test_expression_print_latex",
+    "line": 357,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestTendonForceLengthInverseDeGroote2016::test_expression_print_latex",
+    "score": 0.418,
+    "why": "via LatexPrinter (name: latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_latex.py::test_emptyPrinter",
+    "line": 3316,
+    "run": "python -m pytest sympy/printing/tests/test_latex.py::test_emptyPrinter",
+    "score": 0.399,
+    "why": "via latex > LatexPrinter (name: latex,printer)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_latex.py::test_global_settings",
+    "line": 3327,
+    "run": "python -m pytest sympy/printing/tests/test_latex.py::test_global_settings",
+    "score": 0.36,
+    "why": "via LatexPrinter (name: latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/printing/tests/test_latex.py::test_ArrayElementwiseApplyFunc_printing",
+    "line": 2902,
+    "run": "python -m pytest sympy/printing/tests/test_latex.py::test_ArrayElementwiseApplyFunc_printing",
+    "score": 0.343,
+    "why": "via latex > LatexPrinter (name: latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_pretty_Permutation",
+    "line": 405,
+    "run": "python -m pytest sympy/printing/pretty/tests/test_pretty.py::test_pretty_Permutation",
+    "score": 0.318,
+    "why": "via sympy.printing.pretty.pretty (name: pretty)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_latex.py::test_latex_disable_split_super_sub",
+    "line": 3373,
+    "run": "python -m pytest sympy/printing/tests/test_latex.py::test_latex_disable_split_super_sub",
+    "score": 0.275,
+    "why": "via latex > LatexPrinter (name: latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_latex.py::test_latex_derivatives",
+    "line": 908,
+    "run": "python -m pytest sympy/printing/tests/test_latex.py::test_latex_derivatives",
+    "score": 0.271,
+    "why": "via latex > LatexPrinter (name: latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/utilities/tests/test_lambdify.py::test_special_printers",
+    "line": 1242,
+    "run": "python -m pytest sympy/utilities/tests/test_lambdify.py::test_special_printers",
+    "score": 0.268,
+    "why": "via test_special_printers.intervalrepr > LatexPrinter.doprint > LatexPrinter (name: printer)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_pycode.py::test_PythonCodePrinter_print_Indexed",
+    "line": 78,
+    "run": "python -m pytest sympy/printing/tests/test_pycode.py::test_PythonCodePrinter_print_Indexed",
+    "score": 0.266,
+    "why": "via LatexPrinter.doprint > LatexPrinter (name: printer)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_latex.py::test_ArrayTensorProduct_printing",
+    "line": 2888,
+    "run": "python -m pytest sympy/printing/tests/test_latex.py::test_ArrayTensorProduct_printing",
+    "score": 0.265,
+    "why": "via latex > LatexPrinter (name: latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_latex.py::test_printing_latex_array_expressions",
+    "line": 3353,
+    "run": "python -m pytest sympy/printing/tests/test_latex.py::test_printing_latex_array_expressions",
+    "score": 0.265,
+    "why": "via latex > LatexPrinter (name: latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_latex.py::test_print_basic",
+    "line": 3107,
+    "run": "python -m pytest sympy/printing/tests/test_latex.py::test_print_basic",
+    "score": 0.264,
+    "why": "via latex > LatexPrinter (name: latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_pycode.py::test_SciPyPrinter",
+    "line": 218,
+    "run": "python -m pytest sympy/printing/tests/test_pycode.py::test_SciPyPrinter",
+    "score": 0.264,
+    "why": "via LatexPrinter.doprint > LatexPrinter (name: printer)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/combinatorics/tests/test_permutations.py::test_deprecated_print_cyclic",
+    "line": 508,
+    "run": "python -m pytest sympy/combinatorics/tests/test_permutations.py::test_deprecated_print_cyclic",
+    "score": 0.26,
+    "why": "via sympy.printing.latex"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_latex.py::test_DiscreteTransferFunction_printing",
+    "line": 2787,
+    "run": "python -m pytest sympy/printing/tests/test_latex.py::test_DiscreteTransferFunction_printing",
+    "score": 0.259,
+    "why": "via latex > LatexPrinter (name: latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_latex.py::test_TransferFunctionMatrix_printing",
+    "line": 2817,
+    "run": "python -m pytest sympy/printing/tests/test_latex.py::test_TransferFunctionMatrix_printing",
+    "score": 0.259,
+    "why": "via latex > LatexPrinter (name: latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_latex.py::test_TransferFunction_printing",
+    "line": 2778,
+    "run": "python -m pytest sympy/printing/tests/test_latex.py::test_TransferFunction_printing",
+    "score": 0.259,
+    "why": "via latex > LatexPrinter (name: latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_pycode.py::test_NumPyPrinter",
+    "line": 146,
+    "run": "python -m pytest sympy/printing/tests/test_pycode.py::test_NumPyPrinter",
+    "score": 0.259,
+    "why": "via LatexPrinter.doprint > LatexPrinter (name: printer)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_latex.py::test_Feedback_printing",
+    "line": 2833,
+    "run": "python -m pytest sympy/printing/tests/test_latex.py::test_Feedback_printing",
+    "score": 0.258,
+    "why": "via latex > LatexPrinter (name: latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_latex.py::test_MIMOFeedback_printing",
+    "line": 2848,
+    "run": "python -m pytest sympy/printing/tests/test_latex.py::test_MIMOFeedback_printing",
+    "score": 0.258,
+    "why": "via latex > LatexPrinter (name: latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_latex.py::test_Parallel_printing",
+    "line": 2797,
+    "run": "python -m pytest sympy/printing/tests/test_latex.py::test_Parallel_printing",
+    "score": 0.258,
+    "why": "via latex > LatexPrinter (name: latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_latex.py::test_Series_printing",
+    "line": 2750,
+    "run": "python -m pytest sympy/printing/tests/test_latex.py::test_Series_printing",
+    "score": 0.258,
+    "why": "via latex > LatexPrinter (name: latex)"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/printing/conventions.py",
+    "lines": "92-104",
+    "symbol": "elementwise_function"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/printing/pretty/tests/test_pretty.py",
+    "lines": "3811-3818",
+    "symbol": "test_tensor_ArrayElementwiseApplyFunc"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/printing/pretty/tests/test_pretty.py",
+    "lines": "4029-4034",
+    "symbol": "test_MatrixExpressions"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/printing/tests/test_latex.py",
+    "lines": "2266-2271",
+    "symbol": "test_ElementwiseApplyFunction"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/printing/tests/test_latex.py",
+    "lines": "2902-2910",
+    "symbol": "test_ArrayElementwiseApplyFunc_printing"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792330101.847143,
+  "job_seconds": 225.3,
+  "number": 30572,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 225.5,
+  "started": 1792329866.213356,
+  "verify_seconds": 8.6
+ },
+ "verify": {
+  "checked": 2,
+  "false": 0,
+  "held": 2,
+  "merge_base": "05008308547b4897a5e62cef1be301ee7f280ff0",
+  "other": 0,
+  "problem": null,
+  "states": {
+   "sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions": "passed",
+   "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction": "passed"
+  },
+  "v": 1
+ }
+}

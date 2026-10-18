@@ -1,0 +1,545 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "1b4d021b6525bff6439b9d3b8d5388a1a1906ecd",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "a76cc029687ed68d8ec32be4d8fc9c6cf41118b3",
+  "install_ok": true,
+  "merge_base": "7f48e266a83110d62ffb4663d72c9e347db75a9b",
+  "pr": 22064,
+  "recording": true,
+  "runner": null,
+  "seconds": 13.8,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "1b4d021b6525bff6439b9d3b8d5388a1a1906ecd",
+  "head_sha": "a76cc029687ed68d8ec32be4d8fc9c6cf41118b3",
+  "merge_base": "7f48e266a83110d62ffb4663d72c9e347db75a9b",
+  "merged_at": "2026-10-09T07:15:24Z",
+  "number": 22064,
+  "repo": "django",
+  "title": "Fixed #37382 -- Made @non_atomic_requests recognize async views."
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 1,
+  "called": 1,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/handlers/tests.py::TransactionsPerRequestTests::test_no_auto_transaction_async",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "django/db/transaction.py",
+    "lines": "346-356",
+    "symbol": "_non_atomic_requests"
+   },
+   {
+    "file": "django/db/transaction.py",
+    "lines": "348-356",
+    "symbol": "_non_atomic_requests.wrapper"
+   },
+   {
+    "file": "tests/handlers/tests.py",
+    "lines": "147-154",
+    "symbol": "TransactionsPerRequestTests.test_no_auto_transaction_async"
+   },
+   {
+    "file": "tests/handlers/views.py",
+    "lines": "36-38",
+    "symbol": "not_in_transaction_async"
+   }
+  ],
+  "changed_symbols": [
+   "django/db/transaction.py#_non_atomic_requests",
+   "django/db/transaction.py#_non_atomic_requests.wrapper",
+   "tests/handlers/tests.py#TransactionsPerRequestTests.test_no_auto_transaction_async",
+   "tests/handlers/urls.py#urlpatterns",
+   "tests/handlers/views.py#not_in_transaction_async",
+   "tests/handlers/tests.py#TransactionsPerRequestTests",
+   "django/db/transaction.py",
+   "tests/handlers/views.py"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 1,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 11166,
+   "ran": 160,
+   "replayed": 1,
+   "runner": "django-runtests",
+   "seconds": 9.5,
+   "selection": {
+    "candidates": 11166,
+    "closure_files": 4,
+    "closure_tests": 38,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/db/transaction.py"
+    ],
+    "observed": 160,
+    "static_only": 10308
+   },
+   "unrunnable": 160
+  },
+  "flips": 0,
+  "gaps": [
+   "100991 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "160 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "graph reused from the previous state; 6 changed file(s) relinked",
+   "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run stopped at its 300 s budget: 160 of 11166 candidates run"
+  ],
+  "impacted": {
+   "count": 5711,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2931,
+   "parsed_files": 6
+  },
+  "original_tests": {
+   "tests/handlers/tests.py::TransactionsPerRequestTests::test_auto_transaction": "passed",
+   "tests/handlers/tests.py::TransactionsPerRequestTests::test_auto_transaction_async_view": "passed",
+   "tests/handlers/tests.py::TransactionsPerRequestTests::test_no_auto_transaction": "passed",
+   "tests/handlers/tests.py::TransactionsPerRequestTests::test_no_transaction": "passed",
+   "tests/handlers/tests.py::TransactionsPerRequestTests::test_non_atomic_requests_does_not_mutate_original": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/handlers/tests.py::TransactionsPerRequestTests::test_no_auto_transaction_async",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "598ee200637d",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [
+    "django/db/transaction.py#_non_atomic_requests"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 5,
+   "differences": 0,
+   "functions_called": 1,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "django/db/transaction.py#_non_atomic_requests.wrapper": "not a module or class function on both sides (new, removed or nested)",
+    "tests/handlers/tests.py#TransactionsPerRequestTests.test_no_auto_transaction_async": "not a module or class function on both sides (new, removed or nested)",
+    "tests/handlers/views.py#not_in_transaction_async": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 2.3,
+   "targets": 1,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 160 of 11166 candidate tests after the change with django-runtests in 9.5 s, failures confirmed before it: 0 now fail. 10338 tests reach the change. 5 test(s) from edited test files also run as they were before the edit. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/handlers/tests.py::TransactionsPerRequestTests::test_non_atomic_requests_does_not_mutate_original",
+    "line": 156,
+    "run": "cd tests && python runtests.py handlers.tests.TransactionsPerRequestTests.test_non_atomic_requests_does_not_mutate_original",
+    "score": 7.555,
+    "why": "calls _non_atomic_requests.wrapper (name: atomic,non,request,transaction)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/handlers/tests.py::TransactionsPerRequestTests::test_no_auto_transaction_async",
+    "line": 147,
+    "run": "cd tests && python runtests.py handlers.tests.TransactionsPerRequestTests.test_no_auto_transaction_async",
+    "score": 2.422,
+    "why": "via TransactionsPerRequestTests (name: per,request,transaction)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/handlers/tests.py::TransactionsPerRequestTests::test_no_auto_transaction",
+    "line": 125,
+    "run": "cd tests && python runtests.py handlers.tests.TransactionsPerRequestTests.test_no_auto_transaction",
+    "score": 1.598,
+    "why": "via TransactionsPerRequestTests (name: per,request,transaction)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/handlers/tests.py::TransactionsPerRequestTests::test_auto_transaction",
+    "line": 106,
+    "run": "cd tests && python runtests.py handlers.tests.TransactionsPerRequestTests.test_auto_transaction",
+    "score": 1.201,
+    "why": "via TransactionsPerRequestTests (name: per,request,transaction)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/handlers/tests.py::TransactionsPerRequestTests::test_auto_transaction_async_view",
+    "line": 115,
+    "run": "cd tests && python runtests.py handlers.tests.TransactionsPerRequestTests.test_auto_transaction_async_view",
+    "score": 0.995,
+    "why": "via TransactionsPerRequestTests (name: per,request,transaction)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/handlers/tests.py::TransactionsPerRequestTests::test_no_transaction",
+    "line": 102,
+    "run": "cd tests && python runtests.py handlers.tests.TransactionsPerRequestTests.test_no_transaction",
+    "score": 0.787,
+    "why": "via TransactionsPerRequestTests (name: per,request,transaction)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/sqlite/tests.py::TestTransactionMode::test_default_transaction_mode",
+    "line": 366,
+    "run": "cd tests && python runtests.py backends.sqlite.tests.TestTransactionMode.test_default_transaction_mode",
+    "score": 0.266,
+    "why": "via django.db.transaction (name: transaction)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/select_for_update/tests.py::SelectForUpdateTests::test_for_update_requires_transaction",
+    "line": 504,
+    "run": "cd tests && python runtests.py select_for_update.tests.SelectForUpdateTests.test_for_update_requires_transaction",
+    "score": 0.192,
+    "why": "via django.db.transaction (name: transaction)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/select_for_update/tests.py::SelectForUpdateTests::test_for_update_requires_transaction_only_in_execution",
+    "line": 514,
+    "run": "cd tests && python runtests.py select_for_update.tests.SelectForUpdateTests.test_for_update_requires_transaction_only_in_execution",
+    "score": 0.154,
+    "why": "via django.db.transaction (name: transaction)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/serializers/tests.py::SerializersTransactionTestBase::test_forward_refs",
+    "line": 504,
+    "run": "cd tests && python runtests.py serializers.tests.SerializersTransactionTestBase.test_forward_refs",
+    "score": 0.134,
+    "why": "via django.db.transaction (name: transaction)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/tasks/test_dummy_backend.py::DummyBackendTransactionTestCase::test_doesnt_wait_until_transaction_commit_by_default",
+    "line": 192,
+    "run": "cd tests && python runtests.py tasks.test_dummy_backend.DummyBackendTransactionTestCase.test_doesnt_wait_until_transaction_commit_by_default",
+    "score": 0.123,
+    "why": "via django.db.transaction (name: transaction)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/tasks/test_immediate_backend.py::ImmediateBackendTransactionTestCase::test_doesnt_wait_until_transaction_commit_by_default",
+    "line": 289,
+    "run": "cd tests && python runtests.py tasks.test_immediate_backend.ImmediateBackendTransactionTestCase.test_doesnt_wait_until_transaction_commit_by_default",
+    "score": 0.118,
+    "why": "via django.db.transaction (name: transaction)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/transaction_hooks/tests.py::TestConnectionOnCommit::test_delays_execution_until_after_transaction_commit",
+    "line": 134,
+    "run": "cd tests && python runtests.py transaction_hooks.tests.TestConnectionOnCommit.test_delays_execution_until_after_transaction_commit",
+    "score": 0.115,
+    "why": "via django.db.transaction (name: transaction)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/transaction_hooks/tests.py::TestConnectionOnCommit::test_does_not_execute_if_transaction_rolled_back",
+    "line": 140,
+    "run": "cd tests && python runtests.py transaction_hooks.tests.TestConnectionOnCommit.test_does_not_execute_if_transaction_rolled_back",
+    "score": 0.114,
+    "why": "via django.db.transaction (name: transaction)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/transaction_hooks/tests.py::TestConnectionOnCommit::test_executes_only_after_final_transaction_committed",
+    "line": 150,
+    "run": "cd tests && python runtests.py transaction_hooks.tests.TestConnectionOnCommit.test_executes_only_after_final_transaction_committed",
+    "score": 0.113,
+    "why": "via django.db.transaction (name: transaction)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/transaction_hooks/tests.py::TestConnectionOnCommit::test_no_hooks_run_from_failed_transaction",
+    "line": 178,
+    "run": "cd tests && python runtests.py transaction_hooks.tests.TestConnectionOnCommit.test_no_hooks_run_from_failed_transaction",
+    "score": 0.113,
+    "why": "via django.db.transaction (name: transaction)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/transaction_hooks/tests.py::TestConnectionOnCommit::test_robust_if_no_transaction",
+    "line": 48,
+    "run": "cd tests && python runtests.py transaction_hooks.tests.TestConnectionOnCommit.test_robust_if_no_transaction",
+    "score": 0.113,
+    "why": "via django.db.transaction (name: transaction)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/transaction_hooks/tests.py::TestConnectionOnCommit::test_robust_if_no_transaction_with_callback_as_partial",
+    "line": 68,
+    "run": "cd tests && python runtests.py transaction_hooks.tests.TestConnectionOnCommit.test_robust_if_no_transaction_with_callback_as_partial",
+    "score": 0.113,
+    "why": "via django.db.transaction (name: transaction)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/transaction_hooks/tests.py::TestConnectionOnCommit::test_robust_transaction",
+    "line": 90,
+    "run": "cd tests && python runtests.py transaction_hooks.tests.TestConnectionOnCommit.test_robust_transaction",
+    "score": 0.113,
+    "why": "via django.db.transaction (name: transaction)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/transaction_hooks/tests.py::TestConnectionOnCommit::test_robust_transaction_with_callback_as_partial",
+    "line": 111,
+    "run": "cd tests && python runtests.py transaction_hooks.tests.TestConnectionOnCommit.test_robust_transaction_with_callback_as_partial",
+    "score": 0.113,
+    "why": "via django.db.transaction (name: transaction)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/transaction_hooks/tests.py::TestConnectionOnCommit::test_transaction_in_hook",
+    "line": 293,
+    "run": "cd tests && python runtests.py transaction_hooks.tests.TestConnectionOnCommit.test_transaction_in_hook",
+    "score": 0.113,
+    "why": "via django.db.transaction (name: transaction)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/transactions/tests.py::AtomicErrorsTests::test_atomic_allows_queries_after_fixing_transaction",
+    "line": 368,
+    "run": "cd tests && python runtests.py transactions.tests.AtomicErrorsTests.test_atomic_allows_queries_after_fixing_transaction",
+    "score": 0.113,
+    "why": "via django.db.transaction (name: transaction)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/transactions/tests.py::AtomicErrorsTests::test_atomic_prevents_calling_transaction_methods",
+    "line": 339,
+    "run": "cd tests && python runtests.py transactions.tests.AtomicErrorsTests.test_atomic_prevents_calling_transaction_methods",
+    "score": 0.113,
+    "why": "via django.db.transaction (name: transaction)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/transactions/tests.py::AtomicErrorsTests::test_atomic_prevents_queries_in_broken_transaction",
+    "line": 350,
+    "run": "cd tests && python runtests.py transactions.tests.AtomicErrorsTests.test_atomic_prevents_queries_in_broken_transaction",
+    "score": 0.113,
+    "why": "via django.db.transaction (name: transaction)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/transactions/tests.py::AtomicErrorsTests::test_atomic_prevents_queries_in_broken_transaction_after_client_close",
+    "line": 380,
+    "run": "cd tests && python runtests.py transactions.tests.AtomicErrorsTests.test_atomic_prevents_queries_in_broken_transaction_after_client_close",
+    "score": 0.113,
+    "why": "via django.db.transaction (name: transaction)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/transactions/tests.py::AtomicMiscTests::test_mark_for_rollback_on_error_in_transaction",
+    "line": 472,
+    "run": "cd tests && python runtests.py transactions.tests.AtomicMiscTests.test_mark_for_rollback_on_error_in_transaction",
+    "score": 0.113,
+    "why": "via django.db.transaction (name: transaction)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/transactions/tests.py::AtomicTests::test_failure_on_exit_transaction",
+    "line": 231,
+    "run": "cd tests && python runtests.py transactions.tests.AtomicTests.test_failure_on_exit_transaction",
+    "score": 0.113,
+    "why": "via django.db.transaction (name: transaction)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/transaction_hooks/tests.py::TestConnectionOnCommit::test_executes_immediately_if_no_transaction",
+    "line": 44,
+    "run": "cd tests && python runtests.py transaction_hooks.tests.TestConnectionOnCommit.test_executes_immediately_if_no_transaction",
+    "score": 0.068,
+    "why": "via TestConnectionOnCommit.do > django.db.transaction (name: transaction)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/base/test_base.py::DatabaseWrapperLoggingTests::test_commit_debug_log",
+    "line": 101,
+    "run": "cd tests && python runtests.py backends.base.test_base.DatabaseWrapperLoggingTests.test_commit_debug_log",
+    "score": 0.051,
+    "why": "via django.db.transaction"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/base/test_base.py::DatabaseWrapperLoggingTests::test_rollback_debug_log",
+    "line": 123,
+    "run": "cd tests && python runtests.py backends.base.test_base.DatabaseWrapperLoggingTests.test_rollback_debug_log",
+    "score": 0.051,
+    "why": "via django.db.transaction"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/postgres_tests/test_operations.py::AddConstraintNotValidTests::test_add",
+    "line": 614,
+    "run": "cd tests && python runtests.py postgres_tests.test_operations.AddConstraintNotValidTests.test_add",
+    "score": 0.049,
+    "why": "via django.db.transaction"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/transactions/tests.py::AtomicMiscTests::test_wrap_callable_instance",
+    "line": 442,
+    "run": "cd tests && python runtests.py transactions.tests.AtomicMiscTests.test_wrap_callable_instance",
+    "score": 0.047,
+    "why": "via django.db.transaction"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/base/test_base.py::DatabaseWrapperLoggingTests::test_no_logs_without_debug",
+    "line": 139,
+    "run": "cd tests && python runtests.py backends.base.test_base.DatabaseWrapperLoggingTests.test_no_logs_without_debug",
+    "score": 0.045,
+    "why": "via django.db.transaction"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/base/test_operations.py::SqlFlushTests::test_execute_sql_flush_statements",
+    "line": 261,
+    "run": "cd tests && python runtests.py backends.base.test_operations.SqlFlushTests.test_execute_sql_flush_statements",
+    "score": 0.038,
+    "why": "via django.db.transaction"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/sqlite/tests.py::SchemaTests::test_constraint_checks_disabled_atomic_allowed",
+    "line": 254,
+    "run": "cd tests && python runtests.py backends.sqlite.tests.SchemaTests.test_constraint_checks_disabled_atomic_allowed",
+    "score": 0.038,
+    "why": "via django.db.transaction"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/sqlite/tests.py::SchemaTests::test_disable_constraint_checking_failure_disallowed",
+    "line": 238,
+    "run": "cd tests && python runtests.py backends.sqlite.tests.SchemaTests.test_disable_constraint_checking_failure_disallowed",
+    "score": 0.038,
+    "why": "via django.db.transaction"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/tests.py::FkConstraintsTests::test_check_constraints",
+    "line": 742,
+    "run": "cd tests && python runtests.py backends.tests.FkConstraintsTests.test_check_constraints",
+    "score": 0.038,
+    "why": "via django.db.transaction"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/tests.py::FkConstraintsTests::test_check_constraints_sql_keywords",
+    "line": 767,
+    "run": "cd tests && python runtests.py backends.tests.FkConstraintsTests.test_check_constraints_sql_keywords",
+    "score": 0.038,
+    "why": "via django.db.transaction"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/tests.py::FkConstraintsTests::test_disable_constraint_checks_context_manager",
+    "line": 720,
+    "run": "cd tests && python runtests.py backends.tests.FkConstraintsTests.test_disable_constraint_checks_context_manager",
+    "score": 0.038,
+    "why": "via django.db.transaction"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/tests.py::FkConstraintsTests::test_disable_constraint_checks_manually",
+    "line": 697,
+    "run": "cd tests && python runtests.py backends.tests.FkConstraintsTests.test_disable_constraint_checks_manually",
+    "score": 0.038,
+    "why": "via django.db.transaction"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "tests/handlers/views.py",
+    "lines": "36-38",
+    "symbol": "not_in_transaction_async"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792324603.766458,
+  "job_seconds": 13.8,
+  "number": 22064,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 13.8,
+  "started": 1792324589.401788
+ },
+ "verify": null
+}

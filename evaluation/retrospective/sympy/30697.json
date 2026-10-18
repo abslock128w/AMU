@@ -1,0 +1,564 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "319ea7a6186edf88bc23d502917242b10314ae51",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "6b9e5eac3ba6de8a89d8b4fe73bb43cf9e5b213c",
+  "install_ok": true,
+  "merge_base": "319ea7a6186edf88bc23d502917242b10314ae51",
+  "pr": 30697,
+  "recording": false,
+  "runner": null,
+  "seconds": 423.6,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "319ea7a6186edf88bc23d502917242b10314ae51",
+  "head_sha": "6b9e5eac3ba6de8a89d8b4fe73bb43cf9e5b213c",
+  "merge_base": "319ea7a6186edf88bc23d502917242b10314ae51",
+  "merged_at": "2026-10-07T20:28:39Z",
+  "number": 30697,
+  "repo": "sympy",
+  "title": "Fix polys docstrings specialpolys"
+ },
+ "probe_minutes": {
+  "end": 1792339473.589947,
+  "minutes": 0.2,
+  "start": 1792339235.584084,
+  "waited": 225.42958912499307
+ },
+ "probe_targets": {
+  "all": 3,
+  "called": 2,
+  "targets": [
+   {
+    "after": "def swinnerton_dyer_poly(n, x=None, polys=False):\n    \"\"\"Generates n-th Swinnerton-Dyer polynomial in `x`.\n\n    Parameters\n    ----------\n    n : int\n        `n` decides the order of polynomial\n    x : optional\n    polys : bool, optional\n        Returns a Poly object when ``polys=True``, otherwise\n        (default) returns an expression.\n    \"\"\"\n    if n <= 0:\n        raise ValueError(\n            \"Cannot generate Swinnerton-Dyer polynomial of order %s\" % n)\n\n    if x is not None:\n        sympify(x)\n    else:\n        x = Dummy('x')\n\n    if n > 3:\n        from sympy.functions.elementary.miscellaneous import sqrt\n        from .numberfields import minimal_polynomial\n        p = 2\n        a = [sqrt(2)]\n        for i in range(2, n + 1):\n            p = nextprime(p)\n            a.append(sqrt(p))\n        return minimal_polynomial(Add(*a), x, polys=polys)\n\n    if n == 1:\n        ex = x**2 - 2\n    elif n == 2:\n        ex = x**4 - 10*x**2 + 1\n    elif n == 3:\n        ex = x**8 - 40*x**6 + 352*x**4 - 960*x**2 + 576\n\n    return PurePoly(ex, x) if polys else ex\n",
+    "before": "def swinnerton_dyer_poly(n, x=None, polys=False):\n    \"\"\"Generates n-th Swinnerton-Dyer polynomial in `x`.\n\n    Parameters\n    ----------\n    n : int\n        `n` decides the order of polynomial\n    x : optional\n    polys : bool, optional\n        ``polys=True`` returns an expression, otherwise\n        (default) returns an expression.\n    \"\"\"\n    if n <= 0:\n        raise ValueError(\n            \"Cannot generate Swinnerton-Dyer polynomial of order %s\" % n)\n\n    if x is not None:\n        sympify(x)\n    else:\n        x = Dummy('x')\n\n    if n > 3:\n        from sympy.functions.elementary.miscellaneous import sqrt\n        from .numberfields import minimal_polynomial\n        p = 2\n        a = [sqrt(2)]\n        for i in range(2, n + 1):\n            p = nextprime(p)\n            a.append(sqrt(p))\n        return minimal_polynomial(Add(*a), x, polys=polys)\n\n    if n == 1:\n        ex = x**2 - 2\n    elif n == 2:\n        ex = x**4 - 10*x**2 + 1\n    elif n == 3:\n        ex = x**8 - 40*x**6 + 352*x**4 - 960*x**2 + 576\n\n    return PurePoly(ex, x) if polys else ex\n",
+    "file": "sympy/polys/specialpolys.py",
+    "id": "sympy/polys/specialpolys.py#swinnerton_dyer_poly",
+    "name": "swinnerton_dyer_poly",
+    "qual": "swinnerton_dyer_poly",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [],
+   "dollars_cap": 0.1,
+   "filter_seconds": 7.7,
+   "gaps": [],
+   "info": {
+    "accepted": 0,
+    "compiled": 1,
+    "cost": 0.0,
+    "differed": 0,
+    "dollars_cap": 0.1,
+    "functions": 1,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 1,
+    "ran": 1,
+    "reached": 0,
+    "requests": 1,
+    "seconds": 7.6,
+    "stable": 1
+   },
+   "probes": [
+    {
+     "call": "[str(swinnerton_dyer_poly(2, x)), str(swinnerton_dyer_poly(2, x, polys=True))]",
+     "function": "sympy/polys/specialpolys.py#swinnerton_dyer_poly",
+     "setup": "from sympy import symbols\nfrom sympy.polys.specialpolys import swinnerton_dyer_poly\nx = symbols('x')",
+     "why": "the return types the docstring now describes"
+    }
+   ],
+   "targets": [
+    "sympy/polys/specialpolys.py#swinnerton_dyer_poly"
+   ],
+   "waited_seconds": 225.4
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "changed_functions": [
+   {
+    "file": "sympy/polys/specialpolys.py",
+    "lines": "34",
+    "symbol": "swinnerton_dyer_poly"
+   },
+   {
+    "file": "sympy/polys/specialpolys.py",
+    "lines": "76",
+    "symbol": "cyclotomic_poly"
+   },
+   {
+    "file": "sympy/polys/specialpolys.py",
+    "lines": "136",
+    "symbol": "random_poly"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/polys/specialpolys.py#cyclotomic_poly",
+   "sympy/polys/specialpolys.py#random_poly",
+   "sympy/polys/specialpolys.py#swinnerton_dyer_poly"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 0,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 4176,
+   "ran": 3920,
+   "replayed": 0,
+   "runner": "pytest",
+   "seconds": 420.9,
+   "selection": {
+    "candidates": 12935,
+    "closure_files": 1321,
+    "closure_tests": 12934,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 1
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "64604 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "8759 lower-ranked candidate(s) not run: about 17 tests/s per process fit 4176 in the 300 s allowed",
+   "Skipped 1 non-Python file(s)",
+   "graph reused from the previous state; 3 changed file(s) relinked",
+   "shadow run stopped at its 300 s budget: 3920 of 4176 candidates run",
+   "side-by-side run stopped at its time limit; calls captured until then are compared"
+  ],
+  "impacted": {
+   "count": 1527,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1607,
+   "parsed_files": 1
+  },
+  "predicted_failures": [],
+  "report_hash": "1abc7173c548",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [
+    "sympy/polys/specialpolys.py#cyclotomic_poly",
+    "sympy/polys/specialpolys.py#random_poly"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 7,
+   "differences": 0,
+   "functions_called": 2,
+   "input_built_before_the_change": 0,
+   "not_compared": {},
+   "seconds": 120.1,
+   "targets": 3,
+   "unstable": 2
+  },
+  "summary": "EXECUTED 3920 of 4176 candidate tests after the change with pytest in 420.9 s, failures confirmed before it: 0 now fail. 1941 tests reach the change.",
+  "tests": [
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_specialpolys.py::test_swinnerton_dyer_poly",
+    "line": 30,
+    "run": "python -m pytest sympy/polys/tests/test_specialpolys.py::test_swinnerton_dyer_poly",
+    "score": 3.512,
+    "why": "calls swinnerton_dyer_poly (name: dyer,poly,specialpoly,swinnerton)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/tests/test_specialpolys.py::test_random_poly",
+    "line": 73,
+    "run": "python -m pytest sympy/polys/tests/test_specialpolys.py::test_random_poly",
+    "score": 3.152,
+    "why": "calls random_poly (name: poly,random,specialpoly)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/tests/test_specialpolys.py::test_cyclotomic_poly",
+    "line": 47,
+    "run": "python -m pytest sympy/polys/tests/test_specialpolys.py::test_cyclotomic_poly",
+    "score": 3.017,
+    "why": "calls cyclotomic_poly (name: cyclotomic,poly,specialpoly)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/domains/tests/test_domains.py::test_Domain_cyclotomic_field",
+    "line": 870,
+    "run": "python -m pytest sympy/polys/domains/tests/test_domains.py::test_Domain_cyclotomic_field",
+    "score": 1.187,
+    "why": "calls cyclotomic_poly (name: cyclotomic)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_polyroots.py::test_roots_cyclotomic",
+    "line": 263,
+    "run": "python -m pytest sympy/polys/tests/test_polyroots.py::test_roots_cyclotomic",
+    "score": 0.97,
+    "why": "calls cyclotomic_poly (name: cyclotomic)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_PowerBasisElement_polys",
+    "line": 694,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_PowerBasisElement_polys",
+    "score": 0.649,
+    "why": "calls cyclotomic_poly (name: poly)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_PowerBasis_element_from_poly",
+    "line": 215,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_PowerBasis_element_from_poly",
+    "score": 0.584,
+    "why": "calls cyclotomic_poly (name: poly)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_find_min_poly",
+    "line": 757,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_find_min_poly",
+    "score": 0.536,
+    "why": "calls cyclotomic_poly (name: poly)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_evalf.py::test_evalf_real_alg_num",
+    "line": 714,
+    "run": "python -m pytest sympy/core/tests/test_evalf.py::test_evalf_real_alg_num",
+    "score": 0.371,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/polys/numberfields/tests/test_basis.py::test_round_two",
+    "line": 13,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_basis.py::test_round_two",
+    "score": 0.356,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_EndomorphismRing_represent",
+    "line": 738,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_EndomorphismRing_represent",
+    "score": 0.343,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_QQ_col",
+    "line": 532,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_QQ_col",
+    "score": 0.333,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_add",
+    "line": 611,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_add",
+    "score": 0.325,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_column",
+    "line": 522,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_column",
+    "score": 0.318,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_compatibility",
+    "line": 558,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_compatibility",
+    "score": 0.313,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_div",
+    "line": 653,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_div",
+    "score": 0.308,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_eq",
+    "line": 578,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_eq",
+    "score": 0.305,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_equiv",
+    "line": 591,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_equiv",
+    "score": 0.302,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_from_int_list",
+    "line": 508,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_from_int_list",
+    "score": 0.299,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_len",
+    "line": 515,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_len",
+    "score": 0.297,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_mod",
+    "line": 679,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_mod",
+    "score": 0.295,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_mul",
+    "line": 630,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_mul",
+    "score": 0.294,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_pow",
+    "line": 665,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_pow",
+    "score": 0.293,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_reduced",
+    "line": 492,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_reduced",
+    "score": 0.292,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_reduced_mod_p",
+    "line": 500,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_reduced_mod_p",
+    "score": 0.291,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_repr",
+    "line": 485,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_repr",
+    "score": 0.291,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_to_ancestors",
+    "line": 540,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_to_ancestors",
+    "score": 0.29,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_ModuleHomomorphism_kernel",
+    "line": 730,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_ModuleHomomorphism_kernel",
+    "score": 0.29,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_ModuleHomomorphism_matrix",
+    "line": 717,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_ModuleHomomorphism_matrix",
+    "score": 0.29,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_Module_ancestors",
+    "line": 35,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_Module_ancestors",
+    "score": 0.289,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_Module_basis_elements",
+    "line": 80,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_Module_basis_elements",
+    "score": 0.289,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_Module_call",
+    "line": 62,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_Module_call",
+    "score": 0.289,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_Module_compat_col",
+    "line": 49,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_Module_compat_col",
+    "score": 0.289,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_Module_element_from_rational",
+    "line": 116,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_Module_element_from_rational",
+    "score": 0.289,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_Module_one",
+    "line": 106,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_Module_one",
+    "score": 0.289,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_Module_starts_with_unity",
+    "line": 72,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_Module_starts_with_unity",
+    "score": 0.288,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_Module_submodule_from_gens",
+    "line": 130,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_Module_submodule_from_gens",
+    "score": 0.288,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_Module_submodule_from_matrix",
+    "line": 145,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_Module_submodule_from_matrix",
+    "score": 0.288,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_Module_whole_submodule",
+    "line": 158,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_Module_whole_submodule",
+    "score": 0.288,
+    "why": "calls cyclotomic_poly"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_Module_zero",
+    "line": 96,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_Module_zero",
+    "score": 0.288,
+    "why": "calls cyclotomic_poly"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792339222.455662,
+  "job_seconds": 423.6,
+  "number": 30697,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 423.7,
+  "started": 1792338796.480009
+ },
+ "verify": null
+}

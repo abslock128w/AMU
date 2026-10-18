@@ -1,0 +1,1192 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "8c02bd2b177bce1775cd3688cef07d225f69345d",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "9665ed75d6a1781714abac7ba7b3b19c9caf7260",
+  "install_ok": true,
+  "merge_base": "a0be64b90beabfaa8f76fcb31f2983b2476adfb4",
+  "pr": 26912,
+  "recording": false,
+  "runner": null,
+  "seconds": 572.6,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "8c02bd2b177bce1775cd3688cef07d225f69345d",
+  "head_sha": "9665ed75d6a1781714abac7ba7b3b19c9caf7260",
+  "merge_base": "a0be64b90beabfaa8f76fcb31f2983b2476adfb4",
+  "merged_at": "2026-10-09T08:51:08Z",
+  "number": 26912,
+  "repo": "sympy",
+  "title": "make as_base_exp literal, like fraction"
+ },
+ "probe_minutes": {
+  "end": 1792342887.934724,
+  "minutes": 2.2,
+  "start": 1792342631.234925,
+  "waited": 126.68247870799678
+ },
+ "probe_targets": {
+  "all": 13,
+  "called": 1,
+  "targets": [
+   {
+    "after": "def test_as_base_exp():\n    assert x.as_base_exp() == (x, S.One)\n    assert (x*y*z).as_base_exp() == (x*y*z, S.One)\n    assert (x + y + z).as_base_exp() == (x + y + z, S.One)\n    assert ((x + y)**z).as_base_exp() == (x + y, z)\n    assert (x**z*y**z).as_base_exp() == (x**z*y**z, S.One)\n    # Recovering a common power (e.g. x**4*y**12 -> (x*y**3)**4)\n    # requires deciding how to handle rational exponents, coefficients,\n    # and perfect powers for coefficients. That belongs in a dedicated\n    # algebraic routine, not in the structural as_base_exp interface.\n    assert (x**2*y**2).as_base_exp() == (x**2*y**2, S.One)\n",
+    "before": "def test_as_base_exp():\n    assert x.as_base_exp() == (x, S.One)\n    assert (x*y*z).as_base_exp() == (x*y*z, S.One)\n    assert (x + y + z).as_base_exp() == (x + y + z, S.One)\n    assert ((x + y)**z).as_base_exp() == (x + y, z)\n    assert (x**2*y**2).as_base_exp() == (x*y, 2)\n    assert (x**z*y**z).as_base_exp() == (x**z*y**z, S.One)\n",
+    "file": "sympy/core/tests/test_expr.py",
+    "id": "sympy/core/tests/test_expr.py#test_as_base_exp",
+    "name": "test_as_base_exp",
+    "qual": "test_as_base_exp",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_pow_as_base_exp():\n    assert (S.Infinity**(2 - x)).as_base_exp() == (S.Infinity, 2 - x)\n    assert (S.Infinity**(x - 2)).as_base_exp() == (S.Infinity, x - 2)\n    p = S.Half**x\n    assert p.base, p.exp == p.as_base_exp() == (S(2), -x)\n    p = (S(3)/2)**x\n    assert p.base, p.exp == p.as_base_exp() == (3*S.Half, x)\n    p = (S(2)/3)**x\n    assert p.as_base_exp() == (S(2)/3, x)\n    assert p.base, p.exp == (S(2)/3, x)\n    # issue 8344:\n    assert Pow(1, 2, evaluate=False).as_base_exp() == (S.One, S(2))\n    # For a Pow, as_base_exp returns the stored arguments, without\n    # changing a reciprocal rational base into a negative exponent.\n    for base, exponent in [\n        (S.Half, x), (S.Half, -x), (S(2)/3, x),\n        (S(3)/2, -x), (S.Half, S(2)),\n    ]:\n        p = Pow(base, exponent, evaluate=False)\n        assert p.as_base_exp() == p.args == (base, exponent)\n        assert Pow(*p.as_base_exp(), evaluate=False) == p\n",
+    "before": "def test_pow_as_base_exp():\n    assert (S.Infinity**(2 - x)).as_base_exp() == (S.Infinity, 2 - x)\n    assert (S.Infinity**(x - 2)).as_base_exp() == (S.Infinity, x - 2)\n    p = S.Half**x\n    assert p.base, p.exp == p.as_base_exp() == (S(2), -x)\n    p = (S(3)/2)**x\n    assert p.base, p.exp == p.as_base_exp() == (3*S.Half, x)\n    p = (S(2)/3)**x\n    assert p.as_base_exp() == (S(2)/3, x)\n    assert p.base, p.exp == (S(2)/3, x)\n    # issue 8344:\n    assert Pow(1, 2, evaluate=False).as_base_exp() == (S.One, S(2))\n",
+    "file": "sympy/core/tests/test_power.py",
+    "id": "sympy/core/tests/test_power.py#test_pow_as_base_exp",
+    "name": "test_pow_as_base_exp",
+    "qual": "test_pow_as_base_exp",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_meijerint():\n    from sympy.core.function import expand\n    from sympy.core.symbol import symbols\n    s, t, mu = symbols('s t mu', real=True)\n    assert integrate(meijerg([], [], [0], [], s*t)\n                     *meijerg([], [], [mu/2], [-mu/2], t**2/4),\n                     (t, 0, oo)).is_Piecewise\n    s = symbols('s', positive=True)\n    assert integrate(x**s*meijerg([[], []], [[0], []], x), (x, 0, oo)) == \\\n        gamma(s + 1)\n    assert integrate(x**s*meijerg([[], []], [[0], []], x), (x, 0, oo),\n                     meijerg=True) == gamma(s + 1)\n    assert isinstance(integrate(x**s*meijerg([[], []], [[0], []], x),\n                                (x, 0, oo), meijerg=False),\n                      Integral)\n\n    assert meijerint_indefinite(exp(x), x) == exp(x)\n\n    # TODO what simplifications should be done automatically?\n    # This tests \"extra case\" for antecedents_1.\n    a, b = symbols('a b', positive=True)\n    assert simplify(meijerint_definite(x**a, x, 0, b)[0]) == \\\n        b**(a + 1)/(a + 1)\n\n    # This tests various conditions and expansions:\n    assert meijerint_definite((x + 1)**3*exp(-x), x, 0, oo) == (16, True)\n\n    # Again, how about simplifications?\n    sigma, mu = symbols('sigma mu', positive=True)\n    i, c = meijerint_definite(exp(-((x - mu)/(2*sigma))**2), x, 0, oo)\n    assert simplify(i) == sqrt(pi)*sigma*(2 - erfc(mu/(2*sigma)))\n    assert c == True\n\n    i, _ = meijerint_definite(exp(-mu*x)*exp(sigma*x), x, 0, oo)\n    # TODO it would be nice to test the condition\n    assert simplify(i) == 1/(mu - sigma)\n\n    # Test substitutions to change limits\n    assert meijerint_definite(exp(x), x, -oo, 2) == (exp(2), True)\n    # Note: causes a NaN in _check_antecedents\n    assert expand(meijerint_definite(exp(x), x, 0, I)[0]) == exp(I) - 1\n    assert expand(meijerint_definite(exp(-x), x, 0, x)[0]) == \\\n        1 - exp(-exp(I*arg(x))*abs(x))\n\n    # Test -oo to oo\n    assert meijerint_definite(exp(-x**2), x, -oo, oo) == (sqrt(pi), True)\n    assert meijerint_definite(exp(-abs(x)), x, -oo, oo) == (2, True)\n    assert meijerint_definite(exp(-(2*x - 3)**2), x, -oo, oo) == \\\n        (sqrt(pi)/2, True)\n    assert meijerint_definite(exp(-abs(2*x - 3)), x, -oo, oo) == (1, True)\n    assert meijerint_definite(exp(-((x - mu)/sigma)**2/2)/sqrt(2*pi*sigma**2),\n                              x, -oo, oo) == (1, True)\n    assert meijerint_definite(sinc(x)**2, x, -oo, oo) == (pi, True)\n\n    # Test one of the extra conditions for 2 g-functinos\n    assert meijerint_definite(exp(-x)*sin(x), x, 0, oo) == (S.Half, True)\n\n    # Test a bug\n    def res(n):\n        return (1/(1 + x**2)).diff(x, n).subs(x, 1)*(-1)**n\n    for n in range(6):\n        assert integrate(exp(-x)*sin(x)*x**n, (x, 0, oo), meijerg=True) == \\\n            res(n)\n\n    # This used to test trigexpand... now it is done by linear substitution\n    assert simplify(integrate(exp(-x)*sin(x + a), (x, 0, oo), meijerg=True)\n                    ) == sqrt(2)*sin(a + pi/4)/2\n\n    # Test the condition 14 from prudnikov.\n    # (This is besselj*besselj in disguise, to stop the product from being\n    #  recognised in the tables.)\n    a, b, s = symbols('a b s')\n    assert meijerint_definite(meijerg([], [], [a/2], [-a/2], x/4)\n                  *meijerg([], [], [b/2], [-b/2], x/4)*x**(s - 1), x, 0, oo\n        ) == (\n        (4*(S(1)/4)**(1 - s)*gamma(1 - 2*s)*gamma(a/2 + b/2 + s)\n         /(gamma(-a/2 + b/2 - s + 1)*gamma(a/2 - b/2 - s + 1)\n           *gamma(a/2 + b/2 - s + 1)),\n            (re(s) < 1) & (re(s) < S(1)/2) & (re(a)/2 + re(b)/2 + re(s) > 0)))\n\n    # test a bug\n    assert integrate(sin(x**a)*sin(x**b), (x, 0, oo), meijerg=True) == \\\n        Integral(sin(x**a)*sin(x**b), (x, 0, oo))\n\n    # test better hyperexpand\n    assert integrate(exp(-x**2)*log(x), (x, 0, oo), meijerg=True) == \\\n        (sqrt(pi)*polygamma(0, S.Half)/4).expand()\n\n    # Test hyperexpand bug.\n    from sympy.functions.special.gamma_functions import lowergamma\n    n = symbols('n', integer=True)\n    assert simplify(integrate(exp(-x)*x**n, x, meijerg=True)) == \\\n        lowergamma(n + 1, x)\n\n    # Test a bug with argument 1/x\n    alpha = symbols('alpha', positive=True)\n    assert meijerint_definite((2 - x)**alpha*sin(alpha/x), x, 0, 2) == \\\n        (sqrt(pi)*alpha*gamma(alpha + 1)*meijerg(((), (alpha/2 + S.Half,\n        alpha/2 + 1)), ((0, 0, S.Half), (Rational(-1, 2),)), alpha**2/16)/4, True)\n\n    # test a bug related to 3016\n    a, s = symbols('a s', positive=True)\n    assert simplify(integrate(x**s*exp(-a*x**2), (x, -oo, oo))) == \\\n        a**(-s/2 - S.Half)*((-1)**s + 1)*gamma(s/2 + S.Half)/2\n",
+    "before": "def test_meijerint():\n    from sympy.core.function import expand\n    from sympy.core.symbol import symbols\n    s, t, mu = symbols('s t mu', real=True)\n    assert integrate(meijerg([], [], [0], [], s*t)\n                     *meijerg([], [], [mu/2], [-mu/2], t**2/4),\n                     (t, 0, oo)).is_Piecewise\n    s = symbols('s', positive=True)\n    assert integrate(x**s*meijerg([[], []], [[0], []], x), (x, 0, oo)) == \\\n        gamma(s + 1)\n    assert integrate(x**s*meijerg([[], []], [[0], []], x), (x, 0, oo),\n                     meijerg=True) == gamma(s + 1)\n    assert isinstance(integrate(x**s*meijerg([[], []], [[0], []], x),\n                                (x, 0, oo), meijerg=False),\n                      Integral)\n\n    assert meijerint_indefinite(exp(x), x) == exp(x)\n\n    # TODO what simplifications should be done automatically?\n    # This tests \"extra case\" for antecedents_1.\n    a, b = symbols('a b', positive=True)\n    assert simplify(meijerint_definite(x**a, x, 0, b)[0]) == \\\n        b**(a + 1)/(a + 1)\n\n    # This tests various conditions and expansions:\n    assert meijerint_definite((x + 1)**3*exp(-x), x, 0, oo) == (16, True)\n\n    # Again, how about simplifications?\n    sigma, mu = symbols('sigma mu', positive=True)\n    i, c = meijerint_definite(exp(-((x - mu)/(2*sigma))**2), x, 0, oo)\n    assert simplify(i) == sqrt(pi)*sigma*(2 - erfc(mu/(2*sigma)))\n    assert c == True\n\n    i, _ = meijerint_definite(exp(-mu*x)*exp(sigma*x), x, 0, oo)\n    # TODO it would be nice to test the condition\n    assert simplify(i) == 1/(mu - sigma)\n\n    # Test substitutions to change limits\n    assert meijerint_definite(exp(x), x, -oo, 2) == (exp(2), True)\n    # Note: causes a NaN in _check_antecedents\n    assert expand(meijerint_definite(exp(x), x, 0, I)[0]) == exp(I) - 1\n    assert expand(meijerint_definite(exp(-x), x, 0, x)[0]) == \\\n        1 - exp(-exp(I*arg(x))*abs(x))\n\n    # Test -oo to oo\n    assert meijerint_definite(exp(-x**2), x, -oo, oo) == (sqrt(pi), True)\n    assert meijerint_definite(exp(-abs(x)), x, -oo, oo) == (2, True)\n    assert meijerint_definite(exp(-(2*x - 3)**2), x, -oo, oo) == \\\n        (sqrt(pi)/2, True)\n    assert meijerint_definite(exp(-abs(2*x - 3)), x, -oo, oo) == (1, True)\n    assert meijerint_definite(exp(-((x - mu)/sigma)**2/2)/sqrt(2*pi*sigma**2),\n                              x, -oo, oo) == (1, True)\n    assert meijerint_definite(sinc(x)**2, x, -oo, oo) == (pi, True)\n\n    # Test one of the extra conditions for 2 g-functinos\n    assert meijerint_definite(exp(-x)*sin(x), x, 0, oo) == (S.Half, True)\n\n    # Test a bug\n    def res(n):\n        return (1/(1 + x**2)).diff(x, n).subs(x, 1)*(-1)**n\n    for n in range(6):\n        assert integrate(exp(-x)*sin(x)*x**n, (x, 0, oo), meijerg=True) == \\\n            res(n)\n\n    # This used to test trigexpand... now it is done by linear substitution\n    assert simplify(integrate(exp(-x)*sin(x + a), (x, 0, oo), meijerg=True)\n                    ) == sqrt(2)*sin(a + pi/4)/2\n\n    # Test the condition 14 from prudnikov.\n    # (This is besselj*besselj in disguise, to stop the product from being\n    #  recognised in the tables.)\n    a, b, s = symbols('a b s')\n    assert meijerint_definite(meijerg([], [], [a/2], [-a/2], x/4)\n                  *meijerg([], [], [b/2], [-b/2], x/4)*x**(s - 1), x, 0, oo\n        ) == (\n        (4*2**(2*s - 2)*gamma(-2*s + 1)*gamma(a/2 + b/2 + s)\n         /(gamma(-a/2 + b/2 - s + 1)*gamma(a/2 - b/2 - s + 1)\n           *gamma(a/2 + b/2 - s + 1)),\n            (re(s) < 1) & (re(s) < S(1)/2) & (re(a)/2 + re(b)/2 + re(s) > 0)))\n\n    # test a bug\n    assert integrate(sin(x**a)*sin(x**b), (x, 0, oo), meijerg=True) == \\\n        Integral(sin(x**a)*sin(x**b), (x, 0, oo))\n\n    # test better hyperexpand\n    assert integrate(exp(-x**2)*log(x), (x, 0, oo), meijerg=True) == \\\n        (sqrt(pi)*polygamma(0, S.Half)/4).expand()\n\n    # Test hyperexpand bug.\n    from sympy.functions.special.gamma_functions import lowergamma\n    n = symbols('n', integer=True)\n    assert simplify(integrate(exp(-x)*x**n, x, meijerg=True)) == \\\n        lowergamma(n + 1, x)\n\n    # Test a bug with argument 1/x\n    alpha = symbols('alpha', positive=True)\n    assert meijerint_definite((2 - x)**alpha*sin(alpha/x), x, 0, 2) == \\\n        (sqrt(pi)*alpha*gamma(alpha + 1)*meijerg(((), (alpha/2 + S.Half,\n        alpha/2 + 1)), ((0, 0, S.Half), (Rational(-1, 2),)), alpha**2/16)/4, True)\n\n    # test a bug related to 3016\n    a, s = symbols('a s', positive=True)\n    assert simplify(integrate(x**s*exp(-a*x**2), (x, -oo, oo))) == \\\n        a**(-s/2 - S.Half)*((-1)**s + 1)*gamma(s/2 + S.Half)/2\n",
+    "file": "sympy/integrals/tests/test_meijerint.py",
+    "id": "sympy/integrals/tests/test_meijerint.py#test_meijerint",
+    "name": "test_meijerint",
+    "qual": "test_meijerint",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_probability():\n    # various integrals from probability theory\n    from sympy.core.symbol import (Symbol, symbols)\n    from sympy.simplify.gammasimp import gammasimp\n    from sympy.simplify.powsimp import powsimp\n    mu1, mu2 = symbols('mu1 mu2', nonzero=True)\n    sigma1, sigma2 = symbols('sigma1 sigma2', positive=True)\n    rate = Symbol('lambda', positive=True)\n\n    def normal(x, mu, sigma):\n        return 1/sqrt(2*pi*sigma**2)*exp(-(x - mu)**2/2/sigma**2)\n\n    def exponential(x, rate):\n        return rate*exp(-rate*x)\n\n    assert integrate(normal(x, mu1, sigma1), (x, -oo, oo), meijerg=True) == 1\n    assert integrate(x*normal(x, mu1, sigma1), (x, -oo, oo), meijerg=True) == \\\n        mu1\n    assert integrate(x**2*normal(x, mu1, sigma1), (x, -oo, oo), meijerg=True) \\\n        == mu1**2 + sigma1**2\n    assert integrate(x**3*normal(x, mu1, sigma1), (x, -oo, oo), meijerg=True) \\\n        == mu1**3 + 3*mu1*sigma1**2\n    assert integrate(normal(x, mu1, sigma1)*normal(y, mu2, sigma2),\n                     (x, -oo, oo), (y, -oo, oo), meijerg=True) == 1\n    assert integrate(x*normal(x, mu1, sigma1)*normal(y, mu2, sigma2),\n                     (x, -oo, oo), (y, -oo, oo), meijerg=True) == mu1\n    assert integrate(y*normal(x, mu1, sigma1)*normal(y, mu2, sigma2),\n                     (x, -oo, oo), (y, -oo, oo), meijerg=True) == mu2\n    assert integrate(x*y*normal(x, mu1, sigma1)*normal(y, mu2, sigma2),\n                     (x, -oo, oo), (y, -oo, oo), meijerg=True) == mu1*mu2\n    assert integrate((x + y + 1)*normal(x, mu1, sigma1)*normal(y, mu2, sigma2),\n                     (x, -oo, oo), (y, -oo, oo), meijerg=True) == 1 + mu1 + mu2\n    assert integrate((x + y - 1)*normal(x, mu1, sigma1)*normal(y, mu2, sigma2),\n                     (x, -oo, oo), (y, -oo, oo), meijerg=True) == \\\n        -1 + mu1 + mu2\n\n    i = integrate(x**2*normal(x, mu1, sigma1)*normal(y, mu2, sigma2),\n                  (x, -oo, oo), (y, -oo, oo), meijerg=True)\n    assert not i.has(Abs)\n    assert simplify(i) == mu1**2 + sigma1**2\n    assert integrate(y**2*normal(x, mu1, sigma1)*normal(y, mu2, sigma2),\n                     (x, -oo, oo), (y, -oo, oo), meijerg=True) == \\\n        sigma2**2 + mu2**2\n\n    assert integrate(exponential(x, rate), (x, 0, oo), meijerg=True) == 1\n    assert integrate(x*exponential(x, rate), (x, 0, oo), meijerg=True) == \\\n        1/rate\n    assert integrate(x**2*exponential(x, rate), (x, 0, oo), meijerg=True) == \\\n        2/rate**2\n\n    def E(expr):\n        res1 = integrate(expr*exponential(x, rate)*normal(y, mu1, sigma1),\n                         (x, 0, oo), (y, -oo, oo), meijerg=True)\n        res2 = integrate(expr*exponential(x, rate)*normal(y, mu1, sigma1),\n                        (y, -oo, oo), (x, 0, oo), meijerg=True)\n        assert expand_mul(res1) == expand_mul(res2)\n        return res1\n\n    assert E(1) == 1\n    assert E(x*y) == mu1/rate\n    assert E(x*y**2) == mu1**2/rate + sigma1**2/rate\n    ans = sigma1**2 + 1/rate**2\n    assert simplify(E((x + y + 1)**2) - E(x + y + 1)**2) == ans\n    assert simplify(E((x + y - 1)**2) - E(x + y - 1)**2) == ans\n    assert simplify(E((x + y)**2) - E(x + y)**2) == ans\n\n    # Beta' distribution\n    alpha, beta = symbols('alpha beta', positive=True)\n    betadist = x**(alpha - 1)*(1 + x)**(-alpha - beta)*gamma(alpha + beta) \\\n        /gamma(alpha)/gamma(beta)\n    assert integrate(betadist, (x, 0, oo), meijerg=True) == 1\n    i = integrate(x*betadist, (x, 0, oo), meijerg=True, conds='separate')\n    assert (gammasimp(i[0]), i[1]) == (alpha/(beta - 1), 1 < beta)\n    j = integrate(x**2*betadist, (x, 0, oo), meijerg=True, conds='separate')\n    assert j[1] == (beta > 2)\n    assert gammasimp(j[0] - i[0]**2) == (alpha + beta - 1)*alpha \\\n        /(beta - 2)/(beta - 1)**2\n\n    # Beta distribution\n    # NOTE: this is evaluated using antiderivatives. It also tests that\n    #       meijerint_indefinite returns the simplest possible answer.\n    a, b = symbols('a b', positive=True)\n    betadist = x**(a - 1)*(-x + 1)**(b - 1)*gamma(a + b)/(gamma(a)*gamma(b))\n    assert simplify(integrate(betadist, (x, 0, 1), meijerg=True)) == 1\n    assert simplify(integrate(x*betadist, (x, 0, 1), meijerg=True)) == \\\n        a/(a + b)\n    assert simplify(integrate(x**2*betadist, (x, 0, 1), meijerg=True)) == \\\n        a*(a + 1)/(a + b)/(a + b + 1)\n    assert simplify(integrate(x**y*betadist, (x, 0, 1), meijerg=True)) == \\\n        gamma(a + b)*gamma(a + y)/gamma(a)/gamma(a + b + y)\n\n    # Chi distribution\n    k = Symbol('k', integer=True, positive=True)\n    chi = 2**(1 - k/2)*x**(k - 1)*exp(-x**2/2)/gamma(k/2)\n    assert powsimp(integrate(chi, (x, 0, oo), meijerg=True)) == 1\n    assert simplify(integrate(x*chi, (x, 0, oo), meijerg=True)) == \\\n        sqrt(2)*gamma((k + 1)/2)/gamma(k/2)\n    assert simplify(integrate(x**2*chi, (x, 0, oo), meijerg=True)) == k\n\n    # Chi^2 distribution\n    chisquared = 2**(-k/2)/gamma(k/2)*x**(k/2 - 1)*exp(-x/2)\n    assert powsimp(integrate(chisquared, (x, 0, oo), meijerg=True)) == 1\n    assert simplify(integrate(x*chisquared, (x, 0, oo), meijerg=True)) == k\n    assert simplify(integrate(x**2*chisquared, (x, 0, oo), meijerg=True)) == \\\n        k*(k + 2)\n    assert expand_mul(gammasimp(integrate(\n        ((x - k)/sqrt(2*k))**3*chisquared, (x, 0, oo), meijerg=True)\n        )) == 2*sqrt(2)/sqrt(k)\n\n    # Dagum distribution\n    a, b, p = symbols('a b p', positive=True)\n    # XXX (x/b)**a does not work\n    dagum = a*p/x*(x/b)**(a*p)/(1 + x**a/b**a)**(p + 1)\n    assert simplify(integrate(dagum, (x, 0, oo), meijerg=True)) == 1\n    # XXX conditions are a mess\n    arg = x*dagum\n    assert simplify(integrate(arg, (x, 0, oo), meijerg=True, conds='none')\n                    ) == a*b*gamma(1 - 1/a)*gamma(p + 1 + 1/a)/(\n                    (a*p + 1)*gamma(p))\n    assert simplify(integrate(x*arg, (x, 0, oo), meijerg=True, conds='none')\n                    ) == a*b**2*gamma(1 - 2/a)*gamma(p + 1 + 2/a)/(\n                    (a*p + 2)*gamma(p))\n\n    # F-distribution\n    d1, d2 = symbols('d1 d2', positive=True)\n    f = sqrt(((d1*x)**d1 * d2**d2)/(d1*x + d2)**(d1 + d2))/x \\\n        /gamma(d1/2)/gamma(d2/2)*gamma((d1 + d2)/2)\n    assert simplify(integrate(f, (x, 0, oo), meijerg=True)) == 1\n    # TODO conditions are a mess\n    assert simplify(integrate(x*f, (x, 0, oo), meijerg=True, conds='none')\n                    ) == d2/(d2 - 2)\n    assert simplify(integrate(x**2*f, (x, 0, oo), meijerg=True, conds='none')\n                    ) == d2**2*(d1 + 2)/d1/(d2 - 4)/(d2 - 2)\n\n    # TODO gamma, rayleigh\n\n    # inverse gaussian\n    lamda, mu = symbols('lamda mu', positive=True)\n    dist = sqrt(lamda/2/pi)*x**(Rational(-3, 2))*exp(-lamda*(x - mu)**2/x/2/mu**2)\n    mysimp = lambda expr: simplify(expr.rewrite(exp))\n    assert mysimp(integrate(dist, (x, 0, oo))) == 1\n    assert mysimp(integrate(x*dist, (x, 0, oo))) == mu\n    assert mysimp(integrate((x - mu)**2*dist, (x, 0, oo))) == mu**3/lamda\n    assert mysimp(integrate((x - mu)**3*dist, (x, 0, oo))) == 3*mu**5/lamda**2\n\n    # Levi\n    c = Symbol('c', positive=True)\n    assert integrate(sqrt(c/2/pi)*exp(-c/2/(x - mu))/(x - mu)**S('3/2'),\n                    (x, mu, oo)) == 1\n    # higher moments oo\n\n    # log-logistic\n    alpha, beta = symbols('alpha beta', positive=True)\n    distn = (beta/alpha)*x**(beta - 1)/alpha**(beta - 1)/ \\\n        (1 + x**beta/alpha**beta)**2\n    # FIXME: If alpha, beta are not declared as finite the line below hangs\n    # after the changes in:\n    #    https://github.com/sympy/sympy/pull/16603\n    assert simplify(integrate(distn, (x, 0, oo))) == 1\n    # NOTE the conditions are a mess, but correctly state beta > 1\n    assert simplify(integrate(x*distn, (x, 0, oo), conds='none')) == \\\n        pi*alpha/beta/sin(pi/beta)\n    # (similar comment for conditions applies)\n    assert simplify(integrate(x**y*distn, (x, 0, oo), conds='none')) == \\\n        pi*alpha**y*y/beta/sin(pi*y/beta)\n\n    # weibull\n    k = Symbol('k', positive=True)\n    n = Symbol('n', positive=True)\n    distn = k/lamda*(x/lamda)**(k - 1)*exp(-(x/lamda)**k)\n    assert simplify(integrate(distn, (x, 0, oo))) == 1\n    assert simplify(integrate(x**n*distn, (x, 0, oo))) == \\\n        lamda**n*gamma(1 + n/k)\n\n    # rice distribution\n    from sympy.functions.special.bessel import besseli\n    nu, sigma = symbols('nu sigma', positive=True)\n    rice = x/sigma**2*exp(-(x**2 + nu**2)/2/sigma**2)*besseli(0, x*nu/sigma**2)\n    assert integrate(rice, (x, 0, oo), meijerg=True) == 1\n    # can someone verify higher moments?\n\n    # Laplace distribution\n    mu = Symbol('mu', real=True)\n    b = Symbol('b', positive=True)\n    laplace = exp(-abs(x - mu)/b)/2/b\n    assert integrate(laplace, (x, -oo, oo), meijerg=True) == 1\n    assert integrate(x*laplace, (x, -oo, oo), meijerg=True) == mu\n    assert integrate(x**2*laplace, (x, -oo, oo), meijerg=True) == \\\n        2*b**2 + mu**2\n\n    # TODO are there other distributions supported on (-oo, oo) that we can do?\n\n    # misc tests\n    k = Symbol('k', positive=True)\n    assert gammasimp(expand_mul(integrate(log(x)*x**(k - 1)*exp(-x)/gamma(k),\n                              (x, 0, oo)))) == polygamma(0, k)\n",
+    "before": "def test_probability():\n    # various integrals from probability theory\n    from sympy.core.function import expand_mul\n    from sympy.core.symbol import (Symbol, symbols)\n    from sympy.simplify.gammasimp import gammasimp\n    from sympy.simplify.powsimp import powsimp\n    mu1, mu2 = symbols('mu1 mu2', nonzero=True)\n    sigma1, sigma2 = symbols('sigma1 sigma2', positive=True)\n    rate = Symbol('lambda', positive=True)\n\n    def normal(x, mu, sigma):\n        return 1/sqrt(2*pi*sigma**2)*exp(-(x - mu)**2/2/sigma**2)\n\n    def exponential(x, rate):\n        return rate*exp(-rate*x)\n\n    assert integrate(normal(x, mu1, sigma1), (x, -oo, oo), meijerg=True) == 1\n    assert integrate(x*normal(x, mu1, sigma1), (x, -oo, oo), meijerg=True) == \\\n        mu1\n    assert integrate(x**2*normal(x, mu1, sigma1), (x, -oo, oo), meijerg=True) \\\n        == mu1**2 + sigma1**2\n    assert integrate(x**3*normal(x, mu1, sigma1), (x, -oo, oo), meijerg=True) \\\n        == mu1**3 + 3*mu1*sigma1**2\n    assert integrate(normal(x, mu1, sigma1)*normal(y, mu2, sigma2),\n                     (x, -oo, oo), (y, -oo, oo), meijerg=True) == 1\n    assert integrate(x*normal(x, mu1, sigma1)*normal(y, mu2, sigma2),\n                     (x, -oo, oo), (y, -oo, oo), meijerg=True) == mu1\n    assert integrate(y*normal(x, mu1, sigma1)*normal(y, mu2, sigma2),\n                     (x, -oo, oo), (y, -oo, oo), meijerg=True) == mu2\n    assert integrate(x*y*normal(x, mu1, sigma1)*normal(y, mu2, sigma2),\n                     (x, -oo, oo), (y, -oo, oo), meijerg=True) == mu1*mu2\n    assert integrate((x + y + 1)*normal(x, mu1, sigma1)*normal(y, mu2, sigma2),\n                     (x, -oo, oo), (y, -oo, oo), meijerg=True) == 1 + mu1 + mu2\n    assert integrate((x + y - 1)*normal(x, mu1, sigma1)*normal(y, mu2, sigma2),\n                     (x, -oo, oo), (y, -oo, oo), meijerg=True) == \\\n        -1 + mu1 + mu2\n\n    i = integrate(x**2*normal(x, mu1, sigma1)*normal(y, mu2, sigma2),\n                  (x, -oo, oo), (y, -oo, oo), meijerg=True)\n    assert not i.has(Abs)\n    assert simplify(i) == mu1**2 + sigma1**2\n    assert integrate(y**2*normal(x, mu1, sigma1)*normal(y, mu2, sigma2),\n                     (x, -oo, oo), (y, -oo, oo), meijerg=True) == \\\n        sigma2**2 + mu2**2\n\n    assert integrate(exponential(x, rate), (x, 0, oo), meijerg=True) == 1\n    assert integrate(x*exponential(x, rate), (x, 0, oo), meijerg=True) == \\\n        1/rate\n    assert integrate(x**2*exponential(x, rate), (x, 0, oo), meijerg=True) == \\\n        2/rate**2\n\n    def E(expr):\n        res1 = integrate(expr*exponential(x, rate)*normal(y, mu1, sigma1),\n                         (x, 0, oo), (y, -oo, oo), meijerg=True)\n        res2 = integrate(expr*exponential(x, rate)*normal(y, mu1, sigma1),\n                        (y, -oo, oo), (x, 0, oo), meijerg=True)\n        assert expand_mul(res1) == expand_mul(res2)\n        return res1\n\n    assert E(1) == 1\n    assert E(x*y) == mu1/rate\n    assert E(x*y**2) == mu1**2/rate + sigma1**2/rate\n    ans = sigma1**2 + 1/rate**2\n    assert simplify(E((x + y + 1)**2) - E(x + y + 1)**2) == ans\n    assert simplify(E((x + y - 1)**2) - E(x + y - 1)**2) == ans\n    assert simplify(E((x + y)**2) - E(x + y)**2) == ans\n\n    # Beta' distribution\n    alpha, beta = symbols('alpha beta', positive=True)\n    betadist = x**(alpha - 1)*(1 + x)**(-alpha - beta)*gamma(alpha + beta) \\\n        /gamma(alpha)/gamma(beta)\n    assert integrate(betadist, (x, 0, oo), meijerg=True) == 1\n    i = integrate(x*betadist, (x, 0, oo), meijerg=True, conds='separate')\n    assert (gammasimp(i[0]), i[1]) == (alpha/(beta - 1), 1 < beta)\n    j = integrate(x**2*betadist, (x, 0, oo), meijerg=True, conds='separate')\n    assert j[1] == (beta > 2)\n    assert gammasimp(j[0] - i[0]**2) == (alpha + beta - 1)*alpha \\\n        /(beta - 2)/(beta - 1)**2\n\n    # Beta distribution\n    # NOTE: this is evaluated using antiderivatives. It also tests that\n    #       meijerint_indefinite returns the simplest possible answer.\n    a, b = symbols('a b', positive=True)\n    betadist = x**(a - 1)*(-x + 1)**(b - 1)*gamma(a + b)/(gamma(a)*gamma(b))\n    assert simplify(integrate(betadist, (x, 0, 1), meijerg=True)) == 1\n    assert simplify(integrate(x*betadist, (x, 0, 1), meijerg=True)) == \\\n        a/(a + b)\n    assert simplify(integrate(x**2*betadist, (x, 0, 1), meijerg=True)) == \\\n        a*(a + 1)/(a + b)/(a + b + 1)\n    assert simplify(integrate(x**y*betadist, (x, 0, 1), meijerg=True)) == \\\n        gamma(a + b)*gamma(a + y)/gamma(a)/gamma(a + b + y)\n\n    # Chi distribution\n    k = Symbol('k', integer=True, positive=True)\n    chi = 2**(1 - k/2)*x**(k - 1)*exp(-x**2/2)/gamma(k/2)\n    assert powsimp(integrate(chi, (x, 0, oo), meijerg=True)) == 1\n    assert simplify(integrate(x*chi, (x, 0, oo), meijerg=True)) == \\\n        sqrt(2)*gamma((k + 1)/2)/gamma(k/2)\n    assert simplify(integrate(x**2*chi, (x, 0, oo), meijerg=True)) == k\n\n    # Chi^2 distribution\n    chisquared = 2**(-k/2)/gamma(k/2)*x**(k/2 - 1)*exp(-x/2)\n    assert powsimp(integrate(chisquared, (x, 0, oo), meijerg=True)) == 1\n    assert simplify(integrate(x*chisquared, (x, 0, oo), meijerg=True)) == k\n    assert simplify(integrate(x**2*chisquared, (x, 0, oo), meijerg=True)) == \\\n        k*(k + 2)\n    assert gammasimp(integrate(((x - k)/sqrt(2*k))**3*chisquared, (x, 0, oo),\n                    meijerg=True)) == 2*sqrt(2)/sqrt(k)\n\n    # Dagum distribution\n    a, b, p = symbols('a b p', positive=True)\n    # XXX (x/b)**a does not work\n    dagum = a*p/x*(x/b)**(a*p)/(1 + x**a/b**a)**(p + 1)\n    assert simplify(integrate(dagum, (x, 0, oo), meijerg=True)) == 1\n    # XXX conditions are a mess\n    arg = x*dagum\n    assert simplify(integrate(arg, (x, 0, oo), meijerg=True, conds='none')\n                    ) == a*b*gamma(1 - 1/a)*gamma(p + 1 + 1/a)/(\n                    (a*p + 1)*gamma(p))\n    assert simplify(integrate(x*arg, (x, 0, oo), meijerg=True, conds='none')\n                    ) == a*b**2*gamma(1 - 2/a)*gamma(p + 1 + 2/a)/(\n                    (a*p + 2)*gamma(p))\n\n    # F-distribution\n    d1, d2 = symbols('d1 d2', positive=True)\n    f = sqrt(((d1*x)**d1 * d2**d2)/(d1*x + d2)**(d1 + d2))/x \\\n        /gamma(d1/2)/gamma(d2/2)*gamma((d1 + d2)/2)\n    assert simplify(integrate(f, (x, 0, oo), meijerg=True)) == 1\n    # TODO conditions are a mess\n    assert simplify(integrate(x*f, (x, 0, oo), meijerg=True, conds='none')\n                    ) == d2/(d2 - 2)\n    assert simplify(integrate(x**2*f, (x, 0, oo), meijerg=True, conds='none')\n                    ) == d2**2*(d1 + 2)/d1/(d2 - 4)/(d2 - 2)\n\n    # TODO gamma, rayleigh\n\n    # inverse gaussian\n    lamda, mu = symbols('lamda mu', positive=True)\n    dist = sqrt(lamda/2/pi)*x**(Rational(-3, 2))*exp(-lamda*(x - mu)**2/x/2/mu**2)\n    mysimp = lambda expr: simplify(expr.rewrite(exp))\n    assert mysimp(integrate(dist, (x, 0, oo))) == 1\n    assert mysimp(integrate(x*dist, (x, 0, oo))) == mu\n    assert mysimp(integrate((x - mu)**2*dist, (x, 0, oo))) == mu**3/lamda\n    assert mysimp(integrate((x - mu)**3*dist, (x, 0, oo))) == 3*mu**5/lamda**2\n\n    # Levi\n    c = Symbol('c', positive=True)\n    assert integrate(sqrt(c/2/pi)*exp(-c/2/(x - mu))/(x - mu)**S('3/2'),\n                    (x, mu, oo)) == 1\n    # higher moments oo\n\n    # log-logistic\n    alpha, beta = symbols('alpha beta', positive=True)\n    distn = (beta/alpha)*x**(beta - 1)/alpha**(beta - 1)/ \\\n        (1 + x**beta/alpha**beta)**2\n    # FIXME: If alpha, beta are not declared as finite the line below hangs\n    # after the changes in:\n    #    https://github.com/sympy/sympy/pull/16603\n    assert simplify(integrate(distn, (x, 0, oo))) == 1\n    # NOTE the conditions are a mess, but correctly state beta > 1\n    assert simplify(integrate(x*distn, (x, 0, oo), conds='none')) == \\\n        pi*alpha/beta/sin(pi/beta)\n    # (similar comment for conditions applies)\n    assert simplify(integrate(x**y*distn, (x, 0, oo), conds='none')) == \\\n        pi*alpha**y*y/beta/sin(pi*y/beta)\n\n    # weibull\n    k = Symbol('k', positive=True)\n    n = Symbol('n', positive=True)\n    distn = k/lamda*(x/lamda)**(k - 1)*exp(-(x/lamda)**k)\n    assert simplify(integrate(distn, (x, 0, oo))) == 1\n    assert simplify(integrate(x**n*distn, (x, 0, oo))) == \\\n        lamda**n*gamma(1 + n/k)\n\n    # rice distribution\n    from sympy.functions.special.bessel import besseli\n    nu, sigma = symbols('nu sigma', positive=True)\n    rice = x/sigma**2*exp(-(x**2 + nu**2)/2/sigma**2)*besseli(0, x*nu/sigma**2)\n    assert integrate(rice, (x, 0, oo), meijerg=True) == 1\n    # can someone verify higher moments?\n\n    # Laplace distribution\n    mu = Symbol('mu', real=True)\n    b = Symbol('b', positive=True)\n    laplace = exp(-abs(x - mu)/b)/2/b\n    assert integrate(laplace, (x, -oo, oo), meijerg=True) == 1\n    assert integrate(x*laplace, (x, -oo, oo), meijerg=True) == mu\n    assert integrate(x**2*laplace, (x, -oo, oo), meijerg=True) == \\\n        2*b**2 + mu**2\n\n    # TODO are there other distributions supported on (-oo, oo) that we can do?\n\n    # misc tests\n    k = Symbol('k', positive=True)\n    assert gammasimp(expand_mul(integrate(log(x)*x**(k - 1)*exp(-x)/gamma(k),\n                              (x, 0, oo)))) == polygamma(0, k)\n",
+    "file": "sympy/integrals/tests/test_meijerint.py",
+    "id": "sympy/integrals/tests/test_meijerint.py#test_probability",
+    "name": "test_probability",
+    "qual": "test_probability",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_as_content_primitive():\n    assert (x/2 + y).as_content_primitive() == (S.Half, x + 2*y)\n    assert (x/2 + y).as_content_primitive(clear=False) == (S.One, x/2 + y)\n    assert (y*(x/2 + y)).as_content_primitive() == (S.Half, y*(x + 2*y))\n    assert (y*(x/2 + y)).as_content_primitive(clear=False) == (S.One, y*(x/2 + y))\n\n    # although the _as_content_primitive methods do not alter the underlying structure,\n    # the as_content_primitive function will touch up the expression and join\n    # bases that would otherwise have not been joined.\n    assert (x*(2 + 2*x)*(3*x + 3)**2).as_content_primitive() == \\\n        (18, x*(x + 1)**3)\n    assert (2 + 2*x + 2*y*(3 + 3*y)).as_content_primitive() == \\\n        (2, x + 3*y*(y + 1) + 1)\n    assert ((2 + 6*x)**2).as_content_primitive() == \\\n        (4, (3*x + 1)**2)\n    assert ((2 + 6*x)**(2*y)).as_content_primitive() == \\\n        (1, (_keep_coeff(S(2), (3*x + 1)))**(2*y))\n    assert (5 + 10*x + 2*y*(3 + 3*y)).as_content_primitive() == \\\n        (1, 10*x + 6*y*(y + 1) + 5)\n    assert (5*(x*(1 + y)) + 2*x*(3 + 3*y)).as_content_primitive() == \\\n        (11, x*(y + 1))\n    assert ((5*(x*(1 + y)) + 2*x*(3 + 3*y))**2).as_content_primitive() == \\\n        (121, x**2*(y + 1)**2)\n    assert (y**2).as_content_primitive() == \\\n        (1, y**2)\n    assert (S.Infinity).as_content_primitive() == (1, oo)\n    eq = x**(2 + y)\n    assert (eq).as_content_primitive() == (1, eq)\n    assert (S.Half**(2 + x)).as_content_primitive() == (Rational(1, 4), S.Half**x)\n    assert (Rational(-1, 2)**(2 + x)).as_content_primitive() == \\\n           (Rational(1, 4), (Rational(-1, 2))**x)\n    assert (Rational(-1, 2)**(2 + x)).as_content_primitive() == \\\n           (Rational(1, 4), Rational(-1, 2)**x)\n    assert (4**((1 + y)/2)).as_content_primitive() == (2, 4**(y/2))\n    assert (3**((1 + y)/2)).as_content_primitive() == \\\n           (1, 3**(Mul(S.Half, 1 + y, evaluate=False)))\n    assert (5**Rational(3, 4)).as_content_primitive() == (1, 5**Rational(3, 4))\n    assert (5**Rational(7, 4)).as_content_primitive() == (5, 5**Rational(3, 4))\n    assert Add(z*Rational(5, 7), 0.5*x, y*Rational(3, 2), evaluate=False).as_content_primitive() == \\\n              (Rational(1, 14), 7.0*x + 21*y + 10*z)\n    assert (2**Rational(3, 4) + 2**Rational(1, 4)*sqrt(3)).as_content_primitive(radical=True) == \\\n           (1, 2**Rational(1, 4)*(sqrt(2) + sqrt(3)))\n",
+    "before": "def test_as_content_primitive():\n    assert (x/2 + y).as_content_primitive() == (S.Half, x + 2*y)\n    assert (x/2 + y).as_content_primitive(clear=False) == (S.One, x/2 + y)\n    assert (y*(x/2 + y)).as_content_primitive() == (S.Half, y*(x + 2*y))\n    assert (y*(x/2 + y)).as_content_primitive(clear=False) == (S.One, y*(x/2 + y))\n\n    # although the _as_content_primitive methods do not alter the underlying structure,\n    # the as_content_primitive function will touch up the expression and join\n    # bases that would otherwise have not been joined.\n    assert (x*(2 + 2*x)*(3*x + 3)**2).as_content_primitive() == \\\n        (18, x*(x + 1)**3)\n    assert (2 + 2*x + 2*y*(3 + 3*y)).as_content_primitive() == \\\n        (2, x + 3*y*(y + 1) + 1)\n    assert ((2 + 6*x)**2).as_content_primitive() == \\\n        (4, (3*x + 1)**2)\n    assert ((2 + 6*x)**(2*y)).as_content_primitive() == \\\n        (1, (_keep_coeff(S(2), (3*x + 1)))**(2*y))\n    assert (5 + 10*x + 2*y*(3 + 3*y)).as_content_primitive() == \\\n        (1, 10*x + 6*y*(y + 1) + 5)\n    assert (5*(x*(1 + y)) + 2*x*(3 + 3*y)).as_content_primitive() == \\\n        (11, x*(y + 1))\n    assert ((5*(x*(1 + y)) + 2*x*(3 + 3*y))**2).as_content_primitive() == \\\n        (121, x**2*(y + 1)**2)\n    assert (y**2).as_content_primitive() == \\\n        (1, y**2)\n    assert (S.Infinity).as_content_primitive() == (1, oo)\n    eq = x**(2 + y)\n    assert (eq).as_content_primitive() == (1, eq)\n    assert (S.Half**(2 + x)).as_content_primitive() == (Rational(1, 4), 2**-x)\n    assert (Rational(-1, 2)**(2 + x)).as_content_primitive() == \\\n           (Rational(1, 4), (Rational(-1, 2))**x)\n    assert (Rational(-1, 2)**(2 + x)).as_content_primitive() == \\\n           (Rational(1, 4), Rational(-1, 2)**x)\n    assert (4**((1 + y)/2)).as_content_primitive() == (2, 4**(y/2))\n    assert (3**((1 + y)/2)).as_content_primitive() == \\\n           (1, 3**(Mul(S.Half, 1 + y, evaluate=False)))\n    assert (5**Rational(3, 4)).as_content_primitive() == (1, 5**Rational(3, 4))\n    assert (5**Rational(7, 4)).as_content_primitive() == (5, 5**Rational(3, 4))\n    assert Add(z*Rational(5, 7), 0.5*x, y*Rational(3, 2), evaluate=False).as_content_primitive() == \\\n              (Rational(1, 14), 7.0*x + 21*y + 10*z)\n    assert (2**Rational(3, 4) + 2**Rational(1, 4)*sqrt(3)).as_content_primitive(radical=True) == \\\n           (1, 2**Rational(1, 4)*(sqrt(2) + sqrt(3)))\n",
+    "file": "sympy/simplify/tests/test_simplify.py",
+    "id": "sympy/simplify/tests/test_simplify.py#test_as_content_primitive",
+    "name": "test_as_content_primitive",
+    "qual": "test_as_content_primitive",
+    "signature_changed": false
+   },
+   {
+    "after": "def _tsolve(eq, sym, **flags):\n    \"\"\"\n    Helper for ``_solve`` that solves a transcendental equation with respect\n    to the given symbol. Various equations containing powers and logarithms,\n    can be solved.\n\n    There is currently no guarantee that all solutions will be returned or\n    that a real solution will be favored over a complex one.\n\n    Either a list of potential solutions will be returned or None will be\n    returned (in the case that no method was known to get a solution\n    for the equation). All other errors (like the inability to cast an\n    expression as a Poly) are unhandled.\n\n    Examples\n    ========\n\n    >>> from sympy import log, ordered\n    >>> from sympy.solvers.solvers import _tsolve as tsolve\n    >>> from sympy.abc import x\n\n    >>> list(ordered(tsolve(3**(2*x + 5) - 4, x)))\n    [-5/2 + log(2)/log(3), (-5*log(3)/2 + log(2) + I*pi)/log(3)]\n\n    >>> tsolve(log(x) + 2*x, x)\n    [LambertW(2)/2]\n\n    \"\"\"\n    if 'tsolve_saw' not in flags:\n        flags['tsolve_saw'] = []\n    if eq in flags['tsolve_saw']:\n        return None\n    else:\n        flags['tsolve_saw'].append(eq)\n\n    rhs, lhs = _invert(eq, sym)\n\n    if lhs == sym:\n        return [rhs]\n    if not lhs.has_free(sym) and not rhs.has_free(sym):\n        # Inversion eliminated the symbol; an identity may still have\n        # domain restrictions, so it cannot be treated as a list of roots.\n        # e.g. _invert(2**x*4**(-x/2)-1,x) -> (1,1)\n        return None\n    try:\n        if lhs.is_Mul and rhs.is_positive is True and not rhs.has_free(sym):\n            factors = [p.as_base_exp() for p in lhs.args]\n            powers = [(b, e) for (b, e) in factors if e.has_free(sym)]\n            if (len(powers) > 1 and\n                all(b.is_positive is True and\n                    not b.has_free(sym) and\n                    e.is_extended_real is True\n                    for b, e in factors)):\n                lhs = Add(*(e*log(b) for b, e in factors))\n                rhs = log(rhs)\n        if lhs.is_Add:\n            # it's time to try factoring; powdenest is used\n            # to try get powers in standard form for better factoring\n            f = factor(powdenest(lhs - rhs))\n            if f.is_Mul:\n                return _vsolve(f, sym, **flags)\n            if rhs:\n                f = logcombine(lhs, force=flags.get('force', True))\n                if f.count(log) != lhs.count(log):\n                    if isinstance(f, log):\n                        return _vsolve(f.args[0] - exp(rhs), sym, **flags)\n                    return _tsolve(f - rhs, sym, **flags)\n\n        elif lhs.is_Pow:\n            if lhs.exp.is_Integer:\n                if lhs - rhs != eq:\n                    return _vsolve(lhs - rhs, sym, **flags)\n\n            if sym not in lhs.exp.free_symbols:\n                return _vsolve(lhs.base - rhs**(1/lhs.exp), sym, **flags)\n\n            # _tsolve calls this with Dummy before passing the actual number in.\n            if any(t.is_Dummy for t in rhs.free_symbols):\n                raise NotImplementedError # _tsolve will call here again...\n\n            # a ** g(x) == 0\n            if not rhs:\n                # f(x)**g(x) only has solutions where f(x) == 0 and g(x) != 0 at\n                # the same place\n                sol_base = _vsolve(lhs.base, sym, **flags)\n                return [s for s in sol_base if lhs.exp.subs(sym, s) != 0]  # XXX use checksol here?\n\n            # a ** g(x) == b\n            if not lhs.base.has(sym):\n                if lhs.base == 0:\n                    return _vsolve(lhs.exp, sym, **flags) if rhs != 0 else []\n\n                # Gets most solutions...\n                if lhs.base == rhs.as_base_exp()[0]:\n                    # handles case when bases are equal\n                    sol = _vsolve(lhs.exp - rhs.as_base_exp()[1], sym, **flags)\n                else:\n                    # handles cases when bases are not equal and exp\n                    # may or may not be equal\n                    f = exp(log(lhs.base)*lhs.exp) - exp(log(rhs))\n                    sol = _vsolve(f, sym, **flags)\n\n                # Check for duplicate solutions\n                def equal(expr1, expr2):\n                    _ = Dummy()\n                    eq = checksol(expr1 - _, _, expr2)\n                    if eq is None:\n                        if nsimplify(expr1) != nsimplify(expr2):\n                            return False\n                        # they might be coincidentally the same\n                        # so check more rigorously\n                        eq = expr1.equals(expr2)  # XXX expensive but necessary?\n                    return eq\n\n                # Guess a rational exponent\n                e_rat = nsimplify(log(abs(rhs))/log(abs(lhs.base)))\n                e_rat = simplify(posify(e_rat)[0])\n                n, d = fraction(e_rat)\n                if expand(lhs.base**n - rhs**d) == 0:\n                    sol = [s for s in sol if not equal(lhs.exp.subs(sym, s), e_rat)]\n                    sol.extend(_vsolve(lhs.exp - e_rat, sym, **flags))\n\n                return list(set(sol))\n\n            # f(x) ** g(x) == c\n            else:\n                sol = []\n                logform = lhs.exp*log(lhs.base) - log(rhs)\n                if logform != lhs - rhs:\n                    try:\n                        sol.extend(_vsolve(logform, sym, **flags))\n                    except NotImplementedError:\n                        pass\n\n                # Collect possible solutions and check with substitution later.\n                check = []\n                if rhs == 1:\n                    # f(x) ** g(x) = 1 -- g(x)=0 or f(x)=+-1\n                    check.extend(_vsolve(lhs.exp, sym, **flags))\n                    check.extend(_vsolve(lhs.base - 1, sym, **flags))\n                    check.extend(_vsolve(lhs.base + 1, sym, **flags))\n                elif rhs.is_Rational:\n                    for d in (i for i in divisors(abs(rhs.p)) if i != 1):\n                        e, t = integer_log(rhs.p, d)\n                        if not t:\n                            continue  # rhs.p != d**b\n                        for s in divisors(abs(rhs.q)):\n                            if s**e== rhs.q:\n                                r = Rational(d, s)\n                                check.extend(_vsolve(lhs.base - r, sym, **flags))\n                                check.extend(_vsolve(lhs.base + r, sym, **flags))\n                                check.extend(_vsolve(lhs.exp - e, sym, **flags))\n                elif rhs.is_irrational:\n                    b_l, e_l = lhs.base.as_base_exp()\n                    n, d = (e_l*lhs.exp).as_numer_denom()\n                    b, e = sqrtdenest(rhs).as_base_exp()\n                    check = [sqrtdenest(i) for i in (_vsolve(lhs.base - b, sym, **flags))]\n                    check.extend([sqrtdenest(i) for i in (_vsolve(lhs.exp - e, sym, **flags))])\n                    if e_l*d != 1:\n                        check.extend(_vsolve(b_l**n - rhs**(e_l*d), sym, **flags))\n                for s in check:\n                    ok = checksol(eq, sym, s)\n                    if ok is None:\n                        ok = eq.subs(sym, s).equals(0)\n                    if ok:\n                        sol.append(s)\n                return list(set(sol))\n\n        elif lhs.is_Function and len(lhs.args) == 1:\n            if lhs.func in multi_inverses:\n                # sin(x) = 1/3 -> x - asin(1/3) & x - (pi - asin(1/3))\n                soln = []\n                for i in multi_inverses[type(lhs)](rhs):\n                    soln.extend(_vsolve(lhs.args[0] - i, sym, **flags))\n                return list(set(soln))\n            elif lhs.func == LambertW:\n                return _vsolve(lhs.args[0] - rhs*exp(rhs), sym, **flags)\n\n        rewrite = lhs.rewrite(exp)\n        rewrite = rebuild(rewrite) # avoid rewrites involving evaluate=False\n        if rewrite != lhs:\n            return _vsolve(rewrite - rhs, sym, **flags)\n    except NotImplementedError:\n        pass\n\n    # maybe it is a lambert pattern\n    if flags.pop('bivariate', True):\n        # lambert forms may need some help being recognized, e.g. changing\n        # 2**(3*x) + x**3*log(2)**3 + 3*x**2*log(2)**2 + 3*x*log(2) + 1\n        # to 2**(3*x) + (x*log(2) + 1)**3\n\n        # make generator in log have exponent of 1\n        logs = eq.atoms(log)\n        spow = min(\n            {i.exp for j in logs for i in j.atoms(Pow)\n             if i.base == sym} or {1})\n        if spow != 1:\n            p = sym**spow\n            u = Dummy('bivariate-cov')\n            ueq = eq.subs(p, u)\n            if not ueq.has_free(sym):\n                sol = _vsolve(ueq, u, **flags)\n                inv = _vsolve(p - u, sym)\n                return [i.subs(u, s) for i in inv for s in sol]\n\n        g = _filtered_gens(eq.as_poly(), sym)\n        up_or_log = set()\n        for gi in g:\n            if isinstance(gi, (exp, log)) or (gi.is_Pow and gi.base == S.Exp1):\n                up_or_log.add(gi)\n            elif gi.is_Pow:\n                gisimp = powdenest(expand_power_exp(gi))\n                if gisimp.is_Pow and sym in gisimp.exp.free_symbols:\n                    up_or_log.add(gi)\n        eq_down = expand_log(expand_power_exp(eq)).subs(\n            dict(list(zip(up_or_log, [0]*len(up_or_log)))))\n        eq = expand_power_exp(factor(eq_down, deep=True) + (eq - eq_down))\n        rhs, lhs = _invert(eq, sym)\n        if lhs.has(sym):\n            try:\n                poly = lhs.as_poly()\n                g = _filtered_gens(poly, sym)\n                _eq = lhs - rhs\n                sols = _solve_lambert(_eq, sym, g)\n                # use a simplified form if it satisfies eq\n                # and has fewer operations\n                for n, s in enumerate(sols):\n                    ns = nsimplify(s)\n                    if ns != s and ns.count_ops() <= s.count_ops():\n                        ok = checksol(_eq, sym, ns)\n                        if ok is None:\n                            ok = _eq.subs(sym, ns).equals(0)\n                        if ok:\n                            sols[n] = ns\n                return sols\n            except NotImplementedError:\n                # maybe it's a convoluted function\n                if len(g) == 2:\n                    try:\n                        gpu = bivariate_type(lhs - rhs, *g)\n                        if gpu is None:\n                            raise NotImplementedError\n                        g, p, u = gpu\n                        flags['bivariate'] = False\n                        inversion = _tsolve(g - u, sym, **flags)\n                        if inversion:\n                            sol = _vsolve(p, u, **flags)\n                            return list({i.subs(u, s)\n                                for i in inversion for s in sol})\n                    except NotImplementedError:\n                        pass\n                else:\n                    pass\n\n    if flags.pop('force', True):\n        flags['force'] = False\n        pos, reps = posify(lhs - rhs)\n        if rhs == S.ComplexInfinity:\n            return []\n        for u, s in reps.items():\n            if s == sym:\n                break\n        else:\n            u = sym\n        if pos.has(u):\n            try:\n                soln = _vsolve(pos, u, **flags)\n                return [s.subs(reps) for s in soln]\n            except NotImplementedError:\n                pass\n        else:\n            pass  # here for coverage\n\n    return  # here for coverage\n",
+    "before": "def _tsolve(eq, sym, **flags):\n    \"\"\"\n    Helper for ``_solve`` that solves a transcendental equation with respect\n    to the given symbol. Various equations containing powers and logarithms,\n    can be solved.\n\n    There is currently no guarantee that all solutions will be returned or\n    that a real solution will be favored over a complex one.\n\n    Either a list of potential solutions will be returned or None will be\n    returned (in the case that no method was known to get a solution\n    for the equation). All other errors (like the inability to cast an\n    expression as a Poly) are unhandled.\n\n    Examples\n    ========\n\n    >>> from sympy import log, ordered\n    >>> from sympy.solvers.solvers import _tsolve as tsolve\n    >>> from sympy.abc import x\n\n    >>> list(ordered(tsolve(3**(2*x + 5) - 4, x)))\n    [-5/2 + log(2)/log(3), (-5*log(3)/2 + log(2) + I*pi)/log(3)]\n\n    >>> tsolve(log(x) + 2*x, x)\n    [LambertW(2)/2]\n\n    \"\"\"\n    if 'tsolve_saw' not in flags:\n        flags['tsolve_saw'] = []\n    if eq in flags['tsolve_saw']:\n        return None\n    else:\n        flags['tsolve_saw'].append(eq)\n\n    rhs, lhs = _invert(eq, sym)\n\n    if lhs == sym:\n        return [rhs]\n    try:\n        if lhs.is_Add:\n            # it's time to try factoring; powdenest is used\n            # to try get powers in standard form for better factoring\n            f = factor(powdenest(lhs - rhs))\n            if f.is_Mul:\n                return _vsolve(f, sym, **flags)\n            if rhs:\n                f = logcombine(lhs, force=flags.get('force', True))\n                if f.count(log) != lhs.count(log):\n                    if isinstance(f, log):\n                        return _vsolve(f.args[0] - exp(rhs), sym, **flags)\n                    return _tsolve(f - rhs, sym, **flags)\n\n        elif lhs.is_Pow:\n            if lhs.exp.is_Integer:\n                if lhs - rhs != eq:\n                    return _vsolve(lhs - rhs, sym, **flags)\n\n            if sym not in lhs.exp.free_symbols:\n                return _vsolve(lhs.base - rhs**(1/lhs.exp), sym, **flags)\n\n            # _tsolve calls this with Dummy before passing the actual number in.\n            if any(t.is_Dummy for t in rhs.free_symbols):\n                raise NotImplementedError # _tsolve will call here again...\n\n            # a ** g(x) == 0\n            if not rhs:\n                # f(x)**g(x) only has solutions where f(x) == 0 and g(x) != 0 at\n                # the same place\n                sol_base = _vsolve(lhs.base, sym, **flags)\n                return [s for s in sol_base if lhs.exp.subs(sym, s) != 0]  # XXX use checksol here?\n\n            # a ** g(x) == b\n            if not lhs.base.has(sym):\n                if lhs.base == 0:\n                    return _vsolve(lhs.exp, sym, **flags) if rhs != 0 else []\n\n                # Gets most solutions...\n                if lhs.base == rhs.as_base_exp()[0]:\n                    # handles case when bases are equal\n                    sol = _vsolve(lhs.exp - rhs.as_base_exp()[1], sym, **flags)\n                else:\n                    # handles cases when bases are not equal and exp\n                    # may or may not be equal\n                    f = exp(log(lhs.base)*lhs.exp) - exp(log(rhs))\n                    sol = _vsolve(f, sym, **flags)\n\n                # Check for duplicate solutions\n                def equal(expr1, expr2):\n                    _ = Dummy()\n                    eq = checksol(expr1 - _, _, expr2)\n                    if eq is None:\n                        if nsimplify(expr1) != nsimplify(expr2):\n                            return False\n                        # they might be coincidentally the same\n                        # so check more rigorously\n                        eq = expr1.equals(expr2)  # XXX expensive but necessary?\n                    return eq\n\n                # Guess a rational exponent\n                e_rat = nsimplify(log(abs(rhs))/log(abs(lhs.base)))\n                e_rat = simplify(posify(e_rat)[0])\n                n, d = fraction(e_rat)\n                if expand(lhs.base**n - rhs**d) == 0:\n                    sol = [s for s in sol if not equal(lhs.exp.subs(sym, s), e_rat)]\n                    sol.extend(_vsolve(lhs.exp - e_rat, sym, **flags))\n\n                return list(set(sol))\n\n            # f(x) ** g(x) == c\n            else:\n                sol = []\n                logform = lhs.exp*log(lhs.base) - log(rhs)\n                if logform != lhs - rhs:\n                    try:\n                        sol.extend(_vsolve(logform, sym, **flags))\n                    except NotImplementedError:\n                        pass\n\n                # Collect possible solutions and check with substitution later.\n                check = []\n                if rhs == 1:\n                    # f(x) ** g(x) = 1 -- g(x)=0 or f(x)=+-1\n                    check.extend(_vsolve(lhs.exp, sym, **flags))\n                    check.extend(_vsolve(lhs.base - 1, sym, **flags))\n                    check.extend(_vsolve(lhs.base + 1, sym, **flags))\n                elif rhs.is_Rational:\n                    for d in (i for i in divisors(abs(rhs.p)) if i != 1):\n                        e, t = integer_log(rhs.p, d)\n                        if not t:\n                            continue  # rhs.p != d**b\n                        for s in divisors(abs(rhs.q)):\n                            if s**e== rhs.q:\n                                r = Rational(d, s)\n                                check.extend(_vsolve(lhs.base - r, sym, **flags))\n                                check.extend(_vsolve(lhs.base + r, sym, **flags))\n                                check.extend(_vsolve(lhs.exp - e, sym, **flags))\n                elif rhs.is_irrational:\n                    b_l, e_l = lhs.base.as_base_exp()\n                    n, d = (e_l*lhs.exp).as_numer_denom()\n                    b, e = sqrtdenest(rhs).as_base_exp()\n                    check = [sqrtdenest(i) for i in (_vsolve(lhs.base - b, sym, **flags))]\n                    check.extend([sqrtdenest(i) for i in (_vsolve(lhs.exp - e, sym, **flags))])\n                    if e_l*d != 1:\n                        check.extend(_vsolve(b_l**n - rhs**(e_l*d), sym, **flags))\n                for s in check:\n                    ok = checksol(eq, sym, s)\n                    if ok is None:\n                        ok = eq.subs(sym, s).equals(0)\n                    if ok:\n                        sol.append(s)\n                return list(set(sol))\n\n        elif lhs.is_Function and len(lhs.args) == 1:\n            if lhs.func in multi_inverses:\n                # sin(x) = 1/3 -> x - asin(1/3) & x - (pi - asin(1/3))\n                soln = []\n                for i in multi_inverses[type(lhs)](rhs):\n                    soln.extend(_vsolve(lhs.args[0] - i, sym, **flags))\n                return list(set(soln))\n            elif lhs.func == LambertW:\n                return _vsolve(lhs.args[0] - rhs*exp(rhs), sym, **flags)\n\n        rewrite = lhs.rewrite(exp)\n        rewrite = rebuild(rewrite) # avoid rewrites involving evaluate=False\n        if rewrite != lhs:\n            return _vsolve(rewrite - rhs, sym, **flags)\n    except NotImplementedError:\n        pass\n\n    # maybe it is a lambert pattern\n    if flags.pop('bivariate', True):\n        # lambert forms may need some help being recognized, e.g. changing\n        # 2**(3*x) + x**3*log(2)**3 + 3*x**2*log(2)**2 + 3*x*log(2) + 1\n        # to 2**(3*x) + (x*log(2) + 1)**3\n\n        # make generator in log have exponent of 1\n        logs = eq.atoms(log)\n        spow = min(\n            {i.exp for j in logs for i in j.atoms(Pow)\n             if i.base == sym} or {1})\n        if spow != 1:\n            p = sym**spow\n            u = Dummy('bivariate-cov')\n            ueq = eq.subs(p, u)\n            if not ueq.has_free(sym):\n                sol = _vsolve(ueq, u, **flags)\n                inv = _vsolve(p - u, sym)\n                return [i.subs(u, s) for i in inv for s in sol]\n\n        g = _filtered_gens(eq.as_poly(), sym)\n        up_or_log = set()\n        for gi in g:\n            if isinstance(gi, (exp, log)) or (gi.is_Pow and gi.base == S.Exp1):\n                up_or_log.add(gi)\n            elif gi.is_Pow:\n                gisimp = powdenest(expand_power_exp(gi))\n                if gisimp.is_Pow and sym in gisimp.exp.free_symbols:\n                    up_or_log.add(gi)\n        eq_down = expand_log(expand_power_exp(eq)).subs(\n            dict(list(zip(up_or_log, [0]*len(up_or_log)))))\n        eq = expand_power_exp(factor(eq_down, deep=True) + (eq - eq_down))\n        rhs, lhs = _invert(eq, sym)\n        if lhs.has(sym):\n            try:\n                poly = lhs.as_poly()\n                g = _filtered_gens(poly, sym)\n                _eq = lhs - rhs\n                sols = _solve_lambert(_eq, sym, g)\n                # use a simplified form if it satisfies eq\n                # and has fewer operations\n                for n, s in enumerate(sols):\n                    ns = nsimplify(s)\n                    if ns != s and ns.count_ops() <= s.count_ops():\n                        ok = checksol(_eq, sym, ns)\n                        if ok is None:\n                            ok = _eq.subs(sym, ns).equals(0)\n                        if ok:\n                            sols[n] = ns\n                return sols\n            except NotImplementedError:\n                # maybe it's a convoluted function\n                if len(g) == 2:\n                    try:\n                        gpu = bivariate_type(lhs - rhs, *g)\n                        if gpu is None:\n                            raise NotImplementedError\n                        g, p, u = gpu\n                        flags['bivariate'] = False\n                        inversion = _tsolve(g - u, sym, **flags)\n                        if inversion:\n                            sol = _vsolve(p, u, **flags)\n                            return list({i.subs(u, s)\n                                for i in inversion for s in sol})\n                    except NotImplementedError:\n                        pass\n                else:\n                    pass\n\n    if flags.pop('force', True):\n        flags['force'] = False\n        pos, reps = posify(lhs - rhs)\n        if rhs == S.ComplexInfinity:\n            return []\n        for u, s in reps.items():\n            if s == sym:\n                break\n        else:\n            u = sym\n        if pos.has(u):\n            try:\n                soln = _vsolve(pos, u, **flags)\n                return [s.subs(reps) for s in soln]\n            except NotImplementedError:\n                pass\n        else:\n            pass  # here for coverage\n\n    return  # here for coverage\n",
+    "file": "sympy/solvers/solvers.py",
+    "id": "sympy/solvers/solvers.py#_tsolve",
+    "name": "_tsolve",
+    "qual": "_tsolve",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_issue_6844():\n    f = y(n + 2) - y(n + 1) + y(n)/4\n    assert rsolve(f, y(n)) == 2**(-n + 1)*C1*n + S.Half**n*C0\n    assert rsolve(f, y(n), {y(0): 0, y(1): 1}) == 2**(1 - n)*n\n",
+    "before": "def test_issue_6844():\n    f = y(n + 2) - y(n + 1) + y(n)/4\n    assert rsolve(f, y(n)) == 2**(-n + 1)*C1*n + 2**(-n)*C0\n    assert rsolve(f, y(n), {y(0): 0, y(1): 1}) == 2**(1 - n)*n\n",
+    "file": "sympy/solvers/tests/test_recurr.py",
+    "id": "sympy/solvers/tests/test_recurr.py#test_issue_6844",
+    "name": "test_issue_6844",
+    "qual": "test_issue_6844",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_issue_6605():\n    x = symbols('x')\n    assert solve(4**(x/2) - 2**(x/3)) == [0, 3*I*pi/log(2)]\n    # while the first one passed, this one failed\n    x = symbols('x', real=True)\n    assert solve(5**(x/2) - 2**(x/3)) == [0]\n    b = sqrt(log(5**log(64)))/log(5)\n    assert solve(5**(x/2) - 2**(3/x)) == [-b, b]\n    assert solve((S(1)/8)**(1/x)*5**(x/2) - 1, x) == [-b, b]\n    assert _tsolve(2**x/4**(x/2) - 1, x) is None\n",
+    "before": "def test_issue_6605():\n    x = symbols('x')\n    assert solve(4**(x/2) - 2**(x/3)) == [0, 3*I*pi/log(2)]\n    # while the first one passed, this one failed\n    x = symbols('x', real=True)\n    assert solve(5**(x/2) - 2**(x/3)) == [0]\n    b = sqrt(6)*sqrt(log(2))/sqrt(log(5))\n    assert solve(5**(x/2) - 2**(3/x)) == [-b, b]\n",
+    "file": "sympy/solvers/tests/test_solvers.py",
+    "id": "sympy/solvers/tests/test_solvers.py#test_issue_6605",
+    "name": "test_issue_6605",
+    "qual": "test_issue_6605",
+    "signature_changed": false
+   },
+   {
+    "after": "def Logarithmic(name, p):\n    r\"\"\"\n    Create a discrete random variable with a Logarithmic distribution.\n\n    Explanation\n    ===========\n\n    The density of the Logarithmic distribution is given by\n\n    .. math::\n        f(k) := \\frac{-p^k}{k \\ln{(1 - p)}}\n\n    Parameters\n    ==========\n\n    p : A value between 0 and 1\n\n    Returns\n    =======\n\n    RandomSymbol\n\n    Examples\n    ========\n\n    >>> from sympy.stats import Logarithmic, density, E, variance\n    >>> from sympy import Symbol, S\n\n    >>> p = S.One / 5\n    >>> z = Symbol(\"z\")\n\n    >>> X = Logarithmic(\"x\", p)\n\n    >>> density(X)(z)\n    -(1/5)**z/(z*log(4/5))\n\n    >>> E(X)\n    -1/(-4*log(5) + 8*log(2))\n\n    >>> variance(X)\n    -1/((-4*log(5) + 8*log(2))*(-2*log(5) + 4*log(2))) + 1/(-64*log(2)*log(5) + 64*log(2)**2 + 16*log(5)**2) - 10/(-32*log(5) + 64*log(2))\n\n    References\n    ==========\n\n    .. [1] https://en.wikipedia.org/wiki/Logarithmic_distribution\n    .. [2] https://mathworld.wolfram.com/LogarithmicDistribution.html\n\n    \"\"\"\n    return rv(name, LogarithmicDistribution, p)\n",
+    "before": "def Logarithmic(name, p):\n    r\"\"\"\n    Create a discrete random variable with a Logarithmic distribution.\n\n    Explanation\n    ===========\n\n    The density of the Logarithmic distribution is given by\n\n    .. math::\n        f(k) := \\frac{-p^k}{k \\ln{(1 - p)}}\n\n    Parameters\n    ==========\n\n    p : A value between 0 and 1\n\n    Returns\n    =======\n\n    RandomSymbol\n\n    Examples\n    ========\n\n    >>> from sympy.stats import Logarithmic, density, E, variance\n    >>> from sympy import Symbol, S\n\n    >>> p = S.One / 5\n    >>> z = Symbol(\"z\")\n\n    >>> X = Logarithmic(\"x\", p)\n\n    >>> density(X)(z)\n    -1/(5**z*z*log(4/5))\n\n    >>> E(X)\n    -1/(-4*log(5) + 8*log(2))\n\n    >>> variance(X)\n    -1/((-4*log(5) + 8*log(2))*(-2*log(5) + 4*log(2))) + 1/(-64*log(2)*log(5) + 64*log(2)**2 + 16*log(5)**2) - 10/(-32*log(5) + 64*log(2))\n\n    References\n    ==========\n\n    .. [1] https://en.wikipedia.org/wiki/Logarithmic_distribution\n    .. [2] https://mathworld.wolfram.com/LogarithmicDistribution.html\n\n    \"\"\"\n    return rv(name, LogarithmicDistribution, p)\n",
+    "file": "sympy/stats/drv_types.py",
+    "id": "sympy/stats/drv_types.py#Logarithmic",
+    "name": "Logarithmic",
+    "qual": "Logarithmic",
+    "signature_changed": false
+   },
+   {
+    "after": "def GeneralizedMultivariateLogGamma(syms, delta, v, lamda, mu):\n    \"\"\"\n    Creates a joint random variable with generalized multivariate log gamma\n    distribution.\n\n    The joint pdf can be found at [1].\n\n    Parameters\n    ==========\n\n    syms : list/tuple/set of symbols for identifying each component\n    delta : A constant in range $[0, 1]$\n    v : Positive real number\n    lamda : List of positive real numbers\n    mu : List of positive real numbers\n\n    Returns\n    =======\n\n    RandomSymbol\n\n    Examples\n    ========\n\n    >>> from sympy.stats import density\n    >>> from sympy.stats.joint_rv_types import GeneralizedMultivariateLogGamma\n    >>> from sympy import symbols, S\n    >>> v = 1\n    >>> l, mu = [1, 1, 1], [1, 1, 1]\n    >>> d = S.Half\n    >>> y = symbols('y_1:4', positive=True)\n    >>> Gd = GeneralizedMultivariateLogGamma('G', d, v, l, mu)\n    >>> density(Gd)(y[0], y[1], y[2])\n    Sum((1/2)**n*exp((n + 1)*(y_1 + y_2 + y_3) - exp(y_1) - exp(y_2) -\n        exp(y_3))/gamma(n + 1)**3, (n, 0, oo))/2\n\n    References\n    ==========\n\n    .. [1] https://en.wikipedia.org/wiki/Generalized_multivariate_log-gamma_distribution\n    .. [2] https://www.researchgate.net/publication/234137346_On_a_multivariate_log-gamma_distribution_and_the_use_of_the_distribution_in_the_Bayesian_analysis\n\n    Note\n    ====\n\n    If the GeneralizedMultivariateLogGamma is too long to type use,\n\n    >>> from sympy.stats.joint_rv_types import GeneralizedMultivariateLogGamma as GMVLG\n    >>> Gd = GMVLG('G', d, v, l, mu)\n\n    If you want to pass the matrix omega instead of the constant delta, then use\n    ``GeneralizedMultivariateLogGammaOmega``.\n\n    \"\"\"\n    return multivariate_rv(GeneralizedMultivariateLogGammaDistribution,\n                            syms, delta, v, lamda, mu)\n",
+    "before": "def GeneralizedMultivariateLogGamma(syms, delta, v, lamda, mu):\n    \"\"\"\n    Creates a joint random variable with generalized multivariate log gamma\n    distribution.\n\n    The joint pdf can be found at [1].\n\n    Parameters\n    ==========\n\n    syms : list/tuple/set of symbols for identifying each component\n    delta : A constant in range $[0, 1]$\n    v : Positive real number\n    lamda : List of positive real numbers\n    mu : List of positive real numbers\n\n    Returns\n    =======\n\n    RandomSymbol\n\n    Examples\n    ========\n\n    >>> from sympy.stats import density\n    >>> from sympy.stats.joint_rv_types import GeneralizedMultivariateLogGamma\n    >>> from sympy import symbols, S\n    >>> v = 1\n    >>> l, mu = [1, 1, 1], [1, 1, 1]\n    >>> d = S.Half\n    >>> y = symbols('y_1:4', positive=True)\n    >>> Gd = GeneralizedMultivariateLogGamma('G', d, v, l, mu)\n    >>> density(Gd)(y[0], y[1], y[2])\n    Sum(exp((n + 1)*(y_1 + y_2 + y_3) - exp(y_1) - exp(y_2) -\n    exp(y_3))/(2**n*gamma(n + 1)**3), (n, 0, oo))/2\n\n    References\n    ==========\n\n    .. [1] https://en.wikipedia.org/wiki/Generalized_multivariate_log-gamma_distribution\n    .. [2] https://www.researchgate.net/publication/234137346_On_a_multivariate_log-gamma_distribution_and_the_use_of_the_distribution_in_the_Bayesian_analysis\n\n    Note\n    ====\n\n    If the GeneralizedMultivariateLogGamma is too long to type use,\n\n    >>> from sympy.stats.joint_rv_types import GeneralizedMultivariateLogGamma as GMVLG\n    >>> Gd = GMVLG('G', d, v, l, mu)\n\n    If you want to pass the matrix omega instead of the constant delta, then use\n    ``GeneralizedMultivariateLogGammaOmega``.\n\n    \"\"\"\n    return multivariate_rv(GeneralizedMultivariateLogGammaDistribution,\n                            syms, delta, v, lamda, mu)\n",
+    "file": "sympy/stats/joint_rv_types.py",
+    "id": "sympy/stats/joint_rv_types.py#GeneralizedMultivariateLogGamma",
+    "name": "GeneralizedMultivariateLogGamma",
+    "qual": "GeneralizedMultivariateLogGamma",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_gamma():\n    k = Symbol(\"k\", positive=True)\n    theta = Symbol(\"theta\", positive=True)\n\n    X = Gamma('x', k, theta)\n\n    # Tests characteristic function\n    assert characteristic_function(X)(x) == ((-I*theta*x + 1)**(-k))\n\n    assert density(X)(x) == x**(k - 1)*theta**(-k)*exp(-x/theta)/gamma(k)\n    assert cdf(X, meijerg=True)(z) == Piecewise(\n            (-k*lowergamma(k, 0)/gamma(k + 1) +\n                k*lowergamma(k, z/theta)/gamma(k + 1), z >= 0),\n            (0, True))\n\n    # assert simplify(variance(X)) == k*theta**2  # handled numerically below\n    assert E(X) == moment(X, 1)\n\n    k, theta = symbols('k theta', positive=True)\n    X = Gamma('x', k, theta)\n    assert E(X) == k*theta\n    assert variance(X) == k*theta**2\n    assert skewness(X).expand() == 2/sqrt(k)\n    assert kurtosis(X).expand() == 3 + 6/k\n\n    Y = Gamma('y', 2*k, 3*theta)\n    assert coskewness(X, theta*X + Y, k*X + Y).simplify() == 2*(\n        S(1)/531441)**k*sqrt(k)*theta*(3*3**(12*k) - 2*531441**k)/(\n        sqrt(k**2 + 18)*sqrt(theta**2 + 18))\n",
+    "before": "def test_gamma():\n    k = Symbol(\"k\", positive=True)\n    theta = Symbol(\"theta\", positive=True)\n\n    X = Gamma('x', k, theta)\n\n    # Tests characteristic function\n    assert characteristic_function(X)(x) == ((-I*theta*x + 1)**(-k))\n\n    assert density(X)(x) == x**(k - 1)*theta**(-k)*exp(-x/theta)/gamma(k)\n    assert cdf(X, meijerg=True)(z) == Piecewise(\n            (-k*lowergamma(k, 0)/gamma(k + 1) +\n                k*lowergamma(k, z/theta)/gamma(k + 1), z >= 0),\n            (0, True))\n\n    # assert simplify(variance(X)) == k*theta**2  # handled numerically below\n    assert E(X) == moment(X, 1)\n\n    k, theta = symbols('k theta', positive=True)\n    X = Gamma('x', k, theta)\n    assert E(X) == k*theta\n    assert variance(X) == k*theta**2\n    assert skewness(X).expand() == 2/sqrt(k)\n    assert kurtosis(X).expand() == 3 + 6/k\n\n    Y = Gamma('y', 2*k, 3*theta)\n    assert coskewness(X, theta*X + Y, k*X + Y).simplify() == \\\n        2*531441**(-k)*sqrt(k)*theta*(3*3**(12*k) - 2*531441**k) \\\n        /(sqrt(k**2 + 18)*sqrt(theta**2 + 18))\n",
+    "file": "sympy/stats/tests/test_continuous_rv.py",
+    "id": "sympy/stats/tests/test_continuous_rv.py#test_gamma",
+    "name": "test_gamma",
+    "qual": "test_gamma",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_product_spaces():\n    X1 = Geometric('X1', S.Half)\n    X2 = Geometric('X2', Rational(1, 3))\n    assert str(P(X1 + X2 < 3).rewrite(Sum)) == (\n        \"Sum(Piecewise(((1/2)**n/4, n >= -1), (0, True)), (n, -oo, -1))/3\")\n    assert str(P(X1 + X2 > 3).rewrite(Sum)) == (\n        'Sum(Piecewise(((1/2)**(-X2 + n + 2)*(2/3)**(X2 - 1)/6, '\n        'X2 - n <= 2), (0, True)), (X2, 1, oo), (n, 1, oo))')\n    assert P(Eq(X1 + X2, 3)) == Rational(1, 12)\n",
+    "before": "def test_product_spaces():\n    X1 = Geometric('X1', S.Half)\n    X2 = Geometric('X2', Rational(1, 3))\n    assert str(P(X1 + X2 < 3).rewrite(Sum)) == (\n        \"Sum(Piecewise((1/(4*2**n), n >= -1), (0, True)), (n, -oo, -1))/3\")\n    assert str(P(X1 + X2 > 3).rewrite(Sum)) == (\n        'Sum(Piecewise((2**(X2 - n - 2)*(2/3)**(X2 - 1)/6, '\n        'X2 - n <= 2), (0, True)), (X2, 1, oo), (n, 1, oo))')\n    assert P(Eq(X1 + X2, 3)) == Rational(1, 12)\n",
+    "file": "sympy/stats/tests/test_discrete_rv.py",
+    "id": "sympy/stats/tests/test_discrete_rv.py#test_product_spaces",
+    "name": "test_product_spaces",
+    "qual": "test_product_spaces",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "return",
+      "list",
+      "['(x**2*y**2, 1)', '(1/2, x)', '(2, -x)']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['(x*y, 2)', '(2, -x)', '(2, -x)']"
+     ],
+     "call": "[outcome(lambda: (x**2*y**2).as_base_exp()), outcome(lambda: (S.Half**x).as_base_exp()), outcome(lambda: (1/2**x).as_base_exp())]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import S, Pow, Rational, exp, oo, solve, symbols, sqrt\nx, y, z = symbols('x y z')\np = symbols('p', positive=True)\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\n",
+     "target": "sympy/core/tests/test_expr.py#test_as_base_exp",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import S, Pow, Rational, exp, oo, solve, symbols, sqrt\n    x, y, z = symbols('x y z')\n    p = symbols('p', positive=True)\n\n    def outcome(f):\n        try:\n            return str(f())\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__\n    assert repr([outcome(lambda: (x**2*y**2).as_base_exp()), outcome(lambda: (S.Half**x).as_base_exp()), outcome(lambda: (1/2**x).as_base_exp())]) == \"['(x**2*y**2, 1)', '(1/2, x)', '(2, -x)']\"\n",
+     "why": "powers with a reciprocal base, now returned literally"
+    },
+    {
+     "after": [
+      "return",
+      "list",
+      "['(1/2, x)', '(1/3, -x)', '(x, 1/2)']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['(2, -x)', '(3, x)', '(x, 1/2)']"
+     ],
+     "call": "[outcome(lambda: Pow(S.Half, x, evaluate=False).as_base_exp()), outcome(lambda: Pow(Rational(1, 3), -x, evaluate=False).as_base_exp()), outcome(lambda: sqrt(x).as_base_exp())]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import S, Pow, Rational, exp, oo, solve, symbols, sqrt\nx, y, z = symbols('x y z')\np = symbols('p', positive=True)\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\n",
+     "target": "sympy/core/tests/test_power.py#test_pow_as_base_exp",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import S, Pow, Rational, exp, oo, solve, symbols, sqrt\n    x, y, z = symbols('x y z')\n    p = symbols('p', positive=True)\n\n    def outcome(f):\n        try:\n            return str(f())\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__\n    assert repr([outcome(lambda: Pow(S.Half, x, evaluate=False).as_base_exp()), outcome(lambda: Pow(Rational(1, 3), -x, evaluate=False).as_base_exp()), outcome(lambda: sqrt(x).as_base_exp())]) == \"['(1/2, x)', '(1/3, -x)', '(x, 1/2)']\"\n",
+     "why": "powers with a reciprocal base, now returned literally"
+    },
+    {
+     "after": [
+      "return",
+      "list",
+      "['(4, 2**x)', '(1, (1/2)**x)']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['(4, 2**x)', '(1, 2**(-x))']"
+     ],
+     "call": "[outcome(lambda: (2**(2 + x)).as_content_primitive()), outcome(lambda: (S.Half**x).as_content_primitive())]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import S, Pow, Rational, exp, oo, solve, symbols, sqrt\nx, y, z = symbols('x y z')\np = symbols('p', positive=True)\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\n",
+     "target": "sympy/simplify/tests/test_simplify.py#test_as_content_primitive",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import S, Pow, Rational, exp, oo, solve, symbols, sqrt\n    x, y, z = symbols('x y z')\n    p = symbols('p', positive=True)\n\n    def outcome(f):\n        try:\n            return str(f())\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__\n    assert repr([outcome(lambda: (2**(2 + x)).as_content_primitive()), outcome(lambda: (S.Half**x).as_content_primitive())]) == \"['(4, 2**x)', '(1, (1/2)**x)']\"\n",
+     "why": "powers with a reciprocal base, now returned literally"
+    },
+    {
+     "after": [
+      "return",
+      "str",
+      "'-(1/3)**z/(z*log(2/3))'"
+     ],
+     "before": [
+      "return",
+      "str",
+      "'-1/(3**z*z*log(2/3))'"
+     ],
+     "call": "outcome(lambda: __import__('sympy.stats', fromlist=['x']).density(__import__('sympy.stats', fromlist=['x']).Logarithmic('L', S(1)/3))(z))",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import S, Pow, Rational, exp, oo, solve, symbols, sqrt\nx, y, z = symbols('x y z')\np = symbols('p', positive=True)\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\n",
+     "target": "sympy/stats/drv_types.py#Logarithmic",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import S, Pow, Rational, exp, oo, solve, symbols, sqrt\n    x, y, z = symbols('x y z')\n    p = symbols('p', positive=True)\n\n    def outcome(f):\n        try:\n            return str(f())\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__\n    assert repr(outcome(lambda: __import__('sympy.stats', fromlist=['x']).density(__import__('sympy.stats', fromlist=['x']).Logarithmic('L', S(1)/3))(z))) == \"'-(1/3)**z/(z*log(2/3))'\"\n",
+     "why": "powers with a reciprocal base, now returned literally"
+    }
+   ],
+   "dollars_cap": 1.0,
+   "filter_seconds": 108.7,
+   "gaps": [],
+   "info": {
+    "accepted": 4,
+    "compiled": 12,
+    "cost": 0.0,
+    "differed": 4,
+    "dollars_cap": 1.0,
+    "functions": 12,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 12,
+    "ran": 12,
+    "reached": 12,
+    "requests": 3,
+    "seconds": 108.3,
+    "stable": 12
+   },
+   "probes": [
+    {
+     "call": "[outcome(lambda: (x**2*y**2).as_base_exp()), outcome(lambda: (S.Half**x).as_base_exp()), outcome(lambda: (1/2**x).as_base_exp())]",
+     "function": "sympy/core/tests/test_expr.py#test_as_base_exp",
+     "setup": "from sympy import S, Pow, Rational, exp, oo, solve, symbols, sqrt\nx, y, z = symbols('x y z')\np = symbols('p', positive=True)\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\n",
+     "why": "powers with a reciprocal base, now returned literally"
+    },
+    {
+     "call": "[outcome(lambda: Pow(S.Half, x, evaluate=False).as_base_exp()), outcome(lambda: Pow(Rational(1, 3), -x, evaluate=False).as_base_exp()), outcome(lambda: sqrt(x).as_base_exp())]",
+     "function": "sympy/core/tests/test_power.py#test_pow_as_base_exp",
+     "setup": "from sympy import S, Pow, Rational, exp, oo, solve, symbols, sqrt\nx, y, z = symbols('x y z')\np = symbols('p', positive=True)\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\n",
+     "why": "powers with a reciprocal base, now returned literally"
+    },
+    {
+     "call": "outcome(lambda: __import__('sympy.integrals.meijerint', fromlist=['x']).meijerint_definite(exp(-x)*x**2, x, 0, oo))",
+     "function": "sympy/integrals/tests/test_meijerint.py#test_meijerint",
+     "setup": "from sympy import S, Pow, Rational, exp, oo, solve, symbols, sqrt\nx, y, z = symbols('x y z')\np = symbols('p', positive=True)\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\n",
+     "why": "powers with a reciprocal base, now returned literally"
+    },
+    {
+     "call": "outcome(lambda: __import__('sympy').integrate(exp(-p*x)*p, (x, 0, oo)))",
+     "function": "sympy/integrals/tests/test_meijerint.py#test_probability",
+     "setup": "from sympy import S, Pow, Rational, exp, oo, solve, symbols, sqrt\nx, y, z = symbols('x y z')\np = symbols('p', positive=True)\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\n",
+     "why": "powers with a reciprocal base, now returned literally"
+    },
+    {
+     "call": "[outcome(lambda: (2**(2 + x)).as_content_primitive()), outcome(lambda: (S.Half**x).as_content_primitive())]",
+     "function": "sympy/simplify/tests/test_simplify.py#test_as_content_primitive",
+     "setup": "from sympy import S, Pow, Rational, exp, oo, solve, symbols, sqrt\nx, y, z = symbols('x y z')\np = symbols('p', positive=True)\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\n",
+     "why": "powers with a reciprocal base, now returned literally"
+    },
+    {
+     "call": "[outcome(lambda: solve(2**x*3**x - 6, x)), outcome(lambda: solve(S.Half**x - 4, x))]",
+     "function": "sympy/solvers/solvers.py#_tsolve",
+     "setup": "from sympy import S, Pow, Rational, exp, oo, solve, symbols, sqrt\nx, y, z = symbols('x y z')\np = symbols('p', positive=True)\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\n",
+     "why": "powers with a reciprocal base, now returned literally"
+    },
+    {
+     "call": "outcome(lambda: __import__('sympy').rsolve(__import__('sympy').Function('f')(z + 2) - 2*__import__('sympy').Function('f')(z + 1) + __import__('sympy').Function('f')(z), __import__('sympy').Function('f')(z)))",
+     "function": "sympy/solvers/tests/test_recurr.py#test_issue_6844",
+     "setup": "from sympy import S, Pow, Rational, exp, oo, solve, symbols, sqrt\nx, y, z = symbols('x y z')\np = symbols('p', positive=True)\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\n",
+     "why": "powers with a reciprocal base, now returned literally"
+    },
+    {
+     "call": "[outcome(lambda: solve(4**(x/2) - 2**(x/3))), outcome(lambda: solve(5**(x/2) - 2**(x/3), x))]",
+     "function": "sympy/solvers/tests/test_solvers.py#test_issue_6605",
+     "setup": "from sympy import S, Pow, Rational, exp, oo, solve, symbols, sqrt\nx, y, z = symbols('x y z')\np = symbols('p', positive=True)\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\n",
+     "why": "powers with a reciprocal base, now returned literally"
+    },
+    {
+     "call": "outcome(lambda: __import__('sympy.stats', fromlist=['x']).density(__import__('sympy.stats', fromlist=['x']).Logarithmic('L', S(1)/3))(z))",
+     "function": "sympy/stats/drv_types.py#Logarithmic",
+     "setup": "from sympy import S, Pow, Rational, exp, oo, solve, symbols, sqrt\nx, y, z = symbols('x y z')\np = symbols('p', positive=True)\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\n",
+     "why": "powers with a reciprocal base, now returned literally"
+    },
+    {
+     "call": "outcome(lambda: __import__('sympy.stats', fromlist=['x']).GeneralizedMultivariateLogGamma('G', S(1)/2, [1, 2], [1, 1], [1, 1]).pspace.distribution.set)",
+     "function": "sympy/stats/joint_rv_types.py#GeneralizedMultivariateLogGamma",
+     "setup": "from sympy import S, Pow, Rational, exp, oo, solve, symbols, sqrt\nx, y, z = symbols('x y z')\np = symbols('p', positive=True)\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\n",
+     "why": "powers with a reciprocal base, now returned literally"
+    },
+    {
+     "call": "outcome(lambda: __import__('sympy.stats', fromlist=['x']).density(__import__('sympy.stats', fromlist=['x']).Gamma('G', 2, S.Half))(z))",
+     "function": "sympy/stats/tests/test_continuous_rv.py#test_gamma",
+     "setup": "from sympy import S, Pow, Rational, exp, oo, solve, symbols, sqrt\nx, y, z = symbols('x y z')\np = symbols('p', positive=True)\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\n",
+     "why": "powers with a reciprocal base, now returned literally"
+    },
+    {
+     "call": "outcome(lambda: __import__('sympy.stats', fromlist=['x']).P(__import__('sympy.stats', fromlist=['x']).Geometric('X', S(1)/5) > 3))",
+     "function": "sympy/stats/tests/test_discrete_rv.py#test_product_spaces",
+     "setup": "from sympy import S, Pow, Rational, exp, oo, solve, symbols, sqrt\nx, y, z = symbols('x y z')\np = symbols('p', positive=True)\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\n",
+     "why": "powers with a reciprocal base, now returned literally"
+    }
+   ],
+   "targets": [
+    "sympy/core/tests/test_expr.py#test_as_base_exp",
+    "sympy/core/tests/test_power.py#test_pow_as_base_exp",
+    "sympy/integrals/tests/test_meijerint.py#test_meijerint",
+    "sympy/integrals/tests/test_meijerint.py#test_probability",
+    "sympy/simplify/tests/test_simplify.py#test_as_content_primitive",
+    "sympy/solvers/solvers.py#_tsolve",
+    "sympy/solvers/tests/test_recurr.py#test_issue_6844",
+    "sympy/solvers/tests/test_solvers.py#test_issue_6605",
+    "sympy/stats/drv_types.py#Logarithmic",
+    "sympy/stats/joint_rv_types.py#GeneralizedMultivariateLogGamma",
+    "sympy/stats/tests/test_continuous_rv.py#test_gamma",
+    "sympy/stats/tests/test_discrete_rv.py#test_product_spaces"
+   ],
+   "waited_seconds": 126.7
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [],
+  "changed_functions": [
+   {
+    "file": "sympy/core/mul.py",
+    "lines": "1279",
+    "symbol": "Mul._eval_is_polynomial"
+   },
+   {
+    "file": "sympy/core/power.py",
+    "lines": "798-813",
+    "symbol": "Pow.as_base_exp"
+   },
+   {
+    "file": "sympy/core/tests/test_expr.py",
+    "lines": "1549-1554",
+    "symbol": "test_as_base_exp"
+   },
+   {
+    "file": "sympy/core/tests/test_power.py",
+    "lines": "297-305",
+    "symbol": "test_pow_as_base_exp"
+   },
+   {
+    "file": "sympy/integrals/tests/test_meijerint.py",
+    "lines": "208",
+    "symbol": "test_meijerint"
+   },
+   {
+    "file": "sympy/integrals/tests/test_meijerint.py",
+    "lines": "393-498",
+    "symbol": "test_probability"
+   },
+   {
+    "file": "sympy/simplify/tests/test_simplify.py",
+    "lines": "627",
+    "symbol": "test_as_content_primitive"
+   },
+   {
+    "file": "sympy/solvers/solvers.py",
+    "lines": "2697-2712",
+    "symbol": "_tsolve"
+   },
+   {
+    "file": "sympy/solvers/tests/test_recurr.py",
+    "lines": "235",
+    "symbol": "test_issue_6844"
+   },
+   {
+    "file": "sympy/solvers/tests/test_solvers.py",
+    "lines": "1838-1841",
+    "symbol": "test_issue_6605"
+   },
+   {
+    "file": "sympy/stats/drv_types.py",
+    "lines": "421",
+    "symbol": "Logarithmic"
+   },
+   {
+    "file": "sympy/stats/joint_rv_types.py",
+    "lines": "709-710",
+    "symbol": "GeneralizedMultivariateLogGamma"
+   },
+   {
+    "file": "sympy/stats/tests/test_continuous_rv.py",
+    "lines": "776-778",
+    "symbol": "test_gamma"
+   },
+   {
+    "file": "sympy/stats/tests/test_discrete_rv.py",
+    "lines": "309-311",
+    "symbol": "test_product_spaces"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/core/mul.py#Mul._eval_is_polynomial",
+   "sympy/core/power.py#Pow.as_base_exp",
+   "sympy/core/tests/test_expr.py#test_as_base_exp",
+   "sympy/core/tests/test_power.py#test_pow_as_base_exp",
+   "sympy/integrals/tests/test_meijerint.py#test_meijerint",
+   "sympy/integrals/tests/test_meijerint.py#test_probability",
+   "sympy/simplify/tests/test_simplify.py#test_as_content_primitive",
+   "sympy/solvers/solvers.py#_tsolve",
+   "sympy/solvers/tests/test_recurr.py#test_issue_6844",
+   "sympy/solvers/tests/test_solvers.py#test_issue_6605",
+   "sympy/stats/drv_types.py#Logarithmic",
+   "sympy/stats/joint_rv_types.py#GeneralizedMultivariateLogGamma",
+   "sympy/stats/tests/test_continuous_rv.py#test_gamma",
+   "sympy/stats/tests/test_discrete_rv.py#test_product_spaces",
+   "sympy/functions/special/zeta_functions.py#lerchphi",
+   "sympy/integrals/tests/test_meijerint.py",
+   "sympy/solvers/tests/test_solvers.py",
+   "sympy/stats/__init__.py",
+   "sympy/stats/tests/test_continuous_rv.py",
+   "sympy/core/mul.py#Mul.as_base_exp (renamed or removed)"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "Pow.as_base_exp return changed",
+    "path": [
+     "sympy/core/power.py:813 return",
+     "sympy/core/mul.py:552 Mul.flatten uses the result",
+     "sympy/core/power.py:1218 Pow._eval_evalf uses the result",
+     "sympy/core/power.py:1249 Pow._eval_is_rational uses the result"
+    ],
+    "to": "13 caller(s) use the result"
+   },
+   {
+    "evidence": "static source path",
+    "from": "_tsolve return changed",
+    "path": [
+     "sympy/solvers/solvers.py:2701 return",
+     "sympy/solvers/solvers.py:1730 _solve uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 14,
+    "stored": 5
+   },
+   "budget": 300,
+   "candidates": 1752,
+   "ran": 840,
+   "replayed": 3,
+   "runner": "pytest",
+   "seconds": 533.6,
+   "selection": {
+    "candidates": 13020,
+    "closure_files": 1322,
+    "closure_tests": 12942,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 78
+   },
+   "unrunnable": 0
+  },
+  "flip_trust": [
+   {
+    "id": "sympy/core/tests/test_expr.py::test_as_base_exp",
+    "label": "fails",
+    "reach": 2,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "why": "as the test was before the edit: failed again in every rerun; ran 2 changed line(s)"
+   },
+   {
+    "id": "sympy/simplify/tests/test_simplify.py::test_as_content_primitive",
+    "label": "fails",
+    "reach": 2,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "why": "as the test was before the edit: failed again in every rerun; ran 2 changed line(s)"
+   },
+   {
+    "id": "sympy/solvers/tests/test_recurr.py::test_issue_6844",
+    "label": "fails",
+    "reach": 2,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "why": "as the test was before the edit: failed again in every rerun; ran 2 changed line(s)"
+   },
+   {
+    "id": "sympy/solvers/tests/test_solvers.py::test_issue_6605",
+    "label": "fails",
+    "reach": 13,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "why": "as the test was before the edit: failed again in every rerun; ran 13 changed line(s)"
+   },
+   {
+    "id": "sympy/stats/tests/test_discrete_rv.py::test_product_spaces",
+    "label": "fails",
+    "reach": 2,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "why": "as the test was before the edit: failed again in every rerun; ran 2 changed line(s)"
+   }
+  ],
+  "flips": 5,
+  "gaps": [
+   "11268 lower-ranked candidate(s) not run: about 7 tests/s per process fit 1752 in the 300 s allowed",
+   "66511 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "graph reused from the previous state; 17 changed file(s) relinked",
+   "replaying the change's own tests (before the change, pytest): timed out",
+   "shadow run stopped at its 300 s budget: 840 of 1752 candidates run"
+  ],
+  "impacted": {
+   "count": 6347,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1608,
+   "parsed_files": 15
+  },
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "original_tests": {
+   "sympy/core/tests/test_expr.py::test_Expr__eq__iterable_handling": "passed",
+   "sympy/core/tests/test_expr.py::test_as_base_exp": "failed",
+   "sympy/core/tests/test_expr.py::test_as_leading_term_stub": "passed",
+   "sympy/core/tests/test_expr.py::test_as_powers_dict": "passed",
+   "sympy/core/tests/test_expr.py::test_attribute_error": "passed",
+   "sympy/core/tests/test_expr.py::test_coeff2": "passed",
+   "sympy/core/tests/test_expr.py::test_coeff2_0": "passed",
+   "sympy/core/tests/test_expr.py::test_expr": "passed",
+   "sympy/core/tests/test_expr.py::test_is_polynomial": "passed",
+   "sympy/core/tests/test_expr.py::test_nan_extractions": "passed",
+   "sympy/core/tests/test_expr.py::test_normal": "passed",
+   "sympy/core/tests/test_power.py::test_issue_14704": "passed",
+   "sympy/core/tests/test_power.py::test_issue_23918": "passed",
+   "sympy/core/tests/test_power.py::test_issue_28219": "passed",
+   "sympy/core/tests/test_power.py::test_pow_as_base_exp": "passed",
+   "sympy/integrals/tests/test_meijerint.py::test_meijerint": "skipped",
+   "sympy/integrals/tests/test_meijerint.py::test_meijerint_definite": "passed",
+   "sympy/integrals/tests/test_meijerint.py::test_probability": "skipped",
+   "sympy/simplify/tests/test_simplify.py::test_as_content_primitive": "failed",
+   "sympy/simplify/tests/test_simplify.py::test_issue_19161": "passed",
+   "sympy/simplify/tests/test_simplify.py::test_issue_7971_21740": "passed",
+   "sympy/simplify/tests/test_simplify.py::test_issue_8373": "passed",
+   "sympy/simplify/tests/test_simplify.py::test_nc_recursion_coeff": "passed",
+   "sympy/simplify/tests/test_simplify.py::test_polymorphism": "passed",
+   "sympy/solvers/tests/test_recurr.py::test_issue_6844": "failed",
+   "sympy/solvers/tests/test_solvers.py::test_inf": "passed",
+   "sympy/solvers/tests/test_solvers.py::test_issue_24650": "passed",
+   "sympy/solvers/tests/test_solvers.py::test_issue_6605": "failed",
+   "sympy/solvers/tests/test_solvers.py::test_issue_7322": "passed",
+   "sympy/solvers/tests/test_solvers.py::test_issue_9567": "passed",
+   "sympy/solvers/tests/test_solvers.py::test_solve_polynomial2": "passed",
+   "sympy/stats/tests/test_continuous_rv.py::test_gamma": "skipped",
+   "sympy/stats/tests/test_discrete_rv.py::test_product_spaces": "failed"
+  },
+  "predicted_failures": [
+   {
+    "after": "failed",
+    "before": "passed",
+    "edited_form": "passed",
+    "id": "sympy/core/tests/test_expr.py::test_as_base_exp",
+    "label": "test edited, not fixed",
+    "reach": 2,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 2 changed line(s)"
+   },
+   {
+    "after": "failed",
+    "before": "passed",
+    "edited_form": "passed",
+    "id": "sympy/simplify/tests/test_simplify.py::test_as_content_primitive",
+    "label": "test edited, not fixed",
+    "reach": 2,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 2 changed line(s)"
+   },
+   {
+    "after": "failed",
+    "before": "passed",
+    "edited_form": "passed",
+    "id": "sympy/solvers/tests/test_recurr.py::test_issue_6844",
+    "label": "test edited, not fixed",
+    "reach": 2,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 2 changed line(s)"
+   },
+   {
+    "after": "failed",
+    "before": "passed",
+    "edited_form": "passed",
+    "id": "sympy/solvers/tests/test_solvers.py::test_issue_6605",
+    "label": "test edited, not fixed",
+    "reach": 13,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 13 changed line(s)"
+   },
+   {
+    "after": "failed",
+    "before": "passed",
+    "edited_form": "passed",
+    "id": "sympy/stats/tests/test_discrete_rv.py::test_product_spaces",
+    "label": "test edited, not fixed",
+    "reach": 2,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 2 changed line(s)"
+   }
+  ],
+  "replayed": [
+   {
+    "base": null,
+    "head": "skipped",
+    "id": "sympy/integrals/tests/test_meijerint.py::test_meijerint",
+    "verdict": "none"
+   },
+   {
+    "base": null,
+    "head": "skipped",
+    "id": "sympy/integrals/tests/test_meijerint.py::test_probability",
+    "verdict": "none"
+   },
+   {
+    "base": null,
+    "head": "skipped",
+    "id": "sympy/stats/tests/test_continuous_rv.py::test_gamma",
+    "verdict": "none"
+   }
+  ],
+  "report_hash": "452d0f1c1fad",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [
+    "sympy/core/power.py#Pow.as_base_exp"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 5,
+   "differences": 0,
+   "functions_called": 1,
+   "input_built_before_the_change": 0,
+   "not_compared": {},
+   "seconds": 105.6,
+   "targets": 13,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 840 of 1752 candidate tests after the change with pytest in 533.6 s, failures confirmed before it: 5 now fail. 9383 tests reach the change. 33 test(s) from edited test files also run as they were before the edit. 5 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 3 test(s) the change adds or edits replayed on the code before it: 0 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "executed",
+    "expect": "fails",
+    "id": "sympy/stats/tests/test_discrete_rv.py::test_product_spaces",
+    "line": 0,
+    "run": "python -m pytest sympy/stats/tests/test_discrete_rv.py::test_product_spaces",
+    "score": 0.0,
+    "why": "failed when executed after the change"
+   },
+   {
+    "confidence": "executed",
+    "expect": "fails",
+    "id": "sympy/solvers/tests/test_recurr.py::test_issue_6844",
+    "line": 0,
+    "run": "python -m pytest sympy/solvers/tests/test_recurr.py::test_issue_6844",
+    "score": 0.0,
+    "why": "failed when executed after the change"
+   },
+   {
+    "confidence": "executed",
+    "expect": "fails",
+    "id": "sympy/simplify/tests/test_simplify.py::test_as_content_primitive",
+    "line": 0,
+    "run": "python -m pytest sympy/simplify/tests/test_simplify.py::test_as_content_primitive",
+    "score": 0.0,
+    "why": "failed when executed after the change"
+   },
+   {
+    "confidence": "direct",
+    "expect": "fails",
+    "id": "sympy/solvers/tests/test_solvers.py::test_issue_6605",
+    "line": 1832,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_issue_6605",
+    "score": 3.884,
+    "why": "calls _tsolve (name: solver)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "fails",
+    "id": "sympy/core/tests/test_expr.py::test_as_base_exp",
+    "line": 1544,
+    "run": "python -m pytest sympy/core/tests/test_expr.py::test_as_base_exp",
+    "score": 3.22,
+    "why": "names sympy/core/mul.py#Mul.as_base_exp, renamed or removed (name: base,exp)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_power.py::test_pow_as_base_exp",
+    "line": 285,
+    "run": "python -m pytest sympy/core/tests/test_power.py::test_pow_as_base_exp",
+    "score": 7.601,
+    "why": "names sympy/core/mul.py#Mul.as_base_exp, renamed or removed (name: base,exp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/stats/tests/test_joint_rv.py::test_GeneralizedMultivariateLogGammaDistribution",
+    "line": 134,
+    "run": "python -m pytest sympy/stats/tests/test_joint_rv.py::test_GeneralizedMultivariateLogGammaDistribution",
+    "score": 4.997,
+    "why": "calls GeneralizedMultivariateLogGamma (name: gamma,generalized,joint,log,multivariate,rv)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/stats/tests/test_discrete_rv.py::test_Logarithmic",
+    "line": 121,
+    "run": "python -m pytest sympy/stats/tests/test_discrete_rv.py::test_Logarithmic",
+    "score": 4.026,
+    "why": "calls Logarithmic (name: logarithmic)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/special/tests/test_zeta_functions.py::test_lerchphi_expansion",
+    "line": 209,
+    "run": "python -m pytest sympy/functions/special/tests/test_zeta_functions.py::test_lerchphi_expansion",
+    "score": 3.638,
+    "why": "via lerchphi (name: function,lerchphi,zeta)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/stats/tests/test_discrete_rv.py::test_moment_generating_functions",
+    "line": 250,
+    "run": "python -m pytest sympy/stats/tests/test_discrete_rv.py::test_moment_generating_functions",
+    "score": 2.345,
+    "why": "calls Logarithmic"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_power.py::test_issue_6208",
+    "line": 347,
+    "run": "python -m pytest sympy/core/tests/test_power.py::test_issue_6208",
+    "score": 2.064,
+    "why": "names sympy/core/mul.py#Mul.as_base_exp, renamed or removed"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_hyperexpand.py::test_lerchphi",
+    "line": 583,
+    "run": "python -m pytest sympy/simplify/tests/test_hyperexpand.py::test_lerchphi",
+    "score": 1.809,
+    "why": "via lerchphi (name: lerchphi)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_numbers.py::test_issue_3423",
+    "line": 1495,
+    "run": "python -m pytest sympy/core/tests/test_numbers.py::test_issue_3423",
+    "score": 1.55,
+    "why": "names sympy/core/mul.py#Mul.as_base_exp, renamed or removed"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_power.py::test_issue_23918",
+    "line": 668,
+    "run": "python -m pytest sympy/core/tests/test_power.py::test_issue_23918",
+    "score": 1.278,
+    "why": "names sympy/core/mul.py#Mul.as_base_exp, renamed or removed"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_power.py::test_zero",
+    "line": 266,
+    "run": "python -m pytest sympy/core/tests/test_power.py::test_zero",
+    "score": 1.194,
+    "why": "names sympy/core/mul.py#Mul.as_base_exp, renamed or removed"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solvers.py::test_base_0_exp_0",
+    "line": 2245,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_base_0_exp_0",
+    "score": 1.145,
+    "why": "via solve > _solve > _tsolve (name: solver)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_latex.py::test_latex_functions",
+    "line": 452,
+    "run": "python -m pytest sympy/printing/tests/test_latex.py::test_latex_functions",
+    "score": 1.06,
+    "why": "via lerchphi (name: function)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solvers.py::test_lambert_bivariate",
+    "line": 1994,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_lambert_bivariate",
+    "score": 0.97,
+    "why": "via solve > _solve > _tsolve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solvers.py::test_unrad1",
+    "line": 1115,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_unrad1",
+    "score": 0.865,
+    "why": "via solve > _solve > _tsolve (name: solver)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_args.py::test_sympy__functions__special__zeta_functions__lerchphi",
+    "line": 2944,
+    "run": "python -m pytest sympy/core/tests/test_args.py::test_sympy__functions__special__zeta_functions__lerchphi",
+    "score": 0.859,
+    "why": "via lerchphi (name: function,lerchphi,zeta)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/elementary/tests/test_exponential.py::test_exp__as_base_exp",
+    "line": 117,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_exponential.py::test_exp__as_base_exp",
+    "score": 0.78,
+    "why": "via Expr.as_base_exp, which names sympy/core/mul.py#Mul.as_base_exp, renamed or removed (name: base,exp)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solvers.py::test_lambert_multivariate",
+    "line": 1968,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_lambert_multivariate",
+    "score": 0.77,
+    "why": "via solve > _solve > _tsolve (name: solver)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/special/tests/test_zeta_functions.py::test_derivatives",
+    "line": 125,
+    "run": "python -m pytest sympy/functions/special/tests/test_zeta_functions.py::test_derivatives",
+    "score": 0.742,
+    "why": "via lerchphi (name: function,zeta)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_polynomial_cv_1a",
+    "line": 273,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_polynomial_cv_1a",
+    "score": 0.699,
+    "why": "via solve > _solve > _tsolve (name: solver)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_laplace.py::test_expint",
+    "line": 780,
+    "run": "python -m pytest sympy/integrals/tests/test_laplace.py::test_expint",
+    "score": 0.685,
+    "why": "via lerchphi"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_polynomial_cv_2",
+    "line": 290,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_polynomial_cv_2",
+    "score": 0.653,
+    "why": "via solve > _solve > _tsolve (name: solver)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/special/tests/test_zeta_functions.py::test_rewriting",
+    "line": 108,
+    "run": "python -m pytest sympy/functions/special/tests/test_zeta_functions.py::test_rewriting",
+    "score": 0.644,
+    "why": "via lerchphi (name: function,zeta)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_polynomial1",
+    "line": 233,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_polynomial1",
+    "score": 0.62,
+    "why": "via solve > _solve > _tsolve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_args",
+    "line": 128,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_args",
+    "score": 0.589,
+    "why": "via solve > _solve > _tsolve (name: solver)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/stats/tests/test_discrete_rv.py::test_precomputed_characteristic_functions",
+    "line": 218,
+    "run": "python -m pytest sympy/stats/tests/test_discrete_rv.py::test_precomputed_characteristic_functions",
+    "score": 0.581,
+    "why": "calls Logarithmic"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_powsimp.py::test_powsimp_negated_base",
+    "line": 129,
+    "run": "python -m pytest sympy/simplify/tests/test_powsimp.py::test_powsimp_negated_base",
+    "score": 0.575,
+    "why": "via powsimp, which names sympy/core/mul.py#Mul.as_base_exp, renamed or removed (name: base)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_transcendental",
+    "line": 533,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_transcendental",
+    "score": 0.558,
+    "why": "via solve > _solve > _tsolve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_power.py::test_nseries",
+    "line": 308,
+    "run": "python -m pytest sympy/core/tests/test_power.py::test_nseries",
+    "score": 0.544,
+    "why": "via Pow._eval_nseries > Pow.as_base_exp (name: power)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solvers.py::test_float_handling",
+    "line": 1674,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_float_handling",
+    "score": 0.535,
+    "why": "via solve > _solve > _tsolve (name: solver)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_14241",
+    "line": 1672,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_issue_14241",
+    "score": 0.525,
+    "why": "via lerchphi"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/elementary/tests/test_exponential.py::test_exp_values",
+    "line": 29,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_exponential.py::test_exp_values",
+    "score": 0.52,
+    "why": "via Expr.as_base_exp, which names sympy/core/mul.py#Mul.as_base_exp, renamed or removed (name: exp)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_polynomial_cv_1b",
+    "line": 285,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_polynomial_cv_1b",
+    "score": 0.517,
+    "why": "via solve > _solve > _tsolve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solvers.py::test_highorder_poly",
+    "line": 347,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_highorder_poly",
+    "score": 0.505,
+    "why": "via solve > _solve > _tsolve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solvers.py::test_PR1964",
+    "line": 886,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_PR1964",
+    "score": 0.495,
+    "why": "via solve > _solve > _tsolve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solvers.py::test_issue_5132",
+    "line": 988,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_issue_5132",
+    "score": 0.487,
+    "why": "via solve > _solve > _tsolve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solvers.py::test_issue_4793",
+    "line": 862,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_issue_4793",
+    "score": 0.48,
+    "why": "via solve > _solve > _tsolve (name: solver)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/stats/sampling/tests/test_sample_discrete_rv.py::test_sample_scipy",
+    "line": 40,
+    "run": "python -m pytest sympy/stats/sampling/tests/test_sample_discrete_rv.py::test_sample_scipy",
+    "score": 0.475,
+    "why": "calls Logarithmic"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solvers.py::test_issues_6819_6820_6821_6248_8692_25777_25779",
+    "line": 1870,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_issues_6819_6820_6821_6248_8692_25777_25779",
+    "score": 0.475,
+    "why": "via solve > _solve > _tsolve (name: solver)"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/core/tests/test_expr.py",
+    "lines": "1549-1554",
+    "symbol": "test_as_base_exp"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/core/tests/test_power.py",
+    "lines": "297-305",
+    "symbol": "test_pow_as_base_exp"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/integrals/tests/test_meijerint.py",
+    "lines": "208",
+    "symbol": "test_meijerint"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/integrals/tests/test_meijerint.py",
+    "lines": "393-498",
+    "symbol": "test_probability"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/simplify/tests/test_simplify.py",
+    "lines": "627",
+    "symbol": "test_as_content_primitive"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/solvers/tests/test_recurr.py",
+    "lines": "235",
+    "symbol": "test_issue_6844"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/solvers/tests/test_solvers.py",
+    "lines": "1838-1841",
+    "symbol": "test_issue_6605"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/stats/tests/test_continuous_rv.py",
+    "lines": "776-778",
+    "symbol": "test_gamma"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/stats/tests/test_discrete_rv.py",
+    "lines": "309-311",
+    "symbol": "test_product_spaces"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792342557.703361,
+  "job_seconds": 572.6,
+  "number": 26912,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 572.8,
+  "started": 1792341966.41199,
+  "verify_seconds": 16.2
+ },
+ "verify": {
+  "checked": 5,
+  "false": 0,
+  "held": 5,
+  "merge_base": "a0be64b90beabfaa8f76fcb31f2983b2476adfb4",
+  "other": 0,
+  "problem": null,
+  "states": {
+   "sympy/core/tests/test_expr.py::test_as_base_exp": "passed",
+   "sympy/simplify/tests/test_simplify.py::test_as_content_primitive": "passed",
+   "sympy/solvers/tests/test_recurr.py::test_issue_6844": "passed",
+   "sympy/solvers/tests/test_solvers.py::test_issue_6605": "passed",
+   "sympy/stats/tests/test_discrete_rv.py::test_product_spaces": "passed"
+  },
+  "v": 1
+ }
+}

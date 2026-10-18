@@ -1,0 +1,382 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "2d283a82d15f2b46beff7be5399546c79613c445",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "8b22bef7faade820cc705601d5cafd46a1f56740",
+  "install_ok": true,
+  "merge_base": "6aabf6ac9eddd1c5141ff9a3a35dcb53a7b02228",
+  "pr": 30636,
+  "recording": false,
+  "runner": null,
+  "seconds": 333.3,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "2d283a82d15f2b46beff7be5399546c79613c445",
+  "head_sha": "8b22bef7faade820cc705601d5cafd46a1f56740",
+  "merge_base": "6aabf6ac9eddd1c5141ff9a3a35dcb53a7b02228",
+  "merged_at": "2026-10-04T01:29:48Z",
+  "number": 30636,
+  "repo": "sympy",
+  "title": "Handle same-signed groups in `_monotonic_sign`"
+ },
+ "probe_minutes": {
+  "end": 1792338588.955507,
+  "minutes": 0.3,
+  "start": 1792338262.45542,
+  "waited": 310.2843342499982
+ },
+ "probe_targets": {
+  "all": 2,
+  "called": 1,
+  "targets": [
+   {
+    "after": "def test_monotonic_sign():\n    F = _monotonic_sign\n    x = symbols('x')\n    assert F(x) is None\n    assert F(-x) is None\n    assert F(Dummy(prime=True)) == 2\n    assert F(Dummy(prime=True, odd=True)) == 3\n    assert F(Dummy(composite=True)) == 4\n    assert F(Dummy(composite=True, odd=True)) == 9\n    assert F(Dummy(positive=True, integer=True)) == 1\n    assert F(Dummy(positive=True, even=True)) == 2\n    assert F(Dummy(positive=True, even=True, prime=False)) == 4\n    assert F(Dummy(negative=True, integer=True)) == -1\n    assert F(Dummy(negative=True, even=True)) == -2\n    assert F(Dummy(zero=True)) == 0\n    assert F(Dummy(nonnegative=True)) == 0\n    assert F(Dummy(nonpositive=True)) == 0\n\n    pi = Dummy(positive=True, integer=True)\n    qi = Dummy(positive=True, integer=True)\n    ri = Dummy(positive=True, integer=True)\n    assert F(pi + qi + ri) == 3\n    assert F(pi - qi) is None\n    assert F(-pi - qi) == -2\n    assert F(pi + qi + ri - 3).is_nonnegative\n    assert F(-pi - qi + 2).is_nonpositive\n\n    p1 = Dummy(positive=True)\n    p2 = Dummy(positive=True)\n    assert F(p1 + p2).is_positive\n    assert F(-p1 - p2).is_negative\n\n    nn1 = Dummy(nonnegative=True)\n    nn2 = Dummy(nonnegative=True)\n    assert F(nn1 + nn2).is_nonnegative\n\n    assert F(Dummy(positive=True) + 1).is_positive\n    assert F(Dummy(positive=True, integer=True) - 1).is_nonnegative\n    assert F(Dummy(positive=True) - 1) is None\n    assert F(Dummy(negative=True) + 1) is None\n    assert F(Dummy(negative=True, integer=True) - 1).is_nonpositive\n    assert F(Dummy(negative=True) - 1).is_negative\n    assert F(-Dummy(positive=True) + 1) is None\n    assert F(-Dummy(positive=True, integer=True) - 1).is_negative\n    assert F(-Dummy(positive=True) - 1).is_negative\n    assert F(-Dummy(negative=True) + 1).is_positive\n    assert F(-Dummy(negative=True, integer=True) - 1).is_nonnegative\n    assert F(-Dummy(negative=True) - 1) is None\n    x = Dummy(negative=True)\n    assert F(x**3).is_nonpositive\n    assert F(x**3 + log(2)*x - 1).is_negative\n    x = Dummy(positive=True)\n    assert F(-x**3).is_nonpositive\n\n    p = Dummy(positive=True)\n    assert F(1/p).is_positive\n    assert F(p/(p + 1)).is_positive\n    p = Dummy(nonnegative=True)\n    assert F(p/(p + 1)).is_nonnegative\n    p = Dummy(positive=True)\n    assert F(-1/p).is_negative\n    p = Dummy(nonpositive=True)\n    assert F(p/(-p + 1)).is_nonpositive\n\n    p = Dummy(positive=True, integer=True)\n    q = Dummy(positive=True, integer=True)\n    assert F(-2/p/q).is_negative\n    assert F(-2/(p - 1)/q) is None\n\n    assert F((p - 1)*q + 1).is_positive\n    assert F(-(p - 1)*q - 1).is_negative\n\n    nn1, nn2 = Dummy(nonnegative=True), Dummy(nonnegative=True)\n\n    r = F(nn1 + nn2)\n    assert r.is_nonnegative is True\n    assert r.is_positive is None\n\n    r = F(-nn1 - nn2)\n    assert r.is_nonpositive is True\n    assert r.is_negative is None\n",
+    "before": "def test_monotonic_sign():\n    F = _monotonic_sign\n    x = symbols('x')\n    assert F(x) is None\n    assert F(-x) is None\n    assert F(Dummy(prime=True)) == 2\n    assert F(Dummy(prime=True, odd=True)) == 3\n    assert F(Dummy(composite=True)) == 4\n    assert F(Dummy(composite=True, odd=True)) == 9\n    assert F(Dummy(positive=True, integer=True)) == 1\n    assert F(Dummy(positive=True, even=True)) == 2\n    assert F(Dummy(positive=True, even=True, prime=False)) == 4\n    assert F(Dummy(negative=True, integer=True)) == -1\n    assert F(Dummy(negative=True, even=True)) == -2\n    assert F(Dummy(zero=True)) == 0\n    assert F(Dummy(nonnegative=True)) == 0\n    assert F(Dummy(nonpositive=True)) == 0\n\n    assert F(Dummy(positive=True) + 1).is_positive\n    assert F(Dummy(positive=True, integer=True) - 1).is_nonnegative\n    assert F(Dummy(positive=True) - 1) is None\n    assert F(Dummy(negative=True) + 1) is None\n    assert F(Dummy(negative=True, integer=True) - 1).is_nonpositive\n    assert F(Dummy(negative=True) - 1).is_negative\n    assert F(-Dummy(positive=True) + 1) is None\n    assert F(-Dummy(positive=True, integer=True) - 1).is_negative\n    assert F(-Dummy(positive=True) - 1).is_negative\n    assert F(-Dummy(negative=True) + 1).is_positive\n    assert F(-Dummy(negative=True, integer=True) - 1).is_nonnegative\n    assert F(-Dummy(negative=True) - 1) is None\n    x = Dummy(negative=True)\n    assert F(x**3).is_nonpositive\n    assert F(x**3 + log(2)*x - 1).is_negative\n    x = Dummy(positive=True)\n    assert F(-x**3).is_nonpositive\n\n    p = Dummy(positive=True)\n    assert F(1/p).is_positive\n    assert F(p/(p + 1)).is_positive\n    p = Dummy(nonnegative=True)\n    assert F(p/(p + 1)).is_nonnegative\n    p = Dummy(positive=True)\n    assert F(-1/p).is_negative\n    p = Dummy(nonpositive=True)\n    assert F(p/(-p + 1)).is_nonpositive\n\n    p = Dummy(positive=True, integer=True)\n    q = Dummy(positive=True, integer=True)\n    assert F(-2/p/q).is_negative\n    assert F(-2/(p - 1)/q) is None\n\n    assert F((p - 1)*q + 1).is_positive\n    assert F(-(p - 1)*q - 1).is_negative\n",
+    "file": "sympy/core/tests/test_exprtools.py",
+    "id": "sympy/core/tests/test_exprtools.py#test_monotonic_sign",
+    "name": "test_monotonic_sign",
+    "qual": "test_monotonic_sign",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "return",
+      "list",
+      "['3', '-2', '1', 'True', '_nneg']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['None', 'None', '1', 'None', 'None']"
+     ],
+     "call": "[str(F(p + q + r)), str(F(-p - q)), str(F(p + q - 1)), str((p + q - 1).is_positive), str(F(nn[0] + nn[1]))]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import symbols\nfrom sympy.core.exprtools import _monotonic_sign as F\np, q, r = symbols('p q r', positive=True, integer=True)\nnn = symbols('nn1 nn2', nonnegative=True)",
+     "target": "sympy/core/tests/test_exprtools.py#test_monotonic_sign",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import symbols\n    from sympy.core.exprtools import _monotonic_sign as F\n    p, q, r = symbols('p q r', positive=True, integer=True)\n    nn = symbols('nn1 nn2', nonnegative=True)\n    assert repr([str(F(p + q + r)), str(F(-p - q)), str(F(p + q - 1)), str((p + q - 1).is_positive), str(F(nn[0] + nn[1]))]) == \"['3', '-2', '1', 'True', '_nneg']\"\n",
+     "why": "same-signed sums the edited test adds"
+    }
+   ],
+   "dollars_cap": 0.1,
+   "filter_seconds": 10.4,
+   "gaps": [],
+   "info": {
+    "accepted": 1,
+    "compiled": 1,
+    "cost": 0.0,
+    "differed": 1,
+    "dollars_cap": 0.1,
+    "functions": 1,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 1,
+    "ran": 1,
+    "reached": 1,
+    "requests": 1,
+    "seconds": 10.2,
+    "stable": 1
+   },
+   "probes": [
+    {
+     "call": "[str(F(p + q + r)), str(F(-p - q)), str(F(p + q - 1)), str((p + q - 1).is_positive), str(F(nn[0] + nn[1]))]",
+     "function": "sympy/core/tests/test_exprtools.py#test_monotonic_sign",
+     "setup": "from sympy import symbols\nfrom sympy.core.exprtools import _monotonic_sign as F\np, q, r = symbols('p q r', positive=True, integer=True)\nnn = symbols('nn1 nn2', nonnegative=True)",
+     "why": "same-signed sums the edited test adds"
+    }
+   ],
+   "targets": [
+    "sympy/core/tests/test_exprtools.py#test_monotonic_sign"
+   ],
+   "waited_seconds": 310.3
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/core/tests/test_assumptions.py::test_add_signed_group_assumptions",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/core/tests/test_exprtools.py::test_monotonic_sign",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/core/exprtools.py",
+    "lines": "42-234",
+    "symbol": "_monotonic_sign"
+   },
+   {
+    "file": "sympy/core/tests/test_assumptions.py",
+    "lines": "1229-1237",
+    "symbol": "test_add_signed_group_assumptions"
+   },
+   {
+    "file": "sympy/core/tests/test_exprtools.py",
+    "lines": "454-516",
+    "symbol": "test_monotonic_sign"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/core/exprtools.py#_monotonic_sign",
+   "sympy/core/tests/test_assumptions.py#test_add_signed_group_assumptions",
+   "sympy/core/tests/test_exprtools.py#test_monotonic_sign",
+   "sympy/core/tests/test_assumptions.py",
+   "sympy/core/tests/test_exprtools.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "_monotonic_sign return changed",
+    "path": [
+     "sympy/core/exprtools.py:225 return",
+     "sympy/core/add.py:866 Add._eval_is_extended_negative uses the result",
+     "sympy/core/add.py:835 Add._eval_is_extended_nonnegative uses the result",
+     "sympy/core/add.py:850 Add._eval_is_extended_nonpositive uses the result"
+    ],
+    "to": "4 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 2,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 2664,
+   "ran": 2664,
+   "replayed": 2,
+   "runner": "pytest",
+   "seconds": 326.4,
+   "selection": {
+    "candidates": 12921,
+    "closure_files": 1321,
+    "closure_tests": 12921,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 0
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "10257 lower-ranked candidate(s) not run: about 11 tests/s per process fit 2664 in the 300 s allowed",
+   "65898 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "graph reused from the previous state; 14 changed file(s) relinked"
+  ],
+  "impacted": {
+   "count": 5,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1607,
+   "parsed_files": 3
+  },
+  "original_tests": {
+   "sympy/core/tests/test_assumptions.py::test_Add_is_algebraic": "passed",
+   "sympy/core/tests/test_assumptions.py::test_Add_is_imaginary": "passed",
+   "sympy/core/tests/test_assumptions.py::test_Add_is_infinite": "passed",
+   "sympy/core/tests/test_assumptions.py::test_Add_is_pos_neg": "passed",
+   "sympy/core/tests/test_assumptions.py::test_E": "passed",
+   "sympy/core/tests/test_assumptions.py::test_I": "passed",
+   "sympy/core/tests/test_assumptions.py::test_Mul_is_algebraic": "passed",
+   "sympy/core/tests/test_assumptions.py::test_Mul_is_infinite": "passed",
+   "sympy/core/tests/test_assumptions.py::test_Mul_is_prime_composite": "passed",
+   "sympy/core/tests/test_assumptions.py::test_Pow_is_algebraic": "passed",
+   "sympy/core/tests/test_assumptions.py::test_Pow_is_pos_neg": "passed",
+   "sympy/core/tests/test_assumptions.py::test_Pow_is_prime_composite": "passed",
+   "sympy/core/tests/test_assumptions.py::test_ask_shuffle": "passed",
+   "sympy/core/tests/test_assumptions.py::test_assumptions_copy": "passed",
+   "sympy/core/tests/test_assumptions.py::test_check_assumptions": "passed",
+   "sympy/core/tests/test_assumptions.py::test_common_assumptions": "passed",
+   "sympy/core/tests/test_assumptions.py::test_complex_reciprocal_imaginary": "passed",
+   "sympy/core/tests/test_assumptions.py::test_composite": "passed",
+   "sympy/core/tests/test_assumptions.py::test_evaluate_false": "passed",
+   "sympy/core/tests/test_assumptions.py::test_failing_assumptions": "passed",
+   "sympy/core/tests/test_assumptions.py::test_hash_vs_eq": "passed",
+   "sympy/core/tests/test_assumptions.py::test_hash_vs_typeinfo": "passed",
+   "sympy/core/tests/test_assumptions.py::test_hash_vs_typeinfo_2": "passed",
+   "sympy/core/tests/test_assumptions.py::test_inconsistent": "passed",
+   "sympy/core/tests/test_assumptions.py::test_infinity": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_10024": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_10302": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_16313": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_16579": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_17556": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_21651": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_2730": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_2920": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_3825": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_4149": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_4822": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_6275": "skipped",
+   "sympy/core/tests/test_assumptions.py::test_issue_6631": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_7899": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_7993": "skipped",
+   "sympy/core/tests/test_assumptions.py::test_issue_8075": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_8642": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_9115_9150": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_9165": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issues_8632_8633_8638_8675_8992": "passed",
+   "sympy/core/tests/test_assumptions.py::test_nan": "passed",
+   "sympy/core/tests/test_assumptions.py::test_neg_infinity": "passed",
+   "sympy/core/tests/test_assumptions.py::test_neg_rational": "passed",
+   "sympy/core/tests/test_assumptions.py::test_neg_symbol_falsenegative": "passed",
+   "sympy/core/tests/test_assumptions.py::test_neg_symbol_falsenonnegative": "skipped",
+   "sympy/core/tests/test_assumptions.py::test_neg_symbol_falsenonnegative_real": "passed",
+   "sympy/core/tests/test_assumptions.py::test_neg_symbol_falsepositive": "passed",
+   "sympy/core/tests/test_assumptions.py::test_neg_symbol_falsepositive_real": "passed",
+   "sympy/core/tests/test_assumptions.py::test_neg_symbol_nonpositive": "passed",
+   "sympy/core/tests/test_assumptions.py::test_neg_symbol_positive": "passed",
+   "sympy/core/tests/test_assumptions.py::test_negativeone": "passed",
+   "sympy/core/tests/test_assumptions.py::test_one": "passed",
+   "sympy/core/tests/test_assumptions.py::test_other_symbol": "passed",
+   "sympy/core/tests/test_assumptions.py::test_pi": "passed",
+   "sympy/core/tests/test_assumptions.py::test_pos_rational": "passed",
+   "sympy/core/tests/test_assumptions.py::test_pre_generated_assumption_rules_are_valid": "passed",
+   "sympy/core/tests/test_assumptions.py::test_prime": "passed",
+   "sympy/core/tests/test_assumptions.py::test_prime_symbol": "passed",
+   "sympy/core/tests/test_assumptions.py::test_sanitize_assumptions": "passed",
+   "sympy/core/tests/test_assumptions.py::test_special_assumptions": "passed",
+   "sympy/core/tests/test_assumptions.py::test_special_is_rational": "passed",
+   "sympy/core/tests/test_assumptions.py::test_symbol_extended_real_false": "passed",
+   "sympy/core/tests/test_assumptions.py::test_symbol_falsenonnegative": "passed",
+   "sympy/core/tests/test_assumptions.py::test_symbol_falsenonnegative_real": "passed",
+   "sympy/core/tests/test_assumptions.py::test_symbol_falsepositive": "passed",
+   "sympy/core/tests/test_assumptions.py::test_symbol_falsepositive_mul": "passed",
+   "sympy/core/tests/test_assumptions.py::test_symbol_falsepositive_real": "passed",
+   "sympy/core/tests/test_assumptions.py::test_symbol_imaginary": "passed",
+   "sympy/core/tests/test_assumptions.py::test_symbol_infinitereal_mul": "skipped",
+   "sympy/core/tests/test_assumptions.py::test_symbol_noncommutative": "passed",
+   "sympy/core/tests/test_assumptions.py::test_symbol_nonpositive": "passed",
+   "sympy/core/tests/test_assumptions.py::test_symbol_positive": "passed",
+   "sympy/core/tests/test_assumptions.py::test_symbol_real_false": "passed",
+   "sympy/core/tests/test_assumptions.py::test_symbol_unset": "passed",
+   "sympy/core/tests/test_assumptions.py::test_symbol_zero": "passed",
+   "sympy/core/tests/test_assumptions.py::test_zero": "passed",
+   "sympy/core/tests/test_assumptions.py::test_zoo": "passed",
+   "sympy/core/tests/test_exprtools.py::test__decompose_exprs": "passed",
+   "sympy/core/tests/test_exprtools.py::test_factor_terms": "passed",
+   "sympy/core/tests/test_exprtools.py::test_issue_17256": "passed",
+   "sympy/core/tests/test_exprtools.py::test_monotonic_sign": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/core/tests/test_assumptions.py::test_add_signed_group_assumptions",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/core/tests/test_exprtools.py::test_monotonic_sign",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "fb8fc0d11ed4",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [
+    "sympy/core/exprtools.py#_monotonic_sign"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 5,
+   "differences": 0,
+   "functions_called": 1,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "sympy/core/tests/test_assumptions.py#test_add_signed_group_assumptions": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 52.8,
+   "targets": 2,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 2664 of 2664 candidate tests after the change with pytest in 326.4 s, failures confirmed before it: 0 now fail. 2 tests reach the change. 86 test(s) from edited test files also run as they were before the edit. 2 test(s) the change adds or edits replayed on the code before it: 2 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_exprtools.py::test_monotonic_sign",
+    "line": 436,
+    "run": "python -m pytest sympy/core/tests/test_exprtools.py::test_monotonic_sign",
+    "score": 3.341,
+    "why": "calls _monotonic_sign (name: exprtool,monotonic,sign)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_arit.py::test_Mul_is_negative_positive",
+    "line": 651,
+    "run": "python -m pytest sympy/core/tests/test_arit.py::test_Mul_is_negative_positive",
+    "score": 0.254,
+    "why": "via Add._eval_is_extended_negative > _monotonic_sign"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/core/tests/test_assumptions.py",
+    "lines": "1229-1237",
+    "symbol": "test_add_signed_group_assumptions"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/core/tests/test_exprtools.py",
+    "lines": "454-516",
+    "symbol": "test_monotonic_sign"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792338140.13693,
+  "job_seconds": 333.3,
+  "number": 30636,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 333.4,
+  "started": 1792337805.9292722
+ },
+ "verify": null
+}

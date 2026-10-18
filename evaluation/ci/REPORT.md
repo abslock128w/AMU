@@ -426,3 +426,29 @@ Both presentation pieces have now been seen on a pull request. Phase C's "what i
 **Seen on PR #20, not fixed: behaviour differences can hide where the outputs differ.** PR #20 changed comment
 wording, and the 10 behaviour-difference rows for `render` and `shadow.run` cut both outcomes at the same prefix,
 before the words that differ. The difference was intended, but a reader cannot see it in the row.
+
+## Brief 5: the comment on 100 pull requests that are not AMU's own (2026-10-18)
+
+Full record: `evaluation/retrospective/REPORT.md`; the comment AMU would have posted on each pull request is in
+`evaluation/retrospective/django/` and `.../sympy/`. Run locally, as the v0.2.6 Action would, on the last 50 merged pull
+requests of Django and sympy that touch production Python.
+
+| | Django | sympy | Both |
+|---|---:|---:|---:|
+| False-flip rate (fresh-process rerun on the merge base) | 0 of 8 | 0 of 22 | 0 of 30 |
+| Pull requests with a counted flip | 5 | 11 | 16 |
+| Pull requests with a side-by-side difference; precision on all 18 rows | 4; 82% | 2; 29% | 6; 61% |
+| Comparable changed functions with no captured call | 76% | 64% | 71% |
+| Median, worst job time | 24 s, 439 s | 357 s, 1,140 s | |
+
+- Every counted flip is a test the pull request edited, run in its old form. None was a regression in a test the pull
+  request left alone.
+- On 36 of 50 Django pull requests a `gis_tests` label aborted Django's runner and cut the run short; 4 ran no test.
+- Sympy's tracer recording cannot fit the wall cap. On sympy #30476 it left AMU stopped at the cap with a one-line
+  comment, and the tracer was off for the rest of sympy.
+- This session wrote the generated-test tier's probes: 344 attempted, 105 kept by AMU's filter. 102 show intended
+  differences, 2 unintended but cosmetic, and 1 is an artifact of the filter.
+- Decision rules triggered:
+  - profile sympy #30476 first;
+  - move side-by-side rows to the collapsed section;
+  - the generated-test rule, as written.

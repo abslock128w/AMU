@@ -1,0 +1,644 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "d9232e0d2eac5c5b1112cc7d10d441f798e4eab8",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "1bd75f90e7aed2213c0e7c15c9e77c04798948ea",
+  "install_ok": true,
+  "merge_base": "a23073ee516bbf60863dc8b82a8446b15e6348f4",
+  "pr": 30511,
+  "recording": false,
+  "runner": null,
+  "seconds": 460.5,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "d9232e0d2eac5c5b1112cc7d10d441f798e4eab8",
+  "head_sha": "1bd75f90e7aed2213c0e7c15c9e77c04798948ea",
+  "merge_base": "a23073ee516bbf60863dc8b82a8446b15e6348f4",
+  "merged_at": "2026-09-23T09:51:32Z",
+  "number": 30511,
+  "repo": "sympy",
+  "title": "calculus: Include evaluated values at discrete domain points in function_range"
+ },
+ "probe_minutes": {
+  "end": 1792329070.399292,
+  "minutes": 1.1,
+  "start": 1792328652.879914,
+  "waited": 354.35662891701213
+ },
+ "probe_targets": {
+  "all": 3,
+  "called": 2,
+  "targets": [
+   {
+    "after": "def test_Abs():\n    assert refine(Abs(x), Q.positive(x)) == x\n    assert refine(1 + Abs(x), Q.positive(x)) == 1 + x\n    assert refine(Abs(x), Q.negative(x)) == -x\n    assert refine(1 + Abs(x), Q.negative(x)) == 1 - x\n\n    assert refine(Abs(x**2)) != x**2\n    assert refine(Abs(x**2), Q.real(x)) == x**2\n\n    assert refine(Abs(z)**2, Q.real(z)) == z**2\n    assert refine(Abs(z)**2, Q.imaginary(z)) == -z**2\n    assert refine(Abs(z)**4, Q.imaginary(z)) == z**4\n    assert refine(Abs(z)**6, Q.imaginary(z)) == -z**6\n",
+    "before": "def test_Abs():\n    assert refine(Abs(x), Q.positive(x)) == x\n    assert refine(1 + Abs(x), Q.positive(x)) == 1 + x\n    assert refine(Abs(x), Q.negative(x)) == -x\n    assert refine(1 + Abs(x), Q.negative(x)) == 1 - x\n\n    assert refine(Abs(x**2)) != x**2\n    assert refine(Abs(x**2), Q.real(x)) == x**2\n",
+    "file": "sympy/assumptions/tests/test_refine.py",
+    "id": "sympy/assumptions/tests/test_refine.py#test_Abs",
+    "name": "test_Abs",
+    "qual": "test_Abs",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "return",
+      "list",
+      "['z**2', '-z**2', 'z**4', '-z**6']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['z**2', 'Abs(z)**2', 'Abs(z)**4', 'Abs(z)**6']"
+     ],
+     "call": "[str(refine(Abs(z)**n, q(z))) for n, q in ((2, Q.real), (2, Q.imaginary), (4, Q.imaginary), (6, Q.imaginary))]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import Abs, Q, refine, symbols\nz = symbols('z')",
+     "target": "sympy/assumptions/tests/test_refine.py#test_Abs",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import Abs, Q, refine, symbols\n    z = symbols('z')\n    assert repr([str(refine(Abs(z)**n, q(z))) for n, q in ((2, Q.real), (2, Q.imaginary), (4, Q.imaginary), (6, Q.imaginary))]) == \"['z**2', '-z**2', 'z**4', '-z**6']\"\n",
+     "why": "the powers of Abs the edited test adds"
+    }
+   ],
+   "filter_seconds": 55.9,
+   "gaps": [],
+   "info": {
+    "accepted": 1,
+    "compiled": 1,
+    "cost": 0.0,
+    "differed": 1,
+    "dollars_cap": 0.1,
+    "functions": 1,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 1,
+    "ran": 1,
+    "reached": 1,
+    "requests": 1,
+    "seconds": 55.4,
+    "stable": 1
+   },
+   "probes": [
+    {
+     "call": "[str(refine(Abs(z)**n, q(z))) for n, q in ((2, Q.real), (2, Q.imaginary), (4, Q.imaginary), (6, Q.imaginary))]",
+     "function": "sympy/assumptions/tests/test_refine.py#test_Abs",
+     "setup": "from sympy import Abs, Q, refine, symbols\nz = symbols('z')",
+     "why": "the powers of Abs the edited test adds"
+    }
+   ],
+   "targets": [
+    "sympy/assumptions/tests/test_refine.py#test_Abs"
+   ],
+   "waited_seconds": 354.4
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/assumptions/tests/test_refine.py::test_Abs",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/calculus/tests/test_util.py::test_function_range_acot",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/assumptions/refine.py",
+    "lines": "151-156",
+    "symbol": "refine_Pow"
+   },
+   {
+    "file": "sympy/assumptions/tests/test_refine.py",
+    "lines": "32-35",
+    "symbol": "test_Abs"
+   },
+   {
+    "file": "sympy/calculus/tests/test_util.py",
+    "lines": "412-413",
+    "symbol": "test_function_range_acot"
+   },
+   {
+    "file": "sympy/calculus/util.py",
+    "lines": "290-299",
+    "symbol": "function_range"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/assumptions/refine.py#refine_Pow",
+   "sympy/assumptions/tests/test_refine.py#test_Abs",
+   "sympy/calculus/tests/test_util.py#test_function_range_acot",
+   "sympy/calculus/util.py#function_range",
+   "sympy/assumptions/tests/test_refine.py",
+   "sympy/calculus/tests/test_util.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "refine_Pow return changed",
+    "path": [
+     "sympy/assumptions/refine.py:154 return",
+     "sympy/assumptions/refine.py:532 refine_sin_cos uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 2,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 3600,
+   "ran": 680,
+   "replayed": 2,
+   "runner": "pytest",
+   "seconds": 453.0,
+   "selection": {
+    "candidates": 12875,
+    "closure_files": 1320,
+    "closure_tests": 12875,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 0
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "63933 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "9275 lower-ranked candidate(s) not run: about 15 tests/s per process fit 3600 in the 300 s allowed",
+   "Skipped 1 non-Python file(s)",
+   "graph reused from the previous state; 2 changed file(s) relinked",
+   "shadow run (original tests on the changed code, pytest): timed out",
+   "shadow run stopped at its 300 s budget: 680 of 3600 candidates run",
+   "side-by-side run stopped at its time limit; calls captured until then are compared"
+  ],
+  "impacted": {
+   "count": 194,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1606,
+   "parsed_files": 2
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/assumptions/tests/test_refine.py::test_Abs",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/calculus/tests/test_util.py::test_function_range_acot",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "020c4cb606a9",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [
+    "sympy/assumptions/refine.py#refine_Pow",
+    "sympy/calculus/util.py#function_range"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 10,
+   "differences": 0,
+   "functions_called": 2,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "sympy/calculus/tests/test_util.py#test_function_range_acot": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 120.1,
+   "targets": 3,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 680 of 3600 candidate tests after the change with pytest in 453.0 s, failures confirmed before it: 0 now fail. 337 tests reach the change. 2 test(s) the change adds or edits replayed on the code before it: 2 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/calculus/tests/test_util.py::test_function_range",
+    "line": 32,
+    "run": "python -m pytest sympy/calculus/tests/test_util.py::test_function_range",
+    "score": 3.518,
+    "why": "calls function_range (name: function,range,util)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/calculus/tests/test_util.py::test_function_range1",
+    "line": 71,
+    "run": "python -m pytest sympy/calculus/tests/test_util.py::test_function_range1",
+    "score": 2.053,
+    "why": "calls function_range (name: function,range,util)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/assumptions/tests/test_refine.py::test_sin_cos",
+    "line": 257,
+    "run": "python -m pytest sympy/assumptions/tests/test_refine.py::test_sin_cos",
+    "score": 1.625,
+    "why": "via refine_sin_cos > refine_Pow (name: refine)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/calculus/tests/test_util.py::test_function_range_acot",
+    "line": 412,
+    "run": "python -m pytest sympy/calculus/tests/test_util.py::test_function_range_acot",
+    "score": 1.478,
+    "why": "calls function_range (name: function,range,util)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/assumptions/tests/test_refine.py::test_pow1",
+    "line": 38,
+    "run": "python -m pytest sympy/assumptions/tests/test_refine.py::test_pow1",
+    "score": 0.904,
+    "why": "via refine > refine_Pow (name: pow,refine)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/calculus/tests/test_util.py::test_issue_16469",
+    "line": 398,
+    "run": "python -m pytest sympy/calculus/tests/test_util.py::test_issue_16469",
+    "score": 0.72,
+    "why": "calls function_range (name: util)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/assumptions/tests/test_refine.py::test_pow2",
+    "line": 69,
+    "run": "python -m pytest sympy/assumptions/tests/test_refine.py::test_pow2",
+    "score": 0.611,
+    "why": "via refine > refine_Pow (name: pow,refine)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/calculus/tests/test_util.py::test_continuous_domain",
+    "line": 76,
+    "run": "python -m pytest sympy/calculus/tests/test_util.py::test_continuous_domain",
+    "score": 0.432,
+    "why": "via continuous_domain > function_range (name: util)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/assumptions/tests/test_refine.py::test_Abs",
+    "line": 23,
+    "run": "python -m pytest sympy/assumptions/tests/test_refine.py::test_Abs",
+    "score": 0.402,
+    "why": "via refine > refine_Pow (name: refine)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/calculus/tests/test_util.py::test_maximum",
+    "line": 334,
+    "run": "python -m pytest sympy/calculus/tests/test_util.py::test_maximum",
+    "score": 0.401,
+    "why": "via maximum > function_range (name: util)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/calculus/tests/test_util.py::test_minimum",
+    "line": 366,
+    "run": "python -m pytest sympy/calculus/tests/test_util.py::test_minimum",
+    "score": 0.386,
+    "why": "via minimum > function_range (name: util)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/assumptions/tests/test_refine.py::test_im",
+    "line": 159,
+    "run": "python -m pytest sympy/assumptions/tests/test_refine.py::test_im",
+    "score": 0.358,
+    "why": "via refine > refine_Pow (name: refine)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/calculus/tests/test_util.py::test_continuous_domain_neg_power",
+    "line": 163,
+    "run": "python -m pytest sympy/calculus/tests/test_util.py::test_continuous_domain_neg_power",
+    "score": 0.354,
+    "why": "via continuous_domain > function_range (name: util)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/assumptions/tests/test_refine.py::test_re",
+    "line": 149,
+    "run": "python -m pytest sympy/assumptions/tests/test_refine.py::test_re",
+    "score": 0.328,
+    "why": "via refine > refine_Pow (name: refine)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/calculus/tests/test_util.py::test_continuous_domain_acot",
+    "line": 154,
+    "run": "python -m pytest sympy/calculus/tests/test_util.py::test_continuous_domain_acot",
+    "score": 0.328,
+    "why": "via continuous_domain > function_range (name: util)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/calculus/tests/test_util.py::test_continuous_domain_gamma",
+    "line": 159,
+    "run": "python -m pytest sympy/calculus/tests/test_util.py::test_continuous_domain_gamma",
+    "score": 0.321,
+    "why": "via continuous_domain > function_range (name: util)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/assumptions/tests/test_refine.py::test_exp",
+    "line": 79,
+    "run": "python -m pytest sympy/assumptions/tests/test_refine.py::test_exp",
+    "score": 0.305,
+    "why": "via refine > refine_Pow (name: refine)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/calculus/tests/test_util.py::test_issue_19869",
+    "line": 393,
+    "run": "python -m pytest sympy/calculus/tests/test_util.py::test_issue_19869",
+    "score": 0.285,
+    "why": "via maximum > function_range (name: util)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/assumptions/tests/test_refine.py::test_sign",
+    "line": 182,
+    "run": "python -m pytest sympy/assumptions/tests/test_refine.py::test_sign",
+    "score": 0.276,
+    "why": "via refine > refine_Pow (name: refine)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_solve_univariate_inequality",
+    "line": 278,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_solve_univariate_inequality",
+    "score": 0.27,
+    "why": "via solve_univariate_inequality > function_range"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/assumptions/tests/test_refine.py::test_func_args",
+    "line": 203,
+    "run": "python -m pytest sympy/assumptions/tests/test_refine.py::test_func_args",
+    "score": 0.268,
+    "why": "via refine > refine_Pow (name: refine)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/assumptions/tests/test_refine.py::test_atan2",
+    "line": 138,
+    "run": "python -m pytest sympy/assumptions/tests/test_refine.py::test_atan2",
+    "score": 0.253,
+    "why": "via refine > refine_Pow (name: refine)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/assumptions/tests/test_refine.py::test_complex",
+    "line": 171,
+    "run": "python -m pytest sympy/assumptions/tests/test_refine.py::test_complex",
+    "score": 0.249,
+    "why": "via refine > refine_Pow (name: refine)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/assumptions/tests/test_refine.py::test_floor_ceiling",
+    "line": 330,
+    "run": "python -m pytest sympy/assumptions/tests/test_refine.py::test_floor_ceiling",
+    "score": 0.247,
+    "why": "via refine > refine_Pow (name: refine)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/logic/tests/test_boolalg.py::test_refine",
+    "line": 1289,
+    "run": "python -m pytest sympy/logic/tests/test_boolalg.py::test_refine",
+    "score": 0.245,
+    "why": "via refine > refine_Pow (name: refine)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/assumptions/tests/test_refine.py::test_eval_refine",
+    "line": 229,
+    "run": "python -m pytest sympy/assumptions/tests/test_refine.py::test_eval_refine",
+    "score": 0.24,
+    "why": "via refine > refine_Pow (name: refine)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/assumptions/tests/test_refine.py::test_refine_issue_12724",
+    "line": 237,
+    "run": "python -m pytest sympy/assumptions/tests/test_refine.py::test_refine_issue_12724",
+    "score": 0.24,
+    "why": "via refine > refine_Pow (name: refine)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/assumptions/tests/test_refine.py::test_arg",
+    "line": 198,
+    "run": "python -m pytest sympy/assumptions/tests/test_refine.py::test_arg",
+    "score": 0.238,
+    "why": "via refine > refine_Pow (name: refine)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_trig_inequalities",
+    "line": 340,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_trig_inequalities",
+    "score": 0.233,
+    "why": "via solve_univariate_inequality > function_range"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/assumptions/tests/test_refine.py::test_Heaviside",
+    "line": 350,
+    "run": "python -m pytest sympy/assumptions/tests/test_refine.py::test_Heaviside",
+    "score": 0.224,
+    "why": "via refine > refine_Pow (name: refine)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/assumptions/tests/test_refine.py::test_Piecewise",
+    "line": 103,
+    "run": "python -m pytest sympy/assumptions/tests/test_refine.py::test_Piecewise",
+    "score": 0.224,
+    "why": "via refine > refine_Pow (name: refine)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/assumptions/tests/test_refine.py::test_issue_refine_9384",
+    "line": 222,
+    "run": "python -m pytest sympy/assumptions/tests/test_refine.py::test_issue_refine_9384",
+    "score": 0.224,
+    "why": "via refine > refine_Pow (name: refine)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/assumptions/tests/test_refine.py::test_matrixelement",
+    "line": 247,
+    "run": "python -m pytest sympy/assumptions/tests/test_refine.py::test_matrixelement",
+    "score": 0.224,
+    "why": "via refine > refine_Pow (name: refine)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/matrices/expressions/tests/test_determinant.py::test_refine",
+    "line": 43,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_determinant.py::test_refine",
+    "score": 0.224,
+    "why": "via refine > refine_Pow (name: refine)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/matrices/expressions/tests/test_inverse.py::test_refine",
+    "line": 52,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_inverse.py::test_refine",
+    "score": 0.223,
+    "why": "via refine > refine_Pow (name: refine)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/matrices/expressions/tests/test_matmul.py::test_refine",
+    "line": 134,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_matmul.py::test_refine",
+    "score": 0.223,
+    "why": "via refine > refine_Pow (name: refine)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/matrices/expressions/tests/test_transpose.py::test_refine",
+    "line": 53,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_transpose.py::test_refine",
+    "score": 0.223,
+    "why": "via refine > refine_Pow (name: refine)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solveset.py::test_solve_decomposition",
+    "line": 1806,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_solve_decomposition",
+    "score": 0.218,
+    "why": "via solve_decomposition > function_range"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_integer_domain_relational_isolve",
+    "line": 424,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_integer_domain_relational_isolve",
+    "score": 0.208,
+    "why": "via solve_univariate_inequality > function_range"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/calculus/tests/test_util.py::test_stationary_points",
+    "line": 302,
+    "run": "python -m pytest sympy/calculus/tests/test_util.py::test_stationary_points",
+    "score": 0.198,
+    "why": "via stationary_points > continuous_domain > function_range (name: util)"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/assumptions/tests/test_refine.py",
+    "lines": "32-35",
+    "symbol": "test_Abs"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/calculus/tests/test_util.py",
+    "lines": "412-413",
+    "symbol": "test_function_range_acot"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792328615.155168,
+  "job_seconds": 460.5,
+  "number": 30511,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 460.7,
+  "started": 1792328153.085311
+ },
+ "verify": null
+}

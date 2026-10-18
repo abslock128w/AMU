@@ -1,0 +1,550 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "f14b5cd2d13c0145521eccec991c315794952117",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "588b052257dbba5c484a760a8d397b7db324c233",
+  "install_ok": true,
+  "merge_base": "379f910bbb8e7b54b7461d686032403859bc2a5f",
+  "pr": 30567,
+  "recording": false,
+  "runner": null,
+  "seconds": 435.7,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "f14b5cd2d13c0145521eccec991c315794952117",
+  "head_sha": "588b052257dbba5c484a760a8d397b7db324c233",
+  "merge_base": "379f910bbb8e7b54b7461d686032403859bc2a5f",
+  "merged_at": "2026-09-23T23:14:30Z",
+  "number": 30567,
+  "repo": "sympy",
+  "title": "Fix solve returning points outside the domain of a denominator (e.g. x/log(x))"
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 1,
+  "called": 1,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_rejects_nonfinite_denominator",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/solvers/solvers.py",
+    "lines": "360-375",
+    "symbol": "_reject_by_denominator"
+   },
+   {
+    "file": "sympy/solvers/solvers.py",
+    "lines": "1416-1757",
+    "symbol": "_solve"
+   },
+   {
+    "file": "sympy/solvers/tests/test_solvers.py",
+    "lines": "120-125",
+    "symbol": "test_solve_rejects_nonfinite_denominator"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/solvers/solvers.py#_reject_by_denominator",
+   "sympy/solvers/solvers.py#_solve",
+   "sympy/solvers/tests/test_solvers.py#test_solve_rejects_nonfinite_denominator",
+   "sympy/solvers/solvers.py",
+   "sympy/solvers/tests/test_solvers.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "_reject_by_denominator return changed",
+    "path": [
+     "sympy/solvers/solvers.py:373 return",
+     "sympy/solvers/solvers.py:1419 _solve uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 1,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 1056,
+   "ran": 640,
+   "replayed": 1,
+   "runner": "pytest",
+   "seconds": 423.3,
+   "selection": {
+    "candidates": 12888,
+    "closure_files": 1321,
+    "closure_tests": 12888,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 0
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "11832 lower-ranked candidate(s) not run: about 4 tests/s per process fit 1056 in the 300 s allowed",
+   "69904 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "Skipped 1 non-Python file(s)",
+   "graph reused from the previous state; 12 changed file(s) relinked",
+   "shadow run (original tests on the changed code, pytest): timed out",
+   "shadow run stopped at its 300 s budget: 640 of 1056 candidates run"
+  ],
+  "impacted": {
+   "count": 1194,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1607,
+   "parsed_files": 3
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_rejects_nonfinite_denominator",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "acd89e346818",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [
+    "sympy/solvers/solvers.py#_solve"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 5,
+   "differences": 0,
+   "functions_called": 1,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "sympy/solvers/solvers.py#_reject_by_denominator": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/solvers/tests/test_solvers.py#test_solve_rejects_nonfinite_denominator": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 57.3,
+   "targets": 1,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 640 of 1056 candidate tests after the change with pytest in 423.3 s, failures confirmed before it: 0 now fail. 1544 tests reach the change. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_rejects_nonfinite_denominator",
+    "line": 120,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_rejects_nonfinite_denominator",
+    "score": 2.828,
+    "why": "via solve > _solve (name: solve,solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_polynomial_cv_2",
+    "line": 290,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_polynomial_cv_2",
+    "score": 1.532,
+    "why": "via solve > _solve (name: solve,solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_polynomial_cv_1a",
+    "line": 273,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_polynomial_cv_1a",
+    "score": 1.096,
+    "why": "via solve > _solve (name: solve,solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_transcendental",
+    "line": 533,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_transcendental",
+    "score": 0.879,
+    "why": "via solve > _solve (name: solve,solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_polynomial1",
+    "line": 233,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_polynomial1",
+    "score": 0.743,
+    "why": "via solve > _solve (name: solve,solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_inequalities",
+    "line": 823,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_inequalities",
+    "score": 0.679,
+    "why": "via solve > _solve (name: solve,solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_args",
+    "line": 128,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_args",
+    "score": 0.643,
+    "why": "via solve > _solve (name: solve,solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_polynomial_cv_1b",
+    "line": 285,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_polynomial_cv_1b",
+    "score": 0.613,
+    "why": "via solve > _solve (name: solve,solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_Matrix",
+    "line": 722,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_Matrix",
+    "score": 0.6,
+    "why": "via solve > _solve (name: solve,solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_Piecewise",
+    "line": 2718,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_Piecewise",
+    "score": 0.587,
+    "why": "via solve > _solve (name: solve,solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_conjugate",
+    "line": 358,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_conjugate",
+    "score": 0.581,
+    "why": "via solve > _solve (name: solve,solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_for_functions_derivatives",
+    "line": 664,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_for_functions_derivatives",
+    "score": 0.578,
+    "why": "via solve > _solve (name: solve,solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_maxmin",
+    "line": 2740,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_maxmin",
+    "score": 0.575,
+    "why": "via solve > _solve (name: solve,solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_nonlinear",
+    "line": 363,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_nonlinear",
+    "score": 0.573,
+    "why": "via solve > _solve (name: solve,solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_polynomial2",
+    "line": 269,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_polynomial2",
+    "score": 0.572,
+    "why": "via solve > _solve (name: solve,solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_rational",
+    "line": 353,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_rational",
+    "score": 0.571,
+    "why": "via solve > _solve (name: solve,solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_unrad1",
+    "line": 1115,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_unrad1",
+    "score": 0.442,
+    "why": "via solve > _solve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_issue_5849_matrix",
+    "line": 1544,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_issue_5849_matrix",
+    "score": 0.439,
+    "why": "via solve > _solve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_issue_25176",
+    "line": 2672,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_issue_25176",
+    "score": 0.433,
+    "why": "via solve > _solve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_issue_24650",
+    "line": 390,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_issue_24650",
+    "score": 0.424,
+    "why": "via solve > _solve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_highorder_poly",
+    "line": 347,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_highorder_poly",
+    "score": 0.424,
+    "why": "via solve > _solve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solver_flags",
+    "line": 2654,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solver_flags",
+    "score": 0.423,
+    "why": "via solve > _solve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_issue_20747",
+    "line": 2583,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_issue_20747",
+    "score": 0.422,
+    "why": "via solve > _solve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_quintics_1",
+    "line": 300,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_quintics_1",
+    "score": 0.422,
+    "why": "via solve > _solve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_quintics_2",
+    "line": 323,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_quintics_2",
+    "score": 0.422,
+    "why": "via solve > _solve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_issue_4793",
+    "line": 862,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_issue_4793",
+    "score": 0.42,
+    "why": "via solve > _solve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_lambert_bivariate",
+    "line": 1991,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_lambert_bivariate",
+    "score": 0.42,
+    "why": "via solve > _solve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_lambert_multivariate",
+    "line": 1965,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_lambert_multivariate",
+    "score": 0.42,
+    "why": "via solve > _solve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_issue_14607",
+    "line": 1936,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_issue_14607",
+    "score": 0.42,
+    "why": "via solve > _solve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_PR1964",
+    "line": 886,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_PR1964",
+    "score": 0.419,
+    "why": "via solve > _solve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_issue_21852",
+    "line": 2642,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_issue_21852",
+    "score": 0.419,
+    "why": "via solve > _solve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_issue_7110",
+    "line": 2174,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_issue_7110",
+    "score": 0.419,
+    "why": "via solve > _solve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_issue_24609",
+    "line": 1076,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_issue_24609",
+    "score": 0.419,
+    "why": "via solve > _solve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_issue_24609_xfail",
+    "line": 1084,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_issue_24609_xfail",
+    "score": 0.419,
+    "why": "via solve > _solve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_issue_12114",
+    "line": 2322,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_issue_12114",
+    "score": 0.417,
+    "why": "via solve > _solve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_issue_12476",
+    "line": 2379,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_issue_12476",
+    "score": 0.417,
+    "why": "via solve > _solve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_issue_21942",
+    "line": 2647,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_issue_21942",
+    "score": 0.417,
+    "why": "via solve > _solve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_issue_27001",
+    "line": 2594,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_issue_27001",
+    "score": 0.417,
+    "why": "via solve > _solve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_issue_2725",
+    "line": 2127,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_issue_2725",
+    "score": 0.417,
+    "why": "via solve > _solve (name: solver)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_issue_4886",
+    "line": 2625,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_issue_4886",
+    "score": 0.417,
+    "why": "via solve > _solve (name: solver)"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/solvers/tests/test_solvers.py",
+    "lines": "120-125",
+    "symbol": "test_solve_rejects_nonfinite_denominator"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792330544.496442,
+  "job_seconds": 435.7,
+  "number": 30567,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 436.1,
+  "started": 1792330107.510614
+ },
+ "verify": null
+}

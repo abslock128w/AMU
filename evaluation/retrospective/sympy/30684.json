@@ -1,0 +1,476 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "319ea7a6186edf88bc23d502917242b10314ae51",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "1837fd2adb550b059b98b32e9a6fa4452f9751e2",
+  "install_ok": true,
+  "merge_base": "319ea7a6186edf88bc23d502917242b10314ae51",
+  "pr": 30684,
+  "recording": false,
+  "runner": null,
+  "seconds": 11.1,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "319ea7a6186edf88bc23d502917242b10314ae51",
+  "head_sha": "1837fd2adb550b059b98b32e9a6fa4452f9751e2",
+  "merge_base": "319ea7a6186edf88bc23d502917242b10314ae51",
+  "merged_at": "2026-10-07T22:36:50Z",
+  "number": 30684,
+  "repo": "sympy",
+  "title": "Keep the original input in the IPython history with isympy -I"
+ },
+ "probe_minutes": {
+  "end": 1792339868.504815,
+  "minutes": 0.4,
+  "start": 1792339515.1230211,
+  "waited": 330.25506224999845
+ },
+ "probe_targets": {
+  "all": 4,
+  "called": 0,
+  "targets": [
+   {
+    "after": "def int_to_Integer(s):\n    \"\"\"\n    Wrap integer literals with Integer.\n\n    This uses the tokenize module, as in the decistmt example from\n    https://docs.python.org/3/library/tokenize.html, but rewrites the\n    original source in place so that whitespace is preserved.\n\n    Only integer literals are converted.  Float literals are left alone.\n\n    Examples\n    ========\n\n    >>> from sympy import Integer # noqa: F401\n    >>> from sympy.interactive.session import int_to_Integer\n    >>> s = '1.2 + 1/2 - 0x12 + a1'\n    >>> int_to_Integer(s)\n    '1.2 + Integer(1)/Integer(2) - Integer(0x12) + a1'\n    >>> s = 'print (1/2)'\n    >>> int_to_Integer(s)\n    'print (Integer(1)/Integer(2))'\n    >>> exec(s)\n    0.5\n    >>> exec(int_to_Integer(s))\n    1/2\n    \"\"\"\n    from tokenize import generate_tokens, NUMBER\n    from io import StringIO\n\n    def _is_int(num):\n        \"\"\"\n        Returns true if string value num (with token NUMBER) represents an integer.\n        \"\"\"\n        # XXX: Is there something in the standard library that will do this?\n        if '.' in num or 'j' in num.lower() or 'e' in num.lower():\n            return False\n        return True\n\n    lines = StringIO(s).readlines()\n    # Columns shift as the line is edited, so collect the spans first and\n    # apply them from the end of each line backwards.\n    spans = []\n    for toknum, tokval, (srow, scol), (_, ecol), _ in generate_tokens(StringIO(s).readline):\n        if toknum == NUMBER and _is_int(tokval):\n            spans.append((srow, scol, ecol))\n    for srow, scol, ecol in reversed(spans):\n        line = lines[srow - 1]\n        lines[srow - 1] = line[:scol] + 'Integer(' + line[scol:ecol] + ')' + line[ecol:]\n    return ''.join(lines)\n",
+    "before": "def int_to_Integer(s):\n    \"\"\"\n    Wrap integer literals with Integer.\n\n    This is based on the decistmt example from\n    https://docs.python.org/3/library/tokenize.html.\n\n    Only integer literals are converted.  Float literals are left alone.\n\n    Examples\n    ========\n\n    >>> from sympy import Integer # noqa: F401\n    >>> from sympy.interactive.session import int_to_Integer\n    >>> s = '1.2 + 1/2 - 0x12 + a1'\n    >>> int_to_Integer(s)\n    '1.2 +Integer (1 )/Integer (2 )-Integer (0x12 )+a1 '\n    >>> s = 'print (1/2)'\n    >>> int_to_Integer(s)\n    'print (Integer (1 )/Integer (2 ))'\n    >>> exec(s)\n    0.5\n    >>> exec(int_to_Integer(s))\n    1/2\n    \"\"\"\n    from tokenize import generate_tokens, untokenize, NUMBER, NAME, OP\n    from io import StringIO\n\n    def _is_int(num):\n        \"\"\"\n        Returns true if string value num (with token NUMBER) represents an integer.\n        \"\"\"\n        # XXX: Is there something in the standard library that will do this?\n        if '.' in num or 'j' in num.lower() or 'e' in num.lower():\n            return False\n        return True\n\n    result = []\n    g = generate_tokens(StringIO(s).readline)  # tokenize the string\n    for toknum, tokval, _, _, _ in g:\n        if toknum == NUMBER and _is_int(tokval):  # replace NUMBER tokens\n            result.extend([\n                (NAME, 'Integer'),\n                (OP, '('),\n                (NUMBER, tokval),\n                (OP, ')')\n            ])\n        else:\n            result.append((toknum, tokval))\n    return untokenize(result)\n",
+    "file": "sympy/interactive/session.py",
+    "id": "sympy/interactive/session.py#int_to_Integer",
+    "name": "int_to_Integer",
+    "qual": "int_to_Integer",
+    "signature_changed": false
+   },
+   {
+    "after": "def enable_automatic_int_sympification(shell):\n    \"\"\"\n    Allow IPython to automatically convert integer literals to Integer.\n    \"\"\"\n    import ast\n\n    def _transform(cell):\n        try:\n            # Check the cell for syntax errors.  This way, the syntax error\n            # will show the original input, not the transformed input.  The\n            # downside here is that IPython magic like %timeit will not work\n            # with transformed input (but on the other hand, IPython magic\n            # that doesn't expect transformed input will continue to work).\n            ast.parse(cell)\n        except SyntaxError:\n            return cell\n        return int_to_Integer(cell)\n\n    if hasattr(shell, 'input_transformers_post'):\n        # Registering an input transformer keeps the original input in the\n        # history, so that the up arrow recalls what was typed rather than\n        # the transformed code.\n        def int_to_Integer_transformer(lines):\n            return _transform(''.join(lines)).splitlines(keepends=True)\n\n        shell.input_transformers_post.append(int_to_Integer_transformer)\n        return\n\n    old_run_cell = shell.run_cell\n\n    def my_run_cell(cell, *args, **kwargs):\n        return old_run_cell(_transform(cell), *args, **kwargs)\n\n    shell.run_cell = my_run_cell\n",
+    "before": "def enable_automatic_int_sympification(shell):\n    \"\"\"\n    Allow IPython to automatically convert integer literals to Integer.\n    \"\"\"\n    import ast\n    old_run_cell = shell.run_cell\n\n    def my_run_cell(cell, *args, **kwargs):\n        try:\n            # Check the cell for syntax errors.  This way, the syntax error\n            # will show the original input, not the transformed input.  The\n            # downside here is that IPython magic like %timeit will not work\n            # with transformed input (but on the other hand, IPython magic\n            # that doesn't expect transformed input will continue to work).\n            ast.parse(cell)\n        except SyntaxError:\n            pass\n        else:\n            cell = int_to_Integer(cell)\n        return old_run_cell(cell, *args, **kwargs)\n\n    shell.run_cell = my_run_cell\n",
+    "file": "sympy/interactive/session.py",
+    "id": "sympy/interactive/session.py#enable_automatic_int_sympification",
+    "name": "enable_automatic_int_sympification",
+    "qual": "enable_automatic_int_sympification",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_int_to_Integer():\n    assert int_to_Integer(\"1 + 2.2 + 0x3 + 40\") == \\\n        'Integer(1) + 2.2 + Integer(0x3) + Integer(40)'\n    assert int_to_Integer(\"0b101\") == 'Integer(0b101)'\n    assert int_to_Integer(\"ab1 + 1 + '1 + 2'\") == \"ab1 + Integer(1) + '1 + 2'\"\n    assert int_to_Integer(\"(2 + \\n3)\") == '(Integer(2) + \\nInteger(3))'\n    assert int_to_Integer(\"2 + 2.0 + 2j + 2e-10\") == 'Integer(2) + 2.0 + 2j + 2e-10'\n    assert int_to_Integer(\"x  =  1\\n\\n\\ny = 2   # 3\\n\") == \\\n        'x  =  Integer(1)\\n\\n\\ny = Integer(2)   # 3\\n'\n    assert int_to_Integer(\"1_000 + 10\") == 'Integer(1_000) + Integer(10)'\n",
+    "before": "def test_int_to_Integer():\n    assert int_to_Integer(\"1 + 2.2 + 0x3 + 40\") == \\\n        'Integer (1 )+2.2 +Integer (0x3 )+Integer (40 )'\n    assert int_to_Integer(\"0b101\") == 'Integer (0b101 )'\n    assert int_to_Integer(\"ab1 + 1 + '1 + 2'\") == \"ab1 +Integer (1 )+'1 + 2'\"\n    assert int_to_Integer(\"(2 + \\n3)\") == '(Integer (2 )+\\nInteger (3 ))'\n    assert int_to_Integer(\"2 + 2.0 + 2j + 2e-10\") == 'Integer (2 )+2.0 +2j +2e-10 '\n",
+    "file": "sympy/interactive/tests/test_interactive.py",
+    "id": "sympy/interactive/tests/test_interactive.py#test_int_to_Integer",
+    "name": "test_int_to_Integer",
+    "qual": "test_int_to_Integer",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_int_to_Integer():\n    # XXX: Warning, don't test with == here.  0.5 == Rational(1, 2) is True!\n    app = init_ipython_session()\n    app.run_cell(\"from sympy import Integer\")\n    app.run_cell(\"a = 1\")\n    assert isinstance(app.user_ns['a'], int)\n\n    enable_automatic_int_sympification(app)\n    app.run_cell(\"a = 1/2\")\n    assert isinstance(app.user_ns['a'], Rational)\n    app.run_cell(\"a = 1\")\n    assert isinstance(app.user_ns['a'], Integer)\n    app.run_cell(\"a = int(1)\")\n    assert isinstance(app.user_ns['a'], int)\n    app.run_cell(\"a = (1/\\n2)\")\n    assert app.user_ns['a'] == Rational(1, 2)\n    app.run_cell(\"a = 2**2 + 1/2\", store_history=True)\n    assert app.user_ns['a'] == Rational(9, 2)\n    assert app.history_manager.input_hist_raw[-1] == \"a = 2**2 + 1/2\"\n",
+    "before": "def test_int_to_Integer():\n    # XXX: Warning, don't test with == here.  0.5 == Rational(1, 2) is True!\n    app = init_ipython_session()\n    app.run_cell(\"from sympy import Integer\")\n    app.run_cell(\"a = 1\")\n    assert isinstance(app.user_ns['a'], int)\n\n    enable_automatic_int_sympification(app)\n    app.run_cell(\"a = 1/2\")\n    assert isinstance(app.user_ns['a'], Rational)\n    app.run_cell(\"a = 1\")\n    assert isinstance(app.user_ns['a'], Integer)\n    app.run_cell(\"a = int(1)\")\n    assert isinstance(app.user_ns['a'], int)\n    app.run_cell(\"a = (1/\\n2)\")\n    assert app.user_ns['a'] == Rational(1, 2)\n",
+    "file": "sympy/interactive/tests/test_ipython.py",
+    "id": "sympy/interactive/tests/test_ipython.py#test_int_to_Integer",
+    "name": "test_int_to_Integer",
+    "qual": "test_int_to_Integer",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "return",
+      "list",
+      "['1.2 + Integer(1)/Integer(2) - Integer(0x12) + a1', 'eo = solveset(sin(x), x)  # keep\\n']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['1.2 +Integer (1 )/Integer (2 )-Integer (0x12 )+a1 ', 'eo =solveset (sin (x ),x )# keep\\n']"
+     ],
+     "call": "[int_to_Integer('1.2 + 1/2 - 0x12 + a1'), int_to_Integer('eo = solveset(sin(x), x)  # keep\\n')]",
+     "label": "generated test shows a difference",
+     "setup": "from types import SimpleNamespace\nfrom sympy.interactive.session import int_to_Integer, enable_automatic_int_sympification\n",
+     "target": "sympy/interactive/session.py#int_to_Integer",
+     "test": "import pytest\n\n\ndef test_generated():\n    from types import SimpleNamespace\n    from sympy.interactive.session import int_to_Integer, enable_automatic_int_sympification\n    assert repr([int_to_Integer('1.2 + 1/2 - 0x12 + a1'), int_to_Integer('eo = solveset(sin(x), x)  # keep\\n')]) == \"['1.2 + Integer(1)/Integer(2) - Integer(0x12) + a1', 'eo = solveset(sin(x), x)  # keep\\\\n']\"\n",
+     "why": "spacing and comments kept; transformer registered instead of wrapping run_cell"
+    },
+    {
+     "after": [
+      "return",
+      "tuple",
+      "(True, 1, [['Integer(1)/Integer(2)\\n']])"
+     ],
+     "before": [
+      "return",
+      "tuple",
+      "(False, 0, [])"
+     ],
+     "call": "(lambda shell: (enable_automatic_int_sympification(shell), shell.run_cell == 'original', len(shell.input_transformers_post), [f(['1/2\\n']) for f in shell.input_transformers_post]))(SimpleNamespace(run_cell='original', input_transformers_post=[]))[1:]",
+     "label": "generated test shows a difference",
+     "setup": "from types import SimpleNamespace\nfrom sympy.interactive.session import int_to_Integer, enable_automatic_int_sympification\n",
+     "target": "sympy/interactive/session.py#enable_automatic_int_sympification",
+     "test": "import pytest\n\n\ndef test_generated():\n    from types import SimpleNamespace\n    from sympy.interactive.session import int_to_Integer, enable_automatic_int_sympification\n    assert repr((lambda shell: (enable_automatic_int_sympification(shell), shell.run_cell == 'original', len(shell.input_transformers_post), [f(['1/2\\n']) for f in shell.input_transformers_post]))(SimpleNamespace(run_cell='original', input_transformers_post=[]))[1:]) == \"(True, 1, [['Integer(1)/Integer(2)\\\\n']])\"\n",
+     "why": "spacing and comments kept; transformer registered instead of wrapping run_cell"
+    }
+   ],
+   "dollars_cap": 0.1,
+   "filter_seconds": 14.5,
+   "gaps": [],
+   "info": {
+    "accepted": 2,
+    "compiled": 4,
+    "cost": 0.0,
+    "differed": 2,
+    "dollars_cap": 0.1,
+    "functions": 4,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 4,
+    "ran": 4,
+    "reached": 3,
+    "requests": 1,
+    "seconds": 14.4,
+    "stable": 4
+   },
+   "probes": [
+    {
+     "call": "[int_to_Integer('1.2 + 1/2 - 0x12 + a1'), int_to_Integer('eo = solveset(sin(x), x)  # keep\\n')]",
+     "function": "sympy/interactive/session.py#int_to_Integer",
+     "setup": "from types import SimpleNamespace\nfrom sympy.interactive.session import int_to_Integer, enable_automatic_int_sympification\n",
+     "why": "spacing and comments kept; transformer registered instead of wrapping run_cell"
+    },
+    {
+     "call": "(lambda shell: (enable_automatic_int_sympification(shell), shell.run_cell == 'original', len(shell.input_transformers_post), [f(['1/2\\n']) for f in shell.input_transformers_post]))(SimpleNamespace(run_cell='original', input_transformers_post=[]))[1:]",
+     "function": "sympy/interactive/session.py#enable_automatic_int_sympification",
+     "setup": "from types import SimpleNamespace\nfrom sympy.interactive.session import int_to_Integer, enable_automatic_int_sympification\n",
+     "why": "spacing and comments kept; transformer registered instead of wrapping run_cell"
+    },
+    {
+     "call": "test_int_to_Integer()",
+     "function": "sympy/interactive/tests/test_interactive.py#test_int_to_Integer",
+     "setup": "from sympy.interactive.tests.test_interactive import test_int_to_Integer",
+     "why": "runs the edited test"
+    },
+    {
+     "call": "test_int_to_Integer()",
+     "function": "sympy/interactive/tests/test_ipython.py#test_int_to_Integer",
+     "setup": "from sympy.interactive.tests.test_ipython import test_int_to_Integer",
+     "why": "runs the edited test"
+    }
+   ],
+   "targets": [
+    "sympy/interactive/session.py#int_to_Integer",
+    "sympy/interactive/session.py#enable_automatic_int_sympification",
+    "sympy/interactive/tests/test_interactive.py#test_int_to_Integer",
+    "sympy/interactive/tests/test_ipython.py#test_int_to_Integer"
+   ],
+   "waited_seconds": 330.3
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/interactive/tests/test_interactive.py::test_int_to_Integer",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/interactive/session.py",
+    "lines": "98-142",
+    "symbol": "int_to_Integer"
+   },
+   {
+    "file": "sympy/interactive/session.py",
+    "lines": "150-176",
+    "symbol": "enable_automatic_int_sympification"
+   },
+   {
+    "file": "sympy/interactive/session.py",
+    "lines": "151-161",
+    "symbol": "enable_automatic_int_sympification._transform"
+   },
+   {
+    "file": "sympy/interactive/session.py",
+    "lines": "167-168",
+    "symbol": "enable_automatic_int_sympification.int_to_Integer_transformer"
+   },
+   {
+    "file": "sympy/interactive/session.py",
+    "lines": "175-176",
+    "symbol": "enable_automatic_int_sympification.my_run_cell"
+   },
+   {
+    "file": "sympy/interactive/tests/test_interactive.py",
+    "lines": "7-14",
+    "symbol": "test_int_to_Integer"
+   },
+   {
+    "file": "sympy/interactive/tests/test_ipython.py",
+    "lines": "75-77",
+    "symbol": "test_int_to_Integer"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/interactive/session.py#enable_automatic_int_sympification",
+   "sympy/interactive/session.py#enable_automatic_int_sympification._transform",
+   "sympy/interactive/session.py#enable_automatic_int_sympification.int_to_Integer_transformer",
+   "sympy/interactive/session.py#enable_automatic_int_sympification.my_run_cell",
+   "sympy/interactive/session.py#int_to_Integer",
+   "sympy/interactive/tests/test_interactive.py#test_int_to_Integer",
+   "sympy/interactive/tests/test_ipython.py#test_int_to_Integer"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "enable_automatic_int_sympification._transform return changed",
+    "path": [
+     "sympy/interactive/session.py:160 return",
+     "sympy/interactive/session.py:168 enable_automatic_int_sympification.int_to_Integer_transformer uses the result",
+     "sympy/interactive/session.py:176 enable_automatic_int_sympification.my_run_cell uses the result"
+    ],
+    "to": "2 caller(s) use the result"
+   },
+   {
+    "evidence": "static source path",
+    "from": "int_to_Integer return changed",
+    "path": [
+     "sympy/interactive/session.py:142 return",
+     "sympy/interactive/session.py:161 enable_automatic_int_sympification._transform uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 3,
+    "stored": 1
+   },
+   "budget": 300,
+   "candidates": 8,
+   "ran": 8,
+   "replayed": 2,
+   "runner": "pytest",
+   "seconds": 9.7,
+   "selection": {
+    "candidates": 8,
+    "closure_files": 6,
+    "closure_tests": 8,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py"
+    ],
+    "observed": 0,
+    "static_only": 0
+   },
+   "unrunnable": 0
+  },
+  "flip_trust": [
+   {
+    "id": "sympy/interactive/tests/test_interactive.py::test_int_to_Integer",
+    "label": "fails",
+    "reach": 10,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "why": "as the test was before the edit: failed again in every rerun; ran 10 changed line(s)"
+   }
+  ],
+  "flips": 1,
+  "gaps": [
+   "64832 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "graph reused from the previous state; 4 changed file(s) relinked",
+   "side-by-side: none of the 4 changed function(s) was called by the tests run on the code before the change"
+  ],
+  "impacted": {
+   "count": 7,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1607,
+   "parsed_files": 3
+  },
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "original_tests": {
+   "sympy/interactive/tests/test_interactive.py::test_int_to_Integer": "failed",
+   "sympy/interactive/tests/test_ipython.py::test_automatic_symbols": "skipped",
+   "sympy/interactive/tests/test_ipython.py::test_builtin_containers": "skipped",
+   "sympy/interactive/tests/test_ipython.py::test_int_to_Integer": "skipped",
+   "sympy/interactive/tests/test_ipython.py::test_ipythonprinting": "skipped",
+   "sympy/interactive/tests/test_ipython.py::test_matplotlib_bad_latex": "skipped",
+   "sympy/interactive/tests/test_ipython.py::test_override_repr_latex": "skipped",
+   "sympy/interactive/tests/test_ipython.py::test_print_builtin_option": "skipped"
+  },
+  "predicted_failures": [
+   {
+    "after": "failed",
+    "before": "passed",
+    "edited_form": "passed",
+    "id": "sympy/interactive/tests/test_interactive.py::test_int_to_Integer",
+    "label": "test edited, not fixed",
+    "reach": 10,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 10 changed line(s)"
+   }
+  ],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/interactive/tests/test_interactive.py::test_int_to_Integer",
+    "verdict": "evidence"
+   },
+   {
+    "base": "skipped",
+    "head": "skipped",
+    "id": "sympy/interactive/tests/test_ipython.py::test_int_to_Integer",
+    "verdict": "none"
+   }
+  ],
+  "report_hash": "6ed56b686481",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 0,
+   "differences": 0,
+   "functions_called": 0,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "sympy/interactive/session.py#enable_automatic_int_sympification._transform": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/interactive/session.py#enable_automatic_int_sympification.int_to_Integer_transformer": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/interactive/session.py#enable_automatic_int_sympification.my_run_cell": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 1.1,
+   "targets": 4,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 8 of 8 candidate tests after the change with pytest in 9.7 s, failures confirmed before it: 1 now fail. 8 tests reach the change. 8 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 2 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "direct",
+    "expect": "fails",
+    "id": "sympy/interactive/tests/test_interactive.py::test_int_to_Integer",
+    "line": 5,
+    "run": "python -m pytest sympy/interactive/tests/test_interactive.py::test_int_to_Integer",
+    "score": 2.531,
+    "why": "calls int_to_Integer (name: integer,to)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/interactive/tests/test_ipython.py::test_int_to_Integer",
+    "line": 59,
+    "run": "python -m pytest sympy/interactive/tests/test_ipython.py::test_int_to_Integer",
+    "score": 6.285,
+    "why": "calls enable_automatic_int_sympification > enable_automatic_int_sympification.int_to_Integer_transformer (name: integer,to)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/interactive/tests/test_ipython.py::test_automatic_symbols",
+    "line": 30,
+    "run": "python -m pytest sympy/interactive/tests/test_ipython.py::test_automatic_symbols",
+    "score": 3.696,
+    "why": "via init_ipython_session > enable_automatic_int_sympification (name: automatic)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/interactive/tests/test_ipython.py::test_matplotlib_bad_latex",
+    "line": 231,
+    "run": "python -m pytest sympy/interactive/tests/test_ipython.py::test_matplotlib_bad_latex",
+    "score": 1.299,
+    "why": "via init_ipython_session > enable_automatic_int_sympification"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/interactive/tests/test_ipython.py::test_override_repr_latex",
+    "line": 260,
+    "run": "python -m pytest sympy/interactive/tests/test_ipython.py::test_override_repr_latex",
+    "score": 1.18,
+    "why": "via init_ipython_session > enable_automatic_int_sympification"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/interactive/tests/test_ipython.py::test_builtin_containers",
+    "line": 190,
+    "run": "python -m pytest sympy/interactive/tests/test_ipython.py::test_builtin_containers",
+    "score": 1.083,
+    "why": "via init_ipython_session > enable_automatic_int_sympification"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/interactive/tests/test_ipython.py::test_print_builtin_option",
+    "line": 116,
+    "run": "python -m pytest sympy/interactive/tests/test_ipython.py::test_print_builtin_option",
+    "score": 1.009,
+    "why": "via init_ipython_session > enable_automatic_int_sympification"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/interactive/tests/test_ipython.py::test_ipythonprinting",
+    "line": 82,
+    "run": "python -m pytest sympy/interactive/tests/test_ipython.py::test_ipythonprinting",
+    "score": 0.912,
+    "why": "via init_ipython_session > enable_automatic_int_sympification"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/interactive/tests/test_interactive.py",
+    "lines": "7-14",
+    "symbol": "test_int_to_Integer"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/interactive/tests/test_ipython.py",
+    "lines": "75-77",
+    "symbol": "test_int_to_Integer"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792339491.304238,
+  "job_seconds": 11.1,
+  "number": 30684,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 11.1,
+  "started": 1792339478.593226,
+  "verify_seconds": 1.2
+ },
+ "verify": {
+  "checked": 1,
+  "false": 0,
+  "held": 1,
+  "merge_base": "319ea7a6186edf88bc23d502917242b10314ae51",
+  "other": 0,
+  "problem": null,
+  "states": {
+   "sympy/interactive/tests/test_interactive.py::test_int_to_Integer": "passed"
+  },
+  "v": 1
+ }
+}

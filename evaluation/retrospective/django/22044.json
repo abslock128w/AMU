@@ -1,0 +1,553 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "9e06baf2e4dd17834b5deaf3a3e6ae3bff2fcf26",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "48e529829fd60007bf33c58b6181360cd728922c",
+  "install_ok": true,
+  "merge_base": "9e06baf2e4dd17834b5deaf3a3e6ae3bff2fcf26",
+  "pr": 22044,
+  "recording": true,
+  "runner": null,
+  "seconds": 17.6,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "9e06baf2e4dd17834b5deaf3a3e6ae3bff2fcf26",
+  "head_sha": "48e529829fd60007bf33c58b6181360cd728922c",
+  "merge_base": "9e06baf2e4dd17834b5deaf3a3e6ae3bff2fcf26",
+  "merged_at": "2026-09-28T14:12:53Z",
+  "number": 22044,
+  "repo": "django",
+  "title": "Fixed #37350 -- Made distinct(*fields) resolve aliases containing \"__\"."
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 2,
+  "called": 2,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [],
+  "changed_functions": [
+   {
+    "file": "django/db/models/sql/compiler.py",
+    "lines": "1066",
+    "symbol": "SQLCompiler.get_distinct"
+   },
+   {
+    "file": "django/db/models/sql/query.py",
+    "lines": "1490-1497",
+    "symbol": "Query.get_names_to_join"
+   },
+   {
+    "file": "tests/distinct_on_fields/tests.py",
+    "lines": "316-320",
+    "symbol": "DistinctOnTests.test_distinct_on_annotation_alias_with_lookup_separator"
+   }
+  ],
+  "changed_symbols": [
+   "django/db/models/sql/compiler.py#SQLCompiler.get_distinct",
+   "django/db/models/sql/query.py#Query.get_names_to_join",
+   "tests/distinct_on_fields/tests.py#DistinctOnTests.test_distinct_on_annotation_alias_with_lookup_separator",
+   "tests/distinct_on_fields/tests.py#DistinctOnTests",
+   "tests/distinct_on_fields/tests.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "Query.get_names_to_join return changed",
+    "path": [
+     "django/db/models/sql/query.py:1493 return",
+     "django/db/models/sql/query.py:2290 Query.add_fields uses the result",
+     "django/db/models/sql/query.py:2358 Query.add_ordering uses the result"
+    ],
+    "to": "2 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 1,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 8352,
+   "ran": 119,
+   "replayed": 1,
+   "runner": "django-runtests",
+   "seconds": 13.2,
+   "selection": {
+    "candidates": 17304,
+    "closure_files": 604,
+    "closure_tests": 9713,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/contrib/admin/__init__.py",
+     "django/contrib/auth/models.py",
+     "django/core/management/base.py",
+     "django/db/migrations/__init__.py",
+     "django/db/models/__init__.py",
+     "django/db/models/expressions.py",
+     "django/db/models/functions/__init__.py",
+     "django/test/__init__.py",
+     "django/test/utils.py"
+    ],
+    "observed": 1606,
+    "static_only": 5074
+   },
+   "unrunnable": 41
+  },
+  "flips": 0,
+  "gaps": [
+   "107743 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "41 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "8952 lower-ranked candidate(s) not run: about 9 tests/s per process fit 8352 in the 300 s allowed",
+   "graph reused from the previous state; 3 changed file(s) relinked",
+   "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run stopped at its 300 s budget: 0 of 8352 candidates run"
+  ],
+  "impacted": {
+   "count": 1152,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2930,
+   "parsed_files": 3
+  },
+  "original_tests": {
+   "tests/distinct_on_fields/tests.py::DistinctOnTests::test_basic_distinct_on": "skipped",
+   "tests/distinct_on_fields/tests.py::DistinctOnTests::test_disallowed_update_distinct_on": "skipped",
+   "tests/distinct_on_fields/tests.py::DistinctOnTests::test_distinct_not_implemented_checks": "skipped",
+   "tests/distinct_on_fields/tests.py::DistinctOnTests::test_distinct_on_annotation_duplicating_selected_column": "skipped",
+   "tests/distinct_on_fields/tests.py::DistinctOnTests::test_distinct_on_column_selected_by_annotation_first": "skipped",
+   "tests/distinct_on_fields/tests.py::DistinctOnTests::test_distinct_on_duplicated_raw_sql_annotations": "skipped",
+   "tests/distinct_on_fields/tests.py::DistinctOnTests::test_distinct_on_duplicated_selected_columns": "skipped",
+   "tests/distinct_on_fields/tests.py::DistinctOnTests::test_distinct_on_duplicated_selected_columns_descending": "skipped",
+   "tests/distinct_on_fields/tests.py::DistinctOnTests::test_distinct_on_duplicated_selected_columns_with_annotation": "skipped",
+   "tests/distinct_on_fields/tests.py::DistinctOnTests::test_distinct_on_duplicated_selected_foreign_key_columns": "skipped",
+   "tests/distinct_on_fields/tests.py::DistinctOnTests::test_distinct_on_duplicated_selected_transforms": "skipped",
+   "tests/distinct_on_fields/tests.py::DistinctOnTests::test_distinct_on_get_ordering_preserved": "skipped",
+   "tests/distinct_on_fields/tests.py::DistinctOnTests::test_distinct_on_in_ordered_subquery": "skipped",
+   "tests/distinct_on_fields/tests.py::DistinctOnTests::test_distinct_on_mixed_case_annotation": "skipped",
+   "tests/distinct_on_fields/tests.py::DistinctOnTests::test_sliced_queryset": "skipped",
+   "tests/distinct_on_fields/tests.py::DistinctOnTests::test_transform": "skipped"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "skipped",
+    "head": "skipped",
+    "id": "tests/distinct_on_fields/tests.py::DistinctOnTests::test_distinct_on_annotation_alias_with_lookup_separator",
+    "verdict": "none"
+   }
+  ],
+  "report_hash": "13e2c0a5e1d1",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [
+    "django/db/models/sql/compiler.py#SQLCompiler.get_distinct",
+    "django/db/models/sql/query.py#Query.get_names_to_join"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 10,
+   "differences": 0,
+   "functions_called": 2,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "tests/distinct_on_fields/tests.py#DistinctOnTests.test_distinct_on_annotation_alias_with_lookup_separator": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 1.8,
+   "targets": 2,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 119 of 8352 candidate tests after the change with django-runtests in 13.2 s, failures confirmed before it: 0 now fail. 14592 tests reach the change. 16 test(s) from edited test files also run as they were before the edit. 1 test(s) the change adds or edits replayed on the code before it: 0 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/distinct_on_fields/tests.py::DistinctOnTests::test_distinct_on_annotation_alias_with_lookup_separator",
+    "line": 316,
+    "run": "cd tests && python runtests.py distinct_on_fields.tests.DistinctOnTests.test_distinct_on_annotation_alias_with_lookup_separator",
+    "score": 3.337,
+    "why": "via DistinctOnTests (name: distinct,on)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/distinct_on_fields/tests.py::DistinctOnTests::test_distinct_on_duplicated_raw_sql_annotations",
+    "line": 296,
+    "run": "cd tests && python runtests.py distinct_on_fields.tests.DistinctOnTests.test_distinct_on_duplicated_raw_sql_annotations",
+    "score": 1.904,
+    "why": "via DistinctOnTests (name: distinct,on)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/distinct_on_fields/tests.py::DistinctOnTests::test_disallowed_update_distinct_on",
+    "line": 310,
+    "run": "cd tests && python runtests.py distinct_on_fields.tests.DistinctOnTests.test_disallowed_update_distinct_on",
+    "score": 1.425,
+    "why": "via DistinctOnTests (name: distinct,on)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/distinct_on_fields/tests.py::DistinctOnTests::test_distinct_on_annotation_duplicating_selected_column",
+    "line": 262,
+    "run": "cd tests && python runtests.py distinct_on_fields.tests.DistinctOnTests.test_distinct_on_annotation_duplicating_selected_column",
+    "score": 1.166,
+    "why": "via DistinctOnTests (name: distinct,on)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/distinct_on_fields/tests.py::DistinctOnTests::test_distinct_on_column_selected_by_annotation_first",
+    "line": 250,
+    "run": "cd tests && python runtests.py distinct_on_fields.tests.DistinctOnTests.test_distinct_on_column_selected_by_annotation_first",
+    "score": 0.994,
+    "why": "via DistinctOnTests (name: distinct,on)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/distinct_on_fields/tests.py::DistinctOnTests::test_distinct_not_implemented_checks",
+    "line": 137,
+    "run": "cd tests && python runtests.py distinct_on_fields.tests.DistinctOnTests.test_distinct_not_implemented_checks",
+    "score": 0.887,
+    "why": "via DistinctOnTests (name: distinct,on)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/distinct_on_fields/tests.py::DistinctOnTests::test_basic_distinct_on",
+    "line": 37,
+    "run": "cd tests && python runtests.py distinct_on_fields.tests.DistinctOnTests.test_basic_distinct_on",
+    "score": 0.824,
+    "why": "via DistinctOnTests (name: distinct,on)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/queries/test_sqlcompiler.py::SQLCompilerTest::test_execute_sql_suppresses_cursor_closing_failure_on_exception",
+    "line": 23,
+    "run": "cd tests && python runtests.py queries.test_sqlcompiler.SQLCompilerTest.test_execute_sql_suppresses_cursor_closing_failure_on_exception",
+    "score": 0.794,
+    "why": "via SQLCompiler.execute_sql > SQLCompiler.as_sql > SQLCompiler.get_distinct (name: compiler,sql)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/distinct_on_fields/tests.py::DistinctOnTests::test_distinct_on_duplicated_selected_columns_with_annotation",
+    "line": 275,
+    "run": "cd tests && python runtests.py distinct_on_fields.tests.DistinctOnTests.test_distinct_on_duplicated_selected_columns_with_annotation",
+    "score": 0.768,
+    "why": "via DistinctOnTests (name: distinct,on)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/distinct_on_fields/tests.py::DistinctOnTests::test_distinct_on_duplicated_selected_transforms",
+    "line": 228,
+    "run": "cd tests && python runtests.py distinct_on_fields.tests.DistinctOnTests.test_distinct_on_duplicated_selected_transforms",
+    "score": 0.734,
+    "why": "via DistinctOnTests (name: distinct,on)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/distinct_on_fields/tests.py::DistinctOnTests::test_transform",
+    "line": 127,
+    "run": "cd tests && python runtests.py distinct_on_fields.tests.DistinctOnTests.test_transform",
+    "score": 0.709,
+    "why": "via DistinctOnTests (name: distinct,on)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/distinct_on_fields/tests.py::DistinctOnTests::test_distinct_on_mixed_case_annotation",
+    "line": 173,
+    "run": "cd tests && python runtests.py distinct_on_fields.tests.DistinctOnTests.test_distinct_on_mixed_case_annotation",
+    "score": 0.697,
+    "why": "via DistinctOnTests (name: distinct,on)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/distinct_on_fields/tests.py::DistinctOnTests::test_distinct_on_get_ordering_preserved",
+    "line": 161,
+    "run": "cd tests && python runtests.py distinct_on_fields.tests.DistinctOnTests.test_distinct_on_get_ordering_preserved",
+    "score": 0.677,
+    "why": "via DistinctOnTests (name: distinct,on)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/distinct_on_fields/tests.py::DistinctOnTests::test_distinct_on_duplicated_selected_columns",
+    "line": 183,
+    "run": "cd tests && python runtests.py distinct_on_fields.tests.DistinctOnTests.test_distinct_on_duplicated_selected_columns",
+    "score": 0.661,
+    "why": "via DistinctOnTests (name: distinct,on)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/distinct_on_fields/tests.py::DistinctOnTests::test_distinct_on_duplicated_selected_columns_descending",
+    "line": 202,
+    "run": "cd tests && python runtests.py distinct_on_fields.tests.DistinctOnTests.test_distinct_on_duplicated_selected_columns_descending",
+    "score": 0.658,
+    "why": "via DistinctOnTests (name: distinct,on)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/distinct_on_fields/tests.py::DistinctOnTests::test_distinct_on_duplicated_selected_foreign_key_columns",
+    "line": 221,
+    "run": "cd tests && python runtests.py distinct_on_fields.tests.DistinctOnTests.test_distinct_on_duplicated_selected_foreign_key_columns",
+    "score": 0.656,
+    "why": "via DistinctOnTests (name: distinct,on)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/distinct_on_fields/tests.py::DistinctOnTests::test_distinct_on_in_ordered_subquery",
+    "line": 153,
+    "run": "cd tests && python runtests.py distinct_on_fields.tests.DistinctOnTests.test_distinct_on_in_ordered_subquery",
+    "score": 0.637,
+    "why": "via DistinctOnTests (name: distinct,on)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/distinct_on_fields/tests.py::DistinctOnTests::test_sliced_queryset",
+    "line": 122,
+    "run": "cd tests && python runtests.py distinct_on_fields.tests.DistinctOnTests.test_sliced_queryset",
+    "score": 0.595,
+    "why": "via DistinctOnTests (name: distinct,on)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/queries/test_query.py::TestQueryNoModel::test_q_annotation",
+    "line": 182,
+    "run": "cd tests && python runtests.py queries.test_query.TestQueryNoModel.test_q_annotation",
+    "score": 0.179,
+    "why": "via SQLCompiler.execute_sql > SQLCompiler.as_sql > SQLCompiler.get_distinct"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/queries/test_query.py::TestQueryNoModel::test_rawsql_annotation",
+    "line": 165,
+    "run": "cd tests && python runtests.py queries.test_query.TestQueryNoModel.test_rawsql_annotation",
+    "score": 0.167,
+    "why": "via SQLCompiler.execute_sql > SQLCompiler.as_sql > SQLCompiler.get_distinct"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/queries/test_query.py::TestQueryNoModel::test_subquery_annotation",
+    "line": 176,
+    "run": "cd tests && python runtests.py queries.test_query.TestQueryNoModel.test_subquery_annotation",
+    "score": 0.154,
+    "why": "via SQLCompiler.execute_sql > SQLCompiler.as_sql > SQLCompiler.get_distinct"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/tests.py::LastExecutedQueryTest::test_last_executed_query",
+    "line": 102,
+    "run": "cd tests && python runtests.py backends.tests.LastExecutedQueryTest.test_last_executed_query",
+    "score": 0.144,
+    "why": "via SQLCompiler.execute_sql > SQLCompiler.as_sql > SQLCompiler.get_distinct"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/queries/test_iterator.py::QuerySetIteratorTests::test_no_chunked_reads",
+    "line": 48,
+    "run": "cd tests && python runtests.py queries.test_iterator.QuerySetIteratorTests.test_no_chunked_reads",
+    "score": 0.137,
+    "why": "via SQLCompiler.execute_sql > SQLCompiler.as_sql > SQLCompiler.get_distinct"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/tests.py::LastExecutedQueryTest::test_query_encoding",
+    "line": 92,
+    "run": "cd tests && python runtests.py backends.tests.LastExecutedQueryTest.test_query_encoding",
+    "score": 0.13,
+    "why": "via SQLCompiler.execute_sql > SQLCompiler.as_sql > SQLCompiler.get_distinct"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/ordering/tests.py::OrderingTests::test_alias_with_period_shadows_table_name",
+    "line": 400,
+    "run": "cd tests && python runtests.py ordering.tests.OrderingTests.test_alias_with_period_shadows_table_name",
+    "score": 0.122,
+    "why": "via QuerySet.order_by > Query.add_ordering > Query.get_names_to_join (name: name)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/db_functions/text/test_left.py::LeftTests::test_basic",
+    "line": 14,
+    "run": "cd tests && python runtests.py db_functions.text.test_left.LeftTests.test_basic",
+    "score": 0.115,
+    "why": "via QuerySet.order_by > Query.add_ordering > Query.get_names_to_join"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/db_functions/text/test_right.py::RightTests::test_basic",
+    "line": 15,
+    "run": "cd tests && python runtests.py db_functions.text.test_right.RightTests.test_basic",
+    "score": 0.113,
+    "why": "via QuerySet.order_by > Query.add_ordering > Query.get_names_to_join"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/db_functions/text/test_substr.py::SubstrTests::test_basic",
+    "line": 9,
+    "run": "cd tests && python runtests.py db_functions.text.test_substr.SubstrTests.test_basic",
+    "score": 0.111,
+    "why": "via QuerySet.order_by > Query.add_ordering > Query.get_names_to_join"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/distapp/tests.py::DistanceTest::test_distance_lookups_with_expression_rhs",
+    "line": 239,
+    "run": "cd tests && python runtests.py gis_tests.distapp.tests.DistanceTest.test_distance_lookups_with_expression_rhs",
+    "score": 0.106,
+    "why": "via QuerySet.order_by > Query.add_ordering > Query.get_names_to_join"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/queries/test_qs_combinators.py::QuerySetSetOperationTests::test_union_order_with_null_first_last",
+    "line": 135,
+    "run": "cd tests && python runtests.py queries.test_qs_combinators.QuerySetSetOperationTests.test_union_order_with_null_first_last",
+    "score": 0.105,
+    "why": "via QuerySet.order_by > Query.add_ordering > Query.get_names_to_join (name: query)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/aggregation_regress/tests.py::AggregationTests::test_aggregate_unmanaged_model_columns",
+    "line": 1561,
+    "run": "cd tests && python runtests.py aggregation_regress.tests.AggregationTests.test_aggregate_unmanaged_model_columns",
+    "score": 0.102,
+    "why": "via SQLUpdateCompiler.pre_sql_setup > Query.add_fields > Query.get_names_to_join"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/update/tests.py::MySQLUpdateOrderByTest::test_order_by_update_on_related_field",
+    "line": 367,
+    "run": "cd tests && python runtests.py update.tests.MySQLUpdateOrderByTest.test_order_by_update_on_related_field",
+    "score": 0.1,
+    "why": "via QuerySet.order_by > Query.add_ordering > Query.get_names_to_join"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/aggregation_regress/tests.py::AggregationTests::test_aggregate_duplicate_columns_select_related",
+    "line": 1534,
+    "run": "cd tests && python runtests.py aggregation_regress.tests.AggregationTests.test_aggregate_duplicate_columns_select_related",
+    "score": 0.098,
+    "why": "via SQLUpdateCompiler.pre_sql_setup > Query.add_fields > Query.get_names_to_join"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/update/tests.py::MySQLUpdateOrderByTest::test_order_by_update_on_unique_constraint_annotation",
+    "line": 341,
+    "run": "cd tests && python runtests.py update.tests.MySQLUpdateOrderByTest.test_order_by_update_on_unique_constraint_annotation",
+    "score": 0.097,
+    "why": "via QuerySet.order_by > Query.add_ordering > Query.get_names_to_join"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/update/tests.py::MySQLUpdateOrderByTest::test_order_by_update_on_unique_constraint_annotation_desc",
+    "line": 349,
+    "run": "cd tests && python runtests.py update.tests.MySQLUpdateOrderByTest.test_order_by_update_on_unique_constraint_annotation_desc",
+    "score": 0.096,
+    "why": "via QuerySet.order_by > Query.add_ordering > Query.get_names_to_join"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/aggregation_regress/tests.py::AggregationTests::test_aggregate_unmanaged_model_as_tables",
+    "line": 1609,
+    "run": "cd tests && python runtests.py aggregation_regress.tests.AggregationTests.test_aggregate_unmanaged_model_as_tables",
+    "score": 0.096,
+    "why": "via SQLUpdateCompiler.pre_sql_setup > Query.add_fields > Query.get_names_to_join"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/ordering/tests.py::OrderingTests::test_orders_nulls_first_on_filtered_subquery",
+    "line": 212,
+    "run": "cd tests && python runtests.py ordering.tests.OrderingTests.test_orders_nulls_first_on_filtered_subquery",
+    "score": 0.092,
+    "why": "via QuerySet.order_by > Query.add_ordering > Query.get_names_to_join"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/expressions/tests.py::BasicExpressionsTests::test_subquery",
+    "line": 638,
+    "run": "cd tests && python runtests.py expressions.tests.BasicExpressionsTests.test_subquery",
+    "score": 0.091,
+    "why": "via QuerySet.order_by > Query.add_ordering > Query.get_names_to_join"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/aggregation_regress/tests.py::AggregationTests::test_filtering_by_annotation_name",
+    "line": 1437,
+    "run": "cd tests && python runtests.py aggregation_regress.tests.AggregationTests.test_filtering_by_annotation_name",
+    "score": 0.09,
+    "why": "via QuerySet.order_by > Query.add_ordering > Query.get_names_to_join (name: name)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/update/tests.py::MySQLUpdateOrderByTest::test_order_by_update_on_parent_unique_constraint",
+    "line": 357,
+    "run": "cd tests && python runtests.py update.tests.MySQLUpdateOrderByTest.test_order_by_update_on_parent_unique_constraint",
+    "score": 0.089,
+    "why": "via QuerySet.order_by > Query.add_ordering > Query.get_names_to_join"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792323726.664839,
+  "job_seconds": 17.6,
+  "number": 22044,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 17.6,
+  "started": 1792323707.996028
+ },
+ "verify": null
+}

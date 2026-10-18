@@ -20,6 +20,7 @@ sys.path.insert(0, str(HERE))
 from freeze import check  # noqa: E402
 
 from amu.ci.render import nothing_found  # noqa: E402
+from amu.core.replay import is_test_file  # noqa: E402
 
 
 def read(path, default=None):
@@ -44,7 +45,15 @@ def per_pr(root, name, pr):
     side = report.get('side_by_side') if isinstance(report.get('side_by_side'), dict) else None
     trust = [r for r in report.get('flip_trust') or [] if isinstance(r, dict)]
     counted = [r for r in report.get('predicted_failures') or []]
+    def production(ident):
+        return not is_test_file(str(ident).split('#')[0])
+    uncalled_ids = [t['id'] for t in (targets or {}).get('targets') or []]
+    called_ids = list((side or {}).get('called') or [])
     row = dict(repo=name, number=pr['number'], title=pr['title'], done=(out/'done.json').exists(),
+               production_comparable=sum(map(production, uncalled_ids + called_ids)),
+               production_uncalled=sum(map(production, uncalled_ids)),
+               verify_seconds=(read(out/'timing.json', {}) or {}).get('verify_seconds'),
+               observe=(read(out/'timing.json', {}) or {}).get('observe', True),
                error=report.get('error'), aborted=bool(report.get('failure')), seconds=meta.get('seconds'),
                flips=report.get('flips'), counted=len(counted),
                not_counted=[dict(id=r.get('id'), label=r.get('label')) for r in trust if not str(r.get('label', '')).startswith('fails')],
@@ -95,6 +104,18 @@ def summary(rows, labels):
         median_seconds=None if not seconds else statistics.median(seconds), worst_seconds=None if not seconds else max(seconds),
         quiet=sum(r['quiet'] for r in done), with_evidence=sum(r['evidence'] > 0 for r in done),
         probes_attempted=sum(r['probes_attempted'] for r in done), probes_kept=sum(r['probes_kept'] for r in done),
+        production_comparable=sum(r['production_comparable'] for r in done),
+        production_uncalled=sum(r['production_uncalled'] for r in done),
+        uncalled_share_production=None if not sum(r['production_comparable'] for r in done) else
+            sum(r['production_uncalled'] for r in done) / sum(r['production_comparable'] for r in done),
+        prs_with_probe_targets=sum(bool(r['probe_targets']) for r in done),
+        probe_minutes_median=None if not [r['probe_minutes'] for r in done if r['probe_minutes'] is not None] else
+            statistics.median([r['probe_minutes'] for r in done if r['probe_minutes'] is not None]),
+        probe_minutes_max=max([r['probe_minutes'] for r in done if r['probe_minutes'] is not None], default=None),
+        probe_labels={label: sum(1 for k, v in (labels.get('probes') or {}).items() if k.split('/')[0] in {r['repo'] for r in done}
+                                 for x in v if x['label'] == label)
+                      for label in ('intended', 'not intended (cosmetic)', 'not intended', 'artifact')},
+        sample_artifacts=len(rows_labelled) - real,
     )
 
 

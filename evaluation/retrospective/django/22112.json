@@ -1,0 +1,556 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "dab0a5c47f159eb58472110dcbc10bd4a9b01adb",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "a548854e7b591f539d70f3e3cf39a884d569fedb",
+  "install_ok": true,
+  "merge_base": "38e2188cde2278131237fd2177b55ded3d515556",
+  "pr": 22112,
+  "recording": true,
+  "runner": null,
+  "seconds": 10.4,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "dab0a5c47f159eb58472110dcbc10bd4a9b01adb",
+  "head_sha": "a548854e7b591f539d70f3e3cf39a884d569fedb",
+  "merge_base": "38e2188cde2278131237fd2177b55ded3d515556",
+  "merged_at": "2026-10-11T14:24:17Z",
+  "number": 22112,
+  "repo": "django",
+  "title": "Fixed #37411 -- Added compatibility for oracledb 26.0.0+."
+ },
+ "probe_minutes": {
+  "end": 1792325785.46035,
+  "minutes": 16.8,
+  "start": 1792324697.9798138,
+  "waited": 80.06982612499269
+ },
+ "probe_targets": {
+  "all": 1,
+  "called": 0,
+  "targets": [
+   {
+    "after": "def __init__(self, param, cursor, strings_only=False):\n    # With raw SQL queries, datetimes can reach this function\n    # without being converted by DateTimeField.get_db_prep_value.\n    if settings.USE_TZ and (\n        isinstance(param, datetime.datetime)\n        and not isinstance(param, Oracle_datetime)\n    ):\n        param = Oracle_datetime.from_datetime(param)\n\n    string_size = 0\n    has_boolean_data_type = (\n        cursor.database.features.supports_boolean_expr_in_select_clause\n    )\n    if not has_boolean_data_type:\n        # Oracle < 23c doesn't recognize True and False correctly.\n        if param is True:\n            param = 1\n        elif param is False:\n            param = 0\n    if hasattr(param, \"bind_parameter\"):\n        self.force_bytes = param.bind_parameter(cursor)\n    elif isinstance(param, (bytes, datetime.timedelta)):\n        self.force_bytes = param\n    else:\n        # To transmit to the database, we need Unicode if supported\n        # To get size right, we must consider bytes.\n        self.force_bytes = force_str(param, cursor.charset, strings_only)\n        if isinstance(self.force_bytes, str):\n            # We could optimize by only converting up to 4000 bytes here\n            string_size = len(force_bytes(param, cursor.charset, strings_only))\n    if hasattr(param, \"input_size\"):\n        # If parameter has `input_size` attribute, use that.\n        self.input_size = param.input_size\n    elif string_size > 4000:\n        # Mark any string param greater than 4000 characters as a CLOB.\n        self.input_size = Database.DB_TYPE_CLOB\n    elif isinstance(param, datetime.datetime):\n        self.input_size = Database.DB_TYPE_TIMESTAMP\n    elif has_boolean_data_type and isinstance(param, bool):\n        self.input_size = Database.DB_TYPE_BOOLEAN\n    else:\n        self.input_size = None\n    if self.input_size in self.lob_types:\n        if self.force_bytes is not None and not isinstance(\n            self.force_bytes, Database.LOB\n        ):\n            self.force_bytes = cursor.connection.createlob(\n                self.input_size, self.force_bytes\n            )\n        self.input_size = None\n",
+    "before": "def __init__(self, param, cursor, strings_only=False):\n    # With raw SQL queries, datetimes can reach this function\n    # without being converted by DateTimeField.get_db_prep_value.\n    if settings.USE_TZ and (\n        isinstance(param, datetime.datetime)\n        and not isinstance(param, Oracle_datetime)\n    ):\n        param = Oracle_datetime.from_datetime(param)\n\n    string_size = 0\n    has_boolean_data_type = (\n        cursor.database.features.supports_boolean_expr_in_select_clause\n    )\n    if not has_boolean_data_type:\n        # Oracle < 23c doesn't recognize True and False correctly.\n        if param is True:\n            param = 1\n        elif param is False:\n            param = 0\n    if hasattr(param, \"bind_parameter\"):\n        self.force_bytes = param.bind_parameter(cursor)\n    elif isinstance(param, (bytes, datetime.timedelta)):\n        self.force_bytes = param\n    else:\n        # To transmit to the database, we need Unicode if supported\n        # To get size right, we must consider bytes.\n        self.force_bytes = force_str(param, cursor.charset, strings_only)\n        if isinstance(self.force_bytes, str):\n            # We could optimize by only converting up to 4000 bytes here\n            string_size = len(force_bytes(param, cursor.charset, strings_only))\n    if hasattr(param, \"input_size\"):\n        # If parameter has `input_size` attribute, use that.\n        self.input_size = param.input_size\n    elif string_size > 4000:\n        # Mark any string param greater than 4000 characters as a CLOB.\n        self.input_size = Database.DB_TYPE_CLOB\n    elif isinstance(param, datetime.datetime):\n        self.input_size = Database.DB_TYPE_TIMESTAMP\n    elif has_boolean_data_type and isinstance(param, bool):\n        self.input_size = Database.DB_TYPE_BOOLEAN\n    else:\n        self.input_size = None\n",
+    "file": "django/db/backends/oracle/base.py",
+    "id": "django/db/backends/oracle/base.py#OracleParam.__init__",
+    "name": "__init__",
+    "qual": "OracleParam.__init__",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "return",
+      "tuple",
+      "('created a LOB of 5000 characters', True)"
+     ],
+     "before": [
+      "return",
+      "tuple",
+      "('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', False)"
+     ],
+     "call": "param('x' * 5000)",
+     "label": "generated test shows a difference",
+     "setup": "import sys\nfrom unittest import mock\nstub = mock.MagicMock(version='2.5.0', __version__='2.5.0')\nstub.LOB = type('LOB', (), {})\nsys.modules.setdefault('oracledb', stub)\nfrom django.db.backends.oracle.base import OracleParam\ncursor = mock.MagicMock(charset='utf-8')\ncursor.database.features.supports_boolean_expr_in_select_clause = True\ncursor.connection.createlob.side_effect = lambda kind, value: 'created a LOB of %d characters' % len(value)\n\ndef param(value):\n    made = OracleParam(value, cursor)\n    return str(made.force_bytes)[:60], made.input_size is None\n",
+     "target": "django/db/backends/oracle/base.py#OracleParam.__init__",
+     "test": "import pytest\n\n\ndef test_generated():\n    import sys\n    from unittest import mock\n    stub = mock.MagicMock(version='2.5.0', __version__='2.5.0')\n    stub.LOB = type('LOB', (), {})\n    sys.modules.setdefault('oracledb', stub)\n    from django.db.backends.oracle.base import OracleParam\n    cursor = mock.MagicMock(charset='utf-8')\n    cursor.database.features.supports_boolean_expr_in_select_clause = True\n    cursor.connection.createlob.side_effect = lambda kind, value: 'created a LOB of %d characters' % len(value)\n\n    def param(value):\n        made = OracleParam(value, cursor)\n        return str(made.force_bytes)[:60], made.input_size is None\n    assert repr(param('x' * 5000)) == \"('created a LOB of 5000 characters', True)\"\n",
+     "why": "a string over 4000 characters becomes a CLOB"
+    }
+   ],
+   "filter_seconds": 9.9,
+   "gaps": [],
+   "info": {
+    "accepted": 1,
+    "compiled": 1,
+    "cost": 0.0,
+    "differed": 1,
+    "dollars_cap": 0.1,
+    "functions": 1,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 1,
+    "ran": 1,
+    "reached": 1,
+    "requests": 1,
+    "seconds": 8.9,
+    "stable": 1
+   },
+   "probes": [
+    {
+     "call": "param('x' * 5000)",
+     "function": "django/db/backends/oracle/base.py#OracleParam.__init__",
+     "setup": "import sys\nfrom unittest import mock\nstub = mock.MagicMock(version='2.5.0', __version__='2.5.0')\nstub.LOB = type('LOB', (), {})\nsys.modules.setdefault('oracledb', stub)\nfrom django.db.backends.oracle.base import OracleParam\ncursor = mock.MagicMock(charset='utf-8')\ncursor.database.features.supports_boolean_expr_in_select_clause = True\ncursor.connection.createlob.side_effect = lambda kind, value: 'created a LOB of %d characters' % len(value)\n\ndef param(value):\n    made = OracleParam(value, cursor)\n    return str(made.force_bytes)[:60], made.input_size is None\n",
+     "why": "a string over 4000 characters becomes a CLOB"
+    }
+   ],
+   "targets": [
+    "django/db/backends/oracle/base.py#OracleParam.__init__"
+   ],
+   "waited_seconds": 80.1
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "changed_functions": [
+   {
+    "file": "django/db/backends/oracle/base.py",
+    "lines": "470-477",
+    "symbol": "OracleParam.__init__"
+   }
+  ],
+  "changed_symbols": [
+   "django/db/backends/oracle/base.py#OracleParam.__init__",
+   "django/db/backends/oracle/base.py#OracleParam.lob_types",
+   "django/db/backends/oracle/base.py#OracleParam"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 0,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 142,
+   "ran": 141,
+   "replayed": 0,
+   "runner": "django-runtests",
+   "seconds": 7.6,
+   "selection": {
+    "candidates": 142,
+    "closure_files": 8,
+    "closure_tests": 15,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [],
+    "observed": 0,
+    "static_only": 126
+   },
+   "unrunnable": 1
+  },
+  "flips": 0,
+  "gaps": [
+   "1 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "102597 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "Skipped 1 non-Python file(s)",
+   "graph reused from the previous state; 6 changed file(s) relinked",
+   "side-by-side: none of the 1 changed function(s) was called by the tests run on the code before the change"
+  ],
+  "impacted": {
+   "count": 134,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2931,
+   "parsed_files": 6
+  },
+  "predicted_failures": [],
+  "report_hash": "3cd40fead10e",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 0,
+   "differences": 0,
+   "functions_called": 0,
+   "input_built_before_the_change": 0,
+   "not_compared": {},
+   "seconds": 3.7,
+   "targets": 1,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 141 of 142 candidate tests after the change with django-runtests in 7.6 s, failures confirmed before it: 0 now fail. 129 tests reach the change.",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/base/test_base.py::ExecuteWrapperTests::test_outer_wrapper_blocks",
+    "line": 216,
+    "run": "cd tests && python runtests.py backends.base.test_base.ExecuteWrapperTests.test_outer_wrapper_blocks",
+    "score": 0.707,
+    "why": "via FormatStylePlaceholderCursor.executemany > OracleParam (name: base)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/tests.py::ParameterHandlingTest::test_bad_parameter_count",
+    "line": 172,
+    "run": "cd tests && python runtests.py backends.tests.ParameterHandlingTest.test_bad_parameter_count",
+    "score": 0.363,
+    "why": "via FormatStylePlaceholderCursor.executemany > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/tests.py::BackendTestCase::test_queries",
+    "line": 507,
+    "run": "cd tests && python runtests.py backends.tests.BackendTestCase.test_queries",
+    "score": 0.245,
+    "why": "via FormatStylePlaceholderCursor.executemany > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/base/test_base.py::ExecuteWrapperTests::test_database_queried",
+    "line": 194,
+    "run": "cd tests && python runtests.py backends.base.test_base.ExecuteWrapperTests.test_database_queried",
+    "score": 0.169,
+    "why": "via ExecuteWrapperTests.call_executemany > FormatStylePlaceholderCursor.executemany > OracleParam (name: base)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/base/test_base.py::ExecuteWrapperTests::test_wrapper_invoked_many",
+    "line": 183,
+    "run": "cd tests && python runtests.py backends.base.test_base.ExecuteWrapperTests.test_wrapper_invoked_many",
+    "score": 0.145,
+    "why": "via ExecuteWrapperTests.call_executemany > FormatStylePlaceholderCursor.executemany > OracleParam (name: base)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/base/test_base.py::ExecuteWrapperTests::test_nested_wrapper_invoked",
+    "line": 204,
+    "run": "cd tests && python runtests.py backends.base.test_base.ExecuteWrapperTests.test_nested_wrapper_invoked",
+    "score": 0.131,
+    "why": "via ExecuteWrapperTests.call_executemany > FormatStylePlaceholderCursor.executemany > OracleParam (name: base)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/tests.py::BackendTestCase::test_cursor_execute_with_pyformat",
+    "line": 364,
+    "run": "cd tests && python runtests.py backends.tests.BackendTestCase.test_cursor_execute_with_pyformat",
+    "score": 0.089,
+    "why": "via BackendTestCase.create_squares > FormatStylePlaceholderCursor.executemany > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/tests.py::BackendTestCase::test_cursor_executemany_with_pyformat",
+    "line": 371,
+    "run": "cd tests && python runtests.py backends.tests.BackendTestCase.test_cursor_executemany_with_pyformat",
+    "score": 0.086,
+    "why": "via BackendTestCase.create_squares > FormatStylePlaceholderCursor.executemany > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/tests.py::BackendTestCase::test_cursor_executemany_with_pyformat_iterator",
+    "line": 381,
+    "run": "cd tests && python runtests.py backends.tests.BackendTestCase.test_cursor_executemany_with_pyformat_iterator",
+    "score": 0.084,
+    "why": "via BackendTestCase.create_squares > FormatStylePlaceholderCursor.executemany > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/base/test_base.py::MultiDatabaseTests::test_multi_database_init_connection_state_called_once",
+    "line": 424,
+    "run": "cd tests && python runtests.py backends.base.test_base.MultiDatabaseTests.test_multi_database_init_connection_state_called_once",
+    "score": 0.081,
+    "why": "via DatabaseWrapper.init_connection_state > FormatStylePlaceholderCursor.execute > OracleParam (name: base)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/tests.py::BackendTestCase::test_cursor_executemany_with_empty_params_list",
+    "line": 346,
+    "run": "cd tests && python runtests.py backends.tests.BackendTestCase.test_cursor_executemany_with_empty_params_list",
+    "score": 0.066,
+    "why": "via BackendTestCase.create_squares_with_executemany > BackendTestCase.create_squares > FormatStylePlaceholderCursor.executemany > OracleParam (name: param)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/mysql/tests.py::IsolationLevelTests::test_auto_is_null_auto_config",
+    "line": 48,
+    "run": "cd tests && python runtests.py backends.mysql.tests.IsolationLevelTests.test_auto_is_null_auto_config",
+    "score": 0.057,
+    "why": "via DatabaseWrapper.init_connection_state > FormatStylePlaceholderCursor.execute > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/tests.py::BackendTestCase::test_timezone_none_use_tz_false",
+    "line": 619,
+    "run": "cd tests && python runtests.py backends.tests.BackendTestCase.test_timezone_none_use_tz_false",
+    "score": 0.054,
+    "why": "via DatabaseWrapper.init_connection_state > FormatStylePlaceholderCursor.execute > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/tests.py::BackendTestCase::test_cursor_executemany",
+    "line": 337,
+    "run": "cd tests && python runtests.py backends.tests.BackendTestCase.test_cursor_executemany",
+    "score": 0.04,
+    "why": "via BackendTestCase.create_squares_with_executemany > BackendTestCase.create_squares > FormatStylePlaceholderCursor.executemany > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/tests.py::BackendTestCase::test_cursor_executemany_with_iterator",
+    "line": 352,
+    "run": "cd tests && python runtests.py backends.tests.BackendTestCase.test_cursor_executemany_with_iterator",
+    "score": 0.04,
+    "why": "via BackendTestCase.create_squares_with_executemany > BackendTestCase.create_squares > FormatStylePlaceholderCursor.executemany > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_nodb_cursor",
+    "line": 37,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_nodb_cursor",
+    "score": 0.03,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.init_connection_state > FormatStylePlaceholderCursor.execute > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/servers/tests.py::LiveServerInMemoryDatabaseLockTest::test_in_memory_database_lock",
+    "line": 111,
+    "run": "cd tests && python runtests.py servers.tests.LiveServerInMemoryDatabaseLockTest.test_in_memory_database_lock",
+    "score": 0.027,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.init_connection_state > FormatStylePlaceholderCursor.execute > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_connect_server_side_binding",
+    "line": 438,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_connect_server_side_binding",
+    "score": 0.026,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.init_connection_state > FormatStylePlaceholderCursor.execute > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_connect_role",
+    "line": 423,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_connect_role",
+    "score": 0.026,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.init_connection_state > FormatStylePlaceholderCursor.execute > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_connect_custom_cursor_factory",
+    "line": 457,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_connect_custom_cursor_factory",
+    "score": 0.026,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.init_connection_state > FormatStylePlaceholderCursor.execute > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/delete/tests.py::DeletionTests::test_only_referenced_fields_selected",
+    "line": 698,
+    "run": "cd tests && python runtests.py delete.tests.DeletionTests.test_only_referenced_fields_selected",
+    "score": 0.025,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.init_connection_state > FormatStylePlaceholderCursor.execute > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_utils/test_testcase.py::TestTestCase::test_disallowed_database_connection",
+    "line": 46,
+    "run": "cd tests && python runtests.py test_utils.test_testcase.TestTestCase.test_disallowed_database_connection",
+    "score": 0.025,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.init_connection_state > FormatStylePlaceholderCursor.execute > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_bypass_role_configuration",
+    "line": 630,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_bypass_role_configuration",
+    "score": 0.025,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.init_connection_state > FormatStylePlaceholderCursor.execute > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/oracle/tests.py::Tests::test_pool_reuse",
+    "line": 91,
+    "run": "cd tests && python runtests.py backends.oracle.tests.Tests.test_pool_reuse",
+    "score": 0.025,
+    "why": "via Tests.test_pool_reuse.get_connection > BaseDatabaseWrapper.connect > DatabaseWrapper.init_connection_state > FormatStylePlaceholderCursor.execute > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_utils/tests.py::DisallowedDatabaseQueriesTests::test_disallowed_database_connections",
+    "line": 2258,
+    "run": "cd tests && python runtests.py test_utils.tests.DisallowedDatabaseQueriesTests.test_disallowed_database_connections",
+    "score": 0.024,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.init_connection_state > FormatStylePlaceholderCursor.execute > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_connect_pool",
+    "line": 236,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_connect_pool",
+    "score": 0.024,
+    "why": "via Tests.test_connect_pool.get_connection > BaseDatabaseWrapper.connect > DatabaseWrapper.init_connection_state > FormatStylePlaceholderCursor.execute > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_connect_pool_setting_ignored_for_psycopg2",
+    "line": 375,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_connect_pool_setting_ignored_for_psycopg2",
+    "score": 0.024,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.init_connection_state > FormatStylePlaceholderCursor.execute > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/oracle/tests.py::TransactionalTests::test_password_with_at_sign",
+    "line": 146,
+    "run": "cd tests && python runtests.py backends.oracle.tests.TransactionalTests.test_password_with_at_sign",
+    "score": 0.024,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.init_connection_state > FormatStylePlaceholderCursor.execute > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_connect_no_is_usable_checks",
+    "line": 475,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_connect_no_is_usable_checks",
+    "score": 0.023,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.init_connection_state > FormatStylePlaceholderCursor.execute > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_client_encoding_utf8_enforce",
+    "line": 484,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_client_encoding_utf8_enforce",
+    "score": 0.023,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.init_connection_state > FormatStylePlaceholderCursor.execute > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/servers/test_liveserverthread.py::LiveServerThreadTest::test_closes_connections",
+    "line": 19,
+    "run": "cd tests && python runtests.py servers.test_liveserverthread.LiveServerThreadTest.test_closes_connections",
+    "score": 0.023,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.init_connection_state > FormatStylePlaceholderCursor.execute > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/transaction_hooks/tests.py::TestConnectionOnCommit::test_hooks_cleared_on_reconnect",
+    "line": 259,
+    "run": "cd tests && python runtests.py transaction_hooks.tests.TestConnectionOnCommit.test_hooks_cleared_on_reconnect",
+    "score": 0.023,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.init_connection_state > FormatStylePlaceholderCursor.execute > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/servers/tests.py::LiveServerTestCloseConnectionTest::test_closes_connections",
+    "line": 91,
+    "run": "cd tests && python runtests.py servers.tests.LiveServerTestCloseConnectionTest.test_closes_connections",
+    "score": 0.023,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.init_connection_state > FormatStylePlaceholderCursor.execute > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/cache/tests.py::BaseMemcachedTests::test_close",
+    "line": 1747,
+    "run": "cd tests && python runtests.py cache.tests.BaseMemcachedTests.test_close",
+    "score": 0.019,
+    "why": "via ModelSignal.connect > BaseDatabaseWrapper.connect > DatabaseWrapper.init_connection_state > FormatStylePlaceholderCursor.execute > OracleParam (name: base)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_utils/tests.py::AssertNumQueriesUponConnectionTests::test_ignores_connection_configuration_queries",
+    "line": 250,
+    "run": "cd tests && python runtests.py test_utils.tests.AssertNumQueriesUponConnectionTests.test_ignores_connection_configuration_queries",
+    "score": 0.015,
+    "why": "via BaseDatabaseWrapper.ensure_connection > BaseDatabaseWrapper.connect > DatabaseWrapper.init_connection_state > FormatStylePlaceholderCursor.execute > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/m2m_signals/tests.py::ManyToManySignalsTest::test_pk_set_on_repeated_add_remove",
+    "line": 73,
+    "run": "cd tests && python runtests.py m2m_signals.tests.ManyToManySignalsTest.test_pk_set_on_repeated_add_remove",
+    "score": 0.015,
+    "why": "via ModelSignal.connect > BaseDatabaseWrapper.connect > DatabaseWrapper.init_connection_state > FormatStylePlaceholderCursor.execute > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/sqlite/tests.py::Tests::test_init_command",
+    "line": 125,
+    "run": "cd tests && python runtests.py backends.sqlite.tests.Tests.test_init_command",
+    "score": 0.015,
+    "why": "via BaseDatabaseWrapper.ensure_connection > BaseDatabaseWrapper.connect > DatabaseWrapper.init_connection_state > FormatStylePlaceholderCursor.execute > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/multiple_database/tests.py::SignalTests::test_database_arg_m2m",
+    "line": 2155,
+    "run": "cd tests && python runtests.py multiple_database.tests.SignalTests.test_database_arg_m2m",
+    "score": 0.015,
+    "why": "via ModelSignal.connect > BaseDatabaseWrapper.connect > DatabaseWrapper.init_connection_state > FormatStylePlaceholderCursor.execute > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/delete_regress/tests.py::LargeDeleteTests::test_large_deletes",
+    "line": 159,
+    "run": "cd tests && python runtests.py delete_regress.tests.LargeDeleteTests.test_large_deletes",
+    "score": 0.015,
+    "why": "via ModelSignal.connect > BaseDatabaseWrapper.connect > DatabaseWrapper.init_connection_state > FormatStylePlaceholderCursor.execute > OracleParam"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/sqlite/tests.py::Tests::test_database_name_with_file_in_path_not_allowed",
+    "line": 176,
+    "run": "cd tests && python runtests.py backends.sqlite.tests.Tests.test_database_name_with_file_in_path_not_allowed",
+    "score": 0.015,
+    "why": "via BaseDatabaseWrapper.ensure_connection > BaseDatabaseWrapper.connect > DatabaseWrapper.init_connection_state > FormatStylePlaceholderCursor.execute > OracleParam"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792324645.258283,
+  "job_seconds": 10.4,
+  "number": 22112,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 10.5,
+  "started": 1792324634.23934
+ },
+ "verify": null
+}

@@ -1,0 +1,595 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "339e7325320544f7826ae11e3ae9accdb52775dc",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "cf4078a8de49e1417420d0840208aa1ffb566482",
+  "install_ok": true,
+  "merge_base": "a0be64b90beabfaa8f76fcb31f2983b2476adfb4",
+  "pr": 30701,
+  "recording": false,
+  "runner": null,
+  "seconds": 154.1,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "339e7325320544f7826ae11e3ae9accdb52775dc",
+  "head_sha": "cf4078a8de49e1417420d0840208aa1ffb566482",
+  "merge_base": "a0be64b90beabfaa8f76fcb31f2983b2476adfb4",
+  "merged_at": "2026-10-09T09:16:44Z",
+  "number": 30701,
+  "repo": "sympy",
+  "title": "biomechanics: update doctest expectations"
+ },
+ "probe_minutes": {
+  "end": 1792343241.6598961,
+  "minutes": 0.5,
+  "start": 1792342920.089004,
+  "waited": 293.6423740419996
+ },
+ "probe_targets": {
+  "all": 3,
+  "called": 0,
+  "targets": [
+   {
+    "after": "def _doctest(*paths, **kwargs):\n    \"\"\"\n    Internal function that actually runs the doctests.\n\n    All keyword arguments from ``doctest()`` are passed to this function\n    except for ``subprocess``.\n\n    Returns 0 if tests passed and 1 if they failed.  See the docstrings of\n    ``doctest()`` and ``test()`` for more information.\n    \"\"\"\n    from sympy.printing.pretty.pretty import pprint_use_unicode\n    from sympy.printing.pretty import stringpict\n\n    normal = kwargs.get(\"normal\", False)\n    verbose = kwargs.get(\"verbose\", False)\n    colors = kwargs.get(\"colors\", True)\n    force_colors = kwargs.get(\"force_colors\", False)\n    blacklist = kwargs.get(\"blacklist\", [])\n    split  = kwargs.get('split', None)\n\n    blacklist.extend(_get_doctest_blacklist())\n    blacklist = convert_to_native_paths(blacklist)\n\n    # Use a non-windowed backend, so that the tests work on CI\n    if import_module('matplotlib') is not None:\n        import matplotlib\n        matplotlib.use('Agg')\n\n    # Disable warnings for external modules\n    import sympy.external\n    sympy.external.importtools.WARN_OLD_VERSION = False\n    sympy.external.importtools.WARN_NOT_INSTALLED = False\n\n    # Disable showing up of plots\n    from sympy.plotting.plot import unset_show\n    unset_show()\n\n    r = PyTestReporter(verbose, split=split, colors=colors,\\\n                       force_colors=force_colors)\n    t = SymPyDocTests(r, normal)\n\n    test_files = t.get_test_files('sympy')\n    test_files.extend(t.get_test_files('examples', init_only=False))\n\n    not_blacklisted = [f for f in test_files\n                       if not any(b in f for b in blacklist)]\n    if len(paths) == 0:\n        matched = not_blacklisted\n    else:\n        # take only what was requested...but not blacklisted items\n        # and allow for partial match anywhere or fnmatch of name\n        paths = convert_to_native_paths(paths)\n        matched = []\n        for f in not_blacklisted:\n            basename = os.path.basename(f)\n            for p in paths:\n                if p in f or fnmatch(basename, p):\n                    matched.append(f)\n                    break\n\n    matched.sort()\n\n    if split:\n        matched = split_list(matched, split)\n\n    t._testfiles.extend(matched)\n\n    # run the tests and record the result for this *py portion of the tests\n    if t._testfiles:\n        failed = not t.test()\n    else:\n        failed = False\n\n    # N.B.\n    # --------------------------------------------------------------------\n    # Here we test *.rst and *.md files at or below doc/src. Code from these\n    # must be self supporting in terms of imports since there is no importing\n    # of necessary modules by doctest.testfile. If you try to pass *.py files\n    # through this they might fail because they will lack the needed imports\n    # and smarter parsing that can be done with source code.\n    #\n    test_files_rst = t.get_test_files('doc/src', '*.rst', init_only=False)\n    test_files_md = t.get_test_files('doc/src', '*.md', init_only=False)\n    test_files = test_files_rst + test_files_md\n    test_files.sort()\n\n    not_blacklisted = [f for f in test_files\n                       if not any(b in f for b in blacklist)]\n\n    if len(paths) == 0:\n        matched = not_blacklisted\n    else:\n        # Take only what was requested as long as it's not on the blacklist.\n        # Paths were already made native in *py tests so don't repeat here.\n        # There's no chance of having a *py file slip through since we\n        # only have *rst files in test_files.\n        matched = []\n        for f in not_blacklisted:\n            basename = os.path.basename(f)\n            for p in paths:\n                if p in f or fnmatch(basename, p):\n                    matched.append(f)\n                    break\n\n    if split:\n        matched = split_list(matched, split)\n\n    first_report = True\n    for rst_file in matched:\n        if not os.path.isfile(rst_file):\n            continue\n        old_displayhook = sys.displayhook\n        try:\n            use_unicode_prev, wrap_line_prev = setup_pprint()\n            out = sympytestfile(\n                rst_file, module_relative=False, encoding='utf-8',\n                optionflags=pdoctest.ELLIPSIS | pdoctest.NORMALIZE_WHITESPACE |\n                pdoctest.IGNORE_EXCEPTION_DETAIL)\n        finally:\n            # make sure we return to the original displayhook in case some\n            # doctest has changed that\n            sys.displayhook = old_displayhook\n            # The NO_GLOBAL flag overrides the no_global flag to init_printing\n            # if True\n            import sympy.interactive.printing as interactive_printing\n            interactive_printing.NO_GLOBAL = False\n            pprint_use_unicode(use_unicode_prev)\n            stringpict._GLOBAL_WRAP_LINE = wrap_line_prev\n\n        rstfailed, tested = out\n        if tested:\n            failed = rstfailed or failed\n            if first_report:\n                first_report = False\n                msg = 'rst/md doctests start'\n                if not t._testfiles:\n                    r.start(msg=msg)\n                else:\n                    r.write_center(msg)\n                    print()\n            # use as the id, everything past the first 'sympy'\n            file_id = rst_file[rst_file.find('sympy') + len('sympy') + 1:]\n            print(file_id, end=\" \")\n                # get at least the name out so it is know who is being tested\n            wid = r.terminal_width - len(file_id) - 1  # update width\n            test_file = '[%s]' % (tested)\n            report = '[%s]' % (rstfailed or 'OK')\n            print(''.join(\n                [test_file, ' '*(wid - len(test_file) - len(report)), report])\n            )\n\n    # the doctests for *py will have printed this message already if there was\n    # a failure, so now only print it if there was intervening reporting by\n    # testing the *rst as evidenced by first_report no longer being True.\n    if not first_report and failed:\n        print()\n        print(\"DO *NOT* COMMIT!\")\n\n    return int(failed)\n",
+    "before": "def _doctest(*paths, **kwargs):\n    \"\"\"\n    Internal function that actually runs the doctests.\n\n    All keyword arguments from ``doctest()`` are passed to this function\n    except for ``subprocess``.\n\n    Returns 0 if tests passed and 1 if they failed.  See the docstrings of\n    ``doctest()`` and ``test()`` for more information.\n    \"\"\"\n    from sympy.printing.pretty.pretty import pprint_use_unicode\n    from sympy.printing.pretty import stringpict\n\n    normal = kwargs.get(\"normal\", False)\n    verbose = kwargs.get(\"verbose\", False)\n    colors = kwargs.get(\"colors\", True)\n    force_colors = kwargs.get(\"force_colors\", False)\n    blacklist = kwargs.get(\"blacklist\", [])\n    split  = kwargs.get('split', None)\n\n    blacklist.extend(_get_doctest_blacklist())\n\n    # Use a non-windowed backend, so that the tests work on CI\n    if import_module('matplotlib') is not None:\n        import matplotlib\n        matplotlib.use('Agg')\n\n    # Disable warnings for external modules\n    import sympy.external\n    sympy.external.importtools.WARN_OLD_VERSION = False\n    sympy.external.importtools.WARN_NOT_INSTALLED = False\n\n    # Disable showing up of plots\n    from sympy.plotting.plot import unset_show\n    unset_show()\n\n    r = PyTestReporter(verbose, split=split, colors=colors,\\\n                       force_colors=force_colors)\n    t = SymPyDocTests(r, normal)\n\n    test_files = t.get_test_files('sympy')\n    test_files.extend(t.get_test_files('examples', init_only=False))\n\n    not_blacklisted = [f for f in test_files\n                       if not any(b in f for b in blacklist)]\n    if len(paths) == 0:\n        matched = not_blacklisted\n    else:\n        # take only what was requested...but not blacklisted items\n        # and allow for partial match anywhere or fnmatch of name\n        paths = convert_to_native_paths(paths)\n        matched = []\n        for f in not_blacklisted:\n            basename = os.path.basename(f)\n            for p in paths:\n                if p in f or fnmatch(basename, p):\n                    matched.append(f)\n                    break\n\n    matched.sort()\n\n    if split:\n        matched = split_list(matched, split)\n\n    t._testfiles.extend(matched)\n\n    # run the tests and record the result for this *py portion of the tests\n    if t._testfiles:\n        failed = not t.test()\n    else:\n        failed = False\n\n    # N.B.\n    # --------------------------------------------------------------------\n    # Here we test *.rst and *.md files at or below doc/src. Code from these\n    # must be self supporting in terms of imports since there is no importing\n    # of necessary modules by doctest.testfile. If you try to pass *.py files\n    # through this they might fail because they will lack the needed imports\n    # and smarter parsing that can be done with source code.\n    #\n    test_files_rst = t.get_test_files('doc/src', '*.rst', init_only=False)\n    test_files_md = t.get_test_files('doc/src', '*.md', init_only=False)\n    test_files = test_files_rst + test_files_md\n    test_files.sort()\n\n    not_blacklisted = [f for f in test_files\n                       if not any(b in f for b in blacklist)]\n\n    if len(paths) == 0:\n        matched = not_blacklisted\n    else:\n        # Take only what was requested as long as it's not on the blacklist.\n        # Paths were already made native in *py tests so don't repeat here.\n        # There's no chance of having a *py file slip through since we\n        # only have *rst files in test_files.\n        matched = []\n        for f in not_blacklisted:\n            basename = os.path.basename(f)\n            for p in paths:\n                if p in f or fnmatch(basename, p):\n                    matched.append(f)\n                    break\n\n    if split:\n        matched = split_list(matched, split)\n\n    first_report = True\n    for rst_file in matched:\n        if not os.path.isfile(rst_file):\n            continue\n        old_displayhook = sys.displayhook\n        try:\n            use_unicode_prev, wrap_line_prev = setup_pprint()\n            out = sympytestfile(\n                rst_file, module_relative=False, encoding='utf-8',\n                optionflags=pdoctest.ELLIPSIS | pdoctest.NORMALIZE_WHITESPACE |\n                pdoctest.IGNORE_EXCEPTION_DETAIL)\n        finally:\n            # make sure we return to the original displayhook in case some\n            # doctest has changed that\n            sys.displayhook = old_displayhook\n            # The NO_GLOBAL flag overrides the no_global flag to init_printing\n            # if True\n            import sympy.interactive.printing as interactive_printing\n            interactive_printing.NO_GLOBAL = False\n            pprint_use_unicode(use_unicode_prev)\n            stringpict._GLOBAL_WRAP_LINE = wrap_line_prev\n\n        rstfailed, tested = out\n        if tested:\n            failed = rstfailed or failed\n            if first_report:\n                first_report = False\n                msg = 'rst/md doctests start'\n                if not t._testfiles:\n                    r.start(msg=msg)\n                else:\n                    r.write_center(msg)\n                    print()\n            # use as the id, everything past the first 'sympy'\n            file_id = rst_file[rst_file.find('sympy') + len('sympy') + 1:]\n            print(file_id, end=\" \")\n                # get at least the name out so it is know who is being tested\n            wid = r.terminal_width - len(file_id) - 1  # update width\n            test_file = '[%s]' % (tested)\n            report = '[%s]' % (rstfailed or 'OK')\n            print(''.join(\n                [test_file, ' '*(wid - len(test_file) - len(report)), report])\n            )\n\n    # the doctests for *py will have printed this message already if there was\n    # a failure, so now only print it if there was intervening reporting by\n    # testing the *rst as evidenced by first_report no longer being True.\n    if not first_report and failed:\n        print()\n        print(\"DO *NOT* COMMIT!\")\n\n    return int(failed)\n",
+    "file": "sympy/testing/runtests.py",
+    "id": "sympy/testing/runtests.py#_doctest",
+    "name": "_doctest",
+    "qual": "_doctest",
+    "signature_changed": false
+   },
+   {
+    "after": "def update_args_with_paths(\n    paths: list[str],\n    keywords: tuple[str] | None,\n    args: list[str],\n) -> list[str]:\n    \"\"\"Appends valid paths and flags to the args `list` passed to `pytest.main`.\n\n    The are three different types of \"path\" that a user may pass to the `paths`\n    positional arguments, all of which need to be handled slightly differently:\n\n    1. Nothing is passed\n        The paths to the `testpaths` defined in `pytest.ini` need to be appended\n        to the arguments list.\n    2. Full, valid paths are passed\n        These paths need to be validated but can then be directly appended to\n        the arguments list.\n    3. Partial paths are passed.\n        The `testpaths` defined in `pytest.ini` need to be recursed and any\n        matches be appended to the arguments list.\n\n    \"\"\"\n\n    paths = convert_to_native_paths(paths)\n\n    def find_paths_matching_partial(partial_paths):\n        partial_path_file_patterns = []\n        for partial_path in partial_paths:\n            if len(partial_path) >= 4:\n                has_test_prefix = partial_path[:4] == 'test'\n                has_py_suffix = partial_path[-3:] == '.py'\n            elif len(partial_path) >= 3:\n                has_test_prefix = False\n                has_py_suffix = partial_path[-3:] == '.py'\n            else:\n                has_test_prefix = False\n                has_py_suffix = False\n            if has_test_prefix and has_py_suffix:\n                partial_path_file_patterns.append(partial_path)\n            elif has_test_prefix:\n                partial_path_file_patterns.append(f'{partial_path}*.py')\n            elif has_py_suffix:\n                partial_path_file_patterns.append(f'test*{partial_path}')\n            else:\n                partial_path_file_patterns.append(f'test*{partial_path}*.py')\n        matches = []\n        zipped = zip(partial_paths, partial_path_file_patterns)\n        for partial_path, partial_path_file in zipped:\n            did_match_partial_path = False\n            for testpath in valid_testpaths_default:\n                for path, dirs, files in os.walk(testpath, topdown=True):\n                    if fnmatch(path, f'*{partial_path}*'):\n                        matches.append(str(pathlib.Path(path)))\n                        did_match_partial_path = True\n                        dirs[:] = []\n                    else:\n                        for file in files:\n                            if fnmatch(file, partial_path_file):\n                                matches.append(str(pathlib.Path(path, file)))\n                                did_match_partial_path = True\n            if not did_match_partial_path:\n                msg = f'No test paths matched: {partial_path!r}'\n                raise FileNotFoundError(msg)\n        return matches\n\n    def is_tests_file(filepath: str) -> bool:\n        path = pathlib.Path(filepath)\n        if not path.is_file():\n            return False\n        if not path.parts[-1].startswith('test_'):\n            return False\n        if not path.suffix == '.py':\n            return False\n        return True\n\n    def find_tests_matching_keywords(keywords, filepath):\n        matches = []\n        source = pathlib.Path(filepath).read_text(encoding='utf-8')\n        for line in source.splitlines():\n            if line.lstrip().startswith('def '):\n                for kw in keywords:\n                    if line.lower().find(kw.lower()) != -1:\n                        test_name = line.split(' ')[1].split('(')[0]\n                        full_test_path = filepath + '::' + test_name\n                        matches.append(full_test_path)\n        return matches\n\n    valid_testpaths_default = []\n    for testpath in TESTPATHS_DEFAULT:\n        absolute_testpath = pathlib.Path(sympy_dir(), testpath)\n        if absolute_testpath.exists():\n            valid_testpaths_default.append(str(absolute_testpath))\n\n    candidate_paths = []\n    if paths:\n        full_paths = []\n        partial_paths = []\n        for path in paths:\n            if pathlib.Path(path).exists():\n                full_paths.append(str(pathlib.Path(sympy_dir(), path)))\n            else:\n                partial_paths.append(path)\n        matched_paths = find_paths_matching_partial(partial_paths)\n        candidate_paths.extend(full_paths)\n        candidate_paths.extend(matched_paths)\n    else:\n        candidate_paths.extend(valid_testpaths_default)\n\n    if keywords is not None and keywords != ():\n        matches = []\n        for path in candidate_paths:\n            if is_tests_file(path):\n                test_matches = find_tests_matching_keywords(keywords, path)\n                matches.extend(test_matches)\n            else:\n                for root, dirnames, filenames in os.walk(path):\n                    for filename in filenames:\n                        absolute_filepath = str(pathlib.Path(root, filename))\n                        if is_tests_file(absolute_filepath):\n                            test_matches = find_tests_matching_keywords(\n                                keywords,\n                                absolute_filepath,\n                            )\n                            matches.extend(test_matches)\n        args.extend(matches)\n    else:\n        args.extend(candidate_paths)\n\n    return args\n",
+    "before": "def update_args_with_paths(\n    paths: list[str],\n    keywords: tuple[str] | None,\n    args: list[str],\n) -> list[str]:\n    \"\"\"Appends valid paths and flags to the args `list` passed to `pytest.main`.\n\n    The are three different types of \"path\" that a user may pass to the `paths`\n    positional arguments, all of which need to be handled slightly differently:\n\n    1. Nothing is passed\n        The paths to the `testpaths` defined in `pytest.ini` need to be appended\n        to the arguments list.\n    2. Full, valid paths are passed\n        These paths need to be validated but can then be directly appended to\n        the arguments list.\n    3. Partial paths are passed.\n        The `testpaths` defined in `pytest.ini` need to be recursed and any\n        matches be appended to the arguments list.\n\n    \"\"\"\n\n    def find_paths_matching_partial(partial_paths):\n        partial_path_file_patterns = []\n        for partial_path in partial_paths:\n            if len(partial_path) >= 4:\n                has_test_prefix = partial_path[:4] == 'test'\n                has_py_suffix = partial_path[-3:] == '.py'\n            elif len(partial_path) >= 3:\n                has_test_prefix = False\n                has_py_suffix = partial_path[-3:] == '.py'\n            else:\n                has_test_prefix = False\n                has_py_suffix = False\n            if has_test_prefix and has_py_suffix:\n                partial_path_file_patterns.append(partial_path)\n            elif has_test_prefix:\n                partial_path_file_patterns.append(f'{partial_path}*.py')\n            elif has_py_suffix:\n                partial_path_file_patterns.append(f'test*{partial_path}')\n            else:\n                partial_path_file_patterns.append(f'test*{partial_path}*.py')\n        matches = []\n        zipped = zip(partial_paths, partial_path_file_patterns)\n        for partial_path, partial_path_file in zipped:\n            did_match_partial_path = False\n            for testpath in valid_testpaths_default:\n                for path, dirs, files in os.walk(testpath, topdown=True):\n                    if fnmatch(path, f'*{partial_path}*'):\n                        matches.append(str(pathlib.Path(path)))\n                        did_match_partial_path = True\n                        dirs[:] = []\n                    else:\n                        for file in files:\n                            if fnmatch(file, partial_path_file):\n                                matches.append(str(pathlib.Path(path, file)))\n                                did_match_partial_path = True\n            if not did_match_partial_path:\n                msg = f'No test paths matched: {partial_path!r}'\n                raise FileNotFoundError(msg)\n        return matches\n\n    def is_tests_file(filepath: str) -> bool:\n        path = pathlib.Path(filepath)\n        if not path.is_file():\n            return False\n        if not path.parts[-1].startswith('test_'):\n            return False\n        if not path.suffix == '.py':\n            return False\n        return True\n\n    def find_tests_matching_keywords(keywords, filepath):\n        matches = []\n        source = pathlib.Path(filepath).read_text(encoding='utf-8')\n        for line in source.splitlines():\n            if line.lstrip().startswith('def '):\n                for kw in keywords:\n                    if line.lower().find(kw.lower()) != -1:\n                        test_name = line.split(' ')[1].split('(')[0]\n                        full_test_path = filepath + '::' + test_name\n                        matches.append(full_test_path)\n        return matches\n\n    valid_testpaths_default = []\n    for testpath in TESTPATHS_DEFAULT:\n        absolute_testpath = pathlib.Path(sympy_dir(), testpath)\n        if absolute_testpath.exists():\n            valid_testpaths_default.append(str(absolute_testpath))\n\n    candidate_paths = []\n    if paths:\n        full_paths = []\n        partial_paths = []\n        for path in paths:\n            if pathlib.Path(path).exists():\n                full_paths.append(str(pathlib.Path(sympy_dir(), path)))\n            else:\n                partial_paths.append(path)\n        matched_paths = find_paths_matching_partial(partial_paths)\n        candidate_paths.extend(full_paths)\n        candidate_paths.extend(matched_paths)\n    else:\n        candidate_paths.extend(valid_testpaths_default)\n\n    if keywords is not None and keywords != ():\n        matches = []\n        for path in candidate_paths:\n            if is_tests_file(path):\n                test_matches = find_tests_matching_keywords(keywords, path)\n                matches.extend(test_matches)\n            else:\n                for root, dirnames, filenames in os.walk(path):\n                    for filename in filenames:\n                        absolute_filepath = str(pathlib.Path(root, filename))\n                        if is_tests_file(absolute_filepath):\n                            test_matches = find_tests_matching_keywords(\n                                keywords,\n                                absolute_filepath,\n                            )\n                            matches.extend(test_matches)\n        args.extend(matches)\n    else:\n        args.extend(candidate_paths)\n\n    return args\n",
+    "file": "sympy/testing/runtests_pytest.py",
+    "id": "sympy/testing/runtests_pytest.py#update_args_with_paths",
+    "name": "update_args_with_paths",
+    "qual": "update_args_with_paths",
+    "signature_changed": false
+   },
+   {
+    "after": "def make_absolute_path(partial_path: str) -> str:\n    \"\"\"Convert a partial path to an absolute path.\n\n    A path such a `sympy/core` might be needed. However, absolute paths should\n    be used in the arguments to pytest in all cases as it avoids errors that\n    arise from nonexistent paths.\n\n    This function assumes that partial_paths will be passed in such that they\n    begin with the explicit `sympy` directory, i.e. `sympy/...`.\n\n    \"\"\"\n\n    partial_path = convert_to_native_paths([partial_path])[0]\n\n    def is_valid_partial_path(partial_path: str) -> bool:\n        \"\"\"Assumption that partial paths are defined from the `sympy` root.\"\"\"\n        return pathlib.Path(partial_path).parts[0] == 'sympy'\n\n    if not is_valid_partial_path(partial_path):\n        msg = (\n            f'Partial path {dir(partial_path)} is invalid, partial paths are '\n            f'expected to be defined with the `sympy` directory as the root.'\n        )\n        raise ValueError(msg)\n\n    absolute_path = str(pathlib.Path(sympy_dir(), partial_path))\n    return absolute_path\n",
+    "before": "def make_absolute_path(partial_path: str) -> str:\n    \"\"\"Convert a partial path to an absolute path.\n\n    A path such a `sympy/core` might be needed. However, absolute paths should\n    be used in the arguments to pytest in all cases as it avoids errors that\n    arise from nonexistent paths.\n\n    This function assumes that partial_paths will be passed in such that they\n    begin with the explicit `sympy` directory, i.e. `sympy/...`.\n\n    \"\"\"\n\n    def is_valid_partial_path(partial_path: str) -> bool:\n        \"\"\"Assumption that partial paths are defined from the `sympy` root.\"\"\"\n        return pathlib.Path(partial_path).parts[0] == 'sympy'\n\n    if not is_valid_partial_path(partial_path):\n        msg = (\n            f'Partial path {dir(partial_path)} is invalid, partial paths are '\n            f'expected to be defined with the `sympy` directory as the root.'\n        )\n        raise ValueError(msg)\n\n    absolute_path = str(pathlib.Path(sympy_dir(), partial_path))\n    return absolute_path\n",
+    "file": "sympy/testing/runtests_pytest.py",
+    "id": "sympy/testing/runtests_pytest.py#make_absolute_path",
+    "name": "make_absolute_path",
+    "qual": "make_absolute_path",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "return",
+      "str",
+      "\"['/Users/Shared/amu-retro-2026-10-18/tmp/amu-probe-98qdg0wz/c1-head/sympy/core/tests/test_basic.py']\""
+     ],
+     "before": [
+      "return",
+      "str",
+      "\"['/Users/Shared/amu-retro-2026-10-18/tmp/amu-probe-98qdg0wz/c1-base/sympy/core/tests/test_basic.py']\""
+     ],
+     "call": "outcome(lambda: rp.update_args_with_paths(paths=['sympy/core/tests/test_basic.py'], keywords=None, args=[]))",
+     "label": "generated test shows a difference",
+     "setup": "import sympy.testing.runtests as rt\nimport sympy.testing.runtests_pytest as rp\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__",
+     "target": "sympy/testing/runtests_pytest.py#update_args_with_paths",
+     "test": "import pytest\n\n\ndef test_generated():\n    import sympy.testing.runtests as rt\n    import sympy.testing.runtests_pytest as rp\n\n    def outcome(f):\n        try:\n            return str(f())\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__\n    assert repr(outcome(lambda: rp.update_args_with_paths(paths=['sympy/core/tests/test_basic.py'], keywords=None, args=[]))) == '\"[\\'/Users/Shared/amu-retro-2026-10-18/tmp/amu-probe-98qdg0wz/c1-head/sympy/core/tests/test_basic.py\\']\"'\n",
+     "why": "forward-slash paths, which the change converts to native ones"
+    }
+   ],
+   "dollars_cap": 0.1,
+   "filter_seconds": 12.5,
+   "gaps": [],
+   "info": {
+    "accepted": 1,
+    "compiled": 3,
+    "cost": 0.0,
+    "differed": 1,
+    "dollars_cap": 0.1,
+    "functions": 3,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 3,
+    "ran": 3,
+    "reached": 3,
+    "requests": 1,
+    "seconds": 12.3,
+    "stable": 3
+   },
+   "probes": [
+    {
+     "call": "outcome(lambda: rt._doctest('no_such_file_amu_probe.py', blacklist=['sympy/abc.py']))",
+     "function": "sympy/testing/runtests.py#_doctest",
+     "setup": "import sympy.testing.runtests as rt\nimport sympy.testing.runtests_pytest as rp\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__",
+     "why": "forward-slash paths, which the change converts to native ones"
+    },
+    {
+     "call": "outcome(lambda: rp.update_args_with_paths(paths=['sympy/core/tests/test_basic.py'], keywords=None, args=[]))",
+     "function": "sympy/testing/runtests_pytest.py#update_args_with_paths",
+     "setup": "import sympy.testing.runtests as rt\nimport sympy.testing.runtests_pytest as rp\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__",
+     "why": "forward-slash paths, which the change converts to native ones"
+    },
+    {
+     "call": "outcome(lambda: rp.make_absolute_path('sympy/core').endswith('sympy/core'))",
+     "function": "sympy/testing/runtests_pytest.py#make_absolute_path",
+     "setup": "import sympy.testing.runtests as rt\nimport sympy.testing.runtests_pytest as rp\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__",
+     "why": "forward-slash paths, which the change converts to native ones"
+    }
+   ],
+   "targets": [
+    "sympy/testing/runtests.py#_doctest",
+    "sympy/testing/runtests_pytest.py#update_args_with_paths",
+    "sympy/testing/runtests_pytest.py#make_absolute_path"
+   ],
+   "waited_seconds": 293.6
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/testing/tests/test_runtests_pytest.py::TestMakeAbsolutePath::test_valid_partial_path",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/testing/tests/test_runtests_pytest.py::TestMakeAbsolutePath::test_backslash_absolute_path",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_one_file",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_path_separators",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_partial_path_separators",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/testing/runtests.py",
+    "lines": "794",
+    "symbol": "_doctest"
+   },
+   {
+    "file": "sympy/testing/runtests_pytest.py",
+    "lines": "119-120",
+    "symbol": "update_args_with_paths"
+   },
+   {
+    "file": "sympy/testing/runtests_pytest.py",
+    "lines": "239-240",
+    "symbol": "make_absolute_path"
+   },
+   {
+    "file": "sympy/testing/tests/test_runtests_pytest.py",
+    "lines": "17-18",
+    "symbol": "TestMakeAbsolutePath.test_valid_partial_path"
+   },
+   {
+    "file": "sympy/testing/tests/test_runtests_pytest.py",
+    "lines": "24-26",
+    "symbol": "TestMakeAbsolutePath.test_backslash_absolute_path"
+   },
+   {
+    "file": "sympy/testing/tests/test_runtests_pytest.py",
+    "lines": "60-62",
+    "symbol": "TestUpdateArgsWithPaths.test_one_file"
+   },
+   {
+    "file": "sympy/testing/tests/test_runtests_pytest.py",
+    "lines": "90-97",
+    "symbol": "TestUpdateArgsWithPaths.test_path_separators"
+   },
+   {
+    "file": "sympy/testing/tests/test_runtests_pytest.py",
+    "lines": "99-103",
+    "symbol": "TestUpdateArgsWithPaths.test_partial_path_separators"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/testing/runtests.py#_doctest",
+   "sympy/testing/runtests_pytest.py#make_absolute_path",
+   "sympy/testing/runtests_pytest.py#update_args_with_paths",
+   "sympy/testing/tests/test_runtests_pytest.py#TestMakeAbsolutePath.test_backslash_absolute_path",
+   "sympy/testing/tests/test_runtests_pytest.py#TestMakeAbsolutePath.test_valid_partial_path",
+   "sympy/testing/tests/test_runtests_pytest.py#TestUpdateArgsWithPaths.test_one_file",
+   "sympy/testing/tests/test_runtests_pytest.py#TestUpdateArgsWithPaths.test_partial_path_separators",
+   "sympy/testing/tests/test_runtests_pytest.py#TestUpdateArgsWithPaths.test_path_separators",
+   "sympy/testing/tests/test_runtests_pytest.py#TestMakeAbsolutePath",
+   "sympy/testing/tests/test_runtests_pytest.py#TestUpdateArgsWithPaths",
+   "bin/test_optional_dependencies.py",
+   "sympy/testing/runtests_pytest.py"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 5,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 672,
+   "ran": 672,
+   "replayed": 5,
+   "runner": "pytest",
+   "seconds": 138.7,
+   "selection": {
+    "candidates": 12945,
+    "closure_files": 1323,
+    "closure_tests": 12945,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 0
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "12273 lower-ranked candidate(s) not run: about 3 tests/s per process fit 672 in the 300 s allowed",
+   "68697 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "Skipped 2 non-Python file(s)",
+   "graph reused from the previous state; 19 changed file(s) relinked",
+   "side-by-side: none of the 3 changed function(s) was called by the tests run on the code before the change"
+  ],
+  "impacted": {
+   "count": 16,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1608,
+   "parsed_files": 4
+  },
+  "original_tests": {
+   "sympy/testing/tests/test_runtests_pytest.py::TestMakeAbsolutePath::test_valid_partial_path": "passed",
+   "sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_one_file": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/testing/tests/test_runtests_pytest.py::TestMakeAbsolutePath::test_valid_partial_path",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/testing/tests/test_runtests_pytest.py::TestMakeAbsolutePath::test_backslash_absolute_path",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_one_file",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_path_separators",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_partial_path_separators",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "2ed348f62d32",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 0,
+   "differences": 0,
+   "functions_called": 0,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "sympy/testing/tests/test_runtests_pytest.py#TestMakeAbsolutePath.test_backslash_absolute_path": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/testing/tests/test_runtests_pytest.py#TestUpdateArgsWithPaths.test_partial_path_separators": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/testing/tests/test_runtests_pytest.py#TestUpdateArgsWithPaths.test_path_separators": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 20.3,
+   "targets": 3,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 672 of 672 candidate tests after the change with pytest in 138.7 s, failures confirmed before it: 0 now fail. 23 tests reach the change. 2 test(s) from edited test files also run as they were before the edit. 5 test(s) the change adds or edits replayed on the code before it: 5 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/testing/tests/test_runtests_pytest.py::TestMakeAbsolutePath::test_invalid_partial_path_raises_value_error",
+    "line": 28,
+    "run": "python -m pytest sympy/testing/tests/test_runtests_pytest.py::TestMakeAbsolutePath::test_invalid_partial_path_raises_value_error",
+    "score": 3.943,
+    "why": "calls make_absolute_path (name: absolute,make,path,pytest,runtest)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_multiple_paths_from_non_root",
+    "line": 126,
+    "run": "python -m pytest sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_multiple_paths_from_non_root",
+    "score": 3.943,
+    "why": "calls update_args_with_paths (name: arg,path,pytest,runtest,update)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/testing/tests/test_runtests_pytest.py::TestMakeAbsolutePath::test_valid_partial_path",
+    "line": 15,
+    "run": "python -m pytest sympy/testing/tests/test_runtests_pytest.py::TestMakeAbsolutePath::test_valid_partial_path",
+    "score": 2.464,
+    "why": "calls make_absolute_path (name: absolute,make,path,pytest,runtest)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_multiple_paths_from_root",
+    "line": 79,
+    "run": "python -m pytest sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_multiple_paths_from_root",
+    "score": 2.464,
+    "why": "calls update_args_with_paths (name: arg,path,pytest,runtest,update)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_one_file",
+    "line": 57,
+    "run": "python -m pytest sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_one_file",
+    "score": 1.725,
+    "why": "calls update_args_with_paths (name: arg,path,pytest,runtest,update)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/testing/tests/test_runtests_pytest.py::TestMakeAbsolutePath::test_backslash_absolute_path",
+    "line": 24,
+    "run": "python -m pytest sympy/testing/tests/test_runtests_pytest.py::TestMakeAbsolutePath::test_backslash_absolute_path",
+    "score": 1.605,
+    "why": "calls make_absolute_path (name: absolute,make,path,pytest,runtest)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_partial_path_from_root",
+    "line": 72,
+    "run": "python -m pytest sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_partial_path_from_root",
+    "score": 1.355,
+    "why": "calls update_args_with_paths (name: arg,path,pytest,runtest,update)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_partial_path_separators",
+    "line": 99,
+    "run": "python -m pytest sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_partial_path_separators",
+    "score": 1.171,
+    "why": "calls update_args_with_paths (name: arg,path,pytest,runtest,update)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_no_paths",
+    "line": 40,
+    "run": "python -m pytest sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_no_paths",
+    "score": 1.043,
+    "why": "calls update_args_with_paths (name: arg,path,pytest,runtest,update)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_integer_as_keyword",
+    "line": 170,
+    "run": "python -m pytest sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_integer_as_keyword",
+    "score": 0.962,
+    "why": "calls update_args_with_paths (name: arg,path,pytest,runtest,update)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_keyword_match_in_multiple_files",
+    "line": 203,
+    "run": "python -m pytest sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_keyword_match_in_multiple_files",
+    "score": 0.941,
+    "why": "calls update_args_with_paths (name: arg,path,pytest,runtest,update)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_missing_path_with_other_valid_paths_raises_error",
+    "line": 110,
+    "run": "python -m pytest sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_missing_path_with_other_valid_paths_raises_error",
+    "score": 0.93,
+    "why": "calls update_args_with_paths (name: arg,path,pytest,runtest,update)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_multiple_keywords",
+    "line": 190,
+    "run": "python -m pytest sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_multiple_keywords",
+    "score": 0.924,
+    "why": "calls update_args_with_paths (name: arg,path,pytest,runtest,update)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_multiple_nested_paths_do_not_raise_error",
+    "line": 116,
+    "run": "python -m pytest sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_multiple_nested_paths_do_not_raise_error",
+    "score": 0.921,
+    "why": "calls update_args_with_paths (name: arg,path,pytest,runtest,update)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_path_separators",
+    "line": 90,
+    "run": "python -m pytest sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_path_separators",
+    "score": 0.919,
+    "why": "calls update_args_with_paths (name: arg,path,pytest,runtest,update)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_string_as_keyword",
+    "line": 149,
+    "run": "python -m pytest sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_string_as_keyword",
+    "score": 0.918,
+    "why": "calls update_args_with_paths (name: arg,path,pytest,runtest,update)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_nonexistent_path_raises_error",
+    "line": 105,
+    "run": "python -m pytest sympy/testing/tests/test_runtests_pytest.py::TestUpdateArgsWithPaths::test_nonexistent_path_raises_error",
+    "score": 0.89,
+    "why": "calls update_args_with_paths (name: arg,path,pytest,runtest,update)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/printing/tests/test_tensorflow.py::test_codegen_einsum",
+    "line": 358,
+    "run": "python -m pytest sympy/printing/tests/test_tensorflow.py::test_codegen_einsum",
+    "score": 0.162,
+    "why": "via test_sympy.run > run_all_tests > doctest > _doctest"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_tensorflow.py::test_codegen_extra",
+    "line": 379,
+    "run": "python -m pytest sympy/printing/tests/test_tensorflow.py::test_codegen_extra",
+    "score": 0.069,
+    "why": "via test_sympy.run > run_all_tests > doctest > _doctest"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/utilities/tests/test_lambdify.py::test_tensorflow_variables",
+    "line": 934,
+    "run": "python -m pytest sympy/utilities/tests/test_lambdify.py::test_tensorflow_variables",
+    "score": 0.055,
+    "why": "via test_sympy.run > run_all_tests > doctest > _doctest"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/printing/tests/test_tensorflow.py::test_tensorflow_math",
+    "line": 170,
+    "run": "python -m pytest sympy/printing/tests/test_tensorflow.py::test_tensorflow_math",
+    "score": 0.027,
+    "why": "via _compare_tensorflow_scalar > test_sympy.run > run_all_tests > doctest > _doctest"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_tensorflow.py::test_tensorflow_matrices",
+    "line": 304,
+    "run": "python -m pytest sympy/printing/tests/test_tensorflow.py::test_tensorflow_matrices",
+    "score": 0.025,
+    "why": "via _compare_tensorflow_matrix > test_sympy.run > run_all_tests > doctest > _doctest"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_tensorflow.py::test_tensorflow_relational",
+    "line": 273,
+    "run": "python -m pytest sympy/printing/tests/test_tensorflow.py::test_tensorflow_relational",
+    "score": 0.023,
+    "why": "via _compare_tensorflow_relational > test_sympy.run > run_all_tests > doctest > _doctest"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/testing/tests/test_runtests_pytest.py",
+    "lines": "17-18",
+    "symbol": "TestMakeAbsolutePath.test_valid_partial_path"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/testing/tests/test_runtests_pytest.py",
+    "lines": "24-26",
+    "symbol": "TestMakeAbsolutePath.test_backslash_absolute_path"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/testing/tests/test_runtests_pytest.py",
+    "lines": "60-62",
+    "symbol": "TestUpdateArgsWithPaths.test_one_file"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/testing/tests/test_runtests_pytest.py",
+    "lines": "90-97",
+    "symbol": "TestUpdateArgsWithPaths.test_path_separators"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/testing/tests/test_runtests_pytest.py",
+    "lines": "99-103",
+    "symbol": "TestUpdateArgsWithPaths.test_partial_path_separators"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792342777.663666,
+  "job_seconds": 154.1,
+  "number": 30701,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 154.3,
+  "started": 1792342621.248378
+ },
+ "verify": null
+}

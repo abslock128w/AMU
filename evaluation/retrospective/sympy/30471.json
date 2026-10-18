@@ -1,0 +1,255 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "f6d8906c03eec71d4cbbe0275722a7915d965a97",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "1e83aba75ede252bdc5a25f0fc0b8e6841b27787",
+  "install_ok": true,
+  "merge_base": "f6d8906c03eec71d4cbbe0275722a7915d965a97",
+  "pr": 30471,
+  "recording": false,
+  "runner": null,
+  "seconds": 109.6,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "f6d8906c03eec71d4cbbe0275722a7915d965a97",
+  "head_sha": "1e83aba75ede252bdc5a25f0fc0b8e6841b27787",
+  "merge_base": "f6d8906c03eec71d4cbbe0275722a7915d965a97",
+  "merged_at": "2026-10-03T17:27:39Z",
+  "number": 30471,
+  "repo": "sympy",
+  "title": "fix(interactive): support unapplied functions in interactive printing"
+ },
+ "probe_minutes": {
+  "end": 1792337800.715543,
+  "minutes": 0.5,
+  "start": 1792337742.953676,
+  "waited": 25.022197000012966
+ },
+ "probe_targets": {
+  "all": 1,
+  "called": 0,
+  "targets": [
+   {
+    "after": "def _init_ipython_printing(ip, stringify_func, use_latex, euler, forecolor,\n                           backcolor, fontsize, latex_mode, print_builtin,\n                           latex_printer, scale, **settings):\n    \"\"\"Setup printing in IPython interactive session. \"\"\"\n    IPython = import_module(\"IPython\", min_module_version=\"1.0\")\n    try:\n        from IPython.lib.latextools import latex_to_png\n    except ImportError:\n        pass\n\n    # Guess best font color if none was given based on the ip.colors string.\n    # From the IPython documentation:\n    #   It has four case-insensitive values: 'nocolor', 'neutral', 'linux',\n    #   'lightbg'. The default is neutral, which should be legible on either\n    #   dark or light terminal backgrounds. linux is optimised for dark\n    #   backgrounds and lightbg for light ones.\n    if forecolor is None:\n        color = ip.colors.lower()\n        if color == 'lightbg':\n            forecolor = 'Black'\n        elif color == 'linux':\n            forecolor = 'White'\n        else:\n            # No idea, go with gray.\n            forecolor = 'Gray'\n        debug(\"init_printing: Automatic foreground color:\", forecolor)\n\n    if use_latex == \"svg\":\n        extra_preamble = \"\\n\\\\special{color %s}\" % forecolor\n    else:\n        extra_preamble = \"\"\n\n    imagesize = 'tight'\n    offset = \"0cm,0cm\"\n    resolution = round(150*scale)\n    dvi = r\"-T %s -D %d -bg %s -fg %s -O %s\" % (\n        imagesize, resolution, backcolor, forecolor, offset)\n    dvioptions = dvi.split()\n\n    svg_scale = 150/72*scale\n    dvioptions_svg = [\"--no-fonts\", \"--scale={}\".format(svg_scale)]\n\n    debug(\"init_printing: DVIOPTIONS:\", dvioptions)\n    debug(\"init_printing: DVIOPTIONS_SVG:\", dvioptions_svg)\n\n    latex = latex_printer or default_latex\n\n    def _print_plain(arg, p, cycle):\n        \"\"\"caller for pretty, for use in IPython 0.11\"\"\"\n        if _can_print(arg):\n            p.text(stringify_func(arg))\n        else:\n            p.text(IPython.lib.pretty.pretty(arg))\n\n    def _preview_wrapper(o):\n        exprbuffer = BytesIO()\n        try:\n            preview(o, output='png', viewer='BytesIO', euler=euler,\n                    outputbuffer=exprbuffer, extra_preamble=extra_preamble,\n                    dvioptions=dvioptions, fontsize=fontsize)\n        except Exception as e:\n            # IPython swallows exceptions\n            debug(\"png printing:\", \"_preview_wrapper exception raised:\",\n                  repr(e))\n            raise\n        return exprbuffer.getvalue()\n\n    def _svg_wrapper(o):\n        exprbuffer = BytesIO()\n        try:\n            preview(o, output='svg', viewer='BytesIO', euler=euler,\n                    outputbuffer=exprbuffer, extra_preamble=extra_preamble,\n                    dvioptions=dvioptions_svg, fontsize=fontsize)\n        except Exception as e:\n            # IPython swallows exceptions\n            debug(\"svg printing:\", \"_preview_wrapper exception raised:\",\n                  repr(e))\n            raise\n        return exprbuffer.getvalue().decode('utf-8')\n\n    def _matplotlib_wrapper(o):\n        # mathtext can't render some LaTeX commands. For example, it can't\n        # render any LaTeX environments such as array or matrix. So here we\n        # ensure that if mathtext fails to render, we return None.\n        try:\n            try:\n                return latex_to_png(o, color=forecolor, scale=scale)\n            except TypeError: #  Old IPython version without color and scale\n                return latex_to_png(o)\n        except ValueError as e:\n            debug('matplotlib exception caught:', repr(e))\n            return None\n\n\n    # Hook methods for builtin SymPy printers\n    printing_hooks = ('_latex', '_sympystr', '_pretty', '_sympyrepr')\n\n\n    def _can_print(o):\n        \"\"\"Return True if type o can be printed with one of the SymPy printers.\n\n        If o is a container type, this is True if and only if every element of\n        o can be printed in this way.\n        \"\"\"\n\n        try:\n            # If you're adding another type, make sure you add it to printable_types\n            # later in this file as well\n\n            builtin_types = (list, tuple, set, frozenset)\n            if isinstance(o, builtin_types):\n                # If the object is a custom subclass with a custom str or\n                # repr, use that instead.\n                if (type(o).__str__ not in (i.__str__ for i in builtin_types) or\n                    type(o).__repr__ not in (i.__repr__ for i in builtin_types)):\n                    return False\n                return all(_can_print(i) for i in o)\n            elif isinstance(o, dict):\n                return all(_can_print(i) and _can_print(o[i]) for i in o)\n            elif isinstance(o, bool):\n                return False\n            elif isinstance(o, (Printable, FunctionClass)):\n                # types known to SymPy\n                return True\n            elif any(hasattr(o, hook) for hook in printing_hooks):\n                # types which add support themselves\n                return True\n            elif isinstance(o, (float, int)) and print_builtin:\n                return True\n            return False\n        except RuntimeError:\n            return False\n            # This is in case maximum recursion depth is reached.\n            # Since RecursionError is for versions of Python 3.5+\n            # so this is to guard against RecursionError for older versions.\n\n    def _print_latex_png(o):\n        \"\"\"\n        A function that returns a png rendered by an external latex\n        distribution, falling back to matplotlib rendering\n        \"\"\"\n        if _can_print(o):\n            s = latex(o, mode=latex_mode, **settings)\n            if latex_mode == 'plain':\n                s = '$\\\\displaystyle %s$' % s\n            try:\n                return _preview_wrapper(s)\n            except RuntimeError as e:\n                debug('preview failed with:', repr(e),\n                      ' Falling back to matplotlib backend')\n                if latex_mode != 'inline':\n                    s = latex(o, mode='inline', **settings)\n                return _matplotlib_wrapper(s)\n\n    def _print_latex_svg(o):\n        \"\"\"\n        A function that returns a svg rendered by an external latex\n        distribution, no fallback available.\n        \"\"\"\n        if _can_print(o):\n            s = latex(o, mode=latex_mode, **settings)\n            if latex_mode == 'plain':\n                s = '$\\\\displaystyle %s$' % s\n            try:\n                return _svg_wrapper(s)\n            except RuntimeError as e:\n                debug('preview failed with:', repr(e),\n                      ' No fallback available.')\n\n    def _print_latex_matplotlib(o):\n        \"\"\"\n        A function that returns a png rendered by mathtext\n        \"\"\"\n        if _can_print(o):\n            s = latex(o, mode='inline', **settings)\n            return _matplotlib_wrapper(s)\n\n    def _print_latex_text(o):\n        \"\"\"\n        A function to generate the latex representation of SymPy expressions.\n        \"\"\"\n        if _can_print(o):\n            s = latex(o, mode=latex_mode, **settings)\n            if latex_mode == 'plain':\n                return '$\\\\displaystyle %s$' % s\n            return s\n\n    # Printable is our own type, so we handle it with methods instead of\n    # the approach required by builtin types. This allows downstream\n    # packages to override the methods in their own subclasses of Printable,\n    # which avoids the effects of gh-16002.\n    printable_types = [float, tuple, list, set, frozenset, dict, int, FunctionClass]\n\n    plaintext_formatter = ip.display_formatter.formatters['text/plain']\n\n    # Exception to the rule above: IPython has better dispatching rules\n    # for plaintext printing (xref ipython/ipython#8938), and we can't\n    # use `_repr_pretty_` without hitting a recursion error in _print_plain.\n    for cls in printable_types + [Printable]:\n        plaintext_formatter.for_type(cls, _print_plain)\n\n    svg_formatter = ip.display_formatter.formatters['image/svg+xml']\n    if use_latex == 'svg':\n        debug(\"init_printing: using svg formatter\")\n        for cls in printable_types:\n            svg_formatter.for_type(cls, _print_latex_svg)\n        Printable._repr_svg_ = _print_latex_svg\n    else:\n        debug(\"init_printing: not using any svg formatter\")\n        for cls in printable_types:\n            # Better way to set this, but currently does not work in IPython\n            #png_formatter.for_type(cls, None)\n            if cls in svg_formatter.type_printers:\n                svg_formatter.type_printers.pop(cls)\n        Printable._repr_svg_ = Printable._repr_disabled\n\n    png_formatter = ip.display_formatter.formatters['image/png']\n    if use_latex in (True, 'png'):\n        debug(\"init_printing: using png formatter\")\n        for cls in printable_types:\n            png_formatter.for_type(cls, _print_latex_png)\n        Printable._repr_png_ = _print_latex_png\n    elif use_latex == 'matplotlib':\n        debug(\"init_printing: using matplotlib formatter\")\n        for cls in printable_types:\n            png_formatter.for_type(cls, _print_latex_matplotlib)\n        Printable._repr_png_ = _print_latex_matplotlib\n    else:\n        debug(\"init_printing: not using any png formatter\")\n        for cls in printable_types:\n            # Better way to set this, but currently does not work in IPython\n            #png_formatter.for_type(cls, None)\n            if cls in png_formatter.type_printers:\n                png_formatter.type_printers.pop(cls)\n        Printable._repr_png_ = Printable._repr_disabled\n\n    latex_formatter = ip.display_formatter.formatters['text/latex']\n    if use_latex in (True, 'mathjax'):\n        debug(\"init_printing: using mathjax formatter\")\n        for cls in printable_types:\n            latex_formatter.for_type(cls, _print_latex_text)\n        Printable._repr_latex_ = _print_latex_text\n    else:\n        debug(\"init_printing: not using text/latex formatter\")\n        for cls in printable_types:\n            # Better way to set this, but currently does not work in IPython\n            #latex_formatter.for_type(cls, None)\n            if cls in latex_formatter.type_printers:\n                latex_formatter.type_printers.pop(cls)\n        Printable._repr_latex_ = Printable._repr_disabled\n",
+    "before": "def _init_ipython_printing(ip, stringify_func, use_latex, euler, forecolor,\n                           backcolor, fontsize, latex_mode, print_builtin,\n                           latex_printer, scale, **settings):\n    \"\"\"Setup printing in IPython interactive session. \"\"\"\n    IPython = import_module(\"IPython\", min_module_version=\"1.0\")\n    try:\n        from IPython.lib.latextools import latex_to_png\n    except ImportError:\n        pass\n\n    # Guess best font color if none was given based on the ip.colors string.\n    # From the IPython documentation:\n    #   It has four case-insensitive values: 'nocolor', 'neutral', 'linux',\n    #   'lightbg'. The default is neutral, which should be legible on either\n    #   dark or light terminal backgrounds. linux is optimised for dark\n    #   backgrounds and lightbg for light ones.\n    if forecolor is None:\n        color = ip.colors.lower()\n        if color == 'lightbg':\n            forecolor = 'Black'\n        elif color == 'linux':\n            forecolor = 'White'\n        else:\n            # No idea, go with gray.\n            forecolor = 'Gray'\n        debug(\"init_printing: Automatic foreground color:\", forecolor)\n\n    if use_latex == \"svg\":\n        extra_preamble = \"\\n\\\\special{color %s}\" % forecolor\n    else:\n        extra_preamble = \"\"\n\n    imagesize = 'tight'\n    offset = \"0cm,0cm\"\n    resolution = round(150*scale)\n    dvi = r\"-T %s -D %d -bg %s -fg %s -O %s\" % (\n        imagesize, resolution, backcolor, forecolor, offset)\n    dvioptions = dvi.split()\n\n    svg_scale = 150/72*scale\n    dvioptions_svg = [\"--no-fonts\", \"--scale={}\".format(svg_scale)]\n\n    debug(\"init_printing: DVIOPTIONS:\", dvioptions)\n    debug(\"init_printing: DVIOPTIONS_SVG:\", dvioptions_svg)\n\n    latex = latex_printer or default_latex\n\n    def _print_plain(arg, p, cycle):\n        \"\"\"caller for pretty, for use in IPython 0.11\"\"\"\n        if _can_print(arg):\n            p.text(stringify_func(arg))\n        else:\n            p.text(IPython.lib.pretty.pretty(arg))\n\n    def _preview_wrapper(o):\n        exprbuffer = BytesIO()\n        try:\n            preview(o, output='png', viewer='BytesIO', euler=euler,\n                    outputbuffer=exprbuffer, extra_preamble=extra_preamble,\n                    dvioptions=dvioptions, fontsize=fontsize)\n        except Exception as e:\n            # IPython swallows exceptions\n            debug(\"png printing:\", \"_preview_wrapper exception raised:\",\n                  repr(e))\n            raise\n        return exprbuffer.getvalue()\n\n    def _svg_wrapper(o):\n        exprbuffer = BytesIO()\n        try:\n            preview(o, output='svg', viewer='BytesIO', euler=euler,\n                    outputbuffer=exprbuffer, extra_preamble=extra_preamble,\n                    dvioptions=dvioptions_svg, fontsize=fontsize)\n        except Exception as e:\n            # IPython swallows exceptions\n            debug(\"svg printing:\", \"_preview_wrapper exception raised:\",\n                  repr(e))\n            raise\n        return exprbuffer.getvalue().decode('utf-8')\n\n    def _matplotlib_wrapper(o):\n        # mathtext can't render some LaTeX commands. For example, it can't\n        # render any LaTeX environments such as array or matrix. So here we\n        # ensure that if mathtext fails to render, we return None.\n        try:\n            try:\n                return latex_to_png(o, color=forecolor, scale=scale)\n            except TypeError: #  Old IPython version without color and scale\n                return latex_to_png(o)\n        except ValueError as e:\n            debug('matplotlib exception caught:', repr(e))\n            return None\n\n\n    # Hook methods for builtin SymPy printers\n    printing_hooks = ('_latex', '_sympystr', '_pretty', '_sympyrepr')\n\n\n    def _can_print(o):\n        \"\"\"Return True if type o can be printed with one of the SymPy printers.\n\n        If o is a container type, this is True if and only if every element of\n        o can be printed in this way.\n        \"\"\"\n\n        try:\n            # If you're adding another type, make sure you add it to printable_types\n            # later in this file as well\n\n            builtin_types = (list, tuple, set, frozenset)\n            if isinstance(o, builtin_types):\n                # If the object is a custom subclass with a custom str or\n                # repr, use that instead.\n                if (type(o).__str__ not in (i.__str__ for i in builtin_types) or\n                    type(o).__repr__ not in (i.__repr__ for i in builtin_types)):\n                    return False\n                return all(_can_print(i) for i in o)\n            elif isinstance(o, dict):\n                return all(_can_print(i) and _can_print(o[i]) for i in o)\n            elif isinstance(o, bool):\n                return False\n            elif isinstance(o, Printable):\n                # types known to SymPy\n                return True\n            elif any(hasattr(o, hook) for hook in printing_hooks):\n                # types which add support themselves\n                return True\n            elif isinstance(o, (float, int)) and print_builtin:\n                return True\n            return False\n        except RuntimeError:\n            return False\n            # This is in case maximum recursion depth is reached.\n            # Since RecursionError is for versions of Python 3.5+\n            # so this is to guard against RecursionError for older versions.\n\n    def _print_latex_png(o):\n        \"\"\"\n        A function that returns a png rendered by an external latex\n        distribution, falling back to matplotlib rendering\n        \"\"\"\n        if _can_print(o):\n            s = latex(o, mode=latex_mode, **settings)\n            if latex_mode == 'plain':\n                s = '$\\\\displaystyle %s$' % s\n            try:\n                return _preview_wrapper(s)\n            except RuntimeError as e:\n                debug('preview failed with:', repr(e),\n                      ' Falling back to matplotlib backend')\n                if latex_mode != 'inline':\n                    s = latex(o, mode='inline', **settings)\n                return _matplotlib_wrapper(s)\n\n    def _print_latex_svg(o):\n        \"\"\"\n        A function that returns a svg rendered by an external latex\n        distribution, no fallback available.\n        \"\"\"\n        if _can_print(o):\n            s = latex(o, mode=latex_mode, **settings)\n            if latex_mode == 'plain':\n                s = '$\\\\displaystyle %s$' % s\n            try:\n                return _svg_wrapper(s)\n            except RuntimeError as e:\n                debug('preview failed with:', repr(e),\n                      ' No fallback available.')\n\n    def _print_latex_matplotlib(o):\n        \"\"\"\n        A function that returns a png rendered by mathtext\n        \"\"\"\n        if _can_print(o):\n            s = latex(o, mode='inline', **settings)\n            return _matplotlib_wrapper(s)\n\n    def _print_latex_text(o):\n        \"\"\"\n        A function to generate the latex representation of SymPy expressions.\n        \"\"\"\n        if _can_print(o):\n            s = latex(o, mode=latex_mode, **settings)\n            if latex_mode == 'plain':\n                return '$\\\\displaystyle %s$' % s\n            return s\n\n    # Printable is our own type, so we handle it with methods instead of\n    # the approach required by builtin types. This allows downstream\n    # packages to override the methods in their own subclasses of Printable,\n    # which avoids the effects of gh-16002.\n    printable_types = [float, tuple, list, set, frozenset, dict, int]\n\n    plaintext_formatter = ip.display_formatter.formatters['text/plain']\n\n    # Exception to the rule above: IPython has better dispatching rules\n    # for plaintext printing (xref ipython/ipython#8938), and we can't\n    # use `_repr_pretty_` without hitting a recursion error in _print_plain.\n    for cls in printable_types + [Printable]:\n        plaintext_formatter.for_type(cls, _print_plain)\n\n    svg_formatter = ip.display_formatter.formatters['image/svg+xml']\n    if use_latex == 'svg':\n        debug(\"init_printing: using svg formatter\")\n        for cls in printable_types:\n            svg_formatter.for_type(cls, _print_latex_svg)\n        Printable._repr_svg_ = _print_latex_svg\n    else:\n        debug(\"init_printing: not using any svg formatter\")\n        for cls in printable_types:\n            # Better way to set this, but currently does not work in IPython\n            #png_formatter.for_type(cls, None)\n            if cls in svg_formatter.type_printers:\n                svg_formatter.type_printers.pop(cls)\n        Printable._repr_svg_ = Printable._repr_disabled\n\n    png_formatter = ip.display_formatter.formatters['image/png']\n    if use_latex in (True, 'png'):\n        debug(\"init_printing: using png formatter\")\n        for cls in printable_types:\n            png_formatter.for_type(cls, _print_latex_png)\n        Printable._repr_png_ = _print_latex_png\n    elif use_latex == 'matplotlib':\n        debug(\"init_printing: using matplotlib formatter\")\n        for cls in printable_types:\n            png_formatter.for_type(cls, _print_latex_matplotlib)\n        Printable._repr_png_ = _print_latex_matplotlib\n    else:\n        debug(\"init_printing: not using any png formatter\")\n        for cls in printable_types:\n            # Better way to set this, but currently does not work in IPython\n            #png_formatter.for_type(cls, None)\n            if cls in png_formatter.type_printers:\n                png_formatter.type_printers.pop(cls)\n        Printable._repr_png_ = Printable._repr_disabled\n\n    latex_formatter = ip.display_formatter.formatters['text/latex']\n    if use_latex in (True, 'mathjax'):\n        debug(\"init_printing: using mathjax formatter\")\n        for cls in printable_types:\n            latex_formatter.for_type(cls, _print_latex_text)\n        Printable._repr_latex_ = _print_latex_text\n    else:\n        debug(\"init_printing: not using text/latex formatter\")\n        for cls in printable_types:\n            # Better way to set this, but currently does not work in IPython\n            #latex_formatter.for_type(cls, None)\n            if cls in latex_formatter.type_printers:\n                latex_formatter.type_printers.pop(cls)\n        Printable._repr_latex_ = Printable._repr_disabled\n",
+    "file": "sympy/interactive/printing.py",
+    "id": "sympy/interactive/printing.py#_init_ipython_printing",
+    "name": "_init_ipython_printing",
+    "qual": "_init_ipython_printing",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "return",
+      "list",
+      "[['psi'], ['[f, 1]']]"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['raised AttributeError', 'raised AttributeError']"
+     ],
+     "call": "[show(Function('psi')), show([Function('f'), 1])]",
+     "label": "generated test shows a difference",
+     "setup": "from unittest import mock\nfrom sympy import Function\nfrom sympy.interactive.printing import _init_ipython_printing\nip = mock.MagicMock()\nip.colors = 'neutral'\n_init_ipython_printing(ip, str, False, False, None, 'Transparent', '10pt', 'plain', True, None, 1.0)\nformatter = ip.display_formatter.formatters.__getitem__.return_value\nprinter = next(c.args[1] for c in formatter.for_type.call_args_list if getattr(c.args[1], '__name__', '') == '_print_plain')\n\nclass Collect:\n    def __init__(self):\n        self.out = []\n\n    def text(self, value):\n        self.out.append(value)\n\ndef show(value):\n    p = Collect()\n    try:\n        printer(value, p, False)\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\n    return p.out\n",
+     "target": "sympy/interactive/printing.py#_init_ipython_printing",
+     "test": "import pytest\n\n\ndef test_generated():\n    from unittest import mock\n    from sympy import Function\n    from sympy.interactive.printing import _init_ipython_printing\n    ip = mock.MagicMock()\n    ip.colors = 'neutral'\n    _init_ipython_printing(ip, str, False, False, None, 'Transparent', '10pt', 'plain', True, None, 1.0)\n    formatter = ip.display_formatter.formatters.__getitem__.return_value\n    printer = next(c.args[1] for c in formatter.for_type.call_args_list if getattr(c.args[1], '__name__', '') == '_print_plain')\n\n    class Collect:\n        def __init__(self):\n            self.out = []\n\n        def text(self, value):\n            self.out.append(value)\n\n    def show(value):\n        p = Collect()\n        try:\n            printer(value, p, False)\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__\n        return p.out\n    assert repr([show(Function('psi')), show([Function('f'), 1])]) == \"[['psi'], ['[f, 1]']]\"\n",
+     "why": "an unapplied Function printed by the plain-text hook, the issue case"
+    }
+   ],
+   "dollars_cap": 0.1,
+   "filter_seconds": 13.6,
+   "gaps": [],
+   "info": {
+    "accepted": 1,
+    "compiled": 1,
+    "cost": 0.0,
+    "differed": 1,
+    "dollars_cap": 0.1,
+    "functions": 1,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 1,
+    "ran": 1,
+    "reached": 1,
+    "requests": 1,
+    "seconds": 13.3,
+    "stable": 1
+   },
+   "probes": [
+    {
+     "call": "[show(Function('psi')), show([Function('f'), 1])]",
+     "function": "sympy/interactive/printing.py#_init_ipython_printing",
+     "setup": "from unittest import mock\nfrom sympy import Function\nfrom sympy.interactive.printing import _init_ipython_printing\nip = mock.MagicMock()\nip.colors = 'neutral'\n_init_ipython_printing(ip, str, False, False, None, 'Transparent', '10pt', 'plain', True, None, 1.0)\nformatter = ip.display_formatter.formatters.__getitem__.return_value\nprinter = next(c.args[1] for c in formatter.for_type.call_args_list if getattr(c.args[1], '__name__', '') == '_print_plain')\n\nclass Collect:\n    def __init__(self):\n        self.out = []\n\n    def text(self, value):\n        self.out.append(value)\n\ndef show(value):\n    p = Collect()\n    try:\n        printer(value, p, False)\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\n    return p.out\n",
+     "why": "an unapplied Function printed by the plain-text hook, the issue case"
+    }
+   ],
+   "targets": [
+    "sympy/interactive/printing.py#_init_ipython_printing"
+   ],
+   "waited_seconds": 25.0
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "changed_functions": [
+   {
+    "file": "sympy/interactive/printing.py",
+    "lines": "156",
+    "symbol": "_init_ipython_printing._can_print"
+   },
+   {
+    "file": "sympy/interactive/printing.py",
+    "lines": "156-226",
+    "symbol": "_init_ipython_printing"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/interactive/printing.py#_init_ipython_printing",
+   "sympy/interactive/printing.py#_init_ipython_printing._can_print",
+   "sympy/interactive/printing.py"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 0,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 936,
+   "ran": 936,
+   "replayed": 0,
+   "runner": "pytest",
+   "seconds": 107.9,
+   "selection": {
+    "candidates": 12923,
+    "closure_files": 1321,
+    "closure_tests": 12923,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 0
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "11987 lower-ranked candidate(s) not run: about 4 tests/s per process fit 936 in the 300 s allowed",
+   "64194 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "graph reused from the previous state; 3 changed file(s) relinked",
+   "side-by-side: none of the 1 changed function(s) was called by the tests run on the code before the change"
+  ],
+  "impacted": {
+   "count": 30,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1607,
+   "parsed_files": 1
+  },
+  "predicted_failures": [],
+  "report_hash": "29a23a1d6a54",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 0,
+   "differences": 0,
+   "functions_called": 0,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "sympy/interactive/printing.py#_init_ipython_printing._can_print": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 23.3,
+   "targets": 1,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 936 of 936 candidate tests after the change with pytest in 107.9 s, failures confirmed before it: 0 now fail. 3 tests reach the change.",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/utilities/tests/test_lambdify.py::test_tensorflow_variables",
+    "line": 934,
+    "run": "python -m pytest sympy/utilities/tests/test_lambdify.py::test_tensorflow_variables",
+    "score": 0.012,
+    "why": "via test_sympy.run > run_all_tests > doctest > _doctest > sympy.interactive.printing"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_tensorflow.py::test_codegen_einsum",
+    "line": 358,
+    "run": "python -m pytest sympy/printing/tests/test_tensorflow.py::test_codegen_einsum",
+    "score": 0.006,
+    "why": "via test_sympy.run > run_all_tests > doctest > _doctest > sympy.interactive.printing"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_tensorflow.py::test_codegen_extra",
+    "line": 379,
+    "run": "python -m pytest sympy/printing/tests/test_tensorflow.py::test_codegen_extra",
+    "score": 0.005,
+    "why": "via test_sympy.run > run_all_tests > doctest > _doctest > sympy.interactive.printing"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/interactive/printing.py",
+    "lines": "156",
+    "symbol": "_init_ipython_printing._can_print"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/interactive/printing.py",
+    "lines": "156-226",
+    "symbol": "_init_ipython_printing"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792337699.426761,
+  "job_seconds": 109.6,
+  "number": 30471,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 109.6,
+  "started": 1792337589.090603
+ },
+ "verify": null
+}

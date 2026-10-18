@@ -1,0 +1,586 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "703283b5b455a8410b4ce0a2e6ea0e1bde7f3047",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "35d309ed15f6596d1ee8459fef5b140fffa547eb",
+  "install_ok": true,
+  "merge_base": "703283b5b455a8410b4ce0a2e6ea0e1bde7f3047",
+  "pr": 21523,
+  "recording": true,
+  "runner": null,
+  "seconds": 28.4,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "703283b5b455a8410b4ce0a2e6ea0e1bde7f3047",
+  "head_sha": "35d309ed15f6596d1ee8459fef5b140fffa547eb",
+  "merge_base": "703283b5b455a8410b4ce0a2e6ea0e1bde7f3047",
+  "merged_at": "2026-09-24T08:59:38Z",
+  "number": 21523,
+  "repo": "django",
+  "title": "Fixed #37177 -- Reduced per-middleware context switching under ASGI."
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 0,
+  "called": 0,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/middleware_exceptions/tests.py::MiddlewareSyncAsyncTransitionTests::test_sync_middleware_adaptation_grouping",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/middleware_exceptions/tests.py::MiddlewareSyncAsyncTransitionTests::test_sync_middleware_adaptation_grouping_isolation",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "tests/middleware_exceptions/tests.py",
+    "lines": "362-391",
+    "symbol": "MiddlewareSyncAsyncTransitionTests.test_sync_middleware_adaptation_grouping"
+   },
+   {
+    "file": "tests/middleware_exceptions/tests.py",
+    "lines": "365-366",
+    "symbol": "MiddlewareSyncAsyncTransitionTests.test_sync_middleware_adaptation_grouping.spy_acall"
+   },
+   {
+    "file": "tests/middleware_exceptions/tests.py",
+    "lines": "393-446",
+    "symbol": "MiddlewareSyncAsyncTransitionTests.test_sync_middleware_adaptation_grouping_isolation"
+   },
+   {
+    "file": "tests/middleware_exceptions/tests.py",
+    "lines": "396-397",
+    "symbol": "MiddlewareSyncAsyncTransitionTests.test_sync_middleware_adaptation_grouping_isolation.spy_acall"
+   },
+   {
+    "file": "tests/middleware_exceptions/views.py",
+    "lines": "11-12",
+    "symbol": "async_normal_view"
+   }
+  ],
+  "changed_symbols": [
+   "django/contrib/auth/middleware.py#AuthenticationMiddleware.async_capable",
+   "django/contrib/flatpages/middleware.py#FlatpageFallbackMiddleware.async_capable",
+   "django/contrib/messages/middleware.py#MessageMiddleware.async_capable",
+   "django/contrib/redirects/middleware.py#RedirectFallbackMiddleware.async_capable",
+   "django/contrib/sessions/middleware.py#SessionMiddleware.async_capable",
+   "django/contrib/sites/middleware.py#CurrentSiteMiddleware.async_capable",
+   "django/middleware/cache.py#FetchFromCacheMiddleware.async_capable",
+   "django/middleware/cache.py#UpdateCacheMiddleware.async_capable",
+   "django/middleware/clickjacking.py#XFrameOptionsMiddleware.async_capable",
+   "django/middleware/common.py#BrokenLinkEmailsMiddleware.async_capable",
+   "django/middleware/common.py#CommonMiddleware.async_capable",
+   "django/middleware/csp.py#ContentSecurityPolicyMiddleware.async_capable",
+   "django/middleware/csrf.py#CsrfViewMiddleware.async_capable",
+   "django/middleware/gzip.py#GZipMiddleware.async_capable",
+   "django/middleware/http.py#ConditionalGetMiddleware.async_capable",
+   "django/middleware/locale.py#LocaleMiddleware.async_capable",
+   "django/middleware/security.py#SecurityMiddleware.async_capable",
+   "tests/middleware_exceptions/tests.py#MiddlewareSyncAsyncTransitionTests.test_sync_middleware_adaptation_grouping",
+   "tests/middleware_exceptions/tests.py#MiddlewareSyncAsyncTransitionTests.test_sync_middleware_adaptation_grouping.spy_acall",
+   "tests/middleware_exceptions/tests.py#MiddlewareSyncAsyncTransitionTests.test_sync_middleware_adaptation_grouping_isolation",
+   "tests/middleware_exceptions/tests.py#MiddlewareSyncAsyncTransitionTests.test_sync_middleware_adaptation_grouping_isolation.spy_acall",
+   "tests/middleware_exceptions/urls.py#urlpatterns",
+   "tests/middleware_exceptions/views.py#async_normal_view",
+   "django/contrib/auth/middleware.py#AuthenticationMiddleware",
+   "django/contrib/flatpages/middleware.py#FlatpageFallbackMiddleware",
+   "django/contrib/messages/middleware.py#MessageMiddleware",
+   "django/contrib/redirects/middleware.py#RedirectFallbackMiddleware",
+   "django/contrib/sessions/middleware.py#SessionMiddleware",
+   "django/contrib/sites/middleware.py#CurrentSiteMiddleware",
+   "django/middleware/cache.py#FetchFromCacheMiddleware",
+   "django/middleware/cache.py#UpdateCacheMiddleware",
+   "django/middleware/clickjacking.py#XFrameOptionsMiddleware",
+   "django/middleware/csp.py#ContentSecurityPolicyMiddleware",
+   "django/middleware/csrf.py#CsrfViewMiddleware",
+   "django/middleware/http.py#ConditionalGetMiddleware",
+   "django/middleware/security.py#SecurityMiddleware",
+   "tests/middleware_exceptions/tests.py#MiddlewareSyncAsyncTransitionTests",
+   "tests/middleware_exceptions/tests.py",
+   "tests/middleware_exceptions/views.py"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 2,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 8917,
+   "ran": 1280,
+   "replayed": 2,
+   "runner": "django-runtests",
+   "seconds": 24.7,
+   "selection": {
+    "candidates": 8917,
+    "closure_files": 445,
+    "closure_tests": 6825,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/contrib/admin/__init__.py",
+     "django/contrib/auth/models.py",
+     "django/forms/__init__.py",
+     "django/template/__init__.py",
+     "django/test/__init__.py",
+     "django/test/utils.py",
+     "django/urls/__init__.py"
+    ],
+    "observed": 114,
+    "static_only": 1239
+   },
+   "unrunnable": 160
+  },
+  "flips": 0,
+  "gaps": [
+   "104990 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "160 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "Skipped 2 non-Python file(s)",
+   "graph reused from the previous state; 18 changed file(s) relinked",
+   "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run stopped at its 300 s budget: 1280 of 8917 candidates run"
+  ],
+  "impacted": {
+   "count": 912,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2930,
+   "parsed_files": 18
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/middleware_exceptions/tests.py::MiddlewareSyncAsyncTransitionTests::test_sync_middleware_adaptation_grouping",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/middleware_exceptions/tests.py::MiddlewareSyncAsyncTransitionTests::test_sync_middleware_adaptation_grouping_isolation",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "8b827ec32b37",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "not_compared": {
+    "tests/middleware_exceptions/tests.py#MiddlewareSyncAsyncTransitionTests.test_sync_middleware_adaptation_grouping": "not a module or class function on both sides (new, removed or nested)",
+    "tests/middleware_exceptions/tests.py#MiddlewareSyncAsyncTransitionTests.test_sync_middleware_adaptation_grouping.spy_acall": "not a module or class function on both sides (new, removed or nested)",
+    "tests/middleware_exceptions/tests.py#MiddlewareSyncAsyncTransitionTests.test_sync_middleware_adaptation_grouping_isolation": "not a module or class function on both sides (new, removed or nested)",
+    "tests/middleware_exceptions/tests.py#MiddlewareSyncAsyncTransitionTests.test_sync_middleware_adaptation_grouping_isolation.spy_acall": "not a module or class function on both sides (new, removed or nested)",
+    "tests/middleware_exceptions/views.py#async_normal_view": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 0.0,
+   "targets": 0
+  },
+  "summary": "EXECUTED 1280 of 8917 candidate tests after the change with django-runtests in 24.7 s, failures confirmed before it: 0 now fail. 2672 tests reach the change. 2 test(s) the change adds or edits replayed on the code before it: 2 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/deprecation/test_middleware_mixin.py::MiddlewareMixinTests::test_coroutine",
+    "line": 105,
+    "run": "cd tests && python runtests.py deprecation.test_middleware_mixin.MiddlewareMixinTests.test_coroutine",
+    "score": 20.226,
+    "why": "via MessageMiddleware (name: middleware)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/deprecation/test_middleware_mixin.py::MiddlewareMixinTests::test_passing_explicit_none",
+    "line": 98,
+    "run": "cd tests && python runtests.py deprecation.test_middleware_mixin.MiddlewareMixinTests.test_passing_explicit_none",
+    "score": 10.415,
+    "why": "via MessageMiddleware (name: middleware)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/middleware_exceptions/tests.py::MiddlewareSyncAsyncTransitionTests::test_sync_middleware_adaptation_grouping_isolation",
+    "line": 393,
+    "run": "cd tests && python runtests.py middleware_exceptions.tests.MiddlewareSyncAsyncTransitionTests.test_sync_middleware_adaptation_grouping_isolation",
+    "score": 8.012,
+    "why": "via MiddlewareSyncAsyncTransitionTests.test_sync_middleware_adaptation_grouping_isolation.spy_acall (name: adaptation,grouping,isolation,middleware,sync)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/middleware_exceptions/tests.py::MiddlewareSyncAsyncTransitionTests::test_sync_middleware_adaptation_grouping",
+    "line": 362,
+    "run": "cd tests && python runtests.py middleware_exceptions.tests.MiddlewareSyncAsyncTransitionTests.test_sync_middleware_adaptation_grouping",
+    "score": 5.457,
+    "why": "via MiddlewareSyncAsyncTransitionTests.test_sync_middleware_adaptation_grouping.spy_acall (name: adaptation,grouping,middleware,sync)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/cache/tests.py::CacheI18nTest::test_middleware",
+    "line": 2714,
+    "run": "cd tests && python runtests.py cache.tests.CacheI18nTest.test_middleware",
+    "score": 1.916,
+    "why": "via UpdateCacheMiddleware (name: cache,middleware)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/auth_tests/test_middleware.py::TestAuthenticationMiddleware::test_auser_after_login",
+    "line": 73,
+    "run": "cd tests && python runtests.py auth_tests.test_middleware.TestAuthenticationMiddleware.test_auser_after_login",
+    "score": 1.656,
+    "why": "via AuthenticationMiddleware (name: authentication,middleware)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/cache/tests.py::CacheMiddlewareTest::test_sensitive_cookie_not_cached",
+    "line": 3182,
+    "run": "cd tests && python runtests.py cache.tests.CacheMiddlewareTest.test_sensitive_cookie_not_cached",
+    "score": 1.608,
+    "why": "via CsrfViewMiddleware (name: middleware)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/decorators/test_clickjacking.py::XFrameOptionsExemptTests::test_exempt_decorator_async_view",
+    "line": 112,
+    "run": "cd tests && python runtests.py decorators.test_clickjacking.XFrameOptionsExemptTests.test_exempt_decorator_async_view",
+    "score": 1.607,
+    "why": "via XFrameOptionsMiddleware (name: clickjacking,frame,option)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/cache/tests.py::CacheI18nTest::test_middleware_doesnt_cache_streaming_response",
+    "line": 2789,
+    "run": "cd tests && python runtests.py cache.tests.CacheI18nTest.test_middleware_doesnt_cache_streaming_response",
+    "score": 1.342,
+    "why": "via UpdateCacheMiddleware (name: cache,middleware)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/auth_tests/test_views.py::LoginTest::test_login_csrf_rotate",
+    "line": 864,
+    "run": "cd tests && python runtests.py auth_tests.test_views.LoginTest.test_login_csrf_rotate",
+    "score": 1.241,
+    "why": "via CsrfViewMiddleware (name: csrf,view)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/messages_tests/test_middleware.py::MiddlewareTests::test_response_without_messages",
+    "line": 8,
+    "run": "cd tests && python runtests.py messages_tests.test_middleware.MiddlewareTests.test_response_without_messages",
+    "score": 1.226,
+    "why": "via MessageMiddleware (name: message,middleware)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/middleware/test_security.py::SecurityMiddlewareTest::test_content_type_already_present",
+    "line": 167,
+    "run": "cd tests && python runtests.py middleware.test_security.SecurityMiddlewareTest.test_content_type_already_present",
+    "score": 1.214,
+    "why": "via SecurityMiddleware (name: middleware,security)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/auth_tests/test_middleware.py::TestAuthenticationMiddleware::test_auser_after_logout",
+    "line": 89,
+    "run": "cd tests && python runtests.py auth_tests.test_middleware.TestAuthenticationMiddleware.test_auser_after_logout",
+    "score": 1.158,
+    "why": "via AuthenticationMiddleware (name: authentication,middleware)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/sessions_tests/tests.py::SessionMiddlewareTests::test_empty_session_saved",
+    "line": 1244,
+    "run": "cd tests && python runtests.py sessions_tests.tests.SessionMiddlewareTests.test_empty_session_saved",
+    "score": 1.094,
+    "why": "via SessionMiddleware (name: middleware,session)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/middleware/tests.py::ConditionalGetMiddlewareTest::test_etag_extended_cache_control",
+    "line": 611,
+    "run": "cd tests && python runtests.py middleware.tests.ConditionalGetMiddlewareTest.test_etag_extended_cache_control",
+    "score": 1.019,
+    "why": "via ConditionalGetMiddleware (name: conditional,get,middleware)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/decorators/test_clickjacking.py::XFrameOptionsExemptTests::test_decorator_stops_x_frame_options_being_set",
+    "line": 92,
+    "run": "cd tests && python runtests.py decorators.test_clickjacking.XFrameOptionsExemptTests.test_decorator_stops_x_frame_options_being_set",
+    "score": 0.903,
+    "why": "via XFrameOptionsMiddleware (name: clickjacking,frame,option)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/middleware/test_security.py::SecurityMiddlewareTest::test_coop_already_present",
+    "line": 302,
+    "run": "cd tests && python runtests.py middleware.test_security.SecurityMiddlewareTest.test_coop_already_present",
+    "score": 0.88,
+    "why": "via SecurityMiddleware (name: middleware,security)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/csrf_tests/tests.py::CsrfViewMiddlewareTestMixin::test_bad_origin_bad_domain",
+    "line": 901,
+    "run": "cd tests && python runtests.py csrf_tests.tests.CsrfViewMiddlewareTestMixin.test_bad_origin_bad_domain",
+    "score": 0.865,
+    "why": "via CsrfViewMiddleware (name: csrf,middleware,view)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/cache/tests.py::BaseCacheTests::test_cache_write_unpicklable_object",
+    "line": 1091,
+    "run": "cd tests && python runtests.py cache.tests.BaseCacheTests.test_cache_write_unpicklable_object",
+    "score": 0.826,
+    "why": "via UpdateCacheMiddleware (name: cache)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/sessions_tests/tests.py::SessionMiddlewareTests::test_flush_empty_without_session_cookie_doesnt_set_cookie",
+    "line": 1202,
+    "run": "cd tests && python runtests.py sessions_tests.tests.SessionMiddlewareTests.test_flush_empty_without_session_cookie_doesnt_set_cookie",
+    "score": 0.822,
+    "why": "via SessionMiddleware (name: middleware,session)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/auth_tests/test_middleware.py::TestAuthenticationMiddleware::test_auser",
+    "line": 58,
+    "run": "cd tests && python runtests.py auth_tests.test_middleware.TestAuthenticationMiddleware.test_auser",
+    "score": 0.764,
+    "why": "via AuthenticationMiddleware (name: authentication,middleware)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/middleware/tests.py::ConditionalGetMiddlewareTest::test_if_modified_since_and_client_error",
+    "line": 713,
+    "run": "cd tests && python runtests.py middleware.tests.ConditionalGetMiddlewareTest.test_if_modified_since_and_client_error",
+    "score": 0.736,
+    "why": "via ConditionalGetMiddleware (name: conditional,get,middleware)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/middleware/test_security.py::SecurityMiddlewareTest::test_referrer_policy_already_present",
+    "line": 260,
+    "run": "cd tests && python runtests.py middleware.test_security.SecurityMiddlewareTest.test_referrer_policy_already_present",
+    "score": 0.714,
+    "why": "via SecurityMiddleware (name: middleware,security)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/cache/tests.py::CacheMiddlewareTest::test_fetch_cache_middleware_constructor",
+    "line": 2921,
+    "run": "cd tests && python runtests.py cache.tests.CacheMiddlewareTest.test_fetch_cache_middleware_constructor",
+    "score": 0.712,
+    "why": "via FetchFromCacheMiddleware (name: cache,fetch,middleware)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/csrf_tests/tests.py::CsrfViewMiddlewareTestMixin::test_bad_origin_bad_protocol",
+    "line": 929,
+    "run": "cd tests && python runtests.py csrf_tests.tests.CsrfViewMiddlewareTestMixin.test_bad_origin_bad_protocol",
+    "score": 0.703,
+    "why": "via CsrfViewMiddleware (name: csrf,middleware,view)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/sessions_tests/tests.py::SessionMiddlewareTests::test_httponly_session_cookie",
+    "line": 1061,
+    "run": "cd tests && python runtests.py sessions_tests.tests.SessionMiddlewareTests.test_httponly_session_cookie",
+    "score": 0.686,
+    "why": "via SessionMiddleware (name: middleware,session)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/cache/tests.py::CacheMiddlewareTest::test_update_cache_middleware_constructor",
+    "line": 2913,
+    "run": "cd tests && python runtests.py cache.tests.CacheMiddlewareTest.test_update_cache_middleware_constructor",
+    "score": 0.686,
+    "why": "via UpdateCacheMiddleware (name: cache,middleware,update)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/auth_tests/test_middleware.py::TestAuthenticationMiddleware::test_auser_after_alogin",
+    "line": 65,
+    "run": "cd tests && python runtests.py auth_tests.test_middleware.TestAuthenticationMiddleware.test_auser_after_alogin",
+    "score": 0.676,
+    "why": "via AuthenticationMiddleware (name: authentication,middleware)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/middleware/tests.py::XFrameOptionsMiddlewareTest::test_defaults_sameorigin",
+    "line": 830,
+    "run": "cd tests && python runtests.py middleware.tests.XFrameOptionsMiddlewareTest.test_defaults_sameorigin",
+    "score": 0.651,
+    "why": "via XFrameOptionsMiddleware (name: frame,middleware,option)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/middleware/test_security.py::SecurityMiddlewareTest::test_sts_already_present",
+    "line": 56,
+    "run": "cd tests && python runtests.py middleware.test_security.SecurityMiddlewareTest.test_sts_already_present",
+    "score": 0.63,
+    "why": "via SecurityMiddleware (name: middleware,security)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/auth_tests/test_middleware.py::TestAuthenticationMiddleware::test_auser_after_alogout",
+    "line": 81,
+    "run": "cd tests && python runtests.py auth_tests.test_middleware.TestAuthenticationMiddleware.test_auser_after_alogout",
+    "score": 0.625,
+    "why": "via AuthenticationMiddleware (name: authentication,middleware)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/csrf_tests/tests.py::CsrfViewMiddlewareTestMixin::test_bad_origin_cannot_be_parsed",
+    "line": 978,
+    "run": "cd tests && python runtests.py csrf_tests.tests.CsrfViewMiddlewareTestMixin.test_bad_origin_cannot_be_parsed",
+    "score": 0.622,
+    "why": "via CsrfViewMiddleware (name: csrf,middleware,view)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/sessions_tests/tests.py::SessionMiddlewareTests::test_no_httponly_session_cookie",
+    "line": 1083,
+    "run": "cd tests && python runtests.py sessions_tests.tests.SessionMiddlewareTests.test_no_httponly_session_cookie",
+    "score": 0.618,
+    "why": "via SessionMiddleware (name: middleware,session)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/redirects_tests/tests.py::RedirectTests::test_sites_not_installed",
+    "line": 76,
+    "run": "cd tests && python runtests.py redirects_tests.tests.RedirectTests.test_sites_not_installed",
+    "score": 0.61,
+    "why": "via RedirectFallbackMiddleware (name: redirect)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/auth_tests/test_middleware.py::TestAuthenticationMiddleware::test_changed_password_invalidates_session",
+    "line": 38,
+    "run": "cd tests && python runtests.py auth_tests.test_middleware.TestAuthenticationMiddleware.test_changed_password_invalidates_session",
+    "score": 0.595,
+    "why": "via AuthenticationMiddleware (name: authentication,middleware)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/middleware/tests.py::ConditionalGetMiddlewareTest::test_if_modified_since_and_last_modified_in_the_future",
+    "line": 695,
+    "run": "cd tests && python runtests.py middleware.tests.ConditionalGetMiddlewareTest.test_if_modified_since_and_last_modified_in_the_future",
+    "score": 0.595,
+    "why": "via ConditionalGetMiddleware (name: conditional,get,middleware)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/middleware/test_security.py::SecurityMiddlewareTest::test_sts_include_subdomains",
+    "line": 89,
+    "run": "cd tests && python runtests.py middleware.test_security.SecurityMiddlewareTest.test_sts_include_subdomains",
+    "score": 0.588,
+    "why": "via SecurityMiddleware (name: middleware,security)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/sessions_tests/tests.py::SessionMiddlewareTests::test_samesite_session_cookie",
+    "line": 1074,
+    "run": "cd tests && python runtests.py sessions_tests.tests.SessionMiddlewareTests.test_samesite_session_cookie",
+    "score": 0.584,
+    "why": "via SessionMiddleware (name: middleware,session)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/csrf_tests/tests.py::CsrfViewMiddlewareTestMixin::test_bad_origin_csrf_trusted_origin_bad_protocol",
+    "line": 944,
+    "run": "cd tests && python runtests.py csrf_tests.tests.CsrfViewMiddlewareTestMixin.test_bad_origin_csrf_trusted_origin_bad_protocol",
+    "score": 0.581,
+    "why": "via CsrfViewMiddleware (name: csrf,middleware,view)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/auth_tests/test_middleware.py::TestAuthenticationMiddleware::test_no_password_change_doesnt_invalidate_session",
+    "line": 32,
+    "run": "cd tests && python runtests.py auth_tests.test_middleware.TestAuthenticationMiddleware.test_no_password_change_doesnt_invalidate_session",
+    "score": 0.578,
+    "why": "via AuthenticationMiddleware (name: authentication,middleware)"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "tests/middleware_exceptions/views.py",
+    "lines": "11-12",
+    "symbol": "async_normal_view"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792323660.662691,
+  "job_seconds": 28.4,
+  "number": 21523,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 28.4,
+  "started": 1792323631.269227
+ },
+ "verify": null
+}

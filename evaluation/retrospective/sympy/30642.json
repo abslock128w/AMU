@@ -1,0 +1,620 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "afc5607ad04a16e81479b224b359dbf507d6c580",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "903083c66df61837a0b9ba738a8d9121abf07a08",
+  "install_ok": true,
+  "merge_base": "afc5607ad04a16e81479b224b359dbf507d6c580",
+  "pr": 30642,
+  "recording": false,
+  "runner": null,
+  "seconds": 375.4,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "afc5607ad04a16e81479b224b359dbf507d6c580",
+  "head_sha": "903083c66df61837a0b9ba738a8d9121abf07a08",
+  "merge_base": "afc5607ad04a16e81479b224b359dbf507d6c580",
+  "merged_at": "2026-10-02T18:30:05Z",
+  "number": 30642,
+  "repo": "sympy",
+  "title": "Fixed (bug) func:is_eq returned True when x = neg_infinite and y = extended_nonpositive"
+ },
+ "probe_minutes": {
+  "end": 1792337714.093097,
+  "minutes": 0.3,
+  "start": 1792337612.2062259,
+  "waited": 85.07206275001226
+ },
+ "probe_targets": {
+  "all": 2,
+  "called": 1,
+  "targets": [
+   {
+    "after": "def test_is_eq():\n    # test assumptions\n    assert is_eq(x, y, Q.infinite(x) & Q.finite(y)) is False\n    assert is_eq(x, y, Q.infinite(x) & Q.infinite(y) & Q.extended_real(x) & ~Q.extended_real(y)) is False\n    assert is_eq(x, y, Q.infinite(x) & Q.infinite(y) & Q.extended_positive(x) & Q.extended_negative(y)) is False\n\n    assert is_eq(x, y, Q.negative_infinite(x) & Q.extended_nonpositive(y)) is None\n    assert is_eq(x, y, Q.positive_infinite(x) & Q.extended_positive(y)) is None\n\n    assert is_eq(x, y, Q.positive_infinite(x) & Q.extended_nonpositive(y)) is False\n    assert is_eq(x, y, Q.negative_infinite(x) & Q.extended_nonnegative(y)) is False\n    assert is_eq(x, y, Q.extended_nonpositive(x) & Q.positive_infinite(y)) is False\n    assert is_eq(x, y, Q.extended_nonnegative(x) & Q.negative_infinite(y)) is False\n\n    assert is_eq(x+I, y+I, Q.infinite(x) & Q.finite(y)) is False\n    assert is_eq(1+x*I, 1+y*I, Q.infinite(x) & Q.finite(y)) is False\n\n    assert is_eq(x, S(0), assumptions=Q.zero(x))\n    assert is_eq(x, S(0), assumptions=~Q.zero(x)) is False\n    assert is_eq(x, S(0), assumptions=Q.nonzero(x)) is False\n    assert is_neq(x, S(0), assumptions=Q.zero(x)) is False\n    assert is_neq(x, S(0), assumptions=~Q.zero(x))\n    assert is_neq(x, S(0), assumptions=Q.nonzero(x))\n\n    # test registration\n    class PowTest(Expr):\n        def __new__(cls, base, exp):\n            return Basic.__new__(cls, _sympify(base), _sympify(exp))\n\n    @dispatch(PowTest, PowTest)\n    def _eval_is_eq(lhs, rhs):\n        if type(lhs) == PowTest and type(rhs) == PowTest:\n            return fuzzy_and([is_eq(lhs.args[0], rhs.args[0]), is_eq(lhs.args[1], rhs.args[1])])\n\n    assert is_eq(PowTest(3, 4), PowTest(3,4))\n    assert is_eq(PowTest(3, 4), _sympify(4)) is None\n    assert is_neq(PowTest(3, 4), PowTest(3,7))\n",
+    "before": "def test_is_eq():\n    # test assumptions\n    assert is_eq(x, y, Q.infinite(x) & Q.finite(y)) is False\n    assert is_eq(x, y, Q.infinite(x) & Q.infinite(y) & Q.extended_real(x) & ~Q.extended_real(y)) is False\n    assert is_eq(x, y, Q.infinite(x) & Q.infinite(y) & Q.extended_positive(x) & Q.extended_negative(y)) is False\n\n    assert is_eq(x+I, y+I, Q.infinite(x) & Q.finite(y)) is False\n    assert is_eq(1+x*I, 1+y*I, Q.infinite(x) & Q.finite(y)) is False\n\n    assert is_eq(x, S(0), assumptions=Q.zero(x))\n    assert is_eq(x, S(0), assumptions=~Q.zero(x)) is False\n    assert is_eq(x, S(0), assumptions=Q.nonzero(x)) is False\n    assert is_neq(x, S(0), assumptions=Q.zero(x)) is False\n    assert is_neq(x, S(0), assumptions=~Q.zero(x))\n    assert is_neq(x, S(0), assumptions=Q.nonzero(x))\n\n    # test registration\n    class PowTest(Expr):\n        def __new__(cls, base, exp):\n            return Basic.__new__(cls, _sympify(base), _sympify(exp))\n\n    @dispatch(PowTest, PowTest)\n    def _eval_is_eq(lhs, rhs):\n        if type(lhs) == PowTest and type(rhs) == PowTest:\n            return fuzzy_and([is_eq(lhs.args[0], rhs.args[0]), is_eq(lhs.args[1], rhs.args[1])])\n\n    assert is_eq(PowTest(3, 4), PowTest(3,4))\n    assert is_eq(PowTest(3, 4), _sympify(4)) is None\n    assert is_neq(PowTest(3, 4), PowTest(3,7))\n",
+    "file": "sympy/core/tests/test_relational.py",
+    "id": "sympy/core/tests/test_relational.py#test_is_eq",
+    "name": "test_is_eq",
+    "qual": "test_is_eq",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "return",
+      "list",
+      "[None, None, False]"
+     ],
+     "before": [
+      "return",
+      "list",
+      "[True, True, False]"
+     ],
+     "call": "[is_eq(x, y, Q.negative_infinite(x) & Q.extended_nonpositive(y)), is_eq(x, y, Q.positive_infinite(x) & Q.extended_positive(y)), is_eq(x, y, Q.positive_infinite(x) & Q.extended_nonpositive(y))]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import Q, symbols\nfrom sympy.core.relational import is_eq\nx, y = symbols('x y')",
+     "target": "sympy/core/tests/test_relational.py#test_is_eq",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import Q, symbols\n    from sympy.core.relational import is_eq\n    x, y = symbols('x y')\n    assert repr([is_eq(x, y, Q.negative_infinite(x) & Q.extended_nonpositive(y)), is_eq(x, y, Q.positive_infinite(x) & Q.extended_positive(y)), is_eq(x, y, Q.positive_infinite(x) & Q.extended_nonpositive(y))]) == '[None, None, False]'\n",
+     "why": "the infinite against unknown-finiteness cases the edited test adds"
+    }
+   ],
+   "dollars_cap": 0.1,
+   "filter_seconds": 10.9,
+   "gaps": [],
+   "info": {
+    "accepted": 1,
+    "compiled": 1,
+    "cost": 0.0,
+    "differed": 1,
+    "dollars_cap": 0.1,
+    "functions": 1,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 1,
+    "ran": 1,
+    "reached": 1,
+    "requests": 1,
+    "seconds": 10.7,
+    "stable": 1
+   },
+   "probes": [
+    {
+     "call": "[is_eq(x, y, Q.negative_infinite(x) & Q.extended_nonpositive(y)), is_eq(x, y, Q.positive_infinite(x) & Q.extended_positive(y)), is_eq(x, y, Q.positive_infinite(x) & Q.extended_nonpositive(y))]",
+     "function": "sympy/core/tests/test_relational.py#test_is_eq",
+     "setup": "from sympy import Q, symbols\nfrom sympy.core.relational import is_eq\nx, y = symbols('x y')",
+     "why": "the infinite against unknown-finiteness cases the edited test adds"
+    }
+   ],
+   "targets": [
+    "sympy/core/tests/test_relational.py#test_is_eq"
+   ],
+   "waited_seconds": 85.1
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/core/tests/test_relational.py::test_is_eq",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/core/relational.py",
+    "lines": "1575-1588",
+    "symbol": "is_eq"
+   },
+   {
+    "file": "sympy/core/tests/test_relational.py",
+    "lines": "1193-1200",
+    "symbol": "test_is_eq"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/core/relational.py#is_eq",
+   "sympy/core/tests/test_relational.py#test_is_eq"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "is_eq return changed",
+    "path": [
+     "sympy/core/relational.py:1577 return",
+     "sympy/algebras/quaternion.py:578 Quaternion.to_euler uses the result",
+     "sympy/algebras/quaternion.py:36 _check_norm uses the result",
+     "sympy/assumptions/relation/equality.py:67 EqualityPredicate.eval uses the result"
+    ],
+    "to": "13 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 1,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 960,
+   "ran": 960,
+   "replayed": 1,
+   "runner": "pytest",
+   "seconds": 319.7,
+   "selection": {
+    "candidates": 3591,
+    "closure_files": 3,
+    "closure_tests": 179,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/core/relational.py"
+    ],
+    "observed": 0,
+    "static_only": 3412
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "2631 lower-ranked candidate(s) not run: about 4 tests/s per process fit 960 in the 300 s allowed",
+   "63967 call sites unresolved repo-wide; dynamic dispatch may reach more"
+  ],
+  "impacted": {
+   "count": 3137,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1607,
+   "parsed_files": 2
+  },
+  "original_tests": {
+   "sympy/core/tests/test_relational.py::test_EvalEq": "passed",
+   "sympy/core/tests/test_relational.py::test_as_poly": "passed",
+   "sympy/core/tests/test_relational.py::test_binary_symbols": "passed",
+   "sympy/core/tests/test_relational.py::test_canonical": "passed",
+   "sympy/core/tests/test_relational.py::test_doit": "passed",
+   "sympy/core/tests/test_relational.py::test_evaluate": "passed",
+   "sympy/core/tests/test_relational.py::test_improved_canonical": "passed",
+   "sympy/core/tests/test_relational.py::test_ineq_avoid_wild_symbol_flip": "passed",
+   "sympy/core/tests/test_relational.py::test_is_eq": "passed",
+   "sympy/core/tests/test_relational.py::test_issue_10304": "passed",
+   "sympy/core/tests/test_relational.py::test_issue_10401": "passed",
+   "sympy/core/tests/test_relational.py::test_issue_15847": "passed",
+   "sympy/core/tests/test_relational.py::test_issue_8245": "passed",
+   "sympy/core/tests/test_relational.py::test_issues_13081_12583_12534": "passed",
+   "sympy/core/tests/test_relational.py::test_multivariate_relational_as_set": "skipped",
+   "sympy/core/tests/test_relational.py::test_negated_property": "passed",
+   "sympy/core/tests/test_relational.py::test_nonpolymonial_relations": "passed",
+   "sympy/core/tests/test_relational.py::test_rel_subs": "passed",
+   "sympy/core/tests/test_relational.py::test_reversed": "passed",
+   "sympy/core/tests/test_relational.py::test_reversed_reversedsign_property": "passed",
+   "sympy/core/tests/test_relational.py::test_reversedsign_property": "passed",
+   "sympy/core/tests/test_relational.py::test_set_equality_canonical": "passed",
+   "sympy/core/tests/test_relational.py::test_trigsimp": "passed",
+   "sympy/core/tests/test_relational.py::test_univariate_relational_as_set": "passed",
+   "sympy/core/tests/test_relational.py::test_x_minus_y_not_same_as_x_lt_y": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/core/tests/test_relational.py::test_is_eq",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "982acdb17bf9",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [
+    "sympy/core/relational.py#is_eq"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 10,
+   "differences": 0,
+   "functions_called": 1,
+   "input_built_before_the_change": 0,
+   "not_compared": {},
+   "seconds": 67.4,
+   "targets": 2,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 960 of 960 candidate tests after the change with pytest in 319.7 s, failures confirmed before it: 0 now fail. 3459 tests reach the change. 25 test(s) from edited test files also run as they were before the edit. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_relational.py::test_is_eq",
+    "line": 1187,
+    "run": "python -m pytest sympy/core/tests/test_relational.py::test_is_eq",
+    "score": 3.609,
+    "why": "calls is_eq (name: eq,relational)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_relational.py::test_EvalEq",
+    "line": 1166,
+    "run": "python -m pytest sympy/core/tests/test_relational.py::test_EvalEq",
+    "score": 1.964,
+    "why": "calls is_eq (name: eq,relational)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/algebras/tests/test_quaternion.py::test_to_euler_options",
+    "line": 418,
+    "run": "python -m pytest sympy/algebras/tests/test_quaternion.py::test_to_euler_options",
+    "score": 0.307,
+    "why": "via test_to_euler_options.test_one_case > Quaternion.to_euler > is_eq"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/algebras/tests/test_quaternion.py::test_to_euler",
+    "line": 376,
+    "run": "python -m pytest sympy/algebras/tests/test_quaternion.py::test_to_euler",
+    "score": 0.265,
+    "why": "via Quaternion.to_euler > is_eq"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_relational.py::test_x_minus_y_not_same_as_x_lt_y",
+    "line": 552,
+    "run": "python -m pytest sympy/core/tests/test_relational.py::test_x_minus_y_not_same_as_x_lt_y",
+    "score": 0.165,
+    "why": "via NO.doit > Equality.__new__ > is_eq (name: relational)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_relational.py::test_doit",
+    "line": 279,
+    "run": "python -m pytest sympy/core/tests/test_relational.py::test_doit",
+    "score": 0.146,
+    "why": "via NO.doit > Equality.__new__ > is_eq (name: relational)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_relational.py::test_evaluate",
+    "line": 471,
+    "run": "python -m pytest sympy/core/tests/test_relational.py::test_evaluate",
+    "score": 0.143,
+    "why": "via NO.doit > Equality.__new__ > is_eq (name: relational)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_relational.py::test_ineq_avoid_wild_symbol_flip",
+    "line": 667,
+    "run": "python -m pytest sympy/core/tests/test_relational.py::test_ineq_avoid_wild_symbol_flip",
+    "score": 0.14,
+    "why": "via NO.doit > Equality.__new__ > is_eq (name: relational)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/algebras/tests/test_quaternion.py::test_to_euler_numerical_singilarities",
+    "line": 399,
+    "run": "python -m pytest sympy/algebras/tests/test_quaternion.py::test_to_euler_numerical_singilarities",
+    "score": 0.131,
+    "why": "via test_to_euler_numerical_singilarities.test_one_case > Quaternion.to_euler > is_eq"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/algebras/tests/test_quaternion.py::test_to_euler_iss24504",
+    "line": 390,
+    "run": "python -m pytest sympy/algebras/tests/test_quaternion.py::test_to_euler_iss24504",
+    "score": 0.124,
+    "why": "via Quaternion.to_euler > is_eq"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/strategies/tests/test_rl.py::test_rebuild",
+    "line": 77,
+    "run": "python -m pytest sympy/strategies/tests/test_rl.py::test_rebuild",
+    "score": 0.114,
+    "why": "via Equality.__new__ > is_eq"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/strategies/tests/test_traverse.py::test_expr_fns",
+    "line": 80,
+    "run": "python -m pytest sympy/strategies/tests/test_traverse.py::test_expr_fns",
+    "score": 0.113,
+    "why": "via Equality.__new__ > is_eq"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_relational.py::test_canonical",
+    "line": 840,
+    "run": "python -m pytest sympy/core/tests/test_relational.py::test_canonical",
+    "score": 0.1,
+    "why": "via Relational.reversed > Equality.__new__ > is_eq (name: relational)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_relational.py::test_set_equality_canonical",
+    "line": 1116,
+    "run": "python -m pytest sympy/core/tests/test_relational.py::test_set_equality_canonical",
+    "score": 0.092,
+    "why": "via Relational.reversed > Equality.__new__ > is_eq (name: relational)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_relational.py::test_binary_symbols",
+    "line": 1012,
+    "run": "python -m pytest sympy/core/tests/test_relational.py::test_binary_symbols",
+    "score": 0.088,
+    "why": "via Relational.reversed > Equality.__new__ > is_eq (name: relational)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_relational.py::test_improved_canonical",
+    "line": 1097,
+    "run": "python -m pytest sympy/core/tests/test_relational.py::test_improved_canonical",
+    "score": 0.087,
+    "why": "via test_improved_canonical.generate_forms > Relational.reversed > Equality.__new__ > is_eq (name: relational)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_relational.py::test_negated_property",
+    "line": 1045,
+    "run": "python -m pytest sympy/core/tests/test_relational.py::test_negated_property",
+    "score": 0.087,
+    "why": "via Relational.negated > Equality.__new__ > is_eq (name: relational)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_relational.py::test_reversed",
+    "line": 831,
+    "run": "python -m pytest sympy/core/tests/test_relational.py::test_reversed",
+    "score": 0.086,
+    "why": "via Relational.reversed > Equality.__new__ > is_eq (name: relational)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_relational.py::test_reversed_reversedsign_property",
+    "line": 1082,
+    "run": "python -m pytest sympy/core/tests/test_relational.py::test_reversed_reversedsign_property",
+    "score": 0.085,
+    "why": "via Relational.reversed > Equality.__new__ > is_eq (name: relational)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_relational.py::test_reversedsign_property",
+    "line": 1059,
+    "run": "python -m pytest sympy/core/tests/test_relational.py::test_reversedsign_property",
+    "score": 0.084,
+    "why": "via Relational.reversedsign > Equality.__new__ > is_eq (name: relational)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/elementary/tests/test_complexes.py::test_sign",
+    "line": 217,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_complexes.py::test_sign",
+    "score": 0.079,
+    "why": "via NO.doit > Equality.__new__ > is_eq"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_eq",
+    "line": 578,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_ModuleElement_eq",
+    "score": 0.077,
+    "why": "via cyclotomic_poly > Poly.new > Equality.__new__ > is_eq (name: eq)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_PowerBasis_eq",
+    "line": 176,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_PowerBasis_eq",
+    "score": 0.076,
+    "why": "via cyclotomic_poly > Poly.new > Equality.__new__ > is_eq (name: eq)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_modules.py::test_Submodule_eq",
+    "line": 353,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_modules.py::test_Submodule_eq",
+    "score": 0.075,
+    "why": "via cyclotomic_poly > Poly.new > Equality.__new__ > is_eq (name: eq)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_primes.py::test_PrimeIdeal_eq",
+    "line": 224,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_primes.py::test_PrimeIdeal_eq",
+    "score": 0.075,
+    "why": "via cyclotomic_poly > Poly.new > Equality.__new__ > is_eq (name: eq)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/stats/tests/test_continuous_rv.py::test_conditional_eq",
+    "line": 1581,
+    "run": "python -m pytest sympy/stats/tests/test_continuous_rv.py::test_conditional_eq",
+    "score": 0.074,
+    "why": "via probability > NO.doit > Equality.__new__ > is_eq (name: eq)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_evalf.py::test_evalf_relational",
+    "line": 402,
+    "run": "python -m pytest sympy/core/tests/test_evalf.py::test_evalf_relational",
+    "score": 0.069,
+    "why": "via EvalfMixin.evalf > Float._new > Equality.__new__ > is_eq (name: relational)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_relational.py::test_as_poly",
+    "line": 162,
+    "run": "python -m pytest sympy/core/tests/test_relational.py::test_as_poly",
+    "score": 0.069,
+    "why": "via AlgebraicNumber.as_poly > Poly.new > Equality.__new__ > is_eq (name: relational)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_relational.py::test_issue_8245",
+    "line": 682,
+    "run": "python -m pytest sympy/core/tests/test_relational.py::test_issue_8245",
+    "score": 0.068,
+    "why": "via EvalfMixin.evalf > Float._new > Equality.__new__ > is_eq (name: relational)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_relational.py::test_issues_13081_12583_12534",
+    "line": 970,
+    "run": "python -m pytest sympy/core/tests/test_relational.py::test_issues_13081_12583_12534",
+    "score": 0.068,
+    "why": "via EvalfMixin.evalf > Float._new > Equality.__new__ > is_eq (name: relational)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/vector/tests/test_field_functions.py::test_product_rules",
+    "line": 154,
+    "run": "python -m pytest sympy/vector/tests/test_field_functions.py::test_product_rules",
+    "score": 0.065,
+    "why": "via NO.doit > Equality.__new__ > is_eq"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/elementary/tests/test_complexes.py::test_issue_15893",
+    "line": 1021,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_complexes.py::test_issue_15893",
+    "score": 0.064,
+    "why": "via NO.doit > Equality.__new__ > is_eq"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/physics/quantum/tests/test_cartesian.py::test_3dpos",
+    "line": 84,
+    "run": "python -m pytest sympy/physics/quantum/tests/test_cartesian.py::test_3dpos",
+    "score": 0.063,
+    "why": "via NO.doit > Equality.__new__ > is_eq"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/control/tests/test_lti.py::test_PIDController",
+    "line": 1122,
+    "run": "python -m pytest sympy/physics/control/tests/test_lti.py::test_PIDController",
+    "score": 0.061,
+    "why": "via NO.doit > Equality.__new__ > is_eq"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/physics/control/tests/test_lti.py::test_Parallel_functions",
+    "line": 1883,
+    "run": "python -m pytest sympy/physics/control/tests/test_lti.py::test_Parallel_functions",
+    "score": 0.061,
+    "why": "via NO.doit > Equality.__new__ > is_eq"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/physics/control/tests/test_lti.py::test_Series_functions",
+    "line": 1346,
+    "run": "python -m pytest sympy/physics/control/tests/test_lti.py::test_Series_functions",
+    "score": 0.061,
+    "why": "via NO.doit > Equality.__new__ > is_eq"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/matrices/expressions/tests/test_inverse.py::test_inverse",
+    "line": 18,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_inverse.py::test_inverse",
+    "score": 0.06,
+    "why": "via NO.doit > Equality.__new__ > is_eq"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_numbers.py::test_Rational_new",
+    "line": 330,
+    "run": "python -m pytest sympy/core/tests/test_numbers.py::test_Rational_new",
+    "score": 0.06,
+    "why": "via Rational.from_coprime_ints > Equality.__new__ > is_eq"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/utilities/tests/test_wester.py::test_R1",
+    "line": 1836,
+    "run": "python -m pytest sympy/utilities/tests/test_wester.py::test_R1",
+    "score": 0.059,
+    "why": "via NO.doit > Equality.__new__ > is_eq"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/elementary/tests/test_exponential.py::test_exp_rewrite",
+    "line": 179,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_exponential.py::test_exp_rewrite",
+    "score": 0.058,
+    "why": "via NO.doit > Equality.__new__ > is_eq"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/core/tests/test_relational.py",
+    "lines": "1193-1200",
+    "symbol": "test_is_eq"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792337587.581543,
+  "job_seconds": 375.4,
+  "number": 30642,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 375.5,
+  "started": 1792337211.3391109
+ },
+ "verify": null
+}

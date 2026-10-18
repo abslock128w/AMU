@@ -1,0 +1,328 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "2f22a5f81e2f4124380be3739a092e9ff20128de",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "244b8486c279413462c9f7e1bb9d686ec1db936a",
+  "install_ok": true,
+  "merge_base": "2f22a5f81e2f4124380be3739a092e9ff20128de",
+  "pr": 30706,
+  "recording": false,
+  "runner": null,
+  "seconds": 329.5,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "2f22a5f81e2f4124380be3739a092e9ff20128de",
+  "head_sha": "244b8486c279413462c9f7e1bb9d686ec1db936a",
+  "merge_base": "2f22a5f81e2f4124380be3739a092e9ff20128de",
+  "merged_at": "2026-10-09T20:03:16Z",
+  "number": 30706,
+  "repo": "sympy",
+  "title": "polys: fix precision calculation in rs_pow for non-zero valuation series"
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 1,
+  "called": 1,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/polys/tests/test_ring_series.py::test_issue_30705",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/polys/ring_series.py",
+    "lines": "339-379",
+    "symbol": "rs_pow"
+   },
+   {
+    "file": "sympy/polys/tests/test_ring_series.py",
+    "lines": "281-298",
+    "symbol": "test_issue_30705"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/polys/ring_series.py#rs_pow",
+   "sympy/polys/tests/test_ring_series.py#test_issue_30705",
+   "sympy/polys/tests/test_ring_series.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "rs_pow return changed",
+    "path": [
+     "sympy/polys/ring_series.py:342 return",
+     "sympy/polys/ring_series.py:935 _nth_root1 uses the result",
+     "sympy/polys/ring_series.py:2077 _rs_series uses the result",
+     "sympy/polys/ring_series.py:444 rs_subs uses the result"
+    ],
+    "to": "3 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 1,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 1560,
+   "ran": 1560,
+   "replayed": 1,
+   "runner": "pytest",
+   "seconds": 312.2,
+   "selection": {
+    "candidates": 12948,
+    "closure_files": 1322,
+    "closure_tests": 12948,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 0
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "11388 lower-ranked candidate(s) not run: about 6 tests/s per process fit 1560 in the 300 s allowed",
+   "71684 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "graph reused from the previous state; 21 changed file(s) relinked"
+  ],
+  "impacted": {
+   "count": 9,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1608,
+   "parsed_files": 3
+  },
+  "original_tests": {
+   "sympy/polys/tests/test_ring_series.py::test_issue_30698": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/polys/tests/test_ring_series.py::test_issue_30705",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "b9ed5b47dd33",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [
+    "sympy/polys/ring_series.py#rs_pow"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 5,
+   "differences": 0,
+   "functions_called": 1,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "sympy/polys/tests/test_ring_series.py#test_issue_30705": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 42.7,
+   "targets": 1,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 1560 of 1560 candidate tests after the change with pytest in 312.2 s, failures confirmed before it: 0 now fail. 16 tests reach the change. 1 test(s) from edited test files also run as they were before the edit. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test_pow_trunc",
+    "line": 73,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_pow_trunc",
+    "score": 2.631,
+    "why": "calls rs_pow (name: pow,ring,serie)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/tests/test_ring_series.py::test_issue_30705",
+    "line": 281,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_issue_30705",
+    "score": 1.36,
+    "why": "calls rs_pow (name: ring,serie)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test_series_from_list",
+    "line": 136,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_series_from_list",
+    "score": 1.019,
+    "why": "calls rs_pow (name: ring,serie)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test1",
+    "line": 749,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test1",
+    "score": 0.772,
+    "why": "calls rs_pow (name: ring,serie)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test_rs_series",
+    "line": 787,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_rs_series",
+    "score": 0.322,
+    "why": "via rs_series > _rs_series > rs_pow (name: ring,rs,serie)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test_rs_series_ConstantInExpr",
+    "line": 844,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_rs_series_ConstantInExpr",
+    "score": 0.307,
+    "why": "via rs_series > _rs_series > rs_pow (name: ring,rs,serie)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/polys/tests/test_ring_series.py::test_issue_30698",
+    "line": 271,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_issue_30698",
+    "score": 0.229,
+    "why": "via rs_nth_root > _nth_root1 > rs_pow (name: ring,serie)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test_puiseux",
+    "line": 651,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_puiseux",
+    "score": 0.224,
+    "why": "via rs_nth_root > _nth_root1 > rs_pow (name: ring,serie)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test_RR",
+    "line": 623,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_RR",
+    "score": 0.204,
+    "why": "via rs_nth_root > _nth_root1 > rs_pow (name: ring,serie)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test_issue",
+    "line": 879,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_issue",
+    "score": 0.2,
+    "why": "via rs_series > _rs_series > rs_pow (name: ring,serie)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test_nth_root",
+    "line": 245,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_nth_root",
+    "score": 0.197,
+    "why": "via rs_nth_root > _nth_root1 > rs_pow (name: ring,serie)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test_series_reversion",
+    "line": 125,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_series_reversion",
+    "score": 0.195,
+    "why": "via rs_series_reversion > rs_subs > rs_pow (name: ring,serie)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/series/tests/test_hypothesis.py::test_rs_series_zero",
+    "line": 67,
+    "run": "python -m pytest sympy/polys/series/tests/test_hypothesis.py::test_rs_series_zero",
+    "score": 0.141,
+    "why": "via rs_asin > rs_nth_root > _nth_root1 > rs_pow (name: rs,serie)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test_asin",
+    "line": 330,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_asin",
+    "score": 0.117,
+    "why": "via rs_asin > rs_nth_root > _nth_root1 > rs_pow (name: ring,serie)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test_asinh",
+    "line": 498,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_asinh",
+    "score": 0.116,
+    "why": "via rs_asinh > rs_nth_root > _nth_root1 > rs_pow (name: ring,serie)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/series/tests/test_ring.py::test_high_deg",
+    "line": 1129,
+    "run": "python -m pytest sympy/polys/series/tests/test_ring.py::test_high_deg",
+    "score": 0.096,
+    "why": "via rs_asin > rs_nth_root > _nth_root1 > rs_pow (name: ring)"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/polys/tests/test_ring_series.py",
+    "lines": "281-298",
+    "symbol": "test_issue_30705"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792343224.71567,
+  "job_seconds": 329.5,
+  "number": 30706,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 329.6,
+  "started": 1792342894.282607
+ },
+ "verify": null
+}

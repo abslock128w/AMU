@@ -86,3 +86,12 @@ probes attempted, kept and minutes per pull request; the label of every kept pro
 
 Recorded with the pull request where they showed, the run finishes on the frozen engine, fixes come after, and the
 report says which numbers predate a fix.
+
+## Changes to the protocol after the run started
+
+- **2026-10-18, after sympy #30476, the owner's decision: the tracer is off for the other 49 sympy pull requests.**
+  Sympy's whole suite cannot be recorded inside what the 1200 s wall cap leaves (the pilot on sympy #30525 and #30476
+  both stopped it). On #30476 the recording used its share and AMU was then stopped at the wall cap: the comment said
+  only "no flip count: stopped at the wall cap of 1200 s; amu reported nothing". The tracer gives sympy nothing either
+  way, so the comparison runs without it from #30511 on. Recorded as a product defect, with the hook files a stopped
+  recording leaves in the project's site-packages as a second, both to fix after the retrospective.

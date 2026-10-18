@@ -1,0 +1,837 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "e0e25c8eaab46155ee7c35c783e3f6f41e147b9b",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "3218cb5cab99d2d078831611a07687d6be0fe27e",
+  "install_ok": true,
+  "merge_base": "e0e25c8eaab46155ee7c35c783e3f6f41e147b9b",
+  "pr": 30396,
+  "recording": false,
+  "runner": null,
+  "seconds": 509.7,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "e0e25c8eaab46155ee7c35c783e3f6f41e147b9b",
+  "head_sha": "3218cb5cab99d2d078831611a07687d6be0fe27e",
+  "merge_base": "e0e25c8eaab46155ee7c35c783e3f6f41e147b9b",
+  "merged_at": "2026-09-27T11:46:16Z",
+  "number": 30396,
+  "repo": "sympy",
+  "title": "ArrayPrinter: print scalar assignments as scalar code"
+ },
+ "probe_minutes": {
+  "end": 1792333521.910613,
+  "minutes": 1.2,
+  "start": 1792332828.514379,
+  "waited": 623.5840359160065
+ },
+ "probe_targets": {
+  "all": 2,
+  "called": 0,
+  "targets": [
+   {
+    "after": "def test_array_printer():\n    A = ArraySymbol('A', (4,4,6,6,6))\n    I = IndexedBase('I')\n    i,j,k = Idx('i', (0,1)), Idx('j', (2,3)), Idx('k', (4,5))\n\n    prntr = NumPyPrinter()\n    assert prntr.doprint(ZeroArray(5)) == 'numpy.zeros((5,))'\n    assert prntr.doprint(OneArray(5)) == 'numpy.ones((5,))'\n    assert prntr.doprint(ArrayContraction(A, [2,3])) == 'numpy.einsum(\"abccd->abd\", A)'\n    assert prntr.doprint(I) == 'I'\n    assert prntr.doprint(ArrayDiagonal(A, [2,3,4])) == 'numpy.einsum(\"abccc->abc\", A)'\n    assert prntr.doprint(ArrayDiagonal(A, [0,1], [2,3])) == 'numpy.einsum(\"aabbc->cab\", A)'\n    assert prntr.doprint(ArrayContraction(A, [2], [3])) == 'numpy.einsum(\"abcde->abe\", A)'\n    assert prntr.doprint(Assignment(I[i,j,k], I[i,j,k])) == 'I = I'\n\n    # Elementwise function application prints as the (elementwise) NumPy\n    # function or arithmetic applied to the printed operand:\n    from sympy.core.function import Lambda\n    from sympy.core.symbol import Dummy, Symbol\n    from sympy.functions.elementary.trigonometric import sin\n    from sympy.tensor.array.expressions.array_expressions import ArrayElementwiseApplyFunc, ArrayTensorProduct\n    B = ArraySymbol('B', (3, 3))\n    d = Dummy('d')\n    assert prntr.doprint(ArrayElementwiseApplyFunc(sin, B)) == 'numpy.sin(B)'\n    assert prntr.doprint(ArrayElementwiseApplyFunc(Lambda(d, d**2), B)) == 'B**2'\n    assert prntr.doprint(ArrayElementwiseApplyFunc(Lambda(d, 1/d), ArrayContraction(ArrayTensorProduct(B, B), (1, 2)))) == \\\n        'numpy.einsum(\"ab,bc->ac\", B,B)**(-1.0)'\n    # Symbols in the function body are never confused with the operand:\n    s = Symbol('_elementwise_operand')\n    assert prntr.doprint(ArrayElementwiseApplyFunc(Lambda(d, d + s), B)) == 'B + _elementwise_operand'\n    s = Symbol('prefix_elementwise_operand_suffix')\n    assert prntr.doprint(ArrayElementwiseApplyFunc(Lambda(d, d + s), B)) == 'B + prefix_elementwise_operand_suffix'\n    nested = ArrayElementwiseApplyFunc(Lambda(d, d + 1), ArrayElementwiseApplyFunc(Lambda(d, d**2), B))\n    assert prntr.doprint(nested) == 'B**2 + 1'\n    assert prntr.doprint(ArrayElementwiseApplyFunc(Lambda(d, d**3), ArrayElementwiseApplyFunc(Lambda(d, d**2), B))) == '(B**2)**3'\n    assert prntr.doprint(ArrayElementwiseApplyFunc(sin, ArrayElementwiseApplyFunc(Lambda(d, d + 1), B))) == 'numpy.sin(B + 1)'\n\n    prntr = TensorflowPrinter()\n    assert prntr.doprint(ZeroArray(5)) == 'tensorflow.zeros((5,))'\n    assert prntr.doprint(OneArray(5)) == 'tensorflow.ones((5,))'\n    assert prntr.doprint(ArrayContraction(A, [2,3])) == 'tensorflow.linalg.einsum(\"abccd->abd\", A)'\n    assert prntr.doprint(I) == 'I'\n    assert prntr.doprint(ArrayDiagonal(A, [2,3,4])) == 'tensorflow.linalg.einsum(\"abccc->abc\", A)'\n    assert prntr.doprint(ArrayDiagonal(A, [0,1], [2,3])) == 'tensorflow.linalg.einsum(\"aabbc->cab\", A)'\n    assert prntr.doprint(ArrayContraction(A, [2], [3])) == 'tensorflow.linalg.einsum(\"abcde->abe\", A)'\n    assert prntr.doprint(Assignment(I[i,j,k], I[i,j,k])) == 'I = I'\n",
+    "before": "def test_array_printer():\n    A = ArraySymbol('A', (4,4,6,6,6))\n    I = IndexedBase('I')\n    i,j,k = Idx('i', (0,1)), Idx('j', (2,3)), Idx('k', (4,5))\n\n    prntr = NumPyPrinter()\n    assert prntr.doprint(ZeroArray(5)) == 'numpy.zeros((5,))'\n    assert prntr.doprint(OneArray(5)) == 'numpy.ones((5,))'\n    assert prntr.doprint(ArrayContraction(A, [2,3])) == 'numpy.einsum(\"abccd->abd\", A)'\n    assert prntr.doprint(I) == 'I'\n    assert prntr.doprint(ArrayDiagonal(A, [2,3,4])) == 'numpy.einsum(\"abccc->abc\", A)'\n    assert prntr.doprint(ArrayDiagonal(A, [0,1], [2,3])) == 'numpy.einsum(\"aabbc->cab\", A)'\n    assert prntr.doprint(ArrayContraction(A, [2], [3])) == 'numpy.einsum(\"abcde->abe\", A)'\n    assert prntr.doprint(Assignment(I[i,j,k], I[i,j,k])) == 'I = I'\n\n    prntr = TensorflowPrinter()\n    assert prntr.doprint(ZeroArray(5)) == 'tensorflow.zeros((5,))'\n    assert prntr.doprint(OneArray(5)) == 'tensorflow.ones((5,))'\n    assert prntr.doprint(ArrayContraction(A, [2,3])) == 'tensorflow.linalg.einsum(\"abccd->abd\", A)'\n    assert prntr.doprint(I) == 'I'\n    assert prntr.doprint(ArrayDiagonal(A, [2,3,4])) == 'tensorflow.linalg.einsum(\"abccc->abc\", A)'\n    assert prntr.doprint(ArrayDiagonal(A, [0,1], [2,3])) == 'tensorflow.linalg.einsum(\"aabbc->cab\", A)'\n    assert prntr.doprint(ArrayContraction(A, [2], [3])) == 'tensorflow.linalg.einsum(\"abcde->abe\", A)'\n    assert prntr.doprint(Assignment(I[i,j,k], I[i,j,k])) == 'I = I'\n",
+    "file": "sympy/printing/tests/test_pycode.py",
+    "id": "sympy/printing/tests/test_pycode.py#test_array_printer",
+    "name": "test_array_printer",
+    "qual": "test_array_printer",
+    "signature_changed": false
+   },
+   {
+    "after": "def _convert_indexed_to_array(expr):\n    if isinstance(expr, Sum):\n        function = expr.function\n        summation_indices = expr.variables\n        subexpr, subindices = _convert_indexed_to_array(function)\n        subindicessets = {j: i for i in subindices if isinstance(i, frozenset) for j in i}\n        summation_indices = sorted({subindicessets.get(i, i) for i in summation_indices}, key=default_sort_key)\n        # TODO: check that Kronecker delta is only contracted to one other element:\n        kronecker_indices = set()\n        if isinstance(function, Mul):\n            for arg in function.args:\n                if not isinstance(arg, KroneckerDelta):\n                    continue\n                arg_indices = sorted(set(arg.indices), key=default_sort_key)\n                if len(arg_indices) == 2:\n                    kronecker_indices.update(arg_indices)\n        kronecker_indices = sorted(kronecker_indices, key=default_sort_key)\n        # Check dimensional consistency:\n        shape = get_shape(subexpr)\n        if shape:\n            for ind, istart, iend in expr.limits:\n                i = _get_argindex(subindices, ind)\n                if istart != 0 or iend+1 != shape[i]:\n                    raise ValueError(f\"summation index and array dimension mismatch: {ind}\")\n        contraction_indices = []\n        subindices = list(subindices)\n        if isinstance(subexpr, ArrayDiagonal):\n            diagonal_indices = list(subexpr.diagonal_indices)\n            dindices = subindices[-len(diagonal_indices):]\n            subindices = subindices[:-len(diagonal_indices)]\n            # The number of dimensions of the expression inside the diagonal:\n            inner_ndim = len(subindices) + sum(len(i) for i in diagonal_indices)\n            # Split the diagonal groups into the ones being summed over\n            # (they turn into contractions) and the ones to be kept:\n            removed_groups = []\n            remaining_groups = []\n            remaining_dindices = []\n            for group, dind in zip(diagonal_indices, dindices):\n                if dind in summation_indices:\n                    removed_groups.append(tuple(group))\n                else:\n                    remaining_groups.append(tuple(group))\n                    remaining_dindices.append(dind)\n            # Positions, in the inner expression, of the non-diagonalized\n            # axes of the original diagonal:\n            free_positions = ArrayDiagonal._push_indices_down(\n                subexpr.diagonal_indices, list(range(len(subindices))), inner_ndim)\n            if remaining_groups:\n                subexpr = _array_diagonal(subexpr.expr, *remaining_groups)\n                # Map the inner coordinates up through the new diagonal:\n                free_positions, removed_groups, remaining_positions = ArrayDiagonal._push_indices_up(\n                    remaining_groups,\n                    [list(free_positions), removed_groups, [g[0] for g in remaining_groups]],\n                    inner_ndim)\n                new_ndim = inner_ndim - sum(len(g) - 1 for g in remaining_groups)\n            else:\n                subexpr = subexpr.expr\n                remaining_positions = []\n                new_ndim = inner_ndim\n            contraction_indices.extend(tuple(g) for g in removed_groups)\n            # Rebuild ``subindices`` in the coordinates of the new\n            # ``subexpr``. The axes belonging to the summed-out diagonal\n            # groups are left as ``None``: they have no free index and are\n            # contracted by the groups just added to ``contraction_indices``:\n            new_subindices = [None]*new_ndim\n            for pos, ind in zip(free_positions, subindices):\n                new_subindices[pos] = ind\n            for pos, ind in zip(remaining_positions, remaining_dindices):\n                new_subindices[pos] = ind\n            subindices = new_subindices\n\n        axes_contraction = defaultdict(list)\n        for i, ind in enumerate(subindices):\n            include = all(j not in kronecker_indices for j in ind) if isinstance(ind, frozenset) else ind not in kronecker_indices\n            if ind in summation_indices and include:\n                axes_contraction[ind].append(i)\n                subindices[i] = None\n        for k, v in axes_contraction.items():\n            if any(i in kronecker_indices for i in k) if isinstance(k, frozenset) else k in kronecker_indices:\n                continue\n            contraction_indices.append(tuple(v))\n        free_indices = [i for i in subindices if i is not None]\n        indices_ret = list(free_indices)\n        indices_ret.sort(key=lambda x: free_indices.index(x))\n        return _array_contraction(\n                subexpr,\n                *contraction_indices,\n                free_indices=free_indices\n            ), tuple(indices_ret)\n    if isinstance(expr, Mul):\n        args, indices = zip(*[_convert_indexed_to_array(arg) for arg in expr.args])\n        # Check if there are KroneckerDelta objects:\n        kronecker_delta_repl = {}\n        for arg in args:\n            if not isinstance(arg, KroneckerDelta):\n                continue\n            # Diagonalize two indices:\n            i, j = arg.indices\n            kindices = set(arg.indices)\n            if i in kronecker_delta_repl:\n                kindices.update(kronecker_delta_repl[i])\n            if j in kronecker_delta_repl:\n                kindices.update(kronecker_delta_repl[j])\n            kindices = frozenset(kindices)\n            for index in kindices:\n                kronecker_delta_repl[index] = kindices\n        # Remove KroneckerDelta objects, their relations should be handled by\n        # ArrayDiagonal:\n        newargs = []\n        newindices = []\n        for arg, loc_indices in zip(args, indices):\n            if isinstance(arg, KroneckerDelta):\n                continue\n            newargs.append(arg)\n            newindices.append(loc_indices)\n        flattened_indices = [kronecker_delta_repl.get(j, j) for i in newindices for j in i]\n        diagonal_indices, ret_indices = _get_diagonal_indices(flattened_indices)\n        tp = _array_tensor_product(*newargs)\n        if diagonal_indices:\n            return _array_diagonal(tp, *diagonal_indices), ret_indices\n        else:\n            return tp, ret_indices\n    if isinstance(expr, MatrixElement):\n        indices = expr.args[1:]\n        diagonal_indices, ret_indices = _get_diagonal_indices(indices)\n        if diagonal_indices:\n            return _array_diagonal(expr.args[0], *diagonal_indices), ret_indices\n        else:\n            return expr.args[0], ret_indices\n    if isinstance(expr, ArrayElement):\n        indices = expr.indices\n        diagonal_indices, ret_indices = _get_diagonal_indices(indices)\n        if diagonal_indices:\n            return _array_diagonal(expr.name, *diagonal_indices), ret_indices\n        else:\n            return expr.name, ret_indices\n    if isinstance(expr, Indexed):\n        indices = expr.indices\n        diagonal_indices, ret_indices = _get_diagonal_indices(indices)\n        if diagonal_indices:\n            return _array_diagonal(expr.base, *diagonal_indices), ret_indices\n        else:\n            return expr.args[0], ret_indices\n    if isinstance(expr, IndexedBase):\n        raise NotImplementedError\n    if isinstance(expr, KroneckerDelta):\n        return expr, expr.indices\n    if isinstance(expr, Add):\n        args, indices = zip(*[_convert_indexed_to_array(arg) for arg in expr.args])\n        args = list(args)\n        if not any(indices) and not any(_is_array_expression(arg) for arg in args):\n            # A sum of scalars stays a scalar:\n            return expr, ()\n        # Check if all indices are compatible. Otherwise expand the dimensions:\n        index0 = []\n        shape0 = []\n        for arg, arg_indices in zip(args, indices):\n            arg_indices_set = set(arg_indices)\n            arg_indices_missing = arg_indices_set.difference(index0)\n            index0.extend([i for i in arg_indices if i in arg_indices_missing])\n            arg_shape = get_shape(arg)\n            shape0.extend([arg_shape[i] for i, e in enumerate(arg_indices) if e in arg_indices_missing])\n        for i, (arg, arg_indices) in enumerate(zip(args, indices)):\n            if len(arg_indices) < len(index0):\n                missing_indices_pos = [i for i, e in enumerate(index0) if e not in arg_indices]\n                missing_shape = [shape0[i] for i in missing_indices_pos]\n                arg_indices = tuple(index0[j] for j in missing_indices_pos) + arg_indices\n                args[i] = _array_tensor_product(OneArray(*missing_shape), args[i])\n            permutation = Permutation([arg_indices.index(j) for j in index0])\n            # Perform index permutations:\n            args[i] = _permute_dims(args[i], permutation)\n        return _array_add(*args), tuple(index0)\n    if isinstance(expr, Pow):\n        subexpr, subindices = _convert_indexed_to_array(expr.base)\n        if not subindices and not _is_array_expression(subexpr):\n            # Scalar base, no array axes involved:\n            return expr, ()\n        exp = expr.exp\n        if isinstance(exp, (int, Integer)) and exp >= 1:\n            if exp == 1:\n                return subexpr, subindices\n            if not subindices:\n                # Power of a rank-0 array expression (e.g. of a full\n                # contraction): a rank-0 tensor product.\n                return _array_tensor_product(*[subexpr for i in range(exp)]), ()\n            diags = zip(*[(2*i, 2*i + 1) for i in range(exp)])\n            arr = _array_diagonal(_array_tensor_product(*[subexpr for i in range(exp)]), *diags)\n            return arr, subindices\n        # Negative, rational or symbolic exponent: represent the power as an\n        # elementwise application of the power function, provided that the\n        # exponent does not depend on the array indices:\n        array_index_syms = set()\n        for ind in subindices:\n            elements = ind if isinstance(ind, frozenset) else [ind]\n            for j in elements:\n                array_index_syms.update(getattr(j, \"free_symbols\", set()))\n        if array_index_syms and exp.has(*array_index_syms):\n            raise NotImplementedError(\n                \"cannot convert power with exponent depending on the array indices: %s\" % expr)\n        d = Dummy(\"d\")\n        return ArrayElementwiseApplyFunc(Lambda(d, d**exp), subexpr), subindices\n    if isinstance(expr, Function):\n        if len(expr.args) != 1:\n            raise NotImplementedError(\n                \"cannot convert multi-argument function to array expression: %s\" % expr)\n        subexpr, subindices = _convert_indexed_to_array(expr.args[0])\n        if not subindices and not _is_array_expression(subexpr):\n            # A function of a scalar stays a scalar:\n            return expr, ()\n        return ArrayElementwiseApplyFunc(type(expr), subexpr), subindices\n    return expr, ()\n",
+    "before": "def _convert_indexed_to_array(expr):\n    if isinstance(expr, Sum):\n        function = expr.function\n        summation_indices = expr.variables\n        subexpr, subindices = _convert_indexed_to_array(function)\n        subindicessets = {j: i for i in subindices if isinstance(i, frozenset) for j in i}\n        summation_indices = sorted({subindicessets.get(i, i) for i in summation_indices}, key=default_sort_key)\n        # TODO: check that Kronecker delta is only contracted to one other element:\n        kronecker_indices = set()\n        if isinstance(function, Mul):\n            for arg in function.args:\n                if not isinstance(arg, KroneckerDelta):\n                    continue\n                arg_indices = sorted(set(arg.indices), key=default_sort_key)\n                if len(arg_indices) == 2:\n                    kronecker_indices.update(arg_indices)\n        kronecker_indices = sorted(kronecker_indices, key=default_sort_key)\n        # Check dimensional consistency:\n        shape = get_shape(subexpr)\n        if shape:\n            for ind, istart, iend in expr.limits:\n                i = _get_argindex(subindices, ind)\n                if istart != 0 or iend+1 != shape[i]:\n                    raise ValueError(f\"summation index and array dimension mismatch: {ind}\")\n        contraction_indices = []\n        subindices = list(subindices)\n        if isinstance(subexpr, ArrayDiagonal):\n            diagonal_indices = list(subexpr.diagonal_indices)\n            dindices = subindices[-len(diagonal_indices):]\n            subindices = subindices[:-len(diagonal_indices)]\n            # The number of dimensions of the expression inside the diagonal:\n            inner_ndim = len(subindices) + sum(len(i) for i in diagonal_indices)\n            # Split the diagonal groups into the ones being summed over\n            # (they turn into contractions) and the ones to be kept:\n            removed_groups = []\n            remaining_groups = []\n            remaining_dindices = []\n            for group, dind in zip(diagonal_indices, dindices):\n                if dind in summation_indices:\n                    removed_groups.append(tuple(group))\n                else:\n                    remaining_groups.append(tuple(group))\n                    remaining_dindices.append(dind)\n            # Positions, in the inner expression, of the non-diagonalized\n            # axes of the original diagonal:\n            free_positions = ArrayDiagonal._push_indices_down(\n                subexpr.diagonal_indices, list(range(len(subindices))), inner_ndim)\n            if remaining_groups:\n                subexpr = _array_diagonal(subexpr.expr, *remaining_groups)\n                # Map the inner coordinates up through the new diagonal:\n                free_positions, removed_groups, remaining_positions = ArrayDiagonal._push_indices_up(\n                    remaining_groups,\n                    [list(free_positions), removed_groups, [g[0] for g in remaining_groups]],\n                    inner_ndim)\n                new_ndim = inner_ndim - sum(len(g) - 1 for g in remaining_groups)\n            else:\n                subexpr = subexpr.expr\n                remaining_positions = []\n                new_ndim = inner_ndim\n            contraction_indices.extend(tuple(g) for g in removed_groups)\n            # Rebuild ``subindices`` in the coordinates of the new\n            # ``subexpr``. The axes belonging to the summed-out diagonal\n            # groups are left as ``None``: they have no free index and are\n            # contracted by the groups just added to ``contraction_indices``:\n            new_subindices = [None]*new_ndim\n            for pos, ind in zip(free_positions, subindices):\n                new_subindices[pos] = ind\n            for pos, ind in zip(remaining_positions, remaining_dindices):\n                new_subindices[pos] = ind\n            subindices = new_subindices\n\n        axes_contraction = defaultdict(list)\n        for i, ind in enumerate(subindices):\n            include = all(j not in kronecker_indices for j in ind) if isinstance(ind, frozenset) else ind not in kronecker_indices\n            if ind in summation_indices and include:\n                axes_contraction[ind].append(i)\n                subindices[i] = None\n        for k, v in axes_contraction.items():\n            if any(i in kronecker_indices for i in k) if isinstance(k, frozenset) else k in kronecker_indices:\n                continue\n            contraction_indices.append(tuple(v))\n        free_indices = [i for i in subindices if i is not None]\n        indices_ret = list(free_indices)\n        indices_ret.sort(key=lambda x: free_indices.index(x))\n        return _array_contraction(\n                subexpr,\n                *contraction_indices,\n                free_indices=free_indices\n            ), tuple(indices_ret)\n    if isinstance(expr, Mul):\n        args, indices = zip(*[_convert_indexed_to_array(arg) for arg in expr.args])\n        # Check if there are KroneckerDelta objects:\n        kronecker_delta_repl = {}\n        for arg in args:\n            if not isinstance(arg, KroneckerDelta):\n                continue\n            # Diagonalize two indices:\n            i, j = arg.indices\n            kindices = set(arg.indices)\n            if i in kronecker_delta_repl:\n                kindices.update(kronecker_delta_repl[i])\n            if j in kronecker_delta_repl:\n                kindices.update(kronecker_delta_repl[j])\n            kindices = frozenset(kindices)\n            for index in kindices:\n                kronecker_delta_repl[index] = kindices\n        # Remove KroneckerDelta objects, their relations should be handled by\n        # ArrayDiagonal:\n        newargs = []\n        newindices = []\n        for arg, loc_indices in zip(args, indices):\n            if isinstance(arg, KroneckerDelta):\n                continue\n            newargs.append(arg)\n            newindices.append(loc_indices)\n        flattened_indices = [kronecker_delta_repl.get(j, j) for i in newindices for j in i]\n        diagonal_indices, ret_indices = _get_diagonal_indices(flattened_indices)\n        tp = _array_tensor_product(*newargs)\n        if diagonal_indices:\n            return _array_diagonal(tp, *diagonal_indices), ret_indices\n        else:\n            return tp, ret_indices\n    if isinstance(expr, MatrixElement):\n        indices = expr.args[1:]\n        diagonal_indices, ret_indices = _get_diagonal_indices(indices)\n        if diagonal_indices:\n            return _array_diagonal(expr.args[0], *diagonal_indices), ret_indices\n        else:\n            return expr.args[0], ret_indices\n    if isinstance(expr, ArrayElement):\n        indices = expr.indices\n        diagonal_indices, ret_indices = _get_diagonal_indices(indices)\n        if diagonal_indices:\n            return _array_diagonal(expr.name, *diagonal_indices), ret_indices\n        else:\n            return expr.name, ret_indices\n    if isinstance(expr, Indexed):\n        indices = expr.indices\n        diagonal_indices, ret_indices = _get_diagonal_indices(indices)\n        if diagonal_indices:\n            return _array_diagonal(expr.base, *diagonal_indices), ret_indices\n        else:\n            return expr.args[0], ret_indices\n    if isinstance(expr, IndexedBase):\n        raise NotImplementedError\n    if isinstance(expr, KroneckerDelta):\n        return expr, expr.indices\n    if isinstance(expr, Add):\n        args, indices = zip(*[_convert_indexed_to_array(arg) for arg in expr.args])\n        args = list(args)\n        # Check if all indices are compatible. Otherwise expand the dimensions:\n        index0 = []\n        shape0 = []\n        for arg, arg_indices in zip(args, indices):\n            arg_indices_set = set(arg_indices)\n            arg_indices_missing = arg_indices_set.difference(index0)\n            index0.extend([i for i in arg_indices if i in arg_indices_missing])\n            arg_shape = get_shape(arg)\n            shape0.extend([arg_shape[i] for i, e in enumerate(arg_indices) if e in arg_indices_missing])\n        for i, (arg, arg_indices) in enumerate(zip(args, indices)):\n            if len(arg_indices) < len(index0):\n                missing_indices_pos = [i for i, e in enumerate(index0) if e not in arg_indices]\n                missing_shape = [shape0[i] for i in missing_indices_pos]\n                arg_indices = tuple(index0[j] for j in missing_indices_pos) + arg_indices\n                args[i] = _array_tensor_product(OneArray(*missing_shape), args[i])\n            permutation = Permutation([arg_indices.index(j) for j in index0])\n            # Perform index permutations:\n            args[i] = _permute_dims(args[i], permutation)\n        return _array_add(*args), tuple(index0)\n    if isinstance(expr, Pow):\n        subexpr, subindices = _convert_indexed_to_array(expr.base)\n        if not subindices:\n            # Scalar base, no array axes involved:\n            return expr, ()\n        exp = expr.exp\n        if isinstance(exp, (int, Integer)) and exp >= 1:\n            if exp == 1:\n                return subexpr, subindices\n            diags = zip(*[(2*i, 2*i + 1) for i in range(exp)])\n            arr = _array_diagonal(_array_tensor_product(*[subexpr for i in range(exp)]), *diags)\n            return arr, subindices\n        # Negative, rational or symbolic exponent: represent the power as an\n        # elementwise application of the power function, provided that the\n        # exponent does not depend on the array indices:\n        array_index_syms = set()\n        for ind in subindices:\n            elements = ind if isinstance(ind, frozenset) else [ind]\n            for j in elements:\n                array_index_syms.update(getattr(j, \"free_symbols\", set()))\n        if array_index_syms and exp.has(*array_index_syms):\n            raise NotImplementedError(\n                \"cannot convert power with exponent depending on the array indices: %s\" % expr)\n        d = Dummy(\"d\")\n        return ArrayElementwiseApplyFunc(Lambda(d, d**exp), subexpr), subindices\n    if isinstance(expr, Function):\n        if len(expr.args) != 1:\n            raise NotImplementedError(\n                \"cannot convert multi-argument function to array expression: %s\" % expr)\n        subexpr, subindices = _convert_indexed_to_array(expr.args[0])\n        return ArrayElementwiseApplyFunc(type(expr), subexpr), subindices\n    return expr, ()\n",
+    "file": "sympy/tensor/array/expressions/from_indexed_to_array.py",
+    "id": "sympy/tensor/array/expressions/from_indexed_to_array.py#_convert_indexed_to_array",
+    "name": "_convert_indexed_to_array",
+    "qual": "_convert_indexed_to_array",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "return",
+      "list",
+      "['numpy.sin(B)', 'B**2']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['raised PrintMethodNotImplementedError', 'raised PrintMethodNotImplementedError']"
+     ],
+     "call": "[outcome(lambda: NumPyPrinter().doprint(ArrayElementwiseApplyFunc(sin, B))), outcome(lambda: NumPyPrinter().doprint(ArrayElementwiseApplyFunc(Lambda(d, d**2), B)))]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import Dummy, Lambda, sin, symbols\nfrom sympy.printing.numpy import NumPyPrinter\nfrom sympy.tensor.array.expressions import ArraySymbol\nfrom sympy.tensor.array.expressions.array_expressions import ArrayElementwiseApplyFunc\nfrom sympy.tensor.array.expressions.from_indexed_to_array import convert_indexed_to_array\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nd = Dummy('d')\nB = ArraySymbol('B', (3, 3))\nx, y = symbols('x y')\n",
+     "target": "sympy/printing/tests/test_pycode.py#test_array_printer",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import Dummy, Lambda, sin, symbols\n    from sympy.printing.numpy import NumPyPrinter\n    from sympy.tensor.array.expressions import ArraySymbol\n    from sympy.tensor.array.expressions.array_expressions import ArrayElementwiseApplyFunc\n    from sympy.tensor.array.expressions.from_indexed_to_array import convert_indexed_to_array\n\n    def outcome(f):\n        try:\n            return str(f())\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__\n    d = Dummy('d')\n    B = ArraySymbol('B', (3, 3))\n    x, y = symbols('x y')\n    assert repr([outcome(lambda: NumPyPrinter().doprint(ArrayElementwiseApplyFunc(sin, B))), outcome(lambda: NumPyPrinter().doprint(ArrayElementwiseApplyFunc(Lambda(d, d**2), B)))]) == \"['numpy.sin(B)', 'B**2']\"\n",
+     "why": "the elementwise cases the edited test adds"
+    },
+    {
+     "after": [
+      "return",
+      "list",
+      "['x + 1', 'x*y', 'sin(x)']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['ArrayAdd(1, x)', 'x*y', 'ArrayElementwiseApplyFunc(Lambda(_d, sin(_d)), x)']"
+     ],
+     "call": "[outcome(lambda: convert_indexed_to_array(e)) for e in (x + 1, x*y, sin(x))]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import Dummy, Lambda, sin, symbols\nfrom sympy.printing.numpy import NumPyPrinter\nfrom sympy.tensor.array.expressions import ArraySymbol\nfrom sympy.tensor.array.expressions.array_expressions import ArrayElementwiseApplyFunc\nfrom sympy.tensor.array.expressions.from_indexed_to_array import convert_indexed_to_array\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nd = Dummy('d')\nB = ArraySymbol('B', (3, 3))\nx, y = symbols('x y')\n",
+     "target": "sympy/tensor/array/expressions/from_indexed_to_array.py#_convert_indexed_to_array",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import Dummy, Lambda, sin, symbols\n    from sympy.printing.numpy import NumPyPrinter\n    from sympy.tensor.array.expressions import ArraySymbol\n    from sympy.tensor.array.expressions.array_expressions import ArrayElementwiseApplyFunc\n    from sympy.tensor.array.expressions.from_indexed_to_array import convert_indexed_to_array\n\n    def outcome(f):\n        try:\n            return str(f())\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__\n    d = Dummy('d')\n    B = ArraySymbol('B', (3, 3))\n    x, y = symbols('x y')\n    assert repr([outcome(lambda: convert_indexed_to_array(e)) for e in (x + 1, x*y, sin(x))]) == \"['x + 1', 'x*y', 'sin(x)']\"\n",
+     "why": "scalar expressions, which the change leaves unchanged"
+    }
+   ],
+   "dollars_cap": 0.1,
+   "filter_seconds": 61.9,
+   "gaps": [],
+   "info": {
+    "accepted": 2,
+    "compiled": 2,
+    "cost": 0.0,
+    "differed": 2,
+    "dollars_cap": 0.1,
+    "functions": 2,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 2,
+    "ran": 2,
+    "reached": 2,
+    "requests": 1,
+    "seconds": 61.3,
+    "stable": 2
+   },
+   "probes": [
+    {
+     "call": "[outcome(lambda: NumPyPrinter().doprint(ArrayElementwiseApplyFunc(sin, B))), outcome(lambda: NumPyPrinter().doprint(ArrayElementwiseApplyFunc(Lambda(d, d**2), B)))]",
+     "function": "sympy/printing/tests/test_pycode.py#test_array_printer",
+     "setup": "from sympy import Dummy, Lambda, sin, symbols\nfrom sympy.printing.numpy import NumPyPrinter\nfrom sympy.tensor.array.expressions import ArraySymbol\nfrom sympy.tensor.array.expressions.array_expressions import ArrayElementwiseApplyFunc\nfrom sympy.tensor.array.expressions.from_indexed_to_array import convert_indexed_to_array\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nd = Dummy('d')\nB = ArraySymbol('B', (3, 3))\nx, y = symbols('x y')\n",
+     "why": "the elementwise cases the edited test adds"
+    },
+    {
+     "call": "[outcome(lambda: convert_indexed_to_array(e)) for e in (x + 1, x*y, sin(x))]",
+     "function": "sympy/tensor/array/expressions/from_indexed_to_array.py#_convert_indexed_to_array",
+     "setup": "from sympy import Dummy, Lambda, sin, symbols\nfrom sympy.printing.numpy import NumPyPrinter\nfrom sympy.tensor.array.expressions import ArraySymbol\nfrom sympy.tensor.array.expressions.array_expressions import ArrayElementwiseApplyFunc\nfrom sympy.tensor.array.expressions.from_indexed_to_array import convert_indexed_to_array\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nd = Dummy('d')\nB = ArraySymbol('B', (3, 3))\nx, y = symbols('x y')\n",
+     "why": "scalar expressions, which the change leaves unchanged"
+    }
+   ],
+   "targets": [
+    "sympy/printing/tests/test_pycode.py#test_array_printer",
+    "sympy/tensor/array/expressions/from_indexed_to_array.py#_convert_indexed_to_array"
+   ],
+   "waited_seconds": 623.6
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/printing/tests/test_numpy.py::test_issue_30395_scalar_assignment",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/printing/tests/test_pycode.py::test_array_printer",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/printing/tests/test_tensorflow.py::test_tensorflow_elementwise_apply_func",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/printing/pycode.py",
+    "lines": "427-440",
+    "symbol": "_is_atomic_code"
+   },
+   {
+    "file": "sympy/printing/pycode.py",
+    "lines": "454-457",
+    "symbol": "_ElementwiseOperand.__new__"
+   },
+   {
+    "file": "sympy/printing/pycode.py",
+    "lines": "459-461",
+    "symbol": "_ElementwiseOperand.sort_key"
+   },
+   {
+    "file": "sympy/printing/pycode.py",
+    "lines": "582-583",
+    "symbol": "ArrayPrinter._print_ArrayElementwiseApplyFunc"
+   },
+   {
+    "file": "sympy/printing/pycode.py",
+    "lines": "585-602",
+    "symbol": "ArrayPrinter._elementwise_body"
+   },
+   {
+    "file": "sympy/printing/pycode.py",
+    "lines": "604-605",
+    "symbol": "ArrayPrinter._print__ElementwiseOperand"
+   },
+   {
+    "file": "sympy/printing/tests/test_numpy.py",
+    "lines": "397-427",
+    "symbol": "test_issue_30395_scalar_assignment"
+   },
+   {
+    "file": "sympy/printing/tests/test_pycode.py",
+    "lines": "472-493",
+    "symbol": "test_array_printer"
+   },
+   {
+    "file": "sympy/printing/tests/test_tensorflow.py",
+    "lines": "497-504",
+    "symbol": "test_tensorflow_elementwise_apply_func"
+   },
+   {
+    "file": "sympy/tensor/array/expressions/from_indexed_to_array.py",
+    "lines": "111-115",
+    "symbol": "_is_array_expression"
+   },
+   {
+    "file": "sympy/tensor/array/expressions/from_indexed_to_array.py",
+    "lines": "268-326",
+    "symbol": "_convert_indexed_to_array"
+   },
+   {
+    "file": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py",
+    "lines": "288-312",
+    "symbol": "test_convert_indexed_to_array_scalars_stay_scalars"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/printing/pycode.py#ArrayPrinter._elementwise_body",
+   "sympy/printing/pycode.py#ArrayPrinter._print_ArrayElementwiseApplyFunc",
+   "sympy/printing/pycode.py#ArrayPrinter._print__ElementwiseOperand",
+   "sympy/printing/pycode.py#_ElementwiseOperand.__new__",
+   "sympy/printing/pycode.py#_ElementwiseOperand.__slots__",
+   "sympy/printing/pycode.py#_ElementwiseOperand.sort_key",
+   "sympy/printing/pycode.py#_is_atomic_code",
+   "sympy/printing/tests/test_numpy.py#test_issue_30395_scalar_assignment",
+   "sympy/printing/tests/test_pycode.py#test_array_printer",
+   "sympy/printing/tests/test_tensorflow.py#test_tensorflow_elementwise_apply_func",
+   "sympy/tensor/array/expressions/from_indexed_to_array.py#_convert_indexed_to_array",
+   "sympy/tensor/array/expressions/from_indexed_to_array.py#_is_array_expression",
+   "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py#test_convert_indexed_to_array_scalars_stay_scalars",
+   "sympy/printing/pycode.py#ArrayPrinter",
+   "sympy/printing/pycode.py#_ElementwiseOperand",
+   "sympy/printing/pycode.py",
+   "sympy/printing/tests/test_numpy.py",
+   "sympy/printing/tests/test_tensorflow.py",
+   "sympy/tensor/array/expressions/from_indexed_to_array.py",
+   "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "ArrayPrinter._elementwise_body return changed",
+    "path": [
+     "sympy/printing/pycode.py:601 return",
+     "sympy/printing/pycode.py:583 ArrayPrinter._print_ArrayElementwiseApplyFunc uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   },
+   {
+    "evidence": "static source path",
+    "from": "_convert_indexed_to_array return changed",
+    "path": [
+     "sympy/tensor/array/expressions/from_indexed_to_array.py:270 return",
+     "sympy/tensor/array/expressions/from_indexed_to_array.py:69 convert_indexed_to_array uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   },
+   {
+    "evidence": "static source path",
+    "from": "_is_array_expression return changed",
+    "path": [
+     "sympy/tensor/array/expressions/from_indexed_to_array.py:115 return",
+     "sympy/tensor/array/expressions/from_indexed_to_array.py:268 _convert_indexed_to_array uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   },
+   {
+    "evidence": "static source path",
+    "from": "_is_atomic_code return changed",
+    "path": [
+     "sympy/printing/pycode.py:431 return",
+     "sympy/printing/pycode.py:597 ArrayPrinter._elementwise_body uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 4,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 1440,
+   "ran": 998,
+   "replayed": 4,
+   "runner": "pytest",
+   "seconds": 442.2,
+   "selection": {
+    "candidates": 12889,
+    "closure_files": 1320,
+    "closure_tests": 12861,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 28
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "11449 lower-ranked candidate(s) not run: about 6 tests/s per process fit 1440 in the 300 s allowed",
+   "63768 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "shadow run stopped at its 300 s budget: 960 of 1440 candidates run",
+   "side-by-side run stopped at its time limit; calls captured until then are compared",
+   "side-by-side: none of the 2 changed function(s) was called by the tests run on the code before the change"
+  ],
+  "impacted": {
+   "count": 5916,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1606,
+   "parsed_files": 53
+  },
+  "original_tests": {
+   "sympy/printing/tests/test_pycode.py::test_array_printer": "passed",
+   "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_arrayexpr_convert_array_element_to_array_expression": "passed",
+   "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_arrayexpr_convert_index_to_array_support_function": "passed",
+   "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_arrayexpr_convert_indexed_to_array_and_back_to_matrix": "passed",
+   "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_arrayexpr_convert_indexed_to_array_broadcast": "passed",
+   "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_arrayexpr_convert_indexed_to_array_expression": "passed",
+   "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_arrayexpr_convert_indexed_to_array_out_of_bounds": "passed",
+   "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_invalid_first_indices": "passed",
+   "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_multiarg_function": "passed",
+   "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_pow": "passed",
+   "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_sum_over_subset_of_diagonals": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/printing/tests/test_numpy.py::test_issue_30395_scalar_assignment",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/printing/tests/test_pycode.py::test_array_printer",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/printing/tests/test_tensorflow.py::test_tensorflow_elementwise_apply_func",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "1cf585f3697d",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 0,
+   "differences": 0,
+   "functions_called": 0,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "sympy/printing/pycode.py#ArrayPrinter._elementwise_body": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/printing/pycode.py#ArrayPrinter._print_ArrayElementwiseApplyFunc": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/printing/pycode.py#ArrayPrinter._print__ElementwiseOperand": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/printing/pycode.py#_ElementwiseOperand.__new__": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/printing/pycode.py#_ElementwiseOperand.sort_key": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/printing/pycode.py#_is_atomic_code": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/printing/tests/test_numpy.py#test_issue_30395_scalar_assignment": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/printing/tests/test_tensorflow.py#test_tensorflow_elementwise_apply_func": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/tensor/array/expressions/from_indexed_to_array.py#_is_array_expression": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py#test_convert_indexed_to_array_scalars_stay_scalars": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 120.1,
+   "targets": 2,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 998 of 1440 candidate tests after the change with pytest in 442.2 s, failures confirmed before it: 0 now fail. 6555 tests reach the change. 11 test(s) from edited test files also run as they were before the edit. 4 test(s) the change adds or edits replayed on the code before it: 4 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_arrayexpr_convert_index_to_array_support_function",
+    "line": 38,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_arrayexpr_convert_index_to_array_support_function",
+    "score": 5.227,
+    "why": "calls _convert_indexed_to_array (name: array,convert,indexed,to)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_arrayexpr_convert_indexed_to_array_and_back_to_matrix",
+    "line": 131,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_arrayexpr_convert_indexed_to_array_and_back_to_matrix",
+    "score": 3.269,
+    "why": "calls _convert_indexed_to_array (name: array,convert,indexed,to)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_pow",
+    "line": 254,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_pow",
+    "score": 2.183,
+    "why": "calls _convert_indexed_to_array (name: array,convert,indexed,to)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_arrayexpr_convert_indexed_to_array_expression",
+    "line": 79,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_arrayexpr_convert_indexed_to_array_expression",
+    "score": 1.233,
+    "why": "via convert_indexed_to_array > _convert_indexed_to_array (name: array,convert,indexed,to)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_sum_over_subset_of_diagonals",
+    "line": 227,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_sum_over_subset_of_diagonals",
+    "score": 1.12,
+    "why": "via convert_indexed_to_array > _convert_indexed_to_array (name: array,convert,indexed,to)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_arrayexpr_convert_array_element_to_array_expression",
+    "line": 108,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_arrayexpr_convert_array_element_to_array_expression",
+    "score": 1.016,
+    "why": "via convert_indexed_to_array > _convert_indexed_to_array (name: array,convert,indexed,to)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars",
+    "line": 288,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars",
+    "score": 0.94,
+    "why": "via convert_indexed_to_array > _convert_indexed_to_array (name: array,convert,indexed,to)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_array_to_indexed.py::test_convert_array_to_indexed_main",
+    "line": 10,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_array_to_indexed.py::test_convert_array_to_indexed_main",
+    "score": 0.877,
+    "why": "via convert_indexed_to_array > _convert_indexed_to_array (name: array,convert,indexed,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_derivatives.py::test_derivatives_elementwise_applyfunc",
+    "line": 448,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_derivatives.py::test_derivatives_elementwise_applyfunc",
+    "score": 0.841,
+    "why": "via NO.doit > _ElementwiseOperand.__new__ (name: elementwise)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_invalid_first_indices",
+    "line": 211,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_invalid_first_indices",
+    "score": 0.81,
+    "why": "via convert_indexed_to_array > _convert_indexed_to_array (name: array,convert,indexed,to)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_arrayexpr_convert_indexed_to_array_out_of_bounds",
+    "line": 165,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_arrayexpr_convert_indexed_to_array_out_of_bounds",
+    "score": 0.792,
+    "why": "via convert_indexed_to_array > _convert_indexed_to_array (name: array,convert,indexed,to)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_arrayexpr_convert_indexed_to_array_broadcast",
+    "line": 182,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_arrayexpr_convert_indexed_to_array_broadcast",
+    "score": 0.78,
+    "why": "via convert_indexed_to_array > _convert_indexed_to_array (name: array,convert,indexed,to)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_multiarg_function",
+    "line": 281,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_multiarg_function",
+    "score": 0.751,
+    "why": "via convert_indexed_to_array > _convert_indexed_to_array (name: array,convert,indexed,to)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/tensor/array/expressions/tests/test_deprecated_conv_modules.py::test_deprecated_conv_module_results",
+    "line": 10,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_deprecated_conv_modules.py::test_deprecated_conv_module_results",
+    "score": 0.524,
+    "why": "via convert_indexed_to_array > _convert_indexed_to_array"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/strategies/tests/test_rl.py::test_rebuild",
+    "line": 77,
+    "run": "python -m pytest sympy/strategies/tests/test_rl.py::test_rebuild",
+    "score": 0.502,
+    "why": "via _ElementwiseOperand.__new__"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/matrices/expressions/tests/test_indexing.py::test_matrix_expression_to_indices",
+    "line": 188,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_indexing.py::test_matrix_expression_to_indices",
+    "score": 0.426,
+    "why": "via MatrixExpr.from_index_summation > convert_indexed_to_array > _convert_indexed_to_array (name: to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/strategies/tests/test_traverse.py::test_expr_fns",
+    "line": 80,
+    "run": "python -m pytest sympy/strategies/tests/test_traverse.py::test_expr_fns",
+    "score": 0.358,
+    "why": "via _ElementwiseOperand.__new__"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/matrices/expressions/tests/test_indexing.py::test_matrix_expression_from_index_summation",
+    "line": 234,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_indexing.py::test_matrix_expression_from_index_summation",
+    "score": 0.335,
+    "why": "via MatrixExpr.from_index_summation > convert_indexed_to_array > _convert_indexed_to_array"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_expr.py::test_new_rawargs",
+    "line": 1632,
+    "run": "python -m pytest sympy/core/tests/test_expr.py::test_new_rawargs",
+    "score": 0.242,
+    "why": "via QExpr._new_rawargs > _ElementwiseOperand.__new__ (name: new)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/physics/quantum/tests/test_qexpr.py::test_qexpr_new",
+    "line": 15,
+    "run": "python -m pytest sympy/physics/quantum/tests/test_qexpr.py::test_qexpr_new",
+    "score": 0.219,
+    "why": "via QExpr._new_rawargs > _ElementwiseOperand.__new__ (name: new)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_numbers.py::test_Rational_new",
+    "line": 330,
+    "run": "python -m pytest sympy/core/tests/test_numbers.py::test_Rational_new",
+    "score": 0.209,
+    "why": "via Rational.from_coprime_ints > _ElementwiseOperand.__new__ (name: new)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/matrices/expressions/tests/test_matadd.py::test_sort_key",
+    "line": 16,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_matadd.py::test_sort_key",
+    "score": 0.186,
+    "why": "via NO.doit > _ElementwiseOperand.__new__"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/physics/tests/test_secondquant.py::test_commutation",
+    "line": 236,
+    "run": "python -m pytest sympy/physics/tests/test_secondquant.py::test_commutation",
+    "score": 0.174,
+    "why": "via Implies.eval > _ElementwiseOperand.__new__"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/tensor/tests/test_tensor.py::test_tensor_expand",
+    "line": 1903,
+    "run": "python -m pytest sympy/tensor/tests/test_tensor.py::test_tensor_expand",
+    "score": 0.167,
+    "why": "via NO.doit > _ElementwiseOperand.__new__"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/matrices/expressions/tests/test_applyfunc.py::test_applyfunc_matrix",
+    "line": 24,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_applyfunc.py::test_applyfunc_matrix",
+    "score": 0.164,
+    "why": "via NO.doit > _ElementwiseOperand.__new__"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/control/tests/test_lti.py::test_DiscreteTransferFunction_functions",
+    "line": 690,
+    "run": "python -m pytest sympy/physics/control/tests/test_lti.py::test_DiscreteTransferFunction_functions",
+    "score": 0.162,
+    "why": "via NO.doit > _ElementwiseOperand.__new__"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/stats/tests/test_stochastic_process.py::test_DiscreteMarkovChain",
+    "line": 40,
+    "run": "python -m pytest sympy/stats/tests/test_stochastic_process.py::test_DiscreteMarkovChain",
+    "score": 0.159,
+    "why": "via NO.doit > _ElementwiseOperand.__new__"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/tensor/tests/test_tensor.py::test_TensMul_subs",
+    "line": 2250,
+    "run": "python -m pytest sympy/tensor/tests/test_tensor.py::test_TensMul_subs",
+    "score": 0.157,
+    "why": "via NO.doit > _ElementwiseOperand.__new__"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/combinatorial/tests/test_comb_numbers.py::test_motzkin",
+    "line": 1174,
+    "run": "python -m pytest sympy/functions/combinatorial/tests/test_comb_numbers.py::test_motzkin",
+    "score": 0.155,
+    "why": "via Implies.eval > _ElementwiseOperand.__new__"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/strategies/tests/test_rl.py::test_sort",
+    "line": 46,
+    "run": "python -m pytest sympy/strategies/tests/test_rl.py::test_sort",
+    "score": 0.155,
+    "why": "via sort.sort_rl > _ElementwiseOperand.__new__"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_sum",
+    "line": 873,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_sum",
+    "score": 0.153,
+    "why": "via NO.doit > _ElementwiseOperand.__new__"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/control/tests/test_lti.py::test_TransferFunction_functions",
+    "line": 192,
+    "run": "python -m pytest sympy/physics/control/tests/test_lti.py::test_TransferFunction_functions",
+    "score": 0.153,
+    "why": "via NO.doit > _ElementwiseOperand.__new__"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/tensor/tests/test_tensor.py::test_add1",
+    "line": 541,
+    "run": "python -m pytest sympy/tensor/tests/test_tensor.py::test_add1",
+    "score": 0.152,
+    "why": "via NO.doit > _ElementwiseOperand.__new__"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/tensor/array/tests/test_array_comprehension.py::test_array_comprehension",
+    "line": 9,
+    "run": "python -m pytest sympy/tensor/array/tests/test_array_comprehension.py::test_array_comprehension",
+    "score": 0.152,
+    "why": "via NO.doit > _ElementwiseOperand.__new__"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_function.py::test_subs_in_derivative",
+    "line": 741,
+    "run": "python -m pytest sympy/core/tests/test_function.py::test_subs_in_derivative",
+    "score": 0.151,
+    "why": "via NO.doit > _ElementwiseOperand.__new__"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_diff.py::test_diff_nth_derivative",
+    "line": 116,
+    "run": "python -m pytest sympy/core/tests/test_diff.py::test_diff_nth_derivative",
+    "score": 0.151,
+    "why": "via NO.doit > _ElementwiseOperand.__new__"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/stats/tests/test_finite_rv.py::test_dice",
+    "line": 68,
+    "run": "python -m pytest sympy/stats/tests/test_finite_rv.py::test_dice",
+    "score": 0.151,
+    "why": "via NO.doit > _ElementwiseOperand.__new__"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/matrices/expressions/tests/test_derivatives.py::test_matrix_derivatives_of_traces",
+    "line": 242,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_derivatives.py::test_matrix_derivatives_of_traces",
+    "score": 0.15,
+    "why": "via NO.doit > _ElementwiseOperand.__new__"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_tensor_product_scalar_coefficients",
+    "line": 239,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_tensor_product_scalar_coefficients",
+    "score": 0.149,
+    "why": "via NO.doit > _ElementwiseOperand.__new__"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_expressions_no_canonicalization",
+    "line": 670,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_expressions_no_canonicalization",
+    "score": 0.149,
+    "why": "via NO.doit > _ElementwiseOperand.__new__"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/printing/pycode.py",
+    "lines": "427-440",
+    "symbol": "_is_atomic_code"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/printing/pycode.py",
+    "lines": "582-583",
+    "symbol": "ArrayPrinter._print_ArrayElementwiseApplyFunc"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/printing/pycode.py",
+    "lines": "585-602",
+    "symbol": "ArrayPrinter._elementwise_body"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/printing/pycode.py",
+    "lines": "604-605",
+    "symbol": "ArrayPrinter._print__ElementwiseOperand"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/printing/tests/test_numpy.py",
+    "lines": "397-427",
+    "symbol": "test_issue_30395_scalar_assignment"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/printing/tests/test_pycode.py",
+    "lines": "472-493",
+    "symbol": "test_array_printer"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/printing/tests/test_tensorflow.py",
+    "lines": "497-504",
+    "symbol": "test_tensorflow_elementwise_apply_func"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py",
+    "lines": "288-312",
+    "symbol": "test_convert_indexed_to_array_scalars_stay_scalars"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792332794.5646431,
+  "job_seconds": 509.7,
+  "number": 30396,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 509.7,
+  "started": 1792332282.362153
+ },
+ "verify": null
+}

@@ -1,0 +1,598 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "379f910bbb8e7b54b7461d686032403859bc2a5f",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "1c1934784dd7ad9647ea4797ffc7d0d146174a4a",
+  "install_ok": true,
+  "merge_base": "d9a9cd995650088a237d13e459b10f5da9cfa928",
+  "pr": 30515,
+  "recording": false,
+  "runner": null,
+  "seconds": 360.4,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "379f910bbb8e7b54b7461d686032403859bc2a5f",
+  "head_sha": "1c1934784dd7ad9647ea4797ffc7d0d146174a4a",
+  "merge_base": "d9a9cd995650088a237d13e459b10f5da9cfa928",
+  "merged_at": "2026-09-23T10:46:56Z",
+  "number": 30515,
+  "repo": "sympy",
+  "title": "Fix function_range for composed functions"
+ },
+ "probe_minutes": {
+  "end": 1792329761.54644,
+  "minutes": 5.3,
+  "start": 1792329079.77649,
+  "waited": 364.7170316249976
+ },
+ "probe_targets": {
+  "all": 2,
+  "called": 0,
+  "targets": [
+   {
+    "after": "def test_function_range():\n    assert function_range(sin(x), x, Interval(-pi/2, pi/2)\n        ) == Interval(-1, 1)\n    assert function_range(sin(x), x, Interval(0, pi)\n        ) == Interval(0, 1)\n    assert function_range(tan(x), x, Interval(0, pi)\n        ) == Interval(-oo, oo)\n    assert function_range(tan(x), x, Interval(pi/2, pi)\n        ) == Interval(-oo, 0)\n    assert function_range((x + 3)/(x - 2), x, Interval(-5, 5)\n        ) == Union(Interval(-oo, Rational(2, 7)), Interval(Rational(8, 3), oo))\n    assert function_range(1/(x**2), x, Interval(-1, 1)\n        ) == Interval(1, oo)\n    assert function_range(exp(x), x, Interval(-1, 1)\n        ) == Interval(exp(-1), exp(1))\n    assert function_range(log(x) - x, x, S.Reals\n        ) == Interval(-oo, -1)\n    assert function_range(sqrt(3*x - 1), x, Interval(0, 2)\n        ) == Interval(0, sqrt(5))\n    assert function_range(x*(x - 1) - (x**2 - x), x, S.Reals\n        ) == FiniteSet(0)\n    assert function_range(x*(x - 1) - (x**2 - x) + y, x, S.Reals\n        ) == FiniteSet(y)\n    assert function_range(sin(x), x, Union(Interval(-5, -3), FiniteSet(4))\n        ) == Union(Interval(-sin(3), 1), FiniteSet(sin(4)))\n    assert function_range(cos(x), x, Interval(-oo, -4)\n        ) == Interval(-1, 1)\n    assert function_range(sin(exp(x)), x, S.Reals\n        ) == Interval(-1, 1)\n    assert function_range(cos(x), x, S.EmptySet) == S.EmptySet\n    assert function_range(x/sqrt(x**2+1), x, S.Reals) == Interval.open(-1,1)\n    assert function_range(sin(x) + x, x, S.Reals) == S.Reals  # issue 13273\n    assert function_range(x + 1/(x**2 + 1), x, S.Reals) == S.Reals\n    raises(NotImplementedError, lambda : function_range(\n        exp(x)*(sin(x) - cos(x))/2 - x, x, S.Reals))\n    raises(NotImplementedError, lambda : function_range(\n        log(x), x, S.Integers))\n    raises(NotImplementedError, lambda : function_range(\n        sin(x)/2, x, S.Naturals))\n",
+    "before": "def test_function_range():\n    assert function_range(sin(x), x, Interval(-pi/2, pi/2)\n        ) == Interval(-1, 1)\n    assert function_range(sin(x), x, Interval(0, pi)\n        ) == Interval(0, 1)\n    assert function_range(tan(x), x, Interval(0, pi)\n        ) == Interval(-oo, oo)\n    assert function_range(tan(x), x, Interval(pi/2, pi)\n        ) == Interval(-oo, 0)\n    assert function_range((x + 3)/(x - 2), x, Interval(-5, 5)\n        ) == Union(Interval(-oo, Rational(2, 7)), Interval(Rational(8, 3), oo))\n    assert function_range(1/(x**2), x, Interval(-1, 1)\n        ) == Interval(1, oo)\n    assert function_range(exp(x), x, Interval(-1, 1)\n        ) == Interval(exp(-1), exp(1))\n    assert function_range(log(x) - x, x, S.Reals\n        ) == Interval(-oo, -1)\n    assert function_range(sqrt(3*x - 1), x, Interval(0, 2)\n        ) == Interval(0, sqrt(5))\n    assert function_range(x*(x - 1) - (x**2 - x), x, S.Reals\n        ) == FiniteSet(0)\n    assert function_range(x*(x - 1) - (x**2 - x) + y, x, S.Reals\n        ) == FiniteSet(y)\n    assert function_range(sin(x), x, Union(Interval(-5, -3), FiniteSet(4))\n        ) == Union(Interval(-sin(3), 1), FiniteSet(sin(4)))\n    assert function_range(cos(x), x, Interval(-oo, -4)\n        ) == Interval(-1, 1)\n    assert function_range(cos(x), x, S.EmptySet) == S.EmptySet\n    assert function_range(x/sqrt(x**2+1), x, S.Reals) == Interval.open(-1,1)\n    assert function_range(sin(x) + x, x, S.Reals) == S.Reals  # issue 13273\n    assert function_range(x + 1/(x**2 + 1), x, S.Reals) == S.Reals\n    raises(NotImplementedError, lambda : function_range(\n        exp(x)*(sin(x) - cos(x))/2 - x, x, S.Reals))\n    raises(NotImplementedError, lambda : function_range(\n        log(x), x, S.Integers))\n    raises(NotImplementedError, lambda : function_range(\n        sin(x)/2, x, S.Naturals))\n",
+    "file": "sympy/calculus/tests/test_util.py",
+    "id": "sympy/calculus/tests/test_util.py#test_function_range",
+    "name": "test_function_range",
+    "qual": "test_function_range",
+    "signature_changed": false
+   },
+   {
+    "after": "def function_range(f, symbol, domain):\n    \"\"\"\n    Finds the range of a function in a given domain.\n    This method is limited by the ability to determine the singularities and\n    determine limits.\n\n    Parameters\n    ==========\n\n    f : :py:class:`~.Expr`\n        The concerned function.\n    symbol : :py:class:`~.Symbol`\n        The variable for which the range of function is to be determined.\n    domain : :py:class:`~.Interval`\n        The domain under which the range of the function has to be found.\n\n    Examples\n    ========\n\n    >>> from sympy import Interval, Symbol, S, exp, log, pi, sqrt, sin, tan\n    >>> from sympy.calculus.util import function_range\n    >>> x = Symbol('x')\n    >>> function_range(sin(x), x, Interval(0, 2*pi))\n    Interval(-1, 1)\n    >>> function_range(tan(x), x, Interval(-pi/2, pi/2))\n    Reals\n    >>> function_range(1/x, x, S.Reals)\n    Union(Interval.open(-oo, 0), Interval.open(0, oo))\n    >>> function_range(exp(x), x, S.Reals)\n    Interval.open(0, oo)\n    >>> function_range(log(x), x, S.Reals)\n    Reals\n    >>> function_range(sqrt(x), x, Interval(-5, 9))\n    Interval(0, 3)\n\n    Returns\n    =======\n\n    :py:class:`~.Interval`\n        Union of all ranges for all intervals under domain where function is\n        continuous.\n\n    Raises\n    ======\n\n    NotImplementedError\n        If any of the intervals, in the given domain, for which function\n        is continuous are not finite or real,\n        OR if the critical points of the function on the domain cannot be found.\n    \"\"\"\n    from sympy.solvers.decompogen import decompogen\n\n    if domain is S.EmptySet:\n        return S.EmptySet\n\n    if f.is_Function and len(f.args) == 1 and f.args[0] != symbol:\n        decomposition = decompogen(f, symbol)\n\n        if len(decomposition) > 1:\n            current_range = function_range(decomposition[-1], symbol, domain)\n\n            for func in reversed(decomposition[:-1]):\n                current_range = function_range(func, symbol, current_range)\n\n            return current_range\n\n    period = periodicity(f, symbol)\n\n    if period == S.Zero:\n        # the expression is constant wrt symbol\n        return FiniteSet(f.expand())\n\n    from sympy.series.limits import limit\n    from sympy.solvers.solveset import solveset\n\n    if period is not None:\n        if isinstance(domain, Interval):\n            if (domain.inf - domain.sup).is_infinite:\n                domain = Interval(0, period)\n        elif isinstance(domain, Union):\n            for sub_dom in domain.args:\n                if isinstance(sub_dom, Interval) and \\\n                ((sub_dom.inf - sub_dom.sup).is_infinite):\n                    domain = Interval(0, period)\n\n    intervals = continuous_domain(f, symbol, domain)\n    range_int = S.EmptySet\n    if isinstance(intervals,(Interval, FiniteSet)):\n        interval_iter = (intervals,)\n    elif isinstance(intervals, Union):\n        interval_iter = intervals.args\n    else:\n        raise NotImplementedError(\"Unable to find range for the given domain.\")\n\n    for interval in interval_iter:\n        if isinstance(interval, FiniteSet):\n            for singleton in interval:\n                if singleton in domain:\n                    range_int += FiniteSet(f.subs(symbol, singleton))\n        elif isinstance(interval, Interval):\n            vals = S.EmptySet\n            critical_values = S.EmptySet\n            bounds = ((interval.left_open, interval.inf, '+'),\n                   (interval.right_open, interval.sup, '-'))\n\n            for is_open, limit_point, direction in bounds:\n                if is_open:\n                    critical_values += FiniteSet(limit(f, symbol, limit_point, direction))\n                    vals += critical_values\n                else:\n                    vals += FiniteSet(f.subs(symbol, limit_point))\n\n            if vals.inf == S.NegativeInfinity and vals.sup == S.Infinity:\n                range_int += S.Reals\n                continue\n\n            critical_points = solveset(f.diff(symbol), symbol, interval)\n\n            if not iterable(critical_points):\n                raise NotImplementedError(\n                        'Unable to find critical points for {}'.format(f))\n            if isinstance(critical_points, ImageSet):\n                raise NotImplementedError(\n                        'Infinite number of critical points for {}'.format(f))\n\n            for critical_point in critical_points:\n                vals += FiniteSet(f.subs(symbol, critical_point))\n\n            left_open, right_open = False, False\n\n            if critical_values is not S.EmptySet:\n                if critical_values.inf == vals.inf:\n                    left_open = True\n\n                if critical_values.sup == vals.sup:\n                    right_open = True\n\n            range_int += Interval(vals.inf, vals.sup, left_open, right_open)\n        else:\n            raise NotImplementedError(\"Unable to find range for the given domain.\")\n\n    return range_int\n",
+    "before": "def function_range(f, symbol, domain):\n    \"\"\"\n    Finds the range of a function in a given domain.\n    This method is limited by the ability to determine the singularities and\n    determine limits.\n\n    Parameters\n    ==========\n\n    f : :py:class:`~.Expr`\n        The concerned function.\n    symbol : :py:class:`~.Symbol`\n        The variable for which the range of function is to be determined.\n    domain : :py:class:`~.Interval`\n        The domain under which the range of the function has to be found.\n\n    Examples\n    ========\n\n    >>> from sympy import Interval, Symbol, S, exp, log, pi, sqrt, sin, tan\n    >>> from sympy.calculus.util import function_range\n    >>> x = Symbol('x')\n    >>> function_range(sin(x), x, Interval(0, 2*pi))\n    Interval(-1, 1)\n    >>> function_range(tan(x), x, Interval(-pi/2, pi/2))\n    Reals\n    >>> function_range(1/x, x, S.Reals)\n    Union(Interval.open(-oo, 0), Interval.open(0, oo))\n    >>> function_range(exp(x), x, S.Reals)\n    Interval.open(0, oo)\n    >>> function_range(log(x), x, S.Reals)\n    Reals\n    >>> function_range(sqrt(x), x, Interval(-5, 9))\n    Interval(0, 3)\n\n    Returns\n    =======\n\n    :py:class:`~.Interval`\n        Union of all ranges for all intervals under domain where function is\n        continuous.\n\n    Raises\n    ======\n\n    NotImplementedError\n        If any of the intervals, in the given domain, for which function\n        is continuous are not finite or real,\n        OR if the critical points of the function on the domain cannot be found.\n    \"\"\"\n\n    if domain is S.EmptySet:\n        return S.EmptySet\n\n    period = periodicity(f, symbol)\n    if period == S.Zero:\n        # the expression is constant wrt symbol\n        return FiniteSet(f.expand())\n\n    from sympy.series.limits import limit\n    from sympy.solvers.solveset import solveset\n\n    if period is not None:\n        if isinstance(domain, Interval):\n            if (domain.inf - domain.sup).is_infinite:\n                domain = Interval(0, period)\n        elif isinstance(domain, Union):\n            for sub_dom in domain.args:\n                if isinstance(sub_dom, Interval) and \\\n                ((sub_dom.inf - sub_dom.sup).is_infinite):\n                    domain = Interval(0, period)\n\n    intervals = continuous_domain(f, symbol, domain)\n    range_int = S.EmptySet\n    if isinstance(intervals,(Interval, FiniteSet)):\n        interval_iter = (intervals,)\n    elif isinstance(intervals, Union):\n        interval_iter = intervals.args\n    else:\n        raise NotImplementedError(\"Unable to find range for the given domain.\")\n\n    for interval in interval_iter:\n        if isinstance(interval, FiniteSet):\n            for singleton in interval:\n                if singleton in domain:\n                    range_int += FiniteSet(f.subs(symbol, singleton))\n        elif isinstance(interval, Interval):\n            vals = S.EmptySet\n            critical_values = S.EmptySet\n            bounds = ((interval.left_open, interval.inf, '+'),\n                   (interval.right_open, interval.sup, '-'))\n\n            for is_open, limit_point, direction in bounds:\n                if is_open:\n                    critical_values += FiniteSet(limit(f, symbol, limit_point, direction))\n                    vals += critical_values\n                else:\n                    vals += FiniteSet(f.subs(symbol, limit_point))\n\n            if vals.inf == S.NegativeInfinity and vals.sup == S.Infinity:\n                range_int += S.Reals\n                continue\n\n            critical_points = solveset(f.diff(symbol), symbol, interval)\n\n            if not iterable(critical_points):\n                raise NotImplementedError(\n                        'Unable to find critical points for {}'.format(f))\n            if isinstance(critical_points, ImageSet):\n                raise NotImplementedError(\n                        'Infinite number of critical points for {}'.format(f))\n\n            for critical_point in critical_points:\n                vals += FiniteSet(f.subs(symbol, critical_point))\n\n            left_open, right_open = False, False\n\n            if critical_values is not S.EmptySet:\n                if critical_values.inf == vals.inf:\n                    left_open = True\n\n                if critical_values.sup == vals.sup:\n                    right_open = True\n\n            range_int += Interval(vals.inf, vals.sup, left_open, right_open)\n        else:\n            raise NotImplementedError(\"Unable to find range for the given domain.\")\n\n    return range_int\n",
+    "file": "sympy/calculus/util.py",
+    "id": "sympy/calculus/util.py#function_range",
+    "name": "function_range",
+    "qual": "function_range",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [],
+   "filter_seconds": 304.1,
+   "gaps": [],
+   "info": {
+    "accepted": 0,
+    "compiled": 2,
+    "cost": 0.0,
+    "differed": 0,
+    "dollars_cap": 0.1,
+    "functions": 2,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 2,
+    "ran": 2,
+    "reached": 2,
+    "requests": 1,
+    "seconds": 303.9,
+    "stable": 2
+   },
+   "probes": [
+    {
+     "call": "ranges([(exp(sin(x)), S.Reals), (log(x**2 + 1), S.Reals), (sqrt(cos(x) + 2), Interval(0, 1))])",
+     "function": "sympy/calculus/util.py#function_range",
+     "setup": "from sympy import Interval, S, cos, exp, log, sin, sqrt, symbols\nfrom sympy.calculus.util import function_range\nx = symbols('x')\n\ndef ranges(cases):\n    out = []\n    for f, domain in cases:\n        try:\n            out.append(str(function_range(f, x, domain)))\n        except Exception as exc:\n            out.append('raised ' + type(exc).__name__)\n    return out\n",
+     "why": "composed functions the change now decomposes"
+    },
+    {
+     "call": "ranges([(cos(x**2), Interval(0, 2)), (exp(-x**2), S.Reals)])",
+     "function": "sympy/calculus/tests/test_util.py#test_function_range",
+     "setup": "from sympy import Interval, S, cos, exp, log, sin, sqrt, symbols\nfrom sympy.calculus.util import function_range\nx = symbols('x')\n\ndef ranges(cases):\n    out = []\n    for f, domain in cases:\n        try:\n            out.append(str(function_range(f, x, domain)))\n        except Exception as exc:\n            out.append('raised ' + type(exc).__name__)\n    return out\n",
+     "why": "more composed functions, as the edited test adds one"
+    }
+   ],
+   "targets": [
+    "sympy/calculus/tests/test_util.py#test_function_range",
+    "sympy/calculus/util.py#function_range"
+   ],
+   "waited_seconds": 364.7
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "changed_functions": [
+   {
+    "file": "sympy/calculus/tests/test_util.py",
+    "lines": "59-60",
+    "symbol": "test_function_range"
+   },
+   {
+    "file": "sympy/calculus/util.py",
+    "lines": "212-229",
+    "symbol": "function_range"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/calculus/tests/test_util.py#test_function_range",
+   "sympy/calculus/util.py#function_range"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "function_range return changed",
+    "path": [
+     "sympy/calculus/util.py:226 return",
+     "sympy/calculus/util.py:148 continuous_domain uses the result",
+     "sympy/calculus/util.py:864 maximum uses the result",
+     "sympy/calculus/util.py:911 minimum uses the result"
+    ],
+    "to": "5 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 1,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 552,
+   "ran": 552,
+   "replayed": 0,
+   "runner": "pytest",
+   "seconds": 352.5,
+   "selection": {
+    "candidates": 12874,
+    "closure_files": 1320,
+    "closure_tests": 12874,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 0
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "12322 lower-ranked candidate(s) not run: about 2 tests/s per process fit 552 in the 300 s allowed",
+   "64260 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "Skipped 1 non-Python file(s)",
+   "graph reused from the previous state; 5 changed file(s) relinked",
+   "replaying the change's own tests (before the change, pytest): timed out",
+   "side-by-side: none of the 2 changed function(s) was called by the tests run on the code before the change"
+  ],
+  "impacted": {
+   "count": 179,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1606,
+   "parsed_files": 5
+  },
+  "original_tests": {
+   "sympy/calculus/tests/test_util.py::test_accumbounds_union": "passed",
+   "sympy/calculus/tests/test_util.py::test_continuous_domain_acot": "skipped",
+   "sympy/calculus/tests/test_util.py::test_continuous_domain_gamma": "skipped",
+   "sympy/calculus/tests/test_util.py::test_function_range": "passed",
+   "sympy/calculus/tests/test_util.py::test_function_range1": "skipped",
+   "sympy/calculus/tests/test_util.py::test_lcim": "passed",
+   "sympy/calculus/tests/test_util.py::test_periodicity": "skipped"
+  },
+  "predicted_failures": [],
+  "report_hash": "4f1f59b6e83c",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 0,
+   "differences": 0,
+   "functions_called": 0,
+   "input_built_before_the_change": 0,
+   "not_compared": {},
+   "seconds": 50.3,
+   "targets": 2,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 552 of 552 candidate tests after the change with pytest in 352.5 s, failures confirmed before it: 0 now fail. 306 tests reach the change. 7 test(s) from edited test files also run as they were before the edit.",
+  "tests": [
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/calculus/tests/test_util.py::test_function_range",
+    "line": 32,
+    "run": "python -m pytest sympy/calculus/tests/test_util.py::test_function_range",
+    "score": 3.2,
+    "why": "calls function_range (name: function,range,util)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/calculus/tests/test_util.py::test_function_range1",
+    "line": 73,
+    "run": "python -m pytest sympy/calculus/tests/test_util.py::test_function_range1",
+    "score": 2.0,
+    "why": "calls function_range (name: function,range,util)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/calculus/tests/test_util.py::test_issue_16469",
+    "line": 400,
+    "run": "python -m pytest sympy/calculus/tests/test_util.py::test_issue_16469",
+    "score": 0.846,
+    "why": "calls function_range (name: util)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/calculus/tests/test_util.py::test_continuous_domain",
+    "line": 78,
+    "run": "python -m pytest sympy/calculus/tests/test_util.py::test_continuous_domain",
+    "score": 0.437,
+    "why": "via continuous_domain > function_range (name: util)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/calculus/tests/test_util.py::test_continuous_domain_acot",
+    "line": 156,
+    "run": "python -m pytest sympy/calculus/tests/test_util.py::test_continuous_domain_acot",
+    "score": 0.398,
+    "why": "via continuous_domain > function_range (name: util)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/calculus/tests/test_util.py::test_continuous_domain_gamma",
+    "line": 161,
+    "run": "python -m pytest sympy/calculus/tests/test_util.py::test_continuous_domain_gamma",
+    "score": 0.377,
+    "why": "via continuous_domain > function_range (name: util)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/calculus/tests/test_util.py::test_continuous_domain_neg_power",
+    "line": 165,
+    "run": "python -m pytest sympy/calculus/tests/test_util.py::test_continuous_domain_neg_power",
+    "score": 0.36,
+    "why": "via continuous_domain > function_range (name: util)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/calculus/tests/test_util.py::test_issue_19869",
+    "line": 395,
+    "run": "python -m pytest sympy/calculus/tests/test_util.py::test_issue_19869",
+    "score": 0.323,
+    "why": "via maximum > function_range (name: util)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/calculus/tests/test_util.py::test_maximum",
+    "line": 336,
+    "run": "python -m pytest sympy/calculus/tests/test_util.py::test_maximum",
+    "score": 0.313,
+    "why": "via maximum > function_range (name: util)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/calculus/tests/test_util.py::test_minimum",
+    "line": 368,
+    "run": "python -m pytest sympy/calculus/tests/test_util.py::test_minimum",
+    "score": 0.304,
+    "why": "via minimum > function_range (name: util)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_solve_decomposition",
+    "line": 1806,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_solve_decomposition",
+    "score": 0.211,
+    "why": "via solve_decomposition > function_range"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_integer_domain_relational_isolve",
+    "line": 424,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_integer_domain_relational_isolve",
+    "score": 0.199,
+    "why": "via solve_univariate_inequality > function_range"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/calculus/tests/test_util.py::test_is_convex",
+    "line": 292,
+    "run": "python -m pytest sympy/calculus/tests/test_util.py::test_is_convex",
+    "score": 0.173,
+    "why": "via is_convex > solve_univariate_inequality > function_range (name: util)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/calculus/tests/test_util.py::test_stationary_points",
+    "line": 304,
+    "run": "python -m pytest sympy/calculus/tests/test_util.py::test_stationary_points",
+    "score": 0.172,
+    "why": "via stationary_points > continuous_domain > function_range (name: util)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_isolve_Sets",
+    "line": 417,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_isolve_Sets",
+    "score": 0.164,
+    "why": "via solve_univariate_inequality > function_range"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_issue_8974",
+    "line": 385,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_issue_8974",
+    "score": 0.162,
+    "why": "via solve_univariate_inequality > function_range"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_issue_9954",
+    "line": 363,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_issue_9954",
+    "score": 0.161,
+    "why": "via solve_univariate_inequality > function_range"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_solve_univariate_inequality",
+    "line": 278,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_solve_univariate_inequality",
+    "score": 0.16,
+    "why": "via solve_univariate_inequality > function_range"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_trig_inequalities",
+    "line": 340,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_trig_inequalities",
+    "score": 0.159,
+    "why": "via solve_univariate_inequality > function_range"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/utilities/tests/test_wester.py::test_U13",
+    "line": 2305,
+    "run": "python -m pytest sympy/utilities/tests/test_wester.py::test_U13",
+    "score": 0.158,
+    "why": "via minimum > function_range"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/plotting/tests/test_series.py::test_complex_range_line_plot_1",
+    "line": 1526,
+    "run": "python -m pytest sympy/plotting/tests/test_series.py::test_complex_range_line_plot_1",
+    "score": 0.118,
+    "why": "via Line2DBaseSeries.get_data > _detect_poles_symbolic_helper > continuous_domain > function_range (name: range)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/plotting/tests/test_series.py::test_complex_range_line_plot_2",
+    "line": 1553,
+    "run": "python -m pytest sympy/plotting/tests/test_series.py::test_complex_range_line_plot_2",
+    "score": 0.117,
+    "why": "via Line2DBaseSeries.get_data > _detect_poles_symbolic_helper > continuous_domain > function_range (name: range)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/plotting/tests/test_series.py::test_symbolic_plotting_ranges",
+    "line": 1634,
+    "run": "python -m pytest sympy/plotting/tests/test_series.py::test_symbolic_plotting_ranges",
+    "score": 0.117,
+    "why": "via test_symbolic_plotting_ranges.do_test > Line2DBaseSeries.get_data > _detect_poles_symbolic_helper > continuous_domain > function_range (name: range)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_26077",
+    "line": 3605,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_issue_26077",
+    "score": 0.107,
+    "why": "via stationary_points > continuous_domain > function_range"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_inequalities.py::test__solve_inequality",
+    "line": 450,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test__solve_inequality",
+    "score": 0.098,
+    "why": "via _solve_inequality > solve_univariate_inequality > function_range"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_sums_products.py::test_convergent_failing",
+    "line": 1160,
+    "run": "python -m pytest sympy/concrete/tests/test_sums_products.py::test_convergent_failing",
+    "score": 0.093,
+    "why": "via Sum.is_convergent > continuous_domain > function_range"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/concrete/tests/test_sums_products.py::test_exceptions",
+    "line": 1274,
+    "run": "python -m pytest sympy/concrete/tests/test_sums_products.py::test_exceptions",
+    "score": 0.093,
+    "why": "via Sum.is_convergent > continuous_domain > function_range"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/concrete/tests/test_sums_products.py::test_is_convergent",
+    "line": 1077,
+    "run": "python -m pytest sympy/concrete/tests/test_sums_products.py::test_is_convergent",
+    "score": 0.093,
+    "why": "via Sum.is_convergent > continuous_domain > function_range"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_sums_products.py::test_issue_10973",
+    "line": 1183,
+    "run": "python -m pytest sympy/concrete/tests/test_sums_products.py::test_issue_10973",
+    "score": 0.093,
+    "why": "via Sum.is_convergent > continuous_domain > function_range"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_sums_products.py::test_issue_14103",
+    "line": 1187,
+    "run": "python -m pytest sympy/concrete/tests/test_sums_products.py::test_issue_14103",
+    "score": 0.093,
+    "why": "via Sum.is_convergent > continuous_domain > function_range"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_sums_products.py::test_issue_14111",
+    "line": 1224,
+    "run": "python -m pytest sympy/concrete/tests/test_sums_products.py::test_issue_14111",
+    "score": 0.092,
+    "why": "via Sum.is_convergent > continuous_domain > function_range"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_sums_products.py::test_issue_14112",
+    "line": 1207,
+    "run": "python -m pytest sympy/concrete/tests/test_sums_products.py::test_issue_14112",
+    "score": 0.092,
+    "why": "via Sum.is_convergent > continuous_domain > function_range"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_sums_products.py::test_issue_14313",
+    "line": 1440,
+    "run": "python -m pytest sympy/concrete/tests/test_sums_products.py::test_issue_14313",
+    "score": 0.092,
+    "why": "via Sum.is_convergent > continuous_domain > function_range"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_sums_products.py::test_issue_14484",
+    "line": 1228,
+    "run": "python -m pytest sympy/concrete/tests/test_sums_products.py::test_issue_14484",
+    "score": 0.092,
+    "why": "via Sum.is_convergent > continuous_domain > function_range"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_sums_products.py::test_issue_16735",
+    "line": 1449,
+    "run": "python -m pytest sympy/concrete/tests/test_sums_products.py::test_issue_16735",
+    "score": 0.092,
+    "why": "via Sum.is_convergent > continuous_domain > function_range"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_sums_products.py::test_issue_19379",
+    "line": 1468,
+    "run": "python -m pytest sympy/concrete/tests/test_sums_products.py::test_issue_19379",
+    "score": 0.092,
+    "why": "via Sum.is_convergent > continuous_domain > function_range"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_sums_products.py::test_sin_times_absolutely_convergent",
+    "line": 1219,
+    "run": "python -m pytest sympy/concrete/tests/test_sums_products.py::test_sin_times_absolutely_convergent",
+    "score": 0.092,
+    "why": "via Sum.is_convergent > continuous_domain > function_range"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_issue_25697",
+    "line": 491,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_issue_25697",
+    "score": 0.092,
+    "why": "via _solve_inequality > solve_univariate_inequality > function_range"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_reduce_poly_inequalities_complex_relational",
+    "line": 118,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_reduce_poly_inequalities_complex_relational",
+    "score": 0.092,
+    "why": "via reduce_rational_inequalities > solve_univariate_inequality > function_range"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_reduce_poly_inequalities_real_interval",
+    "line": 43,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_reduce_poly_inequalities_real_interval",
+    "score": 0.091,
+    "why": "via reduce_rational_inequalities > solve_univariate_inequality > function_range"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/calculus/tests/test_util.py",
+    "lines": "59-60",
+    "symbol": "test_function_range"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792329013.589875,
+  "job_seconds": 360.4,
+  "number": 30515,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 360.6,
+  "started": 1792328650.60971
+ },
+ "verify": null
+}

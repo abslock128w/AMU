@@ -1,0 +1,1183 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "2b30f6255b5ef84afbd827993643d52ef2c0963a",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "7c3dc673936537376246df1f479dbf2fc8b319fc",
+  "install_ok": true,
+  "merge_base": "2b30f6255b5ef84afbd827993643d52ef2c0963a",
+  "pr": 21736,
+  "recording": true,
+  "runner": null,
+  "seconds": 16.8,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "2b30f6255b5ef84afbd827993643d52ef2c0963a",
+  "head_sha": "7c3dc673936537376246df1f479dbf2fc8b319fc",
+  "merge_base": "2b30f6255b5ef84afbd827993643d52ef2c0963a",
+  "merged_at": "2026-09-14T15:22:13Z",
+  "number": 21736,
+  "repo": "django",
+  "title": "Fixed #36809 -- Allowed customizing EmailValidator per-part validation."
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 2,
+  "called": 2,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [
+   {
+    "after": {
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        [
+         [
+          "django.core.validators.EmailValidator",
+          [
+           "dict",
+           [
+            [
+             "'_constructor_args'",
+             [
+              "tuple",
+              [
+               "<tuple>",
+               "<dict>"
+              ]
+             ]
+            ]
+           ]
+          ]
+         ],
+         "'example.com'"
+        ]
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "calls": [],
+     "result": [
+      "raise",
+      "RemovedInDjango2029Warning",
+      "EmailValidator.validate_domain_part() is deprecated. Migrate to validate_domain(), raising ValidationError for invalid domains."
+     ],
+     "stdout": ""
+    },
+    "before": {
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        [
+         [
+          "django.core.validators.EmailValidator",
+          [
+           "dict",
+           [
+            [
+             "'_constructor_args'",
+             [
+              "tuple",
+              [
+               "<tuple>",
+               "<dict>"
+              ]
+             ]
+            ]
+           ]
+          ]
+         ],
+         "'example.com'"
+        ]
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "calls": [],
+     "result": [
+      "return",
+      "True"
+     ],
+     "stdout": ""
+    },
+    "differs": [
+     "result"
+    ],
+    "input": "([<django.core.validators.EmailValidator object at 0x?>, 'example.com'], {})",
+    "label": "behaviour differs on captured input",
+    "target": "django/core/validators.py#EmailValidator.validate_domain_part",
+    "test": "composite_pk.test_models.CompositePKModelsTests.test_full_clean_failure"
+   }
+  ],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_invalid_domain_error",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_invalid_username_error",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_validate_domain_override",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_validate_username_override",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_validate_override",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_parse_address",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_parse_address_override",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_validate_domain_override_can_raise_custom_error",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_validate_username_override_can_raise_custom_error",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_validate_domain_allows_allowlisted_domain",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/validators/tests.py::EmailValidatorDeprecationTests::test_legacy_validate_domain_part_override_warns",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/validators/tests.py::EmailValidatorDeprecationTests::test_legacy_validate_domain_part_override_with_super_warns_once",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/validators/tests.py::EmailValidatorDeprecationTests::test_call_override_using_stock_validate_domain_part_warns",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/validators/tests.py::EmailValidatorDeprecationTests::test_validate_domain_part_direct_call_warns",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "django/core/validators.py",
+    "lines": "250-258",
+    "symbol": "EmailValidator.__init_subclass__"
+   },
+   {
+    "file": "django/core/validators.py",
+    "lines": "269-270",
+    "symbol": "EmailValidator.__call__"
+   },
+   {
+    "file": "django/core/validators.py",
+    "lines": "272-292",
+    "symbol": "EmailValidator.validate"
+   },
+   {
+    "file": "django/core/validators.py",
+    "lines": "294-298",
+    "symbol": "EmailValidator.parse_address"
+   },
+   {
+    "file": "django/core/validators.py",
+    "lines": "300-306",
+    "symbol": "EmailValidator.validate_username"
+   },
+   {
+    "file": "django/core/validators.py",
+    "lines": "308-327",
+    "symbol": "EmailValidator.validate_domain"
+   },
+   {
+    "file": "django/core/validators.py",
+    "lines": "331-337",
+    "symbol": "EmailValidator.validate_domain_part"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "767-774",
+    "symbol": "EmailValidatorTests.test_invalid_domain_error"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "776-783",
+    "symbol": "EmailValidatorTests.test_invalid_username_error"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "785-794",
+    "symbol": "EmailValidatorTests.test_validate_domain_override"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "787-789",
+    "symbol": "EmailValidatorTests.test_validate_domain_override.ExampleComDomainValidator.validate_domain"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "796-805",
+    "symbol": "EmailValidatorTests.test_validate_username_override"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "798-800",
+    "symbol": "EmailValidatorTests.test_validate_username_override.NotAdminUsernameValidator.validate_username"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "807-818",
+    "symbol": "EmailValidatorTests.test_validate_override"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "809-813",
+    "symbol": "EmailValidatorTests.test_validate_override.UsernameMatchingDomainValidator.validate"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "820-828",
+    "symbol": "EmailValidatorTests.test_parse_address"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "830-838",
+    "symbol": "EmailValidatorTests.test_parse_address_override"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "832-834",
+    "symbol": "EmailValidatorTests.test_parse_address_override.SplitOnFirstAtValidator.parse_address"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "840-859",
+    "symbol": "EmailValidatorTests.test_validate_domain_override_can_raise_custom_error"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "842-850",
+    "symbol": "EmailValidatorTests.test_validate_domain_override_can_raise_custom_error.CustomDomainErrorValidator.validate_domain"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "861-882",
+    "symbol": "EmailValidatorTests.test_validate_username_override_can_raise_custom_error"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "863-871",
+    "symbol": "EmailValidatorTests.test_validate_username_override_can_raise_custom_error.CustomUsernameErrorValidator.validate_username"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "884-893",
+    "symbol": "EmailValidatorTests.test_subclass_without_overrides"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "895-901",
+    "symbol": "EmailValidatorTests.test_validate_domain_allows_allowlisted_domain"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "906-915",
+    "symbol": "EmailValidatorDeprecationTests.test_legacy_validate_domain_part_override_warns"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "914-915",
+    "symbol": "EmailValidatorDeprecationTests.test_legacy_validate_domain_part_override_warns.LegacyEmailValidator.validate_domain_part"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "917-927",
+    "symbol": "EmailValidatorDeprecationTests.test_legacy_validate_domain_part_override_with_super_warns_once"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "922-923",
+    "symbol": "EmailValidatorDeprecationTests.test_legacy_validate_domain_part_override_with_super_warns_once.LegacyEmailValidator.validate_domain_part"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "929-942",
+    "symbol": "EmailValidatorDeprecationTests.test_call_override_using_stock_validate_domain_part_warns"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "933-936",
+    "symbol": "EmailValidatorDeprecationTests.test_call_override_using_stock_validate_domain_part_warns.StockDomainPartCallValidator.__call__"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "944-949",
+    "symbol": "EmailValidatorDeprecationTests.test_validate_domain_part_direct_call_warns"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "951-958",
+    "symbol": "EmailValidatorDeprecationTests.test_validate_domain_part_ignores_allowlist"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "960-976",
+    "symbol": "EmailValidatorDeprecationTests.test_legacy_validate_domain_part_override_with_super_is_honored"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "963-967",
+    "symbol": "EmailValidatorDeprecationTests.test_legacy_validate_domain_part_override_with_super_is_honored.LegacyEmailValidator.validate_domain_part"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "978-991",
+    "symbol": "EmailValidatorDeprecationTests.test_override_both_prefers_legacy_validate_domain_part"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "981-982",
+    "symbol": "EmailValidatorDeprecationTests.test_override_both_prefers_legacy_validate_domain_part.LegacyPreferredEmailValidator.validate_domain"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "984-985",
+    "symbol": "EmailValidatorDeprecationTests.test_override_both_prefers_legacy_validate_domain_part.LegacyPreferredEmailValidator.validate_domain_part"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "993-1009",
+    "symbol": "EmailValidatorDeprecationTests.test_legacy_override_with_colliding_validate_domain"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "1000-1001",
+    "symbol": "EmailValidatorDeprecationTests.test_legacy_override_with_colliding_validate_domain.LegacyEmailValidator.validate_domain"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "1003-1004",
+    "symbol": "EmailValidatorDeprecationTests.test_legacy_override_with_colliding_validate_domain.LegacyEmailValidator.validate_domain_part"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "1011-1025",
+    "symbol": "EmailValidatorDeprecationTests.test_allowlisted_domain_skips_legacy_override"
+   },
+   {
+    "file": "tests/validators/tests.py",
+    "lines": "1014-1017",
+    "symbol": "EmailValidatorDeprecationTests.test_allowlisted_domain_skips_legacy_override.OrgOnlyEmailValidator.validate_domain_part"
+   }
+  ],
+  "changed_symbols": [
+   "django/core/validators.py#EmailValidator.__call__",
+   "django/core/validators.py#EmailValidator.__init_subclass__",
+   "django/core/validators.py#EmailValidator.parse_address",
+   "django/core/validators.py#EmailValidator.validate",
+   "django/core/validators.py#EmailValidator.validate_domain",
+   "django/core/validators.py#EmailValidator.validate_domain_part",
+   "django/core/validators.py#EmailValidator.validate_domain_part_deprecated_msg",
+   "django/core/validators.py#EmailValidator.validate_domain_part_overridden",
+   "django/core/validators.py#EmailValidator.validate_username",
+   "tests/validators/tests.py#EmailValidatorDeprecationTests.test_allowlisted_domain_skips_legacy_override",
+   "tests/validators/tests.py#EmailValidatorDeprecationTests.test_allowlisted_domain_skips_legacy_override.OrgOnlyEmailValidator.validate_domain_part",
+   "tests/validators/tests.py#EmailValidatorDeprecationTests.test_call_override_using_stock_validate_domain_part_warns",
+   "tests/validators/tests.py#EmailValidatorDeprecationTests.test_call_override_using_stock_validate_domain_part_warns.StockDomainPartCallValidator.__call__",
+   "tests/validators/tests.py#EmailValidatorDeprecationTests.test_legacy_override_with_colliding_validate_domain",
+   "tests/validators/tests.py#EmailValidatorDeprecationTests.test_legacy_override_with_colliding_validate_domain.LegacyEmailValidator.validate_domain",
+   "tests/validators/tests.py#EmailValidatorDeprecationTests.test_legacy_override_with_colliding_validate_domain.LegacyEmailValidator.validate_domain_part",
+   "tests/validators/tests.py#EmailValidatorDeprecationTests.test_legacy_validate_domain_part_override_warns",
+   "tests/validators/tests.py#EmailValidatorDeprecationTests.test_legacy_validate_domain_part_override_warns.LegacyEmailValidator.validate_domain_part",
+   "tests/validators/tests.py#EmailValidatorDeprecationTests.test_legacy_validate_domain_part_override_with_super_is_honored",
+   "tests/validators/tests.py#EmailValidatorDeprecationTests.test_legacy_validate_domain_part_override_with_super_is_honored.LegacyEmailValidator.validate_domain_part",
+   "tests/validators/tests.py#EmailValidatorDeprecationTests.test_legacy_validate_domain_part_override_with_super_warns_once",
+   "tests/validators/tests.py#EmailValidatorDeprecationTests.test_legacy_validate_domain_part_override_with_super_warns_once.LegacyEmailValidator.validate_domain_part",
+   "tests/validators/tests.py#EmailValidatorDeprecationTests.test_override_both_prefers_legacy_validate_domain_part",
+   "tests/validators/tests.py#EmailValidatorDeprecationTests.test_override_both_prefers_legacy_validate_domain_part.LegacyPreferredEmailValidator.validate_domain",
+   "tests/validators/tests.py#EmailValidatorDeprecationTests.test_override_both_prefers_legacy_validate_domain_part.LegacyPreferredEmailValidator.validate_domain_part",
+   "tests/validators/tests.py#EmailValidatorDeprecationTests.test_validate_domain_part_direct_call_warns",
+   "tests/validators/tests.py#EmailValidatorDeprecationTests.test_validate_domain_part_ignores_allowlist",
+   "tests/validators/tests.py#EmailValidatorTests.test_invalid_domain_error",
+   "tests/validators/tests.py#EmailValidatorTests.test_invalid_username_error",
+   "tests/validators/tests.py#EmailValidatorTests.test_parse_address",
+   "tests/validators/tests.py#EmailValidatorTests.test_parse_address_override",
+   "tests/validators/tests.py#EmailValidatorTests.test_parse_address_override.SplitOnFirstAtValidator.parse_address",
+   "tests/validators/tests.py#EmailValidatorTests.test_subclass_without_overrides",
+   "tests/validators/tests.py#EmailValidatorTests.test_validate_domain_allows_allowlisted_domain",
+   "tests/validators/tests.py#EmailValidatorTests.test_validate_domain_override",
+   "tests/validators/tests.py#EmailValidatorTests.test_validate_domain_override.ExampleComDomainValidator.validate_domain",
+   "tests/validators/tests.py#EmailValidatorTests.test_validate_domain_override_can_raise_custom_error",
+   "tests/validators/tests.py#EmailValidatorTests.test_validate_domain_override_can_raise_custom_error.CustomDomainErrorValidator.validate_domain",
+   "tests/validators/tests.py#EmailValidatorTests.test_validate_override",
+   "tests/validators/tests.py#EmailValidatorTests.test_validate_override.UsernameMatchingDomainValidator.validate",
+   "tests/validators/tests.py#EmailValidatorTests.test_validate_username_override",
+   "tests/validators/tests.py#EmailValidatorTests.test_validate_username_override.NotAdminUsernameValidator.validate_username",
+   "tests/validators/tests.py#EmailValidatorTests.test_validate_username_override_can_raise_custom_error",
+   "tests/validators/tests.py#EmailValidatorTests.test_validate_username_override_can_raise_custom_error.CustomUsernameErrorValidator.validate_username",
+   "django/core/validators.py#EmailValidator",
+   "tests/validators/tests.py#EmailValidatorDeprecationTests",
+   "tests/validators/tests.py#EmailValidatorDeprecationTests.test_allowlisted_domain_skips_legacy_override.OrgOnlyEmailValidator",
+   "tests/validators/tests.py#EmailValidatorDeprecationTests.test_call_override_using_stock_validate_domain_part_warns.StockDomainPartCallValidator",
+   "tests/validators/tests.py#EmailValidatorDeprecationTests.test_legacy_override_with_colliding_validate_domain.LegacyEmailValidator",
+   "tests/validators/tests.py#EmailValidatorDeprecationTests.test_legacy_validate_domain_part_override_warns.LegacyEmailValidator",
+   "tests/validators/tests.py#EmailValidatorDeprecationTests.test_legacy_validate_domain_part_override_with_super_is_honored.LegacyEmailValidator",
+   "tests/validators/tests.py#EmailValidatorDeprecationTests.test_legacy_validate_domain_part_override_with_super_warns_once.LegacyEmailValidator",
+   "tests/validators/tests.py#EmailValidatorDeprecationTests.test_override_both_prefers_legacy_validate_domain_part.LegacyPreferredEmailValidator",
+   "tests/validators/tests.py#EmailValidatorTests",
+   "tests/validators/tests.py#EmailValidatorTests.test_parse_address_override.SplitOnFirstAtValidator",
+   "tests/validators/tests.py#EmailValidatorTests.test_subclass_without_overrides.PlainEmailValidator",
+   "tests/validators/tests.py#EmailValidatorTests.test_validate_domain_override.ExampleComDomainValidator",
+   "tests/validators/tests.py#EmailValidatorTests.test_validate_domain_override_can_raise_custom_error.CustomDomainErrorValidator",
+   "tests/validators/tests.py#EmailValidatorTests.test_validate_override.UsernameMatchingDomainValidator",
+   "tests/validators/tests.py#EmailValidatorTests.test_validate_username_override.NotAdminUsernameValidator",
+   "tests/validators/tests.py#EmailValidatorTests.test_validate_username_override_can_raise_custom_error.CustomUsernameErrorValidator",
+   "django/core/validators.py",
+   "tests/validators/tests.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static; a receiver was guessed",
+    "from": "EmailValidator.validate_domain raises ValidationError",
+    "path": [
+     "django/core/validators.py:323 raise ValidationError",
+     "tests/validators/tests.py:845 EmailValidatorTests.test_validate_domain_override_can_raise_custom_error.CustomDomainErrorValidator.validate_domain catches ValidationError, raises ValidationError"
+    ],
+    "to": "EmailValidatorTests.test_validate_domain_override_can_raise_custom_error.CustomDomainErrorValidator.validate_domain raises ValidationError"
+   },
+   {
+    "evidence": "static; a receiver was guessed",
+    "from": "EmailValidator.validate_username raises ValidationError",
+    "path": [
+     "django/core/validators.py:302 raise ValidationError",
+     "tests/validators/tests.py:866 EmailValidatorTests.test_validate_username_override_can_raise_custom_error.CustomUsernameErrorValidator.validate_username catches ValidationError, raises ValidationError"
+    ],
+    "to": "EmailValidatorTests.test_validate_username_override_can_raise_custom_error.CustomUsernameErrorValidator.validate_username raises ValidationError"
+   },
+   {
+    "evidence": "static; a receiver was guessed",
+    "from": "EmailValidatorTests.test_validate_domain_override.ExampleComDomainValidator.validate_domain raises ValidationError",
+    "path": [
+     "tests/validators/tests.py:789 raise ValidationError",
+     "tests/validators/tests.py:845 EmailValidatorTests.test_validate_domain_override_can_raise_custom_error.CustomDomainErrorValidator.validate_domain catches ValidationError, raises ValidationError"
+    ],
+    "to": "EmailValidatorTests.test_validate_domain_override_can_raise_custom_error.CustomDomainErrorValidator.validate_domain raises ValidationError"
+   },
+   {
+    "evidence": "static; a receiver was guessed",
+    "from": "EmailValidatorTests.test_validate_username_override.NotAdminUsernameValidator.validate_username raises ValidationError",
+    "path": [
+     "tests/validators/tests.py:800 raise ValidationError",
+     "tests/validators/tests.py:866 EmailValidatorTests.test_validate_username_override_can_raise_custom_error.CustomUsernameErrorValidator.validate_username catches ValidationError, raises ValidationError"
+    ],
+    "to": "EmailValidatorTests.test_validate_username_override_can_raise_custom_error.CustomUsernameErrorValidator.validate_username raises ValidationError"
+   },
+   {
+    "evidence": "static source path",
+    "from": "EmailValidator.parse_address return changed",
+    "path": [
+     "django/core/validators.py:298 return",
+     "django/core/validators.py:269 EmailValidator.__call__ uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   },
+   {
+    "evidence": "static source path",
+    "from": "EmailValidator.validate_domain return changed",
+    "path": [
+     "django/core/validators.py:310 return",
+     "tests/validators/tests.py:1004 EmailValidatorDeprecationTests.test_legacy_override_with_colliding_validate_domain.LegacyEmailValidator.validate_domain_part uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   },
+   {
+    "evidence": "static source path",
+    "from": "EmailValidatorDeprecationTests.test_legacy_override_with_colliding_validate_domain.LegacyEmailValidator.validate_domain return changed",
+    "path": [
+     "tests/validators/tests.py:1001 return",
+     "tests/validators/tests.py:1004 EmailValidatorDeprecationTests.test_legacy_override_with_colliding_validate_domain.LegacyEmailValidator.validate_domain_part uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 20,
+    "stored": 6
+   },
+   "budget": 300,
+   "candidates": 10080,
+   "ran": 87,
+   "replayed": 20,
+   "runner": "django-runtests",
+   "seconds": 13.0,
+   "selection": {
+    "candidates": 13375,
+    "closure_files": 813,
+    "closure_tests": 11784,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/contrib/admin/__init__.py",
+     "django/contrib/auth/models.py",
+     "django/core/management/base.py",
+     "django/db/migrations/__init__.py",
+     "django/db/models/__init__.py",
+     "django/db/models/expressions.py",
+     "django/db/models/functions/__init__.py",
+     "django/forms/__init__.py",
+     "django/template/__init__.py",
+     "django/template/defaultfilters.py",
+     "django/test/__init__.py",
+     "django/test/utils.py",
+     "django/utils/translation/__init__.py",
+     "tests/template_tests/utils.py"
+    ],
+    "observed": 216,
+    "static_only": 830
+   },
+   "unrunnable": 73
+  },
+  "flips": 0,
+  "gaps": [
+   "103502 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "3295 lower-ranked candidate(s) not run: about 10 tests/s per process fit 10080 in the 300 s allowed",
+   "73 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "Skipped 3 non-Python file(s)",
+   "graph reused from the previous state; 3 changed file(s) relinked",
+   "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run stopped at its 300 s budget: 0 of 10080 candidates run"
+  ],
+  "impacted": {
+   "count": 969,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2930,
+   "parsed_files": 3
+  },
+  "original_tests": {
+   "tests/validators/tests.py::TestValidatorEquality::test_domain_name_equality": "passed",
+   "tests/validators/tests.py::TestValidatorEquality::test_email_equality": "passed",
+   "tests/validators/tests.py::TestValidators::test_validators": "skipped"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_invalid_domain_error",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_invalid_username_error",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_validate_domain_override",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_validate_username_override",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_validate_override",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_parse_address",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_parse_address_override",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_validate_domain_override_can_raise_custom_error",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_validate_username_override_can_raise_custom_error",
+    "verdict": "evidence"
+   },
+   {
+    "base": "passed",
+    "head": "passed",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_subclass_without_overrides",
+    "verdict": "none"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_validate_domain_allows_allowlisted_domain",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/validators/tests.py::EmailValidatorDeprecationTests::test_legacy_validate_domain_part_override_warns",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/validators/tests.py::EmailValidatorDeprecationTests::test_legacy_validate_domain_part_override_with_super_warns_once",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/validators/tests.py::EmailValidatorDeprecationTests::test_call_override_using_stock_validate_domain_part_warns",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/validators/tests.py::EmailValidatorDeprecationTests::test_validate_domain_part_direct_call_warns",
+    "verdict": "evidence"
+   },
+   {
+    "base": "passed",
+    "head": "passed",
+    "id": "tests/validators/tests.py::EmailValidatorDeprecationTests::test_validate_domain_part_ignores_allowlist",
+    "verdict": "none"
+   },
+   {
+    "base": "passed",
+    "head": "passed",
+    "id": "tests/validators/tests.py::EmailValidatorDeprecationTests::test_legacy_validate_domain_part_override_with_super_is_honored",
+    "verdict": "none"
+   },
+   {
+    "base": "passed",
+    "head": "passed",
+    "id": "tests/validators/tests.py::EmailValidatorDeprecationTests::test_override_both_prefers_legacy_validate_domain_part",
+    "verdict": "none"
+   },
+   {
+    "base": "passed",
+    "head": "passed",
+    "id": "tests/validators/tests.py::EmailValidatorDeprecationTests::test_legacy_override_with_colliding_validate_domain",
+    "verdict": "none"
+   },
+   {
+    "base": "passed",
+    "head": "passed",
+    "id": "tests/validators/tests.py::EmailValidatorDeprecationTests::test_allowlisted_domain_skips_legacy_override",
+    "verdict": "none"
+   }
+  ],
+  "report_hash": "60f7f1166a16",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [
+    "django/core/validators.py#EmailValidator.__call__",
+    "django/core/validators.py#EmailValidator.validate_domain_part"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 10,
+   "differences": 1,
+   "functions_called": 2,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "django/core/validators.py#EmailValidator.__init_subclass__": "not a module or class function on both sides (new, removed or nested)",
+    "django/core/validators.py#EmailValidator.parse_address": "not a module or class function on both sides (new, removed or nested)",
+    "django/core/validators.py#EmailValidator.validate": "not a module or class function on both sides (new, removed or nested)",
+    "django/core/validators.py#EmailValidator.validate_domain": "not a module or class function on both sides (new, removed or nested)",
+    "django/core/validators.py#EmailValidator.validate_username": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorDeprecationTests.test_allowlisted_domain_skips_legacy_override": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorDeprecationTests.test_allowlisted_domain_skips_legacy_override.OrgOnlyEmailValidator.validate_domain_part": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorDeprecationTests.test_call_override_using_stock_validate_domain_part_warns": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorDeprecationTests.test_call_override_using_stock_validate_domain_part_warns.StockDomainPartCallValidator.__call__": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorDeprecationTests.test_legacy_override_with_colliding_validate_domain": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorDeprecationTests.test_legacy_override_with_colliding_validate_domain.LegacyEmailValidator.validate_domain": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorDeprecationTests.test_legacy_override_with_colliding_validate_domain.LegacyEmailValidator.validate_domain_part": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorDeprecationTests.test_legacy_validate_domain_part_override_warns": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorDeprecationTests.test_legacy_validate_domain_part_override_warns.LegacyEmailValidator.validate_domain_part": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorDeprecationTests.test_legacy_validate_domain_part_override_with_super_is_honored": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorDeprecationTests.test_legacy_validate_domain_part_override_with_super_is_honored.LegacyEmailValidator.validate_domain_part": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorDeprecationTests.test_legacy_validate_domain_part_override_with_super_warns_once": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorDeprecationTests.test_legacy_validate_domain_part_override_with_super_warns_once.LegacyEmailValidator.validate_domain_part": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorDeprecationTests.test_override_both_prefers_legacy_validate_domain_part": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorDeprecationTests.test_override_both_prefers_legacy_validate_domain_part.LegacyPreferredEmailValidator.validate_domain": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorDeprecationTests.test_override_both_prefers_legacy_validate_domain_part.LegacyPreferredEmailValidator.validate_domain_part": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorDeprecationTests.test_validate_domain_part_direct_call_warns": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorDeprecationTests.test_validate_domain_part_ignores_allowlist": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorTests.test_invalid_domain_error": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorTests.test_invalid_username_error": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorTests.test_parse_address": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorTests.test_parse_address_override": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorTests.test_parse_address_override.SplitOnFirstAtValidator.parse_address": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorTests.test_subclass_without_overrides": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorTests.test_validate_domain_allows_allowlisted_domain": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorTests.test_validate_domain_override": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorTests.test_validate_domain_override.ExampleComDomainValidator.validate_domain": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorTests.test_validate_domain_override_can_raise_custom_error": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorTests.test_validate_domain_override_can_raise_custom_error.CustomDomainErrorValidator.validate_domain": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorTests.test_validate_override": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorTests.test_validate_override.UsernameMatchingDomainValidator.validate": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorTests.test_validate_username_override": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorTests.test_validate_username_override.NotAdminUsernameValidator.validate_username": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorTests.test_validate_username_override_can_raise_custom_error": "not a module or class function on both sides (new, removed or nested)",
+    "tests/validators/tests.py#EmailValidatorTests.test_validate_username_override_can_raise_custom_error.CustomUsernameErrorValidator.validate_username": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 1.4,
+   "targets": 2,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 87 of 10080 candidate tests after the change with django-runtests in 13.0 s, failures confirmed before it: 0 now fail. 2075 tests reach the change. 3 test(s) from edited test files also run as they were before the edit. 20 test(s) the change adds or edits replayed on the code before it: 14 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/validators/tests.py::EmailValidatorDeprecationTests::test_validate_domain_part_direct_call_warns",
+    "line": 944,
+    "run": "cd tests && python runtests.py validators.tests.EmailValidatorDeprecationTests.test_validate_domain_part_direct_call_warns",
+    "score": 24.649,
+    "why": "calls EmailValidator.validate_domain_part (name: domain,email,part,validate,validator)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/validators/tests.py::EmailValidatorDeprecationTests::test_validate_domain_part_ignores_allowlist",
+    "line": 951,
+    "run": "cd tests && python runtests.py validators.tests.EmailValidatorDeprecationTests.test_validate_domain_part_ignores_allowlist",
+    "score": 16.068,
+    "why": "calls EmailValidator.validate_domain_part (name: domain,email,part,validate,validator)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_validate_domain_allows_allowlisted_domain",
+    "line": 895,
+    "run": "cd tests && python runtests.py validators.tests.EmailValidatorTests.test_validate_domain_allows_allowlisted_domain",
+    "score": 10.758,
+    "why": "calls EmailValidator.validate_domain (name: domain,email,validate,validator)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/validators/tests.py::EmailValidatorDeprecationTests::test_call_override_using_stock_validate_domain_part_warns",
+    "line": 929,
+    "run": "cd tests && python runtests.py validators.tests.EmailValidatorDeprecationTests.test_call_override_using_stock_validate_domain_part_warns",
+    "score": 7.653,
+    "why": "via EmailValidatorDeprecationTests.test_call_override_using_stock_validate_domain_part_warns.StockDomainPartCallValidator (name: call,domain,override,part,stock,using,validate,validator,warn)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_parse_address",
+    "line": 820,
+    "run": "cd tests && python runtests.py validators.tests.EmailValidatorTests.test_parse_address",
+    "score": 7.167,
+    "why": "calls EmailValidator.parse_address (name: addres,email,parse,validator)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_validate_username_override_can_raise_custom_error",
+    "line": 861,
+    "run": "cd tests && python runtests.py validators.tests.EmailValidatorTests.test_validate_username_override_can_raise_custom_error",
+    "score": 5.952,
+    "why": "via EmailValidatorTests.test_validate_username_override_can_raise_custom_error.CustomUsernameErrorValidator (name: can,custom,error,override,username,validate,validator)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/validators/tests.py::EmailValidatorDeprecationTests::test_legacy_validate_domain_part_override_with_super_warns_once",
+    "line": 917,
+    "run": "cd tests && python runtests.py validators.tests.EmailValidatorDeprecationTests.test_legacy_validate_domain_part_override_with_super_warns_once",
+    "score": 5.491,
+    "why": "via EmailValidatorDeprecationTests.test_legacy_validate_domain_part_override_with_super_warns_once.LegacyEmailValidator (name: domain,email,legacy,once,override,part,super,validate,validator,warn)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_validate_domain_override_can_raise_custom_error",
+    "line": 840,
+    "run": "cd tests && python runtests.py validators.tests.EmailValidatorTests.test_validate_domain_override_can_raise_custom_error",
+    "score": 5.285,
+    "why": "via EmailValidatorTests.test_validate_domain_override_can_raise_custom_error.CustomDomainErrorValidator (name: can,custom,domain,error,override,validate,validator)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/validators/tests.py::EmailValidatorDeprecationTests::test_legacy_validate_domain_part_override_with_super_is_honored",
+    "line": 960,
+    "run": "cd tests && python runtests.py validators.tests.EmailValidatorDeprecationTests.test_legacy_validate_domain_part_override_with_super_is_honored",
+    "score": 5.145,
+    "why": "via EmailValidatorDeprecationTests.test_legacy_validate_domain_part_override_with_super_is_honored.LegacyEmailValidator (name: domain,email,honored,legacy,override,part,super,validate,validator)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/validators/tests.py::EmailValidatorDeprecationTests::test_override_both_prefers_legacy_validate_domain_part",
+    "line": 978,
+    "run": "cd tests && python runtests.py validators.tests.EmailValidatorDeprecationTests.test_override_both_prefers_legacy_validate_domain_part",
+    "score": 4.926,
+    "why": "via EmailValidatorDeprecationTests.test_override_both_prefers_legacy_validate_domain_part.LegacyPreferredEmailValidator (name: both,domain,email,legacy,override,part,prefer,validate,validator)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_validate_username_override",
+    "line": 796,
+    "run": "cd tests && python runtests.py validators.tests.EmailValidatorTests.test_validate_username_override",
+    "score": 4.762,
+    "why": "via EmailValidatorTests.test_validate_username_override.NotAdminUsernameValidator (name: override,username,validate,validator)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/validators/tests.py::EmailValidatorDeprecationTests::test_allowlisted_domain_skips_legacy_override",
+    "line": 1011,
+    "run": "cd tests && python runtests.py validators.tests.EmailValidatorDeprecationTests.test_allowlisted_domain_skips_legacy_override",
+    "score": 4.741,
+    "why": "via EmailValidatorDeprecationTests.test_allowlisted_domain_skips_legacy_override.OrgOnlyEmailValidator (name: allowlisted,domain,email,legacy,override,skip,validator)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/validators/tests.py::EmailValidatorDeprecationTests::test_legacy_override_with_colliding_validate_domain",
+    "line": 993,
+    "run": "cd tests && python runtests.py validators.tests.EmailValidatorDeprecationTests.test_legacy_override_with_colliding_validate_domain",
+    "score": 4.655,
+    "why": "via EmailValidatorDeprecationTests.test_legacy_override_with_colliding_validate_domain.LegacyEmailValidator (name: colliding,domain,email,legacy,override,validate,validator)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_subclass_without_overrides",
+    "line": 884,
+    "run": "cd tests && python runtests.py validators.tests.EmailValidatorTests.test_subclass_without_overrides",
+    "score": 4.297,
+    "why": "via EmailValidatorTests.test_subclass_without_overrides.PlainEmailValidator (name: email,override,subclas,validator,without)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_validate_domain_override",
+    "line": 785,
+    "run": "cd tests && python runtests.py validators.tests.EmailValidatorTests.test_validate_domain_override",
+    "score": 3.795,
+    "why": "via EmailValidatorTests.test_validate_domain_override.ExampleComDomainValidator (name: domain,override,validate,validator)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_parse_address_override",
+    "line": 830,
+    "run": "cd tests && python runtests.py validators.tests.EmailValidatorTests.test_parse_address_override",
+    "score": 3.756,
+    "why": "via EmailValidatorTests (name: email,validator)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_validate_override",
+    "line": 807,
+    "run": "cd tests && python runtests.py validators.tests.EmailValidatorTests.test_validate_override",
+    "score": 3.63,
+    "why": "via EmailValidatorTests (name: email,validator)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/validators/tests.py::EmailValidatorDeprecationTests::test_legacy_validate_domain_part_override_warns",
+    "line": 906,
+    "run": "cd tests && python runtests.py validators.tests.EmailValidatorDeprecationTests.test_legacy_validate_domain_part_override_warns",
+    "score": 2.427,
+    "why": "via EmailValidator (name: email,validator)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_invalid_domain_error",
+    "line": 767,
+    "run": "cd tests && python runtests.py validators.tests.EmailValidatorTests.test_invalid_domain_error",
+    "score": 1.647,
+    "why": "via EmailValidatorTests (name: email,validator)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/validators/tests.py::EmailValidatorTests::test_invalid_username_error",
+    "line": 776,
+    "run": "cd tests && python runtests.py validators.tests.EmailValidatorTests.test_invalid_username_error",
+    "score": 1.617,
+    "why": "via EmailValidatorTests (name: email,validator)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/forms_tests/tests/test_validators.py::ValidatorCustomMessageTests::test_value_placeholder_with_char_field",
+    "line": 75,
+    "run": "cd tests && python runtests.py forms_tests.tests.test_validators.ValidatorCustomMessageTests.test_value_placeholder_with_char_field",
+    "score": 1.082,
+    "why": "via EmailValidator (name: validator)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/validators/tests.py::TestValidatorEquality::test_email_equality",
+    "line": 1082,
+    "run": "cd tests && python runtests.py validators.tests.TestValidatorEquality.test_email_equality",
+    "score": 0.744,
+    "why": "via EmailValidator (name: email,validator)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/validators/tests.py::TestValidatorEquality::test_domain_name_equality",
+    "line": 1193,
+    "run": "cd tests && python runtests.py validators.tests.TestValidatorEquality.test_domain_name_equality",
+    "score": 0.58,
+    "why": "via EmailValidator (name: validator)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_writer.py::WriterTests::test_serialize_class_based_validators",
+    "line": 739,
+    "run": "cd tests && python runtests.py migrations.test_writer.WriterTests.test_serialize_class_based_validators",
+    "score": 0.563,
+    "why": "via EmailValidator (name: validator)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/validators/tests.py::TestValidators::test_validators",
+    "line": 710,
+    "run": "cd tests && python runtests.py validators.tests.TestValidators.test_validators",
+    "score": 0.553,
+    "why": "via EmailValidator (name: validator)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/postgres_tests/test_array.py::TestValidation::test_with_validators",
+    "line": 1128,
+    "run": "cd tests && python runtests.py postgres_tests.test_array.TestValidation.test_with_validators",
+    "score": 0.294,
+    "why": "via django.core.validators (name: validator)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/forms_tests/tests/test_validators.py::ValidatorCustomMessageTests::test_value_placeholder_with_integer_field",
+    "line": 127,
+    "run": "cd tests && python runtests.py forms_tests.tests.test_validators.ValidatorCustomMessageTests.test_value_placeholder_with_integer_field",
+    "score": 0.204,
+    "why": "via django.core.validators (name: validator)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_integerfield.py::IntegerFieldTests::test_redundant_backend_range_validators",
+    "line": 136,
+    "run": "cd tests && python runtests.py model_fields.test_integerfield.IntegerFieldTests.test_redundant_backend_range_validators",
+    "score": 0.161,
+    "why": "via django.core.validators (name: validator)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/properties/tests.py::PropertyTests::test_getter",
+    "line": 11,
+    "run": "cd tests && python runtests.py properties.tests.PropertyTests.test_getter",
+    "score": 0.132,
+    "why": "via TestFieldWithValidators.test_all_errors_get_reported.UserForm.full_name > EmailValidator"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/expressions/tests.py::ValueTests::test_output_field_does_not_create_broken_validators",
+    "line": 2550,
+    "run": "cd tests && python runtests.py expressions.tests.ValueTests.test_output_field_does_not_create_broken_validators",
+    "score": 0.05,
+    "why": "via Value._resolve_output_field > CharField.__init__ > django.core.validators (name: validator)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_integerfield.py::IntegerFieldTests::test_backend_range_validation",
+    "line": 72,
+    "run": "cd tests && python runtests.py model_fields.test_integerfield.IntegerFieldTests.test_backend_range_validation",
+    "score": 0.046,
+    "why": "via django.core.validators"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_decimalfield.py::DecimalFieldTests::test_max_decimal_places_validation",
+    "line": 123,
+    "run": "cd tests && python runtests.py model_fields.test_decimalfield.DecimalFieldTests.test_max_decimal_places_validation",
+    "score": 0.045,
+    "why": "via django.core.validators"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/model_fields/test_decimalfield.py::DecimalFieldTests::test_max_digits_validation",
+    "line": 115,
+    "run": "cd tests && python runtests.py model_fields.test_decimalfield.DecimalFieldTests.test_max_digits_validation",
+    "score": 0.044,
+    "why": "via django.core.validators"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/model_fields/test_decimalfield.py::DecimalFieldTests::test_max_whole_digits_validation",
+    "line": 131,
+    "run": "cd tests && python runtests.py model_fields.test_decimalfield.DecimalFieldTests.test_max_whole_digits_validation",
+    "score": 0.043,
+    "why": "via django.core.validators"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/tests.py::BasicFieldTests::test_field_repr",
+    "line": 44,
+    "run": "cd tests && python runtests.py model_fields.tests.BasicFieldTests.test_field_repr",
+    "score": 0.025,
+    "why": "via CharField.__init__ > django.core.validators"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_docs/test_views.py::TestFieldType::test_char_fields",
+    "line": 612,
+    "run": "cd tests && python runtests.py admin_docs.test_views.TestFieldType.test_char_fields",
+    "score": 0.025,
+    "why": "via CharField.__init__ > django.core.validators"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/validation/test_validators.py::TestModelsWithValidators::test_custom_validator_raises_error_for_incorrect_value",
+    "line": 17,
+    "run": "cd tests && python runtests.py validation.test_validators.TestModelsWithValidators.test_custom_validator_raises_error_for_incorrect_value",
+    "score": 0.014,
+    "why": "via Model.full_clean > Model.clean_fields > Field.empty_values > django.core.validators (name: validator)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/validation/test_validators.py::TestModelsWithValidators::test_field_validators_can_be_any_iterable",
+    "line": 31,
+    "run": "cd tests && python runtests.py validation.test_validators.TestModelsWithValidators.test_field_validators_can_be_any_iterable",
+    "score": 0.014,
+    "why": "via Model.full_clean > Model.clean_fields > Field.empty_values > django.core.validators (name: validator)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/validation/test_validators.py::TestModelsWithValidators::test_custom_validator_passes_for_correct_value",
+    "line": 8,
+    "run": "cd tests && python runtests.py validation.test_validators.TestModelsWithValidators.test_custom_validator_passes_for_correct_value",
+    "score": 0.013,
+    "why": "via Model.full_clean > Model.clean_fields > Field.empty_values > django.core.validators (name: validator)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/validation/test_custom_messages.py::CustomMessagesTests::test_custom_simple_validator_message",
+    "line": 8,
+    "run": "cd tests && python runtests.py validation.test_custom_messages.CustomMessagesTests.test_custom_simple_validator_message",
+    "score": 0.013,
+    "why": "via Model.full_clean > Model.clean_fields > Field.empty_values > django.core.validators (name: validator)"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792322873.472828,
+  "job_seconds": 16.8,
+  "number": 21736,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 16.8,
+  "started": 1792322856.1348412
+ },
+ "verify": null
+}

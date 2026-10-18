@@ -1,0 +1,483 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "850e026cbfbe65944a5e0dc50e47c7ac64143708",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "356179f4e6bd3d97d30b693b2db7b6d92d33054d",
+  "install_ok": true,
+  "merge_base": "850e026cbfbe65944a5e0dc50e47c7ac64143708",
+  "pr": 21872,
+  "recording": true,
+  "runner": null,
+  "seconds": 167.9,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "850e026cbfbe65944a5e0dc50e47c7ac64143708",
+  "head_sha": "356179f4e6bd3d97d30b693b2db7b6d92d33054d",
+  "merge_base": "850e026cbfbe65944a5e0dc50e47c7ac64143708",
+  "merged_at": "2026-09-15T14:26:20Z",
+  "number": 21872,
+  "repo": "django",
+  "title": "Fixed false positive for func_supports_parameter() with args or kwargs."
+ },
+ "probe_minutes": {
+  "end": 1792323193.363864,
+  "minutes": 0.8,
+  "start": 1792323147.0011032,
+  "waited": 0.00022983299277257174
+ },
+ "probe_targets": {
+  "all": 2,
+  "called": 0,
+  "targets": [
+   {
+    "after": "def func_supports_parameter(func, name):\n    \"\"\"Return True if function 'func' accepts a (keyword) argument 'name'.\"\"\"\n    return any(\n        param.name == name and param.kind in KEYWORD_ARG_KINDS\n        for param in _get_callable_parameters(func)\n    )\n",
+    "before": "def func_supports_parameter(func, name):\n    return any(param.name == name for param in _get_callable_parameters(func))\n",
+    "file": "django/utils/inspect.py",
+    "id": "django/utils/inspect.py#func_supports_parameter",
+    "name": "func_supports_parameter",
+    "qual": "func_supports_parameter",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_func_supports_parameter(self):\n    cases = [\n        (Person.all_kinds, \"address\", True),\n        (Person().all_kinds, \"address\", True),\n        (Person.all_kinds, \"zone\", False),\n        (Person().all_kinds, \"zone\", False),\n        # Variable *args and **kwargs cannot be passed by name.\n        (Person.all_kinds, \"args\", False),\n        (Person.all_kinds, \"kwargs\", False),\n        # Positional-only arguments cannot be passed by name.\n        (Person.pos_and_kw_only, \"pos_only\", False),\n        # Regular and keyword-only arguments can be passed by name.\n        (Person.pos_and_kw_only, \"normal\", True),\n        (Person.pos_and_kw_only, \"kw_only\", True),\n    ]\n    for func, name, expected in cases:\n        with self.subTest(func=func.__name__, name=name):\n            self.assertIs(inspect.func_supports_parameter(func, name), expected)\n",
+    "before": "def test_func_supports_parameter(self):\n    self.assertIs(\n        inspect.func_supports_parameter(Person.all_kinds, \"address\"), True\n    )\n    self.assertIs(\n        inspect.func_supports_parameter(Person().all_kinds, \"address\"),\n        True,\n    )\n    self.assertIs(inspect.func_supports_parameter(Person.all_kinds, \"zone\"), False)\n    self.assertIs(\n        inspect.func_supports_parameter(Person().all_kinds, \"zone\"),\n        False,\n    )\n",
+    "file": "tests/utils_tests/test_inspect.py",
+    "id": "tests/utils_tests/test_inspect.py#TestInspectMethods.test_func_supports_parameter",
+    "name": "test_func_supports_parameter",
+    "qual": "TestInspectMethods.test_func_supports_parameter",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "return",
+      "list",
+      "[False, True, False, True, False]"
+     ],
+     "before": [
+      "return",
+      "list",
+      "[True, True, True, True, True]"
+     ],
+     "call": "[func_supports_parameter(sample, name) for name in ('a', 'b', 'args', 'c', 'kwargs')]",
+     "label": "generated test shows a difference",
+     "setup": "from django.utils.inspect import func_supports_parameter\n\ndef sample(a, /, b, *args, c, **kwargs):\n    pass",
+     "target": "django/utils/inspect.py#func_supports_parameter",
+     "test": "import pytest\n\n\ndef test_generated():\n    from django.utils.inspect import func_supports_parameter\n\n    def sample(a, /, b, *args, c, **kwargs):\n        pass\n    assert repr([func_supports_parameter(sample, name) for name in ('a', 'b', 'args', 'c', 'kwargs')]) == '[False, True, False, True, False]'\n",
+     "why": "positional-only, normal, *args, keyword-only and **kwargs names"
+    },
+    {
+     "after": [
+      "return",
+      "tuple",
+      "(False, False)"
+     ],
+     "before": [
+      "return",
+      "tuple",
+      "(True, True)"
+     ],
+     "call": "(func_supports_parameter(sample, 'args'), func_supports_parameter(sample, 'kwargs'))",
+     "label": "generated test shows a difference",
+     "setup": "from django.utils.inspect import func_supports_parameter\n\ndef sample(*args, **kwargs):\n    pass",
+     "target": "tests/utils_tests/test_inspect.py#TestInspectMethods.test_func_supports_parameter",
+     "test": "import pytest\n\n\ndef test_generated():\n    from django.utils.inspect import func_supports_parameter\n\n    def sample(*args, **kwargs):\n        pass\n    assert repr((func_supports_parameter(sample, 'args'), func_supports_parameter(sample, 'kwargs'))) == '(False, False)'\n",
+     "why": "the varargs cases the edited test adds"
+    }
+   ],
+   "filter_seconds": 7.9,
+   "gaps": [],
+   "info": {
+    "accepted": 2,
+    "compiled": 2,
+    "cost": 0.0,
+    "differed": 2,
+    "dollars_cap": 0.1,
+    "functions": 2,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 2,
+    "ran": 2,
+    "reached": 2,
+    "requests": 1,
+    "seconds": 7.1,
+    "stable": 2
+   },
+   "probes": [
+    {
+     "call": "[func_supports_parameter(sample, name) for name in ('a', 'b', 'args', 'c', 'kwargs')]",
+     "function": "django/utils/inspect.py#func_supports_parameter",
+     "setup": "from django.utils.inspect import func_supports_parameter\n\ndef sample(a, /, b, *args, c, **kwargs):\n    pass",
+     "why": "positional-only, normal, *args, keyword-only and **kwargs names"
+    },
+    {
+     "call": "(func_supports_parameter(sample, 'args'), func_supports_parameter(sample, 'kwargs'))",
+     "function": "tests/utils_tests/test_inspect.py#TestInspectMethods.test_func_supports_parameter",
+     "setup": "from django.utils.inspect import func_supports_parameter\n\ndef sample(*args, **kwargs):\n    pass",
+     "why": "the varargs cases the edited test adds"
+    }
+   ],
+   "targets": [
+    "django/utils/inspect.py#func_supports_parameter",
+    "tests/utils_tests/test_inspect.py#TestInspectMethods.test_func_supports_parameter"
+   ],
+   "waited_seconds": 0.0
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/utils_tests/test_inspect.py::TestInspectMethods::test_func_supports_parameter",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "django/utils/inspect.py",
+    "lines": "97-101",
+    "symbol": "func_supports_parameter"
+   },
+   {
+    "file": "tests/utils_tests/test_inspect.py",
+    "lines": "26-27",
+    "symbol": "Person.pos_and_kw_only"
+   },
+   {
+    "file": "tests/utils_tests/test_inspect.py",
+    "lines": "95-111",
+    "symbol": "TestInspectMethods.test_func_supports_parameter"
+   }
+  ],
+  "changed_symbols": [
+   "django/utils/inspect.py#KEYWORD_ARG_KINDS",
+   "django/utils/inspect.py#func_supports_parameter",
+   "tests/utils_tests/test_inspect.py#Person.pos_and_kw_only",
+   "tests/utils_tests/test_inspect.py#TestInspectMethods.test_func_supports_parameter",
+   "tests/utils_tests/test_inspect.py#Person",
+   "django/utils/inspect.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "func_supports_parameter return changed",
+    "path": [
+     "django/utils/inspect.py:98 return",
+     "django/db/models/query.py:81 _get_from_db uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 1,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 2688,
+   "ran": 2688,
+   "replayed": 1,
+   "runner": "django-runtests",
+   "seconds": 164.6,
+   "selection": {
+    "candidates": 13524,
+    "closure_files": 900,
+    "closure_tests": 12683,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/contrib/admin/__init__.py",
+     "django/contrib/auth/models.py",
+     "django/core/checks/__init__.py",
+     "django/core/management/__init__.py",
+     "django/core/management/base.py",
+     "django/db/__init__.py",
+     "django/db/migrations/__init__.py",
+     "django/db/models/__init__.py",
+     "django/db/models/expressions.py",
+     "django/db/models/functions/__init__.py",
+     "django/forms/__init__.py",
+     "django/http/__init__.py",
+     "django/template/__init__.py",
+     "django/template/defaultfilters.py",
+     "django/test/__init__.py",
+     "django/test/utils.py",
+     "django/urls/__init__.py",
+     "django/utils/deprecation.py",
+     "django/utils/translation/__init__.py",
+     "tests/template_tests/utils.py"
+    ],
+    "observed": 9,
+    "static_only": 0
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "103558 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "10836 lower-ranked candidate(s) not run: about 3 tests/s per process fit 2688 in the 300 s allowed",
+   "graph reused from the previous state; 2 changed file(s) relinked",
+   "side-by-side: none of the 2 changed function(s) was called by the tests run on the code before the change"
+  ],
+  "impacted": {
+   "count": 6,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2930,
+   "parsed_files": 2
+  },
+  "original_tests": {
+   "tests/utils_tests/test_inspect.py::IsModuleLevelFunctionTestCase::test_builtin": "passed",
+   "tests/utils_tests/test_inspect.py::IsModuleLevelFunctionTestCase::test_class_and_static_method": "passed",
+   "tests/utils_tests/test_inspect.py::IsModuleLevelFunctionTestCase::test_coroutine": "passed",
+   "tests/utils_tests/test_inspect.py::IsModuleLevelFunctionTestCase::test_from_module": "passed",
+   "tests/utils_tests/test_inspect.py::IsModuleLevelFunctionTestCase::test_lambda": "passed",
+   "tests/utils_tests/test_inspect.py::IsModuleLevelFunctionTestCase::test_method": "passed",
+   "tests/utils_tests/test_inspect.py::IsModuleLevelFunctionTestCase::test_private_function": "passed",
+   "tests/utils_tests/test_inspect.py::IsModuleLevelFunctionTestCase::test_unbound_method": "passed",
+   "tests/utils_tests/test_inspect.py::TestInspectMethods::test_func_accepts_kwargs": "passed",
+   "tests/utils_tests/test_inspect.py::TestInspectMethods::test_func_accepts_kwargs_deferred_annotations": "passed",
+   "tests/utils_tests/test_inspect.py::TestInspectMethods::test_func_accepts_var_args_has_var_args": "passed",
+   "tests/utils_tests/test_inspect.py::TestInspectMethods::test_func_accepts_var_args_no_var_args": "passed",
+   "tests/utils_tests/test_inspect.py::TestInspectMethods::test_func_supports_parameter": "passed",
+   "tests/utils_tests/test_inspect.py::TestInspectMethods::test_get_callable_parameters": "passed",
+   "tests/utils_tests/test_inspect.py::TestInspectMethods::test_get_func_full_args_all_arguments_classmethod": "passed",
+   "tests/utils_tests/test_inspect.py::TestInspectMethods::test_get_func_full_args_all_arguments_method": "passed",
+   "tests/utils_tests/test_inspect.py::TestInspectMethods::test_get_func_full_args_no_arguments": "passed",
+   "tests/utils_tests/test_inspect.py::TestInspectMethods::test_get_func_full_args_one_argument": "passed",
+   "tests/utils_tests/test_inspect.py::TestInspectMethods::test_method_has_no_args": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/utils_tests/test_inspect.py::TestInspectMethods::test_func_supports_parameter",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "80a6335b41b0",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 0,
+   "differences": 0,
+   "functions_called": 0,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "tests/utils_tests/test_inspect.py#Person.pos_and_kw_only": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 102.1,
+   "targets": 2,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 2688 of 2688 candidate tests after the change with django-runtests in 164.6 s, failures confirmed before it: 0 now fail. 19 tests reach the change. 19 test(s) from edited test files also run as they were before the edit. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_inspect.py::TestInspectMethods::test_func_supports_parameter",
+    "line": 94,
+    "run": "cd tests && python runtests.py utils_tests.test_inspect.TestInspectMethods.test_func_supports_parameter",
+    "score": 9.524,
+    "why": "calls func_supports_parameter (name: func,inspect,parameter,support)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_inspect.py::TestInspectMethods::test_get_func_full_args_all_arguments_classmethod",
+    "line": 69,
+    "run": "cd tests && python runtests.py utils_tests.test_inspect.TestInspectMethods.test_get_func_full_args_all_arguments_classmethod",
+    "score": 1.54,
+    "why": "via Person (name: inspect)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_inspect.py::TestInspectMethods::test_get_func_full_args_all_arguments_method",
+    "line": 58,
+    "run": "cd tests && python runtests.py utils_tests.test_inspect.TestInspectMethods.test_get_func_full_args_all_arguments_method",
+    "score": 1.176,
+    "why": "via Person (name: inspect)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_inspect.py::TestInspectMethods::test_func_accepts_kwargs",
+    "line": 113,
+    "run": "cd tests && python runtests.py utils_tests.test_inspect.TestInspectMethods.test_func_accepts_kwargs",
+    "score": 0.907,
+    "why": "via Person (name: inspect)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_inspect.py::TestInspectMethods::test_func_accepts_var_args_no_var_args",
+    "line": 84,
+    "run": "cd tests && python runtests.py utils_tests.test_inspect.TestInspectMethods.test_func_accepts_var_args_no_var_args",
+    "score": 0.749,
+    "why": "via Person (name: inspect)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_inspect.py::TestInspectMethods::test_get_func_full_args_no_arguments",
+    "line": 45,
+    "run": "cd tests && python runtests.py utils_tests.test_inspect.TestInspectMethods.test_get_func_full_args_no_arguments",
+    "score": 0.684,
+    "why": "via Person (name: inspect)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_inspect.py::TestInspectMethods::test_get_func_full_args_one_argument",
+    "line": 49,
+    "run": "cd tests && python runtests.py utils_tests.test_inspect.TestInspectMethods.test_get_func_full_args_one_argument",
+    "score": 0.645,
+    "why": "via Person (name: inspect)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_inspect.py::TestInspectMethods::test_get_callable_parameters",
+    "line": 35,
+    "run": "cd tests && python runtests.py utils_tests.test_inspect.TestInspectMethods.test_get_callable_parameters",
+    "score": 0.613,
+    "why": "via Person (name: inspect)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_inspect.py::TestInspectMethods::test_func_accepts_var_args_has_var_args",
+    "line": 80,
+    "run": "cd tests && python runtests.py utils_tests.test_inspect.TestInspectMethods.test_func_accepts_var_args_has_var_args",
+    "score": 0.589,
+    "why": "via Person (name: inspect)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_inspect.py::TestInspectMethods::test_method_has_no_args",
+    "line": 88,
+    "run": "cd tests && python runtests.py utils_tests.test_inspect.TestInspectMethods.test_method_has_no_args",
+    "score": 0.568,
+    "why": "via Person (name: inspect)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_inspect.py::TestInspectMethods::test_func_accepts_kwargs_deferred_annotations",
+    "line": 119,
+    "run": "cd tests && python runtests.py utils_tests.test_inspect.TestInspectMethods.test_func_accepts_kwargs_deferred_annotations",
+    "score": 0.162,
+    "why": "via django.utils.inspect (name: inspect)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_inspect.py::IsModuleLevelFunctionTestCase::test_builtin",
+    "line": 139,
+    "run": "cd tests && python runtests.py utils_tests.test_inspect.IsModuleLevelFunctionTestCase.test_builtin",
+    "score": 0.126,
+    "why": "via django.utils.inspect (name: inspect)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_inspect.py::IsModuleLevelFunctionTestCase::test_class_and_static_method",
+    "line": 172,
+    "run": "cd tests && python runtests.py utils_tests.test_inspect.IsModuleLevelFunctionTestCase.test_class_and_static_method",
+    "score": 0.121,
+    "why": "via django.utils.inspect (name: inspect)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_inspect.py::IsModuleLevelFunctionTestCase::test_coroutine",
+    "line": 156,
+    "run": "cd tests && python runtests.py utils_tests.test_inspect.IsModuleLevelFunctionTestCase.test_coroutine",
+    "score": 0.121,
+    "why": "via django.utils.inspect (name: inspect)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_inspect.py::IsModuleLevelFunctionTestCase::test_from_module",
+    "line": 143,
+    "run": "cd tests && python runtests.py utils_tests.test_inspect.IsModuleLevelFunctionTestCase.test_from_module",
+    "score": 0.121,
+    "why": "via django.utils.inspect (name: inspect)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_inspect.py::IsModuleLevelFunctionTestCase::test_lambda",
+    "line": 169,
+    "run": "cd tests && python runtests.py utils_tests.test_inspect.IsModuleLevelFunctionTestCase.test_lambda",
+    "score": 0.121,
+    "why": "via django.utils.inspect (name: inspect)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_inspect.py::IsModuleLevelFunctionTestCase::test_method",
+    "line": 159,
+    "run": "cd tests && python runtests.py utils_tests.test_inspect.IsModuleLevelFunctionTestCase.test_method",
+    "score": 0.121,
+    "why": "via django.utils.inspect (name: inspect)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_inspect.py::IsModuleLevelFunctionTestCase::test_private_function",
+    "line": 150,
+    "run": "cd tests && python runtests.py utils_tests.test_inspect.IsModuleLevelFunctionTestCase.test_private_function",
+    "score": 0.121,
+    "why": "via django.utils.inspect (name: inspect)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_inspect.py::IsModuleLevelFunctionTestCase::test_unbound_method",
+    "line": 163,
+    "run": "cd tests && python runtests.py utils_tests.test_inspect.IsModuleLevelFunctionTestCase.test_unbound_method",
+    "score": 0.121,
+    "why": "via django.utils.inspect (name: inspect)"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792323044.622797,
+  "job_seconds": 167.9,
+  "number": 21872,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 168.0,
+  "started": 1792322875.7290509
+ },
+ "verify": null
+}

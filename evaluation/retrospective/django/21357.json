@@ -1,0 +1,951 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "137b77706e8780764a831ecf246c10a56f800ac2",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "784b2a4ce2bbf09aef3e3fe78322e50097264cf0",
+  "install_ok": true,
+  "merge_base": "904349fcbe0ad4eed097b5e7fb7171954591cb28",
+  "pr": 21357,
+  "recording": true,
+  "runner": null,
+  "seconds": 9.0,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "137b77706e8780764a831ecf246c10a56f800ac2",
+  "head_sha": "784b2a4ce2bbf09aef3e3fe78322e50097264cf0",
+  "merge_base": "904349fcbe0ad4eed097b5e7fb7171954591cb28",
+  "merged_at": "2026-10-09T13:12:26Z",
+  "number": 21357,
+  "repo": "django",
+  "title": "Fixed #37118 -- Added variable support to the {% now %} template tag."
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 3,
+  "called": 3,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [
+   {
+    "after": {
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        [
+         "Parser:<Parser tokens=[]>",
+         "Token:<Block token: \"now 'j \"n\" Y'...\">"
+        ]
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "calls": [],
+     "result": [
+      "return",
+      [
+       "django.template.defaulttags.NowNode",
+       [
+        "dict",
+        [
+         [
+          "'asvar'",
+          "None"
+         ],
+         [
+          "'format_expr'",
+          "FilterExpression:<FilterExpression '\\'j \"n\" Y\\''>"
+         ]
+        ]
+       ]
+      ]
+     ],
+     "stdout": ""
+    },
+    "before": {
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        [
+         "Parser:<Parser tokens=[]>",
+         "Token:<Block token: \"now 'j \"n\" Y'...\">"
+        ]
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "calls": [],
+     "result": [
+      "return",
+      [
+       "django.template.defaulttags.NowNode",
+       [
+        "dict",
+        [
+         [
+          "'asvar'",
+          "None"
+         ],
+         [
+          "'format_string'",
+          "'j \"n\" Y'"
+         ]
+        ]
+       ]
+      ]
+     ],
+     "stdout": ""
+    },
+    "differs": [
+     "result"
+    ],
+    "input": "([<Parser tokens=[]>, <Block token: \"now 'j \"n\" Y'...\">], {})",
+    "label": "behaviour differs on captured input",
+    "target": "django/template/defaulttags.py#now",
+    "test": "template_tests.syntax_tests.test_now.NowTagTests.test_now05"
+   },
+   {
+    "after": {
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        [
+         [
+          "django.template.defaulttags.NowNode",
+          [
+           "dict",
+           [
+            [
+             "'asvar'",
+             "None"
+            ],
+            [
+             "'format_expr'",
+             "'j \"n\" Y'"
+            ]
+           ]
+          ]
+         ],
+         "'j \"n\" Y'",
+         "None"
+        ]
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "calls": [],
+     "result": [
+      "return",
+      "None"
+     ],
+     "stdout": ""
+    },
+    "before": {
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        [
+         [
+          "django.template.defaulttags.NowNode",
+          [
+           "dict",
+           [
+            [
+             "'asvar'",
+             "None"
+            ],
+            [
+             "'format_string'",
+             "'j \"n\" Y'"
+            ]
+           ]
+          ]
+         ],
+         "'j \"n\" Y'",
+         "None"
+        ]
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "calls": [],
+     "result": [
+      "return",
+      "None"
+     ],
+     "stdout": ""
+    },
+    "differs": [
+     "args_after"
+    ],
+    "input": "([<django.template.defaulttags.NowNode object at 0x?>, 'j \"n\" Y', None], {})",
+    "label": "behaviour differs on captured input",
+    "target": "django/template/defaulttags.py#NowNode.__init__",
+    "test": "template_tests.syntax_tests.test_now.NowTagTests.test_now05"
+   },
+   {
+    "after": {
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        [
+         "Parser:<Parser tokens=[]>",
+         "Token:<Block token: \"now \"j 'n' Y\"...\">"
+        ]
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "calls": [],
+     "result": [
+      "return",
+      [
+       "django.template.defaulttags.NowNode",
+       [
+        "dict",
+        [
+         [
+          "'asvar'",
+          "None"
+         ],
+         [
+          "'format_expr'",
+          "FilterExpression:<FilterExpression '\"j \\'n\\' Y\"'>"
+         ]
+        ]
+       ]
+      ]
+     ],
+     "stdout": ""
+    },
+    "before": {
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        [
+         "Parser:<Parser tokens=[]>",
+         "Token:<Block token: \"now \"j 'n' Y\"...\">"
+        ]
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "calls": [],
+     "result": [
+      "return",
+      [
+       "django.template.defaulttags.NowNode",
+       [
+        "dict",
+        [
+         [
+          "'asvar'",
+          "None"
+         ],
+         [
+          "'format_string'",
+          "\"j 'n' Y\""
+         ]
+        ]
+       ]
+      ]
+     ],
+     "stdout": ""
+    },
+    "differs": [
+     "result"
+    ],
+    "input": "([<Parser tokens=[]>, <Block token: \"now \"j 'n' Y\"...\">], {})",
+    "label": "behaviour differs on captured input",
+    "target": "django/template/defaulttags.py#now",
+    "test": "template_tests.syntax_tests.test_now.NowTagTests.test_now06"
+   },
+   {
+    "after": {
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        [
+         [
+          "django.template.defaulttags.NowNode",
+          [
+           "dict",
+           [
+            [
+             "'asvar'",
+             "None"
+            ],
+            [
+             "'format_expr'",
+             "\"j 'n' Y\""
+            ]
+           ]
+          ]
+         ],
+         "\"j 'n' Y\"",
+         "None"
+        ]
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "calls": [],
+     "result": [
+      "return",
+      "None"
+     ],
+     "stdout": ""
+    },
+    "before": {
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        [
+         [
+          "django.template.defaulttags.NowNode",
+          [
+           "dict",
+           [
+            [
+             "'asvar'",
+             "None"
+            ],
+            [
+             "'format_string'",
+             "\"j 'n' Y\""
+            ]
+           ]
+          ]
+         ],
+         "\"j 'n' Y\"",
+         "None"
+        ]
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "calls": [],
+     "result": [
+      "return",
+      "None"
+     ],
+     "stdout": ""
+    },
+    "differs": [
+     "args_after"
+    ],
+    "input": "([<django.template.defaulttags.NowNode object at 0x?>, \"j 'n' Y\", None], {})",
+    "label": "behaviour differs on captured input",
+    "target": "django/template/defaulttags.py#NowNode.__init__",
+    "test": "template_tests.syntax_tests.test_now.NowTagTests.test_now06"
+   }
+  ],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/template_tests/syntax_tests/test_now.py::NowTagTests::test_now_variable",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/template_tests/syntax_tests/test_now.py::NowTagTests::test_now_variable_as",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/template_tests/syntax_tests/test_now.py::NowTagTests::test_now_format_escaping",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "django/template/defaulttags.py",
+    "lines": "398-399",
+    "symbol": "NowNode.__init__"
+   },
+   {
+    "file": "django/template/defaulttags.py",
+    "lines": "404-412",
+    "symbol": "NowNode.render"
+   },
+   {
+    "file": "django/template/defaulttags.py",
+    "lines": "1186-1207",
+    "symbol": "now"
+   },
+   {
+    "file": "tests/template_tests/syntax_tests/test_now.py",
+    "lines": "100-111",
+    "symbol": "NowTagTests.test_now_variable"
+   },
+   {
+    "file": "tests/template_tests/syntax_tests/test_now.py",
+    "lines": "113-124",
+    "symbol": "NowTagTests.test_now_variable_as"
+   },
+   {
+    "file": "tests/template_tests/syntax_tests/test_now.py",
+    "lines": "126-154",
+    "symbol": "NowTagTests.test_now_format_escaping"
+   }
+  ],
+  "changed_symbols": [
+   "django/template/defaulttags.py#NowNode.__init__",
+   "django/template/defaulttags.py#NowNode.render",
+   "django/template/defaulttags.py#now",
+   "tests/template_tests/syntax_tests/test_now.py#NowTagTests.test_now_format_escaping",
+   "tests/template_tests/syntax_tests/test_now.py#NowTagTests.test_now_variable",
+   "tests/template_tests/syntax_tests/test_now.py#NowTagTests.test_now_variable_as",
+   "tests/template_tests/syntax_tests/test_now.py#NowTagTests"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "NowNode.__init__ writes self.format_expr",
+    "path": [
+     "django/template/defaulttags.py:399 self.format_expr assigned",
+     "django/template/defaulttags.py:404 NowNode.render reads self.format_expr"
+    ],
+    "to": "1 reader(s) in NowNode"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 3,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 939,
+   "ran": 81,
+   "replayed": 3,
+   "runner": "django-runtests",
+   "seconds": 6.1,
+   "selection": {
+    "candidates": 939,
+    "closure_files": 8,
+    "closure_tests": 263,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [],
+    "observed": 524,
+    "static_only": 142
+   },
+   "unrunnable": 79
+  },
+  "flips": 0,
+  "gaps": [
+   "102009 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "79 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "Skipped 2 non-Python file(s)",
+   "graph reused from the previous state; 6 changed file(s) relinked",
+   "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run stopped at its 300 s budget: 0 of 939 candidates run"
+  ],
+  "impacted": {
+   "count": 50,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2931,
+   "parsed_files": 6
+  },
+  "original_tests": {
+   "tests/template_tests/syntax_tests/test_now.py::NowTagTests::test_now01": "passed",
+   "tests/template_tests/syntax_tests/test_now.py::NowTagTests::test_now02": "passed",
+   "tests/template_tests/syntax_tests/test_now.py::NowTagTests::test_now03": "passed",
+   "tests/template_tests/syntax_tests/test_now.py::NowTagTests::test_now04": "passed",
+   "tests/template_tests/syntax_tests/test_now.py::NowTagTests::test_now05": "passed",
+   "tests/template_tests/syntax_tests/test_now.py::NowTagTests::test_now06": "passed",
+   "tests/template_tests/syntax_tests/test_now.py::NowTagTests::test_now07": "passed",
+   "tests/template_tests/syntax_tests/test_now.py::NowTagTests::test_now_args": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/template_tests/syntax_tests/test_now.py::NowTagTests::test_now_variable",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/template_tests/syntax_tests/test_now.py::NowTagTests::test_now_variable_as",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/template_tests/syntax_tests/test_now.py::NowTagTests::test_now_format_escaping",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "8da58d16981f",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [
+    "django/template/defaulttags.py#NowNode.__init__",
+    "django/template/defaulttags.py#NowNode.render",
+    "django/template/defaulttags.py#now"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 15,
+   "differences": 4,
+   "functions_called": 3,
+   "input_built_before_the_change": 5,
+   "not_compared": {
+    "tests/template_tests/syntax_tests/test_now.py#NowTagTests.test_now_format_escaping": "not a module or class function on both sides (new, removed or nested)",
+    "tests/template_tests/syntax_tests/test_now.py#NowTagTests.test_now_variable": "not a module or class function on both sides (new, removed or nested)",
+    "tests/template_tests/syntax_tests/test_now.py#NowTagTests.test_now_variable_as": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 1.0,
+   "targets": 3,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 81 of 939 candidate tests after the change with django-runtests in 6.1 s, failures confirmed before it: 0 now fail. 164 tests reach the change. 8 test(s) from edited test files also run as they were before the edit. 3 test(s) the change adds or edits replayed on the code before it: 3 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_now.py::NowTagTests::test_now_format_escaping",
+    "line": 126,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_now.NowTagTests.test_now_format_escaping",
+    "score": 3.872,
+    "why": "via NowTagTests (name: now,tag)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_now.py::NowTagTests::test_now_variable",
+    "line": 100,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_now.NowTagTests.test_now_variable",
+    "score": 1.923,
+    "why": "via NowTagTests (name: now,tag)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_now.py::NowTagTests::test_now_variable_as",
+    "line": 113,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_now.NowTagTests.test_now_variable_as",
+    "score": 1.461,
+    "why": "via NowTagTests (name: now,tag)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/template_tests/syntax_tests/test_now.py::NowTagTests::test_now01",
+    "line": 11,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_now.NowTagTests.test_now01",
+    "score": 1.086,
+    "why": "via NowTagTests (name: now,tag)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/template_tests/syntax_tests/test_now.py::NowTagTests::test_now03",
+    "line": 33,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_now.NowTagTests.test_now03",
+    "score": 0.947,
+    "why": "via NowTagTests (name: now,tag)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_now.py::NowTagTests::test_now05",
+    "line": 54,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_now.NowTagTests.test_now05",
+    "score": 0.858,
+    "why": "via NowTagTests (name: now,tag)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_now.py::NowTagTests::test_now06",
+    "line": 67,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_now.NowTagTests.test_now06",
+    "score": 0.802,
+    "why": "via NowTagTests (name: now,tag)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/template_tests/syntax_tests/test_now.py::NowTagTests::test_now07",
+    "line": 80,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_now.NowTagTests.test_now07",
+    "score": 0.767,
+    "why": "via NowTagTests (name: now,tag)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/template_tests/syntax_tests/test_now.py::NowTagTests::test_now02",
+    "line": 28,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_now.NowTagTests.test_now02",
+    "score": 0.715,
+    "why": "via NowTagTests (name: now,tag)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_now.py::NowTagTests::test_now04",
+    "line": 49,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_now.NowTagTests.test_now04",
+    "score": 0.702,
+    "why": "via NowTagTests (name: now,tag)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_now.py::NowTagTests::test_now_args",
+    "line": 93,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_now.NowTagTests.test_now_args",
+    "score": 0.671,
+    "why": "via NowTagTests (name: now,tag)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/timezones/tests.py::TemplateTests::test_now_template_tag_uses_current_time_zone",
+    "line": 1203,
+    "run": "cd tests && python runtests.py timezones.tests.TemplateTests.test_now_template_tag_uses_current_time_zone",
+    "score": 0.127,
+    "why": "via Template.render > Template._render > NodeList.render > Node.render_annotated > NowNode.render (name: now)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/template_tests/test_custom.py::InclusionTagTests::test_render_context_is_cleared",
+    "line": 840,
+    "run": "cd tests && python runtests.py template_tests.test_custom.InclusionTagTests.test_render_context_is_cleared",
+    "score": 0.071,
+    "why": "via Template.render > Template._render > NodeList.render > Node.render_annotated > NowNode.render (name: render)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/test_custom.py::InclusionTagTests::test_no_render_side_effect",
+    "line": 830,
+    "run": "cd tests && python runtests.py template_tests.test_custom.InclusionTagTests.test_no_render_side_effect",
+    "score": 0.051,
+    "why": "via Template.render > Template._render > NodeList.render > Node.render_annotated > NowNode.render (name: render)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/template_tests/tests.py::TemplateTestMixin::test_render_built_in_type_method",
+    "line": 222,
+    "run": "cd tests && python runtests.py template_tests.tests.TemplateTestMixin.test_render_built_in_type_method",
+    "score": 0.039,
+    "why": "via Template.render > Template._render > NodeList.render > Node.render_annotated > NowNode.render (name: render)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_pagination_render",
+    "line": 1174,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_pagination_render",
+    "score": 0.033,
+    "why": "via Template.render > Template._render > NodeList.render > Node.render_annotated > NowNode.render (name: render)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/test_context.py::RequestContextTests::test_modify_context_and_render",
+    "line": 289,
+    "run": "cd tests && python runtests.py template_tests.test_context.RequestContextTests.test_modify_context_and_render",
+    "score": 0.03,
+    "why": "via Template.render > Template._render > NodeList.render > Node.render_annotated > NowNode.render (name: render)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/template_tests/tests.py::TemplateTestMixin::test_render_tag_error_in_extended_block",
+    "line": 157,
+    "run": "cd tests && python runtests.py template_tests.tests.TemplateTestMixin.test_render_tag_error_in_extended_block",
+    "score": 0.029,
+    "why": "via Template.render > Template._render > NodeList.render > Node.render_annotated > NowNode.render (name: render)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/timezones/tests.py::TemplateTests::test_date_and_time_template_filters",
+    "line": 1185,
+    "run": "cd tests && python runtests.py timezones.tests.TemplateTests.test_date_and_time_template_filters",
+    "score": 0.021,
+    "why": "via Template.render > Template._render > NodeList.render > Node.render_annotated > NowNode.render"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/timezones/tests.py::TemplateTests::test_date_and_time_template_filters_honor_localtime",
+    "line": 1193,
+    "run": "cd tests && python runtests.py timezones.tests.TemplateTests.test_date_and_time_template_filters_honor_localtime",
+    "score": 0.021,
+    "why": "via Template.render > Template._render > NodeList.render > Node.render_annotated > NowNode.render"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/timezones/tests.py::TemplateTests::test_localtime_filters_do_not_raise_exceptions",
+    "line": 1051,
+    "run": "cd tests && python runtests.py timezones.tests.TemplateTests.test_localtime_filters_do_not_raise_exceptions",
+    "score": 0.021,
+    "why": "via Template.render > Template._render > NodeList.render > Node.render_annotated > NowNode.render"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_result_list_editable_html",
+    "line": 406,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_result_list_editable_html",
+    "score": 0.02,
+    "why": "via Template.render > Template._render > NodeList.render > Node.render_annotated > NowNode.render"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/i18n/tests.py::FormattingTests::test_l10n_enabled",
+    "line": 718,
+    "run": "cd tests && python runtests.py i18n.tests.FormattingTests.test_l10n_enabled",
+    "score": 0.02,
+    "why": "via Template.render > Template._render > NodeList.render > Node.render_annotated > NowNode.render"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/timezones/tests.py::TemplateTests::test_localtime_filters_with_iana",
+    "line": 1023,
+    "run": "cd tests && python runtests.py timezones.tests.TemplateTests.test_localtime_filters_with_iana",
+    "score": 0.02,
+    "why": "via Template.render > Template._render > NodeList.render > Node.render_annotated > NowNode.render"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_result_list_set_empty_value_display_in_model_admin",
+    "line": 318,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_result_list_set_empty_value_display_in_model_admin",
+    "score": 0.02,
+    "why": "via Template.render > Template._render > NodeList.render > Node.render_annotated > NowNode.render"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_result_list_set_empty_value_display_on_admin_site",
+    "line": 292,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_result_list_set_empty_value_display_on_admin_site",
+    "score": 0.02,
+    "why": "via Template.render > Template._render > NodeList.render > Node.render_annotated > NowNode.render"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/template_tests/test_extends_relative.py::ExtendsRelativeBehaviorTests::test_normal_extend_variable",
+    "line": 18,
+    "run": "cd tests && python runtests.py template_tests.test_extends_relative.ExtendsRelativeBehaviorTests.test_normal_extend_variable",
+    "score": 0.02,
+    "why": "via Template.render > Template._render > NodeList.render > Node.render_annotated > NowNode.render"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/i18n/tests.py::FormattingTests::test_localize_templatetag_and_filter",
+    "line": 1411,
+    "run": "cd tests && python runtests.py i18n.tests.FormattingTests.test_localize_templatetag_and_filter",
+    "score": 0.019,
+    "why": "via Template.render > Template._render > NodeList.render > Node.render_annotated > NowNode.render"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/flatpages_tests/test_templatetags.py::FlatpageTemplateTagTests::test_get_flatpages_with_variable_prefix",
+    "line": 137,
+    "run": "cd tests && python runtests.py flatpages_tests.test_templatetags.FlatpageTemplateTagTests.test_get_flatpages_with_variable_prefix",
+    "score": 0.019,
+    "why": "via Template.render > Template._render > NodeList.render > Node.render_annotated > NowNode.render"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/template_tests/syntax_tests/i18n/test_blocktranslate.py::TranslationBlockTranslateTagTests::test_bad_placeholder_2",
+    "line": 734,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.i18n.test_blocktranslate.TranslationBlockTranslateTagTests.test_bad_placeholder_2",
+    "score": 0.019,
+    "why": "via Template.render > Template._render > NodeList.render > Node.render_annotated > NowNode.render"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/timezones/tests.py::TemplateTests::test_timezone_templatetag",
+    "line": 1073,
+    "run": "cd tests && python runtests.py timezones.tests.TemplateTests.test_timezone_templatetag",
+    "score": 0.019,
+    "why": "via Template.render > Template._render > NodeList.render > Node.render_annotated > NowNode.render"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/timezones/tests.py::TemplateTests::test_timezone_templatetag_with_iana",
+    "line": 1101,
+    "run": "cd tests && python runtests.py timezones.tests.TemplateTests.test_timezone_templatetag_with_iana",
+    "score": 0.019,
+    "why": "via Template.render > Template._render > NodeList.render > Node.render_annotated > NowNode.render"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/forms_tests/tests/test_forms.py::TemplateTests::test_basic_processing_in_view",
+    "line": 5364,
+    "run": "cd tests && python runtests.py forms_tests.tests.test_forms.TemplateTests.test_basic_processing_in_view",
+    "score": 0.019,
+    "why": "via TemplateTests.test_basic_processing_in_view.my_function > Template.render > Template._render > NodeList.render > Node.render_annotated > NowNode.render"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/i18n/test_percents.py::RenderingTemplatesWithPercentSigns::test_translates_with_string_that_look_like_fmt_spec_with_trans",
+    "line": 134,
+    "run": "cd tests && python runtests.py i18n.test_percents.RenderingTemplatesWithPercentSigns.test_translates_with_string_that_look_like_fmt_spec_with_trans",
+    "score": 0.019,
+    "why": "via Template.render > Template._render > NodeList.render > Node.render_annotated > NowNode.render"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/template_tests/test_context.py::RequestContextTests::test_include_only",
+    "line": 244,
+    "run": "cd tests && python runtests.py template_tests.test_context.RequestContextTests.test_include_only",
+    "score": 0.019,
+    "why": "via Template.render > Template._render > NodeList.render > Node.render_annotated > NowNode.render"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/timezones/tests.py::TemplateTests::test_get_current_timezone_templatetag_invalid_argument",
+    "line": 1163,
+    "run": "cd tests && python runtests.py timezones.tests.TemplateTests.test_get_current_timezone_templatetag_invalid_argument",
+    "score": 0.019,
+    "why": "via Template.render > Template._render > NodeList.render > Node.render_annotated > NowNode.render"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/template_tests/tests.py::TemplateTestMixin::test_callable_uses_deferred_annotations",
+    "line": 230,
+    "run": "cd tests && python runtests.py template_tests.tests.TemplateTestMixin.test_callable_uses_deferred_annotations",
+    "score": 0.019,
+    "why": "via Template.render > Template._render > NodeList.render > Node.render_annotated > NowNode.render"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/template_tests/test_partials.py::RobustPartialHandlingTests::test_nested_partials_rendering_with_context",
+    "line": 199,
+    "run": "cd tests && python runtests.py template_tests.test_partials.RobustPartialHandlingTests.test_nested_partials_rendering_with_context",
+    "score": 0.019,
+    "why": "via Template.render > Template._render > NodeList.render > Node.render_annotated > NowNode.render"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/i18n/tests.py::FormattingTests::test_localized_as_text_as_hidden_input",
+    "line": 1463,
+    "run": "cd tests && python runtests.py i18n.tests.FormattingTests.test_localized_as_text_as_hidden_input",
+    "score": 0.019,
+    "why": "via Template.render > Template._render > NodeList.render > Node.render_annotated > NowNode.render"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/template_tests/tests.py::TemplateTestMixin::test_compile_tag_error_27584",
+    "line": 125,
+    "run": "cd tests && python runtests.py template_tests.tests.TemplateTestMixin.test_compile_tag_error_27584",
+    "score": 0.019,
+    "why": "via Template.render > Template._render > NodeList.render > Node.render_annotated > NowNode.render"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "django/template/defaulttags.py",
+    "lines": "398-399",
+    "symbol": "NowNode.__init__"
+   },
+   {
+    "basis": "static_only",
+    "file": "django/template/defaulttags.py",
+    "lines": "1186-1207",
+    "symbol": "now"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792324631.8206232,
+  "job_seconds": 9.0,
+  "number": 21357,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 9.0,
+  "started": 1792324622.24143
+ },
+ "verify": null
+}

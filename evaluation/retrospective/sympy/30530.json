@@ -1,0 +1,730 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "31e03dc7ed8114117274ea679be1835044cec9c9",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "4d0c1dcf8b3609ba122a8a98c08b2fbaf54dec20",
+  "install_ok": true,
+  "merge_base": "31e03dc7ed8114117274ea679be1835044cec9c9",
+  "pr": 30530,
+  "recording": false,
+  "runner": null,
+  "seconds": 195.6,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "31e03dc7ed8114117274ea679be1835044cec9c9",
+  "head_sha": "4d0c1dcf8b3609ba122a8a98c08b2fbaf54dec20",
+  "merge_base": "31e03dc7ed8114117274ea679be1835044cec9c9",
+  "merged_at": "2026-09-25T19:00:38Z",
+  "number": 30530,
+  "repo": "sympy",
+  "title": "solvers: preserve singularities in reduce_inequalities"
+ },
+ "probe_minutes": {
+  "end": 1792331679.612333,
+  "minutes": 0.4,
+  "start": 1792331341.503582,
+  "waited": 315.22676645900356
+ },
+ "probe_targets": {
+  "all": 9,
+  "called": 8,
+  "targets": [
+   {
+    "after": "def solve_poly_inequalities(polys):\n    \"\"\"Solve polynomial inequalities with rational coefficients,\n    returning the union of the intervals on which each inequality\n    is true. An element like ``(Poly(x + 1, x), \"<\")`` represents\n    ``x + 1 < 0``.\n\n    Examples\n    ========\n\n    >>> from sympy import Poly\n    >>> from sympy.solvers.inequalities import solve_poly_inequalities\n    >>> from sympy.abc import x\n    >>> solve_poly_inequalities(((\n    ... Poly(x**2 - 3), \">\"), (\n    ... Poly(-x**2 + 1), \">\")))\n    Union(Interval.open(-oo, -sqrt(3)), Interval.open(-1, 1), Interval.open(sqrt(3), oo))\n    \"\"\"\n    return Union(*[s for p in polys for s in solve_poly_inequality(*p)])\n",
+    "before": "def solve_poly_inequalities(polys):\n    \"\"\"Solve polynomial inequalities with rational coefficients.\n\n    Examples\n    ========\n\n    >>> from sympy import Poly\n    >>> from sympy.solvers.inequalities import solve_poly_inequalities\n    >>> from sympy.abc import x\n    >>> solve_poly_inequalities(((\n    ... Poly(x**2 - 3), \">\"), (\n    ... Poly(-x**2 + 1), \">\")))\n    Union(Interval.open(-oo, -sqrt(3)), Interval.open(-1, 1), Interval.open(sqrt(3), oo))\n    \"\"\"\n    return Union(*[s for p in polys for s in solve_poly_inequality(*p)])\n",
+    "file": "sympy/solvers/inequalities.py",
+    "id": "sympy/solvers/inequalities.py#solve_poly_inequalities",
+    "name": "solve_poly_inequalities",
+    "qual": "solve_poly_inequalities",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [],
+   "dollars_cap": 0.1,
+   "filter_seconds": 15.4,
+   "gaps": [],
+   "info": {
+    "accepted": 0,
+    "compiled": 1,
+    "cost": 0.0,
+    "differed": 0,
+    "dollars_cap": 0.1,
+    "functions": 1,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 1,
+    "ran": 1,
+    "reached": 1,
+    "requests": 1,
+    "seconds": 15.2,
+    "stable": 1
+   },
+   "probes": [
+    {
+     "call": "str(solve_poly_inequalities(((Poly(x**2 - 3), '>'), (Poly(-x**2 + 1), '>'), (Poly(x + 1, x), '<'))))",
+     "function": "sympy/solvers/inequalities.py#solve_poly_inequalities",
+     "setup": "from sympy import Poly\nfrom sympy.abc import x\nfrom sympy.solvers.inequalities import solve_poly_inequalities",
+     "why": "docstring example plus the (x + 1, <) form the new docstring describes"
+    }
+   ],
+   "targets": [
+    "sympy/solvers/inequalities.py#solve_poly_inequalities"
+   ],
+   "waited_seconds": 315.2
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_issue_30529",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_solve_univariate_inequality_random_symbol",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/solvers/inequalities.py",
+    "lines": "115-118",
+    "symbol": "solve_poly_inequalities"
+   },
+   {
+    "file": "sympy/solvers/inequalities.py",
+    "lines": "135-141",
+    "symbol": "solve_rational_inequalities"
+   },
+   {
+    "file": "sympy/solvers/inequalities.py",
+    "lines": "206-233",
+    "symbol": "_lost_poly_factors_when_subtracting"
+   },
+   {
+    "file": "sympy/solvers/inequalities.py",
+    "lines": "237-322",
+    "symbol": "reduce_rational_inequalities"
+   },
+   {
+    "file": "sympy/solvers/inequalities.py",
+    "lines": "279-287",
+    "symbol": "reduce_rational_inequalities._ndpoly_opt"
+   },
+   {
+    "file": "sympy/solvers/inequalities.py",
+    "lines": "400-401",
+    "symbol": "reduce_abs_inequality._bottom_up_scan"
+   },
+   {
+    "file": "sympy/solvers/inequalities.py",
+    "lines": "400-414",
+    "symbol": "reduce_abs_inequality"
+   },
+   {
+    "file": "sympy/solvers/inequalities.py",
+    "lines": "422-425",
+    "symbol": "reduce_abs_inequalities"
+   },
+   {
+    "file": "sympy/solvers/inequalities.py",
+    "lines": "530",
+    "symbol": "solve_univariate_inequality"
+   },
+   {
+    "file": "sympy/solvers/inequalities.py",
+    "lines": "859-948",
+    "symbol": "_solve_inequality"
+   },
+   {
+    "file": "sympy/solvers/inequalities.py",
+    "lines": "955-997",
+    "symbol": "_reduce_inequalities"
+   },
+   {
+    "file": "sympy/solvers/inequalities.py",
+    "lines": "1043-1049",
+    "symbol": "reduce_inequalities"
+   },
+   {
+    "file": "sympy/solvers/tests/test_inequalities.py",
+    "lines": "505-530",
+    "symbol": "test_issue_30529"
+   },
+   {
+    "file": "sympy/solvers/tests/test_inequalities.py",
+    "lines": "533-540",
+    "symbol": "test_solve_univariate_inequality_random_symbol"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/solvers/inequalities.py#_lost_poly_factors_when_subtracting",
+   "sympy/solvers/inequalities.py#_reduce_inequalities",
+   "sympy/solvers/inequalities.py#_solve_inequality",
+   "sympy/solvers/inequalities.py#reduce_abs_inequalities",
+   "sympy/solvers/inequalities.py#reduce_abs_inequality",
+   "sympy/solvers/inequalities.py#reduce_abs_inequality._bottom_up_scan",
+   "sympy/solvers/inequalities.py#reduce_inequalities",
+   "sympy/solvers/inequalities.py#reduce_rational_inequalities",
+   "sympy/solvers/inequalities.py#reduce_rational_inequalities._ndpoly_opt",
+   "sympy/solvers/inequalities.py#solve_poly_inequalities",
+   "sympy/solvers/inequalities.py#solve_rational_inequalities",
+   "sympy/solvers/inequalities.py#solve_univariate_inequality",
+   "sympy/solvers/tests/test_inequalities.py#test_issue_30529",
+   "sympy/solvers/tests/test_inequalities.py#test_solve_univariate_inequality_random_symbol",
+   "sympy/solvers/inequalities.py",
+   "sympy/solvers/tests/test_inequalities.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "_lost_poly_factors_when_subtracting raises PolynomialError",
+    "path": [
+     "sympy/solvers/inequalities.py:217 raise PolynomialError",
+     "sympy/solvers/inequalities.py:889 _solve_inequality catches PolynomialError, handles it"
+    ],
+    "to": "2 handlers catch PolynomialError; first is _solve_inequality"
+   },
+   {
+    "evidence": "static source path",
+    "from": "reduce_rational_inequalities._ndpoly_opt raises PolynomialError",
+    "path": [
+     "sympy/solvers/inequalities.py:284 raise PolynomialError",
+     "sympy/solvers/inequalities.py:889 _solve_inequality catches PolynomialError, handles it"
+    ],
+    "to": "2 handlers catch PolynomialError; first is _solve_inequality"
+   },
+   {
+    "evidence": "static source path",
+    "from": "_lost_poly_factors_when_subtracting return changed",
+    "path": [
+     "sympy/solvers/inequalities.py:223 return",
+     "sympy/solvers/inequalities.py:305 reduce_rational_inequalities uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   },
+   {
+    "evidence": "static source path",
+    "from": "reduce_rational_inequalities._ndpoly_opt return changed",
+    "path": [
+     "sympy/solvers/inequalities.py:281 return",
+     "sympy/solvers/inequalities.py:322 reduce_rational_inequalities uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 2,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 984,
+   "ran": 984,
+   "replayed": 2,
+   "runner": "pytest",
+   "seconds": 188.2,
+   "selection": {
+    "candidates": 12885,
+    "closure_files": 1321,
+    "closure_tests": 12884,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 1
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "11901 lower-ranked candidate(s) not run: about 4 tests/s per process fit 984 in the 300 s allowed",
+   "76866 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "graph reused from the previous state; 24 changed file(s) relinked"
+  ],
+  "impacted": {
+   "count": 1925,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1607,
+   "parsed_files": 2
+  },
+  "original_tests": {
+   "sympy/solvers/tests/test_inequalities.py::test_issue_8974": "passed",
+   "sympy/solvers/tests/test_inequalities.py::test_issue_9954": "passed",
+   "sympy/solvers/tests/test_inequalities.py::test_reduce_inequalities_boolean": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_issue_30529",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_solve_univariate_inequality_random_symbol",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "a97f3eacddbb",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [
+    "sympy/solvers/inequalities.py#_reduce_inequalities",
+    "sympy/solvers/inequalities.py#_solve_inequality",
+    "sympy/solvers/inequalities.py#reduce_abs_inequalities",
+    "sympy/solvers/inequalities.py#reduce_abs_inequality",
+    "sympy/solvers/inequalities.py#reduce_inequalities",
+    "sympy/solvers/inequalities.py#reduce_rational_inequalities",
+    "sympy/solvers/inequalities.py#solve_rational_inequalities",
+    "sympy/solvers/inequalities.py#solve_univariate_inequality"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 26,
+   "differences": 0,
+   "functions_called": 8,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "sympy/solvers/inequalities.py#_lost_poly_factors_when_subtracting": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/solvers/inequalities.py#reduce_abs_inequality._bottom_up_scan": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/solvers/inequalities.py#reduce_rational_inequalities._ndpoly_opt": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/solvers/tests/test_inequalities.py#test_issue_30529": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/solvers/tests/test_inequalities.py#test_solve_univariate_inequality_random_symbol": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 45.1,
+   "targets": 9,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 984 of 984 candidate tests after the change with pytest in 188.2 s, failures confirmed before it: 0 now fail. 2736 tests reach the change. 3 test(s) from edited test files also run as they were before the edit. 2 test(s) the change adds or edits replayed on the code before it: 2 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_issue_30529",
+    "line": 505,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_issue_30529",
+    "score": 11.182,
+    "why": "calls reduce_inequalities (name: inequalitie)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_issue_10198",
+    "line": 391,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_issue_10198",
+    "score": 9.124,
+    "why": "calls reduce_inequalities (name: inequalitie)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_issue_8545",
+    "line": 378,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_issue_8545",
+    "score": 7.016,
+    "why": "calls reduce_inequalities (name: inequalitie)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_inequalities.py::test__solve_inequality",
+    "line": 451,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test__solve_inequality",
+    "score": 5.853,
+    "why": "calls _solve_inequality (name: inequalitie,inequality,solve)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_reduce_abs_inequalities",
+    "line": 195,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_reduce_abs_inequalities",
+    "score": 5.097,
+    "why": "calls reduce_inequalities (name: inequalitie,reduce)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_reduce_rational_inequalities_real_relational",
+    "line": 159,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_reduce_rational_inequalities_real_relational",
+    "score": 4.433,
+    "why": "calls reduce_rational_inequalities (name: inequalitie,rational,reduce)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_reduce_inequalities_multivariate",
+    "line": 226,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_reduce_inequalities_multivariate",
+    "score": 3.782,
+    "why": "calls reduce_inequalities (name: inequalitie,reduce)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_reduce_inequalities_general",
+    "line": 214,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_reduce_inequalities_general",
+    "score": 3.369,
+    "why": "calls reduce_inequalities (name: inequalitie,reduce)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_reduce_inequalities_errors",
+    "line": 232,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_reduce_inequalities_errors",
+    "score": 3.136,
+    "why": "calls reduce_inequalities (name: inequalitie,reduce)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_reduce_inequalities_boolean",
+    "line": 219,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_reduce_inequalities_boolean",
+    "score": 2.98,
+    "why": "calls reduce_inequalities (name: inequalitie,reduce)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_reduce_poly_inequalities_real_interval",
+    "line": 44,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_reduce_poly_inequalities_real_interval",
+    "score": 2.753,
+    "why": "calls reduce_rational_inequalities (name: inequalitie,reduce)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_reduce_poly_inequalities_complex_relational",
+    "line": 119,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_reduce_poly_inequalities_complex_relational",
+    "score": 2.467,
+    "why": "calls reduce_rational_inequalities (name: inequalitie,reduce)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_inequalities.py::test__solve_inequalities",
+    "line": 237,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test__solve_inequalities",
+    "score": 2.249,
+    "why": "calls reduce_inequalities (name: inequalitie)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_issue_8235",
+    "line": 250,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_issue_8235",
+    "score": 2.063,
+    "why": "calls reduce_inequalities (name: inequalitie)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_issue_6343",
+    "line": 244,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_issue_6343",
+    "score": 2.014,
+    "why": "calls reduce_inequalities (name: inequalitie)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_issue_25738",
+    "line": 496,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_issue_25738",
+    "score": 1.985,
+    "why": "calls reduce_inequalities (name: inequalitie)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_issue_25983",
+    "line": 501,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_issue_25983",
+    "score": 1.966,
+    "why": "calls reduce_inequalities (name: inequalitie)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_issue_5526",
+    "line": 269,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_issue_5526",
+    "score": 1.947,
+    "why": "calls reduce_inequalities (name: inequalitie)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_issue_25697",
+    "line": 492,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_issue_25697",
+    "score": 1.761,
+    "why": "calls _solve_inequality (name: inequalitie)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_issue_10047",
+    "line": 403,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_issue_10047",
+    "score": 1.27,
+    "why": "via solve > reduce_inequalities (name: inequalitie)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_inequalities",
+    "line": 815,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_inequalities",
+    "score": 1.262,
+    "why": "via solve > reduce_inequalities (name: inequalitie)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_solve_univariate_inequality",
+    "line": 279,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_solve_univariate_inequality",
+    "score": 1.194,
+    "why": "calls solve_univariate_inequality (name: inequalitie,inequality,solve,univariate)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_slow_general_univariate",
+    "line": 371,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_slow_general_univariate",
+    "score": 1.144,
+    "why": "via solve > reduce_inequalities (name: inequalitie)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_issue_10268",
+    "line": 414,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_issue_10268",
+    "score": 1.122,
+    "why": "via solve > reduce_inequalities (name: inequalitie)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_inequalities.py::test_solve_univariate_inequality_random_symbol",
+    "line": 533,
+    "run": "python -m pytest sympy/solvers/tests/test_inequalities.py::test_solve_univariate_inequality_random_symbol",
+    "score": 1.001,
+    "why": "calls solve_univariate_inequality (name: inequalitie,inequality,solve,univariate)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_rational",
+    "line": 345,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_rational",
+    "score": 0.815,
+    "why": "via solve > reduce_inequalities"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_polysys.py::test_solve_biquadratic",
+    "line": 105,
+    "run": "python -m pytest sympy/solvers/tests/test_polysys.py::test_solve_biquadratic",
+    "score": 0.794,
+    "why": "via solve > reduce_inequalities"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_polynomial_cv_1a",
+    "line": 265,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_polynomial_cv_1a",
+    "score": 0.779,
+    "why": "via solve > reduce_inequalities"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_args",
+    "line": 120,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_args",
+    "score": 0.776,
+    "why": "via solve > reduce_inequalities"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_polynomial_cv_2",
+    "line": 282,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_polynomial_cv_2",
+    "score": 0.772,
+    "why": "via solve > reduce_inequalities"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_polynomial1",
+    "line": 225,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_polynomial1",
+    "score": 0.766,
+    "why": "via solve > reduce_inequalities"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_transcendental",
+    "line": 525,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_transcendental",
+    "score": 0.762,
+    "why": "via solve > reduce_inequalities"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_Matrix",
+    "line": 714,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_Matrix",
+    "score": 0.74,
+    "why": "via solve > reduce_inequalities"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/functions/elementary/tests/test_piecewise.py::test_piecewise_solve",
+    "line": 572,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_piecewise.py::test_piecewise_solve",
+    "score": 0.739,
+    "why": "via solve > reduce_inequalities"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_polynomial_cv_1b",
+    "line": 277,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_polynomial_cv_1b",
+    "score": 0.735,
+    "why": "via solve > reduce_inequalities"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solvers.py::test_issue_5849_matrix",
+    "line": 1536,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_issue_5849_matrix",
+    "score": 0.734,
+    "why": "via solve > reduce_inequalities"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_maxmin",
+    "line": 2732,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_maxmin",
+    "score": 0.728,
+    "why": "via solve > reduce_inequalities"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_for_functions_derivatives",
+    "line": 656,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_for_functions_derivatives",
+    "score": 0.726,
+    "why": "via solve > reduce_inequalities"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solvers.py::test_solve_polynomial2",
+    "line": 261,
+    "run": "python -m pytest sympy/solvers/tests/test_solvers.py::test_solve_polynomial2",
+    "score": 0.722,
+    "why": "via solve > reduce_inequalities"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/physics/control/tests/test_lti.py::test_DiscreteTransferFunction_functions",
+    "line": 690,
+    "run": "python -m pytest sympy/physics/control/tests/test_lti.py::test_DiscreteTransferFunction_functions",
+    "score": 0.721,
+    "why": "via TransferFunctionBase.is_stable > reduce_inequalities"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/solvers/inequalities.py",
+    "lines": "115-118",
+    "symbol": "solve_poly_inequalities"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/solvers/tests/test_inequalities.py",
+    "lines": "505-530",
+    "symbol": "test_issue_30529"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/solvers/tests/test_inequalities.py",
+    "lines": "533-540",
+    "symbol": "test_solve_univariate_inequality_random_symbol"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792331299.9371011,
+  "job_seconds": 195.6,
+  "number": 30530,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 195.7,
+  "started": 1792331103.618019
+ },
+ "verify": null
+}

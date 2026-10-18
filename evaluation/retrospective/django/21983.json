@@ -1,0 +1,579 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "f91c8897f568a8075f4f0c1c9dcc81b8ec798ef3",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "bbad32afcc7004432e3ed9f4b9bd037fdbc11ad5",
+  "install_ok": true,
+  "merge_base": "f91c8897f568a8075f4f0c1c9dcc81b8ec798ef3",
+  "pr": 21983,
+  "recording": true,
+  "runner": null,
+  "seconds": 24.9,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "f91c8897f568a8075f4f0c1c9dcc81b8ec798ef3",
+  "head_sha": "bbad32afcc7004432e3ed9f4b9bd037fdbc11ad5",
+  "merge_base": "f91c8897f568a8075f4f0c1c9dcc81b8ec798ef3",
+  "merged_at": "2026-09-17T20:24:03Z",
+  "number": 21983,
+  "repo": "django",
+  "title": "Fixed #37348 -- Reverted \"Fixed #36806 -- Added system check for null kwarg in GeneratedField.\""
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 2,
+  "called": 2,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "changed_functions": [
+   {
+    "file": "django/db/models/fields/generated.py",
+    "lines": "33",
+    "symbol": "GeneratedField.__init__"
+   },
+   {
+    "file": "django/db/models/fields/generated.py",
+    "lines": "85",
+    "symbol": "GeneratedField.check"
+   },
+   {
+    "file": "django/db/models/fields/generated.py",
+    "lines": "191",
+    "symbol": "GeneratedField.deconstruct"
+   },
+   {
+    "file": "tests/model_fields/test_generatedfield.py",
+    "lines": "384-391",
+    "symbol": "GeneratedFieldTestMixin.test_nullable_exclude"
+   }
+  ],
+  "changed_symbols": [
+   "django/db/models/fields/generated.py#GeneratedField.__init__",
+   "django/db/models/fields/generated.py#GeneratedField.check",
+   "django/db/models/fields/generated.py#GeneratedField.deconstruct",
+   "tests/model_fields/models.py#GeneratedModelNull.lower_name",
+   "tests/model_fields/models.py#GeneratedModelNullVirtual.lower_name",
+   "tests/model_fields/test_generatedfield.py#GeneratedFieldTestMixin.test_nullable_exclude",
+   "tests/invalid_models_tests/test_ordinary_fields.py",
+   "tests/model_fields/test_generatedfield.py",
+   "django/db/models/fields/generated.py#GeneratedField._check_ignored_options (renamed or removed)",
+   "tests/invalid_models_tests/test_ordinary_fields.py#GeneratedFieldTests.test_with_null_argument (renamed or removed)"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 2,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 8182,
+   "ran": 116,
+   "replayed": 0,
+   "runner": "django-runtests",
+   "seconds": 17.3,
+   "selection": {
+    "candidates": 8182,
+    "closure_files": 26,
+    "closure_tests": 496,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/db/models/__init__.py"
+    ],
+    "observed": 32,
+    "static_only": 7209
+   },
+   "unrunnable": 44
+  },
+  "flips": 0,
+  "gaps": [
+   "108805 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "44 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "Skipped 3 non-Python file(s)",
+   "graph reused from the previous state; 10 changed file(s) relinked",
+   "replaying the change's own tests (after the change, django-runtests): no outcomes read: TypeError: GeneratedFieldTestMixin.test_nullable_exclude() missing 1 required positional argument: 'self' (at django/test/runner.py:988)",
+   "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run stopped at its 300 s budget: 0 of 8182 candidates run"
+  ],
+  "impacted": {
+   "count": 591,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2930,
+   "parsed_files": 6
+  },
+  "original_tests": {
+   "tests/invalid_models_tests/test_ordinary_fields.py::GeneratedFieldTests::test_not_supported": "passed",
+   "tests/invalid_models_tests/test_ordinary_fields.py::GeneratedFieldTests::test_not_supported_stored": "passed",
+   "tests/invalid_models_tests/test_ordinary_fields.py::GeneratedFieldTests::test_not_supported_stored_required_db_features": "passed",
+   "tests/invalid_models_tests/test_ordinary_fields.py::GeneratedFieldTests::test_not_supported_virtual": "passed",
+   "tests/invalid_models_tests/test_ordinary_fields.py::GeneratedFieldTests::test_not_supported_virtual_required_db_features": "passed",
+   "tests/invalid_models_tests/test_ordinary_fields.py::GeneratedFieldTests::test_output_field_charfield_unlimited_error": "passed",
+   "tests/invalid_models_tests/test_ordinary_fields.py::GeneratedFieldTests::test_output_field_check_error": "passed",
+   "tests/invalid_models_tests/test_ordinary_fields.py::GeneratedFieldTests::test_output_field_check_warning": "passed",
+   "tests/invalid_models_tests/test_ordinary_fields.py::InvalidDBDefaultTests::test_db_default_function_arguments_invalid": "passed",
+   "tests/model_fields/test_generatedfield.py::BaseGeneratedFieldTests::test_blank_unsupported": "passed",
+   "tests/model_fields/test_generatedfield.py::BaseGeneratedFieldTests::test_cached_col": "passed",
+   "tests/model_fields/test_generatedfield.py::BaseGeneratedFieldTests::test_contribute_to_class": "passed",
+   "tests/model_fields/test_generatedfield.py::BaseGeneratedFieldTests::test_database_default_unsupported": "passed",
+   "tests/model_fields/test_generatedfield.py::BaseGeneratedFieldTests::test_db_persist_required": "passed",
+   "tests/model_fields/test_generatedfield.py::BaseGeneratedFieldTests::test_deconstruct": "passed",
+   "tests/model_fields/test_generatedfield.py::BaseGeneratedFieldTests::test_default_unsupported": "passed",
+   "tests/model_fields/test_generatedfield.py::BaseGeneratedFieldTests::test_editable_unsupported": "passed",
+   "tests/model_fields/test_generatedfield.py::BaseGeneratedFieldTests::test_get_col": "passed",
+   "tests/model_fields/test_generatedfield.py::StoredGeneratedFieldTests::test_bulk_create": "passed",
+   "tests/model_fields/test_generatedfield.py::StoredGeneratedFieldTests::test_bulk_update": "passed",
+   "tests/model_fields/test_generatedfield.py::StoredGeneratedFieldTests::test_create": "passed",
+   "tests/model_fields/test_generatedfield.py::StoredGeneratedFieldTests::test_create_field_with_db_converters": "passed",
+   "tests/model_fields/test_generatedfield.py::StoredGeneratedFieldTests::test_create_with_non_auto_pk": "passed",
+   "tests/model_fields/test_generatedfield.py::StoredGeneratedFieldTests::test_db_type_parameters": "passed",
+   "tests/model_fields/test_generatedfield.py::StoredGeneratedFieldTests::test_full_clean": "passed",
+   "tests/model_fields/test_generatedfield.py::StoredGeneratedFieldTests::test_full_clean_with_check_constraint": "passed",
+   "tests/model_fields/test_generatedfield.py::StoredGeneratedFieldTests::test_full_clean_with_unique_constraint_expression": "passed",
+   "tests/model_fields/test_generatedfield.py::StoredGeneratedFieldTests::test_generated_fields_can_be_deferred": "passed",
+   "tests/model_fields/test_generatedfield.py::StoredGeneratedFieldTests::test_model_with_params": "passed",
+   "tests/model_fields/test_generatedfield.py::StoredGeneratedFieldTests::test_non_nullable_create": "passed",
+   "tests/model_fields/test_generatedfield.py::StoredGeneratedFieldTests::test_nullable": "passed",
+   "tests/model_fields/test_generatedfield.py::StoredGeneratedFieldTests::test_nullable_exclude": "failed",
+   "tests/model_fields/test_generatedfield.py::StoredGeneratedFieldTests::test_output_field_db_collation": "passed",
+   "tests/model_fields/test_generatedfield.py::StoredGeneratedFieldTests::test_output_field_lookups": "passed",
+   "tests/model_fields/test_generatedfield.py::StoredGeneratedFieldTests::test_save": "passed",
+   "tests/model_fields/test_generatedfield.py::StoredGeneratedFieldTests::test_save_field_with_db_converters": "passed",
+   "tests/model_fields/test_generatedfield.py::StoredGeneratedFieldTests::test_save_model_with_foreign_key": "passed",
+   "tests/model_fields/test_generatedfield.py::StoredGeneratedFieldTests::test_save_model_with_pk": "passed",
+   "tests/model_fields/test_generatedfield.py::StoredGeneratedFieldTests::test_unsaved_error": "passed",
+   "tests/model_fields/test_generatedfield.py::StoredGeneratedFieldTests::test_update": "passed",
+   "tests/model_fields/test_generatedfield.py::VirtualGeneratedFieldTests::test_bulk_create": "passed",
+   "tests/model_fields/test_generatedfield.py::VirtualGeneratedFieldTests::test_bulk_update": "passed",
+   "tests/model_fields/test_generatedfield.py::VirtualGeneratedFieldTests::test_create": "passed",
+   "tests/model_fields/test_generatedfield.py::VirtualGeneratedFieldTests::test_db_type_parameters": "passed",
+   "tests/model_fields/test_generatedfield.py::VirtualGeneratedFieldTests::test_full_clean": "passed",
+   "tests/model_fields/test_generatedfield.py::VirtualGeneratedFieldTests::test_full_clean_with_check_constraint": "passed",
+   "tests/model_fields/test_generatedfield.py::VirtualGeneratedFieldTests::test_full_clean_with_unique_constraint_expression": "passed",
+   "tests/model_fields/test_generatedfield.py::VirtualGeneratedFieldTests::test_generated_fields_can_be_deferred": "passed",
+   "tests/model_fields/test_generatedfield.py::VirtualGeneratedFieldTests::test_model_with_params": "passed",
+   "tests/model_fields/test_generatedfield.py::VirtualGeneratedFieldTests::test_non_nullable_create": "passed",
+   "tests/model_fields/test_generatedfield.py::VirtualGeneratedFieldTests::test_nullable": "passed",
+   "tests/model_fields/test_generatedfield.py::VirtualGeneratedFieldTests::test_nullable_exclude": "failed",
+   "tests/model_fields/test_generatedfield.py::VirtualGeneratedFieldTests::test_output_field_db_collation": "passed",
+   "tests/model_fields/test_generatedfield.py::VirtualGeneratedFieldTests::test_output_field_lookups": "passed",
+   "tests/model_fields/test_generatedfield.py::VirtualGeneratedFieldTests::test_save": "passed",
+   "tests/model_fields/test_generatedfield.py::VirtualGeneratedFieldTests::test_save_model_with_foreign_key": "passed",
+   "tests/model_fields/test_generatedfield.py::VirtualGeneratedFieldTests::test_save_model_with_pk": "passed",
+   "tests/model_fields/test_generatedfield.py::VirtualGeneratedFieldTests::test_unsaved_error": "passed",
+   "tests/model_fields/test_generatedfield.py::VirtualGeneratedFieldTests::test_update": "passed"
+  },
+  "predicted_failures": [],
+  "report_hash": "95d6a203b0e4",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [
+    "django/db/models/fields/generated.py#GeneratedField.__init__",
+    "django/db/models/fields/generated.py#GeneratedField.check"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 10,
+   "differences": 0,
+   "functions_called": 2,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "tests/model_fields/test_generatedfield.py#GeneratedFieldTestMixin.test_nullable_exclude": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 1.3,
+   "targets": 2,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 116 of 8182 candidate tests after the change with django-runtests in 17.3 s, failures confirmed before it: 0 now fail. 7546 tests reach the change. 59 test(s) from edited test files also run as they were before the edit.",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/invalid_models_tests/test_relative_fields.py::RelativeFieldTests::test_many_to_many_with_useless_options",
+    "line": 110,
+    "run": "cd tests && python runtests.py invalid_models_tests.test_relative_fields.RelativeFieldTests.test_many_to_many_with_useless_options",
+    "score": 0.772,
+    "why": "asserts removed text 'has no effect'; via Model.check > Model._check_composite_pk > DateHierarchyCheckTests.assertGeneratedIntegerFieldIsInvalid.TestModel.generated > GeneratedField.__init__ (name: field)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_generatedfield.py::BaseGeneratedFieldTests::test_deconstruct",
+    "line": 109,
+    "run": "cd tests && python runtests.py model_fields.test_generatedfield.BaseGeneratedFieldTests.test_deconstruct",
+    "score": 7.372,
+    "why": "calls GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/model_fields/test_generatedfield.py::GeneratedFieldTestMixin::test_nullable",
+    "line": 372,
+    "run": "cd tests && python runtests.py model_fields.test_generatedfield.GeneratedFieldTestMixin.test_nullable",
+    "score": 3.314,
+    "why": "via GeneratedModelNull.lower_name (name: generated)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_generatedfield.py::BaseGeneratedFieldTests::test_database_default_unsupported",
+    "line": 86,
+    "run": "cd tests && python runtests.py model_fields.test_generatedfield.BaseGeneratedFieldTests.test_database_default_unsupported",
+    "score": 2.218,
+    "why": "calls GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/schema/tests.py::SchemaTests::test_add_generated_field_contains",
+    "line": 1048,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_add_generated_field_contains",
+    "score": 1.585,
+    "why": "calls GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_generatedfield.py::BaseGeneratedFieldTests::test_blank_unsupported",
+    "line": 67,
+    "run": "cd tests && python runtests.py model_fields.test_generatedfield.BaseGeneratedFieldTests.test_blank_unsupported",
+    "score": 1.296,
+    "why": "calls GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "tests/model_fields/test_generatedfield.py::BaseGeneratedFieldTests::test_contribute_to_class",
+    "line": 48,
+    "run": "cd tests && python runtests.py model_fields.test_generatedfield.BaseGeneratedFieldTests.test_contribute_to_class",
+    "score": 1.138,
+    "why": "calls GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_generatedfield.py::BaseGeneratedFieldTests::test_db_persist_required",
+    "line": 96,
+    "run": "cd tests && python runtests.py model_fields.test_generatedfield.BaseGeneratedFieldTests.test_db_persist_required",
+    "score": 1.053,
+    "why": "calls GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_generatedfield.py::BaseGeneratedFieldTests::test_default_unsupported",
+    "line": 76,
+    "run": "cd tests && python runtests.py model_fields.test_generatedfield.BaseGeneratedFieldTests.test_default_unsupported",
+    "score": 1.007,
+    "why": "calls GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_generatedfield.py::BaseGeneratedFieldTests::test_editable_unsupported",
+    "line": 39,
+    "run": "cd tests && python runtests.py model_fields.test_generatedfield.BaseGeneratedFieldTests.test_editable_unsupported",
+    "score": 0.982,
+    "why": "calls GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "tests/schema/tests.py::SchemaTests::test_add_db_comment_generated_field",
+    "line": 5134,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_add_db_comment_generated_field",
+    "score": 0.946,
+    "why": "calls GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/schema/tests.py::SchemaTests::test_alter_generated_field",
+    "line": 1081,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_alter_generated_field",
+    "score": 0.936,
+    "why": "calls GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_operations.py::OperationTests::test_add_field_after_generated_field",
+    "line": 6849,
+    "run": "cd tests && python runtests.py migrations.test_operations.OperationTests.test_add_field_after_generated_field",
+    "score": 0.917,
+    "why": "calls GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_operations.py::OperationTests::test_generated_field_changes_output_field",
+    "line": 6775,
+    "run": "cd tests && python runtests.py migrations.test_operations.OperationTests.test_generated_field_changes_output_field",
+    "score": 0.914,
+    "why": "calls GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "tests/migrations/test_operations.py::OperationTests::test_add_generated_field",
+    "line": 1504,
+    "run": "cd tests && python runtests.py migrations.test_operations.OperationTests.test_add_generated_field",
+    "score": 0.906,
+    "why": "calls GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_operations.py::FieldOperationTests::test_references_field_by_generated_field",
+    "line": 7160,
+    "run": "cd tests && python runtests.py migrations.test_operations.FieldOperationTests.test_references_field_by_generated_field",
+    "score": 0.883,
+    "why": "calls GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_operations.py::OperationTests::test_invalid_generated_field_persistency_change",
+    "line": 6715,
+    "run": "cd tests && python runtests.py migrations.test_operations.OperationTests.test_invalid_generated_field_persistency_change",
+    "score": 0.882,
+    "why": "calls GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_autodetector.py::AutodetectorTests::test_add_fk_before_generated_field",
+    "line": 1530,
+    "run": "cd tests && python runtests.py migrations.test_autodetector.AutodetectorTests.test_add_fk_before_generated_field",
+    "score": 0.87,
+    "why": "calls GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "tests/migrations/test_autodetector.py::AutodetectorTests::test_add_field_before_generated_field",
+    "line": 1499,
+    "run": "cd tests && python runtests.py migrations.test_autodetector.AutodetectorTests.test_add_field_before_generated_field",
+    "score": 0.848,
+    "why": "calls GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_autodetector.py::AutodetectorTests::test_remove_generated_field_and_one_of_multiple_base_fields",
+    "line": 1637,
+    "run": "cd tests && python runtests.py migrations.test_autodetector.AutodetectorTests.test_remove_generated_field_and_one_of_multiple_base_fields",
+    "score": 0.848,
+    "why": "calls GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_autodetector.py::AutodetectorTests::test_remove_generated_field_before_its_base_field",
+    "line": 1583,
+    "run": "cd tests && python runtests.py migrations.test_autodetector.AutodetectorTests.test_remove_generated_field_before_its_base_field",
+    "score": 0.847,
+    "why": "calls GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_autodetector.py::AutodetectorTests::test_remove_generated_field_before_multiple_base_fields",
+    "line": 1608,
+    "run": "cd tests && python runtests.py migrations.test_autodetector.AutodetectorTests.test_remove_generated_field_before_multiple_base_fields",
+    "score": 0.847,
+    "why": "calls GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/db_functions/text/test_lower.py::LowerTests::test_basic",
+    "line": 10,
+    "run": "cd tests && python runtests.py db_functions.text.test_lower.LowerTests.test_basic",
+    "score": 0.728,
+    "why": "via GeneratedModelNull.lower_name (name: lower)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestMethods::test_deconstruct",
+    "line": 91,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestMethods.test_deconstruct",
+    "score": 0.644,
+    "why": "via GeneratedField.deconstruct (name: deconstruct)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestMethods::test_deconstruct_custom_encoder_decoder",
+    "line": 98,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestMethods.test_deconstruct_custom_encoder_decoder",
+    "score": 0.586,
+    "why": "via GeneratedField.deconstruct (name: deconstruct)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_operations.py::OperationTests::test_invalid_generated_field_changes_on_rename_stored",
+    "line": 6707,
+    "run": "cd tests && python runtests.py migrations.test_operations.OperationTests.test_invalid_generated_field_changes_on_rename_stored",
+    "score": 0.558,
+    "why": "via OperationTests._test_invalid_generated_field_changes_on_rename > GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/migrations/test_operations.py::OperationTests::test_invalid_generated_field_changes_on_rename_virtual",
+    "line": 6711,
+    "run": "cd tests && python runtests.py migrations.test_operations.OperationTests.test_invalid_generated_field_changes_on_rename_virtual",
+    "score": 0.557,
+    "why": "via OperationTests._test_invalid_generated_field_changes_on_rename > GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_operations.py::OperationTests::test_add_generated_field_stored",
+    "line": 6808,
+    "run": "cd tests && python runtests.py migrations.test_operations.OperationTests.test_add_generated_field_stored",
+    "score": 0.542,
+    "why": "via OperationTests._test_add_generated_field > GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_operations.py::OperationTests::test_add_generated_field_virtual",
+    "line": 6812,
+    "run": "cd tests && python runtests.py migrations.test_operations.OperationTests.test_add_generated_field_virtual",
+    "score": 0.541,
+    "why": "via OperationTests._test_add_generated_field > GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_operations.py::OperationTests::test_invalid_generated_field_changes_stored",
+    "line": 6663,
+    "run": "cd tests && python runtests.py migrations.test_operations.OperationTests.test_invalid_generated_field_changes_stored",
+    "score": 0.54,
+    "why": "via OperationTests._test_invalid_generated_field_changes > GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/migrations/test_operations.py::OperationTests::test_invalid_generated_field_changes_virtual",
+    "line": 6667,
+    "run": "cd tests && python runtests.py migrations.test_operations.OperationTests.test_invalid_generated_field_changes_virtual",
+    "score": 0.54,
+    "why": "via OperationTests._test_invalid_generated_field_changes > GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_operations.py::OperationTests::test_remove_generated_field_stored",
+    "line": 6841,
+    "run": "cd tests && python runtests.py migrations.test_operations.OperationTests.test_remove_generated_field_stored",
+    "score": 0.54,
+    "why": "via OperationTests._test_remove_generated_field > GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_operations.py::OperationTests::test_remove_generated_field_virtual",
+    "line": 6845,
+    "run": "cd tests && python runtests.py migrations.test_operations.OperationTests.test_remove_generated_field_virtual",
+    "score": 0.539,
+    "why": "via OperationTests._test_remove_generated_field > GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/field_deconstruction/tests.py::FieldDeconstructionTests::test_foreign_key",
+    "line": 226,
+    "run": "cd tests && python runtests.py field_deconstruction.tests.FieldDeconstructionTests.test_foreign_key",
+    "score": 0.484,
+    "why": "via GeneratedField.deconstruct (name: field)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/field_deconstruction/tests.py::FieldDeconstructionTests::test_one_to_one",
+    "line": 359,
+    "run": "cd tests && python runtests.py field_deconstruction.tests.FieldDeconstructionTests.test_one_to_one",
+    "score": 0.452,
+    "why": "via GeneratedField.deconstruct (name: field)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/model_fields/test_generatedfield.py::GeneratedFieldTestMixin::test_full_clean_with_check_constraint",
+    "line": 193,
+    "run": "cd tests && python runtests.py model_fields.test_generatedfield.GeneratedFieldTestMixin.test_full_clean_with_check_constraint",
+    "score": 0.387,
+    "why": "via GeneratedModelBase.a_squared > GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/field_deconstruction/tests.py::FieldDeconstructionTests::test_foreign_key_swapped",
+    "line": 332,
+    "run": "cd tests && python runtests.py field_deconstruction.tests.FieldDeconstructionTests.test_foreign_key_swapped",
+    "score": 0.38,
+    "why": "via GeneratedField.deconstruct (name: field)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/model_fields/test_generatedfield.py::GeneratedFieldTestMixin::test_full_clean_with_unique_constraint_expression",
+    "line": 214,
+    "run": "cd tests && python runtests.py model_fields.test_generatedfield.GeneratedFieldTestMixin.test_full_clean_with_unique_constraint_expression",
+    "score": 0.351,
+    "why": "via GeneratedModelBase.a_squared > GeneratedField.__init__ (name: field,generated)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/field_deconstruction/tests.py::FieldDeconstructionTests::test_file_field",
+    "line": 192,
+    "run": "cd tests && python runtests.py field_deconstruction.tests.FieldDeconstructionTests.test_file_field",
+    "score": 0.341,
+    "why": "via GeneratedField.deconstruct (name: field)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/field_deconstruction/tests.py::FieldDeconstructionTests::test_image_field",
+    "line": 457,
+    "run": "cd tests && python runtests.py field_deconstruction.tests.FieldDeconstructionTests.test_image_field",
+    "score": 0.327,
+    "why": "via GeneratedField.deconstruct (name: field)"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792323223.30628,
+  "job_seconds": 24.9,
+  "number": 21983,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 24.9,
+  "started": 1792323197.469582
+ },
+ "verify": null
+}

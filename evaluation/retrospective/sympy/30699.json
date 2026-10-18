@@ -1,0 +1,703 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "25582a159907626145f4a36164573a6628ca6a43",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "6d9ac7704c85cdd700a4fc28407ea50b99814763",
+  "install_ok": true,
+  "merge_base": "f14b5cd2d13c0145521eccec991c315794952117",
+  "pr": 30699,
+  "recording": false,
+  "runner": null,
+  "seconds": 359.3,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "25582a159907626145f4a36164573a6628ca6a43",
+  "head_sha": "6d9ac7704c85cdd700a4fc28407ea50b99814763",
+  "merge_base": "f14b5cd2d13c0145521eccec991c315794952117",
+  "merged_at": "2026-10-08T16:26:43Z",
+  "number": 30699,
+  "repo": "sympy",
+  "title": "polys: fix precision calculation in rs_nth_root"
+ },
+ "probe_minutes": {
+  "end": 1792341959.224718,
+  "minutes": 0.9,
+  "start": 1792341447.29883,
+  "waited": 460.2772207920061
+ },
+ "probe_targets": {
+  "all": 2,
+  "called": 0,
+  "targets": [
+   {
+    "after": "def rs_nth_root(p, n, x, prec):\n    \"\"\"\n    Multivariate series expansion of the nth root of ``p``.\n\n    Parameters\n    ==========\n\n    p : Expr\n        The polynomial to computer the root of.\n    n : integer\n        The order of the root to be computed.\n    x : :class:`~.PolyElement`\n    prec : integer\n        Order of the expanded series.\n\n    Notes\n    =====\n\n    The result of this function is dependent on the ring over which the\n    polynomial has been defined. If the answer involves a root of a constant,\n    make sure that the polynomial is over a real field. It cannot yet handle\n    roots of symbols.\n\n    Examples\n    ========\n\n    >>> from sympy.polys.domains import QQ, RR\n    >>> from sympy.polys.rings import ring\n    >>> from sympy.polys.ring_series import rs_nth_root\n    >>> R, x, y = ring('x, y', QQ)\n    >>> rs_nth_root(1 + x + x*y, -3, x, 3)\n    2/9*x**2*y**2 + 4/9*x**2*y + 2/9*x**2 - 1/3*x*y - 1/3*x + 1\n    >>> R, x, y = ring('x, y', RR)\n    >>> rs_nth_root(3 + x + x*y, 3, x, 2)\n    0.160249952256379*x*y + 0.160249952256379*x + 1.44224957030741\n    \"\"\"\n    if n == 0:\n        if p == 0:\n            raise ValueError('0**0 expression')\n        else:\n            return p.ring(1)\n    if n == 1:\n        return rs_trunc(p, x, prec)\n    R = p.ring\n    index = R.gens.index(x)\n    m = min(p, key=lambda k: k[index])[index]\n    if m:\n        shift = QQ(m) / n\n        p = mul_xin(p, index, -m)\n        prec = prec - shift\n    else:\n        shift = 0\n\n    if _has_constant_term(p - 1, x):\n        zm = R.zero_monom\n        c = p[zm]\n        if isinstance(c, PolyElement):\n            try:\n                c_expr = c.as_expr()\n                const = R(c_expr**(QQ(1, n)))\n            except ValueError:\n                raise DomainError(\"The given series cannot be expanded in \"\n                    \"this domain.\")\n        else:\n            try:                              # RealElement doesn't support\n                const = R(c**Rational(1, n))  # exponentiation with mpq object\n            except ValueError:                # as exponent\n                raise DomainError(\"The given series cannot be expanded in \"\n                    \"this domain.\")\n        res = rs_nth_root(p/c, n, x, prec)*const\n    else:\n        res = _nth_root1(p, n, x, prec)\n    if shift:\n        res = mul_xin(res, index, shift)\n    return res\n",
+    "before": "def rs_nth_root(p, n, x, prec):\n    \"\"\"\n    Multivariate series expansion of the nth root of ``p``.\n\n    Parameters\n    ==========\n\n    p : Expr\n        The polynomial to computer the root of.\n    n : integer\n        The order of the root to be computed.\n    x : :class:`~.PolyElement`\n    prec : integer\n        Order of the expanded series.\n\n    Notes\n    =====\n\n    The result of this function is dependent on the ring over which the\n    polynomial has been defined. If the answer involves a root of a constant,\n    make sure that the polynomial is over a real field. It cannot yet handle\n    roots of symbols.\n\n    Examples\n    ========\n\n    >>> from sympy.polys.domains import QQ, RR\n    >>> from sympy.polys.rings import ring\n    >>> from sympy.polys.ring_series import rs_nth_root\n    >>> R, x, y = ring('x, y', QQ)\n    >>> rs_nth_root(1 + x + x*y, -3, x, 3)\n    2/9*x**2*y**2 + 4/9*x**2*y + 2/9*x**2 - 1/3*x*y - 1/3*x + 1\n    >>> R, x, y = ring('x, y', RR)\n    >>> rs_nth_root(3 + x + x*y, 3, x, 2)\n    0.160249952256379*x*y + 0.160249952256379*x + 1.44224957030741\n    \"\"\"\n    if n == 0:\n        if p == 0:\n            raise ValueError('0**0 expression')\n        else:\n            return p.ring(1)\n    if n == 1:\n        return rs_trunc(p, x, prec)\n    R = p.ring\n    index = R.gens.index(x)\n    m = min(p, key=lambda k: k[index])[index]\n    p = mul_xin(p, index, -m)\n    prec -= m\n\n    if _has_constant_term(p - 1, x):\n        zm = R.zero_monom\n        c = p[zm]\n        if isinstance(c, PolyElement):\n            try:\n                c_expr = c.as_expr()\n                const = R(c_expr**(QQ(1, n)))\n            except ValueError:\n                raise DomainError(\"The given series cannot be expanded in \"\n                    \"this domain.\")\n        else:\n            try:                              # RealElement doesn't support\n                const = R(c**Rational(1, n))  # exponentiation with mpq object\n            except ValueError:                # as exponent\n                raise DomainError(\"The given series cannot be expanded in \"\n                    \"this domain.\")\n        res = rs_nth_root(p/c, n, x, prec)*const\n    else:\n        res = _nth_root1(p, n, x, prec)\n    if m:\n        m = QQ(m) / n\n        res = mul_xin(res, index, m)\n    return res\n",
+    "file": "sympy/polys/ring_series.py",
+    "id": "sympy/polys/ring_series.py#rs_nth_root",
+    "name": "rs_nth_root",
+    "qual": "rs_nth_root",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_nth_root():\n    R, x, y = puiseux_ring('x, y', QQ)\n    assert rs_nth_root(1 + x**2*y, 4, x, 10) == -77*x**8*y**4/2048 + \\\n        7*x**6*y**3/128 - 3*x**4*y**2/32 + x**2*y/4 + 1\n    assert rs_nth_root(1 + x*y + x**2*y**3, 3, x, 5) == -x**4*y**6/9 + \\\n        5*x**4*y**5/27 - 10*x**4*y**4/243 - 2*x**3*y**4/9 + 5*x**3*y**3/81 + \\\n        x**2*y**3/3 - x**2*y**2/9 + x*y/3 + 1\n    assert rs_nth_root(8*x, 3, x, 3) == 2*x**QQ(1, 3)\n    assert rs_nth_root(8*x + x**2 + x**3, 3, x, 3) == \\\n        23*x**QQ(7, 3)/288 + x**QQ(4, 3)/12 + 2*x**QQ(1, 3)\n    r = rs_nth_root(8*x + x**2*y + x**3, 3, x, 4)\n    assert r == 5*x**QQ(10, 3)*y**3/20736 - x**QQ(10, 3)*y/144 - \\\n        x**QQ(7, 3)*y**2/288 + x**QQ(7, 3)/12 + x**QQ(4, 3)*y/12 + \\\n        2*x**QQ(1, 3)\n\n    # Constant term in series\n    a = symbols('a')\n    R, x, y = puiseux_ring('x, y', EX)\n    assert rs_nth_root(x + EX(a), 3, x, 4) == EX(5/(81*a**QQ(8, 3)))*x**3 - \\\n        EX(1/(9*a**QQ(5, 3)))*x**2 + EX(1/(3*a**QQ(2, 3)))*x + EX(a**QQ(1, 3))\n    assert rs_nth_root(x**QQ(2, 3) + x**2*y + 5, 2, x, 3) == -EX(sqrt(5)/100)*\\\n        x**QQ(8, 3)*y - EX(sqrt(5)/16000)*x**QQ(8, 3) + EX(sqrt(5)/10)*x**2*y + \\\n        EX(sqrt(5)/2000)*x**2 - EX(sqrt(5)/200)*x**QQ(4, 3) + \\\n        EX(sqrt(5)/10)*x**QQ(2, 3) + EX(sqrt(5))\n",
+    "before": "def test_nth_root():\n    R, x, y = puiseux_ring('x, y', QQ)\n    assert rs_nth_root(1 + x**2*y, 4, x, 10) == -77*x**8*y**4/2048 + \\\n        7*x**6*y**3/128 - 3*x**4*y**2/32 + x**2*y/4 + 1\n    assert rs_nth_root(1 + x*y + x**2*y**3, 3, x, 5) == -x**4*y**6/9 + \\\n        5*x**4*y**5/27 - 10*x**4*y**4/243 - 2*x**3*y**4/9 + 5*x**3*y**3/81 + \\\n        x**2*y**3/3 - x**2*y**2/9 + x*y/3 + 1\n    assert rs_nth_root(8*x, 3, x, 3) == 2*x**QQ(1, 3)\n    assert rs_nth_root(8*x + x**2 + x**3, 3, x, 3) == x**QQ(4,3)/12 + 2*x**QQ(1,3)\n    r = rs_nth_root(8*x + x**2*y + x**3, 3, x, 4)\n    assert r == -x**QQ(7,3)*y**2/288 + x**QQ(7,3)/12 + x**QQ(4,3)*y/12 + 2*x**QQ(1,3)\n\n    # Constant term in series\n    a = symbols('a')\n    R, x, y = puiseux_ring('x, y', EX)\n    assert rs_nth_root(x + EX(a), 3, x, 4) == EX(5/(81*a**QQ(8, 3)))*x**3 - \\\n        EX(1/(9*a**QQ(5, 3)))*x**2 + EX(1/(3*a**QQ(2, 3)))*x + EX(a**QQ(1, 3))\n    assert rs_nth_root(x**QQ(2, 3) + x**2*y + 5, 2, x, 3) == -EX(sqrt(5)/100)*\\\n        x**QQ(8, 3)*y - EX(sqrt(5)/16000)*x**QQ(8, 3) + EX(sqrt(5)/10)*x**2*y + \\\n        EX(sqrt(5)/2000)*x**2 - EX(sqrt(5)/200)*x**QQ(4, 3) + \\\n        EX(sqrt(5)/10)*x**QQ(2, 3) + EX(sqrt(5))\n",
+    "file": "sympy/polys/tests/test_ring_series.py",
+    "id": "sympy/polys/tests/test_ring_series.py#test_nth_root",
+    "name": "test_nth_root",
+    "qual": "test_nth_root",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "return",
+      "list",
+      "['-x**2 + x - 1 + x**(-1)', 'x**2']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['-1 + x**(-1)', '0']"
+     ],
+     "call": "[outcome(lambda: rs_nth_root(x + x**2, -1, x, 3)), outcome(lambda: rs_nth_root(x**4 + x**5, 2, x, 3))]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import QQ\nfrom sympy.polys.rings import ring\nfrom sympy.polys.ring_series import rs_nth_root\nR, x = ring('x', QQ)\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__",
+     "target": "sympy/polys/ring_series.py#rs_nth_root",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import QQ\n    from sympy.polys.rings import ring\n    from sympy.polys.ring_series import rs_nth_root\n    R, x = ring('x', QQ)\n\n    def outcome(f):\n        try:\n            return str(f())\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__\n    assert repr([outcome(lambda: rs_nth_root(x + x**2, -1, x, 3)), outcome(lambda: rs_nth_root(x**4 + x**5, 2, x, 3))]) == \"['-x**2 + x - 1 + x**(-1)', 'x**2']\"\n",
+     "why": "the two cases in the PR"
+    },
+    {
+     "after": [
+      "return",
+      "list",
+      "['-x + 1 - x**(-1) + x**(-2)', '1/3*x**3 + x**2']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['-2*x**(-1) + 2*x**(-2)', '1/4*x**3 + 3/4*x**2']"
+     ],
+     "call": "[outcome(lambda: rs_nth_root(x**2 + x**3, -1, x, 2)), outcome(lambda: rs_nth_root(x**6 + x**7, 3, x, 4))]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import QQ\nfrom sympy.polys.rings import ring\nfrom sympy.polys.ring_series import rs_nth_root\nR, x = ring('x', QQ)\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__",
+     "target": "sympy/polys/tests/test_ring_series.py#test_nth_root",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import QQ\n    from sympy.polys.rings import ring\n    from sympy.polys.ring_series import rs_nth_root\n    R, x = ring('x', QQ)\n\n    def outcome(f):\n        try:\n            return str(f())\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__\n    assert repr([outcome(lambda: rs_nth_root(x**2 + x**3, -1, x, 2)), outcome(lambda: rs_nth_root(x**6 + x**7, 3, x, 4))]) == \"['-x + 1 - x**(-1) + x**(-2)', '1/3*x**3 + x**2']\"\n",
+     "why": "more leading powers, both directions"
+    }
+   ],
+   "dollars_cap": 0.1,
+   "filter_seconds": 43.6,
+   "gaps": [],
+   "info": {
+    "accepted": 2,
+    "compiled": 2,
+    "cost": 0.0,
+    "differed": 2,
+    "dollars_cap": 0.1,
+    "functions": 2,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 2,
+    "ran": 2,
+    "reached": 2,
+    "requests": 1,
+    "seconds": 43.1,
+    "stable": 2
+   },
+   "probes": [
+    {
+     "call": "[outcome(lambda: rs_nth_root(x + x**2, -1, x, 3)), outcome(lambda: rs_nth_root(x**4 + x**5, 2, x, 3))]",
+     "function": "sympy/polys/ring_series.py#rs_nth_root",
+     "setup": "from sympy import QQ\nfrom sympy.polys.rings import ring\nfrom sympy.polys.ring_series import rs_nth_root\nR, x = ring('x', QQ)\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__",
+     "why": "the two cases in the PR"
+    },
+    {
+     "call": "[outcome(lambda: rs_nth_root(x**2 + x**3, -1, x, 2)), outcome(lambda: rs_nth_root(x**6 + x**7, 3, x, 4))]",
+     "function": "sympy/polys/tests/test_ring_series.py#test_nth_root",
+     "setup": "from sympy import QQ\nfrom sympy.polys.rings import ring\nfrom sympy.polys.ring_series import rs_nth_root\nR, x = ring('x', QQ)\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__",
+     "why": "more leading powers, both directions"
+    }
+   ],
+   "targets": [
+    "sympy/polys/ring_series.py#rs_nth_root",
+    "sympy/polys/tests/test_ring_series.py#test_nth_root"
+   ],
+   "waited_seconds": 460.3
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/polys/tests/test_ring_series.py::test_nth_root",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/polys/tests/test_ring_series.py::test_issue_30698",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/polys/ring_series.py",
+    "lines": "970-997",
+    "symbol": "rs_nth_root"
+   },
+   {
+    "file": "sympy/polys/tests/test_ring_series.py",
+    "lines": "253-258",
+    "symbol": "test_nth_root"
+   },
+   {
+    "file": "sympy/polys/tests/test_ring_series.py",
+    "lines": "271-278",
+    "symbol": "test_issue_30698"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/polys/ring_series.py#rs_nth_root",
+   "sympy/polys/tests/test_ring_series.py#test_issue_30698",
+   "sympy/polys/tests/test_ring_series.py#test_nth_root",
+   "sympy/polys/puiseux.py#PuiseuxRing",
+   "sympy/polys/tests/test_ring_series.py"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 3,
+    "stored": 1
+   },
+   "budget": 300,
+   "candidates": 2976,
+   "ran": 2920,
+   "replayed": 2,
+   "runner": "pytest",
+   "seconds": 352.1,
+   "selection": {
+    "candidates": 12902,
+    "closure_files": 1321,
+    "closure_tests": 12888,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 14
+   },
+   "unrunnable": 0
+  },
+  "flip_trust": [
+   {
+    "id": "sympy/polys/tests/test_ring_series.py::test_nth_root",
+    "label": "fails",
+    "reach": 7,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "why": "as the test was before the edit: failed again in every rerun; ran 7 changed line(s)"
+   }
+  ],
+  "flips": 1,
+  "gaps": [
+   "66759 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "9926 lower-ranked candidate(s) not run: about 12 tests/s per process fit 2976 in the 300 s allowed",
+   "graph reused from the previous state; 24 changed file(s) relinked",
+   "shadow run stopped at its 300 s budget: 2920 of 2976 candidates run",
+   "side-by-side: none of the 2 changed function(s) was called by the tests run on the code before the change"
+  ],
+  "impacted": {
+   "count": 4793,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1607,
+   "parsed_files": 3
+  },
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "original_tests": {
+   "sympy/polys/tests/test_ring_series.py::test_nth_root": "failed"
+  },
+  "predicted_failures": [
+   {
+    "after": "failed",
+    "before": "passed",
+    "edited_form": "passed",
+    "id": "sympy/polys/tests/test_ring_series.py::test_nth_root",
+    "label": "test edited, not fixed",
+    "reach": 7,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 7 changed line(s)"
+   }
+  ],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/polys/tests/test_ring_series.py::test_nth_root",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/polys/tests/test_ring_series.py::test_issue_30698",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "2325307daddc",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 0,
+   "differences": 0,
+   "functions_called": 0,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "sympy/polys/tests/test_ring_series.py#test_issue_30698": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 26.4,
+   "targets": 2,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 2920 of 2976 candidate tests after the change with pytest in 352.1 s, failures confirmed before it: 1 now fail. 3643 tests reach the change. 1 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 2 test(s) the change adds or edits replayed on the code before it: 2 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "direct",
+    "expect": "fails",
+    "id": "sympy/polys/tests/test_ring_series.py::test_nth_root",
+    "line": 245,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_nth_root",
+    "score": 2.745,
+    "why": "calls rs_nth_root (name: nth,ring,root,serie)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test_puiseux",
+    "line": 631,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_puiseux",
+    "score": 3.921,
+    "why": "via PuiseuxRing (name: puiseux,ring)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test1",
+    "line": 729,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test1",
+    "score": 1.54,
+    "why": "calls rs_nth_root (name: ring,serie)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/tests/test_ring_series.py::test_issue_30698",
+    "line": 271,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_issue_30698",
+    "score": 1.29,
+    "why": "calls rs_nth_root (name: ring,serie)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_puiseux.py::test_puiseux_ring",
+    "line": 14,
+    "run": "python -m pytest sympy/polys/tests/test_puiseux.py::test_puiseux_ring",
+    "score": 0.802,
+    "why": "via PuiseuxRing (name: puiseux,ring)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test_RR",
+    "line": 603,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_RR",
+    "score": 0.719,
+    "why": "calls rs_nth_root (name: ring,serie)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_puiseux.py::test_puiseux_ring_attributes",
+    "line": 30,
+    "run": "python -m pytest sympy/polys/tests/test_puiseux.py::test_puiseux_ring_attributes",
+    "score": 0.656,
+    "why": "via PuiseuxRing (name: puiseux,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_puiseux.py::test_puiseux_ring_methods",
+    "line": 44,
+    "run": "python -m pytest sympy/polys/tests/test_puiseux.py::test_puiseux_ring_methods",
+    "score": 0.591,
+    "why": "via PuiseuxRing (name: puiseux,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test_puiseux2",
+    "line": 756,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_puiseux2",
+    "score": 0.558,
+    "why": "via PuiseuxRing (name: puiseux,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test_puiseux_algebraic",
+    "line": 717,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_puiseux_algebraic",
+    "score": 0.541,
+    "why": "via PuiseuxRing (name: puiseux,ring)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/series/tests/test_hypothesis.py::test_rs_series_zero",
+    "line": 67,
+    "run": "python -m pytest sympy/polys/series/tests/test_hypothesis.py::test_rs_series_zero",
+    "score": 0.432,
+    "why": "via rs_asin > rs_nth_root (name: rs,serie)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_puiseux.py::test_puiseux_poly",
+    "line": 64,
+    "run": "python -m pytest sympy/polys/tests/test_puiseux.py::test_puiseux_poly",
+    "score": 0.397,
+    "why": "via PuiseuxRing (name: puiseux)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_puiseux.py::test_puiseux_poly_arit",
+    "line": 141,
+    "run": "python -m pytest sympy/polys/tests/test_puiseux.py::test_puiseux_poly_arit",
+    "score": 0.395,
+    "why": "via PuiseuxRing (name: puiseux)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_puiseux.py::test_puiseux_poly_diff",
+    "line": 207,
+    "run": "python -m pytest sympy/polys/tests/test_puiseux.py::test_puiseux_poly_diff",
+    "score": 0.394,
+    "why": "via PuiseuxRing (name: puiseux)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_puiseux.py::test_puiseux_poly_div",
+    "line": 171,
+    "run": "python -m pytest sympy/polys/tests/test_puiseux.py::test_puiseux_poly_div",
+    "score": 0.393,
+    "why": "via PuiseuxRing (name: puiseux)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_puiseux.py::test_puiseux_poly_issue_29363",
+    "line": 133,
+    "run": "python -m pytest sympy/polys/tests/test_puiseux.py::test_puiseux_poly_issue_29363",
+    "score": 0.392,
+    "why": "via PuiseuxRing (name: puiseux)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_puiseux.py::test_puiseux_poly_monoms",
+    "line": 89,
+    "run": "python -m pytest sympy/polys/tests/test_puiseux.py::test_puiseux_poly_monoms",
+    "score": 0.392,
+    "why": "via PuiseuxRing (name: puiseux)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_puiseux.py::test_puiseux_poly_normalization",
+    "line": 77,
+    "run": "python -m pytest sympy/polys/tests/test_puiseux.py::test_puiseux_poly_normalization",
+    "score": 0.392,
+    "why": "via PuiseuxRing (name: puiseux)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_puiseux.py::test_puiseux_poly_pow",
+    "line": 188,
+    "run": "python -m pytest sympy/polys/tests/test_puiseux.py::test_puiseux_poly_pow",
+    "score": 0.391,
+    "why": "via PuiseuxRing (name: puiseux)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_puiseux.py::test_puiseux_poly_repr",
+    "line": 105,
+    "run": "python -m pytest sympy/polys/tests/test_puiseux.py::test_puiseux_poly_repr",
+    "score": 0.391,
+    "why": "via PuiseuxRing (name: puiseux)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_puiseux.py::test_puiseux_poly_unify",
+    "line": 115,
+    "run": "python -m pytest sympy/polys/tests/test_puiseux.py::test_puiseux_poly_unify",
+    "score": 0.391,
+    "why": "via PuiseuxRing (name: puiseux)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test_asin",
+    "line": 310,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_asin",
+    "score": 0.387,
+    "why": "via rs_asin > rs_nth_root (name: ring,serie)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test_asinh",
+    "line": 478,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_asinh",
+    "score": 0.375,
+    "why": "via rs_asinh > rs_nth_root (name: ring,serie)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test_pow_trunc",
+    "line": 73,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_pow_trunc",
+    "score": 0.366,
+    "why": "via rs_pow > rs_nth_root (name: ring,serie)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test_series_from_list",
+    "line": 136,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_series_from_list",
+    "score": 0.358,
+    "why": "via rs_pow > rs_nth_root (name: ring,serie)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test_cot",
+    "line": 349,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_cot",
+    "score": 0.309,
+    "why": "via PuiseuxRing (name: ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test_is_regular",
+    "line": 618,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_is_regular",
+    "score": 0.309,
+    "why": "via PuiseuxRing (name: ring)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/series/tests/test_ring.py::test_high_deg",
+    "line": 1129,
+    "run": "python -m pytest sympy/polys/series/tests/test_ring.py::test_high_deg",
+    "score": 0.305,
+    "why": "via rs_asin > rs_nth_root (name: ring)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test_rs_series",
+    "line": 767,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_rs_series",
+    "score": 0.196,
+    "why": "via rs_series > _rs_series > rs_pow > rs_nth_root (name: ring,rs,serie)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test_rs_series_ConstantInExpr",
+    "line": 824,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_rs_series_ConstantInExpr",
+    "score": 0.182,
+    "why": "via rs_series > _rs_series > rs_pow > rs_nth_root (name: ring,rs,serie)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test_issue",
+    "line": 859,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_issue",
+    "score": 0.162,
+    "why": "via rs_series > _rs_series > rs_pow > rs_nth_root (name: ring,serie)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test_series_reversion",
+    "line": 125,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_series_reversion",
+    "score": 0.161,
+    "why": "via rs_series_reversion > rs_subs > rs_pow > rs_nth_root (name: ring,serie)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/series/tests/test_ring.py::test_PowerSeriesRing_ring_new",
+    "line": 1320,
+    "run": "python -m pytest sympy/polys/series/tests/test_ring.py::test_PowerSeriesRing_ring_new",
+    "score": 0.093,
+    "why": "via PuiseuxPoly.ring > PuiseuxRing (name: ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement___add__",
+    "line": 726,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement___add__",
+    "score": 0.093,
+    "why": "via PuiseuxPoly.ring > PuiseuxRing (name: ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement___mul__",
+    "line": 819,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement___mul__",
+    "score": 0.093,
+    "why": "via PuiseuxPoly.ring > PuiseuxRing (name: ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement___sub__",
+    "line": 769,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement___sub__",
+    "score": 0.093,
+    "why": "via PuiseuxPoly.ring > PuiseuxRing (name: ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement_drop",
+    "line": 1844,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement_drop",
+    "score": 0.093,
+    "why": "via PuiseuxPoly.ring > PuiseuxRing (name: ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement_drop_to_ground",
+    "line": 1855,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement_drop_to_ground",
+    "score": 0.093,
+    "why": "via PuiseuxPoly.ring > PuiseuxRing (name: ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyRing_from_dict",
+    "line": 228,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyRing_from_dict",
+    "score": 0.093,
+    "why": "via PuiseuxPoly.ring > PuiseuxRing (name: ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyRing_ring_new",
+    "line": 83,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyRing_ring_new",
+    "score": 0.093,
+    "why": "via PuiseuxPoly.ring > PuiseuxRing (name: ring)"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/polys/tests/test_ring_series.py",
+    "lines": "253-258",
+    "symbol": "test_nth_root"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/polys/tests/test_ring_series.py",
+    "lines": "271-278",
+    "symbol": "test_issue_30698"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792341401.554721,
+  "job_seconds": 359.3,
+  "number": 30699,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 359.3,
+  "started": 1792341039.625417,
+  "verify_seconds": 1.8
+ },
+ "verify": {
+  "checked": 1,
+  "false": 0,
+  "held": 1,
+  "merge_base": "f14b5cd2d13c0145521eccec991c315794952117",
+  "other": 0,
+  "problem": null,
+  "states": {
+   "sympy/polys/tests/test_ring_series.py::test_nth_root": "passed"
+  },
+  "v": 1
+ }
+}

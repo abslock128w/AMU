@@ -1,0 +1,601 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "e7d301b06a1752d648675702d4db0fe110031906",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "f862a4225fc4bfc001e9af2a19cb83937d374f05",
+  "install_ok": true,
+  "merge_base": "e2a3da142687c3b3dfa9cbc63c1a1a4433a8f842",
+  "pr": 21881,
+  "recording": true,
+  "runner": null,
+  "seconds": 9.2,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "e7d301b06a1752d648675702d4db0fe110031906",
+  "head_sha": "f862a4225fc4bfc001e9af2a19cb83937d374f05",
+  "merge_base": "e2a3da142687c3b3dfa9cbc63c1a1a4433a8f842",
+  "merged_at": "2026-09-08T16:45:55Z",
+  "number": 21881,
+  "repo": "django",
+  "title": "Fixed #37289 -- Avoided deleting network rasters."
+ },
+ "probe_minutes": {
+  "end": 1792323350.219552,
+  "minutes": 0.8,
+  "start": 1792323200.575316,
+  "waited": 100.08122937500593
+ },
+ "probe_targets": {
+  "all": 3,
+  "called": 0,
+  "targets": [
+   {
+    "after": "def __del__(self):\n    if self._is_vsimem_based:\n        # Remove the temporary file from the VSI in-memory filesystem.\n        capi.unlink_vsi_file(force_bytes(self.name))\n    super().__del__()\n",
+    "before": "def __del__(self):\n    if self.is_vsi_based:\n        # Remove the temporary file from the VSI in-memory filesystem.\n        capi.unlink_vsi_file(force_bytes(self.name))\n    super().__del__()\n",
+    "file": "django/contrib/gis/gdal/raster/source.py",
+    "id": "django/contrib/gis/gdal/raster/source.py#GDALRaster.__del__",
+    "name": "__del__",
+    "qual": "GDALRaster.__del__",
+    "signature_changed": false
+   },
+   {
+    "after": "def vsi_buffer(self):\n    if not self._is_vsimem_based:\n        return None\n    # Prepare an integer that will contain the buffer length.\n    out_length = c_int()\n    # Get the data using the vsi file name.\n    dat = capi.get_mem_buffer_from_vsi_file(\n        force_bytes(self.name),\n        byref(out_length),\n        VSI_DELETE_BUFFER_ON_READ,\n    )\n    # Read the full buffer pointer.\n    return string_at(dat, out_length.value)\n",
+    "before": "def vsi_buffer(self):\n    if not (\n        self.is_vsi_based and self.name.startswith(VSI_MEM_FILESYSTEM_BASE_PATH)\n    ):\n        return None\n    # Prepare an integer that will contain the buffer length.\n    out_length = c_int()\n    # Get the data using the vsi file name.\n    dat = capi.get_mem_buffer_from_vsi_file(\n        force_bytes(self.name),\n        byref(out_length),\n        VSI_DELETE_BUFFER_ON_READ,\n    )\n    # Read the full buffer pointer.\n    return string_at(dat, out_length.value)\n",
+    "file": "django/contrib/gis/gdal/raster/source.py",
+    "id": "django/contrib/gis/gdal/raster/source.py#GDALRaster.vsi_buffer",
+    "name": "vsi_buffer",
+    "qual": "GDALRaster.vsi_buffer",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_nonexistent_file(self):\n    msg = 'Unable to read raster source input \"nonexistent.tif\".'\n    with (\n        self.assertNoLogs(\"django.contrib.gis\", \"ERROR\"),\n        self.assertRaisesMessage(GDALException, msg),\n    ):\n        GDALRaster(\"nonexistent.tif\")\n",
+    "before": "def test_nonexistent_file(self):\n    msg = 'Unable to read raster source input \"nonexistent.tif\".'\n    with self.assertRaisesMessage(GDALException, msg):\n        GDALRaster(\"nonexistent.tif\")\n",
+    "file": "tests/gis_tests/gdal_tests/test_raster.py",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py#GDALRasterTests.test_nonexistent_file",
+    "name": "test_nonexistent_file",
+    "qual": "GDALRasterTests.test_nonexistent_file",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [],
+   "filter_seconds": 4.3,
+   "gaps": [],
+   "info": {
+    "accepted": 0,
+    "compiled": 3,
+    "cost": 0.0,
+    "differed": 0,
+    "dollars_cap": 0.1,
+    "functions": 3,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 3,
+    "ran": 0,
+    "reached": 0,
+    "requests": 1,
+    "seconds": 3.9,
+    "stable": 0
+   },
+   "probes": [
+    {
+     "call": "raster.__del__()",
+     "function": "django/contrib/gis/gdal/raster/source.py#GDALRaster.__del__",
+     "setup": "from django.contrib.gis.gdal import GDALRaster\nraster = GDALRaster({'name': '/vsimem/amu.tif', 'driver': 'tif', 'width': 2, 'height': 2, 'srid': 4326})",
+     "why": "an in-memory raster is still unlinked"
+    },
+    {
+     "call": "raster.vsi_buffer is None",
+     "function": "django/contrib/gis/gdal/raster/source.py#GDALRaster.vsi_buffer",
+     "setup": "from django.contrib.gis.gdal import GDALRaster\nraster = GDALRaster({'name': '/vsimem/amu.tif', 'driver': 'tif', 'width': 2, 'height': 2, 'srid': 4326})",
+     "why": "in-memory raster buffer"
+    },
+    {
+     "call": "case.test_nonexistent_file()",
+     "function": "tests/gis_tests/gdal_tests/test_raster.py#GDALRasterTests.test_nonexistent_file",
+     "setup": "from gis_tests.gdal_tests.test_raster import GDALRasterTests\ncase = GDALRasterTests('test_nonexistent_file')",
+     "why": "runs the edited test"
+    }
+   ],
+   "targets": [
+    "django/contrib/gis/gdal/raster/source.py#GDALRaster.__del__",
+    "django/contrib/gis/gdal/raster/source.py#GDALRaster.vsi_buffer",
+    "tests/gis_tests/gdal_tests/test_raster.py#GDALRasterTests.test_nonexistent_file"
+   ],
+   "waited_seconds": 100.1
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "changed_functions": [
+   {
+    "file": "django/contrib/gis/gdal/raster/source.py",
+    "lines": "220",
+    "symbol": "GDALRaster.__del__"
+   },
+   {
+    "file": "django/contrib/gis/gdal/raster/source.py",
+    "lines": "279",
+    "symbol": "GDALRaster.vsi_buffer"
+   },
+   {
+    "file": "django/contrib/gis/gdal/raster/source.py",
+    "lines": "296-298",
+    "symbol": "GDALRaster._is_vsimem_based"
+   },
+   {
+    "file": "tests/gis_tests/gdal_tests/test_raster.py",
+    "lines": "196-199",
+    "symbol": "GDALRasterTests.test_nonexistent_file"
+   },
+   {
+    "file": "tests/gis_tests/gdal_tests/test_raster.py",
+    "lines": "291-302",
+    "symbol": "GDALRasterTests.test_non_vsimem_raster_not_unlinked"
+   }
+  ],
+  "changed_symbols": [
+   "django/contrib/gis/gdal/raster/source.py#GDALRaster.__del__",
+   "django/contrib/gis/gdal/raster/source.py#GDALRaster._is_vsimem_based",
+   "django/contrib/gis/gdal/raster/source.py#GDALRaster.vsi_buffer",
+   "tests/gis_tests/gdal_tests/test_raster.py#GDALRasterTests.test_non_vsimem_raster_not_unlinked",
+   "tests/gis_tests/gdal_tests/test_raster.py#GDALRasterTests.test_nonexistent_file",
+   "django/contrib/gis/gdal/raster/source.py#GDALRaster",
+   "tests/gis_tests/gdal_tests/test_raster.py#GDALRasterTests",
+   "tests/gis_tests/gdal_tests/test_raster.py"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 0,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 1996,
+   "ran": 0,
+   "replayed": 0,
+   "runner": "django-runtests",
+   "seconds": 6.0,
+   "selection": {
+    "candidates": 1996,
+    "closure_files": 112,
+    "closure_tests": 598,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [],
+    "observed": 0,
+    "static_only": 1390
+   },
+   "unrunnable": 160
+  },
+  "flips": null,
+  "gaps": [
+   "102575 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "160 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "Skipped 5 non-Python file(s)",
+   "graph reused from the previous state; 2 changed file(s) relinked",
+   "replaying the change's own tests (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run (original tests on the changed code, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run stopped at its 300 s budget: 0 of 1996 candidates run",
+   "side-by-side: none of the 3 changed function(s) was called by the tests run on the code before the change"
+  ],
+  "impacted": {
+   "count": 564,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2930,
+   "parsed_files": 2
+  },
+  "predicted_failures": [],
+  "report_hash": "a30a592f06dc",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 0,
+   "differences": 0,
+   "functions_called": 0,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "django/contrib/gis/gdal/raster/source.py#GDALRaster._is_vsimem_based": "not a module or class function on both sides (new, removed or nested)",
+    "tests/gis_tests/gdal_tests/test_raster.py#GDALRasterTests.test_non_vsimem_raster_not_unlinked": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 0.0,
+   "targets": 3,
+   "unstable": 0
+  },
+  "summary": "NOT EXECUTED: no candidate test could be run; static analysis only. 0 likely_fail, 1528 tests reach the change.",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_vsi_vsizip_filesystem",
+    "line": 279,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_vsi_vsizip_filesystem",
+    "score": 8.315,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_non_vsimem_raster_not_unlinked",
+    "line": 291,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_non_vsimem_raster_not_unlinked",
+    "score": 5.547,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_vsi_buffer_property",
+    "line": 248,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_vsi_buffer_property",
+    "score": 4.197,
+    "why": "via GDALRaster.vsi_buffer (name: buffer,gdal,raster,vsi)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_vsi_buffer_length",
+    "line": 273,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_vsi_buffer_length",
+    "score": 3.166,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_vsi_raster_deletion",
+    "line": 215,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_vsi_raster_deletion",
+    "score": 1.539,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_compressed_file_based_raster_creation",
+    "line": 436,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_compressed_file_based_raster_creation",
+    "score": 1.357,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_vsi_raster_creation",
+    "line": 202,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_vsi_raster_creation",
+    "score": 1.282,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_file_based_raster_creation",
+    "line": 152,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_file_based_raster_creation",
+    "score": 1.206,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_raster_clone",
+    "line": 594,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_raster_clone",
+    "score": 1.177,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_raster_warp",
+    "line": 492,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_raster_warp",
+    "score": 1.135,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_raster_transform_clone",
+    "line": 741,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_raster_transform_clone",
+    "score": 1.114,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_vsi_invalid_buffer_error",
+    "line": 243,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_vsi_invalid_buffer_error",
+    "score": 1.105,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_nonexistent_file",
+    "line": 194,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_nonexistent_file",
+    "score": 1.099,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_raster_transform",
+    "line": 633,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_raster_transform",
+    "score": 1.087,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_raster_transform_clone_name",
+    "line": 771,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_raster_transform_clone_name",
+    "score": 1.085,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_gdalraster_input_as_path",
+    "line": 31,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_gdalraster_input_as_path",
+    "score": 1.075,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_raster_metadata_property",
+    "line": 366,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_raster_metadata_property",
+    "score": 1.069,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_raster_warp_nodata_zone",
+    "line": 566,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_raster_warp_nodata_zone",
+    "score": 1.063,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_rs_name_repr",
+    "line": 36,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_rs_name_repr",
+    "score": 1.06,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_memory_based_raster_creation",
+    "line": 127,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_memory_based_raster_creation",
+    "score": 1.058,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_raster_info_accessor",
+    "line": 402,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_raster_info_accessor",
+    "score": 1.053,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_rs_driver",
+    "line": 40,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_rs_driver",
+    "score": 1.035,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_geotransform_bad_inputs",
+    "line": 97,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_geotransform_bad_inputs",
+    "score": 1.025,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_geotransform_and_friends",
+    "line": 63,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_geotransform_and_friends",
+    "score": 1.022,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_rs_bands",
+    "line": 123,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_rs_bands",
+    "score": 1.022,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_rs_extent",
+    "line": 112,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_rs_extent",
+    "score": 1.022,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_rs_size",
+    "line": 43,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_rs_size",
+    "score": 1.022,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_rs_srid",
+    "line": 51,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_rs_srid",
+    "score": 1.022,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_rs_srs",
+    "line": 47,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_rs_srs",
+    "score": 1.022,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_offset_size_and_shape_on_raster_creation",
+    "line": 304,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_offset_size_and_shape_on_raster_creation",
+    "score": 1.012,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_set_nodata_none_on_raster_creation",
+    "line": 347,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_set_nodata_none_on_raster_creation",
+    "score": 1.011,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_set_nodata_value_on_raster_creation",
+    "line": 329,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_set_nodata_value_on_raster_creation",
+    "score": 1.011,
+    "why": "via GDALRasterTests (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALBandTests::test_band_data_setters",
+    "line": 868,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALBandTests.test_band_data_setters",
+    "score": 0.489,
+    "why": "via GDALRaster (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/geoapp/tests.py::GeoLookupTest::test_lookup_rejects_writing_or_fetching_rasters",
+    "line": 744,
+    "run": "cd tests && python runtests.py gis_tests.geoapp.tests.GeoLookupTest.test_lookup_rejects_writing_or_fetching_rasters",
+    "score": 0.47,
+    "why": "via GDALRaster (name: raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALBandTests::test_band_data",
+    "line": 803,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALBandTests.test_band_data",
+    "score": 0.454,
+    "why": "via GDALRaster (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALBandTests::test_band_statistics",
+    "line": 824,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALBandTests.test_band_statistics",
+    "score": 0.454,
+    "why": "via GDALRaster (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALBandTests::test_read_mode_error",
+    "line": 857,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALBandTests.test_read_mode_error",
+    "score": 0.454,
+    "why": "via GDALRaster (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALBandTests::test_band_data_replication",
+    "line": 1002,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALBandTests.test_band_data_replication",
+    "score": 0.436,
+    "why": "via GDALRaster (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALBandTests::test_band_delete_nodata",
+    "line": 990,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALBandTests.test_band_delete_nodata",
+    "score": 0.436,
+    "why": "via GDALRaster (name: gdal,raster)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALBandTests::test_band_statistics_automatic_refresh",
+    "line": 958,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALBandTests.test_band_statistics_automatic_refresh",
+    "score": 0.436,
+    "why": "via GDALRaster (name: gdal,raster)"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792322853.010762,
+  "job_seconds": 9.2,
+  "number": 21881,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 9.2,
+  "started": 1792322843.255444
+ },
+ "verify": null
+}

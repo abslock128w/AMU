@@ -1,0 +1,636 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "439b936753e5a679ffcf40cff5918c5637f7c72b",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "68e935763d57afdbd5e7b87d94fba143760e661e",
+  "install_ok": true,
+  "merge_base": "439b936753e5a679ffcf40cff5918c5637f7c72b",
+  "pr": 21803,
+  "recording": true,
+  "runner": null,
+  "seconds": 24.1,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "439b936753e5a679ffcf40cff5918c5637f7c72b",
+  "head_sha": "68e935763d57afdbd5e7b87d94fba143760e661e",
+  "merge_base": "439b936753e5a679ffcf40cff5918c5637f7c72b",
+  "merged_at": "2026-08-29T17:52:42Z",
+  "number": 21803,
+  "repo": "django",
+  "title": "Fixed #36945 -- Made .values() and .order_by() resolve FilteredRelation aliases correctly."
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 3,
+  "called": 3,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_lookup_sep_in_alias_values",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_lookup_sep_in_alias_order_by",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "django/db/models/sql/compiler.py",
+    "lines": "1076",
+    "symbol": "SQLCompiler.find_ordering_name"
+   },
+   {
+    "file": "django/db/models/sql/query.py",
+    "lines": "1488-1493",
+    "symbol": "Query.get_names_to_join"
+   },
+   {
+    "file": "django/db/models/sql/query.py",
+    "lines": "2286-2290",
+    "symbol": "Query.add_fields"
+   },
+   {
+    "file": "django/db/models/sql/query.py",
+    "lines": "2354-2357",
+    "symbol": "Query.add_ordering"
+   },
+   {
+    "file": "tests/filtered_relation/tests.py",
+    "lines": "361-367",
+    "symbol": "FilteredRelationTests.test_lookup_sep_in_alias_values"
+   },
+   {
+    "file": "tests/filtered_relation/tests.py",
+    "lines": "369-382",
+    "symbol": "FilteredRelationTests.test_lookup_sep_in_alias_order_by"
+   }
+  ],
+  "changed_symbols": [
+   "django/db/models/sql/compiler.py#SQLCompiler.find_ordering_name",
+   "django/db/models/sql/query.py#Query.add_fields",
+   "django/db/models/sql/query.py#Query.add_ordering",
+   "django/db/models/sql/query.py#Query.get_names_to_join",
+   "tests/filtered_relation/tests.py#FilteredRelationTests.test_lookup_sep_in_alias_order_by",
+   "tests/filtered_relation/tests.py#FilteredRelationTests.test_lookup_sep_in_alias_values",
+   "django/db/models/sql/query.py#Query",
+   "tests/filtered_relation/tests.py#FilteredRelationTests"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "Query.get_names_to_join return changed",
+    "path": [
+     "django/db/models/sql/query.py:1493 return",
+     "django/db/models/sql/query.py:2286 Query.add_fields uses the result",
+     "django/db/models/sql/query.py:2354 Query.add_ordering uses the result"
+    ],
+    "to": "2 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 2,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 10944,
+   "ran": 237,
+   "replayed": 2,
+   "runner": "django-runtests",
+   "seconds": 18.7,
+   "selection": {
+    "candidates": 17225,
+    "closure_files": 602,
+    "closure_tests": 9633,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/contrib/admin/__init__.py",
+     "django/contrib/auth/models.py",
+     "django/core/management/base.py",
+     "django/db/migrations/__init__.py",
+     "django/db/models/__init__.py",
+     "django/db/models/expressions.py",
+     "django/db/models/functions/__init__.py",
+     "django/test/__init__.py",
+     "django/test/utils.py"
+    ],
+    "observed": 1455,
+    "static_only": 5227
+   },
+   "unrunnable": 83
+  },
+  "flips": 0,
+  "gaps": [
+   "100689 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "6281 lower-ranked candidate(s) not run: about 11 tests/s per process fit 10944 in the 300 s allowed",
+   "83 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "graph reused from the previous state; 3 changed file(s) relinked",
+   "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run stopped at its 300 s budget: 160 of 10944 candidates run"
+  ],
+  "impacted": {
+   "count": 8074,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2927,
+   "parsed_files": 3
+  },
+  "original_tests": {
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_as_subquery": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_condition_deeper_relation_name": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_condition_deeper_relation_name_implicit_exact": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_condition_outside_relation_name": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_condition_with_exact_lookup_outside_relation_name": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_condition_with_func_and_lookup_outside_relation_name": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_conditional_expression": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_conditional_expression_does_not_support_queryset": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_conditional_expression_lhs_contains_relation_name": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_conditional_expression_lhs_startswith_relation_name": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_conditional_expression_outside_relation_name": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_conditional_expression_rhs_contains_relation_name": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_conditional_expression_rhs_startswith_relation_name": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_conditional_expression_with_case": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_conditional_expression_with_expressionwrapper": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_conditional_expression_with_lookup": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_conditional_expression_with_multiple_fields": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_deep_nested_foreign_key": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_defer": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_difference": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_eq": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_exclude_relation_with_join": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_expression_outside_relation_name": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_extra": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_internal_queryset_alias_mapping": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_intersection": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_multiple": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_multiple_times": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_nested_chained_relations": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_nested_foreign_key": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_nested_foreign_key_filtered_base_object": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_nested_foreign_key_nested_field": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_nested_m2m_filtered": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_only_not_supported": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_period_forbidden": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_relation_name_lookup": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_reuse_same_filtered_relation": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_select_for_update": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_select_related": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_select_related_foreign_key": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_select_related_foreign_key_for_update_of": "skipped",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_select_related_multiple": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_select_related_with_empty_relation": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_three_level_nested_chained_relations": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_union": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_values": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_values_list": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_with_condition_as_expression_error": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_with_empty_relation_name_error": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_with_exclude": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_with_generic_foreign_key": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_with_join": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_with_join_and_complex_condition": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_with_m2m": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_with_m2m_deep": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_with_m2m_multijoin": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_with_multiple_filter": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_with_prefetch_related": "passed",
+   "tests/filtered_relation/tests.py::FilteredRelationTests::test_without_join": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_lookup_sep_in_alias_values",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_lookup_sep_in_alias_order_by",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "898ec83b72fd",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [
+    "django/db/models/sql/compiler.py#SQLCompiler.find_ordering_name",
+    "django/db/models/sql/query.py#Query.add_fields",
+    "django/db/models/sql/query.py#Query.add_ordering"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 15,
+   "differences": 0,
+   "functions_called": 3,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "django/db/models/sql/query.py#Query.get_names_to_join": "not a module or class function on both sides (new, removed or nested)",
+    "tests/filtered_relation/tests.py#FilteredRelationTests.test_lookup_sep_in_alias_order_by": "not a module or class function on both sides (new, removed or nested)",
+    "tests/filtered_relation/tests.py#FilteredRelationTests.test_lookup_sep_in_alias_values": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 2.7,
+   "targets": 3,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 237 of 10944 candidate tests after the change with django-runtests in 18.7 s, failures confirmed before it: 0 now fail. 14534 tests reach the change. 59 test(s) from edited test files also run as they were before the edit. 2 test(s) the change adds or edits replayed on the code before it: 2 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_lookup_sep_in_alias_order_by",
+    "line": 369,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_lookup_sep_in_alias_order_by",
+    "score": 4.267,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/queries/test_query.py::TestQueryNoModel::test_q_annotation",
+    "line": 182,
+    "run": "cd tests && python runtests.py queries.test_query.TestQueryNoModel.test_q_annotation",
+    "score": 2.823,
+    "why": "via Query (name: query)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_conditional_expression_outside_relation_name",
+    "line": 837,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_conditional_expression_outside_relation_name",
+    "score": 2.409,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_expression_outside_relation_name",
+    "line": 813,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_expression_outside_relation_name",
+    "score": 1.894,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_conditional_expression_with_lookup",
+    "line": 854,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_conditional_expression_with_lookup",
+    "score": 1.574,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/queries/test_query.py::TestQueryNoModel::test_rawsql_annotation",
+    "line": 165,
+    "run": "cd tests && python runtests.py queries.test_query.TestQueryNoModel.test_rawsql_annotation",
+    "score": 1.45,
+    "why": "via Query (name: query)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_nested_foreign_key_nested_field",
+    "line": 513,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_nested_foreign_key_nested_field",
+    "score": 1.332,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_nested_foreign_key_filtered_base_object",
+    "line": 544,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_nested_foreign_key_filtered_base_object",
+    "score": 1.197,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_conditional_expression_with_expressionwrapper",
+    "line": 866,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_conditional_expression_with_expressionwrapper",
+    "score": 1.117,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_conditional_expression_with_multiple_fields",
+    "line": 880,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_conditional_expression_with_multiple_fields",
+    "score": 1.044,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_nested_m2m_filtered",
+    "line": 567,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_nested_m2m_filtered",
+    "score": 1.009,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/queries/test_query.py::TestQueryNoModel::test_subquery_annotation",
+    "line": 176,
+    "run": "cd tests && python runtests.py queries.test_query.TestQueryNoModel.test_subquery_annotation",
+    "score": 0.966,
+    "why": "via Query (name: query)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_nested_chained_relations",
+    "line": 593,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_nested_chained_relations",
+    "score": 0.947,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_lookup_sep_in_alias_values",
+    "line": 361,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_lookup_sep_in_alias_values",
+    "score": 0.919,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_select_related",
+    "line": 69,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_select_related",
+    "score": 0.898,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_select_related_multiple",
+    "line": 89,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_select_related_multiple",
+    "score": 0.885,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_select_related_with_empty_relation",
+    "line": 109,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_select_related_with_empty_relation",
+    "score": 0.874,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_deep_nested_foreign_key",
+    "line": 666,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_deep_nested_foreign_key",
+    "score": 0.866,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_nested_foreign_key",
+    "line": 486,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_nested_foreign_key",
+    "score": 0.861,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_select_related_foreign_key_for_update_of",
+    "line": 139,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_select_related_foreign_key_for_update_of",
+    "score": 0.857,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_select_related_foreign_key",
+    "line": 119,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_select_related_foreign_key",
+    "score": 0.845,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_internal_queryset_alias_mapping",
+    "line": 206,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_internal_queryset_alias_mapping",
+    "score": 0.817,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_values_list",
+    "line": 330,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_values_list",
+    "score": 0.807,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_values",
+    "line": 342,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_values",
+    "score": 0.802,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_three_level_nested_chained_relations",
+    "line": 622,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_three_level_nested_chained_relations",
+    "score": 0.777,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_defer",
+    "line": 450,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_defer",
+    "score": 0.767,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_multiple",
+    "line": 233,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_multiple",
+    "score": 0.765,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_relation_name_lookup",
+    "line": 692,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_relation_name_lookup",
+    "score": 0.759,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_condition_with_func_and_lookup_outside_relation_name",
+    "line": 727,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_condition_with_func_and_lookup_outside_relation_name",
+    "score": 0.752,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_with_join_and_complex_condition",
+    "line": 192,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_with_join_and_complex_condition",
+    "score": 0.744,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_difference",
+    "line": 424,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_difference",
+    "score": 0.742,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_intersection",
+    "line": 410,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_intersection",
+    "score": 0.742,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_only_not_supported",
+    "line": 466,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_only_not_supported",
+    "score": 0.735,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_union",
+    "line": 396,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_union",
+    "score": 0.732,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_with_join",
+    "line": 172,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_with_join",
+    "score": 0.728,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_as_subquery",
+    "line": 477,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_as_subquery",
+    "score": 0.725,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_extra",
+    "line": 384,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_extra",
+    "score": 0.725,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_with_prefetch_related",
+    "line": 778,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_with_prefetch_related",
+    "score": 0.72,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_condition_with_exact_lookup_outside_relation_name",
+    "line": 718,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_condition_with_exact_lookup_outside_relation_name",
+    "score": 0.717,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/filtered_relation/tests.py::FilteredRelationTests::test_with_exclude",
+    "line": 182,
+    "run": "cd tests && python runtests.py filtered_relation.tests.FilteredRelationTests.test_with_exclude",
+    "score": 0.717,
+    "why": "via FilteredRelationTests (name: filtered,relation)"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792322173.022809,
+  "job_seconds": 24.1,
+  "number": 21803,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 24.1,
+  "started": 1792322147.918871
+ },
+ "verify": null
+}

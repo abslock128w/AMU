@@ -38,14 +38,23 @@ def tree_hash(folder):
 
 
 @contextlib.contextmanager
-def suite_lock(root, who):
+def suite_lock(root, who, yield_to_probes=False):
+    """Hold ROOT/suite.lock. A probe run announces itself with ROOT/probe.wanted.<pid> while it waits; the driver
+    (``yield_to_probes``) lets every announced probe run go first, so probes are not starved between pull requests."""
     lock = Path(root)/'suite.lock'
+    wanted = Path(root)/f'probe.wanted.{os.getpid()}'
+    if yield_to_probes:
+        while any(Path(root).glob('probe.wanted.*')):
+            time.sleep(2)
+    else:
+        wanted.write_text(who)
     while True:
         try:
             lock.mkdir()
             break
         except FileExistsError:
             time.sleep(5)
+    wanted.unlink(missing_ok=True)
     (lock/'holder').write_text(f'{who} {os.getpid()} {time.time():.0f}\n')
     try:
         yield
@@ -86,7 +95,7 @@ def render(root, out):
     return done.returncode
 
 
-def one(root, name, pr, engine):
+def one(root, name, pr, engine, observe=True):
     root = Path(root)
     clone, out = root/'repos'/name, root/'out'/name/str(pr['number'])
     if (out/'done.json').exists():
@@ -108,8 +117,8 @@ def one(root, name, pr, engine):
     python = str(root/'env'/name/'bin'/'python')
     command = [amu_python(root), '-P', '-m', 'amu.ci.run', '--base', pr['base_sha'], '--head', pr['head_sha'], '--out', str(out),
                '--python', python, '--pr', str(pr['number']), '--install-ok', 'true', '--amu-ref', AMU_REF,
-               '--budget', str(BUDGET), '--wall-cap', str(WALL_CAP), '--observe', '--generate-dollars', '0']
-    timing = dict(repo=name, number=pr['number'], cache_restored=restored, started=time.time())
+               '--budget', str(BUDGET), '--wall-cap', str(WALL_CAP), *(['--observe'] if observe else []), '--generate-dollars', '0']
+    timing = dict(repo=name, number=pr['number'], cache_restored=restored, observe=observe, started=time.time())
     began = time.monotonic()
     done = subprocess.run(command, cwd=head, capture_output=True, text=True, env=environment(root))
     timing['run_seconds'] = round(time.monotonic() - began, 1)
@@ -140,6 +149,9 @@ def main(argv=None):
     p.add_argument('--root', required=True)
     p.add_argument('--repo', choices=['django', 'sympy'], action='append')
     p.add_argument('--only', type=int, nargs='+')
+    # Owner's decision, 2026-10-18, after sympy #30476: sympy's suite cannot be recorded inside the wall cap, so the
+    # tracer is off for the remaining sympy pull requests (REPORT.md, "Changes to the protocol").
+    p.add_argument('--no-observe', choices=['django', 'sympy'], action='append', default=[])
     a = p.parse_args(argv)
     root = Path(a.root)
     doc = check()
@@ -152,8 +164,8 @@ def main(argv=None):
         for pr in sorted(doc['prs'][name], key=lambda r: (r['merged_at'], r['number'])):
             if a.only and pr['number'] not in a.only:
                 continue
-            with suite_lock(root, f"run {name} {pr['number']}"):
-                result = one(root, name, pr, engine)
+            with suite_lock(root, f"run {name} {pr['number']}", yield_to_probes=True):
+                result = one(root, name, pr, engine, observe=name not in a.no_observe)
             print(json.dumps({k: result.get(k) for k in ('repo', 'number', 'status', 'flips', 'job_seconds', 'error')}), flush=True)
 
 

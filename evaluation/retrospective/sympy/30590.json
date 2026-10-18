@@ -1,0 +1,840 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "3f58eb0ce808f8c4917ab0b8ae67d133fc794c3f",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "43cf6ea378d18ddf6b35d7250a12aba32d652f90",
+  "install_ok": true,
+  "merge_base": "3f58eb0ce808f8c4917ab0b8ae67d133fc794c3f",
+  "pr": 30590,
+  "recording": false,
+  "runner": null,
+  "seconds": 92.1,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "3f58eb0ce808f8c4917ab0b8ae67d133fc794c3f",
+  "head_sha": "43cf6ea378d18ddf6b35d7250a12aba32d652f90",
+  "merge_base": "3f58eb0ce808f8c4917ab0b8ae67d133fc794c3f",
+  "merged_at": "2026-09-27T19:48:07Z",
+  "number": 30590,
+  "repo": "sympy",
+  "title": "fix(acot, acoth): do not extract a minus sign at a possible branch point"
+ },
+ "probe_minutes": {
+  "end": 1792334689.604028,
+  "minutes": 1.3,
+  "start": 1792334193.988089,
+  "waited": 416.71951408300083
+ },
+ "probe_targets": {
+  "all": 5,
+  "called": 1,
+  "targets": [
+   {
+    "after": "def eval(cls, arg):\n    if arg.is_Number:\n        if arg is S.NaN:\n            return S.NaN\n        elif arg is S.Infinity or arg is S.NegativeInfinity:\n            return S.Zero\n        elif arg.is_zero:\n            return pi*I / 2\n        elif arg is S.One:\n            return S.Infinity\n        elif arg is S.NegativeOne:\n            return S.NegativeInfinity\n        elif arg.is_negative:\n            return -cls(-arg)\n    else:\n        if arg is S.ComplexInfinity:\n            return S.Zero\n\n        i_coeff = _imaginary_unit_as_coefficient(arg)\n\n        if i_coeff is not None:\n            return -I * acot(i_coeff)\n        else:\n            if arg.is_nonzero and arg.could_extract_minus_sign():\n                return -cls(-arg)\n\n    if arg.is_zero:\n        return pi*I*S.Half\n",
+    "before": "def eval(cls, arg):\n    if arg.is_Number:\n        if arg is S.NaN:\n            return S.NaN\n        elif arg is S.Infinity or arg is S.NegativeInfinity:\n            return S.Zero\n        elif arg.is_zero:\n            return pi*I / 2\n        elif arg is S.One:\n            return S.Infinity\n        elif arg is S.NegativeOne:\n            return S.NegativeInfinity\n        elif arg.is_negative:\n            return -cls(-arg)\n    else:\n        if arg is S.ComplexInfinity:\n            return S.Zero\n\n        i_coeff = _imaginary_unit_as_coefficient(arg)\n\n        if i_coeff is not None:\n            return -I * acot(i_coeff)\n        else:\n            if arg.could_extract_minus_sign():\n                return -cls(-arg)\n\n    if arg.is_zero:\n        return pi*I*S.Half\n",
+    "file": "sympy/functions/elementary/hyperbolic.py",
+    "id": "sympy/functions/elementary/hyperbolic.py#acoth.eval",
+    "name": "eval",
+    "qual": "acoth.eval",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_acoth():\n    x = Symbol('x')\n\n    #at specific points\n    assert acoth(0) == I*pi/2\n    assert acoth(I) == -I*pi/4\n    assert acoth(-I) == I*pi/4\n    assert acoth(1) is oo\n    assert acoth(-1) is -oo\n    assert acoth(nan) is nan\n\n    # at infinites\n    assert acoth(oo) == 0\n    assert acoth(-oo) == 0\n    assert acoth(I*oo) == 0\n    assert acoth(-I*oo) == 0\n    assert acoth(zoo) == 0\n\n    #properties\n    # acoth(-z) -> -acoth(z) is only valid away from z = 0, where acoth(0) =\n    # I*pi/2 but -acoth(0) = -I*pi/2.  So the minus sign is only extracted\n    # when the argument is known to be nonzero.\n    nz = Symbol('n', nonzero=True)\n    assert acoth(-nz) == -acoth(nz)\n    assert unchanged(acoth, -x)\n    assert acoth(-x).subs(x, 0) == acoth(0)\n    assert acoth(-x).subs(x, 1) == acoth(-1) == -oo\n\n    assert acoth(I/sqrt(3)) == -I*pi/3\n    assert acoth(-I/sqrt(3)) == I*pi/3\n    assert acoth(I*sqrt(3)) == -I*pi/6\n    assert acoth(-I*sqrt(3)) == I*pi/6\n    assert acoth(I*(1 + sqrt(2))) == -pi*I/8\n    assert acoth(-I*(sqrt(2) + 1)) == pi*I/8\n    assert acoth(I*(1 - sqrt(2))) == pi*I*Rational(3, 8)\n    assert acoth(I*(sqrt(2) - 1)) == pi*I*Rational(-3, 8)\n    assert acoth(I*sqrt(5 + 2*sqrt(5))) == -I*pi/10\n    assert acoth(-I*sqrt(5 + 2*sqrt(5))) == I*pi/10\n    assert acoth(I*(2 + sqrt(3))) == -pi*I/12\n    assert acoth(-I*(2 + sqrt(3))) == pi*I/12\n    assert acoth(I*(2 - sqrt(3))) == pi*I*Rational(-5, 12)\n    assert acoth(I*(sqrt(3) - 2)) == pi*I*Rational(5, 12)\n\n    # reality\n    assert acoth(S(2)).is_real is True\n    assert acoth(S(2)).is_finite is True\n    assert acoth(S(2)).is_extended_real is True\n    assert acoth(S(-2)).is_real is True\n    assert acoth(S(1)).is_real is False\n    assert acoth(S(1)).is_extended_real is True\n    assert acoth(S(-1)).is_real is False\n    assert acoth(symbols('y', real=True)).is_real is None\n\n    # Symmetry\n    assert acoth(Rational(-1, 2)) == -acoth(S.Half)\n",
+    "before": "def test_acoth():\n    x = Symbol('x')\n\n    #at specific points\n    assert acoth(0) == I*pi/2\n    assert acoth(I) == -I*pi/4\n    assert acoth(-I) == I*pi/4\n    assert acoth(1) is oo\n    assert acoth(-1) is -oo\n    assert acoth(nan) is nan\n\n    # at infinites\n    assert acoth(oo) == 0\n    assert acoth(-oo) == 0\n    assert acoth(I*oo) == 0\n    assert acoth(-I*oo) == 0\n    assert acoth(zoo) == 0\n\n    #properties\n    assert acoth(-x) == -acoth(x)\n\n    assert acoth(I/sqrt(3)) == -I*pi/3\n    assert acoth(-I/sqrt(3)) == I*pi/3\n    assert acoth(I*sqrt(3)) == -I*pi/6\n    assert acoth(-I*sqrt(3)) == I*pi/6\n    assert acoth(I*(1 + sqrt(2))) == -pi*I/8\n    assert acoth(-I*(sqrt(2) + 1)) == pi*I/8\n    assert acoth(I*(1 - sqrt(2))) == pi*I*Rational(3, 8)\n    assert acoth(I*(sqrt(2) - 1)) == pi*I*Rational(-3, 8)\n    assert acoth(I*sqrt(5 + 2*sqrt(5))) == -I*pi/10\n    assert acoth(-I*sqrt(5 + 2*sqrt(5))) == I*pi/10\n    assert acoth(I*(2 + sqrt(3))) == -pi*I/12\n    assert acoth(-I*(2 + sqrt(3))) == pi*I/12\n    assert acoth(I*(2 - sqrt(3))) == pi*I*Rational(-5, 12)\n    assert acoth(I*(sqrt(3) - 2)) == pi*I*Rational(5, 12)\n\n    # reality\n    assert acoth(S(2)).is_real is True\n    assert acoth(S(2)).is_finite is True\n    assert acoth(S(2)).is_extended_real is True\n    assert acoth(S(-2)).is_real is True\n    assert acoth(S(1)).is_real is False\n    assert acoth(S(1)).is_extended_real is True\n    assert acoth(S(-1)).is_real is False\n    assert acoth(symbols('y', real=True)).is_real is None\n\n    # Symmetry\n    assert acoth(Rational(-1, 2)) == -acoth(S.Half)\n",
+    "file": "sympy/functions/elementary/tests/test_hyperbolic.py",
+    "id": "sympy/functions/elementary/tests/test_hyperbolic.py#test_acoth",
+    "name": "test_acoth",
+    "qual": "test_acoth",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_acot():\n    assert acot(nan) is nan\n\n    assert acot.nargs == FiniteSet(1)\n    assert acot(-oo) == 0\n    assert acot(oo) == 0\n    assert acot(zoo) == 0\n    assert acot(1) == pi/4\n    assert acot(0) == pi/2\n    assert acot(sqrt(3)/3) == pi/3\n    assert acot(1/sqrt(3)) == pi/3\n    assert acot(-1/sqrt(3)) == -pi/3\n    assert acot(x).diff(x) == -1/(1 + x**2)\n\n    assert acot(r).is_extended_real is True\n\n    assert acot(I*pi) == -I*acoth(pi)\n    assert acot(-2*I) == I*acoth(2)\n    assert acot(x).is_positive is None\n    assert acot(n).is_positive is False\n    assert acot(p).is_positive is True\n    assert acot(I).is_positive is False\n    assert acot(Rational(1, 4)).is_rational is False\n    assert unchanged(acot, cot(x))\n    assert unchanged(acot, tan(x))\n    assert acot(cot(Rational(1, 4))) == Rational(1, 4)\n    assert acot(tan(Rational(-1, 4))) == Rational(1, 4) - pi/2\n\n    # acot(-z) -> -acot(z) is only valid away from z = 0, where acot(0) =\n    # pi/2 but -acot(0) = -pi/2.  So the minus sign is only extracted when\n    # the argument is known to be nonzero.\n    assert acot(-nz) == -acot(nz)\n    assert acot(-n) == -acot(n)\n    assert unchanged(acot, -x)\n    assert acot(-x).subs(x, 0) == acot(0)\n    assert acot(-x).subs(x, 1) == acot(-1) == -pi/4\n",
+    "before": "def test_acot():\n    assert acot(nan) is nan\n\n    assert acot.nargs == FiniteSet(1)\n    assert acot(-oo) == 0\n    assert acot(oo) == 0\n    assert acot(zoo) == 0\n    assert acot(1) == pi/4\n    assert acot(0) == pi/2\n    assert acot(sqrt(3)/3) == pi/3\n    assert acot(1/sqrt(3)) == pi/3\n    assert acot(-1/sqrt(3)) == -pi/3\n    assert acot(x).diff(x) == -1/(1 + x**2)\n\n    assert acot(r).is_extended_real is True\n\n    assert acot(I*pi) == -I*acoth(pi)\n    assert acot(-2*I) == I*acoth(2)\n    assert acot(x).is_positive is None\n    assert acot(n).is_positive is False\n    assert acot(p).is_positive is True\n    assert acot(I).is_positive is False\n    assert acot(Rational(1, 4)).is_rational is False\n    assert unchanged(acot, cot(x))\n    assert unchanged(acot, tan(x))\n    assert acot(cot(Rational(1, 4))) == Rational(1, 4)\n    assert acot(tan(Rational(-1, 4))) == Rational(1, 4) - pi/2\n",
+    "file": "sympy/functions/elementary/tests/test_trigonometric.py",
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py#test_acot",
+    "name": "test_acot",
+    "qual": "test_acot",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_evenodd_rewrite():\n    a = cos(2)  # negative\n    b = sin(1)  # positive\n    even = [cos]\n    # acot is not listed here: it is odd only away from its branch point at\n    # 0, so it is not odd on a symbol that may vanish there.  It is checked\n    # separately below.\n    odd = [sin, tan, cot, asin, atan]\n    with_minus = [-1, -2**1024 * E, -pi/105, -x*y, -x - y]\n    for func in even:\n        for expr in with_minus:\n            assert _check_even_rewrite(func, expr)\n        assert _check_no_rewrite(func, a*b)\n        assert func(\n            x - y) == func(y - x)  # it doesn't matter which form is canonical\n    for func in odd:\n        for expr in with_minus:\n            assert _check_odd_rewrite(func, expr)\n        assert _check_no_rewrite(func, a*b)\n        assert func(\n            x - y) == -func(y - x)  # it doesn't matter which form is canonical\n    # acot extracts the minus sign only for arguments that are known to be\n    # nonzero, so the three numeric cases of with_minus still rewrite.\n    for expr in with_minus[:3]:\n        assert _check_odd_rewrite(acot, expr)\n    assert _check_no_rewrite(acot, a*b)\n    assert acot(x - y) == acot(x - y)  # not odd at a possible branch point\n    assert acot(-p) == -acot(p)  # ... but odd away from the branch point\n",
+    "before": "def test_evenodd_rewrite():\n    a = cos(2)  # negative\n    b = sin(1)  # positive\n    even = [cos]\n    odd = [sin, tan, cot, asin, atan, acot]\n    with_minus = [-1, -2**1024 * E, -pi/105, -x*y, -x - y]\n    for func in even:\n        for expr in with_minus:\n            assert _check_even_rewrite(func, expr)\n        assert _check_no_rewrite(func, a*b)\n        assert func(\n            x - y) == func(y - x)  # it doesn't matter which form is canonical\n    for func in odd:\n        for expr in with_minus:\n            assert _check_odd_rewrite(func, expr)\n        assert _check_no_rewrite(func, a*b)\n        assert func(\n            x - y) == -func(y - x)  # it doesn't matter which form is canonical\n",
+    "file": "sympy/functions/elementary/tests/test_trigonometric.py",
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py#test_evenodd_rewrite",
+    "name": "test_evenodd_rewrite",
+    "qual": "test_evenodd_rewrite",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "return",
+      "list",
+      "['acoth(-x)', 'I*pi/2', '-acoth(n)']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['-acoth(x)', '-I*pi/2', '-acoth(n)']"
+     ],
+     "call": "[str(acoth(-x)), str(acoth(-x).subs(x, 0)), str(acoth(-n))]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import acot, acoth, symbols\nx = symbols('x')\nn = symbols('n', negative=True)",
+     "target": "sympy/functions/elementary/hyperbolic.py#acoth.eval",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import acot, acoth, symbols\n    x = symbols('x')\n    n = symbols('n', negative=True)\n    assert repr([str(acoth(-x)), str(acoth(-x).subs(x, 0)), str(acoth(-n))]) == \"['acoth(-x)', 'I*pi/2', '-acoth(n)']\"\n",
+     "why": "a symbol that may be zero, the branch point the PR protects"
+    },
+    {
+     "after": [
+      "return",
+      "str",
+      "'acoth(-x)'"
+     ],
+     "before": [
+      "return",
+      "str",
+      "'-acoth(x)'"
+     ],
+     "call": "str(acoth(-x))",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import acot, acoth, symbols\nx = symbols('x')\nn = symbols('n', negative=True)",
+     "target": "sympy/functions/elementary/tests/test_hyperbolic.py#test_acoth",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import acot, acoth, symbols\n    x = symbols('x')\n    n = symbols('n', negative=True)\n    assert repr(str(acoth(-x))) == \"'acoth(-x)'\"\n",
+     "why": "a symbol that may be zero, the branch point the PR protects"
+    },
+    {
+     "after": [
+      "return",
+      "list",
+      "['acot(-x)', 'pi/2', '-acot(n)']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['-acot(x)', '-pi/2', '-acot(n)']"
+     ],
+     "call": "[str(acot(-x)), str(acot(-x).subs(x, 0)), str(acot(-n))]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import acot, acoth, symbols\nx = symbols('x')\nn = symbols('n', negative=True)",
+     "target": "sympy/functions/elementary/tests/test_trigonometric.py#test_acot",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import acot, acoth, symbols\n    x = symbols('x')\n    n = symbols('n', negative=True)\n    assert repr([str(acot(-x)), str(acot(-x).subs(x, 0)), str(acot(-n))]) == \"['acot(-x)', 'pi/2', '-acot(n)']\"\n",
+     "why": "a symbol that may be zero, the branch point the PR protects"
+    },
+    {
+     "after": [
+      "return",
+      "str",
+      "'acot(-x) + acot(x)'"
+     ],
+     "before": [
+      "return",
+      "str",
+      "'0'"
+     ],
+     "call": "str(acot(-x) + acot(x))",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import acot, acoth, symbols\nx = symbols('x')\nn = symbols('n', negative=True)",
+     "target": "sympy/functions/elementary/tests/test_trigonometric.py#test_evenodd_rewrite",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import acot, acoth, symbols\n    x = symbols('x')\n    n = symbols('n', negative=True)\n    assert repr(str(acot(-x) + acot(x))) == \"'acot(-x) + acot(x)'\"\n",
+     "why": "a symbol that may be zero, the branch point the PR protects"
+    }
+   ],
+   "dollars_cap": 0.1,
+   "filter_seconds": 69.8,
+   "gaps": [],
+   "info": {
+    "accepted": 4,
+    "compiled": 4,
+    "cost": 0.0,
+    "differed": 4,
+    "dollars_cap": 0.1,
+    "functions": 4,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 4,
+    "ran": 4,
+    "reached": 4,
+    "requests": 1,
+    "seconds": 69.2,
+    "stable": 4
+   },
+   "probes": [
+    {
+     "call": "[str(acoth(-x)), str(acoth(-x).subs(x, 0)), str(acoth(-n))]",
+     "function": "sympy/functions/elementary/hyperbolic.py#acoth.eval",
+     "setup": "from sympy import acot, acoth, symbols\nx = symbols('x')\nn = symbols('n', negative=True)",
+     "why": "a symbol that may be zero, the branch point the PR protects"
+    },
+    {
+     "call": "str(acoth(-x))",
+     "function": "sympy/functions/elementary/tests/test_hyperbolic.py#test_acoth",
+     "setup": "from sympy import acot, acoth, symbols\nx = symbols('x')\nn = symbols('n', negative=True)",
+     "why": "a symbol that may be zero, the branch point the PR protects"
+    },
+    {
+     "call": "[str(acot(-x)), str(acot(-x).subs(x, 0)), str(acot(-n))]",
+     "function": "sympy/functions/elementary/tests/test_trigonometric.py#test_acot",
+     "setup": "from sympy import acot, acoth, symbols\nx = symbols('x')\nn = symbols('n', negative=True)",
+     "why": "a symbol that may be zero, the branch point the PR protects"
+    },
+    {
+     "call": "str(acot(-x) + acot(x))",
+     "function": "sympy/functions/elementary/tests/test_trigonometric.py#test_evenodd_rewrite",
+     "setup": "from sympy import acot, acoth, symbols\nx = symbols('x')\nn = symbols('n', negative=True)",
+     "why": "a symbol that may be zero, the branch point the PR protects"
+    }
+   ],
+   "targets": [
+    "sympy/functions/elementary/hyperbolic.py#acoth.eval",
+    "sympy/functions/elementary/tests/test_hyperbolic.py#test_acoth",
+    "sympy/functions/elementary/tests/test_trigonometric.py#test_acot",
+    "sympy/functions/elementary/tests/test_trigonometric.py#test_evenodd_rewrite"
+   ],
+   "waited_seconds": 416.7
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/functions/elementary/tests/test_hyperbolic.py::test_acoth",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_acot",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/functions/elementary/hyperbolic.py",
+    "lines": "1833",
+    "symbol": "acoth.eval"
+   },
+   {
+    "file": "sympy/functions/elementary/tests/test_hyperbolic.py",
+    "lines": "1212-1219",
+    "symbol": "test_acoth"
+   },
+   {
+    "file": "sympy/functions/elementary/tests/test_trigonometric.py",
+    "lines": "1294-1301",
+    "symbol": "test_acot"
+   },
+   {
+    "file": "sympy/functions/elementary/tests/test_trigonometric.py",
+    "lines": "1373-1396",
+    "symbol": "test_evenodd_rewrite"
+   },
+   {
+    "file": "sympy/functions/elementary/trigonometric.py",
+    "lines": "3030",
+    "symbol": "acot.eval"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/functions/elementary/hyperbolic.py#acoth.eval",
+   "sympy/functions/elementary/tests/test_hyperbolic.py#test_acoth",
+   "sympy/functions/elementary/tests/test_trigonometric.py#test_acot",
+   "sympy/functions/elementary/tests/test_trigonometric.py#test_evenodd_rewrite",
+   "sympy/functions/elementary/trigonometric.py#acot.eval",
+   "sympy/functions/elementary/tests/test_trigonometric.py"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 5,
+    "stored": 3
+   },
+   "budget": 300,
+   "candidates": 480,
+   "ran": 480,
+   "replayed": 3,
+   "runner": "pytest",
+   "seconds": 78.3,
+   "selection": {
+    "candidates": 12914,
+    "closure_files": 1321,
+    "closure_tests": 12906,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 8
+   },
+   "unrunnable": 0
+  },
+  "flip_trust": [
+   {
+    "id": "sympy/functions/elementary/tests/test_hyperbolic.py::test_acoth",
+    "label": "fails",
+    "reach": 1,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)"
+   },
+   {
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_evenodd_rewrite",
+    "label": "fails",
+    "reach": 1,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)"
+   }
+  ],
+  "flips": 2,
+  "gaps": [
+   "12434 lower-ranked candidate(s) not run: about 2 tests/s per process fit 480 in the 300 s allowed",
+   "67718 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "Skipped 1 non-Python file(s)",
+   "graph reused from the previous state; 25 changed file(s) relinked"
+  ],
+  "impacted": {
+   "count": 3033,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1607,
+   "parsed_files": 4
+  },
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "original_tests": {
+   "sympy/functions/elementary/tests/test_hyperbolic.py::test_acoth": "failed",
+   "sympy/functions/elementary/tests/test_trigonometric.py::test_acot": "passed",
+   "sympy/functions/elementary/tests/test_trigonometric.py::test_evenodd_rewrite": "failed"
+  },
+  "predicted_failures": [
+   {
+    "after": "failed",
+    "before": "passed",
+    "edited_form": "passed",
+    "id": "sympy/functions/elementary/tests/test_hyperbolic.py::test_acoth",
+    "label": "test edited, not fixed",
+    "reach": 1,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)"
+   },
+   {
+    "after": "failed",
+    "before": "passed",
+    "edited_form": "passed",
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_evenodd_rewrite",
+    "label": "test edited, not fixed",
+    "reach": 1,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 1 changed line(s)"
+   }
+  ],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/functions/elementary/tests/test_hyperbolic.py::test_acoth",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_acot",
+    "verdict": "evidence"
+   },
+   {
+    "base": "passed",
+    "head": "passed",
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_evenodd_rewrite",
+    "verdict": "none"
+   }
+  ],
+  "report_hash": "8f64788b22c4",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [
+    "sympy/functions/elementary/trigonometric.py#acot.eval"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 1,
+   "differences": 0,
+   "functions_called": 1,
+   "input_built_before_the_change": 0,
+   "not_compared": {},
+   "seconds": 14.5,
+   "targets": 5,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 480 of 480 candidate tests after the change with pytest in 78.3 s, failures confirmed before it: 2 now fail. 3773 tests reach the change. 3 test(s) from edited test files also run as they were before the edit. 2 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 3 test(s) the change adds or edits replayed on the code before it: 2 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "executed",
+    "expect": "fails",
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_evenodd_rewrite",
+    "line": 0,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_trigonometric.py::test_evenodd_rewrite",
+    "score": 0.0,
+    "why": "failed when executed after the change"
+   },
+   {
+    "confidence": "executed",
+    "expect": "fails",
+    "id": "sympy/functions/elementary/tests/test_hyperbolic.py::test_acoth",
+    "line": 0,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_hyperbolic.py::test_acoth",
+    "score": 0.0,
+    "why": "failed when executed after the change"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/combinatorial/tests/test_comb_numbers.py::test_motzkin",
+    "line": 1174,
+    "run": "python -m pytest sympy/functions/combinatorial/tests/test_comb_numbers.py::test_motzkin",
+    "score": 1.0,
+    "why": "via acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/tests/test_secondquant.py::test_commutation",
+    "line": 236,
+    "run": "python -m pytest sympy/physics/tests/test_secondquant.py::test_commutation",
+    "score": 0.625,
+    "why": "via acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/matrices/expressions/tests/test_derivatives.py::test_matrixexpr_eval_derivative_unhandled_returns_none",
+    "line": 713,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_derivatives.py::test_matrixexpr_eval_derivative_unhandled_returns_none",
+    "score": 0.272,
+    "why": "via NO.doit > Application.__new__ > acot.eval (name: eval)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/strategies/tests/test_rl.py::test_rebuild",
+    "line": 77,
+    "run": "python -m pytest sympy/strategies/tests/test_rl.py::test_rebuild",
+    "score": 0.228,
+    "why": "via Application.__new__ > acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/strategies/tests/test_traverse.py::test_expr_fns",
+    "line": 80,
+    "run": "python -m pytest sympy/strategies/tests/test_traverse.py::test_expr_fns",
+    "score": 0.204,
+    "why": "via Application.__new__ > acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_determinant.py::test_eval_determinant",
+    "line": 33,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_determinant.py::test_eval_determinant",
+    "score": 0.179,
+    "why": "via NO.doit > Application.__new__ > acot.eval (name: eval)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/quantum/tests/test_anticommutator.py::test_eval_commutator",
+    "line": 49,
+    "run": "python -m pytest sympy/physics/quantum/tests/test_anticommutator.py::test_eval_commutator",
+    "score": 0.169,
+    "why": "via NO.doit > Application.__new__ > acot.eval (name: eval)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/quantum/tests/test_commutator.py::test_eval_commutator",
+    "line": 69,
+    "run": "python -m pytest sympy/physics/quantum/tests/test_commutator.py::test_eval_commutator",
+    "score": 0.161,
+    "why": "via NO.doit > Application.__new__ > acot.eval (name: eval)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/quantum/tests/test_density.py::test_eval_trace",
+    "line": 194,
+    "run": "python -m pytest sympy/physics/quantum/tests/test_density.py::test_eval_trace",
+    "score": 0.156,
+    "why": "via NO.doit > Application.__new__ > acot.eval (name: eval)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/quantum/tests/test_qubit.py::test_eval_trace",
+    "line": 206,
+    "run": "python -m pytest sympy/physics/quantum/tests/test_qubit.py::test_eval_trace",
+    "score": 0.152,
+    "why": "via NO.doit > Application.__new__ > acot.eval (name: eval)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/quantum/tests/test_tensorproduct.py::test_eval_trace",
+    "line": 89,
+    "run": "python -m pytest sympy/physics/quantum/tests/test_tensorproduct.py::test_eval_trace",
+    "score": 0.15,
+    "why": "via NO.doit > Application.__new__ > acot.eval (name: eval)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/tests/test_ndim_array.py::test_eval_derivative_direction",
+    "line": 92,
+    "run": "python -m pytest sympy/tensor/array/tests/test_ndim_array.py::test_eval_derivative_direction",
+    "score": 0.148,
+    "why": "via NO.doit > Application.__new__ > acot.eval (name: eval)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/elementary/tests/test_complexes.py::test_sign",
+    "line": 217,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_complexes.py::test_sign",
+    "score": 0.133,
+    "why": "via NO.doit > Application.__new__ > acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_relational.py::test_x_minus_y_not_same_as_x_lt_y",
+    "line": 552,
+    "run": "python -m pytest sympy/core/tests/test_relational.py::test_x_minus_y_not_same_as_x_lt_y",
+    "score": 0.128,
+    "why": "via NO.doit > Application.__new__ > acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/elementary/tests/test_complexes.py::test_issue_15893",
+    "line": 1021,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_complexes.py::test_issue_15893",
+    "score": 0.119,
+    "why": "via NO.doit > Application.__new__ > acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_arit.py::test_AssocOp_doit",
+    "line": 1684,
+    "run": "python -m pytest sympy/core/tests/test_arit.py::test_AssocOp_doit",
+    "score": 0.103,
+    "why": "via NO.doit > Application.__new__ > acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_arit.py::test_Mod",
+    "line": 1835,
+    "run": "python -m pytest sympy/core/tests/test_arit.py::test_Mod",
+    "score": 0.103,
+    "why": "via NO.doit > Application.__new__ > acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_expr.py::test_held_expression_UnevaluatedExpr",
+    "line": 2163,
+    "run": "python -m pytest sympy/core/tests/test_expr.py::test_held_expression_UnevaluatedExpr",
+    "score": 0.103,
+    "why": "via NO.doit > Application.__new__ > acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_function.py::test_func_deriv",
+    "line": 507,
+    "run": "python -m pytest sympy/core/tests/test_function.py::test_func_deriv",
+    "score": 0.103,
+    "why": "via NO.doit > Application.__new__ > acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/elementary/tests/test_complexes.py::test_derivatives_issue_4757",
+    "line": 873,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_complexes.py::test_derivatives_issue_4757",
+    "score": 0.103,
+    "why": "via NO.doit > Application.__new__ > acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_5167",
+    "line": 1070,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_issue_5167",
+    "score": 0.103,
+    "why": "via NO.doit > Application.__new__ > acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_applyfunc.py::test_applyfunc_matrix",
+    "line": 24,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_applyfunc.py::test_applyfunc_matrix",
+    "score": 0.103,
+    "why": "via NO.doit > Application.__new__ > acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/matrices/expressions/tests/test_determinant.py::test_permanent",
+    "line": 58,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_determinant.py::test_permanent",
+    "score": 0.103,
+    "why": "via NO.doit > Application.__new__ > acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_diagonal.py::test_DiagMatrix",
+    "line": 95,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_diagonal.py::test_DiagMatrix",
+    "score": 0.103,
+    "why": "via NO.doit > Application.__new__ > acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_inverse.py::test_inverse",
+    "line": 18,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_inverse.py::test_inverse",
+    "score": 0.103,
+    "why": "via NO.doit > Application.__new__ > acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_matadd.py::test_doit_args",
+    "line": 30,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_matadd.py::test_doit_args",
+    "score": 0.103,
+    "why": "via NO.doit > Application.__new__ > acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/matrices/expressions/tests/test_matadd.py::test_sort_key",
+    "line": 16,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_matadd.py::test_sort_key",
+    "score": 0.102,
+    "why": "via NO.doit > Application.__new__ > acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_matexpr.py::test_matrixsymbol_from_symbol",
+    "line": 541,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_matexpr.py::test_matrixsymbol_from_symbol",
+    "score": 0.102,
+    "why": "via NO.doit > Application.__new__ > acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_matmul.py::test_doit",
+    "line": 99,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_matmul.py::test_doit",
+    "score": 0.102,
+    "why": "via NO.doit > Application.__new__ > acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_matmul.py::test_doit_deep_false_still_canonical",
+    "line": 113,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_matmul.py::test_doit_deep_false_still_canonical",
+    "score": 0.102,
+    "why": "via NO.doit > Application.__new__ > acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_matmul.py::test_doit_drills_down",
+    "line": 106,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_matmul.py::test_doit_drills_down",
+    "score": 0.102,
+    "why": "via NO.doit > Application.__new__ > acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_trace.py::test_Trace",
+    "line": 21,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_trace.py::test_Trace",
+    "score": 0.102,
+    "why": "via NO.doit > Application.__new__ > acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_trace.py::test_Trace_A_plus_B",
+    "line": 55,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_trace.py::test_Trace_A_plus_B",
+    "score": 0.102,
+    "why": "via NO.doit > Application.__new__ > acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_trace.py::test_Trace_MatAdd_doit",
+    "line": 61,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_trace.py::test_Trace_MatAdd_doit",
+    "score": 0.102,
+    "why": "via NO.doit > Application.__new__ > acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_trace.py::test_Trace_MatPow_doit",
+    "line": 70,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_trace.py::test_Trace_MatPow_doit",
+    "score": 0.102,
+    "why": "via NO.doit > Application.__new__ > acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/matrices/expressions/tests/test_trace.py::test_Trace_doit_deep_False",
+    "line": 84,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_trace.py::test_Trace_doit_deep_False",
+    "score": 0.102,
+    "why": "via NO.doit > Application.__new__ > acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_lambdarepr.py::test_multiple_sums",
+    "line": 181,
+    "run": "python -m pytest sympy/printing/tests/test_lambdarepr.py::test_multiple_sums",
+    "score": 0.102,
+    "why": "via NO.doit > Application.__new__ > acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_lambdarepr.py::test_sum__1",
+    "line": 158,
+    "run": "python -m pytest sympy/printing/tests/test_lambdarepr.py::test_sum__1",
+    "score": 0.102,
+    "why": "via NO.doit > Application.__new__ > acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_lambdarepr.py::test_sum__2",
+    "line": 170,
+    "run": "python -m pytest sympy/printing/tests/test_lambdarepr.py::test_sum__2",
+    "score": 0.102,
+    "why": "via NO.doit > Application.__new__ > acoth.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_limits.py::test_Limit",
+    "line": 180,
+    "run": "python -m pytest sympy/series/tests/test_limits.py::test_Limit",
+    "score": 0.102,
+    "why": "via NO.doit > Application.__new__ > acoth.eval"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/functions/elementary/tests/test_hyperbolic.py",
+    "lines": "1212-1219",
+    "symbol": "test_acoth"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/functions/elementary/tests/test_trigonometric.py",
+    "lines": "1294-1301",
+    "symbol": "test_acot"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/functions/elementary/tests/test_trigonometric.py",
+    "lines": "1373-1396",
+    "symbol": "test_evenodd_rewrite"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792334086.6291451,
+  "job_seconds": 92.1,
+  "number": 30590,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 92.3,
+  "started": 1792333990.426991,
+  "verify_seconds": 3.2
+ },
+ "verify": {
+  "checked": 2,
+  "false": 0,
+  "held": 2,
+  "merge_base": "3f58eb0ce808f8c4917ab0b8ae67d133fc794c3f",
+  "other": 0,
+  "problem": null,
+  "states": {
+   "sympy/functions/elementary/tests/test_hyperbolic.py::test_acoth": "passed",
+   "sympy/functions/elementary/tests/test_trigonometric.py::test_evenodd_rewrite": "passed"
+  },
+  "v": 1
+ }
+}

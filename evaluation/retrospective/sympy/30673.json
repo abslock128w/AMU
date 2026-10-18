@@ -1,0 +1,680 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "024e2c84a64dd43501b30887faa8e44c6254d181",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "9f1555b9abc77f58362ed7a7688444ef267ce90e",
+  "install_ok": true,
+  "merge_base": "024e2c84a64dd43501b30887faa8e44c6254d181",
+  "pr": 30673,
+  "recording": false,
+  "runner": null,
+  "seconds": 342.1,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "024e2c84a64dd43501b30887faa8e44c6254d181",
+  "head_sha": "9f1555b9abc77f58362ed7a7688444ef267ce90e",
+  "merge_base": "024e2c84a64dd43501b30887faa8e44c6254d181",
+  "merged_at": "2026-10-05T04:38:31Z",
+  "number": 30673,
+  "repo": "sympy",
+  "title": "polys: clean up argument handling for nth"
+ },
+ "probe_minutes": {
+  "end": 1792338791.443585,
+  "minutes": 0.3,
+  "start": 1792338616.73247,
+  "waited": 155.1294409999973
+ },
+ "probe_targets": {
+  "all": 6,
+  "called": 4,
+  "targets": [
+   {
+    "after": "def test_DMP_functionality():\n    f = DMP([[ZZ(1)], [ZZ(2), ZZ(0)], [ZZ(1), ZZ(0), ZZ(0)]], ZZ)\n    g = DMP([[ZZ(1)], [ZZ(1), ZZ(0)]], ZZ)\n    h = DMP([[ZZ(1)]], ZZ)\n\n    assert f.degree() == 2\n    assert f.degree_list() == (2, 2)\n    assert f.total_degree() == 2\n\n    assert f.LC() == ZZ(1)\n    assert f.TC() == ZZ(0)\n    assert f.nth(1, 1) == ZZ(2)\n\n    raises(TypeError, lambda: f.nth(0, 'x'))\n    raises(TypeError, lambda: f.nth(0, .5))\n    raises(TypeError, lambda: f.nth(0, S(1)))\n\n    assert f.max_norm() == 2\n    assert f.l1_norm() == 4\n\n    u = DMP([[ZZ(2)], [ZZ(2), ZZ(0)]], ZZ)\n\n    assert f.diff(m=1, j=0) == u\n    assert f.diff(m=1, j=1) == u\n\n    raises(TypeError, lambda: f.diff(m='x', j=0))\n\n    u = DMP([ZZ(1), ZZ(2), ZZ(1)], ZZ)\n    v = DMP([ZZ(1), ZZ(2), ZZ(1)], ZZ)\n\n    assert f.eval(a=1, j=0) == u\n    assert f.eval(a=1, j=1) == v\n\n    assert f.eval(1).eval(1) == ZZ(4)\n\n    assert f.cofactors(g) == (g, g, h)\n    assert f.gcd(g) == g\n    assert f.lcm(g) == f\n\n    u = DMP([[QQ(45), QQ(30), QQ(5)]], QQ)\n    v = DMP([[QQ(1), QQ(2, 3), QQ(1, 9)]], QQ)\n\n    assert u.monic() == v\n\n    assert (4*f).content() == ZZ(4)\n    assert (4*f).primitive() == (ZZ(4), f)\n\n    f = DMP([QQ(1,3), QQ(1)], QQ)\n    g = DMP([QQ(1,7), QQ(1)], QQ)\n\n    assert f.cancel(g) == f.cancel(g, include=True) == (\n        DMP([QQ(7), QQ(21)], QQ),\n        DMP([QQ(3), QQ(21)], QQ)\n    )\n    assert f.cancel(g, include=False) == (\n        QQ(7),\n        QQ(3),\n        DMP([QQ(1), QQ(3)], QQ),\n        DMP([QQ(1), QQ(7)], QQ)\n    )\n\n    f = DMP([[ZZ(1)], [ZZ(2)], [ZZ(3)], [ZZ(4)], [ZZ(5)], [ZZ(6)]], ZZ)\n\n    assert f.trunc(3) == DMP([[ZZ(1)], [ZZ(-1)], [], [ZZ(1)], [ZZ(-1)], []], ZZ)\n\n    f = DMP(f_4, ZZ)\n\n    assert f.sqf_part() == -f\n    assert f.sqf_list() == (ZZ(-1), [(-f, 1)])\n\n    f = DMP([[ZZ(-1)], [], [], [ZZ(5)]], ZZ)\n    g = DMP([[ZZ(3), ZZ(1)], [], []], ZZ)\n    h = DMP([[ZZ(45), ZZ(30), ZZ(5)]], ZZ)\n\n    r = DMP([ZZ(675), ZZ(675), ZZ(225), ZZ(25)], ZZ)\n\n    assert f.subresultants(g) == [f, g, h]\n    assert f.resultant(g) == r\n\n    f = DMP([ZZ(1), ZZ(3), ZZ(9), ZZ(-13)], ZZ)\n\n    assert f.discriminant() == -11664\n\n    f = DMP([QQ(2), QQ(0)], QQ)\n    g = DMP([QQ(1), QQ(0), QQ(-16)], QQ)\n\n    s = DMP([QQ(1, 32), QQ(0)], QQ)\n    t = DMP([QQ(-1, 16)], QQ)\n    h = DMP([QQ(1)], QQ)\n\n    assert f.half_gcdex(g) == (s, h)\n    assert f.gcdex(g) == (s, t, h)\n\n    assert f.invert(g) == s\n\n    f = DMP([[QQ(1)], [QQ(2)], [QQ(3)]], QQ)\n\n    raises(ValueError, lambda: f.half_gcdex(f))\n    raises(ValueError, lambda: f.gcdex(f))\n\n    raises(ValueError, lambda: f.invert(f))\n\n    f = DMP(ZZ.map([1, 0, 20, 0, 150, 0, 500, 0, 625, -2, 0, -10, 9]), ZZ)\n    g = DMP([ZZ(1), ZZ(0), ZZ(0), ZZ(-2), ZZ(9)], ZZ)\n    h = DMP([ZZ(1), ZZ(0), ZZ(5), ZZ(0)], ZZ)\n\n    assert g.compose(h) == f\n    assert f.decompose() == [g, h]\n\n    f = DMP([[QQ(1)], [QQ(2)], [QQ(3)]], QQ)\n\n    raises(ValueError, lambda: f.decompose())\n    raises(ValueError, lambda: f.sturm())\n",
+    "before": "def test_DMP_functionality():\n    f = DMP([[ZZ(1)], [ZZ(2), ZZ(0)], [ZZ(1), ZZ(0), ZZ(0)]], ZZ)\n    g = DMP([[ZZ(1)], [ZZ(1), ZZ(0)]], ZZ)\n    h = DMP([[ZZ(1)]], ZZ)\n\n    assert f.degree() == 2\n    assert f.degree_list() == (2, 2)\n    assert f.total_degree() == 2\n\n    assert f.LC() == ZZ(1)\n    assert f.TC() == ZZ(0)\n    assert f.nth(1, 1) == ZZ(2)\n\n    raises(TypeError, lambda: f.nth(0, 'x'))\n\n    assert f.max_norm() == 2\n    assert f.l1_norm() == 4\n\n    u = DMP([[ZZ(2)], [ZZ(2), ZZ(0)]], ZZ)\n\n    assert f.diff(m=1, j=0) == u\n    assert f.diff(m=1, j=1) == u\n\n    raises(TypeError, lambda: f.diff(m='x', j=0))\n\n    u = DMP([ZZ(1), ZZ(2), ZZ(1)], ZZ)\n    v = DMP([ZZ(1), ZZ(2), ZZ(1)], ZZ)\n\n    assert f.eval(a=1, j=0) == u\n    assert f.eval(a=1, j=1) == v\n\n    assert f.eval(1).eval(1) == ZZ(4)\n\n    assert f.cofactors(g) == (g, g, h)\n    assert f.gcd(g) == g\n    assert f.lcm(g) == f\n\n    u = DMP([[QQ(45), QQ(30), QQ(5)]], QQ)\n    v = DMP([[QQ(1), QQ(2, 3), QQ(1, 9)]], QQ)\n\n    assert u.monic() == v\n\n    assert (4*f).content() == ZZ(4)\n    assert (4*f).primitive() == (ZZ(4), f)\n\n    f = DMP([QQ(1,3), QQ(1)], QQ)\n    g = DMP([QQ(1,7), QQ(1)], QQ)\n\n    assert f.cancel(g) == f.cancel(g, include=True) == (\n        DMP([QQ(7), QQ(21)], QQ),\n        DMP([QQ(3), QQ(21)], QQ)\n    )\n    assert f.cancel(g, include=False) == (\n        QQ(7),\n        QQ(3),\n        DMP([QQ(1), QQ(3)], QQ),\n        DMP([QQ(1), QQ(7)], QQ)\n    )\n\n    f = DMP([[ZZ(1)], [ZZ(2)], [ZZ(3)], [ZZ(4)], [ZZ(5)], [ZZ(6)]], ZZ)\n\n    assert f.trunc(3) == DMP([[ZZ(1)], [ZZ(-1)], [], [ZZ(1)], [ZZ(-1)], []], ZZ)\n\n    f = DMP(f_4, ZZ)\n\n    assert f.sqf_part() == -f\n    assert f.sqf_list() == (ZZ(-1), [(-f, 1)])\n\n    f = DMP([[ZZ(-1)], [], [], [ZZ(5)]], ZZ)\n    g = DMP([[ZZ(3), ZZ(1)], [], []], ZZ)\n    h = DMP([[ZZ(45), ZZ(30), ZZ(5)]], ZZ)\n\n    r = DMP([ZZ(675), ZZ(675), ZZ(225), ZZ(25)], ZZ)\n\n    assert f.subresultants(g) == [f, g, h]\n    assert f.resultant(g) == r\n\n    f = DMP([ZZ(1), ZZ(3), ZZ(9), ZZ(-13)], ZZ)\n\n    assert f.discriminant() == -11664\n\n    f = DMP([QQ(2), QQ(0)], QQ)\n    g = DMP([QQ(1), QQ(0), QQ(-16)], QQ)\n\n    s = DMP([QQ(1, 32), QQ(0)], QQ)\n    t = DMP([QQ(-1, 16)], QQ)\n    h = DMP([QQ(1)], QQ)\n\n    assert f.half_gcdex(g) == (s, h)\n    assert f.gcdex(g) == (s, t, h)\n\n    assert f.invert(g) == s\n\n    f = DMP([[QQ(1)], [QQ(2)], [QQ(3)]], QQ)\n\n    raises(ValueError, lambda: f.half_gcdex(f))\n    raises(ValueError, lambda: f.gcdex(f))\n\n    raises(ValueError, lambda: f.invert(f))\n\n    f = DMP(ZZ.map([1, 0, 20, 0, 150, 0, 500, 0, 625, -2, 0, -10, 9]), ZZ)\n    g = DMP([ZZ(1), ZZ(0), ZZ(0), ZZ(-2), ZZ(9)], ZZ)\n    h = DMP([ZZ(1), ZZ(0), ZZ(5), ZZ(0)], ZZ)\n\n    assert g.compose(h) == f\n    assert f.decompose() == [g, h]\n\n    f = DMP([[QQ(1)], [QQ(2)], [QQ(3)]], QQ)\n\n    raises(ValueError, lambda: f.decompose())\n    raises(ValueError, lambda: f.sturm())\n",
+    "file": "sympy/polys/tests/test_polyclasses.py",
+    "id": "sympy/polys/tests/test_polyclasses.py#test_DMP_functionality",
+    "name": "test_DMP_functionality",
+    "qual": "test_DMP_functionality",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_Poly_nth():\n    assert Poly(0, x).nth(0) == 0\n    assert Poly(0, x).nth(1) == 0\n\n    assert Poly(1, x).nth(0) == 1\n    assert Poly(1, x).nth(1) == 0\n\n    assert Poly(x**8, x).nth(0) == 0\n    assert Poly(x**8, x).nth(7) == 0\n    assert Poly(x**8, x).nth(8) == 1\n    assert Poly(x**8, x).nth(9) == 0\n\n    assert Poly(3*x*y**2 + 1, x, y).nth(0, 0) == 1\n    assert Poly(3*x*y**2 + 1, x, y).nth(1, 2) == 3\n\n    # wrong length\n    raises(ValueError, lambda: Poly(x*y + 1, x, y).nth(1))\n    # wrong type -- must be int\n    raises(TypeError, lambda: Poly(x, x).nth(.5))\n    raises(TypeError, lambda: Poly(x, x).nth(S.One))\n",
+    "before": "def test_Poly_nth():\n    assert Poly(0, x).nth(0) == 0\n    assert Poly(0, x).nth(1) == 0\n\n    assert Poly(1, x).nth(0) == 1\n    assert Poly(1, x).nth(1) == 0\n\n    assert Poly(x**8, x).nth(0) == 0\n    assert Poly(x**8, x).nth(7) == 0\n    assert Poly(x**8, x).nth(8) == 1\n    assert Poly(x**8, x).nth(9) == 0\n\n    assert Poly(3*x*y**2 + 1, x, y).nth(0, 0) == 1\n    assert Poly(3*x*y**2 + 1, x, y).nth(1, 2) == 3\n\n    raises(ValueError, lambda: Poly(x*y + 1, x, y).nth(1))\n",
+    "file": "sympy/polys/tests/test_polytools.py",
+    "id": "sympy/polys/tests/test_polytools.py#test_Poly_nth",
+    "name": "test_Poly_nth",
+    "qual": "test_Poly_nth",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "return",
+      "list",
+      "['raised TypeError', '1', 'raised IndexError']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['3', '1', 'raised IndexError']"
+     ],
+     "call": "[outcome(lambda: Poly(x**2 + 2*x + 3).nth(0.5)), outcome(lambda: Poly(x*y + 1, x, y).nth(1, 1)), outcome(lambda: Poly(x + 1).nth(-1))]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import Poly, symbols, ZZ\nfrom sympy.polys.polyclasses import DMP\nx, y = symbols('x y')\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\n",
+     "target": "sympy/polys/tests/test_polytools.py#test_Poly_nth",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import Poly, symbols, ZZ\n    from sympy.polys.polyclasses import DMP\n    x, y = symbols('x y')\n\n    def outcome(f):\n        try:\n            return str(f())\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__\n    assert repr([outcome(lambda: Poly(x**2 + 2*x + 3).nth(0.5)), outcome(lambda: Poly(x*y + 1, x, y).nth(1, 1)), outcome(lambda: Poly(x + 1).nth(-1))]) == \"['raised TypeError', '1', 'raised IndexError']\"\n",
+     "why": "non-integer and negative exponents to Poly.nth"
+    }
+   ],
+   "dollars_cap": 0.1,
+   "filter_seconds": 12.1,
+   "gaps": [],
+   "info": {
+    "accepted": 1,
+    "compiled": 2,
+    "cost": 0.0,
+    "differed": 1,
+    "dollars_cap": 0.1,
+    "functions": 2,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 2,
+    "ran": 2,
+    "reached": 2,
+    "requests": 1,
+    "seconds": 11.9,
+    "stable": 2
+   },
+   "probes": [
+    {
+     "call": "[outcome(lambda: DMP([[ZZ(1)], [ZZ(2), ZZ(0)]], ZZ).nth(0.5, 0)), outcome(lambda: DMP([[ZZ(1)], [ZZ(2), ZZ(0)]], ZZ).nth(-1, 0))]",
+     "function": "sympy/polys/tests/test_polyclasses.py#test_DMP_functionality",
+     "setup": "from sympy import Poly, symbols, ZZ\nfrom sympy.polys.polyclasses import DMP\nx, y = symbols('x y')\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\n",
+     "why": "a float and a negative exponent, which were coerced"
+    },
+    {
+     "call": "[outcome(lambda: Poly(x**2 + 2*x + 3).nth(0.5)), outcome(lambda: Poly(x*y + 1, x, y).nth(1, 1)), outcome(lambda: Poly(x + 1).nth(-1))]",
+     "function": "sympy/polys/tests/test_polytools.py#test_Poly_nth",
+     "setup": "from sympy import Poly, symbols, ZZ\nfrom sympy.polys.polyclasses import DMP\nx, y = symbols('x y')\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\n",
+     "why": "non-integer and negative exponents to Poly.nth"
+    }
+   ],
+   "targets": [
+    "sympy/polys/tests/test_polyclasses.py#test_DMP_functionality",
+    "sympy/polys/tests/test_polytools.py#test_Poly_nth"
+   ],
+   "waited_seconds": 155.1
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/polys/tests/test_polytools.py::test_Poly_nth",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/concrete/gosper.py",
+    "lines": "116-135",
+    "symbol": "gosper_term"
+   },
+   {
+    "file": "sympy/polys/densebasic.py",
+    "lines": "852-864",
+    "symbol": "dmp_ground_nth"
+   },
+   {
+    "file": "sympy/polys/polyclasses.py",
+    "lines": "731",
+    "symbol": "DMP.nth"
+   },
+   {
+    "file": "sympy/polys/polytools.py",
+    "lines": "2153-2157",
+    "symbol": "Poly.nth"
+   },
+   {
+    "file": "sympy/polys/tests/test_polyclasses.py",
+    "lines": "206-207",
+    "symbol": "test_DMP_functionality"
+   },
+   {
+    "file": "sympy/polys/tests/test_polytools.py",
+    "lines": "1513-1517",
+    "symbol": "test_Poly_nth"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/concrete/gosper.py#gosper_term",
+   "sympy/polys/densebasic.py#dmp_ground_nth",
+   "sympy/polys/polyclasses.py#DMP.nth",
+   "sympy/polys/polytools.py#Poly.nth",
+   "sympy/polys/tests/test_polyclasses.py#test_DMP_functionality",
+   "sympy/polys/tests/test_polytools.py#test_Poly_nth",
+   "sympy/polys/tests/test_polyclasses.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "dmp_ground_nth return changed",
+    "path": [
+     "sympy/polys/densebasic.py:864 return",
+     "sympy/polys/polyclasses.py:1612 DMP_Python._nth uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 2,
+    "stored": 1
+   },
+   "budget": 300,
+   "candidates": 2400,
+   "ran": 2400,
+   "replayed": 2,
+   "runner": "pytest",
+   "seconds": 281.8,
+   "selection": {
+    "candidates": 13186,
+    "closure_files": 1321,
+    "closure_tests": 12934,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 252
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "10786 lower-ranked candidate(s) not run: about 10 tests/s per process fit 2400 in the 300 s allowed",
+   "63968 call sites unresolved repo-wide; dynamic dispatch may reach more"
+  ],
+  "impacted": {
+   "count": 1971,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1607,
+   "parsed_files": 9
+  },
+  "original_tests": {
+   "sympy/polys/tests/test_polyclasses.py::test_DMP_functionality": "passed",
+   "sympy/polys/tests/test_polytools.py::test_Poly__unify": "passed",
+   "sympy/polys/tests/test_polytools.py::test_Poly_coeff": "passed",
+   "sympy/polys/tests/test_polytools.py::test_Poly_exclude": "passed",
+   "sympy/polys/tests/test_polytools.py::test_Poly_nth": "passed",
+   "sympy/polys/tests/test_polytools.py::test_Poly_one": "passed",
+   "sympy/polys/tests/test_polytools.py::test_Poly_precision": "passed",
+   "sympy/polys/tests/test_polytools.py::test_Poly_rootof_extension_to_sympy": "passed",
+   "sympy/polys/tests/test_polytools.py::test_Poly_zero": "passed",
+   "sympy/polys/tests/test_polytools.py::test_all_roots": "passed",
+   "sympy/polys/tests/test_polytools.py::test_dispersion": "passed",
+   "sympy/polys/tests/test_polytools.py::test_fglm": "passed",
+   "sympy/polys/tests/test_polytools.py::test_issue_19113": "passed",
+   "sympy/polys/tests/test_polytools.py::test_issue_9585": "passed",
+   "sympy/polys/tests/test_polytools.py::test_nroots": "passed",
+   "sympy/polys/tests/test_polytools.py::test_real_roots": "passed",
+   "sympy/polys/tests/test_polytools.py::test_same_root": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "passed",
+    "head": "passed",
+    "id": "sympy/polys/tests/test_polyclasses.py::test_DMP_functionality",
+    "verdict": "none"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/polys/tests/test_polytools.py::test_Poly_nth",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "0fc61cbfcd64",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [
+    "sympy/concrete/gosper.py#gosper_term",
+    "sympy/polys/densebasic.py#dmp_ground_nth",
+    "sympy/polys/polyclasses.py#DMP.nth",
+    "sympy/polys/polytools.py#Poly.nth"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 20,
+   "differences": 0,
+   "functions_called": 4,
+   "input_built_before_the_change": 0,
+   "not_compared": {},
+   "seconds": 56.4,
+   "targets": 6,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 2400 of 2400 candidate tests after the change with pytest in 281.8 s, failures confirmed before it: 0 now fail. 13186 tests reach the change. 17 test(s) from edited test files also run as they were before the edit. 2 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/tests/test_polytools.py::test_Poly_nth",
+    "line": 1498,
+    "run": "python -m pytest sympy/polys/tests/test_polytools.py::test_Poly_nth",
+    "score": 4.093,
+    "why": "calls Poly.nth (name: nth,poly,polytool)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_gosper.py::test_gosper_term",
+    "line": 25,
+    "run": "python -m pytest sympy/concrete/tests/test_gosper.py::test_gosper_term",
+    "score": 3.639,
+    "why": "calls gosper_term (name: gosper,term)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/tests/test_densebasic.py::test_dmp_ground_nth",
+    "line": 272,
+    "run": "python -m pytest sympy/polys/tests/test_densebasic.py::test_dmp_ground_nth",
+    "score": 3.148,
+    "why": "calls dmp_ground_nth (name: densebasic,dmp,ground,nth)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/tests/test_polyclasses.py::test_DMP_functionality",
+    "line": 192,
+    "run": "python -m pytest sympy/polys/tests/test_polyclasses.py::test_DMP_functionality",
+    "score": 2.145,
+    "why": "calls DMP.nth (name: dmp,polyclasse)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_gosper.py::test_gosper_sum_AeqB_part1",
+    "line": 100,
+    "run": "python -m pytest sympy/concrete/tests/test_gosper.py::test_gosper_sum_AeqB_part1",
+    "score": 1.082,
+    "why": "via gosper_sum > gosper_term (name: gosper)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_gosper.py::test_gosper_sum_AeqB_part3",
+    "line": 174,
+    "run": "python -m pytest sympy/concrete/tests/test_gosper.py::test_gosper_sum_AeqB_part3",
+    "score": 0.969,
+    "why": "via gosper_sum > gosper_term (name: gosper)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_gosper.py::test_gosper_nan",
+    "line": 162,
+    "run": "python -m pytest sympy/concrete/tests/test_gosper.py::test_gosper_nan",
+    "score": 0.86,
+    "why": "via gosper_sum > gosper_term (name: gosper)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_gosper.py::test_gosper_sum",
+    "line": 30,
+    "run": "python -m pytest sympy/concrete/tests/test_gosper.py::test_gosper_sum",
+    "score": 0.794,
+    "why": "via gosper_sum > gosper_term (name: gosper)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_gosper.py::test_gosper_sum_AeqB_part2",
+    "line": 142,
+    "run": "python -m pytest sympy/concrete/tests/test_gosper.py::test_gosper_sum_AeqB_part2",
+    "score": 0.741,
+    "why": "via gosper_sum > gosper_term (name: gosper)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_gosper.py::test_gosper_sum_algebraic",
+    "line": 79,
+    "run": "python -m pytest sympy/concrete/tests/test_gosper.py::test_gosper_sum_algebraic",
+    "score": 0.698,
+    "why": "via gosper_sum > gosper_term (name: gosper)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_gosper.py::test_gosper_sum_indefinite",
+    "line": 63,
+    "run": "python -m pytest sympy/concrete/tests/test_gosper.py::test_gosper_sum_indefinite",
+    "score": 0.664,
+    "why": "via gosper_sum > gosper_term (name: gosper)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_gosper.py::test_gosper_sum_iterated",
+    "line": 84,
+    "run": "python -m pytest sympy/concrete/tests/test_gosper.py::test_gosper_sum_iterated",
+    "score": 0.636,
+    "why": "via gosper_sum > gosper_term (name: gosper)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_prde.py::test_param_poly_rischDE",
+    "line": 194,
+    "run": "python -m pytest sympy/integrals/tests/test_prde.py::test_param_poly_rischDE",
+    "score": 0.614,
+    "why": "via param_poly_rischDE > Poly.nth (name: poly)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_gosper.py::test_gosper_sum_parametric",
+    "line": 73,
+    "run": "python -m pytest sympy/concrete/tests/test_gosper.py::test_gosper_sum_parametric",
+    "score": 0.605,
+    "why": "via gosper_sum > gosper_term (name: gosper)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/polys/tests/test_polytools.py::test_Poly_coeff",
+    "line": 1469,
+    "run": "python -m pytest sympy/polys/tests/test_polytools.py::test_Poly_coeff",
+    "score": 0.57,
+    "why": "via Poly.coeff_monomial > Poly.nth (name: poly,polytool)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_hyperexpand.py::test_ushift_operators",
+    "line": 309,
+    "run": "python -m pytest sympy/simplify/tests/test_hyperexpand.py::test_ushift_operators",
+    "score": 0.421,
+    "why": "via UnShiftA.__init__ > Poly.nth"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_risch.py::test_integrate_hypertangent_polynomial",
+    "line": 461,
+    "run": "python -m pytest sympy/integrals/tests/test_risch.py::test_integrate_hypertangent_polynomial",
+    "score": 0.383,
+    "why": "via integrate_hypertangent_polynomial > Poly.nth"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/polys/tests/test_subresultants_qq_zz.py::test_bezout",
+    "line": 86,
+    "run": "python -m pytest sympy/polys/tests/test_subresultants_qq_zz.py::test_bezout",
+    "score": 0.371,
+    "why": "via bezout > Poly.nth"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_hyperexpand.py::test_meijerg_shift_operators",
+    "line": 502,
+    "run": "python -m pytest sympy/simplify/tests/test_hyperexpand.py::test_meijerg_shift_operators",
+    "score": 0.36,
+    "why": "via MeijerUnShiftA.__init__ > Poly.nth"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_risch.py::test_integrate_hyperexponential_returns_piecewise",
+    "line": 399,
+    "run": "python -m pytest sympy/integrals/tests/test_risch.py::test_integrate_hyperexponential_returns_piecewise",
+    "score": 0.344,
+    "why": "via integrate_hyperexponential > DMP.nth"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_prde.py::test_parametric_log_deriv",
+    "line": 357,
+    "run": "python -m pytest sympy/integrals/tests/test_prde.py::test_parametric_log_deriv",
+    "score": 0.311,
+    "why": "via parametric_log_deriv_heu > Poly.nth"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_risch.py::test_integrate_hyperexponential",
+    "line": 301,
+    "run": "python -m pytest sympy/integrals/tests/test_risch.py::test_integrate_hyperexponential",
+    "score": 0.303,
+    "why": "via integrate_hyperexponential > DMP.nth"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_prde.py::test_prde_no_cancel",
+    "line": 123,
+    "run": "python -m pytest sympy/integrals/tests/test_prde.py::test_prde_no_cancel",
+    "score": 0.295,
+    "why": "via prde_no_cancel_b_large > DMP.nth"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_recurr.py::test_rsolve_bulk",
+    "line": 106,
+    "run": "python -m pytest sympy/solvers/tests/test_recurr.py::test_rsolve_bulk",
+    "score": 0.29,
+    "why": "via rsolve_hyper > DMP.nth"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/integrals/tests/test_manual.py::test_manualintegrate_bioche_phase_parametrization",
+    "line": 245,
+    "run": "python -m pytest sympy/integrals/tests/test_manual.py::test_manualintegrate_bioche_phase_parametrization",
+    "score": 0.276,
+    "why": "via bioche_substitution > DMP.nth"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/integrals/tests/test_manual.py::test_manualintegrate_bioche_substitution",
+    "line": 122,
+    "run": "python -m pytest sympy/integrals/tests/test_manual.py::test_manualintegrate_bioche_substitution",
+    "score": 0.272,
+    "why": "via bioche_substitution > DMP.nth"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_prde.py::test_prde_cancel_liouvillian",
+    "line": 171,
+    "run": "python -m pytest sympy/integrals/tests/test_prde.py::test_prde_cancel_liouvillian",
+    "score": 0.268,
+    "why": "via prde_cancel_liouvillian > DMP.nth"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_prde.py::test_prde_linear_constraints",
+    "line": 81,
+    "run": "python -m pytest sympy/integrals/tests/test_prde.py::test_prde_linear_constraints",
+    "score": 0.264,
+    "why": "via prde_linear_constraints > DMP.nth"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_risch.py::test_integrate_hyperexponential_polynomial",
+    "line": 368,
+    "run": "python -m pytest sympy/integrals/tests/test_risch.py::test_integrate_hyperexponential_polynomial",
+    "score": 0.26,
+    "why": "via integrate_hyperexponential_polynomial > DMP.nth"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_partfrac.py::test_apart_undetermined_coeffs",
+    "line": 175,
+    "run": "python -m pytest sympy/polys/tests/test_partfrac.py::test_apart_undetermined_coeffs",
+    "score": 0.257,
+    "why": "via apart_undetermined_coeffs > DMP.nth"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_polyroots.py::test_roots_binomial",
+    "line": 311,
+    "run": "python -m pytest sympy/polys/tests/test_polyroots.py::test_roots_binomial",
+    "score": 0.253,
+    "why": "via roots_binomial > DMP.nth"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/polys/tests/test_polyroots.py::test_roots_linear",
+    "line": 50,
+    "run": "python -m pytest sympy/polys/tests/test_polyroots.py::test_roots_linear",
+    "score": 0.25,
+    "why": "via roots_linear > DMP.nth"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_recurr.py::test_issue_27975a",
+    "line": 278,
+    "run": "python -m pytest sympy/solvers/tests/test_recurr.py::test_issue_27975a",
+    "score": 0.247,
+    "why": "via rsolve_hyper > DMP.nth"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_recurr.py::test_issue_27975b",
+    "line": 282,
+    "run": "python -m pytest sympy/solvers/tests/test_recurr.py::test_issue_27975b",
+    "score": 0.245,
+    "why": "via rsolve_hyper > DMP.nth"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_recurr.py::test_rsolve_0_sol_homogeneous",
+    "line": 124,
+    "run": "python -m pytest sympy/solvers/tests/test_recurr.py::test_rsolve_0_sol_homogeneous",
+    "score": 0.242,
+    "why": "via rsolve_hyper > DMP.nth"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_recurr.py::test_rsolve_hyper",
+    "line": 41,
+    "run": "python -m pytest sympy/solvers/tests/test_recurr.py::test_rsolve_hyper",
+    "score": 0.239,
+    "why": "via rsolve_hyper > DMP.nth"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_prde.py::test_param_rischDE",
+    "line": 218,
+    "run": "python -m pytest sympy/integrals/tests/test_prde.py::test_param_rischDE",
+    "score": 0.204,
+    "why": "via param_rischDE > param_poly_rischDE > Poly.nth"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/polys/tests/test_multivariate_resultants.py::test_macaulay_example_two",
+    "line": 270,
+    "run": "python -m pytest sympy/polys/tests/test_multivariate_resultants.py::test_macaulay_example_two",
+    "score": 0.177,
+    "why": "via MacaulayResultant.get_matrix > Poly.coeff_monomial > DMP.nth"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/polys/tests/test_multivariate_resultants.py::test_macaulay_example_one",
+    "line": 236,
+    "run": "python -m pytest sympy/polys/tests/test_multivariate_resultants.py::test_macaulay_example_one",
+    "score": 0.171,
+    "why": "via MacaulayResultant.get_matrix > Poly.coeff_monomial > DMP.nth"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_rde.py::test_solve_poly_rde_no_cancel",
+    "line": 196,
+    "run": "python -m pytest sympy/integrals/tests/test_rde.py::test_solve_poly_rde_no_cancel",
+    "score": 0.168,
+    "why": "via solve_poly_rde > prde_no_cancel_b_large > Poly.nth (name: poly)"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/polys/tests/test_polyclasses.py",
+    "lines": "206-207",
+    "symbol": "test_DMP_functionality"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/polys/tests/test_polytools.py",
+    "lines": "1513-1517",
+    "symbol": "test_Poly_nth"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792338576.124029,
+  "job_seconds": 342.1,
+  "number": 30673,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 342.1,
+  "started": 1792338233.264862
+ },
+ "verify": null
+}

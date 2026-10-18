@@ -1,0 +1,417 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "0398417c503e9f32674b36865abc54e575e8bcd7",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "1fe04df4e14ada300438e1e1dcb8285cc81a8e91",
+  "install_ok": true,
+  "merge_base": "0398417c503e9f32674b36865abc54e575e8bcd7",
+  "pr": 21064,
+  "recording": true,
+  "runner": null,
+  "seconds": 30.7,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "0398417c503e9f32674b36865abc54e575e8bcd7",
+  "head_sha": "1fe04df4e14ada300438e1e1dcb8285cc81a8e91",
+  "merge_base": "0398417c503e9f32674b36865abc54e575e8bcd7",
+  "merged_at": "2026-09-04T21:24:26Z",
+  "number": 21064,
+  "repo": "django",
+  "title": "Fixed #37013 -- Omitted tzinfo argument to Trunc & Extract with USE_TZ = True and TIME_ZONE != UTC creates ambiguity for migrations"
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 0,
+  "called": 0,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_extract_deconstruct_tzinfo_none",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_trunc_deconstruct_tzinfo_none",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "django/db/models/functions/datetime.py",
+    "lines": "41-58",
+    "symbol": "TimezoneMixin.deconstruct"
+   },
+   {
+    "file": "tests/db_functions/datetime/test_extract_trunc.py",
+    "lines": "1979-1985",
+    "symbol": "DateFunctionWithTimeZoneTests.test_extract_deconstruct_tzinfo_none"
+   },
+   {
+    "file": "tests/db_functions/datetime/test_extract_trunc.py",
+    "lines": "1987-1993",
+    "symbol": "DateFunctionWithTimeZoneTests.test_trunc_deconstruct_tzinfo_none"
+   },
+   {
+    "file": "tests/db_functions/datetime/test_extract_trunc.py",
+    "lines": "1995-1998",
+    "symbol": "DateFunctionWithTimeZoneTests.test_extract_deconstruct_use_tz_false"
+   },
+   {
+    "file": "tests/db_functions/datetime/test_extract_trunc.py",
+    "lines": "2000-2003",
+    "symbol": "DateFunctionWithTimeZoneTests.test_trunc_deconstruct_use_tz_false"
+   },
+   {
+    "file": "tests/db_functions/datetime/test_extract_trunc.py",
+    "lines": "2005-2008",
+    "symbol": "DateFunctionWithTimeZoneTests.test_extract_deconstruct_with_tzinfo"
+   },
+   {
+    "file": "tests/db_functions/datetime/test_extract_trunc.py",
+    "lines": "2010-2013",
+    "symbol": "DateFunctionWithTimeZoneTests.test_trunc_deconstruct_with_tzinfo"
+   }
+  ],
+  "changed_symbols": [
+   "django/db/models/functions/datetime.py#TimezoneMixin.deconstruct",
+   "tests/db_functions/datetime/test_extract_trunc.py#DateFunctionWithTimeZoneTests.test_extract_deconstruct_tzinfo_none",
+   "tests/db_functions/datetime/test_extract_trunc.py#DateFunctionWithTimeZoneTests.test_extract_deconstruct_use_tz_false",
+   "tests/db_functions/datetime/test_extract_trunc.py#DateFunctionWithTimeZoneTests.test_extract_deconstruct_with_tzinfo",
+   "tests/db_functions/datetime/test_extract_trunc.py#DateFunctionWithTimeZoneTests.test_trunc_deconstruct_tzinfo_none",
+   "tests/db_functions/datetime/test_extract_trunc.py#DateFunctionWithTimeZoneTests.test_trunc_deconstruct_use_tz_false",
+   "tests/db_functions/datetime/test_extract_trunc.py#DateFunctionWithTimeZoneTests.test_trunc_deconstruct_with_tzinfo",
+   "tests/db_functions/datetime/test_extract_trunc.py#DateFunctionWithTimeZoneTests",
+   "django/db/models/functions/datetime.py",
+   "tests/db_functions/datetime/test_extract_trunc.py"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 6,
+    "stored": 4
+   },
+   "budget": 300,
+   "candidates": 222,
+   "ran": 222,
+   "replayed": 6,
+   "runner": "django-runtests",
+   "seconds": 27.9,
+   "selection": {
+    "candidates": 222,
+    "closure_files": 3,
+    "closure_tests": 60,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/db/models/functions/__init__.py"
+    ],
+    "observed": 160,
+    "static_only": 2
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "101152 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "Skipped 3 non-Python file(s)",
+   "graph reused from the previous state; 6 changed file(s) relinked"
+  ],
+  "impacted": {
+   "count": 3,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2928,
+   "parsed_files": 2
+  },
+  "original_tests": {
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_extract_day_func": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_extract_duration": "skipped",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_extract_duration_unsupported_lookups": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_extract_duration_without_native_duration_field": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_extract_func": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_extract_hour_func": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_extract_iso_weekday_func": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_extract_iso_year_func": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_extract_iso_year_func_boundaries": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_extract_lookup_name_sql_injection": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_extract_minute_func": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_extract_month_func": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_extract_none": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_extract_outerref": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_extract_outerref_validation": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_extract_quarter_func": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_extract_quarter_func_boundaries": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_extract_second_func": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_extract_second_func_no_fractional": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_extract_week_func": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_extract_week_func_boundaries": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_extract_weekday_func": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_extract_year_exact_lookup": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_extract_year_func": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_extract_year_greaterthan_lookup": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_extract_year_lessthan_lookup": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_trunc_date_func": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_trunc_date_none": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_trunc_day_func": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_trunc_func": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_trunc_hour_func": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_trunc_invalid_arguments": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_trunc_lookup_name_sql_injection": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_trunc_minute_func": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_trunc_month_func": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_trunc_none": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_trunc_quarter_func": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_trunc_second_func": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_trunc_subquery_with_parameters": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_trunc_time_comparison": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_trunc_time_func": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_trunc_time_none": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_trunc_week": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_trunc_week_before_1000": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_trunc_week_func": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionTests::test_trunc_year_func": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_extract_func_explicit_timezone_priority": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_extract_func_with_timezone": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_extract_func_with_timezone_minus_no_offset": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_extract_invalid_field_with_timezone": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_trunc_filter_non_utc_active": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_trunc_func_with_timezone": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_trunc_invalid_field_with_timezone": "passed",
+   "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_trunc_timezone_applied_before_truncation": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_extract_deconstruct_tzinfo_none",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_trunc_deconstruct_tzinfo_none",
+    "verdict": "evidence"
+   },
+   {
+    "base": "passed",
+    "head": "passed",
+    "id": "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_extract_deconstruct_use_tz_false",
+    "verdict": "none"
+   },
+   {
+    "base": "passed",
+    "head": "passed",
+    "id": "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_trunc_deconstruct_use_tz_false",
+    "verdict": "none"
+   },
+   {
+    "base": "passed",
+    "head": "passed",
+    "id": "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_extract_deconstruct_with_tzinfo",
+    "verdict": "none"
+   },
+   {
+    "base": "passed",
+    "head": "passed",
+    "id": "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_trunc_deconstruct_with_tzinfo",
+    "verdict": "none"
+   }
+  ],
+  "report_hash": "bf0dbf02a66f",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "not_compared": {
+    "django/db/models/functions/datetime.py#TimezoneMixin.deconstruct": "not a module or class function on both sides (new, removed or nested)",
+    "tests/db_functions/datetime/test_extract_trunc.py#DateFunctionWithTimeZoneTests.test_extract_deconstruct_tzinfo_none": "not a module or class function on both sides (new, removed or nested)",
+    "tests/db_functions/datetime/test_extract_trunc.py#DateFunctionWithTimeZoneTests.test_extract_deconstruct_use_tz_false": "not a module or class function on both sides (new, removed or nested)",
+    "tests/db_functions/datetime/test_extract_trunc.py#DateFunctionWithTimeZoneTests.test_extract_deconstruct_with_tzinfo": "not a module or class function on both sides (new, removed or nested)",
+    "tests/db_functions/datetime/test_extract_trunc.py#DateFunctionWithTimeZoneTests.test_trunc_deconstruct_tzinfo_none": "not a module or class function on both sides (new, removed or nested)",
+    "tests/db_functions/datetime/test_extract_trunc.py#DateFunctionWithTimeZoneTests.test_trunc_deconstruct_use_tz_false": "not a module or class function on both sides (new, removed or nested)",
+    "tests/db_functions/datetime/test_extract_trunc.py#DateFunctionWithTimeZoneTests.test_trunc_deconstruct_with_tzinfo": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 0.0,
+   "targets": 0
+  },
+  "summary": "EXECUTED 222 of 222 candidate tests after the change with django-runtests in 27.9 s, failures confirmed before it: 0 now fail. 16 tests reach the change. 54 test(s) from edited test files also run as they were before the edit. 6 test(s) the change adds or edits replayed on the code before it: 2 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_extract_deconstruct_tzinfo_none",
+    "line": 1979,
+    "run": "cd tests && python runtests.py db_functions.datetime.test_extract_trunc.DateFunctionWithTimeZoneTests.test_extract_deconstruct_tzinfo_none",
+    "score": 5.801,
+    "why": "via DateFunctionWithTimeZoneTests (name: date,extract,function,time,trunc,zone)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_trunc_deconstruct_tzinfo_none",
+    "line": 1987,
+    "run": "cd tests && python runtests.py db_functions.datetime.test_extract_trunc.DateFunctionWithTimeZoneTests.test_trunc_deconstruct_tzinfo_none",
+    "score": 3.628,
+    "why": "via DateFunctionWithTimeZoneTests (name: date,extract,function,time,trunc,zone)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_extract_deconstruct_with_tzinfo",
+    "line": 2005,
+    "run": "cd tests && python runtests.py db_functions.datetime.test_extract_trunc.DateFunctionWithTimeZoneTests.test_extract_deconstruct_with_tzinfo",
+    "score": 2.446,
+    "why": "via DateFunctionWithTimeZoneTests (name: date,extract,function,time,trunc,zone)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_trunc_deconstruct_with_tzinfo",
+    "line": 2010,
+    "run": "cd tests && python runtests.py db_functions.datetime.test_extract_trunc.DateFunctionWithTimeZoneTests.test_trunc_deconstruct_with_tzinfo",
+    "score": 1.937,
+    "why": "via DateFunctionWithTimeZoneTests (name: date,extract,function,time,trunc,zone)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_extract_deconstruct_use_tz_false",
+    "line": 1995,
+    "run": "cd tests && python runtests.py db_functions.datetime.test_extract_trunc.DateFunctionWithTimeZoneTests.test_extract_deconstruct_use_tz_false",
+    "score": 1.628,
+    "why": "via DateFunctionWithTimeZoneTests (name: date,extract,function,time,trunc,zone)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_trunc_deconstruct_use_tz_false",
+    "line": 2000,
+    "run": "cd tests && python runtests.py db_functions.datetime.test_extract_trunc.DateFunctionWithTimeZoneTests.test_trunc_deconstruct_use_tz_false",
+    "score": 1.494,
+    "why": "via DateFunctionWithTimeZoneTests (name: date,extract,function,time,trunc,zone)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_extract_func_with_timezone",
+    "line": 1687,
+    "run": "cd tests && python runtests.py db_functions.datetime.test_extract_trunc.DateFunctionWithTimeZoneTests.test_extract_func_with_timezone",
+    "score": 0.984,
+    "why": "via DateFunctionWithTimeZoneTests (name: date,extract,function,time,trunc,zone)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_extract_invalid_field_with_timezone",
+    "line": 1789,
+    "run": "cd tests && python runtests.py db_functions.datetime.test_extract_trunc.DateFunctionWithTimeZoneTests.test_extract_invalid_field_with_timezone",
+    "score": 0.938,
+    "why": "via DateFunctionWithTimeZoneTests (name: date,extract,function,time,trunc,zone)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_trunc_invalid_field_with_timezone",
+    "line": 1941,
+    "run": "cd tests && python runtests.py db_functions.datetime.test_extract_trunc.DateFunctionWithTimeZoneTests.test_trunc_invalid_field_with_timezone",
+    "score": 0.925,
+    "why": "via DateFunctionWithTimeZoneTests (name: date,extract,function,time,trunc,zone)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_trunc_func_with_timezone",
+    "line": 1838,
+    "run": "cd tests && python runtests.py db_functions.datetime.test_extract_trunc.DateFunctionWithTimeZoneTests.test_trunc_func_with_timezone",
+    "score": 0.916,
+    "why": "via DateFunctionWithTimeZoneTests (name: date,extract,function,time,trunc,zone)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_trunc_filter_non_utc_active",
+    "line": 1953,
+    "run": "cd tests && python runtests.py db_functions.datetime.test_extract_trunc.DateFunctionWithTimeZoneTests.test_trunc_filter_non_utc_active",
+    "score": 0.906,
+    "why": "via DateFunctionWithTimeZoneTests (name: date,extract,function,time,trunc,zone)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_extract_func_explicit_timezone_priority",
+    "line": 1770,
+    "run": "cd tests && python runtests.py db_functions.datetime.test_extract_trunc.DateFunctionWithTimeZoneTests.test_extract_func_explicit_timezone_priority",
+    "score": 0.897,
+    "why": "via DateFunctionWithTimeZoneTests (name: date,extract,function,time,trunc,zone)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_trunc_timezone_applied_before_truncation",
+    "line": 1801,
+    "run": "cd tests && python runtests.py db_functions.datetime.test_extract_trunc.DateFunctionWithTimeZoneTests.test_trunc_timezone_applied_before_truncation",
+    "score": 0.875,
+    "why": "via DateFunctionWithTimeZoneTests (name: date,extract,function,time,trunc,zone)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/db_functions/datetime/test_extract_trunc.py::DateFunctionWithTimeZoneTests::test_extract_func_with_timezone_minus_no_offset",
+    "line": 1747,
+    "run": "cd tests && python runtests.py db_functions.datetime.test_extract_trunc.DateFunctionWithTimeZoneTests.test_extract_func_with_timezone_minus_no_offset",
+    "score": 0.85,
+    "why": "via DateFunctionWithTimeZoneTests (name: date,extract,function,time,trunc,zone)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/expressions/tests.py::ValueTests::test_compile_unresolved",
+    "line": 2503,
+    "run": "cd tests && python runtests.py expressions.tests.ValueTests.test_compile_unresolved",
+    "score": 0.009,
+    "why": "via Extract.as_sql > TimezoneMixin.get_tzname > TimezoneMixin"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/expressions/tests.py::BasicExpressionsTests::test_subquery_sql",
+    "line": 750,
+    "run": "cd tests && python runtests.py expressions.tests.BasicExpressionsTests.test_subquery_sql",
+    "score": 0.009,
+    "why": "via Extract.as_sql > TimezoneMixin.get_tzname > TimezoneMixin"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792322799.896567,
+  "job_seconds": 30.7,
+  "number": 21064,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 30.8,
+  "started": 1792322768.266091
+ },
+ "verify": null
+}

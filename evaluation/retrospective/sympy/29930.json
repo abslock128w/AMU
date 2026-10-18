@@ -1,0 +1,498 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "fc709aa4c714869c16cc226b0656ee9b5c71e6c4",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "f7e9f3be7c3cb88b8f9e1f591fc4999b2110c208",
+  "install_ok": true,
+  "merge_base": "fc709aa4c714869c16cc226b0656ee9b5c71e6c4",
+  "pr": 29930,
+  "recording": false,
+  "runner": null,
+  "seconds": 525.9,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "fc709aa4c714869c16cc226b0656ee9b5c71e6c4",
+  "head_sha": "f7e9f3be7c3cb88b8f9e1f591fc4999b2110c208",
+  "merge_base": "fc709aa4c714869c16cc226b0656ee9b5c71e6c4",
+  "merged_at": "2026-10-01T00:19:29Z",
+  "number": 29930,
+  "repo": "sympy",
+  "title": "docs: clarify unbranched_argument"
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 1,
+  "called": 1,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "changed_functions": [
+   {
+    "file": "sympy/functions/elementary/complexes.py",
+    "lines": "1261-1282",
+    "symbol": "unbranched_argument"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/functions/elementary/complexes.py#unbranched_argument"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 0,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 1992,
+   "ran": 1200,
+   "replayed": 0,
+   "runner": "pytest",
+   "seconds": 421.9,
+   "selection": {
+    "candidates": 12638,
+    "closure_files": 1305,
+    "closure_tests": 12635,
+    "depth_cap": 10,
+    "hubs": 15,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 3
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "10646 lower-ranked candidate(s) not run: about 8 tests/s per process fit 1992 in the 300 s allowed",
+   "62387 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "Skipped 1 non-Python file(s)",
+   "shadow run stopped at its 300 s budget: 1200 of 1992 candidates run",
+   "side-by-side run stopped at its time limit; calls captured until then are compared"
+  ],
+  "impacted": {
+   "count": 2222,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1588,
+   "parsed_files": 192
+  },
+  "predicted_failures": [],
+  "report_hash": "113295570424",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [
+    "sympy/functions/elementary/complexes.py#unbranched_argument"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 5,
+   "differences": 0,
+   "functions_called": 1,
+   "input_built_before_the_change": 0,
+   "not_compared": {},
+   "seconds": 120.0,
+   "targets": 1,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 1200 of 1992 candidate tests after the change with pytest in 421.9 s, failures confirmed before it: 0 now fail. 2566 tests reach the change.",
+  "tests": [
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/functions/elementary/tests/test_complexes.py::test_periodic_argument",
+    "line": 902,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_complexes.py::test_periodic_argument",
+    "score": 3.533,
+    "why": "calls unbranched_argument (name: argument,complexe)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/integrals/tests/test_meijerint.py::test_meijerint",
+    "line": 131,
+    "run": "python -m pytest sympy/integrals/tests/test_meijerint.py::test_meijerint",
+    "score": 0.241,
+    "why": "via meijerint_definite > _condsimp > unbranched_argument"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/integrals/tests/test_meijerint.py::test_meijerint_definite",
+    "line": 90,
+    "run": "python -m pytest sympy/integrals/tests/test_meijerint.py::test_meijerint_definite",
+    "score": 0.226,
+    "why": "via meijerint_definite > _condsimp > unbranched_argument"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/combinatorial/tests/test_comb_numbers.py::test_motzkin",
+    "line": 1174,
+    "run": "python -m pytest sympy/functions/combinatorial/tests/test_comb_numbers.py::test_motzkin",
+    "score": 0.185,
+    "why": "via principal_branch.eval > unbranched_argument"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/physics/tests/test_secondquant.py::test_commutation",
+    "line": 236,
+    "run": "python -m pytest sympy/physics/tests/test_secondquant.py::test_commutation",
+    "score": 0.171,
+    "why": "via principal_branch.eval > unbranched_argument"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/integrals/tests/test_meijerint.py::test_rewrite_single",
+    "line": 27,
+    "run": "python -m pytest sympy/integrals/tests/test_meijerint.py::test_rewrite_single",
+    "score": 0.14,
+    "why": "via _rewrite_single > _eval_cond > _condsimp > unbranched_argument"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/elementary/tests/test_complexes.py::test_sign",
+    "line": 217,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_complexes.py::test_sign",
+    "score": 0.131,
+    "why": "via Infinity.evalf > periodic_argument._eval_evalf > periodic_argument._getunbranched > unbranched_argument (name: complexe)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/elementary/tests/test_complexes.py::test_Abs",
+    "line": 383,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_complexes.py::test_Abs",
+    "score": 0.128,
+    "why": "via Infinity.evalf > periodic_argument._eval_evalf > periodic_argument._getunbranched > unbranched_argument (name: complexe)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_evalf.py::test_evalf_arguments",
+    "line": 377,
+    "run": "python -m pytest sympy/core/tests/test_evalf.py::test_evalf_arguments",
+    "score": 0.121,
+    "why": "via EvalfMixin.evalf > periodic_argument._eval_evalf > periodic_argument._getunbranched > unbranched_argument (name: argument)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/functions/elementary/tests/test_piecewise.py::test_issue_5227",
+    "line": 1038,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_piecewise.py::test_issue_5227",
+    "score": 0.118,
+    "why": "via Integral.doit > Integral.doit.try_meijerg > meijerint_definite > _condsimp > unbranched_argument"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/integrals/tests/test_integrals.py::test_integrate_SingularityFunction",
+    "line": 606,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_integrate_SingularityFunction",
+    "score": 0.116,
+    "why": "via Integral.doit > Integral.doit.try_meijerg > meijerint_definite > _condsimp > unbranched_argument"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/integrals/tests/test_integrals.py::test_subs5",
+    "line": 763,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_subs5",
+    "score": 0.114,
+    "why": "via Integral.doit > Integral.doit.try_meijerg > meijerint_definite > _condsimp > unbranched_argument"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_transform",
+    "line": 473,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_transform",
+    "score": 0.113,
+    "why": "via Integral.doit > Integral.doit.try_meijerg > meijerint_definite > _condsimp > unbranched_argument"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/utilities/tests/test_wester.py::test_W10",
+    "line": 2514,
+    "run": "python -m pytest sympy/utilities/tests/test_wester.py::test_W10",
+    "score": 0.111,
+    "why": "via Integral.doit > Integral.doit.try_meijerg > meijerint_definite > _condsimp > unbranched_argument"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/utilities/tests/test_wester.py::test_W9",
+    "line": 2504,
+    "run": "python -m pytest sympy/utilities/tests/test_wester.py::test_W9",
+    "score": 0.109,
+    "why": "via Integral.doit > Integral.doit.try_meijerg > meijerint_definite > _condsimp > unbranched_argument"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_5167",
+    "line": 1070,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_issue_5167",
+    "score": 0.107,
+    "why": "via Integral.doit > Integral.doit.try_meijerg > meijerint_definite > _condsimp > unbranched_argument"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/elementary/tests/test_complexes.py::test_derivatives_issue_4757",
+    "line": 873,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_complexes.py::test_derivatives_issue_4757",
+    "score": 0.102,
+    "why": "via NO.doit > Application.__new__ > principal_branch.eval > unbranched_argument (name: complexe)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/utilities/tests/test_lambdify.py::test_tensorflow_complexes",
+    "line": 998,
+    "run": "python -m pytest sympy/utilities/tests/test_lambdify.py::test_tensorflow_complexes",
+    "score": 0.101,
+    "why": "via EvalfMixin.evalf > periodic_argument._eval_evalf > periodic_argument._getunbranched > unbranched_argument (name: complexe)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_expr.py::test_doit",
+    "line": 760,
+    "run": "python -m pytest sympy/core/tests/test_expr.py::test_doit",
+    "score": 0.099,
+    "why": "via Integral.doit > Integral.doit.try_meijerg > meijerint_definite > _condsimp > unbranched_argument"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/functions/elementary/tests/test_piecewise.py::test_issue_8919",
+    "line": 1262,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_piecewise.py::test_issue_8919",
+    "score": 0.098,
+    "why": "via Integral.doit > Integral.doit.try_meijerg > meijerint_definite > _condsimp > unbranched_argument"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/integrals/tests/test_heurisch.py::test_heurisch_issue_26922",
+    "line": 404,
+    "run": "python -m pytest sympy/integrals/tests/test_heurisch.py::test_heurisch_issue_26922",
+    "score": 0.096,
+    "why": "via Integral.doit > Integral.doit.try_meijerg > meijerint_definite > _condsimp > unbranched_argument"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/integrals/tests/test_integrals.py::test_conjugate_transpose",
+    "line": 202,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_conjugate_transpose",
+    "score": 0.095,
+    "why": "via Integral.doit > Integral.doit.try_meijerg > meijerint_definite > _condsimp > unbranched_argument"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_doit_integrals",
+    "line": 916,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_doit_integrals",
+    "score": 0.094,
+    "why": "via Integral.doit > Integral.doit.try_meijerg > meijerint_definite > _condsimp > unbranched_argument"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_10567",
+    "line": 1443,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_issue_10567",
+    "score": 0.092,
+    "why": "via Integral.doit > Integral.doit.try_meijerg > meijerint_definite > _condsimp > unbranched_argument"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_15218",
+    "line": 1586,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_issue_15218",
+    "score": 0.091,
+    "why": "via Integral.doit > Integral.doit.try_meijerg > meijerint_definite > _condsimp > unbranched_argument"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_2708",
+    "line": 1371,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_issue_2708",
+    "score": 0.09,
+    "why": "via Integral.doit > Integral.doit.try_meijerg > meijerint_definite > _condsimp > unbranched_argument"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_4665",
+    "line": 898,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_issue_4665",
+    "score": 0.089,
+    "why": "via Integral.doit > Integral.doit.try_meijerg > meijerint_definite > _condsimp > unbranched_argument"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/integrals/tests/test_integrals.py::test_li_integral",
+    "line": 1712,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_li_integral",
+    "score": 0.088,
+    "why": "via Integral.doit > Integral.doit.try_meijerg > meijerint_definite > _condsimp > unbranched_argument"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/integrals/tests/test_integrals.py::test_nested_doit",
+    "line": 892,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_nested_doit",
+    "score": 0.087,
+    "why": "via Integral.doit > Integral.doit.try_meijerg > meijerint_definite > _condsimp > unbranched_argument"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/integrals/tests/test_manual.py::test_issue_23566",
+    "line": 699,
+    "run": "python -m pytest sympy/integrals/tests/test_manual.py::test_issue_23566",
+    "score": 0.086,
+    "why": "via Integral.doit > Integral.doit.try_meijerg > meijerint_definite > _condsimp > unbranched_argument"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/sandbox/tests/test_indexed_integrals.py::test_indexed_integrals",
+    "line": 8,
+    "run": "python -m pytest sympy/sandbox/tests/test_indexed_integrals.py::test_indexed_integrals",
+    "score": 0.085,
+    "why": "via Integral.doit > Integral.doit.try_meijerg > meijerint_definite > _condsimp > unbranched_argument"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_series.py::test_issue_11313",
+    "line": 102,
+    "run": "python -m pytest sympy/series/tests/test_series.py::test_issue_11313",
+    "score": 0.084,
+    "why": "via Integral.doit > Integral.doit.try_meijerg > meijerint_definite > _condsimp > unbranched_argument"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_subscheck.py::test_checksysodesol",
+    "line": 78,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_subscheck.py::test_checksysodesol",
+    "score": 0.083,
+    "why": "via Integral.doit > Integral.doit.try_meijerg > meijerint_definite > _condsimp > unbranched_argument"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/vector/tests/test_printing.py::test_issue_23058",
+    "line": 207,
+    "run": "python -m pytest sympy/vector/tests/test_printing.py::test_issue_23058",
+    "score": 0.082,
+    "why": "via Integral.doit > Integral.doit.try_meijerg > meijerint_definite > _condsimp > unbranched_argument"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/elementary/tests/test_complexes.py::test_issue_15893",
+    "line": 1021,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_complexes.py::test_issue_15893",
+    "score": 0.081,
+    "why": "via NO.doit > Application.__new__ > principal_branch.eval > unbranched_argument (name: complexe)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/elementary/tests/test_complexes.py::test_sign_issue_3068",
+    "line": 369,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_complexes.py::test_sign_issue_3068",
+    "score": 0.08,
+    "why": "via EvalfMixin.evalf > periodic_argument._eval_evalf > periodic_argument._getunbranched > unbranched_argument (name: complexe)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/polys/tests/test_rootoftools.py::test_CRootOf_evalf",
+    "line": 198,
+    "run": "python -m pytest sympy/polys/tests/test_rootoftools.py::test_CRootOf_evalf",
+    "score": 0.074,
+    "why": "via periodic_argument._eval_evalf > periodic_argument._getunbranched > unbranched_argument"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/strategies/tests/test_rl.py::test_rebuild",
+    "line": 77,
+    "run": "python -m pytest sympy/strategies/tests/test_rl.py::test_rebuild",
+    "score": 0.065,
+    "why": "via Application.__new__ > principal_branch.eval > unbranched_argument"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/strategies/tests/test_traverse.py::test_expr_fns",
+    "line": 80,
+    "run": "python -m pytest sympy/strategies/tests/test_traverse.py::test_expr_fns",
+    "score": 0.064,
+    "why": "via Application.__new__ > principal_branch.eval > unbranched_argument"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/functions/special/tests/test_error_functions.py::test_fresnel",
+    "line": 722,
+    "run": "python -m pytest sympy/functions/special/tests/test_error_functions.py::test_fresnel",
+    "score": 0.053,
+    "why": "via integrate > Integral.doit > Integral.doit.try_meijerg > meijerint_definite > _condsimp > unbranched_argument"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792337209.684621,
+  "job_seconds": 525.9,
+  "number": 29930,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 526.0,
+  "started": 1792336682.913517
+ },
+ "verify": null
+}

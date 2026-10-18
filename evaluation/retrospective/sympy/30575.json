@@ -1,0 +1,531 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "06fcaef06d1e72684a46659b055eeee6169567ad",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "ecb40a7c1a0c879807ae1030d597bcaebdf5ac8c",
+  "install_ok": true,
+  "merge_base": "05008308547b4897a5e62cef1be301ee7f280ff0",
+  "pr": 30575,
+  "recording": false,
+  "runner": null,
+  "seconds": 359.3,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "06fcaef06d1e72684a46659b055eeee6169567ad",
+  "head_sha": "ecb40a7c1a0c879807ae1030d597bcaebdf5ac8c",
+  "merge_base": "05008308547b4897a5e62cef1be301ee7f280ff0",
+  "merged_at": "2026-09-25T19:17:14Z",
+  "number": 30575,
+  "repo": "sympy",
+  "title": "series: fix Order scaling on multiply and expand for x0 != 0"
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 1,
+  "called": 1,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/series/tests/test_order.py::test_issue_29832",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/core/mul.py",
+    "lines": "976-988",
+    "symbol": "Mul._eval_expand_mul"
+   },
+   {
+    "file": "sympy/series/tests/test_order.py",
+    "lines": "507-512",
+    "symbol": "test_issue_29832"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/core/mul.py#Mul._eval_expand_mul",
+   "sympy/series/tests/test_order.py#test_issue_29832",
+   "sympy/series/tests/test_order.py"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 1,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 1704,
+   "ran": 956,
+   "replayed": 1,
+   "runner": "pytest",
+   "seconds": 353.0,
+   "selection": {
+    "candidates": 12948,
+    "closure_files": 1321,
+    "closure_tests": 12890,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 58
+   },
+   "unrunnable": 4
+  },
+  "flips": 0,
+  "gaps": [
+   "11244 lower-ranked candidate(s) not run: about 7 tests/s per process fit 1704 in the 300 s allowed",
+   "4 candidate(s) could not be run by pytest and are not covered by this result",
+   "78123 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "graph reused from the previous state; 16 changed file(s) relinked",
+   "shadow run stopped at its 300 s budget: 960 of 1704 candidates run"
+  ],
+  "impacted": {
+   "count": 0,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1607,
+   "parsed_files": 2
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/series/tests/test_order.py::test_issue_29832",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "c42b6e37d057",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [
+    "sympy/core/mul.py#Mul._eval_expand_mul"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 5,
+   "differences": 0,
+   "functions_called": 1,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "sympy/series/tests/test_order.py#test_issue_29832": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 48.9,
+   "targets": 1,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 956 of 1704 candidate tests after the change with pytest in 353.0 s, failures confirmed before it: 0 now fail. 8924 tests reach the change. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_arit.py::test_Mul_doesnt_expand_exp",
+    "line": 387,
+    "run": "python -m pytest sympy/core/tests/test_arit.py::test_Mul_doesnt_expand_exp",
+    "score": 0.032,
+    "why": "via Mul (name: expand,mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_expand.py::test_expand_mul",
+    "line": 251,
+    "run": "python -m pytest sympy/core/tests/test_expand.py::test_expand_mul",
+    "score": 0.02,
+    "why": "via Mul (name: expand,mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_expand.py::test_expand_non_commutative",
+    "line": 47,
+    "run": "python -m pytest sympy/core/tests/test_expand.py::test_expand_non_commutative",
+    "score": 0.011,
+    "why": "via Mul (name: expand)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/combinatorial/tests/test_comb_factorials.py::test_ff_eval_apply",
+    "line": 116,
+    "run": "python -m pytest sympy/functions/combinatorial/tests/test_comb_factorials.py::test_ff_eval_apply",
+    "score": 0.009,
+    "why": "via Mul (name: eval)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/combinatorial/tests/test_comb_factorials.py::test_rf_eval_apply",
+    "line": 26,
+    "run": "python -m pytest sympy/functions/combinatorial/tests/test_comb_factorials.py::test_rf_eval_apply",
+    "score": 0.008,
+    "why": "via Mul (name: eval)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_arit.py::test_Add_Mul_Expr_args",
+    "line": 1699,
+    "run": "python -m pytest sympy/core/tests/test_arit.py::test_Add_Mul_Expr_args",
+    "score": 0.007,
+    "why": "via Mul (name: mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_arit.py::test_denest_add_mul",
+    "line": 2262,
+    "run": "python -m pytest sympy/core/tests/test_arit.py::test_denest_add_mul",
+    "score": 0.006,
+    "why": "via Mul (name: mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_arit.py::test_mul_add_identity",
+    "line": 332,
+    "run": "python -m pytest sympy/core/tests/test_arit.py::test_mul_add_identity",
+    "score": 0.006,
+    "why": "via Mul (name: mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_arit.py::test_Mul_is_zero_with_zero_factor",
+    "line": 2515,
+    "run": "python -m pytest sympy/core/tests/test_arit.py::test_Mul_is_zero_with_zero_factor",
+    "score": 0.006,
+    "why": "via Mul (name: mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/printing/pretty/tests/test_pretty.py::test_Mul",
+    "line": 1004,
+    "run": "python -m pytest sympy/printing/pretty/tests/test_pretty.py::test_Mul",
+    "score": 0.006,
+    "why": "via Mul (name: mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/printing/tests/test_repr.py::test_Mul",
+    "line": 244,
+    "run": "python -m pytest sympy/printing/tests/test_repr.py::test_Mul",
+    "score": 0.006,
+    "why": "via Mul (name: mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/printing/tests/test_str.py::test_Mul",
+    "line": 268,
+    "run": "python -m pytest sympy/printing/tests/test_str.py::test_Mul",
+    "score": 0.006,
+    "why": "via Mul (name: mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/strategies/tests/test_rl.py::test_distribute_add_mul",
+    "line": 63,
+    "run": "python -m pytest sympy/strategies/tests/test_rl.py::test_distribute_add_mul",
+    "score": 0.006,
+    "why": "via Mul (name: mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_args.py::test_sympy__core__mul__Mul",
+    "line": 726,
+    "run": "python -m pytest sympy/core/tests/test_args.py::test_sympy__core__mul__Mul",
+    "score": 0.006,
+    "why": "via Mul (name: mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/calculus/tests/test_accumulationbounds.py::test_AccumBounds_mul",
+    "line": 68,
+    "run": "python -m pytest sympy/calculus/tests/test_accumulationbounds.py::test_AccumBounds_mul",
+    "score": 0.006,
+    "why": "via Mul (name: mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_arit.py::test_Mul_does_not_let_0_trump_inf",
+    "line": 2390,
+    "run": "python -m pytest sympy/core/tests/test_arit.py::test_Mul_does_not_let_0_trump_inf",
+    "score": 0.005,
+    "why": "via Mul (name: mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_arit.py::test_Mul_hermitian_antihermitian",
+    "line": 1552,
+    "run": "python -m pytest sympy/core/tests/test_arit.py::test_Mul_hermitian_antihermitian",
+    "score": 0.005,
+    "why": "via Mul (name: mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_arit.py::test_Mul_is_integer",
+    "line": 401,
+    "run": "python -m pytest sympy/core/tests/test_arit.py::test_Mul_is_integer",
+    "score": 0.005,
+    "why": "via Mul (name: mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_arit.py::test_Mul_is_irrational",
+    "line": 1622,
+    "run": "python -m pytest sympy/core/tests/test_arit.py::test_Mul_is_irrational",
+    "score": 0.005,
+    "why": "via Mul (name: mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_arit.py::test_Mul_with_zero_infinite",
+    "line": 2358,
+    "run": "python -m pytest sympy/core/tests/test_arit.py::test_Mul_with_zero_infinite",
+    "score": 0.005,
+    "why": "via Mul (name: mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_arit.py::test_mul_zero_detection",
+    "line": 2285,
+    "run": "python -m pytest sympy/core/tests/test_arit.py::test_mul_zero_detection",
+    "score": 0.005,
+    "why": "via Mul (name: mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_assumptions.py::test_Mul_is_infinite",
+    "line": 937,
+    "run": "python -m pytest sympy/core/tests/test_assumptions.py::test_Mul_is_infinite",
+    "score": 0.005,
+    "why": "via Mul (name: mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_kind.py::test_mul_kind",
+    "line": 29,
+    "run": "python -m pytest sympy/core/tests/test_kind.py::test_mul_kind",
+    "score": 0.005,
+    "why": "via Mul (name: mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_operations.py::test_mul_dispatcher",
+    "line": 94,
+    "run": "python -m pytest sympy/core/tests/test_operations.py::test_mul_dispatcher",
+    "score": 0.005,
+    "why": "via Mul (name: mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/matrices/expressions/tests/test_matexpr.py::test_MatMul_postprocessor",
+    "line": 434,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_matexpr.py::test_MatMul_postprocessor",
+    "score": 0.005,
+    "why": "via Mul (name: mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/matrices/expressions/tests/test_matmul.py::test_construction_with_Mul",
+    "line": 161,
+    "run": "python -m pytest sympy/matrices/expressions/tests/test_matmul.py::test_construction_with_Mul",
+    "score": 0.005,
+    "why": "via Mul (name: mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/physics/quantum/tests/test_dagger.py::test_dagger_mul",
+    "line": 39,
+    "run": "python -m pytest sympy/physics/quantum/tests/test_dagger.py::test_dagger_mul",
+    "score": 0.005,
+    "why": "via Mul (name: mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/printing/tests/test_latex.py::test_Mul",
+    "line": 2527,
+    "run": "python -m pytest sympy/printing/tests/test_latex.py::test_Mul",
+    "score": 0.005,
+    "why": "via Mul (name: mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_cse.py::test_unevaluated_Mul",
+    "line": 633,
+    "run": "python -m pytest sympy/simplify/tests/test_cse.py::test_unevaluated_Mul",
+    "score": 0.005,
+    "why": "via Mul (name: mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_cse.py::test_unevaluated_mul",
+    "line": 594,
+    "run": "python -m pytest sympy/simplify/tests/test_cse.py::test_unevaluated_mul",
+    "score": 0.005,
+    "why": "via Mul (name: mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/utilities/tests/test_pickling.py::test_core_mul",
+    "line": 158,
+    "run": "python -m pytest sympy/utilities/tests/test_pickling.py::test_core_mul",
+    "score": 0.005,
+    "why": "via Mul (name: mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/vector/tests/test_vector.py::test_postprocessor_mul_scalar_vector",
+    "line": 356,
+    "run": "python -m pytest sympy/vector/tests/test_vector.py::test_postprocessor_mul_scalar_vector",
+    "score": 0.005,
+    "why": "via Mul (name: mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/vector/tests/test_vector.py::test_postprocessor_mul_vector_vector",
+    "line": 388,
+    "run": "python -m pytest sympy/vector/tests/test_vector.py::test_postprocessor_mul_vector_vector",
+    "score": 0.005,
+    "why": "via Mul (name: mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_eval.py::test_symbol_expand",
+    "line": 78,
+    "run": "python -m pytest sympy/core/tests/test_eval.py::test_symbol_expand",
+    "score": 0.005,
+    "why": "via Expr.expand > Mul (name: eval,expand)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/control/tests/test_lti.py::test_DiscreteTransferFunction_functions",
+    "line": 690,
+    "run": "python -m pytest sympy/physics/control/tests/test_lti.py::test_DiscreteTransferFunction_functions",
+    "score": 0.005,
+    "why": "via Mul"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_arit.py::test_Pow_as_coeff_mul_doesnt_expand",
+    "line": 1731,
+    "run": "python -m pytest sympy/core/tests/test_arit.py::test_Pow_as_coeff_mul_doesnt_expand",
+    "score": 0.005,
+    "why": "via Mul.as_coeff_mul > Mul (name: expand,mul)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/control/tests/test_lti.py::test_TransferFunction_functions",
+    "line": 192,
+    "run": "python -m pytest sympy/physics/control/tests/test_lti.py::test_TransferFunction_functions",
+    "score": 0.005,
+    "why": "via Mul"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_expr.py::test_cooperative_operations",
+    "line": 288,
+    "run": "python -m pytest sympy/core/tests/test_expr.py::test_cooperative_operations",
+    "score": 0.005,
+    "why": "via Mul"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_simplify.py::test_nc_simplify",
+    "line": 844,
+    "run": "python -m pytest sympy/simplify/tests/test_simplify.py::test_nc_simplify",
+    "score": 0.005,
+    "why": "via Mul"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/special/tests/test_gamma_functions.py::test_loggamma",
+    "line": 528,
+    "run": "python -m pytest sympy/functions/special/tests/test_gamma_functions.py::test_loggamma",
+    "score": 0.004,
+    "why": "via Mul"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/series/tests/test_order.py",
+    "lines": "507-512",
+    "symbol": "test_issue_29832"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792331661.4833071,
+  "job_seconds": 359.3,
+  "number": 30575,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 359.4,
+  "started": 1792331301.443039
+ },
+ "verify": null
+}

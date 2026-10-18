@@ -1,0 +1,632 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "3db0898eee4061d44de5052953ef0fe3afb5951f",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "0c99f1909d3c67a438b25fc2a75d3a603c9192c4",
+  "install_ok": true,
+  "merge_base": "3db0898eee4061d44de5052953ef0fe3afb5951f",
+  "pr": 22018,
+  "recording": true,
+  "runner": null,
+  "seconds": 34.6,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "3db0898eee4061d44de5052953ef0fe3afb5951f",
+  "head_sha": "0c99f1909d3c67a438b25fc2a75d3a603c9192c4",
+  "merge_base": "3db0898eee4061d44de5052953ef0fe3afb5951f",
+  "merged_at": "2026-10-02T21:28:10Z",
+  "number": 22018,
+  "repo": "django",
+  "title": "Fixed #37361 -- Fixed permission renames for chained RenameModel operations."
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 1,
+  "called": 1,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/auth_tests/test_management.py::PermissionRenameOperationsTests::test_permission_rename_chain",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/auth_tests/test_management.py::PermissionRenameOperationsTests::test_permission_rename_duplicate_codename_across_content_types",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/auth_tests/test_management.py::PermissionRenameOperationsTests::test_permission_rename_chain_to_zero_uninterrupted",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "django/contrib/auth/management/__init__.py",
+    "lines": "144-216",
+    "symbol": "rename_permissions_after_model_rename"
+   },
+   {
+    "file": "tests/auth_tests/test_management.py",
+    "lines": "1617-1671",
+    "symbol": "PermissionRenameOperationsTests.test_permission_rename_chain"
+   },
+   {
+    "file": "tests/auth_tests/test_management.py",
+    "lines": "1682-1714",
+    "symbol": "PermissionRenameOperationsTests.test_permission_rename_duplicate_codename_across_content_types"
+   },
+   {
+    "file": "tests/auth_tests/test_management.py",
+    "lines": "1716-1729",
+    "symbol": "PermissionRenameOperationsTests.test_permission_rename_chain_to_zero_uninterrupted"
+   }
+  ],
+  "changed_symbols": [
+   "django/contrib/auth/management/__init__.py#rename_permissions_after_model_rename",
+   "tests/auth_tests/operations_migrations/0003_rename_newmodel_to_anothermodel.py#Migration.dependencies",
+   "tests/auth_tests/operations_migrations/0003_rename_newmodel_to_anothermodel.py#Migration.operations",
+   "tests/auth_tests/test_management.py#PermissionRenameOperationsTests.test_permission_rename_chain",
+   "tests/auth_tests/test_management.py#PermissionRenameOperationsTests.test_permission_rename_chain_to_zero_uninterrupted",
+   "tests/auth_tests/test_management.py#PermissionRenameOperationsTests.test_permission_rename_duplicate_codename_across_content_types",
+   "tests/auth_tests/operations_migrations/0003_rename_newmodel_to_anothermodel.py#Migration",
+   "tests/auth_tests/test_management.py#PermissionRenameOperationsTests",
+   "tests/auth_tests/operations_migrations/0003_rename_newmodel_to_anothermodel.py",
+   "tests/auth_tests/test_management.py#PermissionRenameOperationsTests.test_permission_rename (renamed or removed)"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 3,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 809,
+   "ran": 806,
+   "replayed": 3,
+   "runner": "django-runtests",
+   "seconds": 29.5,
+   "selection": {
+    "candidates": 809,
+    "closure_files": 7,
+    "closure_tests": 100,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [],
+    "observed": 52,
+    "static_only": 646
+   },
+   "unrunnable": 3
+  },
+  "flips": 0,
+  "gaps": [
+   "103300 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "3 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "Skipped 1 non-Python file(s)",
+   "graph reused from the previous state; 9 changed file(s) relinked"
+  ],
+  "impacted": {
+   "count": 222,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2931,
+   "parsed_files": 3
+  },
+  "original_tests": {
+   "tests/auth_tests/test_management.py::ChangepasswordManagementCommandTestCase::test_get_pass": "passed",
+   "tests/auth_tests/test_management.py::ChangepasswordManagementCommandTestCase::test_get_pass_no_input": "passed",
+   "tests/auth_tests/test_management.py::ChangepasswordManagementCommandTestCase::test_nonexistent_username": "passed",
+   "tests/auth_tests/test_management.py::ChangepasswordManagementCommandTestCase::test_password_validation": "passed",
+   "tests/auth_tests/test_management.py::ChangepasswordManagementCommandTestCase::test_system_username": "passed",
+   "tests/auth_tests/test_management.py::ChangepasswordManagementCommandTestCase::test_that_changepassword_command_changes_joes_password": "passed",
+   "tests/auth_tests/test_management.py::ChangepasswordManagementCommandTestCase::test_that_changepassword_command_works_with_nonascii_output": "passed",
+   "tests/auth_tests/test_management.py::ChangepasswordManagementCommandTestCase::test_that_max_tries_exits_1": "passed",
+   "tests/auth_tests/test_management.py::CreatePermissionsMultipleDatabasesTests::test_set_permissions_fk_to_using_parameter": "passed",
+   "tests/auth_tests/test_management.py::CreatePermissionsTests::test_create_permissions_checks_contenttypes_created": "passed",
+   "tests/auth_tests/test_management.py::CreatePermissionsTests::test_default_permissions": "passed",
+   "tests/auth_tests/test_management.py::CreatePermissionsTests::test_permission_with_proxy_content_type_created": "passed",
+   "tests/auth_tests/test_management.py::CreatePermissionsTests::test_unavailable_models": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_basic_usage": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_blank_email_allowed_non_interactive": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_blank_email_allowed_non_interactive_environment_variable": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_blank_username": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_blank_username_non_interactive": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_default_username": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_email_in_username": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_environment_variable_m2m_non_interactive": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_environment_variable_non_interactive": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_existing_username": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_existing_username_meta_unique_constraint": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_existing_username_non_interactive": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_existing_username_provided_via_option_and_interactive": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_fields_with_fk": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_fields_with_fk_interactive": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_fields_with_fk_via_option_interactive": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_fields_with_m2m": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_fields_with_m2m_and_through": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_fields_with_m2m_interactive": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_fields_with_m2m_interactive_blank": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_ignore_environment_variable_interactive": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_ignore_environment_variable_non_interactive": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_invalid_username": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_keyboard_interrupt": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_no_email_argument": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_non_ascii_verbose_name": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_passing_stdin": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_password_validation": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_password_validation_bypass": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_skip_if_not_in_TTY": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_swappable_user": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_swappable_user_missing_required_field": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_swappable_user_no_natural_key_duplicate_allowed": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_swappable_user_no_natural_key_interactive": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_swappable_user_no_natural_key_non_interactive": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_swappable_user_username_non_unique": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_usermodel_without_password": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_usermodel_without_password_interactive": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_validate_fk": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_validate_fk_environment_variable": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_validate_fk_via_option_interactive": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_validate_password_against_required_fields": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_validate_password_against_required_fields_via_option": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_validate_password_against_username": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_validate_username": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_validation_blank_password_entered": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_validation_mismatched_passwords": "passed",
+   "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_verbosity_zero": "passed",
+   "tests/auth_tests/test_management.py::GetDefaultUsernameTestCase::test_actual_implementation": "passed",
+   "tests/auth_tests/test_management.py::GetDefaultUsernameTestCase::test_existing": "passed",
+   "tests/auth_tests/test_management.py::GetDefaultUsernameTestCase::test_getuser_raises_exception": "passed",
+   "tests/auth_tests/test_management.py::GetDefaultUsernameTestCase::test_i18n": "passed",
+   "tests/auth_tests/test_management.py::GetDefaultUsernameTestCase::test_simple": "passed",
+   "tests/auth_tests/test_management.py::GetDefaultUsernameTestCase::test_with_database": "passed",
+   "tests/auth_tests/test_management.py::MockInputTests::test_input_not_found": "passed",
+   "tests/auth_tests/test_management.py::MultiDBChangepasswordManagementCommandTestCase::test_that_changepassword_command_with_database_option_uses_given_db": "passed",
+   "tests/auth_tests/test_management.py::MultiDBCreatesuperuserTestCase::test_createsuperuser_command_suggested_username_with_database_option": "passed",
+   "tests/auth_tests/test_management.py::MultiDBCreatesuperuserTestCase::test_createsuperuser_command_with_database_option": "passed",
+   "tests/auth_tests/test_management.py::PermissionRenameOperationsTests::test_permission_rename_respects_other_db": "passed",
+   "tests/auth_tests/test_management.py::PermissionRenameOperationsTests::test_rename_backward_without_permissions": "passed",
+   "tests/auth_tests/test_management.py::PermissionRenameOperationsTests::test_rename_permission_conflict": "passed",
+   "tests/auth_tests/test_management.py::PermissionRenameOperationsTests::test_rename_skipped_if_router_disallows": "passed",
+   "tests/auth_tests/test_management.py::PermissionRenameOperationsTests::test_verbosity_prints": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/auth_tests/test_management.py::PermissionRenameOperationsTests::test_permission_rename_chain",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/auth_tests/test_management.py::PermissionRenameOperationsTests::test_permission_rename_duplicate_codename_across_content_types",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/auth_tests/test_management.py::PermissionRenameOperationsTests::test_permission_rename_chain_to_zero_uninterrupted",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "ef286e52eaf1",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [
+    "django/contrib/auth/management/__init__.py#rename_permissions_after_model_rename"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 5,
+   "differences": 0,
+   "functions_called": 1,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "tests/auth_tests/test_management.py#PermissionRenameOperationsTests.test_permission_rename_chain": "not a module or class function on both sides (new, removed or nested)",
+    "tests/auth_tests/test_management.py#PermissionRenameOperationsTests.test_permission_rename_chain_to_zero_uninterrupted": "not a module or class function on both sides (new, removed or nested)",
+    "tests/auth_tests/test_management.py#PermissionRenameOperationsTests.test_permission_rename_duplicate_codename_across_content_types": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 14.4,
+   "targets": 1,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 806 of 809 candidate tests after the change with django-runtests in 29.5 s, failures confirmed before it: 0 now fail. 672 tests reach the change. 76 test(s) from edited test files also run as they were before the edit. 3 test(s) the change adds or edits replayed on the code before it: 3 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/auth_tests/test_management.py::PermissionRenameOperationsTests::test_permission_rename_duplicate_codename_across_content_types",
+    "line": 1682,
+    "run": "cd tests && python runtests.py auth_tests.test_management.PermissionRenameOperationsTests.test_permission_rename_duplicate_codename_across_content_types",
+    "score": 3.684,
+    "why": "via PermissionRenameOperationsTests (name: management,operation,permission,rename)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/auth_tests/test_management.py::PermissionRenameOperationsTests::test_permission_rename_chain",
+    "line": 1617,
+    "run": "cd tests && python runtests.py auth_tests.test_management.PermissionRenameOperationsTests.test_permission_rename_chain",
+    "score": 2.23,
+    "why": "via PermissionRenameOperationsTests (name: management,operation,permission,rename)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/auth_tests/test_management.py::PermissionRenameOperationsTests::test_permission_rename_chain_to_zero_uninterrupted",
+    "line": 1716,
+    "run": "cd tests && python runtests.py auth_tests.test_management.PermissionRenameOperationsTests.test_permission_rename_chain_to_zero_uninterrupted",
+    "score": 1.58,
+    "why": "via PermissionRenameOperationsTests (name: management,operation,permission,rename)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/auth_tests/test_management.py::PermissionRenameOperationsTests::test_rename_permission_conflict",
+    "line": 1798,
+    "run": "cd tests && python runtests.py auth_tests.test_management.PermissionRenameOperationsTests.test_rename_permission_conflict",
+    "score": 1.24,
+    "why": "via PermissionRenameOperationsTests (name: management,operation,permission,rename)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/auth_tests/test_management.py::PermissionRenameOperationsTests::test_permission_rename_respects_other_db",
+    "line": 1845,
+    "run": "cd tests && python runtests.py auth_tests.test_management.PermissionRenameOperationsTests.test_permission_rename_respects_other_db",
+    "score": 1.047,
+    "why": "via PermissionRenameOperationsTests (name: management,operation,permission,rename)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/auth_tests/test_management.py::PermissionRenameOperationsTests::test_rename_skipped_if_router_disallows",
+    "line": 1731,
+    "run": "cd tests && python runtests.py auth_tests.test_management.PermissionRenameOperationsTests.test_rename_skipped_if_router_disallows",
+    "score": 0.957,
+    "why": "via PermissionRenameOperationsTests (name: management,operation,permission,rename)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/auth_tests/test_management.py::PermissionRenameOperationsTests::test_rename_backward_without_permissions",
+    "line": 1763,
+    "run": "cd tests && python runtests.py auth_tests.test_management.PermissionRenameOperationsTests.test_rename_backward_without_permissions",
+    "score": 0.877,
+    "why": "via PermissionRenameOperationsTests (name: management,operation,permission,rename)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/auth_tests/test_management.py::PermissionRenameOperationsTests::test_verbosity_prints",
+    "line": 1885,
+    "run": "cd tests && python runtests.py auth_tests.test_management.PermissionRenameOperationsTests.test_verbosity_prints",
+    "score": 0.851,
+    "why": "via PermissionRenameOperationsTests (name: management,operation,permission,rename)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/auth_tests/test_management.py::CreatePermissionsTests::test_unavailable_models",
+    "line": 1556,
+    "run": "cd tests && python runtests.py auth_tests.test_management.CreatePermissionsTests.test_unavailable_models",
+    "score": 0.155,
+    "why": "named like tests/auth_tests/test_management.py#PermissionRenameOperationsTests.test_permission_rename, renamed or removed (name: management,permission)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/auth_tests/test_management.py::CreatePermissionsTests::test_create_permissions_checks_contenttypes_created",
+    "line": 1570,
+    "run": "cd tests && python runtests.py auth_tests.test_management.CreatePermissionsTests.test_create_permissions_checks_contenttypes_created",
+    "score": 0.124,
+    "why": "named like tests/auth_tests/test_management.py#PermissionRenameOperationsTests.test_permission_rename, renamed or removed (name: management,permission)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/auth_tests/test_management.py::CreatePermissionsMultipleDatabasesTests::test_set_permissions_fk_to_using_parameter",
+    "line": 1950,
+    "run": "cd tests && python runtests.py auth_tests.test_management.CreatePermissionsMultipleDatabasesTests.test_set_permissions_fk_to_using_parameter",
+    "score": 0.11,
+    "why": "named like tests/auth_tests/test_management.py#PermissionRenameOperationsTests.test_permission_rename, renamed or removed (name: management,permission)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_state.py::StateTests::test_get_order_field_after_removed_order_with_respect_to_field",
+    "line": 1135,
+    "run": "cd tests && python runtests.py migrations.test_state.StateTests.test_get_order_field_after_removed_order_with_respect_to_field",
+    "score": 0.067,
+    "why": "via Apps.__init__ > Apps.populate > AuthConfig.ready > rename_permissions_after_model_rename (name: after)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/auth_tests/test_management.py::CreatePermissionsTests::test_default_permissions",
+    "line": 1527,
+    "run": "cd tests && python runtests.py auth_tests.test_management.CreatePermissionsTests.test_default_permissions",
+    "score": 0.064,
+    "why": "named like tests/auth_tests/test_management.py#PermissionRenameOperationsTests.test_permission_rename, renamed or removed (name: management,permission)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/auth_tests/test_management.py::CreatePermissionsTests::test_permission_with_proxy_content_type_created",
+    "line": 1582,
+    "run": "cd tests && python runtests.py auth_tests.test_management.CreatePermissionsTests.test_permission_with_proxy_content_type_created",
+    "score": 0.064,
+    "why": "named like tests/auth_tests/test_management.py#PermissionRenameOperationsTests.test_permission_rename, renamed or removed (name: management,permission)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/auth_tests/test_migrations.py::ProxyModelWithDifferentAppLabelTests::test_user_keeps_same_permissions_after_migrating_backward",
+    "line": 88,
+    "run": "cd tests && python runtests.py auth_tests.test_migrations.ProxyModelWithDifferentAppLabelTests.test_user_keeps_same_permissions_after_migrating_backward",
+    "score": 0.047,
+    "why": "via apps > Apps.__init__ > Apps.populate > AuthConfig.ready > rename_permissions_after_model_rename (name: after,model,permission)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/auth_tests/test_migrations.py::ProxyModelWithSameAppLabelTests::test_user_keeps_same_permissions_after_migrating_backward",
+    "line": 174,
+    "run": "cd tests && python runtests.py auth_tests.test_migrations.ProxyModelWithSameAppLabelTests.test_user_keeps_same_permissions_after_migrating_backward",
+    "score": 0.04,
+    "why": "via apps > Apps.__init__ > Apps.populate > AuthConfig.ready > rename_permissions_after_model_rename (name: after,model,permission)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/apps/tests.py::AppsTests::test_model_clash",
+    "line": 317,
+    "run": "cd tests && python runtests.py apps.tests.AppsTests.test_model_clash",
+    "score": 0.033,
+    "why": "via Apps.__init__ > Apps.populate > AuthConfig.ready > rename_permissions_after_model_rename (name: model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_operations.py::OperationTests::test_rename_model_state_forwards",
+    "line": 860,
+    "run": "cd tests && python runtests.py migrations.test_operations.OperationTests.test_rename_model_state_forwards",
+    "score": 0.03,
+    "why": "via ProjectState.apps > Apps.__init__ > Apps.populate > AuthConfig.ready > rename_permissions_after_model_rename (name: model,rename)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/contenttypes_tests/test_management.py::RemoveStaleContentTypesTests::test_unavailable_content_type_model",
+    "line": 78,
+    "run": "cd tests && python runtests.py contenttypes_tests.test_management.RemoveStaleContentTypesTests.test_unavailable_content_type_model",
+    "score": 0.029,
+    "why": "via Apps.__init__ > Apps.populate > AuthConfig.ready > rename_permissions_after_model_rename (name: model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_state.py::StateTests::test_custom_default_manager_added_to_the_model_state",
+    "line": 221,
+    "run": "cd tests && python runtests.py migrations.test_state.StateTests.test_custom_default_manager_added_to_the_model_state",
+    "score": 0.028,
+    "why": "via Apps.__init__ > Apps.populate > AuthConfig.ready > rename_permissions_after_model_rename (name: model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_state.py::ModelStateTests::test_custom_manager_swappable",
+    "line": 1847,
+    "run": "cd tests && python runtests.py migrations.test_state.ModelStateTests.test_custom_manager_swappable",
+    "score": 0.028,
+    "why": "via Apps.__init__ > Apps.populate > AuthConfig.ready > rename_permissions_after_model_rename (name: model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_state.py::ModelStateTests::test_create_swappable",
+    "line": 1765,
+    "run": "cd tests && python runtests.py migrations.test_state.ModelStateTests.test_create_swappable",
+    "score": 0.027,
+    "why": "via Apps.__init__ > Apps.populate > AuthConfig.ready > rename_permissions_after_model_rename (name: model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_state.py::ModelStateTests::test_create_swappable_from_abstract",
+    "line": 1796,
+    "run": "cd tests && python runtests.py migrations.test_state.ModelStateTests.test_create_swappable_from_abstract",
+    "score": 0.027,
+    "why": "via Apps.__init__ > Apps.populate > AuthConfig.ready > rename_permissions_after_model_rename (name: model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_state.py::StateRelationsTests::test_rename_model",
+    "line": 1378,
+    "run": "cd tests && python runtests.py migrations.test_state.StateRelationsTests.test_rename_model",
+    "score": 0.027,
+    "why": "via StateRelationsTests.get_base_project_state > Apps.__init__ > Apps.populate > AuthConfig.ready > rename_permissions_after_model_rename (name: model,rename)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_state.py::StateRelationsTests::test_rename_model_no_relations",
+    "line": 1412,
+    "run": "cd tests && python runtests.py migrations.test_state.StateRelationsTests.test_rename_model_no_relations",
+    "score": 0.027,
+    "why": "via StateRelationsTests.get_base_project_state > Apps.__init__ > Apps.populate > AuthConfig.ready > rename_permissions_after_model_rename (name: model,rename)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_state.py::StateTests::test_render_model_inheritance",
+    "line": 449,
+    "run": "cd tests && python runtests.py migrations.test_state.StateTests.test_render_model_inheritance",
+    "score": 0.026,
+    "why": "via Apps.__init__ > Apps.populate > AuthConfig.ready > rename_permissions_after_model_rename (name: model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_state.py::StateTests::test_render_model_with_multiple_inheritance",
+    "line": 474,
+    "run": "cd tests && python runtests.py migrations.test_state.StateTests.test_render_model_with_multiple_inheritance",
+    "score": 0.026,
+    "why": "via Apps.__init__ > Apps.populate > AuthConfig.ready > rename_permissions_after_model_rename (name: model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/signals/tests.py::LazyModelRefTests::test_register_model_class_senders_immediately",
+    "line": 538,
+    "run": "cd tests && python runtests.py signals.tests.LazyModelRefTests.test_register_model_class_senders_immediately",
+    "score": 0.026,
+    "why": "via Apps.__init__ > Apps.populate > AuthConfig.ready > rename_permissions_after_model_rename (name: model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/sites_tests/tests.py::CreateDefaultSiteTests::test_unavailable_site_model",
+    "line": 350,
+    "run": "cd tests && python runtests.py sites_tests.tests.CreateDefaultSiteTests.test_unavailable_site_model",
+    "score": 0.026,
+    "why": "via Apps.__init__ > Apps.populate > AuthConfig.ready > rename_permissions_after_model_rename (name: model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_state.py::ModelStateTests::test_fields_immutability",
+    "line": 1719,
+    "run": "cd tests && python runtests.py migrations.test_state.ModelStateTests.test_fields_immutability",
+    "score": 0.026,
+    "why": "via Apps.__init__ > Apps.populate > AuthConfig.ready > rename_permissions_after_model_rename (name: model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/auth_tests/test_migrations.py::ProxyModelWithSameAppLabelTests::test_migrate_with_existing_target_permission",
+    "line": 188,
+    "run": "cd tests && python runtests.py auth_tests.test_migrations.ProxyModelWithSameAppLabelTests.test_migrate_with_existing_target_permission",
+    "score": 0.026,
+    "why": "via apps > Apps.__init__ > Apps.populate > AuthConfig.ready > rename_permissions_after_model_rename (name: model,permission)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/auth_tests/test_migrations.py::ProxyModelWithDifferentAppLabelTests::test_user_has_now_proxy_model_permissions",
+    "line": 60,
+    "run": "cd tests && python runtests.py auth_tests.test_migrations.ProxyModelWithDifferentAppLabelTests.test_user_has_now_proxy_model_permissions",
+    "score": 0.025,
+    "why": "via apps > Apps.__init__ > Apps.populate > AuthConfig.ready > rename_permissions_after_model_rename (name: model,permission)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/auth_tests/test_migrations.py::ProxyModelWithSameAppLabelTests::test_user_still_has_proxy_model_permissions",
+    "line": 148,
+    "run": "cd tests && python runtests.py auth_tests.test_migrations.ProxyModelWithSameAppLabelTests.test_user_still_has_proxy_model_permissions",
+    "score": 0.025,
+    "why": "via apps > Apps.__init__ > Apps.populate > AuthConfig.ready > rename_permissions_after_model_rename (name: model,permission)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/auth_tests/test_migrations.py::ProxyModelWithDifferentAppLabelTests::test_proxy_model_permissions_contenttype",
+    "line": 43,
+    "run": "cd tests && python runtests.py auth_tests.test_migrations.ProxyModelWithDifferentAppLabelTests.test_proxy_model_permissions_contenttype",
+    "score": 0.025,
+    "why": "via apps > Apps.__init__ > Apps.populate > AuthConfig.ready > rename_permissions_after_model_rename (name: model,permission)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/auth_tests/test_migrations.py::ProxyModelWithSameAppLabelTests::test_proxy_model_permissions_contenttype",
+    "line": 131,
+    "run": "cd tests && python runtests.py auth_tests.test_migrations.ProxyModelWithSameAppLabelTests.test_proxy_model_permissions_contenttype",
+    "score": 0.025,
+    "why": "via apps > Apps.__init__ > Apps.populate > AuthConfig.ready > rename_permissions_after_model_rename (name: model,permission)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_state.py::StateTests::test_create",
+    "line": 33,
+    "run": "cd tests && python runtests.py migrations.test_state.StateTests.test_create",
+    "score": 0.024,
+    "why": "via Apps.__init__ > Apps.populate > AuthConfig.ready > rename_permissions_after_model_rename"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_state.py::StateTests::test_real_apps",
+    "line": 1027,
+    "run": "cd tests && python runtests.py migrations.test_state.StateTests.test_real_apps",
+    "score": 0.024,
+    "why": "via Apps.__init__ > Apps.populate > AuthConfig.ready > rename_permissions_after_model_rename"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/apps/tests.py::AppsTests::test_lazy_model_operation",
+    "line": 370,
+    "run": "cd tests && python runtests.py apps.tests.AppsTests.test_lazy_model_operation",
+    "score": 0.023,
+    "why": "via apps > Apps.__init__ > Apps.populate > AuthConfig.ready > rename_permissions_after_model_rename (name: model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_state.py::StateTests::test_remove_relations",
+    "line": 750,
+    "run": "cd tests && python runtests.py migrations.test_state.StateTests.test_remove_relations",
+    "score": 0.023,
+    "why": "via Apps.__init__ > Apps.populate > AuthConfig.ready > rename_permissions_after_model_rename"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_state.py::StateTests::test_add_relations",
+    "line": 686,
+    "run": "cd tests && python runtests.py migrations.test_state.StateTests.test_add_relations",
+    "score": 0.023,
+    "why": "via Apps.__init__ > Apps.populate > AuthConfig.ready > rename_permissions_after_model_rename"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792324312.066123,
+  "job_seconds": 34.6,
+  "number": 22018,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 34.6,
+  "started": 1792324276.9368231
+ },
+ "verify": null
+}

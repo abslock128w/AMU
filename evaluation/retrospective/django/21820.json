@@ -1,0 +1,641 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "0b40210e4808937a7c0922e8b7502bff4752faa3",
+  "budget": 300,
+  "cached_index": false,
+  "counters": false,
+  "head": "152c456e1f3dd204bd4505d0a6f2371ddaa303bc",
+  "install_ok": true,
+  "merge_base": "03988c5a5ba248c3b9b11ea96fd4fda5e98849aa",
+  "pr": 21820,
+  "recording": true,
+  "runner": null,
+  "seconds": 435.1,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "0b40210e4808937a7c0922e8b7502bff4752faa3",
+  "head_sha": "152c456e1f3dd204bd4505d0a6f2371ddaa303bc",
+  "merge_base": "03988c5a5ba248c3b9b11ea96fd4fda5e98849aa",
+  "merged_at": "2026-08-27T15:29:28Z",
+  "number": 21820,
+  "repo": "django",
+  "title": "Fixed #37296 -- Included the invalid view type in path()/re_path() error."
+ },
+ "probe_minutes": {
+  "end": 1792322182.9946082,
+  "minutes": 0.4,
+  "start": 1792322140.5707579,
+  "waited": 20.018518708995543
+ },
+ "probe_targets": {
+  "all": 2,
+  "called": 1,
+  "targets": [
+   {
+    "after": "def test_invalid_view(self):\n    msg = (\n        \"view must be a callable or a list/tuple in the case of include(), \"\n        \"but got str.\"\n    )\n    with self.assertRaisesMessage(TypeError, msg):\n        path(\"articles/\", \"invalid_view\")\n",
+    "before": "def test_invalid_view(self):\n    msg = \"view must be a callable or a list/tuple in the case of include().\"\n    with self.assertRaisesMessage(TypeError, msg):\n        path(\"articles/\", \"invalid_view\")\n",
+    "file": "tests/urlpatterns/tests.py",
+    "id": "tests/urlpatterns/tests.py#SimplifiedURLTests.test_invalid_view",
+    "name": "test_invalid_view",
+    "qual": "SimplifiedURLTests.test_invalid_view",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [],
+   "filter_seconds": 7.8,
+   "gaps": [],
+   "info": {
+    "accepted": 0,
+    "compiled": 1,
+    "cost": 0.0,
+    "differed": 0,
+    "dollars_cap": 0.1,
+    "functions": 1,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 1,
+    "ran": 1,
+    "reached": 1,
+    "requests": 1,
+    "seconds": 7.0,
+    "stable": 1
+   },
+   "probes": [
+    {
+     "call": "case.test_invalid_view()",
+     "function": "tests/urlpatterns/tests.py#SimplifiedURLTests.test_invalid_view",
+     "setup": "from urlpatterns.tests import SimplifiedURLTests\ncase = SimplifiedURLTests('test_invalid_view')",
+     "why": "runs the test method itself; it calls path() with a str view, which reaches the changed TypeError branch in django/urls/conf.py"
+    }
+   ],
+   "targets": [
+    "tests/urlpatterns/tests.py#SimplifiedURLTests.test_invalid_view"
+   ],
+   "waited_seconds": 20.0
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/urlpatterns/tests.py::SimplifiedURLTests::test_invalid_view",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "django/urls/conf.py",
+    "lines": "91-92",
+    "symbol": "_path"
+   },
+   {
+    "file": "tests/urlpatterns/tests.py",
+    "lines": "221-224",
+    "symbol": "SimplifiedURLTests.test_invalid_view"
+   }
+  ],
+  "changed_symbols": [
+   "django/urls/conf.py#_path",
+   "tests/urlpatterns/tests.py#SimplifiedURLTests.test_invalid_view"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 2,
+    "stored": 1
+   },
+   "budget": 300,
+   "candidates": 965,
+   "ran": 965,
+   "replayed": 1,
+   "runner": "django-runtests",
+   "seconds": 53.1,
+   "selection": {
+    "candidates": 965,
+    "closure_files": 3,
+    "closure_tests": 38,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/urls/__init__.py"
+    ],
+    "observed": 114,
+    "static_only": 796
+   },
+   "unrunnable": 0
+  },
+  "flip_trust": [
+   {
+    "id": "tests/urlpatterns/tests.py::SimplifiedURLTests::test_invalid_view",
+    "label": "fails",
+    "reach": 2,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": null
+    },
+    "why": "as the test was before the edit: failed again in every rerun; ran 2 changed line(s); not rerun: the rerun in the same process"
+   }
+  ],
+  "flips": 1,
+  "gaps": [
+   "99833 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "Skipped 1 non-Python file(s)",
+   "tests/test_runner_apps/tagged/tests_syntax_error.py: SyntaxError"
+  ],
+  "impacted": {
+   "count": 247,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2927,
+   "parsed_files": 2928
+  },
+  "order": "the same explicit order on both sides (fixed hash seed)",
+  "original_tests": {
+   "tests/urlpatterns/tests.py::ConversionExceptionTests::test_resolve_type_error_propagates": "passed",
+   "tests/urlpatterns/tests.py::ConversionExceptionTests::test_resolve_value_error_means_no_match": "passed",
+   "tests/urlpatterns/tests.py::ConversionExceptionTests::test_reverse_type_error_propagates": "passed",
+   "tests/urlpatterns/tests.py::ConversionExceptionTests::test_reverse_value_error_means_no_match": "passed",
+   "tests/urlpatterns/tests.py::ConverterTests::test_matching_urls": "passed",
+   "tests/urlpatterns/tests.py::ConverterTests::test_nonmatching_urls": "passed",
+   "tests/urlpatterns/tests.py::ParameterRestrictionTests::test_allows_non_ascii_but_valid_identifiers": "passed",
+   "tests/urlpatterns/tests.py::ParameterRestrictionTests::test_integer_parameter_name_causes_exception": "passed",
+   "tests/urlpatterns/tests.py::ParameterRestrictionTests::test_non_identifier_parameter_name_causes_exception": "passed",
+   "tests/urlpatterns/tests.py::SameNameTests::test_matching_urls_same_name": "passed",
+   "tests/urlpatterns/tests.py::SimplifiedURLTests::test_converter_resolve": "passed",
+   "tests/urlpatterns/tests.py::SimplifiedURLTests::test_converter_reverse": "passed",
+   "tests/urlpatterns/tests.py::SimplifiedURLTests::test_converter_reverse_with_second_layer_instance_namespace": "passed",
+   "tests/urlpatterns/tests.py::SimplifiedURLTests::test_invalid_converter": "passed",
+   "tests/urlpatterns/tests.py::SimplifiedURLTests::test_invalid_kwargs": "passed",
+   "tests/urlpatterns/tests.py::SimplifiedURLTests::test_invalid_view": "failed",
+   "tests/urlpatterns/tests.py::SimplifiedURLTests::test_invalid_view_instance": "passed",
+   "tests/urlpatterns/tests.py::SimplifiedURLTests::test_path_inclusion_is_matchable": "passed",
+   "tests/urlpatterns/tests.py::SimplifiedURLTests::test_path_inclusion_is_reversible": "passed",
+   "tests/urlpatterns/tests.py::SimplifiedURLTests::test_path_lookup_with_double_inclusion": "passed",
+   "tests/urlpatterns/tests.py::SimplifiedURLTests::test_path_lookup_with_empty_string_inclusion": "passed",
+   "tests/urlpatterns/tests.py::SimplifiedURLTests::test_path_lookup_with_extra_kwarg": "passed",
+   "tests/urlpatterns/tests.py::SimplifiedURLTests::test_path_lookup_with_inclusion": "passed",
+   "tests/urlpatterns/tests.py::SimplifiedURLTests::test_path_lookup_with_multiple_parameters": "passed",
+   "tests/urlpatterns/tests.py::SimplifiedURLTests::test_path_lookup_with_multiple_parameters_and_extra_kwarg": "passed",
+   "tests/urlpatterns/tests.py::SimplifiedURLTests::test_path_lookup_with_typed_parameters": "passed",
+   "tests/urlpatterns/tests.py::SimplifiedURLTests::test_path_lookup_without_parameters": "passed",
+   "tests/urlpatterns/tests.py::SimplifiedURLTests::test_path_reverse_with_parameter": "passed",
+   "tests/urlpatterns/tests.py::SimplifiedURLTests::test_path_reverse_without_parameter": "passed",
+   "tests/urlpatterns/tests.py::SimplifiedURLTests::test_path_trailing_newlines": "passed",
+   "tests/urlpatterns/tests.py::SimplifiedURLTests::test_re_path": "passed",
+   "tests/urlpatterns/tests.py::SimplifiedURLTests::test_re_path_with_missing_optional_parameter": "passed",
+   "tests/urlpatterns/tests.py::SimplifiedURLTests::test_re_path_with_optional_parameter": "passed",
+   "tests/urlpatterns/tests.py::SimplifiedURLTests::test_two_variable_at_start_of_path_pattern": "passed",
+   "tests/urlpatterns/tests.py::SimplifiedURLTests::test_warning_override_converter": "passed",
+   "tests/urlpatterns/tests.py::SimplifiedURLTests::test_warning_override_default_converter": "passed",
+   "tests/urlpatterns/tests.py::SimplifiedURLTests::test_whitespace_in_route": "passed",
+   "tests/urlpatterns/tests.py::SimplifyRegexTests::test_simplify_regex": "passed"
+  },
+  "predicted_failures": [
+   {
+    "after": "failed",
+    "before": "passed",
+    "edited_form": "passed",
+    "id": "tests/urlpatterns/tests.py::SimplifiedURLTests::test_invalid_view",
+    "label": "test edited, not fixed",
+    "reach": 2,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": null
+    },
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 2 changed line(s); not rerun: the rerun in the same process"
+   }
+  ],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/urlpatterns/tests.py::SimplifiedURLTests::test_invalid_view",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "d371b8197a3e",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [
+    "django/urls/conf.py#_path"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 5,
+   "differences": 0,
+   "functions_called": 1,
+   "input_built_before_the_change": 0,
+   "not_compared": {},
+   "seconds": 25.3,
+   "targets": 2,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 965 of 965 candidate tests after the change with django-runtests in 53.1 s, failures confirmed before it: 1 now fail. 851 tests reach the change. 38 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "fails",
+    "id": "tests/urlpatterns/tests.py::SimplifiedURLTests::test_invalid_view",
+    "line": 220,
+    "run": "cd tests && python runtests.py urlpatterns.tests.SimplifiedURLTests.test_invalid_view",
+    "score": 1.406,
+    "why": "via path > _path"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns/tests.py::SimplifiedURLTests::test_invalid_kwargs",
+    "line": 194,
+    "run": "cd tests && python runtests.py urlpatterns.tests.SimplifiedURLTests.test_invalid_kwargs",
+    "score": 0.6,
+    "why": "via path > _path"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns/tests.py::SimplifiedURLTests::test_invalid_view_instance",
+    "line": 228,
+    "run": "cd tests && python runtests.py urlpatterns.tests.SimplifiedURLTests.test_invalid_view_instance",
+    "score": 0.41,
+    "why": "via path > _path"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns_reverse/tests.py::ErroneousViewTests::test_noncallable_view",
+    "line": 1699,
+    "run": "cd tests && python runtests.py urlpatterns_reverse.tests.ErroneousViewTests.test_noncallable_view",
+    "score": 0.296,
+    "why": "via path > _path"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_docs/test_views.py::AdminDocViewTests::test_callable_urlconf",
+    "line": 193,
+    "run": "cd tests && python runtests.py admin_docs.test_views.AdminDocViewTests.test_callable_urlconf",
+    "score": 0.248,
+    "why": "via AdminDocViewTests.test_callable_urlconf.urlpatterns > path > _path"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns/tests.py::SimplifiedURLTests::test_invalid_converter",
+    "line": 201,
+    "run": "cd tests && python runtests.py urlpatterns.tests.SimplifiedURLTests.test_invalid_converter",
+    "score": 0.203,
+    "why": "via path > _path"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns/tests.py::SimplifiedURLTests::test_whitespace_in_route",
+    "line": 236,
+    "run": "cd tests && python runtests.py urlpatterns.tests.SimplifiedURLTests.test_whitespace_in_route",
+    "score": 0.184,
+    "why": "via path > _path"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns/tests.py::ParameterRestrictionTests::test_allows_non_ascii_but_valid_identifiers",
+    "line": 401,
+    "run": "cd tests && python runtests.py urlpatterns.tests.ParameterRestrictionTests.test_allows_non_ascii_but_valid_identifiers",
+    "score": 0.159,
+    "why": "via path > _path"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns/tests.py::ParameterRestrictionTests::test_integer_parameter_name_causes_exception",
+    "line": 385,
+    "run": "cd tests && python runtests.py urlpatterns.tests.ParameterRestrictionTests.test_integer_parameter_name_causes_exception",
+    "score": 0.136,
+    "why": "via path > _path"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns/tests.py::ParameterRestrictionTests::test_non_identifier_parameter_name_causes_exception",
+    "line": 393,
+    "run": "cd tests && python runtests.py urlpatterns.tests.ParameterRestrictionTests.test_non_identifier_parameter_name_causes_exception",
+    "score": 0.132,
+    "why": "via path > _path"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_scripts/tests.py::StartProject::test_custom_project_template_from_tarball_by_url_django_user_agent",
+    "line": 2820,
+    "run": "cd tests && python runtests.py admin_scripts.tests.StartProject.test_custom_project_template_from_tarball_by_url_django_user_agent",
+    "score": 0.119,
+    "why": "via path > _path"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_scripts/tests.py::StartProject::test_custom_project_template_with_non_ascii_templates",
+    "line": 2961,
+    "run": "cd tests && python runtests.py admin_scripts.tests.StartProject.test_custom_project_template_with_non_ascii_templates",
+    "score": 0.116,
+    "why": "via path > _path"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns_reverse/tests.py::IncludeTests::test_include_2_tuple",
+    "line": 1797,
+    "run": "cd tests && python runtests.py urlpatterns_reverse.tests.IncludeTests.test_include_2_tuple",
+    "score": 0.104,
+    "why": "via IncludeTests.url_patterns > path > _path"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns_reverse/tests.py::IncludeTests::test_include_2_tuple_namespace",
+    "line": 1803,
+    "run": "cd tests && python runtests.py urlpatterns_reverse.tests.IncludeTests.test_include_2_tuple_namespace",
+    "score": 0.102,
+    "why": "via IncludeTests.url_patterns > path > _path"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns_reverse/tests.py::IncludeTests::test_include_3_tuple",
+    "line": 1784,
+    "run": "cd tests && python runtests.py urlpatterns_reverse.tests.IncludeTests.test_include_3_tuple",
+    "score": 0.101,
+    "why": "via IncludeTests.url_patterns > path > _path"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns_reverse/tests.py::IncludeTests::test_include_3_tuple_namespace",
+    "line": 1789,
+    "run": "cd tests && python runtests.py urlpatterns_reverse.tests.IncludeTests.test_include_3_tuple_namespace",
+    "score": 0.1,
+    "why": "via IncludeTests.url_patterns > path > _path"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns_reverse/tests.py::IncludeTests::test_include_4_tuple",
+    "line": 1779,
+    "run": "cd tests && python runtests.py urlpatterns_reverse.tests.IncludeTests.test_include_4_tuple",
+    "score": 0.1,
+    "why": "via IncludeTests.url_patterns > path > _path"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns_reverse/tests.py::IncludeTests::test_include_namespace",
+    "line": 1771,
+    "run": "cd tests && python runtests.py urlpatterns_reverse.tests.IncludeTests.test_include_namespace",
+    "score": 0.085,
+    "why": "via IncludeTests.url_patterns > path > _path"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns_reverse/tests.py::IncludeTests::test_include_urls",
+    "line": 1768,
+    "run": "cd tests && python runtests.py urlpatterns_reverse.tests.IncludeTests.test_include_urls",
+    "score": 0.079,
+    "why": "via IncludeTests.url_patterns > path > _path"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/view_tests/tests/test_static.py::StaticHelperTest::test_debug_off",
+    "line": 190,
+    "run": "cd tests && python runtests.py view_tests.tests.test_static.StaticHelperTest.test_debug_off",
+    "score": 0.065,
+    "why": "via static > re_path > _path"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/view_tests/tests/test_static.py::StaticHelperTest::test_empty_prefix",
+    "line": 195,
+    "run": "cd tests && python runtests.py view_tests.tests.test_static.StaticHelperTest.test_empty_prefix",
+    "score": 0.065,
+    "why": "via static > re_path > _path"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/view_tests/tests/test_static.py::StaticHelperTest::test_prefix",
+    "line": 187,
+    "run": "cd tests && python runtests.py view_tests.tests.test_static.StaticHelperTest.test_prefix",
+    "score": 0.064,
+    "why": "via static > re_path > _path"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/view_tests/tests/test_static.py::StaticHelperTest::test_special_prefix",
+    "line": 201,
+    "run": "cd tests && python runtests.py view_tests.tests.test_static.StaticHelperTest.test_special_prefix",
+    "score": 0.064,
+    "why": "via static > re_path > _path"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns/tests.py::SimplifiedURLTests::test_path_inclusion_is_reversible",
+    "line": 190,
+    "run": "cd tests && python runtests.py urlpatterns.tests.SimplifiedURLTests.test_path_inclusion_is_reversible",
+    "score": 0.046,
+    "why": "via SimplifiedURLTests (name: simplified,url)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns/tests.py::SimplifiedURLTests::test_path_reverse_with_parameter",
+    "line": 154,
+    "run": "cd tests && python runtests.py urlpatterns.tests.SimplifiedURLTests.test_path_reverse_with_parameter",
+    "score": 0.044,
+    "why": "via SimplifiedURLTests (name: simplified,url)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns/tests.py::SimplifiedURLTests::test_path_reverse_without_parameter",
+    "line": 150,
+    "run": "cd tests && python runtests.py urlpatterns.tests.SimplifiedURLTests.test_path_reverse_without_parameter",
+    "score": 0.043,
+    "why": "via SimplifiedURLTests (name: simplified,url)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns/tests.py::SimplifiedURLTests::test_converter_reverse",
+    "line": 169,
+    "run": "cd tests && python runtests.py urlpatterns.tests.SimplifiedURLTests.test_converter_reverse",
+    "score": 0.035,
+    "why": "via SimplifiedURLTests (name: simplified,url)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns/tests.py::SimplifiedURLTests::test_converter_reverse_with_second_layer_instance_namespace",
+    "line": 178,
+    "run": "cd tests && python runtests.py urlpatterns.tests.SimplifiedURLTests.test_converter_reverse_with_second_layer_instance_namespace",
+    "score": 0.034,
+    "why": "via SimplifiedURLTests (name: simplified,url)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns_reverse/tests.py::ReverseShortcutTests::test_reverse_by_path_nested",
+    "line": 870,
+    "run": "cd tests && python runtests.py urlpatterns_reverse.tests.ReverseShortcutTests.test_reverse_by_path_nested",
+    "score": 0.023,
+    "why": "via reverse > get_ns_resolver > IncludeTests.url_patterns > path > _path (name: path)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns/tests.py::SimplifiedURLTests::test_two_variable_at_start_of_path_pattern",
+    "line": 88,
+    "run": "cd tests && python runtests.py urlpatterns.tests.SimplifiedURLTests.test_two_variable_at_start_of_path_pattern",
+    "score": 0.023,
+    "why": "via SimplifiedURLTests (name: simplified,url)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns/tests.py::SimplifiedURLTests::test_warning_override_converter",
+    "line": 211,
+    "run": "cd tests && python runtests.py urlpatterns.tests.SimplifiedURLTests.test_warning_override_converter",
+    "score": 0.022,
+    "why": "via SimplifiedURLTests (name: simplified,url)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns/tests.py::SimplifiedURLTests::test_warning_override_default_converter",
+    "line": 206,
+    "run": "cd tests && python runtests.py urlpatterns.tests.SimplifiedURLTests.test_warning_override_default_converter",
+    "score": 0.022,
+    "why": "via SimplifiedURLTests (name: simplified,url)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_docs/test_views.py::AdminDocViewDefaultEngineOnly::test_template_detail_path_traversal",
+    "line": 215,
+    "run": "cd tests && python runtests.py admin_docs.test_views.AdminDocViewDefaultEngineOnly.test_template_detail_path_traversal",
+    "score": 0.022,
+    "why": "via reverse > get_ns_resolver > IncludeTests.url_patterns > path > _path (name: path)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns/tests.py::SimplifiedURLTests::test_converter_resolve",
+    "line": 160,
+    "run": "cd tests && python runtests.py urlpatterns.tests.SimplifiedURLTests.test_converter_resolve",
+    "score": 0.021,
+    "why": "via SimplifiedURLTests (name: simplified,url)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns/tests.py::SimplifiedURLTests::test_path_inclusion_is_matchable",
+    "line": 185,
+    "run": "cd tests && python runtests.py urlpatterns.tests.SimplifiedURLTests.test_path_inclusion_is_matchable",
+    "score": 0.021,
+    "why": "via SimplifiedURLTests (name: simplified,url)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns/tests.py::SimplifiedURLTests::test_path_lookup_with_double_inclusion",
+    "line": 145,
+    "run": "cd tests && python runtests.py urlpatterns.tests.SimplifiedURLTests.test_path_lookup_with_double_inclusion",
+    "score": 0.02,
+    "why": "via SimplifiedURLTests (name: simplified,url)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns/tests.py::SimplifiedURLTests::test_path_lookup_with_empty_string_inclusion",
+    "line": 137,
+    "run": "cd tests && python runtests.py urlpatterns.tests.SimplifiedURLTests.test_path_lookup_with_empty_string_inclusion",
+    "score": 0.02,
+    "why": "via SimplifiedURLTests (name: simplified,url)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns/tests.py::SimplifiedURLTests::test_path_lookup_with_extra_kwarg",
+    "line": 79,
+    "run": "cd tests && python runtests.py urlpatterns.tests.SimplifiedURLTests.test_path_lookup_with_extra_kwarg",
+    "score": 0.02,
+    "why": "via SimplifiedURLTests (name: simplified,url)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns/tests.py::SimplifiedURLTests::test_path_lookup_with_inclusion",
+    "line": 132,
+    "run": "cd tests && python runtests.py urlpatterns.tests.SimplifiedURLTests.test_path_lookup_with_inclusion",
+    "score": 0.02,
+    "why": "via SimplifiedURLTests (name: simplified,url)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/urlpatterns/tests.py::SimplifiedURLTests::test_path_lookup_with_multiple_parameters",
+    "line": 59,
+    "run": "cd tests && python runtests.py urlpatterns.tests.SimplifiedURLTests.test_path_lookup_with_multiple_parameters",
+    "score": 0.02,
+    "why": "via SimplifiedURLTests (name: simplified,url)"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": false,
+  "finished": 1792322126.039961,
+  "job_seconds": 435.1,
+  "number": 21820,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 435.2,
+  "started": 1792321689.605035,
+  "verify_seconds": 0.5
+ },
+ "verify": {
+  "checked": 1,
+  "false": 0,
+  "held": 1,
+  "merge_base": "03988c5a5ba248c3b9b11ea96fd4fda5e98849aa",
+  "other": 0,
+  "problem": null,
+  "states": {
+   "tests/urlpatterns/tests.py::SimplifiedURLTests::test_invalid_view": "passed"
+  },
+  "v": 1
+ }
+}

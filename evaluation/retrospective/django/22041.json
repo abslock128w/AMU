@@ -1,0 +1,547 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "4fab678a0739d54401ccee7eb587553657c9f76e",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "94ccddd05214ab9bd6e3f533eb4bce10649b9da5",
+  "install_ok": true,
+  "merge_base": "4fab678a0739d54401ccee7eb587553657c9f76e",
+  "pr": 22041,
+  "recording": true,
+  "runner": null,
+  "seconds": 26.9,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "4fab678a0739d54401ccee7eb587553657c9f76e",
+  "head_sha": "94ccddd05214ab9bd6e3f533eb4bce10649b9da5",
+  "merge_base": "4fab678a0739d54401ccee7eb587553657c9f76e",
+  "merged_at": "2026-10-13T12:42:39Z",
+  "number": 22041,
+  "repo": "django",
+  "title": "Refs #37372 -- Simplified NULL handling logic in sql.Query.build_filter()."
+ },
+ "probe_minutes": {
+  "end": 1792326161.412472,
+  "minutes": 0.3,
+  "start": 1792325845.810251,
+  "waited": 296.7342620839918
+ },
+ "probe_targets": {
+  "all": 1,
+  "called": 0,
+  "targets": [
+   {
+    "after": "def build_filter(\n    self,\n    filter_expr,\n    branch_negated=False,\n    current_negated=False,\n    can_reuse=None,\n    allow_joins=True,\n    split_subq=True,\n    check_filterable=True,\n    summarize=False,\n    update_join_types=True,\n):\n    \"\"\"\n    Build a WhereNode for a single filter clause but don't add it\n    to this Query. Query.add_q() will then add this filter to the where\n    Node.\n\n    The 'branch_negated' tells us if the current branch contains any\n    negations. This will be used to determine if subqueries are needed.\n\n    The 'current_negated' is used to determine if the current filter is\n    negated or not and this will be used to determine if IS NULL filtering\n    is needed.\n\n    The difference between current_negated and branch_negated is that\n    branch_negated is set on first negation, but current_negated is\n    flipped for each negation.\n\n    Note that add_filter will not do any negating itself, that is done\n    upper in the code by add_q().\n\n    The 'can_reuse' is a set of reusable joins for multijoins.\n\n    The method will create a filter clause that can be added to the current\n    query. However, if the filter isn't added to the query then the caller\n    is responsible for unreffing the joins used.\n    \"\"\"\n    if isinstance(filter_expr, dict):\n        raise FieldError(\"Cannot parse keyword query as dict\")\n    if isinstance(filter_expr, Q):\n        return self._add_q(\n            filter_expr,\n            branch_negated=branch_negated,\n            current_negated=current_negated,\n            used_aliases=can_reuse,\n            allow_joins=allow_joins,\n            split_subq=split_subq,\n            check_filterable=check_filterable,\n            summarize=summarize,\n            update_join_types=update_join_types,\n        )\n    if hasattr(filter_expr, \"resolve_expression\"):\n        if not getattr(filter_expr, \"conditional\", False):\n            raise TypeError(\"Cannot filter against a non-conditional expression.\")\n        condition = filter_expr.resolve_expression(\n            self, allow_joins=allow_joins, reuse=can_reuse, summarize=summarize\n        )\n        if not isinstance(condition, Lookup):\n            condition = self.build_lookup([\"exact\"], condition, True)\n        return WhereNode([condition], connector=AND), []\n    arg, value = filter_expr\n    if not arg:\n        raise FieldError(\"Cannot parse keyword query %r\" % arg)\n    lookups, parts, reffed_expression = self.solve_lookup_type(arg, summarize)\n\n    if check_filterable:\n        self.check_filterable(reffed_expression)\n\n    if not allow_joins and len(parts) > 1:\n        raise FieldError(\"Joined field references are not permitted in this query\")\n\n    pre_joins = self.alias_refcount.copy()\n    value = self.resolve_lookup_value(value, can_reuse, allow_joins, summarize)\n    used_joins = {\n        k for k, v in self.alias_refcount.items() if v > pre_joins.get(k, 0)\n    }\n\n    if check_filterable:\n        self.check_filterable(value)\n\n    if reffed_expression:\n        condition = self.build_lookup(lookups, reffed_expression, value)\n        return WhereNode([condition], connector=AND), []\n\n    opts = self.get_meta()\n    alias = self.get_initial_alias()\n    allow_many = not branch_negated or not split_subq\n\n    try:\n        join_info = self.setup_joins(\n            parts,\n            opts,\n            alias,\n            can_reuse=can_reuse,\n            allow_many=allow_many,\n        )\n\n        # Prevent iterator from being consumed by check_related_objects()\n        if isinstance(value, Iterator):\n            value = list(value)\n        self.check_related_objects(join_info.final_field, value, join_info.opts)\n\n        # split_exclude() needs to know which joins were generated for the\n        # lookup parts\n        self._lookup_joins = join_info.joins\n    except MultiJoin as e:\n        return self.split_exclude(filter_expr, can_reuse, e.names_with_path)\n\n    # Update used_joins before trimming since they are reused to determine\n    # which joins could be later promoted to INNER.\n    used_joins.update(join_info.joins)\n    targets, alias, join_list = self.trim_joins(\n        join_info.targets, join_info.joins, join_info.path\n    )\n    if can_reuse is not None:\n        can_reuse.update(join_list)\n\n    if join_info.final_field.is_relation:\n        if len(targets) == 1:\n            col = self._get_col(targets[0], join_info.final_field, alias)\n        else:\n            col = ColPairs(alias, targets, join_info.targets, join_info.final_field)\n    else:\n        col = self._get_col(targets[0], join_info.final_field, alias)\n\n    condition = self.build_lookup(lookups, col, value)\n    lookup_type = condition.lookup_name\n    clause = WhereNode([condition], connector=AND)\n\n    require_outer = False\n    if lookup_type == \"isnull\":\n        # Both `NOT (field IS NOT NULL)` and `field IS NULL` require an\n        # OUTER JOIN to effectively include related `NULL` values.\n        # Otherwise an INNER JOIN can be used as it excludes them.\n        require_outer = (\n            condition.rhs is False if current_negated else condition.rhs is True\n        )\n    elif current_negated and condition.rhs is not None:\n        require_outer = True\n        # The condition added below will be SQL like this:\n        # `NOT (col IS NOT NULL)`, where the first NOT is added in\n        # upper layers of code. The reason for addition is that if col\n        # `IS NULL`, then `col != someval` will result in SQL \"unknown\"\n        # which isn't the same as in Python. The Python None handling\n        # is wanted, and it can be achieved by\n        # `(col != someval OR col IS NULL)` which is equivalent to\n        # `NOT (col = someval AND col IS NOT NULL)`. The second form is\n        # required here as the condition is negated per `current_negated`.\n        if (\n            self.is_nullable(targets[0])\n            or self.alias_map[join_list[-1]].join_type == LOUTER\n        ):\n            lookup_class = targets[0].get_lookup(\"isnull\")\n            col = self._get_col(targets[0], join_info.targets[0], alias)\n            # Use OR + IS NULL when RHS `in` values include None.\n            if (\n                lookup_type == \"in\"\n                # Check containers (not strings or bytes).\n                and isinstance(condition.rhs, Iterable)\n                and not isinstance(condition.rhs, (str, bytes))\n                and any(v is None for v in condition.rhs)\n            ):\n                clause.add(lookup_class(col, True), OR)\n            else:\n                clause.add(lookup_class(col, False), AND)\n        # If someval is a nullable column, someval IS NOT NULL is\n        # added.\n        if isinstance(value, Col) and self.is_nullable(value.target):\n            lookup_class = value.target.get_lookup(\"isnull\")\n            clause.add(lookup_class(value, False), AND)\n    return clause, used_joins if not require_outer else ()\n",
+    "before": "def build_filter(\n    self,\n    filter_expr,\n    branch_negated=False,\n    current_negated=False,\n    can_reuse=None,\n    allow_joins=True,\n    split_subq=True,\n    check_filterable=True,\n    summarize=False,\n    update_join_types=True,\n):\n    \"\"\"\n    Build a WhereNode for a single filter clause but don't add it\n    to this Query. Query.add_q() will then add this filter to the where\n    Node.\n\n    The 'branch_negated' tells us if the current branch contains any\n    negations. This will be used to determine if subqueries are needed.\n\n    The 'current_negated' is used to determine if the current filter is\n    negated or not and this will be used to determine if IS NULL filtering\n    is needed.\n\n    The difference between current_negated and branch_negated is that\n    branch_negated is set on first negation, but current_negated is\n    flipped for each negation.\n\n    Note that add_filter will not do any negating itself, that is done\n    upper in the code by add_q().\n\n    The 'can_reuse' is a set of reusable joins for multijoins.\n\n    The method will create a filter clause that can be added to the current\n    query. However, if the filter isn't added to the query then the caller\n    is responsible for unreffing the joins used.\n    \"\"\"\n    if isinstance(filter_expr, dict):\n        raise FieldError(\"Cannot parse keyword query as dict\")\n    if isinstance(filter_expr, Q):\n        return self._add_q(\n            filter_expr,\n            branch_negated=branch_negated,\n            current_negated=current_negated,\n            used_aliases=can_reuse,\n            allow_joins=allow_joins,\n            split_subq=split_subq,\n            check_filterable=check_filterable,\n            summarize=summarize,\n            update_join_types=update_join_types,\n        )\n    if hasattr(filter_expr, \"resolve_expression\"):\n        if not getattr(filter_expr, \"conditional\", False):\n            raise TypeError(\"Cannot filter against a non-conditional expression.\")\n        condition = filter_expr.resolve_expression(\n            self, allow_joins=allow_joins, reuse=can_reuse, summarize=summarize\n        )\n        if not isinstance(condition, Lookup):\n            condition = self.build_lookup([\"exact\"], condition, True)\n        return WhereNode([condition], connector=AND), []\n    arg, value = filter_expr\n    if not arg:\n        raise FieldError(\"Cannot parse keyword query %r\" % arg)\n    lookups, parts, reffed_expression = self.solve_lookup_type(arg, summarize)\n\n    if check_filterable:\n        self.check_filterable(reffed_expression)\n\n    if not allow_joins and len(parts) > 1:\n        raise FieldError(\"Joined field references are not permitted in this query\")\n\n    pre_joins = self.alias_refcount.copy()\n    value = self.resolve_lookup_value(value, can_reuse, allow_joins, summarize)\n    used_joins = {\n        k for k, v in self.alias_refcount.items() if v > pre_joins.get(k, 0)\n    }\n\n    if check_filterable:\n        self.check_filterable(value)\n\n    if reffed_expression:\n        condition = self.build_lookup(lookups, reffed_expression, value)\n        return WhereNode([condition], connector=AND), []\n\n    opts = self.get_meta()\n    alias = self.get_initial_alias()\n    allow_many = not branch_negated or not split_subq\n\n    try:\n        join_info = self.setup_joins(\n            parts,\n            opts,\n            alias,\n            can_reuse=can_reuse,\n            allow_many=allow_many,\n        )\n\n        # Prevent iterator from being consumed by check_related_objects()\n        if isinstance(value, Iterator):\n            value = list(value)\n        self.check_related_objects(join_info.final_field, value, join_info.opts)\n\n        # split_exclude() needs to know which joins were generated for the\n        # lookup parts\n        self._lookup_joins = join_info.joins\n    except MultiJoin as e:\n        return self.split_exclude(filter_expr, can_reuse, e.names_with_path)\n\n    # Update used_joins before trimming since they are reused to determine\n    # which joins could be later promoted to INNER.\n    used_joins.update(join_info.joins)\n    targets, alias, join_list = self.trim_joins(\n        join_info.targets, join_info.joins, join_info.path\n    )\n    if can_reuse is not None:\n        can_reuse.update(join_list)\n\n    if join_info.final_field.is_relation:\n        if len(targets) == 1:\n            col = self._get_col(targets[0], join_info.final_field, alias)\n        else:\n            col = ColPairs(alias, targets, join_info.targets, join_info.final_field)\n    else:\n        col = self._get_col(targets[0], join_info.final_field, alias)\n\n    condition = self.build_lookup(lookups, col, value)\n    lookup_type = condition.lookup_name\n    clause = WhereNode([condition], connector=AND)\n\n    require_outer = (\n        lookup_type == \"isnull\" and condition.rhs is True and not current_negated\n    )\n    if (\n        current_negated\n        and (lookup_type != \"isnull\" or condition.rhs is False)\n        and condition.rhs is not None\n    ):\n        require_outer = True\n        if lookup_type != \"isnull\":\n            # The condition added here will be SQL like this:\n            # NOT (col IS NOT NULL), where the first NOT is added in\n            # upper layers of code. The reason for addition is that if col\n            # is null, then col != someval will result in SQL \"unknown\"\n            # which isn't the same as in Python. The Python None handling\n            # is wanted, and it can be gotten by\n            # (col IS NULL OR col != someval)\n            #   <=>\n            # NOT (col IS NOT NULL AND col = someval).\n            if (\n                self.is_nullable(targets[0])\n                or self.alias_map[join_list[-1]].join_type == LOUTER\n            ):\n                lookup_class = targets[0].get_lookup(\"isnull\")\n                col = self._get_col(targets[0], join_info.targets[0], alias)\n                # Use OR + IS NULL when RHS `in` values include None.\n                if (\n                    lookup_type == \"in\"\n                    # Check containers (not strings or bytes).\n                    and isinstance(condition.rhs, Iterable)\n                    and not isinstance(condition.rhs, (str, bytes))\n                    and any(v is None for v in condition.rhs)\n                ):\n                    clause.add(lookup_class(col, True), OR)\n                else:\n                    clause.add(lookup_class(col, False), AND)\n            # If someval is a nullable column, someval IS NOT NULL is\n            # added.\n            if isinstance(value, Col) and self.is_nullable(value.target):\n                lookup_class = value.target.get_lookup(\"isnull\")\n                clause.add(lookup_class(value, False), AND)\n    return clause, used_joins if not require_outer else ()\n",
+    "file": "django/db/models/sql/query.py",
+    "id": "django/db/models/sql/query.py#Query.build_filter",
+    "name": "build_filter",
+    "qual": "Query.build_filter",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [],
+   "filter_seconds": 8.9,
+   "gaps": [],
+   "info": {
+    "accepted": 0,
+    "compiled": 1,
+    "cost": 0.0,
+    "differed": 0,
+    "dollars_cap": 0.1,
+    "functions": 1,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 1,
+    "ran": 1,
+    "reached": 1,
+    "requests": 1,
+    "seconds": 8.0,
+    "stable": 1
+   },
+   "probes": [
+    {
+     "call": "[str(User.objects.filter(f).query) for f in filters]",
+     "function": "django/db/models/sql/query.py#Query.build_filter",
+     "setup": "import datetime\nfrom django.db.models import Q\nfrom django.contrib.auth.models import User\nwhen = datetime.datetime(2026, 1, 1)\nfilters = [~Q(last_login=None), ~Q(last_login__isnull=False), ~Q(last_login__isnull=True), ~Q(last_login=when),\n           ~Q(last_login__in=[None, when]), ~Q(last_login__in=[when]), ~Q(groups__name='x'), Q(last_login__isnull=True)]\n",
+     "why": "negated and isnull filters on a nullable column, the branches the refactor reorganises"
+    }
+   ],
+   "targets": [
+    "django/db/models/sql/query.py#Query.build_filter"
+   ],
+   "waited_seconds": 296.7
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "changed_functions": [
+   {
+    "file": "django/db/models/sql/query.py",
+    "lines": "1624-1664",
+    "symbol": "Query.build_filter"
+   }
+  ],
+  "changed_symbols": [
+   "django/db/models/sql/query.py#Query.build_filter"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 0,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 9600,
+   "ran": 0,
+   "replayed": 0,
+   "runner": "django-runtests",
+   "seconds": 5.0,
+   "selection": {
+    "candidates": 17100,
+    "closure_files": 603,
+    "closure_tests": 9695,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/contrib/admin/__init__.py",
+     "django/contrib/auth/models.py",
+     "django/core/management/base.py",
+     "django/db/migrations/__init__.py",
+     "django/db/models/__init__.py",
+     "django/db/models/expressions.py",
+     "django/db/models/functions/__init__.py",
+     "django/test/__init__.py",
+     "django/test/utils.py"
+    ],
+    "observed": 1227,
+    "static_only": 5267
+   },
+   "unrunnable": 160
+  },
+  "flips": null,
+  "gaps": [
+   "100227 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "160 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "7500 lower-ranked candidate(s) not run: about 10 tests/s per process fit 9600 in the 300 s allowed",
+   "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run stopped at its 300 s budget: 0 of 9600 candidates run",
+   "side-by-side: none of the 1 changed function(s) was called by the tests run on the code before the change",
+   "tests/test_runner_apps/tagged/tests_syntax_error.py: SyntaxError"
+  ],
+  "impacted": {
+   "count": 285,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2930,
+   "parsed_files": 2
+  },
+  "predicted_failures": [],
+  "report_hash": "ddd28bc45fbf",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 0,
+   "differences": 0,
+   "functions_called": 0,
+   "input_built_before_the_change": 0,
+   "not_compared": {},
+   "seconds": 0.0,
+   "targets": 1,
+   "unstable": 0
+  },
+  "summary": "NOT EXECUTED: no candidate test could be run; static analysis only. 0 likely_fail, 14342 tests reach the change.",
+  "tests": [
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/queries/test_query.py::TestQuery::test_filter_conditional_join",
+    "line": 150,
+    "run": "cd tests && python runtests.py queries.test_query.TestQuery.test_filter_conditional_join",
+    "score": 1.278,
+    "why": "via Query.build_where > Query.build_filter (name: filter,query)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/queries/test_query.py::TestQuery::test_filter_conditional",
+    "line": 142,
+    "run": "cd tests && python runtests.py queries.test_query.TestQuery.test_filter_conditional",
+    "score": 0.796,
+    "why": "via Query.build_where > Query.build_filter (name: filter,query)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/queries/test_query.py::TestQuery::test_filter_non_conditional",
+    "line": 157,
+    "run": "cd tests && python runtests.py queries.test_query.TestQuery.test_filter_non_conditional",
+    "score": 0.553,
+    "why": "via Query.build_where > Query.build_filter (name: filter,query)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/queries/test_query.py::TestQuery::test_foreign_key_exclusive",
+    "line": 114,
+    "run": "cd tests && python runtests.py queries.test_query.TestQuery.test_foreign_key_exclusive",
+    "score": 0.357,
+    "why": "via Query.build_where > Query.build_filter (name: query)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/queries/test_query.py::TestQuery::test_non_alias_cols_query",
+    "line": 35,
+    "run": "cd tests && python runtests.py queries.test_query.TestQuery.test_non_alias_cols_query",
+    "score": 0.315,
+    "why": "via Query.build_where > Query.build_filter (name: query)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/queries/test_query.py::TestQuery::test_multiple_fields",
+    "line": 69,
+    "run": "cd tests && python runtests.py queries.test_query.TestQuery.test_multiple_fields",
+    "score": 0.29,
+    "why": "via Query.build_where > Query.build_filter (name: query)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/queries/test_query.py::TestQuery::test_negated_nullable",
+    "line": 92,
+    "run": "cd tests && python runtests.py queries.test_query.TestQuery.test_negated_nullable",
+    "score": 0.275,
+    "why": "via Query.build_where > Query.build_filter (name: query)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/queries/test_query.py::TestQuery::test_transform",
+    "line": 81,
+    "run": "cd tests && python runtests.py queries.test_query.TestQuery.test_transform",
+    "score": 0.263,
+    "why": "via Query.build_where > Query.build_filter (name: query)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/queries/test_query.py::TestQuery::test_complex_query",
+    "line": 54,
+    "run": "cd tests && python runtests.py queries.test_query.TestQuery.test_complex_query",
+    "score": 0.254,
+    "why": "via Query.build_where > Query.build_filter (name: query)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/queries/test_query.py::TestQuery::test_simple_query",
+    "line": 27,
+    "run": "cd tests && python runtests.py queries.test_query.TestQuery.test_simple_query",
+    "score": 0.251,
+    "why": "via Query.build_where > Query.build_filter (name: query)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/queries/test_query.py::TestQuery::test_iterable_lookup_value",
+    "line": 135,
+    "run": "cd tests && python runtests.py queries.test_query.TestQuery.test_iterable_lookup_value",
+    "score": 0.249,
+    "why": "via Query.build_where > Query.build_filter (name: query)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/queries/test_query.py::TestQuery::test_foreign_key",
+    "line": 103,
+    "run": "cd tests && python runtests.py queries.test_query.TestQuery.test_foreign_key",
+    "score": 0.238,
+    "why": "via Query.build_where > Query.build_filter (name: query)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/queries/test_query.py::TestQuery::test_foreign_key_f",
+    "line": 109,
+    "run": "cd tests && python runtests.py queries.test_query.TestQuery.test_foreign_key_f",
+    "score": 0.235,
+    "why": "via Query.build_where > Query.build_filter (name: query)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/prefetch_related/tests.py::PrefetchRelatedTests::test_filter_deferred",
+    "line": 390,
+    "run": "cd tests && python runtests.py prefetch_related.tests.PrefetchRelatedTests.test_filter_deferred",
+    "score": 0.146,
+    "why": "via Query.add_q > Query._add_q > Query.build_filter (name: filter)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/prefetch_related/tests.py::CustomPrefetchTests::test_filter_deferred",
+    "line": 1132,
+    "run": "cd tests && python runtests.py prefetch_related.tests.CustomPrefetchTests.test_filter_deferred",
+    "score": 0.144,
+    "why": "via Query.add_q > Query._add_q > Query.build_filter (name: filter)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/indexes/tests.py::PartialIndexTests::test_multiple_conditions",
+    "line": 460,
+    "run": "cd tests && python runtests.py indexes.tests.PartialIndexTests.test_multiple_conditions",
+    "score": 0.062,
+    "why": "via Index.create_sql > Index._get_condition_sql > Query.build_where > Query.build_filter"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/indexes/tests.py::PartialIndexTests::test_is_null_condition",
+    "line": 495,
+    "run": "cd tests && python runtests.py indexes.tests.PartialIndexTests.test_is_null_condition",
+    "score": 0.062,
+    "why": "via Index.create_sql > Index._get_condition_sql > Query.build_where > Query.build_filter"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/indexes/tests.py::CoveringIndexTests::test_covering_partial_index",
+    "line": 598,
+    "run": "cd tests && python runtests.py indexes.tests.CoveringIndexTests.test_covering_partial_index",
+    "score": 0.062,
+    "why": "via Index.create_sql > Index._get_condition_sql > Query.build_where > Query.build_filter"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/indexes/tests.py::PartialIndexTests::test_partial_func_index",
+    "line": 517,
+    "run": "cd tests && python runtests.py indexes.tests.PartialIndexTests.test_partial_func_index",
+    "score": 0.061,
+    "why": "via Index.create_sql > Index._get_condition_sql > Query.build_where > Query.build_filter"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/queries/test_q.py::QCheckTests::test_rawsql",
+    "line": 383,
+    "run": "cd tests && python runtests.py queries.test_q.QCheckTests.test_rawsql",
+    "score": 0.061,
+    "why": "via Q.check > Query.add_q > Query._add_q > Query.build_filter"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/indexes/tests.py::PartialIndexTests::test_partial_index",
+    "line": 384,
+    "run": "cd tests && python runtests.py indexes.tests.PartialIndexTests.test_partial_index",
+    "score": 0.061,
+    "why": "via Index.create_sql > Index._get_condition_sql > Query.build_where > Query.build_filter"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/schema/tests.py::SchemaTests::test_composite_func_index",
+    "line": 4370,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_composite_func_index",
+    "score": 0.06,
+    "why": "via Index.create_sql > Index._get_condition_sql > Query.build_where > Query.build_filter"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/schema/tests.py::SchemaTests::test_func_index_lookups",
+    "line": 4346,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_func_index_lookups",
+    "score": 0.06,
+    "why": "via Index.create_sql > Index._get_condition_sql > Query.build_where > Query.build_filter"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/indexes/tests.py::PartialIndexConditionIgnoredTests::test_condition_ignored",
+    "line": 129,
+    "run": "cd tests && python runtests.py indexes.tests.PartialIndexConditionIgnoredTests.test_condition_ignored",
+    "score": 0.06,
+    "why": "via Index.create_sql > Index._get_condition_sql > Query.build_where > Query.build_filter"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/indexes/tests.py::CoveringIndexTests::test_covering_func_index",
+    "line": 642,
+    "run": "cd tests && python runtests.py indexes.tests.CoveringIndexTests.test_covering_func_index",
+    "score": 0.06,
+    "why": "via Index.create_sql > Index._get_condition_sql > Query.build_where > Query.build_filter"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/indexes/tests.py::CoveringIndexTests::test_covering_index",
+    "line": 561,
+    "run": "cd tests && python runtests.py indexes.tests.CoveringIndexTests.test_covering_index",
+    "score": 0.06,
+    "why": "via Index.create_sql > Index._get_condition_sql > Query.build_where > Query.build_filter"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/postgres_tests/test_indexes.py::SchemaTests::test_cast_search_vector_gin_index",
+    "line": 382,
+    "run": "cd tests && python runtests.py postgres_tests.test_indexes.SchemaTests.test_cast_search_vector_gin_index",
+    "score": 0.06,
+    "why": "via Index.create_sql > Index._get_condition_sql > Query.build_where > Query.build_filter"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/postgres_tests/test_indexes.py::SchemaTests::test_partial_gin_index_with_tablespace",
+    "line": 317,
+    "run": "cd tests && python runtests.py postgres_tests.test_indexes.SchemaTests.test_partial_gin_index_with_tablespace",
+    "score": 0.06,
+    "why": "via Index.create_sql > Index._get_condition_sql > Query.build_where > Query.build_filter"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/schema/tests.py::SchemaTests::test_func_index_f_decimalfield",
+    "line": 4423,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_func_index_f_decimalfield",
+    "score": 0.06,
+    "why": "via Index.create_sql > Index._get_condition_sql > Query.build_where > Query.build_filter"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/schema/tests.py::SchemaTests::test_func_index_collate",
+    "line": 4466,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_func_index_collate",
+    "score": 0.06,
+    "why": "via Index.create_sql > Index._get_condition_sql > Query.build_where > Query.build_filter"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/schema/tests.py::SchemaTests::test_func_index_collate_f_ordered",
+    "line": 4496,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_func_index_collate_f_ordered",
+    "score": 0.06,
+    "why": "via Index.create_sql > Index._get_condition_sql > Query.build_where > Query.build_filter"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/postgres_tests/test_indexes.py::SchemaTests::test_gin_parameters",
+    "line": 340,
+    "run": "cd tests && python runtests.py postgres_tests.test_indexes.SchemaTests.test_gin_parameters",
+    "score": 0.06,
+    "why": "via Index.create_sql > Index._get_condition_sql > Query.build_where > Query.build_filter"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/gis_tests/geoapp/test_indexes.py::SchemaIndexesTests::test_3d_field_opclass_not_overridden",
+    "line": 156,
+    "run": "cd tests && python runtests.py gis_tests.geoapp.test_indexes.SchemaIndexesTests.test_3d_field_opclass_not_overridden",
+    "score": 0.059,
+    "why": "via Index.create_sql > Index._get_condition_sql > Query.build_where > Query.build_filter"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/postgres_tests/test_indexes.py::SchemaTests::test_tsvector_op_class_gist_index",
+    "line": 539,
+    "run": "cd tests && python runtests.py postgres_tests.test_indexes.SchemaTests.test_tsvector_op_class_gist_index",
+    "score": 0.059,
+    "why": "via Index.create_sql > Index._get_condition_sql > Query.build_where > Query.build_filter"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/schema/tests.py::SchemaTests::test_func_index_calc",
+    "line": 4524,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_func_index_calc",
+    "score": 0.059,
+    "why": "via Index.create_sql > Index._get_condition_sql > Query.build_where > Query.build_filter"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/schema/tests.py::SchemaTests::test_composite_func_index_field_and_expression",
+    "line": 4392,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_composite_func_index_field_and_expression",
+    "score": 0.059,
+    "why": "via Index.create_sql > Index._get_condition_sql > Query.build_where > Query.build_filter"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/schema/tests.py::SchemaTests::test_func_index_cast",
+    "line": 4449,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_func_index_cast",
+    "score": 0.059,
+    "why": "via Index.create_sql > Index._get_condition_sql > Query.build_where > Query.build_filter"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/schema/tests.py::SchemaTests::test_func_index_json_key_transform",
+    "line": 4552,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_func_index_json_key_transform",
+    "score": 0.059,
+    "why": "via Index.create_sql > Index._get_condition_sql > Query.build_where > Query.build_filter"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/schema/tests.py::SchemaTests::test_func_index_json_key_transform_cast",
+    "line": 4575,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_func_index_json_key_transform_cast",
+    "score": 0.059,
+    "why": "via Index.create_sql > Index._get_condition_sql > Query.build_where > Query.build_filter"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/postgres_tests/test_indexes.py::SchemaTests::test_op_class_descending_collation",
+    "line": 704,
+    "run": "cd tests && python runtests.py postgres_tests.test_indexes.SchemaTests.test_op_class_descending_collation",
+    "score": 0.059,
+    "why": "via Index.create_sql > Index._get_condition_sql > Query.build_where > Query.build_filter"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792325823.324275,
+  "job_seconds": 26.9,
+  "number": 22041,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 27.0,
+  "started": 1792325795.1333492
+ },
+ "verify": null
+}

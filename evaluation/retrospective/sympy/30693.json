@@ -1,0 +1,233 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "319ea7a6186edf88bc23d502917242b10314ae51",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "043e9192777f31bfe4ca9f353190d970b89f929c",
+  "install_ok": true,
+  "merge_base": "319ea7a6186edf88bc23d502917242b10314ae51",
+  "pr": 30693,
+  "recording": false,
+  "runner": null,
+  "seconds": 183.6,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "319ea7a6186edf88bc23d502917242b10314ae51",
+  "head_sha": "043e9192777f31bfe4ca9f353190d970b89f929c",
+  "merge_base": "319ea7a6186edf88bc23d502917242b10314ae51",
+  "merged_at": "2026-10-07T19:25:06Z",
+  "number": 30693,
+  "repo": "sympy",
+  "title": "Normalize path separators in convert_to_native_paths"
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 1,
+  "called": 1,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/testing/tests/test_runtests.py::test_convert_to_native_paths",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/testing/runtests.py",
+    "lines": "130-136",
+    "symbol": "convert_to_native_paths"
+   },
+   {
+    "file": "sympy/testing/tests/test_runtests.py",
+    "lines": "8-16",
+    "symbol": "test_convert_to_native_paths"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/testing/runtests.py#convert_to_native_paths",
+   "sympy/testing/tests/test_runtests.py#test_convert_to_native_paths",
+   "sympy/testing/tests/test_runtests.py"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 1,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 2640,
+   "ran": 2640,
+   "replayed": 1,
+   "runner": "pytest",
+   "seconds": 182.1,
+   "selection": {
+    "candidates": 12935,
+    "closure_files": 1322,
+    "closure_tests": 12935,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 0
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "10295 lower-ranked candidate(s) not run: about 11 tests/s per process fit 2640 in the 300 s allowed",
+   "64271 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "Skipped 1 non-Python file(s)",
+   "graph reused from the previous state; 2 changed file(s) relinked"
+  ],
+  "impacted": {
+   "count": 29,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1608,
+   "parsed_files": 2
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/testing/tests/test_runtests.py::test_convert_to_native_paths",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "eb4218b8d30b",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [
+    "sympy/testing/runtests.py#convert_to_native_paths"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 2,
+   "differences": 0,
+   "functions_called": 1,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "sympy/testing/tests/test_runtests.py#test_convert_to_native_paths": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 28.0,
+   "targets": 1,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 2640 of 2640 candidate tests after the change with pytest in 182.1 s, failures confirmed before it: 0 now fail. 7 tests reach the change. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/testing/tests/test_runtests.py::test_convert_to_native_paths",
+    "line": 8,
+    "run": "python -m pytest sympy/testing/tests/test_runtests.py::test_convert_to_native_paths",
+    "score": 3.388,
+    "why": "calls convert_to_native_paths (name: convert,native,path,runtest,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/printing/tests/test_tensorflow.py::test_codegen_einsum",
+    "line": 358,
+    "run": "python -m pytest sympy/printing/tests/test_tensorflow.py::test_codegen_einsum",
+    "score": 0.052,
+    "why": "via SymPyDocTestRunner.run > test > _test > convert_to_native_paths"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/utilities/tests/test_lambdify.py::test_tensorflow_variables",
+    "line": 934,
+    "run": "python -m pytest sympy/utilities/tests/test_lambdify.py::test_tensorflow_variables",
+    "score": 0.051,
+    "why": "via SymPyDocTestRunner.run > test > _test > convert_to_native_paths"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/printing/tests/test_tensorflow.py::test_codegen_extra",
+    "line": 379,
+    "run": "python -m pytest sympy/printing/tests/test_tensorflow.py::test_codegen_extra",
+    "score": 0.047,
+    "why": "via SymPyDocTestRunner.run > test > _test > convert_to_native_paths"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/printing/tests/test_tensorflow.py::test_tensorflow_math",
+    "line": 170,
+    "run": "python -m pytest sympy/printing/tests/test_tensorflow.py::test_tensorflow_math",
+    "score": 0.028,
+    "why": "via _compare_tensorflow_scalar > SymPyDocTestRunner.run > test > _test > convert_to_native_paths"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/printing/tests/test_tensorflow.py::test_tensorflow_matrices",
+    "line": 304,
+    "run": "python -m pytest sympy/printing/tests/test_tensorflow.py::test_tensorflow_matrices",
+    "score": 0.028,
+    "why": "via _compare_tensorflow_matrix > SymPyDocTestRunner.run > test > _test > convert_to_native_paths"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/printing/tests/test_tensorflow.py::test_tensorflow_relational",
+    "line": 273,
+    "run": "python -m pytest sympy/printing/tests/test_tensorflow.py::test_tensorflow_relational",
+    "score": 0.028,
+    "why": "via _compare_tensorflow_relational > SymPyDocTestRunner.run > test > _test > convert_to_native_paths"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/testing/tests/test_runtests.py",
+    "lines": "8-16",
+    "symbol": "test_convert_to_native_paths"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792338775.970273,
+  "job_seconds": 183.6,
+  "number": 30693,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 183.6,
+  "started": 1792338591.612579
+ },
+ "verify": null
+}

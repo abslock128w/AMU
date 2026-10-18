@@ -1,0 +1,623 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "3f58eb0ce808f8c4917ab0b8ae67d133fc794c3f",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "dc1562262a6e4a56f7409ef9ab7e92c6bb66c926",
+  "install_ok": true,
+  "merge_base": "3f58eb0ce808f8c4917ab0b8ae67d133fc794c3f",
+  "pr": 30591,
+  "recording": false,
+  "runner": null,
+  "seconds": 447.8,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "3f58eb0ce808f8c4917ab0b8ae67d133fc794c3f",
+  "head_sha": "dc1562262a6e4a56f7409ef9ab7e92c6bb66c926",
+  "merge_base": "3f58eb0ce808f8c4917ab0b8ae67d133fc794c3f",
+  "merged_at": "2026-09-27T19:56:43Z",
+  "number": 30591,
+  "repo": "sympy",
+  "title": "fix(evalf): do not truncate the term ratio to an integer in hypsum"
+ },
+ "probe_minutes": {
+  "end": 1792334999.925112,
+  "minutes": 0.4,
+  "start": 1792334720.9711602,
+  "waited": 253.0985635830002
+ },
+ "probe_targets": {
+  "all": 1,
+  "called": 0,
+  "targets": [
+   {
+    "after": "def hypsum(expr: Expr, n: Symbol, start: int, prec: int) -> mpf:\n    \"\"\"\n    Sum a rapidly convergent infinite hypergeometric series with\n    given general term, e.g. e = hypsum(1/factorial(n), n). The\n    quotient between successive terms must be a quotient of integer\n    polynomials.\n    \"\"\"\n    from .numbers import Float, equal_valued\n    from sympy.simplify.simplify import hypersimp\n\n    if prec == float('inf'):\n        raise NotImplementedError('does not support inf prec')\n\n    if start:\n        expr = expr.subs(n, n + start)\n    hs = hypersimp(expr, n)\n    if hs is None:\n        raise NotImplementedError(\"a hypergeometric series is required\")\n    num, den = hs.as_numer_denom()\n\n    with local_workprec(prec) as ctx:\n\n        func1 = lambdify(n, num, modules=ctx)\n        func2 = lambdify(n, den, modules=ctx)\n\n        h, g, p = check_convergence(num, den, n)\n\n        if h < 0:\n            raise ValueError(\"Sum diverges like (n!)^%i\" % (-h))\n\n        eterm = expr.subs(n, 0)\n        if not eterm.is_Rational:\n            raise NotImplementedError(\"Non rational term functionality is not implemented.\")\n\n        term: Rational = eterm # type: ignore\n\n        # Direct summation if geometric or faster\n        if h > 0 or (h == 0 and abs(g) > 1):\n            term = (MPZ(term.p) << prec) // term.q\n            s = term\n            k = 1\n            while abs(term) > 5:\n                # The ratio must be applied before it is truncated to an integer:\n                # the numerator and denominator of the quotient between successive\n                # terms need not be integral (the ratio for 1.9**n/factorial(n) is\n                # 1.9/(n + 1), and MPZ(1.9) is 1). ctx.mpf keeps the division in\n                # arbitrary precision instead of falling back to a float.\n                term *= ctx.mpf(func1(k - 1)) / ctx.mpf(func2(k - 1))\n                s += term\n                k += 1\n            return from_man_exp(MPZ(s), -prec)\n        else:\n            alt = g < 0\n            if abs(g) < 1:\n                raise ValueError(\"Sum diverges like (%i)^n\" % abs(1/g))\n            if p < 1 or (equal_valued(p, 1) and not alt):\n                raise ValueError(\"Sum diverges like n^%i\" % (-p))\n            # We have polynomial convergence: use Richardson extrapolation\n            vold = None\n            ndig = prec_to_dps(prec)\n            while True:\n                # Need to use at least quad precision because a lot of cancellation\n                # might occur in the extrapolation process; we check the answer to\n                # make sure that the desired precision has been reached, too.\n                prec2 = 4*prec\n                term0 = (MPZ(term.p) << prec2) // term.q\n\n                def summand(k, _term=[term0]):\n                    if k:\n                        k = int(k)\n                        # The ratio must be applied before it is truncated to an\n                        # integer, since the numerator and denominator of the\n                        # quotient between successive terms need not be integral\n                        # (the ratio for 1.9**n/factorial(n) is 1.9/(n + 1), and\n                        # MPZ(1.9) is 1). The ratio is held as a fixed-point\n                        # integer with prec2 extra bits so that the accumulator\n                        # keeps the accuracy the extrapolation relies on, and\n                        # ctx.mpf keeps the division from falling back to a float.\n                        with local_workprec(prec2 + 20):\n                            ratio = MPZ(\n                                ctx.mpf(func1(k - 1))\n                                / ctx.mpf(func2(k - 1))\n                                * (1 << prec2)\n                            )\n                        _term[0] = _term[0] * ratio >> prec2\n                    return ctx.make_mpf(from_man_exp(_term[0], -prec2))\n\n                ctx.prec = prec\n                v = ctx.nsum(summand, [0, mpmath_inf], method='richardson')\n                vf = Float(v, ndig)\n                if vold is not None and vold == vf:\n                    break\n                prec += prec  # double precision each time\n                vold = vf\n\n        return v._mpf_\n",
+    "before": "def hypsum(expr: Expr, n: Symbol, start: int, prec: int) -> mpf:\n    \"\"\"\n    Sum a rapidly convergent infinite hypergeometric series with\n    given general term, e.g. e = hypsum(1/factorial(n), n). The\n    quotient between successive terms must be a quotient of integer\n    polynomials.\n    \"\"\"\n    from .numbers import Float, equal_valued\n    from sympy.simplify.simplify import hypersimp\n\n    if prec == float('inf'):\n        raise NotImplementedError('does not support inf prec')\n\n    if start:\n        expr = expr.subs(n, n + start)\n    hs = hypersimp(expr, n)\n    if hs is None:\n        raise NotImplementedError(\"a hypergeometric series is required\")\n    num, den = hs.as_numer_denom()\n\n    with local_workprec(prec) as ctx:\n\n        func1 = lambdify(n, num, modules=ctx)\n        func2 = lambdify(n, den, modules=ctx)\n\n        h, g, p = check_convergence(num, den, n)\n\n        if h < 0:\n            raise ValueError(\"Sum diverges like (n!)^%i\" % (-h))\n\n        eterm = expr.subs(n, 0)\n        if not eterm.is_Rational:\n            raise NotImplementedError(\"Non rational term functionality is not implemented.\")\n\n        term: Rational = eterm # type: ignore\n\n        # Direct summation if geometric or faster\n        if h > 0 or (h == 0 and abs(g) > 1):\n            term = (MPZ(term.p) << prec) // term.q\n            s = term\n            k = 1\n            while abs(term) > 5:\n                term *= MPZ(func1(k - 1))\n                term //= MPZ(func2(k - 1))\n                s += term\n                k += 1\n            return from_man_exp(s, -prec)\n        else:\n            alt = g < 0\n            if abs(g) < 1:\n                raise ValueError(\"Sum diverges like (%i)^n\" % abs(1/g))\n            if p < 1 or (equal_valued(p, 1) and not alt):\n                raise ValueError(\"Sum diverges like n^%i\" % (-p))\n            # We have polynomial convergence: use Richardson extrapolation\n            vold = None\n            ndig = prec_to_dps(prec)\n            while True:\n                # Need to use at least quad precision because a lot of cancellation\n                # might occur in the extrapolation process; we check the answer to\n                # make sure that the desired precision has been reached, too.\n                prec2 = 4*prec\n                term0 = (MPZ(term.p) << prec2) // term.q\n\n                def summand(k, _term=[term0]):\n                    if k:\n                        k = int(k)\n                        _term[0] *= MPZ(func1(k - 1))\n                        _term[0] //= MPZ(func2(k - 1))\n                    return ctx.make_mpf(from_man_exp(_term[0], -prec2))\n\n                ctx.prec = prec\n                v = ctx.nsum(summand, [0, mpmath_inf], method='richardson')\n                vf = Float(v, ndig)\n                if vold is not None and vold == vf:\n                    break\n                prec += prec  # double precision each time\n                vold = vf\n\n        return v._mpf_\n",
+    "file": "sympy/core/evalf.py",
+    "id": "sympy/core/evalf.py#hypsum",
+    "name": "hypsum",
+    "qual": "hypsum",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "return",
+      "list",
+      "['6.68589444227927', '7.38905609893065', '0.0100501666633336']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['2.71828182845905', '7.38905609893065', '0.0100501666633336']"
+     ],
+     "call": "[str(Sum(Float('1.9')**n/factorial(n), (n, 0, oo)).evalf()), str(Sum(E/factorial(n), (n, 0, oo)).evalf()), str(Sum(1/n**2, (n, 100, oo)).evalf())]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import E, Float, Sum, factorial, oo, symbols\nn = symbols('n', integer=True, positive=True)",
+     "target": "sympy/core/evalf.py#hypsum",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import E, Float, Sum, factorial, oo, symbols\n    n = symbols('n', integer=True, positive=True)\n    assert repr([str(Sum(Float('1.9')**n/factorial(n), (n, 0, oo)).evalf()), str(Sum(E/factorial(n), (n, 0, oo)).evalf()), str(Sum(1/n**2, (n, 100, oo)).evalf())]) == \"['6.68589444227927', '7.38905609893065', '0.0100501666633336']\"\n",
+     "why": "a non-integer ratio between terms (issue 13365) and the Richardson branch"
+    }
+   ],
+   "dollars_cap": 0.1,
+   "filter_seconds": 19.0,
+   "gaps": [],
+   "info": {
+    "accepted": 1,
+    "compiled": 1,
+    "cost": 0.0,
+    "differed": 1,
+    "dollars_cap": 0.1,
+    "functions": 1,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 1,
+    "ran": 1,
+    "reached": 1,
+    "requests": 1,
+    "seconds": 18.8,
+    "stable": 1
+   },
+   "probes": [
+    {
+     "call": "[str(Sum(Float('1.9')**n/factorial(n), (n, 0, oo)).evalf()), str(Sum(E/factorial(n), (n, 0, oo)).evalf()), str(Sum(1/n**2, (n, 100, oo)).evalf())]",
+     "function": "sympy/core/evalf.py#hypsum",
+     "setup": "from sympy import E, Float, Sum, factorial, oo, symbols\nn = symbols('n', integer=True, positive=True)",
+     "why": "a non-integer ratio between terms (issue 13365) and the Richardson branch"
+    }
+   ],
+   "targets": [
+    "sympy/core/evalf.py#hypsum"
+   ],
+   "waited_seconds": 253.1
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/core/tests/test_evalf.py::test_issue_13365",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/core/evalf.py",
+    "lines": "1283-1325",
+    "symbol": "hypsum"
+   },
+   {
+    "file": "sympy/core/evalf.py",
+    "lines": "1311-1325",
+    "symbol": "hypsum.summand"
+   },
+   {
+    "file": "sympy/core/tests/test_evalf.py",
+    "lines": "753-768",
+    "symbol": "test_issue_13365"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/core/evalf.py#hypsum",
+   "sympy/core/evalf.py#hypsum.summand",
+   "sympy/core/tests/test_evalf.py#test_issue_13365",
+   "sympy/core/tests/test_evalf.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "hypsum return changed",
+    "path": [
+     "sympy/core/evalf.py:1291 return",
+     "sympy/core/evalf.py:1364 evalf_sum uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 1,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 2952,
+   "ran": 680,
+   "replayed": 1,
+   "runner": "pytest",
+   "seconds": 441.7,
+   "selection": {
+    "candidates": 12908,
+    "closure_files": 1321,
+    "closure_tests": 12907,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 1
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "68687 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "9956 lower-ranked candidate(s) not run: about 12 tests/s per process fit 2952 in the 300 s allowed",
+   "Skipped 1 non-Python file(s)",
+   "graph reused from the previous state; 6 changed file(s) relinked",
+   "shadow run stopped at its 300 s budget: 680 of 2952 candidates run",
+   "side-by-side run stopped at its time limit; calls captured until then are compared",
+   "side-by-side: none of the 1 changed function(s) was called by the tests run on the code before the change"
+  ],
+  "impacted": {
+   "count": 225,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1607,
+   "parsed_files": 2
+  },
+  "original_tests": {
+   "sympy/core/tests/test_evalf.py::test_evalf_helpers": "passed",
+   "sympy/core/tests/test_evalf.py::test_issue_17681": "passed",
+   "sympy/core/tests/test_evalf.py::test_issue_8853": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/core/tests/test_evalf.py::test_issue_13365",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "c63f385b2932",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 0,
+   "differences": 0,
+   "functions_called": 0,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "sympy/core/evalf.py#hypsum.summand": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/core/tests/test_evalf.py#test_issue_13365": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 120.1,
+   "targets": 1,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 680 of 2952 candidate tests after the change with pytest in 441.7 s, failures confirmed before it: 0 now fail. 314 tests reach the change. 3 test(s) from edited test files also run as they were before the edit. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_evalf.py::test_evalf_integer_parts",
+    "line": 276,
+    "run": "python -m pytest sympy/core/tests/test_evalf.py::test_evalf_integer_parts",
+    "score": 0.965,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_evalf.py::test_evalf_real_alg_num",
+    "line": 714,
+    "run": "python -m pytest sympy/core/tests/test_evalf.py::test_evalf_real_alg_num",
+    "score": 0.596,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_evalf.py::test_evalf_trig_zero_detection",
+    "line": 316,
+    "run": "python -m pytest sympy/core/tests/test_evalf.py::test_evalf_trig_zero_detection",
+    "score": 0.418,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rootoftools.py::test_CRootOf_evalf",
+    "line": 198,
+    "run": "python -m pytest sympy/polys/tests/test_rootoftools.py::test_CRootOf_evalf",
+    "score": 0.328,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_evalf_integrals",
+    "line": 528,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_evalf_integrals",
+    "score": 0.283,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_evalf.py::test_issue_20733",
+    "line": 728,
+    "run": "python -m pytest sympy/core/tests/test_evalf.py::test_issue_20733",
+    "score": 0.26,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_evalf.py::test_evalf_integral",
+    "line": 518,
+    "run": "python -m pytest sympy/core/tests/test_evalf.py::test_evalf_integral",
+    "score": 0.248,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/special/tests/test_error_functions.py::test_Li_evalf_cancellation",
+    "line": 621,
+    "run": "python -m pytest sympy/functions/special/tests/test_error_functions.py::test_Li_evalf_cancellation",
+    "score": 0.242,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_sums_products.py::test_evalf_oo_to_oo",
+    "line": 441,
+    "run": "python -m pytest sympy/concrete/tests/test_sums_products.py::test_evalf_oo_to_oo",
+    "score": 0.238,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_evalf.py::test_issue_13365",
+    "line": 753,
+    "run": "python -m pytest sympy/core/tests/test_evalf.py::test_issue_13365",
+    "score": 0.236,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_function.py::test_function_evalf",
+    "line": 523,
+    "run": "python -m pytest sympy/core/tests/test_function.py::test_function_evalf",
+    "score": 0.235,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rootoftools.py::test_RootSum_evalf",
+    "line": 516,
+    "run": "python -m pytest sympy/polys/tests/test_rootoftools.py::test_RootSum_evalf",
+    "score": 0.235,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_evalf.py::test_evalf_sum",
+    "line": 325,
+    "run": "python -m pytest sympy/core/tests/test_evalf.py::test_evalf_sum",
+    "score": 0.234,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rootoftools.py::test_CRootOf_evalf_caching_bug",
+    "line": 302,
+    "run": "python -m pytest sympy/polys/tests/test_rootoftools.py::test_CRootOf_evalf_caching_bug",
+    "score": 0.233,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_evalf.py::test_issue_4806",
+    "line": 468,
+    "run": "python -m pytest sympy/core/tests/test_evalf.py::test_issue_4806",
+    "score": 0.233,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/elementary/tests/test_exponential.py::test_log_apply_evalf",
+    "line": 485,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_exponential.py::test_log_apply_evalf",
+    "score": 0.233,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/special/tests/test_elliptic_functions.py::test_jtheta_evalf",
+    "line": 109,
+    "run": "python -m pytest sympy/functions/special/tests/test_elliptic_functions.py::test_jtheta_evalf",
+    "score": 0.233,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/special/tests/test_error_functions.py::test_owent_evalf_cancellation",
+    "line": 1119,
+    "run": "python -m pytest sympy/functions/special/tests/test_error_functions.py::test_owent_evalf_cancellation",
+    "score": 0.233,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/sets/tests/test_sets.py::test_set_evalf",
+    "line": 700,
+    "run": "python -m pytest sympy/sets/tests/test_sets.py::test_set_evalf",
+    "score": 0.233,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_basic.py::test_literal_evalf_is_number_is_zero_is_comparable",
+    "line": 227,
+    "run": "python -m pytest sympy/core/tests/test_basic.py::test_literal_evalf_is_number_is_zero_is_comparable",
+    "score": 0.233,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_evalf.py::test_evalf_bugs",
+    "line": 210,
+    "run": "python -m pytest sympy/core/tests/test_evalf.py::test_evalf_bugs",
+    "score": 0.232,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_evalf.py::test_evalf_power_subs_bugs",
+    "line": 366,
+    "run": "python -m pytest sympy/core/tests/test_evalf.py::test_evalf_power_subs_bugs",
+    "score": 0.232,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/algebras/tests/test_quaternion.py::test_quaternion_evalf",
+    "line": 144,
+    "run": "python -m pytest sympy/algebras/tests/test_quaternion.py::test_quaternion_evalf",
+    "score": 0.231,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_sums_products.py::test_evalf_issue_3273",
+    "line": 494,
+    "run": "python -m pytest sympy/concrete/tests/test_sums_products.py::test_evalf_issue_3273",
+    "score": 0.231,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_sums_products.py::test_evalf_symbolic",
+    "line": 488,
+    "run": "python -m pytest sympy/concrete/tests/test_sums_products.py::test_evalf_symbolic",
+    "score": 0.231,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_evalf.py::test_chop_value",
+    "line": 492,
+    "run": "python -m pytest sympy/core/tests/test_evalf.py::test_chop_value",
+    "score": 0.231,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_evalf.py::test_evalf_arguments",
+    "line": 377,
+    "run": "python -m pytest sympy/core/tests/test_evalf.py::test_evalf_arguments",
+    "score": 0.231,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_evalf.py::test_evalf_divergent_series",
+    "line": 340,
+    "run": "python -m pytest sympy/core/tests/test_evalf.py::test_evalf_divergent_series",
+    "score": 0.231,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_evalf.py::test_evalf_product",
+    "line": 352,
+    "run": "python -m pytest sympy/core/tests/test_evalf.py::test_evalf_product",
+    "score": 0.231,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_evalf.py::test_evalf_relational",
+    "line": 402,
+    "run": "python -m pytest sympy/core/tests/test_evalf.py::test_evalf_relational",
+    "score": 0.231,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_evalf.py::test_evalf_with_zoo",
+    "line": 648,
+    "run": "python -m pytest sympy/core/tests/test_evalf.py::test_evalf_with_zoo",
+    "score": 0.231,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_evalf.py::test_implemented_function_evalf",
+    "line": 381,
+    "run": "python -m pytest sympy/core/tests/test_evalf.py::test_implemented_function_evalf",
+    "score": 0.231,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_evalf.py::test_infinities",
+    "line": 497,
+    "run": "python -m pytest sympy/core/tests/test_evalf.py::test_infinities",
+    "score": 0.231,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_evalf.py::test_issue_10395",
+    "line": 585,
+    "run": "python -m pytest sympy/core/tests/test_evalf.py::test_issue_10395",
+    "score": 0.231,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_evalf.py::test_issue_11151",
+    "line": 608,
+    "run": "python -m pytest sympy/core/tests/test_evalf.py::test_issue_11151",
+    "score": 0.231,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_evalf.py::test_issue_13425",
+    "line": 624,
+    "run": "python -m pytest sympy/core/tests/test_evalf.py::test_issue_13425",
+    "score": 0.231,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_evalf.py::test_issue_20291",
+    "line": 634,
+    "run": "python -m pytest sympy/core/tests/test_evalf.py::test_issue_20291",
+    "score": 0.231,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_evalf.py::test_issue_5486",
+    "line": 411,
+    "run": "python -m pytest sympy/core/tests/test_evalf.py::test_issue_5486",
+    "score": 0.231,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_evalf.py::test_issue_6632_evalf",
+    "line": 507,
+    "run": "python -m pytest sympy/core/tests/test_evalf.py::test_issue_6632_evalf",
+    "score": 0.231,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_evalf.py::test_issue_8821_highprec_from_str",
+    "line": 524,
+    "run": "python -m pytest sympy/core/tests/test_evalf.py::test_issue_8821_highprec_from_str",
+    "score": 0.231,
+    "why": "via EvalfMixin.evalf > _create_evalf_table > evalf_sum > hypsum (name: evalf)"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/core/tests/test_evalf.py",
+    "lines": "753-768",
+    "symbol": "test_issue_13365"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792334618.6428301,
+  "job_seconds": 447.8,
+  "number": 30591,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 447.9,
+  "started": 1792334168.4957702
+ },
+ "verify": null
+}

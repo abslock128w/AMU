@@ -1,0 +1,1191 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "026b005f3dc43a98557ce5a546b5e4938d06fed1",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "566a88c8bb9f90cc24aabd721db8dff95aa0dc37",
+  "install_ok": true,
+  "merge_base": "026b005f3dc43a98557ce5a546b5e4938d06fed1",
+  "pr": 21886,
+  "recording": true,
+  "runner": null,
+  "seconds": 19.6,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "026b005f3dc43a98557ce5a546b5e4938d06fed1",
+  "head_sha": "566a88c8bb9f90cc24aabd721db8dff95aa0dc37",
+  "merge_base": "026b005f3dc43a98557ce5a546b5e4938d06fed1",
+  "merged_at": "2026-09-04T18:19:15Z",
+  "number": 21886,
+  "repo": "django",
+  "title": "Fixed #37271 -- Added calendar version support to django.utils.version."
+ },
+ "probe_minutes": {
+  "end": 1792323185.4137092,
+  "minutes": 0.3,
+  "start": 1792323146.244896,
+  "waited": 20.02190008398611
+ },
+ "probe_targets": {
+  "all": 6,
+  "called": 5,
+  "targets": [
+   {
+    "after": "def test_get_version_tuple(self):\n    self.assertEqual(get_version_tuple(\"1.2.3\"), (1, 2, 3))\n    self.assertEqual(get_version_tuple(\"1.2.3b2\"), (1, 2, 3))\n    self.assertEqual(get_version_tuple(\"1.2.3b2.dev0\"), (1, 2, 3))\n    self.assertEqual(get_version_tuple(\"2028\"), (2028,))\n    self.assertEqual(get_version_tuple(\"2028.1\"), (2028, 1))\n    self.assertEqual(get_version_tuple(\"2028b2\"), (2028,))\n",
+    "before": "def test_get_version_tuple(self):\n    self.assertEqual(get_version_tuple(\"1.2.3\"), (1, 2, 3))\n    self.assertEqual(get_version_tuple(\"1.2.3b2\"), (1, 2, 3))\n    self.assertEqual(get_version_tuple(\"1.2.3b2.dev0\"), (1, 2, 3))\n",
+    "file": "tests/version/tests.py",
+    "id": "tests/version/tests.py#VersionTests.test_get_version_tuple",
+    "name": "test_get_version_tuple",
+    "qual": "VersionTests.test_get_version_tuple",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [],
+   "filter_seconds": 7.7,
+   "gaps": [],
+   "info": {
+    "accepted": 0,
+    "compiled": 1,
+    "cost": 0.0,
+    "differed": 0,
+    "dollars_cap": 0.1,
+    "functions": 1,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 1,
+    "ran": 1,
+    "reached": 1,
+    "requests": 1,
+    "seconds": 6.9,
+    "stable": 1
+   },
+   "probes": [
+    {
+     "call": "[get_version_tuple(v) for v in ('2028', '2028.1', '2028b2', '1.2.3b2.dev0')]",
+     "function": "tests/version/tests.py#VersionTests.test_get_version_tuple",
+     "setup": "from django.utils.version import get_version_tuple",
+     "why": "the calendar versions the edited test adds"
+    }
+   ],
+   "targets": [
+    "tests/version/tests.py#VersionTests.test_get_version_tuple"
+   ],
+   "waited_seconds": 20.0
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/version/tests.py::VersionTests::test_calendar_development",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/version/tests.py::VersionTests::test_calendar_releases",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/version/tests.py::VersionTests::test_get_main_version",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/version/tests.py::VersionTests::test_get_docs_version",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/version/tests.py::VersionTests::test_get_version_tuple",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_attributes",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_feature_comparisons_span_both_schemes",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_django_version_is_a_version_tuple",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_invalid_version",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_indexing_from_third_component_deprecated",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_indexing_first_two_components_not_deprecated",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_iterating_deprecated",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_length_deprecated",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_comparison_with_three_or_more_components_deprecated",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_reflected_comparison_deprecated",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_comparison_with_fewer_components_not_deprecated",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_comparison_with_non_tuple_not_deprecated",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_calendar_versions_not_deprecated",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_hashing",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_repr",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_copying_and_pickling",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_version_helpers",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "django/utils/deprecation.py",
+    "lines": "25-39",
+    "symbol": "__getattr__"
+   },
+   {
+    "file": "django/utils/version.py",
+    "lines": "24-30",
+    "symbol": "_validate_version"
+   },
+   {
+    "file": "django/utils/version.py",
+    "lines": "48-50",
+    "symbol": "VersionTuple.__new__"
+   },
+   {
+    "file": "django/utils/version.py",
+    "lines": "52-55",
+    "symbol": "VersionTuple.__getnewargs__"
+   },
+   {
+    "file": "django/utils/version.py",
+    "lines": "57-60",
+    "symbol": "VersionTuple._components"
+   },
+   {
+    "file": "django/utils/version.py",
+    "lines": "63-65",
+    "symbol": "VersionTuple.feature"
+   },
+   {
+    "file": "django/utils/version.py",
+    "lines": "67-69",
+    "symbol": "VersionTuple.patch"
+   },
+   {
+    "file": "django/utils/version.py",
+    "lines": "71-73",
+    "symbol": "VersionTuple.status"
+   },
+   {
+    "file": "django/utils/version.py",
+    "lines": "75-77",
+    "symbol": "VersionTuple.iteration"
+   },
+   {
+    "file": "django/utils/version.py",
+    "lines": "82-102",
+    "symbol": "VersionTuple._warn"
+   },
+   {
+    "file": "django/utils/version.py",
+    "lines": "104-111",
+    "symbol": "VersionTuple._warn_comparison"
+   },
+   {
+    "file": "django/utils/version.py",
+    "lines": "113-127",
+    "symbol": "VersionTuple.__getitem__"
+   },
+   {
+    "file": "django/utils/version.py",
+    "lines": "129-131",
+    "symbol": "VersionTuple.__iter__"
+   },
+   {
+    "file": "django/utils/version.py",
+    "lines": "133-135",
+    "symbol": "VersionTuple.__len__"
+   },
+   {
+    "file": "django/utils/version.py",
+    "lines": "137-139",
+    "symbol": "VersionTuple.__eq__"
+   },
+   {
+    "file": "django/utils/version.py",
+    "lines": "141-143",
+    "symbol": "VersionTuple.__ne__"
+   },
+   {
+    "file": "django/utils/version.py",
+    "lines": "145-147",
+    "symbol": "VersionTuple.__lt__"
+   },
+   {
+    "file": "django/utils/version.py",
+    "lines": "149-151",
+    "symbol": "VersionTuple.__le__"
+   },
+   {
+    "file": "django/utils/version.py",
+    "lines": "153-155",
+    "symbol": "VersionTuple.__gt__"
+   },
+   {
+    "file": "django/utils/version.py",
+    "lines": "157-159",
+    "symbol": "VersionTuple.__ge__"
+   },
+   {
+    "file": "django/utils/version.py",
+    "lines": "169-184",
+    "symbol": "get_version"
+   },
+   {
+    "file": "django/utils/version.py",
+    "lines": "190-196",
+    "symbol": "get_main_version"
+   },
+   {
+    "file": "django/utils/version.py",
+    "lines": "206-208",
+    "symbol": "get_complete_version"
+   },
+   {
+    "file": "django/utils/version.py",
+    "lines": "215-218",
+    "symbol": "get_docs_version"
+   },
+   {
+    "file": "tests/version/tests.py",
+    "lines": "56-62",
+    "symbol": "VersionTests.test_calendar_development"
+   },
+   {
+    "file": "tests/version/tests.py",
+    "lines": "64-76",
+    "symbol": "VersionTests.test_calendar_releases"
+   },
+   {
+    "file": "tests/version/tests.py",
+    "lines": "78-90",
+    "symbol": "VersionTests.test_get_main_version"
+   },
+   {
+    "file": "tests/version/tests.py",
+    "lines": "92-104",
+    "symbol": "VersionTests.test_get_docs_version"
+   },
+   {
+    "file": "tests/version/tests.py",
+    "lines": "110-112",
+    "symbol": "VersionTests.test_get_version_tuple"
+   },
+   {
+    "file": "tests/version/tests.py",
+    "lines": "135-151",
+    "symbol": "VersionTupleTests.test_attributes"
+   },
+   {
+    "file": "tests/version/tests.py",
+    "lines": "153-158",
+    "symbol": "VersionTupleTests.test_feature_comparisons_span_both_schemes"
+   },
+   {
+    "file": "tests/version/tests.py",
+    "lines": "160-165",
+    "symbol": "VersionTupleTests.test_django_version_is_a_version_tuple"
+   },
+   {
+    "file": "tests/version/tests.py",
+    "lines": "167-182",
+    "symbol": "VersionTupleTests.test_invalid_version"
+   },
+   {
+    "file": "tests/version/tests.py",
+    "lines": "185-203",
+    "symbol": "VersionTupleTests.test_indexing_from_third_component_deprecated"
+   },
+   {
+    "file": "tests/version/tests.py",
+    "lines": "206-218",
+    "symbol": "VersionTupleTests.test_indexing_first_two_components_not_deprecated"
+   },
+   {
+    "file": "tests/version/tests.py",
+    "lines": "221-231",
+    "symbol": "VersionTupleTests.test_iterating_deprecated"
+   },
+   {
+    "file": "tests/version/tests.py",
+    "lines": "234-237",
+    "symbol": "VersionTupleTests.test_length_deprecated"
+   },
+   {
+    "file": "tests/version/tests.py",
+    "lines": "240-254",
+    "symbol": "VersionTupleTests.test_comparison_with_three_or_more_components_deprecated"
+   },
+   {
+    "file": "tests/version/tests.py",
+    "lines": "257-260",
+    "symbol": "VersionTupleTests.test_reflected_comparison_deprecated"
+   },
+   {
+    "file": "tests/version/tests.py",
+    "lines": "263-274",
+    "symbol": "VersionTupleTests.test_comparison_with_fewer_components_not_deprecated"
+   },
+   {
+    "file": "tests/version/tests.py",
+    "lines": "277-278",
+    "symbol": "VersionTupleTests.test_comparison_with_non_tuple_not_deprecated"
+   },
+   {
+    "file": "tests/version/tests.py",
+    "lines": "281-289",
+    "symbol": "VersionTupleTests.test_calendar_versions_not_deprecated"
+   },
+   {
+    "file": "tests/version/tests.py",
+    "lines": "291-292",
+    "symbol": "VersionTupleTests.test_hashing"
+   },
+   {
+    "file": "tests/version/tests.py",
+    "lines": "294-296",
+    "symbol": "VersionTupleTests.test_repr"
+   },
+   {
+    "file": "tests/version/tests.py",
+    "lines": "298-313",
+    "symbol": "VersionTupleTests.test_copying_and_pickling"
+   },
+   {
+    "file": "tests/version/tests.py",
+    "lines": "315-330",
+    "symbol": "VersionTupleTests.test_version_helpers"
+   }
+  ],
+  "changed_symbols": [
+   "django/__init__.py#VERSION",
+   "django/utils/deprecation.py#__getattr__",
+   "django/utils/version.py#VersionTuple.__eq__",
+   "django/utils/version.py#VersionTuple.__ge__",
+   "django/utils/version.py#VersionTuple.__getitem__",
+   "django/utils/version.py#VersionTuple.__getnewargs__",
+   "django/utils/version.py#VersionTuple.__gt__",
+   "django/utils/version.py#VersionTuple.__hash__",
+   "django/utils/version.py#VersionTuple.__iter__",
+   "django/utils/version.py#VersionTuple.__le__",
+   "django/utils/version.py#VersionTuple.__len__",
+   "django/utils/version.py#VersionTuple.__lt__",
+   "django/utils/version.py#VersionTuple.__ne__",
+   "django/utils/version.py#VersionTuple.__new__",
+   "django/utils/version.py#VersionTuple.__slots__",
+   "django/utils/version.py#VersionTuple._components",
+   "django/utils/version.py#VersionTuple._warn",
+   "django/utils/version.py#VersionTuple._warn_comparison",
+   "django/utils/version.py#VersionTuple.feature",
+   "django/utils/version.py#VersionTuple.iteration",
+   "django/utils/version.py#VersionTuple.patch",
+   "django/utils/version.py#VersionTuple.status",
+   "django/utils/version.py#_validate_version",
+   "django/utils/version.py#get_complete_version",
+   "django/utils/version.py#get_docs_version",
+   "django/utils/version.py#get_main_version",
+   "django/utils/version.py#get_version",
+   "tests/version/tests.py#VersionTests.test_calendar_development",
+   "tests/version/tests.py#VersionTests.test_calendar_releases",
+   "tests/version/tests.py#VersionTests.test_get_docs_version",
+   "tests/version/tests.py#VersionTests.test_get_main_version",
+   "tests/version/tests.py#VersionTests.test_get_version_tuple",
+   "tests/version/tests.py#VersionTupleTests.calendar_version",
+   "tests/version/tests.py#VersionTupleTests.hint",
+   "tests/version/tests.py#VersionTupleTests.test_attributes",
+   "tests/version/tests.py#VersionTupleTests.test_calendar_versions_not_deprecated",
+   "tests/version/tests.py#VersionTupleTests.test_comparison_with_fewer_components_not_deprecated",
+   "tests/version/tests.py#VersionTupleTests.test_comparison_with_non_tuple_not_deprecated",
+   "tests/version/tests.py#VersionTupleTests.test_comparison_with_three_or_more_components_deprecated",
+   "tests/version/tests.py#VersionTupleTests.test_copying_and_pickling",
+   "tests/version/tests.py#VersionTupleTests.test_django_version_is_a_version_tuple",
+   "tests/version/tests.py#VersionTupleTests.test_feature_comparisons_span_both_schemes",
+   "tests/version/tests.py#VersionTupleTests.test_hashing",
+   "tests/version/tests.py#VersionTupleTests.test_indexing_first_two_components_not_deprecated",
+   "tests/version/tests.py#VersionTupleTests.test_indexing_from_third_component_deprecated",
+   "tests/version/tests.py#VersionTupleTests.test_invalid_version",
+   "tests/version/tests.py#VersionTupleTests.test_iterating_deprecated",
+   "tests/version/tests.py#VersionTupleTests.test_length_deprecated",
+   "tests/version/tests.py#VersionTupleTests.test_reflected_comparison_deprecated",
+   "tests/version/tests.py#VersionTupleTests.test_repr",
+   "tests/version/tests.py#VersionTupleTests.test_version_helpers",
+   "tests/version/tests.py#VersionTupleTests.version",
+   "django/utils/version.py#VersionTuple",
+   "tests/version/tests.py#VersionTests",
+   "tests/version/tests.py#VersionTupleTests",
+   "django/__init__.py",
+   "django/utils/deprecation.py",
+   "django/utils/version.py",
+   "tests/version/tests.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "get_docs_version return changed",
+    "path": [
+     "django/utils/version.py:218 return",
+     "django/core/management/commands/optimizemigration.py:90 Command.handle uses the result",
+     "django/core/management/commands/runserver.py:192 Command.on_bind uses the result",
+     "django/core/management/templates.py:149 TemplateCommand.handle uses the result"
+    ],
+    "to": "11 caller(s) use the result"
+   },
+   {
+    "evidence": "static source path",
+    "from": "get_main_version return changed",
+    "path": [
+     "django/utils/version.py:196 return",
+     "django/utils/version.py:173 get_version uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 22,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 8256,
+   "ran": 439,
+   "replayed": 22,
+   "runner": "django-runtests",
+   "seconds": 15.5,
+   "selection": {
+    "candidates": 15568,
+    "closure_files": 1103,
+    "closure_tests": 14269,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/conf/__init__.py",
+     "django/contrib/admin/__init__.py",
+     "django/contrib/auth/models.py",
+     "django/core/checks/__init__.py",
+     "django/core/management/__init__.py",
+     "django/core/management/base.py",
+     "django/db/__init__.py",
+     "django/db/migrations/__init__.py",
+     "django/db/models/__init__.py",
+     "django/db/models/expressions.py",
+     "django/db/models/functions/__init__.py",
+     "django/db/transaction.py",
+     "django/forms/__init__.py",
+     "django/http/__init__.py",
+     "django/template/__init__.py",
+     "django/template/defaultfilters.py",
+     "django/test/__init__.py",
+     "django/test/utils.py",
+     "django/urls/__init__.py",
+     "django/utils/deprecation.py"
+    ],
+    "observed": 44,
+    "static_only": 334
+   },
+   "unrunnable": 41
+  },
+  "flips": 0,
+  "gaps": [
+   "100142 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "41 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "7312 lower-ranked candidate(s) not run: about 9 tests/s per process fit 8256 in the 300 s allowed",
+   "Skipped 2 non-Python file(s)",
+   "graph reused from the previous state; 4 changed file(s) relinked",
+   "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run stopped at its 300 s budget: 320 of 8256 candidates run"
+  ],
+  "impacted": {
+   "count": 1559,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2928,
+   "parsed_files": 4
+  },
+  "original_tests": {
+   "tests/version/tests.py::VersionTests::test_development": "passed",
+   "tests/version/tests.py::VersionTests::test_development_no_file": "passed",
+   "tests/version/tests.py::VersionTests::test_get_version_invalid_version": "passed",
+   "tests/version/tests.py::VersionTests::test_get_version_tuple": "passed",
+   "tests/version/tests.py::VersionTests::test_releases": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/version/tests.py::VersionTests::test_calendar_development",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/version/tests.py::VersionTests::test_calendar_releases",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/version/tests.py::VersionTests::test_get_main_version",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/version/tests.py::VersionTests::test_get_docs_version",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/version/tests.py::VersionTests::test_get_version_tuple",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_attributes",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_feature_comparisons_span_both_schemes",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_django_version_is_a_version_tuple",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_invalid_version",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_indexing_from_third_component_deprecated",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_indexing_first_two_components_not_deprecated",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_iterating_deprecated",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_length_deprecated",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_comparison_with_three_or_more_components_deprecated",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_reflected_comparison_deprecated",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_comparison_with_fewer_components_not_deprecated",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_comparison_with_non_tuple_not_deprecated",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_calendar_versions_not_deprecated",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_hashing",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_repr",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_copying_and_pickling",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/version/tests.py::VersionTupleTests::test_version_helpers",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "3991649eb991",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [
+    "django/utils/deprecation.py#__getattr__",
+    "django/utils/version.py#get_complete_version",
+    "django/utils/version.py#get_docs_version",
+    "django/utils/version.py#get_main_version",
+    "django/utils/version.py#get_version"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 25,
+   "differences": 0,
+   "functions_called": 5,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "django/utils/version.py#VersionTuple.__eq__": "not a module or class function on both sides (new, removed or nested)",
+    "django/utils/version.py#VersionTuple.__ge__": "not a module or class function on both sides (new, removed or nested)",
+    "django/utils/version.py#VersionTuple.__getitem__": "not a module or class function on both sides (new, removed or nested)",
+    "django/utils/version.py#VersionTuple.__getnewargs__": "not a module or class function on both sides (new, removed or nested)",
+    "django/utils/version.py#VersionTuple.__gt__": "not a module or class function on both sides (new, removed or nested)",
+    "django/utils/version.py#VersionTuple.__iter__": "not a module or class function on both sides (new, removed or nested)",
+    "django/utils/version.py#VersionTuple.__le__": "not a module or class function on both sides (new, removed or nested)",
+    "django/utils/version.py#VersionTuple.__len__": "not a module or class function on both sides (new, removed or nested)",
+    "django/utils/version.py#VersionTuple.__lt__": "not a module or class function on both sides (new, removed or nested)",
+    "django/utils/version.py#VersionTuple.__ne__": "not a module or class function on both sides (new, removed or nested)",
+    "django/utils/version.py#VersionTuple.__new__": "not a module or class function on both sides (new, removed or nested)",
+    "django/utils/version.py#VersionTuple._components": "not a module or class function on both sides (new, removed or nested)",
+    "django/utils/version.py#VersionTuple._warn": "not a module or class function on both sides (new, removed or nested)",
+    "django/utils/version.py#VersionTuple._warn_comparison": "not a module or class function on both sides (new, removed or nested)",
+    "django/utils/version.py#VersionTuple.feature": "not a module or class function on both sides (new, removed or nested)",
+    "django/utils/version.py#VersionTuple.iteration": "not a module or class function on both sides (new, removed or nested)",
+    "django/utils/version.py#VersionTuple.patch": "not a module or class function on both sides (new, removed or nested)",
+    "django/utils/version.py#VersionTuple.status": "not a module or class function on both sides (new, removed or nested)",
+    "django/utils/version.py#_validate_version": "not a module or class function on both sides (new, removed or nested)",
+    "tests/version/tests.py#VersionTests.test_calendar_development": "not a module or class function on both sides (new, removed or nested)",
+    "tests/version/tests.py#VersionTests.test_calendar_releases": "not a module or class function on both sides (new, removed or nested)",
+    "tests/version/tests.py#VersionTests.test_get_docs_version": "not a module or class function on both sides (new, removed or nested)",
+    "tests/version/tests.py#VersionTests.test_get_main_version": "not a module or class function on both sides (new, removed or nested)",
+    "tests/version/tests.py#VersionTupleTests.test_attributes": "not a module or class function on both sides (new, removed or nested)",
+    "tests/version/tests.py#VersionTupleTests.test_calendar_versions_not_deprecated": "not a module or class function on both sides (new, removed or nested)",
+    "tests/version/tests.py#VersionTupleTests.test_comparison_with_fewer_components_not_deprecated": "not a module or class function on both sides (new, removed or nested)",
+    "tests/version/tests.py#VersionTupleTests.test_comparison_with_non_tuple_not_deprecated": "not a module or class function on both sides (new, removed or nested)",
+    "tests/version/tests.py#VersionTupleTests.test_comparison_with_three_or_more_components_deprecated": "not a module or class function on both sides (new, removed or nested)",
+    "tests/version/tests.py#VersionTupleTests.test_copying_and_pickling": "not a module or class function on both sides (new, removed or nested)",
+    "tests/version/tests.py#VersionTupleTests.test_django_version_is_a_version_tuple": "not a module or class function on both sides (new, removed or nested)",
+    "tests/version/tests.py#VersionTupleTests.test_feature_comparisons_span_both_schemes": "not a module or class function on both sides (new, removed or nested)",
+    "tests/version/tests.py#VersionTupleTests.test_hashing": "not a module or class function on both sides (new, removed or nested)",
+    "tests/version/tests.py#VersionTupleTests.test_indexing_first_two_components_not_deprecated": "not a module or class function on both sides (new, removed or nested)",
+    "tests/version/tests.py#VersionTupleTests.test_indexing_from_third_component_deprecated": "not a module or class function on both sides (new, removed or nested)",
+    "tests/version/tests.py#VersionTupleTests.test_invalid_version": "not a module or class function on both sides (new, removed or nested)",
+    "tests/version/tests.py#VersionTupleTests.test_iterating_deprecated": "not a module or class function on both sides (new, removed or nested)",
+    "tests/version/tests.py#VersionTupleTests.test_length_deprecated": "not a module or class function on both sides (new, removed or nested)",
+    "tests/version/tests.py#VersionTupleTests.test_reflected_comparison_deprecated": "not a module or class function on both sides (new, removed or nested)",
+    "tests/version/tests.py#VersionTupleTests.test_repr": "not a module or class function on both sides (new, removed or nested)",
+    "tests/version/tests.py#VersionTupleTests.test_version_helpers": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 3.9,
+   "targets": 6,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 439 of 8256 candidate tests after the change with django-runtests in 15.5 s, failures confirmed before it: 0 now fail. 2810 tests reach the change. 5 test(s) from edited test files also run as they were before the edit. 22 test(s) the change adds or edits replayed on the code before it: 22 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/version/tests.py::VersionTupleTests::test_copying_and_pickling",
+    "line": 298,
+    "run": "cd tests && python runtests.py version.tests.VersionTupleTests.test_copying_and_pickling",
+    "score": 18.228,
+    "why": "via VersionTupleTests (name: tuple,version)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/version/tests.py::VersionTupleTests::test_version_helpers",
+    "line": 315,
+    "run": "cd tests && python runtests.py version.tests.VersionTupleTests.test_version_helpers",
+    "score": 15.597,
+    "why": "calls get_version (name: version)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/version/tests.py::VersionTests::test_get_main_version",
+    "line": 78,
+    "run": "cd tests && python runtests.py version.tests.VersionTests.test_get_main_version",
+    "score": 8.472,
+    "why": "calls get_main_version (name: get,main,version)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/version/tests.py::VersionTupleTests::test_attributes",
+    "line": 135,
+    "run": "cd tests && python runtests.py version.tests.VersionTupleTests.test_attributes",
+    "score": 8.012,
+    "why": "via VersionTupleTests (name: tuple,version)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/version/tests.py::VersionTests::test_get_docs_version",
+    "line": 92,
+    "run": "cd tests && python runtests.py version.tests.VersionTests.test_get_docs_version",
+    "score": 6.763,
+    "why": "calls get_docs_version (name: doc,get,version)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/version/tests.py::VersionTupleTests::test_feature_comparisons_span_both_schemes",
+    "line": 153,
+    "run": "cd tests && python runtests.py version.tests.VersionTupleTests.test_feature_comparisons_span_both_schemes",
+    "score": 6.478,
+    "why": "via VersionTupleTests (name: tuple,version)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/version/tests.py::VersionTests::test_calendar_releases",
+    "line": 64,
+    "run": "cd tests && python runtests.py version.tests.VersionTests.test_calendar_releases",
+    "score": 5.495,
+    "why": "calls get_version (name: version)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/version/tests.py::VersionTupleTests::test_indexing_from_third_component_deprecated",
+    "line": 185,
+    "run": "cd tests && python runtests.py version.tests.VersionTupleTests.test_indexing_from_third_component_deprecated",
+    "score": 4.864,
+    "why": "via VersionTupleTests (name: tuple,version)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/version/tests.py::VersionTests::test_releases",
+    "line": 44,
+    "run": "cd tests && python runtests.py version.tests.VersionTests.test_releases",
+    "score": 4.325,
+    "why": "calls get_version (name: version)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/version/tests.py::VersionTests::test_calendar_development",
+    "line": 56,
+    "run": "cd tests && python runtests.py version.tests.VersionTests.test_calendar_development",
+    "score": 3.76,
+    "why": "calls get_version (name: version)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/version/tests.py::VersionTupleTests::test_repr",
+    "line": 294,
+    "run": "cd tests && python runtests.py version.tests.VersionTupleTests.test_repr",
+    "score": 3.496,
+    "why": "via VersionTupleTests (name: tuple,version)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/version/tests.py::VersionTests::test_development",
+    "line": 22,
+    "run": "cd tests && python runtests.py version.tests.VersionTests.test_development",
+    "score": 3.363,
+    "why": "calls get_version (name: version)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/version/tests.py::VersionTupleTests::test_django_version_is_a_version_tuple",
+    "line": 160,
+    "run": "cd tests && python runtests.py version.tests.VersionTupleTests.test_django_version_is_a_version_tuple",
+    "score": 3.126,
+    "why": "via VERSION (name: version)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/version/tests.py::VersionTests::test_development_no_file",
+    "line": 30,
+    "run": "cd tests && python runtests.py version.tests.VersionTests.test_development_no_file",
+    "score": 2.813,
+    "why": "via VersionTests (name: version)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/version/tests.py::VersionTupleTests::test_comparison_with_three_or_more_components_deprecated",
+    "line": 240,
+    "run": "cd tests && python runtests.py version.tests.VersionTupleTests.test_comparison_with_three_or_more_components_deprecated",
+    "score": 2.803,
+    "why": "via VersionTupleTests (name: tuple,version)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/version/tests.py::VersionTupleTests::test_calendar_versions_not_deprecated",
+    "line": 281,
+    "run": "cd tests && python runtests.py version.tests.VersionTupleTests.test_calendar_versions_not_deprecated",
+    "score": 2.748,
+    "why": "via VersionTupleTests (name: tuple,version)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/version/tests.py::VersionTupleTests::test_comparison_with_fewer_components_not_deprecated",
+    "line": 263,
+    "run": "cd tests && python runtests.py version.tests.VersionTupleTests.test_comparison_with_fewer_components_not_deprecated",
+    "score": 2.557,
+    "why": "via VersionTupleTests (name: tuple,version)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/version/tests.py::VersionTupleTests::test_iterating_deprecated",
+    "line": 221,
+    "run": "cd tests && python runtests.py version.tests.VersionTupleTests.test_iterating_deprecated",
+    "score": 2.51,
+    "why": "via VersionTupleTests (name: tuple,version)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/version/tests.py::VersionTupleTests::test_reflected_comparison_deprecated",
+    "line": 257,
+    "run": "cd tests && python runtests.py version.tests.VersionTupleTests.test_reflected_comparison_deprecated",
+    "score": 2.47,
+    "why": "via VersionTupleTests (name: tuple,version)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/version/tests.py::VersionTests::test_get_version_invalid_version",
+    "line": 114,
+    "run": "cd tests && python runtests.py version.tests.VersionTests.test_get_version_invalid_version",
+    "score": 2.456,
+    "why": "via VersionTests (name: version)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/version/tests.py::VersionTupleTests::test_indexing_first_two_components_not_deprecated",
+    "line": 206,
+    "run": "cd tests && python runtests.py version.tests.VersionTupleTests.test_indexing_first_two_components_not_deprecated",
+    "score": 2.404,
+    "why": "via VersionTupleTests (name: tuple,version)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/version/tests.py::VersionTupleTests::test_length_deprecated",
+    "line": 234,
+    "run": "cd tests && python runtests.py version.tests.VersionTupleTests.test_length_deprecated",
+    "score": 2.385,
+    "why": "via VersionTupleTests (name: tuple,version)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/version/tests.py::VersionTupleTests::test_comparison_with_non_tuple_not_deprecated",
+    "line": 277,
+    "run": "cd tests && python runtests.py version.tests.VersionTupleTests.test_comparison_with_non_tuple_not_deprecated",
+    "score": 2.329,
+    "why": "via VersionTupleTests (name: tuple,version)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/version/tests.py::VersionTupleTests::test_invalid_version",
+    "line": 167,
+    "run": "cd tests && python runtests.py version.tests.VersionTupleTests.test_invalid_version",
+    "score": 2.293,
+    "why": "via VersionTupleTests (name: tuple,version)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/version/tests.py::VersionTupleTests::test_hashing",
+    "line": 291,
+    "run": "cd tests && python runtests.py version.tests.VersionTupleTests.test_hashing",
+    "score": 2.281,
+    "why": "via VersionTupleTests (name: tuple,version)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/admin_scripts/tests.py::CommandTypes::test_version",
+    "line": 1968,
+    "run": "cd tests && python runtests.py admin_scripts.tests.CommandTypes.test_version",
+    "score": 2.159,
+    "why": "calls get_version (name: version)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_scripts/tests.py::ManageRunserver::test_zero_ip_addr",
+    "line": 1647,
+    "run": "cd tests && python runtests.py admin_scripts.tests.ManageRunserver.test_zero_ip_addr",
+    "score": 1.586,
+    "why": "via VERSION"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_scripts/tests.py::ManageRunserver::test_on_bind",
+    "line": 1666,
+    "run": "cd tests && python runtests.py admin_scripts.tests.ManageRunserver.test_on_bind",
+    "score": 1.511,
+    "why": "via VERSION"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_scripts/tests.py::ManageRunserver::test_hide_production_warning_with_environment_variable",
+    "line": 1685,
+    "run": "cd tests && python runtests.py admin_scripts.tests.ManageRunserver.test_hide_production_warning_with_environment_variable",
+    "score": 1.451,
+    "why": "via VERSION"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_deconstruct.py::DeconstructibleTests::test_invalid_path",
+    "line": 72,
+    "run": "cd tests && python runtests.py utils_tests.test_deconstruct.DeconstructibleTests.test_invalid_path",
+    "score": 1.224,
+    "why": "via VERSION"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_writer.py::WriterTests::test_migration_file_header_comments",
+    "line": 1161,
+    "run": "cd tests && python runtests.py migrations.test_writer.WriterTests.test_migration_file_header_comments",
+    "score": 1.196,
+    "why": "calls get_version"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_commands.py::MakeMigrationsTests::test_makemigrations_interactive_unique_callable_default_addition",
+    "line": 2795,
+    "run": "cd tests && python runtests.py migrations.test_commands.MakeMigrationsTests.test_makemigrations_interactive_unique_callable_default_addition",
+    "score": 1.167,
+    "why": "calls get_docs_version"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/cache/tests.py::RedisCacheTests::test_client_driver_info",
+    "line": 2066,
+    "run": "cd tests && python runtests.py cache.tests.RedisCacheTests.test_client_driver_info",
+    "score": 1.156,
+    "why": "calls get_version"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_commands.py::OptimizeMigrationTests::test_fails_squash_migration_manual_porting",
+    "line": 3649,
+    "run": "cd tests && python runtests.py migrations.test_commands.OptimizeMigrationTests.test_fails_squash_migration_manual_porting",
+    "score": 1.126,
+    "why": "calls get_docs_version"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/admin_scripts/tests.py::StartProject::test_custom_project_template_from_tarball_by_url_django_user_agent",
+    "line": 2820,
+    "run": "cd tests && python runtests.py admin_scripts.tests.StartProject.test_custom_project_template_from_tarball_by_url_django_user_agent",
+    "score": 1.075,
+    "why": "calls get_version"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/invalid_models_tests/test_ordinary_fields.py::CharFieldTests::test_too_long_char_field_under_mysql",
+    "line": 430,
+    "run": "cd tests && python runtests.py invalid_models_tests.test_ordinary_fields.CharFieldTests.test_too_long_char_field_under_mysql",
+    "score": 0.984,
+    "why": "calls get_docs_version"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_regress/test_pickle.py::ModelPickleTests::test_unsupported_unpickle",
+    "line": 29,
+    "run": "cd tests && python runtests.py model_regress.test_pickle.ModelPickleTests.test_unsupported_unpickle",
+    "score": 0.717,
+    "why": "via __version__ > VERSION"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/queryset_pickle/tests.py::PickleabilityTestCase::test_unsupported_unpickle",
+    "line": 339,
+    "run": "cd tests && python runtests.py queryset_pickle.tests.PickleabilityTestCase.test_unsupported_unpickle",
+    "score": 0.708,
+    "why": "via __version__ > VERSION"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_writer.py::WriterTests::test_simple_migration",
+    "line": 991,
+    "run": "cd tests && python runtests.py migrations.test_writer.WriterTests.test_simple_migration",
+    "score": 0.692,
+    "why": "via MigrationWriter.as_string > get_version"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/version/tests.py::VersionTests::test_get_version_tuple",
+    "line": 106,
+    "run": "cd tests && python runtests.py version.tests.VersionTests.test_get_version_tuple",
+    "score": 0.689,
+    "why": "via VersionTests (name: version)"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "django/utils/deprecation.py",
+    "lines": "25-39",
+    "symbol": "__getattr__"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792322712.64895,
+  "job_seconds": 19.6,
+  "number": 21886,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 19.6,
+  "started": 1792322692.511945
+ },
+ "verify": null
+}
