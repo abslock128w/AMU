@@ -163,6 +163,5 @@ beyond AMU's own suite, locally and in CI.
 
 - **C1 measurement:** add the `ANTHROPIC_API_KEY` repository secret. Every AMU pull request then records probes
   proposed and kept and the cost; after 50, the collector gives the brief's two numbers.
-- **Quiet mode and inline notes on a real pull request:** the check itself has run (PR #16). The other two wait for a
-  pull request with tests run and nothing found, and for one with an isolated flip.
-- **Profiling the AMU job on AMU's own pull requests** (3 to 6 minutes), if that matters for adoption.
+- Quiet mode and the inline note were seen on PRs #18 and #19, and the job was profiled and cut in v0.2.5. Both are
+  recorded in `evaluation/ci/REPORT.md`.
