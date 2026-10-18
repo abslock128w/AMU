@@ -139,7 +139,7 @@ def test_comparisons_made_before_the_time_limit_are_kept(tmp_path, monkeypatch):
     lib0 = 'def clamp(v):\n    return min(v, 10)\n'
     lib1 = 'def clamp(v):\n    return min(v, 9)\n'
     tests = ('import time\nfrom lib import clamp\n\n\ndef test_a():\n    assert clamp(50)\n\n\n'
-             'def test_slow():\n    time.sleep(30)\n')
+             'def test_slow():\n    time.sleep(8)\n')
     report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1, 'tests/test_lib.py': tests})
     assert [row['target'] for row in report['behaviour_differences']] == ['lib.py#clamp'], report.get('side_by_side')
 

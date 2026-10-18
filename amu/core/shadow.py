@@ -196,7 +196,7 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
                 changed = trust.changed_lines(trees['after'], edits, _after_lines)
                 began = time.perf_counter()
                 verdicts, more = trust.triad(runner, python, trees['after'], flipped, ran, scratch, max(left, CONFIRM), changed,
-                                             before_tree=trees['before'])
+                                             before_tree=trees['before'], context=context)
                 # Verifying a flip is not charged to the budget for finding flips: otherwise the reruns could leave no time
                 # for the edited-test check below, and flips it would find would go unreported.
                 trust_seconds += time.perf_counter() - began

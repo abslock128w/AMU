@@ -6,7 +6,7 @@ A test that passed before the change and fails after it is reported as a failure
 - it executed at least one changed line on the changed side (the reach check); a flip that did not is labelled
   ``not caused by this change`` with the reason;
 - it fails again in all three reruns on the changed side: in the same process right after itself, alone in a fresh
-  process, and after the rest of the candidate set.
+  process, and after the tests that ran before it in its batch.
 A flip that fails in some of those orders and passes in others is order-dependent. When the code before the change
 passes in every order it failed in on the changed side, the change brought the dependence (a state leak): that counts,
 as ``fails: order-dependent, new with this change``. Otherwise it is ``unstable``, naming the rerun that passed.
@@ -33,7 +33,7 @@ SEED = 20261016
 MAX_ALONE = 20  # flips rerun one per fresh process; past this they share one fresh process and reach is not measured
 LEGS = ('in_process', 'fresh_process', 'after_set')
 NAMES = dict(in_process='the rerun in the same process', fresh_process='the rerun alone in a fresh process',
-             after_set='the rerun after the rest of the candidate set')
+             after_set='the rerun after the tests that ran before it')
 
 # Imported by every Python process started with the support directory on PYTHONPATH, children included. It records
 # which changed lines run (AMU_REACH_TARGETS: {file: [lines]}), one file per process in AMU_REACH_OUT, then hands
@@ -193,6 +193,21 @@ def _in_given_order(runner):
     return ['--randomly-dont-reorganize'] if any('randomly' in str(arg) for arg in runner.extra) else None
 
 
+def _preceding(flipped, candidates, context):
+    if not context:
+        return [i for i in candidates if i not in set(flipped)]
+    out, seen, flips = [], set(), set(flipped)
+    for ident in flipped:
+        batch = list(context.get(ident) or ())
+        if ident not in batch:
+            continue
+        for other in batch[:batch.index(ident)]:
+            if other not in flips and other not in seen:
+                seen.add(other)
+                out.append(other)
+    return out
+
+
 def _relative(tree, changed):
     """``changed`` ({absolute file: lines}) keyed by path relative to ``tree``."""
     out = {}
@@ -268,7 +283,7 @@ def in_process(runner, python, tree, flipped, scratch, timeout):
     return states
 
 
-def triad(runner, python, tree, flipped, candidates, scratch, left, changed, before_tree=None):
+def triad(runner, python, tree, flipped, candidates, scratch, left, changed, before_tree=None, context=None):
     """The three reruns and the reach check for ``flipped`` on the changed tree ``tree``.
 
     ``candidates`` are all ids run on the changed side, in the order they ran. ``changed`` is {file: lines}.
@@ -297,15 +312,17 @@ def triad(runner, python, tree, flipped, candidates, scratch, left, changed, bef
         found, _ = runners.execute(runner, python, tree, rest, Path(scratch)/'trust-alone-rest.xml', remaining())
         legs['fresh_process'].update({i: found.get(i) for i in rest})
         gaps.append(f'{len(rest)} flip(s) past the first {MAX_ALONE} were rerun together in one fresh process; their reach was not measured')
-    others = [i for i in candidates if i not in set(flipped)]
+    # The third rerun puts each flip back after the tests that ran before it in its own batch: the exact order it failed
+    # in, without running the whole candidate set again. Without batch records, every candidate goes first.
+    others = _preceding(flipped, candidates, context)
     found, problem = runners.execute(runner, python, tree, [*others, *flipped], Path(scratch)/'trust-after-set.xml', remaining(),
                                      extra_args=_in_given_order(runner))
     legs['after_set'] = {i: found.get(i) for i in flipped}
     if problem == 'timed out':
-        gaps.append('the rerun of flips after the rest of the candidate set timed out; that rerun is missing for some flips')
+        gaps.append('the rerun of flips after the tests that ran before them timed out; that rerun is missing for some flips')
     # Failing in some orders and passing in others is order dependence. Whether the change brought it is known only by
-    # running the same orders on the code before the change: alone (the flip's own confirmation), after the rest of the
-    # candidates, and twice in one process.
+    # running the same orders on the code before the change: alone (the flip's own confirmation), after the tests that
+    # ran before it, and twice in one process.
     ordered = [i for i in flipped if {legs[leg].get(i) for leg in LEGS} & {'passed', 'skipped'}
                and {legs[leg].get(i) for leg in LEGS} & {'failed'}]
     base_order, base_repeat = {}, {}
