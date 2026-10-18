@@ -1,0 +1,1892 @@
+{
+ "count": 50,
+ "cutoff": "2026-10-18T00:00:00Z",
+ "prs": {
+  "django": [
+   {
+    "base_sha": "adeef108afa7c6c50959cf2c94a4d4efbf1fae91",
+    "files": 2,
+    "head_sha": "8650e28b5edd7f4ee4cb94dd6a2fef5db8a31dbb",
+    "merge_base": "adeef108afa7c6c50959cf2c94a4d4efbf1fae91",
+    "merge_commit": "80c997fc23b08897d8611b5439c1877485a4676f",
+    "merged_at": "2026-10-14T12:29:10Z",
+    "number": 22144,
+    "production_files": [
+     "django/utils/cache.py"
+    ],
+    "test_files": [
+     "tests/cache/tests.py"
+    ],
+    "title": "Fixed #37424 -- Fixed whitespace handling when parsing max-age directives."
+   },
+   {
+    "base_sha": "1a9fba7a6c2a0acead19bbb45c25ceb0fdcca7c8",
+    "files": 4,
+    "head_sha": "f8cff2bec3a8c35f3bd4160691092dfc49ac6f2d",
+    "merge_base": "1a9fba7a6c2a0acead19bbb45c25ceb0fdcca7c8",
+    "merge_commit": "adeef108afa7c6c50959cf2c94a4d4efbf1fae91",
+    "merged_at": "2026-10-14T01:04:35Z",
+    "number": 22141,
+    "production_files": [
+     "django/db/models/fields/related_descriptors.py"
+    ],
+    "test_files": [
+     "tests/multiple_database/models.py",
+     "tests/multiple_database/tests.py"
+    ],
+    "title": "Fixed #32980 -- Reduced cost of building M2M related managers."
+   },
+   {
+    "base_sha": "1a9fba7a6c2a0acead19bbb45c25ceb0fdcca7c8",
+    "files": 4,
+    "head_sha": "7d983a05a3b0edb1d277abc3968f058b2525714c",
+    "merge_base": "dab0a5c47f159eb58472110dcbc10bd4a9b01adb",
+    "merge_commit": "9014ca519c1cc825709a8fce0934f9919861ffb9",
+    "merged_at": "2026-10-13T20:14:07Z",
+    "number": 22132,
+    "production_files": [
+     "django/contrib/postgres/forms/hstore.py",
+     "django/forms/fields.py"
+    ],
+    "test_files": [
+     "tests/forms_tests/field_tests/test_jsonfield.py",
+     "tests/postgres_tests/test_hstore.py"
+    ],
+    "title": "Fixed #37418 -- Fixed JSONField/HStoreField crash on deeply nested JSON."
+   },
+   {
+    "base_sha": "f1d11117c6a3e227ce7cdd263cf0743f0eb73070",
+    "files": 5,
+    "head_sha": "8dd0670301b53752638575c410fba05117378223",
+    "merge_base": "b33bab33709bbd74f4dfc376786ba0b3912c3f53",
+    "merge_commit": "1a9fba7a6c2a0acead19bbb45c25ceb0fdcca7c8",
+    "merged_at": "2026-10-13T13:20:41Z",
+    "number": 22039,
+    "production_files": [
+     "django/template/base.py"
+    ],
+    "test_files": [
+     "tests/template_tests/syntax_tests/test_comment.py",
+     "tests/template_tests/syntax_tests/test_verbatim.py",
+     "tests/template_tests/test_parser.py",
+     "tests/template_tests/test_partials.py"
+    ],
+    "title": "Fixed #23424 -- Corrected tokenization of verbatim blocks."
+   },
+   {
+    "base_sha": "4fab678a0739d54401ccee7eb587553657c9f76e",
+    "files": 1,
+    "head_sha": "94ccddd05214ab9bd6e3f533eb4bce10649b9da5",
+    "merge_base": "4fab678a0739d54401ccee7eb587553657c9f76e",
+    "merge_commit": "31c3e4cf7544597600141d9be60bd919371114c9",
+    "merged_at": "2026-10-13T12:42:39Z",
+    "number": 22041,
+    "production_files": [
+     "django/db/models/sql/query.py"
+    ],
+    "test_files": [],
+    "title": "Refs #37372 -- Simplified NULL handling logic in sql.Query.build_filter()."
+   },
+   {
+    "base_sha": "b33bab33709bbd74f4dfc376786ba0b3912c3f53",
+    "files": 2,
+    "head_sha": "71cbd9ad6ba4b41d318aa7bee45762ed227f875f",
+    "merge_base": "b33bab33709bbd74f4dfc376786ba0b3912c3f53",
+    "merge_commit": "f1d11117c6a3e227ce7cdd263cf0743f0eb73070",
+    "merged_at": "2026-10-12T15:23:20Z",
+    "number": 22061,
+    "production_files": [
+     "django/core/paginator.py"
+    ],
+    "test_files": [
+     "tests/pagination/tests.py"
+    ],
+    "title": "Fixed #28219 -- Made UnorderedObjectListWarning skip Django frames."
+   },
+   {
+    "base_sha": "b33bab33709bbd74f4dfc376786ba0b3912c3f53",
+    "files": 1,
+    "head_sha": "da0781c5bf4ecf41760b44db5c245e27b1d4ad2e",
+    "merge_base": "0f34a4cf9f1b5f3e68decbdca76aebb71268ba93",
+    "merge_commit": "6669d66a795029add189bebe6f7a7fdcf2c9f9d4",
+    "merged_at": "2026-10-12T15:02:32Z",
+    "number": 22139,
+    "production_files": [
+     "django/contrib/gis/db/backends/oracle/features.py"
+    ],
+    "test_files": [],
+    "title": "Skipped 1-element geometry collection tests on all Oracle versions."
+   },
+   {
+    "base_sha": "dab0a5c47f159eb58472110dcbc10bd4a9b01adb",
+    "files": 2,
+    "head_sha": "a548854e7b591f539d70f3e3cf39a884d569fedb",
+    "merge_base": "38e2188cde2278131237fd2177b55ded3d515556",
+    "merge_commit": "cf63ff2186852ee1aac4a802b0ff6a93f6e08891",
+    "merged_at": "2026-10-11T14:24:17Z",
+    "number": 22112,
+    "production_files": [
+     "django/db/backends/oracle/base.py"
+    ],
+    "test_files": [],
+    "title": "Fixed #37411 -- Added compatibility for oracledb 26.0.0+."
+   },
+   {
+    "base_sha": "137b77706e8780764a831ecf246c10a56f800ac2",
+    "files": 4,
+    "head_sha": "784b2a4ce2bbf09aef3e3fe78322e50097264cf0",
+    "merge_base": "904349fcbe0ad4eed097b5e7fb7171954591cb28",
+    "merge_commit": "bef1986b9ae31fd19d84c933e5d351fdae949d0d",
+    "merged_at": "2026-10-09T13:12:26Z",
+    "number": 21357,
+    "production_files": [
+     "django/template/defaulttags.py"
+    ],
+    "test_files": [
+     "tests/template_tests/syntax_tests/test_now.py"
+    ],
+    "title": "Fixed #37118 -- Added variable support to the {% now %} template tag."
+   },
+   {
+    "base_sha": "1b4d021b6525bff6439b9d3b8d5388a1a1906ecd",
+    "files": 4,
+    "head_sha": "a76cc029687ed68d8ec32be4d8fc9c6cf41118b3",
+    "merge_base": "7f48e266a83110d62ffb4663d72c9e347db75a9b",
+    "merge_commit": "93d7e82b6a67aa56a2d9dababfefb8bda543786e",
+    "merged_at": "2026-10-09T07:15:24Z",
+    "number": 22064,
+    "production_files": [
+     "django/db/transaction.py"
+    ],
+    "test_files": [
+     "tests/handlers/tests.py",
+     "tests/handlers/urls.py",
+     "tests/handlers/views.py"
+    ],
+    "title": "Fixed #37382 -- Made @non_atomic_requests recognize async views."
+   },
+   {
+    "base_sha": "7f48e266a83110d62ffb4663d72c9e347db75a9b",
+    "files": 3,
+    "head_sha": "9937ea4b414fb1ddfcb8515a55dbcb40f4b6849c",
+    "merge_base": "cf564bf3a7e0d92bc32292ccff1eca5aeb24b1ef",
+    "merge_commit": "1b4d021b6525bff6439b9d3b8d5388a1a1906ecd",
+    "merged_at": "2026-10-08T12:25:38Z",
+    "number": 22094,
+    "production_files": [
+     "django/db/models/fields/json.py"
+    ],
+    "test_files": [
+     "tests/model_fields/test_jsonfield.py"
+    ],
+    "title": "Fixed #37403 -- Fixed JSONField __in crash on SQLite with Value(None) expressions."
+   },
+   {
+    "base_sha": "7576781cc6718fae313faadd29288ad8c4313f3c",
+    "files": 2,
+    "head_sha": "db471893b8fd66d17cbf1371377b12625fe6bad9",
+    "merge_base": "0b40210e4808937a7c0922e8b7502bff4752faa3",
+    "merge_commit": "7f48e266a83110d62ffb4663d72c9e347db75a9b",
+    "merged_at": "2026-10-07T16:48:53Z",
+    "number": 21825,
+    "production_files": [
+     "django/db/models/fields/json.py"
+    ],
+    "test_files": [
+     "tests/model_fields/test_jsonfield.py"
+    ],
+    "title": "Fixed #37297 -- Prevented crash on JSONField key lookups when an integer key is outside PostgreSQL's int4 range."
+   },
+   {
+    "base_sha": "8c34887b1ad8bb3ec61c6e713442dab3c643d557",
+    "files": 3,
+    "head_sha": "04c01c1ac4b79bd53ef0f79f88ee890dce0a75da",
+    "merge_base": "8c34887b1ad8bb3ec61c6e713442dab3c643d557",
+    "merge_commit": "a269574f1bcf4716502b9ba8c3492abf15dc93eb",
+    "merged_at": "2026-10-07T00:58:59Z",
+    "number": 22096,
+    "production_files": [
+     "django/core/serializers/pyyaml.py"
+    ],
+    "test_files": [
+     "tests/serializers/test_yaml.py"
+    ],
+    "title": "Fixed #37405 -- Fixed crash if sort_keys option is used with YAML serializer."
+   },
+   {
+    "base_sha": "8abacfc36d755d8e762a4d2074601b8dc412bfee",
+    "files": 5,
+    "head_sha": "76c6331da2d55c299f99039f4f4d6d8b0b913851",
+    "merge_base": "8abacfc36d755d8e762a4d2074601b8dc412bfee",
+    "merge_commit": "08e4c0d8e7db6343567e7b02e25da8ea2226a7e0",
+    "merged_at": "2026-10-05T23:01:58Z",
+    "number": 21890,
+    "production_files": [
+     "django/contrib/gis/db/backends/base/operations.py",
+     "django/contrib/gis/db/backends/postgis/operations.py"
+    ],
+    "test_files": [
+     "tests/gis_tests/geoapp/models.py",
+     "tests/gis_tests/geoapp/test_regress.py"
+    ],
+    "title": "Fixed #37322 -- Avoided transforms on spatial fields with srid=None."
+   },
+   {
+    "base_sha": "8abacfc36d755d8e762a4d2074601b8dc412bfee",
+    "files": 3,
+    "head_sha": "c447102a2c58c1cf3b99fa941e4f1574ae179364",
+    "merge_base": "fd91518f17c8a84fa47fe0e5534ef46afa7a0f7a",
+    "merge_commit": "fabce94374e166e80e2643db8b85d1e3442427bf",
+    "merged_at": "2026-10-05T22:50:34Z",
+    "number": 22051,
+    "production_files": [
+     "django/db/models/fields/json.py"
+    ],
+    "test_files": [
+     "tests/model_fields/test_jsonfield.py"
+    ],
+    "title": "Fixed #37377 -- Fixed JSONField __in crash/incorrect results for bare Value() primitives."
+   },
+   {
+    "base_sha": "fd91518f17c8a84fa47fe0e5534ef46afa7a0f7a",
+    "files": 10,
+    "head_sha": "150f167d0ec25973e81ca4d42ec37a3906b7322a",
+    "merge_base": "7847227a3fecde4b2a169552b84c60c6286b6025",
+    "merge_commit": "8abacfc36d755d8e762a4d2074601b8dc412bfee",
+    "merged_at": "2026-10-05T21:36:31Z",
+    "number": 22055,
+    "production_files": [
+     "django/contrib/admin/options.py"
+    ],
+    "test_files": [
+     "tests/admin_inlines/admin.py",
+     "tests/admin_inlines/tests.py",
+     "tests/admin_inlines/urls.py",
+     "tests/admin_views/customadmin.py",
+     "tests/admin_views/test_actions.py",
+     "tests/admin_views/tests.py"
+    ],
+    "title": "Fixed #37386 -- Observed delete_confirmation_max_display=0 for inlines."
+   },
+   {
+    "base_sha": "3db0898eee4061d44de5052953ef0fe3afb5951f",
+    "files": 4,
+    "head_sha": "0c99f1909d3c67a438b25fc2a75d3a603c9192c4",
+    "merge_base": "3db0898eee4061d44de5052953ef0fe3afb5951f",
+    "merge_commit": "7847227a3fecde4b2a169552b84c60c6286b6025",
+    "merged_at": "2026-10-02T21:28:10Z",
+    "number": 22018,
+    "production_files": [
+     "django/contrib/auth/management/__init__.py"
+    ],
+    "test_files": [
+     "tests/auth_tests/operations_migrations/0003_rename_newmodel_to_anothermodel.py",
+     "tests/auth_tests/test_management.py"
+    ],
+    "title": "Fixed #37361 -- Fixed permission renames for chained RenameModel operations."
+   },
+   {
+    "base_sha": "80ea222c8af501031b2eae4f7d9fdbf16cb507a7",
+    "files": 3,
+    "head_sha": "3599e0ada6822e996f923f491cf711840721e4ac",
+    "merge_base": "50eef95591b1e5d8c47b2e8c96066cb0c516753a",
+    "merge_commit": "3db0898eee4061d44de5052953ef0fe3afb5951f",
+    "merged_at": "2026-10-02T20:05:06Z",
+    "number": 22057,
+    "production_files": [
+     "django/db/models/functions/uuid.py"
+    ],
+    "test_files": [
+     "tests/db_functions/test_uuid.py"
+    ],
+    "title": "Fixed #37376 -- Made UUID4() persist data in lowercase on Oracle."
+   },
+   {
+    "base_sha": "23e8bcc464e5faefec28bf36a2f4610a5e7f4be5",
+    "files": 7,
+    "head_sha": "9673000ae917222cf7ee64f15364ecb6e90e3278",
+    "merge_base": "23e8bcc464e5faefec28bf36a2f4610a5e7f4be5",
+    "merge_commit": "80ea222c8af501031b2eae4f7d9fdbf16cb507a7",
+    "merged_at": "2026-10-01T14:36:14Z",
+    "number": 21610,
+    "production_files": [
+     "django/core/mail/__init__.py",
+     "django/core/mail/message.py"
+    ],
+    "test_files": [
+     "tests/mail/tests.py"
+    ],
+    "title": "Fixed #37167 -- Allowed Address objects as email addresses."
+   },
+   {
+    "base_sha": "5a4511adb247a44a1cada11fe4763abba0a42663",
+    "files": 4,
+    "head_sha": "a3ca24d0575a622891881642a3014a1b0a485b1b",
+    "merge_base": "5a4511adb247a44a1cada11fe4763abba0a42663",
+    "merge_commit": "50eef95591b1e5d8c47b2e8c96066cb0c516753a",
+    "merged_at": "2026-09-30T21:30:39Z",
+    "number": 21806,
+    "production_files": [
+     "django/db/models/fields/tuple_lookups.py"
+    ],
+    "test_files": [
+     "tests/composite_pk/test_filter.py",
+     "tests/foreign_object/test_tuple_lookups.py"
+    ],
+    "title": "Fixed #37291 -- Prevented TupleIn lookups from hanging on F() expressions."
+   },
+   {
+    "base_sha": "9332b163a67eabe5bdbf8066b1c5da394be9aa9c",
+    "files": 2,
+    "head_sha": "34971a4f076ee11ffdb8a1280e020c6d8c55a1e7",
+    "merge_base": "dd6f6b1531984823e3dc56740dfa93f3ceb09357",
+    "merge_commit": "2f7f30c320b6517d31fb8852db1875ad3a6a774f",
+    "merged_at": "2026-09-29T15:39:45Z",
+    "number": 22030,
+    "production_files": [
+     "django/db/backends/sqlite3/base.py"
+    ],
+    "test_files": [
+     "tests/backends/sqlite/tests.py"
+    ],
+    "title": "Fixed #36496 -- Ensured the parent path to a sqlite file exists."
+   },
+   {
+    "base_sha": "9e06baf2e4dd17834b5deaf3a3e6ae3bff2fcf26",
+    "files": 3,
+    "head_sha": "48e529829fd60007bf33c58b6181360cd728922c",
+    "merge_base": "9e06baf2e4dd17834b5deaf3a3e6ae3bff2fcf26",
+    "merge_commit": "dffadf6dfc1585da2d5822db4b95322f23f39d4b",
+    "merged_at": "2026-09-28T14:12:53Z",
+    "number": 22044,
+    "production_files": [
+     "django/db/models/sql/compiler.py",
+     "django/db/models/sql/query.py"
+    ],
+    "test_files": [
+     "tests/distinct_on_fields/tests.py"
+    ],
+    "title": "Fixed #37350 -- Made distinct(*fields) resolve aliases containing \"__\"."
+   },
+   {
+    "base_sha": "4fab678a0739d54401ccee7eb587553657c9f76e",
+    "files": 15,
+    "head_sha": "31475b59922c7375fec9de5f87cd3280f259411b",
+    "merge_base": "4fab678a0739d54401ccee7eb587553657c9f76e",
+    "merge_commit": "9e06baf2e4dd17834b5deaf3a3e6ae3bff2fcf26",
+    "merged_at": "2026-09-27T14:39:15Z",
+    "number": 22025,
+    "production_files": [
+     "django/contrib/auth/backends.py",
+     "django/core/paginator.py",
+     "django/db/models/query.py",
+     "django/http/response.py",
+     "django/shortcuts.py",
+     "django/test/client.py",
+     "django/utils/asyncio.py",
+     "django/utils/text.py"
+    ],
+    "test_files": [
+     "tests/async/tests.py",
+     "tests/httpwrappers/tests.py",
+     "tests/pagination/tests.py",
+     "tests/test_client/tests.py",
+     "tests/utils_tests/test_text.py"
+    ],
+    "title": "Fixed #37066 -- Wrapped async iteration sites in (maybe_)aclosing."
+   },
+   {
+    "base_sha": "703283b5b455a8410b4ce0a2e6ea0e1bde7f3047",
+    "files": 20,
+    "head_sha": "35d309ed15f6596d1ee8459fef5b140fffa547eb",
+    "merge_base": "703283b5b455a8410b4ce0a2e6ea0e1bde7f3047",
+    "merge_commit": "a013c821ea7838a953869615b0bdcfdb298cc09f",
+    "merged_at": "2026-09-24T08:59:38Z",
+    "number": 21523,
+    "production_files": [
+     "django/contrib/auth/middleware.py",
+     "django/contrib/flatpages/middleware.py",
+     "django/contrib/messages/middleware.py",
+     "django/contrib/redirects/middleware.py",
+     "django/contrib/sessions/middleware.py",
+     "django/contrib/sites/middleware.py",
+     "django/middleware/cache.py",
+     "django/middleware/clickjacking.py",
+     "django/middleware/common.py",
+     "django/middleware/csp.py",
+     "django/middleware/csrf.py",
+     "django/middleware/gzip.py",
+     "django/middleware/http.py",
+     "django/middleware/locale.py",
+     "django/middleware/security.py"
+    ],
+    "test_files": [
+     "tests/middleware_exceptions/tests.py",
+     "tests/middleware_exceptions/urls.py",
+     "tests/middleware_exceptions/views.py"
+    ],
+    "title": "Fixed #37177 -- Reduced per-middleware context switching under ASGI."
+   },
+   {
+    "base_sha": "dd6f6b1531984823e3dc56740dfa93f3ceb09357",
+    "files": 6,
+    "head_sha": "ae1deb557019db886430a4398374d91141c2dec6",
+    "merge_base": "dd6f6b1531984823e3dc56740dfa93f3ceb09357",
+    "merge_commit": "703283b5b455a8410b4ce0a2e6ea0e1bde7f3047",
+    "merged_at": "2026-09-24T07:09:21Z",
+    "number": 22005,
+    "production_files": [
+     "django/contrib/gis/gdal/libgdal.py",
+     "django/contrib/gis/gdal/raster/const.py"
+    ],
+    "test_files": [
+     "tests/gis_tests/inspectapp/tests.py"
+    ],
+    "title": "Fixed #37358 -- Dropped support for GDAL 3.3 and 3.4."
+   },
+   {
+    "base_sha": "2b30f6255b5ef84afbd827993643d52ef2c0963a",
+    "files": 12,
+    "head_sha": "a4c63d17dfd6d7b0ebc2b7bd3a172e4e904f1dbe",
+    "merge_base": "2b30f6255b5ef84afbd827993643d52ef2c0963a",
+    "merge_commit": "446d9cf602a5c42862da118b714a5679bb61cf27",
+    "merged_at": "2026-09-19T22:39:58Z",
+    "number": 21971,
+    "production_files": [
+     "django/contrib/gis/db/backends/postgis/operations.py",
+     "django/db/backends/postgresql/features.py",
+     "django/db/models/functions/json.py"
+    ],
+    "test_files": [
+     "tests/backends/postgresql/tests.py",
+     "tests/queries/test_explain.py"
+    ],
+    "title": "Fixed #37114 -- Dropped support for PostgreSQL 15 and PostGIS 3.2."
+   },
+   {
+    "base_sha": "862ade3409ceaa8ec5305e6f5aa26ee0e553cf02",
+    "files": 2,
+    "head_sha": "4c365f3d6e37056a3dd36067d30f2aa1d672d4ef",
+    "merge_base": "862ade3409ceaa8ec5305e6f5aa26ee0e553cf02",
+    "merge_commit": "935edaa91b756325352ca70d5eba49a64b70d28c",
+    "merged_at": "2026-09-19T16:27:43Z",
+    "number": 21995,
+    "production_files": [
+     "django/contrib/admin/views/main.py"
+    ],
+    "test_files": [
+     "tests/admin_changelist/tests.py"
+    ],
+    "title": "Fixed #37357 -- Handled out-of-range year in admin date_hierarchy."
+   },
+   {
+    "base_sha": "6ade6258480fba84a7e895b4b1e1716dfc954778",
+    "files": 4,
+    "head_sha": "73fb8064e74801f6a29e7a763bb30be303bb9fa9",
+    "merge_base": "8cbdd4a814397f81adf0129288f32b615bd1f94f",
+    "merge_commit": "581deb9402edc70f85b63c170c199a393f0f2183",
+    "merged_at": "2026-09-18T15:53:05Z",
+    "number": 21956,
+    "production_files": [
+     "django/db/models/fields/__init__.py"
+    ],
+    "test_files": [
+     "tests/model_fields/test_genericipaddressfield.py"
+    ],
+    "title": "Fixed #37339 -- Allowed ipaddress objects in GenericIPAddressField."
+   },
+   {
+    "base_sha": "08ba4d0e0f62e322c6727596ee7a324465076a76",
+    "files": 3,
+    "head_sha": "d62405f042875407589bf2667f06d3604003c69d",
+    "merge_base": "08ba4d0e0f62e322c6727596ee7a324465076a76",
+    "merge_commit": "6ade6258480fba84a7e895b4b1e1716dfc954778",
+    "merged_at": "2026-09-18T14:27:35Z",
+    "number": 21975,
+    "production_files": [
+     "django/db/models/query.py"
+    ],
+    "test_files": [
+     "tests/select_related/tests.py"
+    ],
+    "title": "Fixed #37344 -- Enabled FETCH_PEERS batching for instances loaded by select_related."
+   },
+   {
+    "base_sha": "f91c8897f568a8075f4f0c1c9dcc81b8ec798ef3",
+    "files": 7,
+    "head_sha": "bbad32afcc7004432e3ed9f4b9bd037fdbc11ad5",
+    "merge_base": "f91c8897f568a8075f4f0c1c9dcc81b8ec798ef3",
+    "merge_commit": "2abf9d2cf8602f0ddc0db4ec1a33769b41b4232a",
+    "merged_at": "2026-09-17T20:24:03Z",
+    "number": 21983,
+    "production_files": [
+     "django/db/models/fields/generated.py"
+    ],
+    "test_files": [
+     "tests/invalid_models_tests/test_ordinary_fields.py",
+     "tests/model_fields/models.py",
+     "tests/model_fields/test_generatedfield.py"
+    ],
+    "title": "Fixed #37348 -- Reverted \"Fixed #36806 -- Added system check for null kwarg in GeneratedField.\""
+   },
+   {
+    "base_sha": "64edef37e7b419dd584307d84650a192fb47dc4c",
+    "files": 3,
+    "head_sha": "261b95cfe46cd8e6f2eb895acae6543772c05ce3",
+    "merge_base": "516d06e48fb5a4e7deb055ef578fa1272e86d326",
+    "merge_commit": "8cbdd4a814397f81adf0129288f32b615bd1f94f",
+    "merged_at": "2026-09-16T09:59:07Z",
+    "number": 21801,
+    "production_files": [
+     "django/db/backends/base/schema.py"
+    ],
+    "test_files": [
+     "tests/schema/tests.py"
+    ],
+    "title": "Fixed #37286 -- Preserved unique constraints when removing db_index."
+   },
+   {
+    "base_sha": "bbf5a998c02b52f1b72474e4b310cff94f24ff36",
+    "files": 6,
+    "head_sha": "404428ea2b6402b5b88d835a2abb9c520c7b14da",
+    "merge_base": "516d06e48fb5a4e7deb055ef578fa1272e86d326",
+    "merge_commit": "64edef37e7b419dd584307d84650a192fb47dc4c",
+    "merged_at": "2026-09-16T08:50:59Z",
+    "number": 20817,
+    "production_files": [
+     "django/db/backends/base/features.py",
+     "django/db/backends/base/schema.py",
+     "django/db/backends/mysql/schema.py",
+     "django/db/backends/oracle/features.py",
+     "django/db/backends/postgresql/features.py"
+    ],
+    "test_files": [
+     "tests/schema/tests.py"
+    ],
+    "title": " Fixed #36947 -- Avoided altering column type when only db_comment changes."
+   },
+   {
+    "base_sha": "850e026cbfbe65944a5e0dc50e47c7ac64143708",
+    "files": 2,
+    "head_sha": "356179f4e6bd3d97d30b693b2db7b6d92d33054d",
+    "merge_base": "850e026cbfbe65944a5e0dc50e47c7ac64143708",
+    "merge_commit": "97c38590a2396c8bb123d0782dbe96ddfd760a9a",
+    "merged_at": "2026-09-15T14:26:20Z",
+    "number": 21872,
+    "production_files": [
+     "django/utils/inspect.py"
+    ],
+    "test_files": [
+     "tests/utils_tests/test_inspect.py"
+    ],
+    "title": "Fixed false positive for func_supports_parameter() with args or kwargs."
+   },
+   {
+    "base_sha": "2b30f6255b5ef84afbd827993643d52ef2c0963a",
+    "files": 5,
+    "head_sha": "7c3dc673936537376246df1f479dbf2fc8b319fc",
+    "merge_base": "2b30f6255b5ef84afbd827993643d52ef2c0963a",
+    "merge_commit": "850e026cbfbe65944a5e0dc50e47c7ac64143708",
+    "merged_at": "2026-09-14T15:22:13Z",
+    "number": 21736,
+    "production_files": [
+     "django/core/validators.py"
+    ],
+    "test_files": [
+     "tests/validators/tests.py"
+    ],
+    "title": "Fixed #36809 -- Allowed customizing EmailValidator per-part validation."
+   },
+   {
+    "base_sha": "e7d301b06a1752d648675702d4db0fe110031906",
+    "files": 7,
+    "head_sha": "f862a4225fc4bfc001e9af2a19cb83937d374f05",
+    "merge_base": "e2a3da142687c3b3dfa9cbc63c1a1a4433a8f842",
+    "merge_commit": "fc4eaaabf419508ea39d750ca5ca801d933e0b16",
+    "merged_at": "2026-09-08T16:45:55Z",
+    "number": 21881,
+    "production_files": [
+     "django/contrib/gis/gdal/raster/source.py"
+    ],
+    "test_files": [
+     "tests/gis_tests/gdal_tests/test_raster.py"
+    ],
+    "title": "Fixed #37289 -- Avoided deleting network rasters."
+   },
+   {
+    "base_sha": "dc2c0b5a44d4fb531bb00d299c2c428f6ac87474",
+    "files": 2,
+    "head_sha": "1ce3f82b115224a0b6de03436df32abc19708a7d",
+    "merge_base": "dc2c0b5a44d4fb531bb00d299c2c428f6ac87474",
+    "merge_commit": "be6a149de8f85fb8f858680f721dbaadd182f1d8",
+    "merged_at": "2026-09-07T15:02:23Z",
+    "number": 21482,
+    "production_files": [
+     "django/forms/models.py"
+    ],
+    "test_files": [
+     "tests/model_formsets/tests.py"
+    ],
+    "title": "Fixed #37145 -- Made ModelFormSet respect custom Form.add_prefix()."
+   },
+   {
+    "base_sha": "0398417c503e9f32674b36865abc54e575e8bcd7",
+    "files": 5,
+    "head_sha": "1fe04df4e14ada300438e1e1dcb8285cc81a8e91",
+    "merge_base": "0398417c503e9f32674b36865abc54e575e8bcd7",
+    "merge_commit": "b3f4d83aad7f589f165a6d8b020b7acba4936f35",
+    "merged_at": "2026-09-04T21:24:26Z",
+    "number": 21064,
+    "production_files": [
+     "django/db/models/functions/datetime.py"
+    ],
+    "test_files": [
+     "tests/db_functions/datetime/test_extract_trunc.py"
+    ],
+    "title": "Fixed #37013 -- Omitted tzinfo argument to Trunc & Extract with USE_TZ = True and TIME_ZONE != UTC creates ambiguity for migrations"
+   },
+   {
+    "base_sha": "026b005f3dc43a98557ce5a546b5e4938d06fed1",
+    "files": 7,
+    "head_sha": "e715dcb350d68345e5fb8cd9b9f3498efe444052",
+    "merge_base": "026b005f3dc43a98557ce5a546b5e4938d06fed1",
+    "merge_commit": "0398417c503e9f32674b36865abc54e575e8bcd7",
+    "merged_at": "2026-09-04T19:43:51Z",
+    "number": 21875,
+    "production_files": [
+     "django/core/mail/backends/base.py",
+     "django/db/migrations/serializer.py",
+     "django/tasks/backends/immediate.py",
+     "django/tasks/base.py",
+     "django/urls/resolvers.py",
+     "django/utils/module_loading.py"
+    ],
+    "test_files": [
+     "tests/utils_tests/test_module_loading.py"
+    ],
+    "title": "Fixed #36523 -- Added django.utils.module_loading.qualname helper."
+   },
+   {
+    "base_sha": "026b005f3dc43a98557ce5a546b5e4938d06fed1",
+    "files": 6,
+    "head_sha": "566a88c8bb9f90cc24aabd721db8dff95aa0dc37",
+    "merge_base": "026b005f3dc43a98557ce5a546b5e4938d06fed1",
+    "merge_commit": "cc933385e75172cabacb49cfb9fe3571845cb216",
+    "merged_at": "2026-09-04T18:19:15Z",
+    "number": 21886,
+    "production_files": [
+     "django/__init__.py",
+     "django/utils/deprecation.py",
+     "django/utils/version.py"
+    ],
+    "test_files": [
+     "tests/version/tests.py"
+    ],
+    "title": "Fixed #37271 -- Added calendar version support to django.utils.version."
+   },
+   {
+    "base_sha": "5180f82f48b589f93cddc7be7896f654a9aec1ad",
+    "files": 95,
+    "head_sha": "e3483309f164d18cb1a49a265daf8de9500cf848",
+    "merge_base": "5180f82f48b589f93cddc7be7896f654a9aec1ad",
+    "merge_commit": "026b005f3dc43a98557ce5a546b5e4938d06fed1",
+    "merged_at": "2026-09-03T17:32:10Z",
+    "number": 21805,
+    "production_files": [
+     "django/conf/__init__.py",
+     "django/conf/global_settings.py",
+     "django/contrib/admin/checks.py",
+     "django/contrib/admin/options.py",
+     "django/contrib/postgres/aggregates/general.py",
+     "django/contrib/postgres/aggregates/mixins.py",
+     "django/core/mail/__init__.py",
+     "django/core/mail/backends/base.py",
+     "django/core/mail/backends/filebased.py",
+     "django/core/mail/backends/locmem.py",
+     "django/core/mail/backends/smtp.py",
+     "django/core/mail/deprecation.py",
+     "django/core/mail/handler.py",
+     "django/core/mail/message.py",
+     "django/core/paginator.py",
+     "django/core/signing.py",
+     "django/db/backends/base/creation.py",
+     "django/db/models/fields/__init__.py",
+     "django/db/models/fields/json.py",
+     "django/db/models/query.py",
+     "django/db/models/sql/compiler.py",
+     "django/db/models/sql/query.py",
+     "django/db/models/utils.py",
+     "django/db/transaction.py",
+     "django/http/response.py",
+     "django/middleware/common.py",
+     "django/template/base.py",
+     "django/test/utils.py",
+     "django/utils/crypto.py",
+     "django/utils/deprecation.py",
+     "django/utils/html.py",
+     "django/utils/log.py"
+    ],
+    "test_files": [
+     "tests/admin_views/admin.py",
+     "tests/admin_views/models.py",
+     "tests/admin_views/test_actions.py",
+     "tests/aggregation_regress/tests.py",
+     "tests/annotations/tests.py",
+     "tests/async/test_async_queryset.py",
+     "tests/backends/base/test_creation.py",
+     "tests/basic/models.py",
+     "tests/basic/tests.py",
+     "tests/defer/tests.py",
+     "tests/deprecation/test_deprecate_posargs.py",
+     "tests/deprecation/test_middleware_mixin.py",
+     "tests/deprecation/test_signed_cookie_legacy_salt_fallback.py",
+     "tests/deprecation/test_use_blank_choice_dash.py",
+     "tests/deprecation/tests.py",
+     "tests/expressions/test_queryset_values.py",
+     "tests/forms_tests/tests/test_forms.py",
+     "tests/gis_tests/relatedapp/tests.py",
+     "tests/httpwrappers/tests.py",
+     "tests/logging_tests/tests.py",
+     "tests/lookup/tests.py",
+     "tests/mail/__init__.py",
+     "tests/mail/test_backends.py",
+     "tests/mail/test_deprecated.py",
+     "tests/mail/test_handler.py",
+     "tests/mail/tests.py",
+     "tests/middleware/tests.py",
+     "tests/model_fields/test_booleanfield.py",
+     "tests/model_fields/test_jsonfield.py",
+     "tests/model_fields/tests.py",
+     "tests/model_inheritance_regress/tests.py",
+     "tests/modeladmin/test_checks.py",
+     "tests/modeladmin/tests.py",
+     "tests/pagination/tests.py",
+     "tests/postgres_tests/test_aggregates.py",
+     "tests/postgres_tests/test_array.py",
+     "tests/queries/test_sqlcompiler.py",
+     "tests/queries/tests.py",
+     "tests/select_related/tests.py",
+     "tests/select_related_onetoone/tests.py",
+     "tests/signed_cookies_tests/tests.py",
+     "tests/signing/tests.py",
+     "tests/template_tests/syntax_tests/test_basic.py",
+     "tests/test_utils/tests.py",
+     "tests/transactions/tests.py",
+     "tests/utils_tests/test_crypto.py",
+     "tests/utils_tests/test_html.py",
+     "tests/view_tests/tests/test_debug.py"
+    ],
+    "title": "Refs #37293 -- Updated deprecation warnings for new release cycle (DEP 20)"
+   },
+   {
+    "base_sha": "05aec0a4aa111b54b50daec64059fd18ac70b437",
+    "files": 4,
+    "head_sha": "4879ea917d8ddf98b1a555eae9d73b3dc46b7014",
+    "merge_base": "05aec0a4aa111b54b50daec64059fd18ac70b437",
+    "merge_commit": "00dca6f097f443de7a24c04bc133f98c83c632aa",
+    "merged_at": "2026-09-02T15:49:37Z",
+    "number": 21659,
+    "production_files": [
+     "django/db/models/sql/compiler.py"
+    ],
+    "test_files": [
+     "tests/distinct_on_fields/tests.py"
+    ],
+    "title": "Fixed #37222 -- Fixed QuerySet.distinct() crash on duplicated selections."
+   },
+   {
+    "base_sha": "05aec0a4aa111b54b50daec64059fd18ac70b437",
+    "files": 3,
+    "head_sha": "be010d8220d9100a8b87122eddc586c8c9bc44f0",
+    "merge_base": "0751d5fed159fd9ff7edba522ece13c8c9d2a0d0",
+    "merge_commit": "f14e293cd7444e064b9c9ba471fd5aa7e6132ea6",
+    "merged_at": "2026-09-02T15:23:15Z",
+    "number": 21867,
+    "production_files": [
+     "django/db/models/query.py"
+    ],
+    "test_files": [
+     "tests/lookup/tests.py"
+    ],
+    "title": "Fixed #37312, Refs #36605 -- Fixed annotation preservation and key selection in in_bulk()."
+   },
+   {
+    "base_sha": "6126f5d2fe0f22c0d2d4888de8c94b91a9795bb6",
+    "files": 3,
+    "head_sha": "b2684fd2bba3d2229bfaa0f3e7ecc997d5985762",
+    "merge_base": "6126f5d2fe0f22c0d2d4888de8c94b91a9795bb6",
+    "merge_commit": "0751d5fed159fd9ff7edba522ece13c8c9d2a0d0",
+    "merged_at": "2026-09-02T12:15:44Z",
+    "number": 21864,
+    "production_files": [
+     "django/db/models/lookups.py"
+    ],
+    "test_files": [
+     "tests/lookup/tests.py"
+    ],
+    "title": "Fixed #37311 -- Prevented consumption of rhs iterators in annotation lookups."
+   },
+   {
+    "base_sha": "5babd2e21ac0877d66c5452da17b97608b337fba",
+    "files": 6,
+    "head_sha": "57a2cf40e9fa196a81c2d5ecaf936cc6eb26348c",
+    "merge_base": "5babd2e21ac0877d66c5452da17b97608b337fba",
+    "merge_commit": "6126f5d2fe0f22c0d2d4888de8c94b91a9795bb6",
+    "merged_at": "2026-09-01T20:15:42Z",
+    "number": 21861,
+    "production_files": [
+     "django/core/serializers/xml_serializer.py",
+     "django/db/models/base.py"
+    ],
+    "test_files": [
+     "tests/basic/tests.py",
+     "tests/composite_pk/tests.py"
+    ],
+    "title": "Fixed #37309 -- Used _is_pk_set() in Model.__eq__ and the XML serializer."
+   },
+   {
+    "base_sha": "03988c5a5ba248c3b9b11ea96fd4fda5e98849aa",
+    "files": 1,
+    "head_sha": "8b66f7df6613361cdbfba0b0208b44b74a31f70e",
+    "merge_base": "03988c5a5ba248c3b9b11ea96fd4fda5e98849aa",
+    "merge_commit": "5babd2e21ac0877d66c5452da17b97608b337fba",
+    "merged_at": "2026-08-31T20:40:48Z",
+    "number": 21714,
+    "production_files": [
+     "django/db/models/fields/related_lookups.py"
+    ],
+    "test_files": [],
+    "title": "Fixed #37237 -- Improved RelatedIn lookup preparation performance."
+   },
+   {
+    "base_sha": "189136c2a3e166c59a49cca2444aa6a1d77aa136",
+    "files": 3,
+    "head_sha": "5674cf0500c2559cd746091098923ad40de306a5",
+    "merge_base": "189136c2a3e166c59a49cca2444aa6a1d77aa136",
+    "merge_commit": "60a17fccf4f2fa31b823b0f938005897f2f3ef16",
+    "merged_at": "2026-08-31T20:34:49Z",
+    "number": 21834,
+    "production_files": [
+     "django/db/models/fields/related_descriptors.py"
+    ],
+    "test_files": [
+     "tests/prefetch_related/tests.py"
+    ],
+    "title": "Fixed #37300 -- Fixed database routing for custom forward prefetch querysets."
+   },
+   {
+    "base_sha": "73cc09f14f13fedddc14d6ba5b287cb33c24e4a4",
+    "files": 6,
+    "head_sha": "1a180c837c27206932cd6abc14d3ef654390d9a9",
+    "merge_base": "73cc09f14f13fedddc14d6ba5b287cb33c24e4a4",
+    "merge_commit": "fe81969e83d03b61e587a28ddebb92b9fca2b441",
+    "merged_at": "2026-08-31T15:58:00Z",
+    "number": 21754,
+    "production_files": [
+     "django/contrib/admin/formfields.py",
+     "django/contrib/admin/options.py"
+    ],
+    "test_files": [
+     "tests/admin_changelist/admin.py",
+     "tests/admin_changelist/models.py",
+     "tests/admin_changelist/tests.py"
+    ],
+    "title": "Fixed #37263 -- Fixed changelist __exact search crashes and over-matching."
+   },
+   {
+    "base_sha": "439b936753e5a679ffcf40cff5918c5637f7c72b",
+    "files": 3,
+    "head_sha": "68e935763d57afdbd5e7b87d94fba143760e661e",
+    "merge_base": "439b936753e5a679ffcf40cff5918c5637f7c72b",
+    "merge_commit": "73cc09f14f13fedddc14d6ba5b287cb33c24e4a4",
+    "merged_at": "2026-08-29T17:52:42Z",
+    "number": 21803,
+    "production_files": [
+     "django/db/models/sql/compiler.py",
+     "django/db/models/sql/query.py"
+    ],
+    "test_files": [
+     "tests/filtered_relation/tests.py"
+    ],
+    "title": "Fixed #36945 -- Made .values() and .order_by() resolve FilteredRelation aliases correctly."
+   },
+   {
+    "base_sha": "3b767c5f6ab6a4421ea3892ac6afacd8aa1345d6",
+    "files": 1,
+    "head_sha": "cd896ed7fb89b3a6f79dfba6f579fdc96091c455",
+    "merge_base": "3b767c5f6ab6a4421ea3892ac6afacd8aa1345d6",
+    "merge_commit": "439b936753e5a679ffcf40cff5918c5637f7c72b",
+    "merged_at": "2026-08-29T14:10:24Z",
+    "number": 21853,
+    "production_files": [
+     "django/contrib/gis/db/backends/oracle/features.py"
+    ],
+    "test_files": [],
+    "title": "Skipped more tests for 1-element GeometryCollections on Oracle 23.9."
+   },
+   {
+    "base_sha": "0b40210e4808937a7c0922e8b7502bff4752faa3",
+    "files": 3,
+    "head_sha": "152c456e1f3dd204bd4505d0a6f2371ddaa303bc",
+    "merge_base": "03988c5a5ba248c3b9b11ea96fd4fda5e98849aa",
+    "merge_commit": "fdfbb711e3dd52683ae633f568761efe2735d5f0",
+    "merged_at": "2026-08-27T15:29:28Z",
+    "number": 21820,
+    "production_files": [
+     "django/urls/conf.py"
+    ],
+    "test_files": [
+     "tests/urlpatterns/tests.py"
+    ],
+    "title": "Fixed #37296 -- Included the invalid view type in path()/re_path() error."
+   }
+  ],
+  "sympy": [
+   {
+    "base_sha": "cba0840623433aa28ed1646b3ca19ab4211f09d0",
+    "files": 2,
+    "head_sha": "97fbdd4ba40faffff12273ffc608865133653bb8",
+    "merge_base": "b8bc7724304a61606eccc5aabe88ee24df881d18",
+    "merge_commit": "50e68debd256f0ff52b1856bba54868e5499448e",
+    "merged_at": "2026-10-16T16:17:08Z",
+    "number": 30558,
+    "production_files": [
+     "sympy/integrals/integrals.py"
+    ],
+    "test_files": [
+     "sympy/integrals/tests/test_integrals.py"
+    ],
+    "title": "integrals: fix the floor terms added to atan(tan) and atan(cot) antiderivatives"
+   },
+   {
+    "base_sha": "01c75e920fe969c9cbc4e2723ae7ceef89394a7f",
+    "files": 2,
+    "head_sha": "c8863f692a998da68f24083c601401176786cbc8",
+    "merge_base": "01c75e920fe969c9cbc4e2723ae7ceef89394a7f",
+    "merge_commit": "9350380769d772f6fb320052214afc2d488a41a3",
+    "merged_at": "2026-10-15T08:51:08Z",
+    "number": 30752,
+    "production_files": [
+     "sympy/functions/elementary/exponential.py"
+    ],
+    "test_files": [
+     "sympy/functions/elementary/tests/test_exponential.py"
+    ],
+    "title": "fix: preserve log finiteness at zero"
+   },
+   {
+    "base_sha": "01f79a5f52d4ec14da9d028f4fe9a7f9627679c5",
+    "files": 3,
+    "head_sha": "d09332896357e3957a2d1ce38294d74706d36846",
+    "merge_base": "01f79a5f52d4ec14da9d028f4fe9a7f9627679c5",
+    "merge_commit": "92e2a7e6accdc417cf76c6dfbb3221de09bd41b9",
+    "merged_at": "2026-10-13T20:12:19Z",
+    "number": 30748,
+    "production_files": [
+     "sympy/polys/specialpolys.py"
+    ],
+    "test_files": [
+     "sympy/polys/tests/test_specialpolys.py"
+    ],
+    "title": "polys: fix swinnerton_dyer_poly x-sympification and n validation"
+   },
+   {
+    "base_sha": "6cd6805754ae248c0aabaa64c1b6827ab7e54faf",
+    "files": 1,
+    "head_sha": "0c33bb03d648147a4db9bb2e4833bf1e0d22258a",
+    "merge_base": "6cd6805754ae248c0aabaa64c1b6827ab7e54faf",
+    "merge_commit": "01f79a5f52d4ec14da9d028f4fe9a7f9627679c5",
+    "merged_at": "2026-10-12T08:24:59Z",
+    "number": 30734,
+    "production_files": [
+     "sympy/geometry/polygon.py"
+    ],
+    "test_files": [],
+    "title": "geometry: fix typos and docstring inaccuracies in Polygon"
+   },
+   {
+    "base_sha": "f6d8906c03eec71d4cbbe0275722a7915d965a97",
+    "files": 12,
+    "head_sha": "c35050ef9fc003201c1b88d0eb2809ec33e37132",
+    "merge_base": "f6d8906c03eec71d4cbbe0275722a7915d965a97",
+    "merge_commit": "6cd6805754ae248c0aabaa64c1b6827ab7e54faf",
+    "merged_at": "2026-10-11T12:26:16Z",
+    "number": 30428,
+    "production_files": [
+     "sympy/printing/codeprinter.py",
+     "sympy/printing/jscode.py",
+     "sympy/printing/mathematica.py",
+     "sympy/printing/pycode.py"
+    ],
+    "test_files": [
+     "sympy/physics/biomechanics/tests/test_curve.py",
+     "sympy/printing/tests/test_c.py",
+     "sympy/printing/tests/test_cxx.py",
+     "sympy/printing/tests/test_jscode.py",
+     "sympy/printing/tests/test_pycode.py"
+    ],
+    "title": "Parenthesize Mod in code printers for negated products and reciprocal divisors"
+   },
+   {
+    "base_sha": "319ea7a6186edf88bc23d502917242b10314ae51",
+    "files": 1,
+    "head_sha": "99edad2c3bd7130bf4c9ece009eec81c2d71dccb",
+    "merge_base": "319ea7a6186edf88bc23d502917242b10314ae51",
+    "merge_commit": "5b767ff11a9eff1bd3478fb701f35444e7c9308a",
+    "merged_at": "2026-10-10T23:12:53Z",
+    "number": 30687,
+    "production_files": [
+     "sympy/functions/combinatorial/numbers.py"
+    ],
+    "test_files": [],
+    "title": "use the D-finite recurrence for Stirling subset numbers in Touchard polynomials"
+   },
+   {
+    "base_sha": "4a62acbde58cabed69be427447e718dab8a1aea4",
+    "files": 7,
+    "head_sha": "aadef533f646dfdf4a1de095ef36b9c3e966fdb0",
+    "merge_base": "4a62acbde58cabed69be427447e718dab8a1aea4",
+    "merge_commit": "71e7c5055a305735cbe6cd086ae8bfd51b40be2c",
+    "merged_at": "2026-10-10T19:18:18Z",
+    "number": 30715,
+    "production_files": [
+     "sympy/assumptions/cnf.py",
+     "sympy/assumptions/lra_satask.py",
+     "sympy/logic/algorithms/dpll2.py",
+     "sympy/logic/algorithms/minisat22_wrapper.py",
+     "sympy/logic/algorithms/pycosat_wrapper.py",
+     "sympy/logic/algorithms/z3_wrapper.py"
+    ],
+    "test_files": [
+     "sympy/logic/tests/test_inference.py"
+    ],
+    "title": "Bug: satisfiable(dpll2) returns {True: False} instead of returning False"
+   },
+   {
+    "base_sha": "04a7da3aacdf095556c451cd17f3f33bf241a5f2",
+    "files": 2,
+    "head_sha": "ad75968ebef31336e7fb9559e93d60b1a36862fe",
+    "merge_base": "04a7da3aacdf095556c451cd17f3f33bf241a5f2",
+    "merge_commit": "1c16c74b604108fd862c0729fb9cf5bb8724afd0",
+    "merged_at": "2026-10-10T10:09:26Z",
+    "number": 30711,
+    "production_files": [
+     "sympy/polys/ring_series.py"
+    ],
+    "test_files": [
+     "sympy/polys/tests/test_ring_series.py"
+    ],
+    "title": "polys: fix precision calculation in rs_pow for fractional powers with nonzero valuation"
+   },
+   {
+    "base_sha": "2f22a5f81e2f4124380be3739a092e9ff20128de",
+    "files": 2,
+    "head_sha": "244b8486c279413462c9f7e1bb9d686ec1db936a",
+    "merge_base": "2f22a5f81e2f4124380be3739a092e9ff20128de",
+    "merge_commit": "83de2bf9fc02dd5e1e3c968fa75dd6769a949f43",
+    "merged_at": "2026-10-09T20:03:16Z",
+    "number": 30706,
+    "production_files": [
+     "sympy/polys/ring_series.py"
+    ],
+    "test_files": [
+     "sympy/polys/tests/test_ring_series.py"
+    ],
+    "title": "polys: fix precision calculation in rs_pow for non-zero valuation series"
+   },
+   {
+    "base_sha": "339e7325320544f7826ae11e3ae9accdb52775dc",
+    "files": 6,
+    "head_sha": "cf4078a8de49e1417420d0840208aa1ffb566482",
+    "merge_base": "a0be64b90beabfaa8f76fcb31f2983b2476adfb4",
+    "merge_commit": "2f22a5f81e2f4124380be3739a092e9ff20128de",
+    "merged_at": "2026-10-09T09:16:44Z",
+    "number": 30701,
+    "production_files": [
+     "sympy/testing/runtests.py",
+     "sympy/testing/runtests_pytest.py"
+    ],
+    "test_files": [
+     "sympy/testing/tests/test_runtests_pytest.py"
+    ],
+    "title": "biomechanics: update doctest expectations"
+   },
+   {
+    "base_sha": "8c02bd2b177bce1775cd3688cef07d225f69345d",
+    "files": 15,
+    "head_sha": "9665ed75d6a1781714abac7ba7b3b19c9caf7260",
+    "merge_base": "a0be64b90beabfaa8f76fcb31f2983b2476adfb4",
+    "merge_commit": "434184cdcf7f7233fa74dd5b142275e3dbba6486",
+    "merged_at": "2026-10-09T08:51:08Z",
+    "number": 26912,
+    "production_files": [
+     "sympy/core/mul.py",
+     "sympy/core/power.py",
+     "sympy/functions/special/zeta_functions.py",
+     "sympy/solvers/solvers.py",
+     "sympy/stats/__init__.py",
+     "sympy/stats/drv_types.py",
+     "sympy/stats/joint_rv_types.py"
+    ],
+    "test_files": [
+     "sympy/core/tests/test_expr.py",
+     "sympy/core/tests/test_power.py",
+     "sympy/integrals/tests/test_meijerint.py",
+     "sympy/simplify/tests/test_simplify.py",
+     "sympy/solvers/tests/test_recurr.py",
+     "sympy/solvers/tests/test_solvers.py",
+     "sympy/stats/tests/test_continuous_rv.py",
+     "sympy/stats/tests/test_discrete_rv.py"
+    ],
+    "title": "make as_base_exp literal, like fraction"
+   },
+   {
+    "base_sha": "a0be64b90beabfaa8f76fcb31f2983b2476adfb4",
+    "files": 2,
+    "head_sha": "167a6a97e343b633006085c548bd02966e9422bb",
+    "merge_base": "a0be64b90beabfaa8f76fcb31f2983b2476adfb4",
+    "merge_commit": "8816d63c98ab9277eacbab066ceee939e025095a",
+    "merged_at": "2026-10-09T08:24:37Z",
+    "number": 30702,
+    "production_files": [
+     "sympy/solvers/ode/ode.py"
+    ],
+    "test_files": [
+     "sympy/solvers/ode/tests/test_ode.py"
+    ],
+    "title": "ode: drop redundant const sol's after applying ic"
+   },
+   {
+    "base_sha": "25582a159907626145f4a36164573a6628ca6a43",
+    "files": 3,
+    "head_sha": "6d9ac7704c85cdd700a4fc28407ea50b99814763",
+    "merge_base": "f14b5cd2d13c0145521eccec991c315794952117",
+    "merge_commit": "8c02bd2b177bce1775cd3688cef07d225f69345d",
+    "merged_at": "2026-10-08T16:26:43Z",
+    "number": 30699,
+    "production_files": [
+     "sympy/polys/puiseux.py",
+     "sympy/polys/ring_series.py"
+    ],
+    "test_files": [
+     "sympy/polys/tests/test_ring_series.py"
+    ],
+    "title": "polys: fix precision calculation in rs_nth_root"
+   },
+   {
+    "base_sha": "9bc95b1a80941bcfe64c1d60e3417fc7bea2562a",
+    "files": 2,
+    "head_sha": "e2ca4e6bebaa84898316f3c5e898265775e9ed52",
+    "merge_base": "3f58eb0ce808f8c4917ab0b8ae67d133fc794c3f",
+    "merge_commit": "a0be64b90beabfaa8f76fcb31f2983b2476adfb4",
+    "merged_at": "2026-10-08T09:38:50Z",
+    "number": 30667,
+    "production_files": [
+     "sympy/core/power.py"
+    ],
+    "test_files": [
+     "sympy/core/tests/test_assumptions.py"
+    ],
+    "title": "Handle algebraicity of powers with an infinite base"
+   },
+   {
+    "base_sha": "319ea7a6186edf88bc23d502917242b10314ae51",
+    "files": 6,
+    "head_sha": "0fd4c64c2121c838f46d5ef048b0450e014aeb89",
+    "merge_base": "319ea7a6186edf88bc23d502917242b10314ae51",
+    "merge_commit": "25582a159907626145f4a36164573a6628ca6a43",
+    "merged_at": "2026-10-08T06:26:07Z",
+    "number": 30680,
+    "production_files": [
+     "sympy/polys/euclidtools.py",
+     "sympy/polys/rings.py"
+    ],
+    "test_files": [
+     "sympy/polys/tests/test_euclidtools.py",
+     "sympy/polys/tests/test_polytools.py",
+     "sympy/polys/tests/test_rings.py"
+    ],
+    "title": "polys: return zero polynomial for lcm(0, 0) in the pure-Python backend"
+   },
+   {
+    "base_sha": "6aabf6ac9eddd1c5141ff9a3a35dcb53a7b02228",
+    "files": 6,
+    "head_sha": "b256b43a821e177a22d6ddf06f6245b00b098f6a",
+    "merge_base": "a1021ffb1f40f860960119e70e6329cd5937862c",
+    "merge_commit": "30eb1f6c84198b851a43337c4fdfe75ddd303f90",
+    "merged_at": "2026-10-08T00:15:40Z",
+    "number": 30605,
+    "production_files": [
+     "sympy/physics/mechanics/joint.py",
+     "sympy/simplify/trigsimp.py"
+    ],
+    "test_files": [
+     "sympy/series/tests/test_series.py",
+     "sympy/simplify/tests/test_trigsimp.py"
+    ],
+    "title": "make `trigsimp` more targeted in transformation"
+   },
+   {
+    "base_sha": "319ea7a6186edf88bc23d502917242b10314ae51",
+    "files": 2,
+    "head_sha": "6f4636a124bc2b87584f280ef0bc94381440d8eb",
+    "merge_base": "319ea7a6186edf88bc23d502917242b10314ae51",
+    "merge_commit": "998fbe45fcff8947ff4fa4f920cc16548d0c08c1",
+    "merged_at": "2026-10-07T22:38:57Z",
+    "number": 30682,
+    "production_files": [
+     "sympy/integrals/manualintegrate.py"
+    ],
+    "test_files": [
+     "sympy/integrals/tests/test_manual.py"
+    ],
+    "title": "Manualintegrate trig log hang"
+   },
+   {
+    "base_sha": "319ea7a6186edf88bc23d502917242b10314ae51",
+    "files": 3,
+    "head_sha": "1837fd2adb550b059b98b32e9a6fa4452f9751e2",
+    "merge_base": "319ea7a6186edf88bc23d502917242b10314ae51",
+    "merge_commit": "5a6e11e5b9ce570c819f146d1fafc83a06e14956",
+    "merged_at": "2026-10-07T22:36:50Z",
+    "number": 30684,
+    "production_files": [
+     "sympy/interactive/session.py"
+    ],
+    "test_files": [
+     "sympy/interactive/tests/test_interactive.py",
+     "sympy/interactive/tests/test_ipython.py"
+    ],
+    "title": "Keep the original input in the IPython history with isympy -I"
+   },
+   {
+    "base_sha": "319ea7a6186edf88bc23d502917242b10314ae51",
+    "files": 2,
+    "head_sha": "b2610faf12711698f1438087ec106b16b411c245",
+    "merge_base": "319ea7a6186edf88bc23d502917242b10314ae51",
+    "merge_commit": "cba0840623433aa28ed1646b3ca19ab4211f09d0",
+    "merged_at": "2026-10-07T21:48:45Z",
+    "number": 30690,
+    "production_files": [
+     "sympy/tensor/index_methods.py"
+    ],
+    "test_files": [],
+    "title": "tensor: fix typo and un-skip doctest in get_indices"
+   },
+   {
+    "base_sha": "319ea7a6186edf88bc23d502917242b10314ae51",
+    "files": 2,
+    "head_sha": "6b9e5eac3ba6de8a89d8b4fe73bb43cf9e5b213c",
+    "merge_base": "319ea7a6186edf88bc23d502917242b10314ae51",
+    "merge_commit": "6d763380b99e289ca08b510b497c8e7c4e0ff40c",
+    "merged_at": "2026-10-07T20:28:39Z",
+    "number": 30697,
+    "production_files": [
+     "sympy/polys/specialpolys.py"
+    ],
+    "test_files": [],
+    "title": "Fix polys docstrings specialpolys"
+   },
+   {
+    "base_sha": "319ea7a6186edf88bc23d502917242b10314ae51",
+    "files": 3,
+    "head_sha": "043e9192777f31bfe4ca9f353190d970b89f929c",
+    "merge_base": "319ea7a6186edf88bc23d502917242b10314ae51",
+    "merge_commit": "cb5c6d356b8ec0d4a024a38d46c5a371f4e0aad0",
+    "merged_at": "2026-10-07T19:25:06Z",
+    "number": 30693,
+    "production_files": [
+     "sympy/testing/runtests.py"
+    ],
+    "test_files": [
+     "sympy/testing/tests/test_runtests.py"
+    ],
+    "title": "Normalize path separators in convert_to_native_paths"
+   },
+   {
+    "base_sha": "024e2c84a64dd43501b30887faa8e44c6254d181",
+    "files": 6,
+    "head_sha": "9f1555b9abc77f58362ed7a7688444ef267ce90e",
+    "merge_base": "024e2c84a64dd43501b30887faa8e44c6254d181",
+    "merge_commit": "319ea7a6186edf88bc23d502917242b10314ae51",
+    "merged_at": "2026-10-05T04:38:31Z",
+    "number": 30673,
+    "production_files": [
+     "sympy/concrete/gosper.py",
+     "sympy/polys/densebasic.py",
+     "sympy/polys/polyclasses.py",
+     "sympy/polys/polytools.py"
+    ],
+    "test_files": [
+     "sympy/polys/tests/test_polyclasses.py",
+     "sympy/polys/tests/test_polytools.py"
+    ],
+    "title": "polys: clean up argument handling for nth"
+   },
+   {
+    "base_sha": "2d283a82d15f2b46beff7be5399546c79613c445",
+    "files": 3,
+    "head_sha": "8b22bef7faade820cc705601d5cafd46a1f56740",
+    "merge_base": "6aabf6ac9eddd1c5141ff9a3a35dcb53a7b02228",
+    "merge_commit": "9bc95b1a80941bcfe64c1d60e3417fc7bea2562a",
+    "merged_at": "2026-10-04T01:29:48Z",
+    "number": 30636,
+    "production_files": [
+     "sympy/core/exprtools.py"
+    ],
+    "test_files": [
+     "sympy/core/tests/test_assumptions.py",
+     "sympy/core/tests/test_exprtools.py"
+    ],
+    "title": "Handle same-signed groups in `_monotonic_sign`"
+   },
+   {
+    "base_sha": "06fdc356176f6ae82c865a365701f64c5ee67aa9",
+    "files": 14,
+    "head_sha": "a3880af9c9557485ebc699c3d92acb3787d0daaf",
+    "merge_base": "6aabf6ac9eddd1c5141ff9a3a35dcb53a7b02228",
+    "merge_commit": "33231a3fb5895da109da8541434fd2f5d526d8fc",
+    "merged_at": "2026-10-03T23:19:36Z",
+    "number": 30589,
+    "production_files": [
+     "sympy/core/relational.py",
+     "sympy/sets/fancysets.py",
+     "sympy/solvers/inequalities.py",
+     "sympy/solvers/solvers.py",
+     "sympy/solvers/solveset.py"
+    ],
+    "test_files": [
+     "sympy/concrete/tests/test_sums_products.py",
+     "sympy/core/tests/test_relational.py",
+     "sympy/sets/tests/test_sets.py",
+     "sympy/simplify/tests/test_gammasimp.py",
+     "sympy/solvers/tests/test_solvers.py",
+     "sympy/solvers/tests/test_solveset.py"
+    ],
+    "title": "improve Relational fidelity during simplification"
+   },
+   {
+    "base_sha": "f6d8906c03eec71d4cbbe0275722a7915d965a97",
+    "files": 1,
+    "head_sha": "1e83aba75ede252bdc5a25f0fc0b8e6841b27787",
+    "merge_base": "f6d8906c03eec71d4cbbe0275722a7915d965a97",
+    "merge_commit": "06fdc356176f6ae82c865a365701f64c5ee67aa9",
+    "merged_at": "2026-10-03T17:27:39Z",
+    "number": 30471,
+    "production_files": [
+     "sympy/interactive/printing.py"
+    ],
+    "test_files": [],
+    "title": "fix(interactive): support unapplied functions in interactive printing"
+   },
+   {
+    "base_sha": "afc5607ad04a16e81479b224b359dbf507d6c580",
+    "files": 2,
+    "head_sha": "903083c66df61837a0b9ba738a8d9121abf07a08",
+    "merge_base": "afc5607ad04a16e81479b224b359dbf507d6c580",
+    "merge_commit": "1f818f624d2bfd88aadc68298039b616649ed1a4",
+    "merged_at": "2026-10-02T18:30:05Z",
+    "number": 30642,
+    "production_files": [
+     "sympy/core/relational.py"
+    ],
+    "test_files": [
+     "sympy/core/tests/test_relational.py"
+    ],
+    "title": "Fixed (bug) func:is_eq returned True when x = neg_infinite and y = extended_nonpositive"
+   },
+   {
+    "base_sha": "fc709aa4c714869c16cc226b0656ee9b5c71e6c4",
+    "files": 2,
+    "head_sha": "f7e9f3be7c3cb88b8f9e1f591fc4999b2110c208",
+    "merge_base": "fc709aa4c714869c16cc226b0656ee9b5c71e6c4",
+    "merge_commit": "afc5607ad04a16e81479b224b359dbf507d6c580",
+    "merged_at": "2026-10-01T00:19:29Z",
+    "number": 29930,
+    "production_files": [
+     "sympy/functions/elementary/complexes.py"
+    ],
+    "test_files": [],
+    "title": "docs: clarify unbranched_argument"
+   },
+   {
+    "base_sha": "d9232e0d2eac5c5b1112cc7d10d441f798e4eab8",
+    "files": 3,
+    "head_sha": "6b896d4fbe7c9e8ac037fe93449bd5d6bb0cecf6",
+    "merge_base": "a23073ee516bbf60863dc8b82a8446b15e6348f4",
+    "merge_commit": "2d283a82d15f2b46beff7be5399546c79613c445",
+    "merged_at": "2026-09-30T04:18:57Z",
+    "number": 30469,
+    "production_files": [
+     "sympy/testing/runtests.py"
+    ],
+    "test_files": [],
+    "title": "Add an introduction with a worked example to the diffgeom documentation"
+   },
+   {
+    "base_sha": "be5df6064ea0d10ee7cae7a517270d1766f6ed56",
+    "files": 10,
+    "head_sha": "f6a7189718aae8fbe46990db73ee0be8cc46a891",
+    "merge_base": "be5df6064ea0d10ee7cae7a517270d1766f6ed56",
+    "merge_commit": "97cf00f4e942722daaf2b6185cb68bc28deaa9f9",
+    "merged_at": "2026-09-29T23:17:30Z",
+    "number": 30600,
+    "production_files": [
+     "sympy/tensor/array/expressions/array_expressions.py",
+     "sympy/tensor/array/expressions/arrayexpr_derivatives.py",
+     "sympy/tensor/array/expressions/from_array_to_indexed.py",
+     "sympy/tensor/array/expressions/from_array_to_matrix.py"
+    ],
+    "test_files": [
+     "sympy/tensor/array/expressions/tests/test_array_expressions.py",
+     "sympy/tensor/array/expressions/tests/test_arrayexpr_derivatives.py",
+     "sympy/tensor/array/expressions/tests/test_convert_array_to_indexed.py",
+     "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py",
+     "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py",
+     "sympy/tensor/array/expressions/tests/test_simplification.py"
+    ],
+    "title": "ArrayAdd: do not allow scalar arguments"
+   },
+   {
+    "base_sha": "a1021ffb1f40f860960119e70e6329cd5937862c",
+    "files": 1,
+    "head_sha": "9d08bdf35c22f37c806c135dfae56077dffeaf93",
+    "merge_base": "a1021ffb1f40f860960119e70e6329cd5937862c",
+    "merge_commit": "ce96d33116cc816c02fe759200b3424ffcaa98e1",
+    "merged_at": "2026-09-29T21:28:19Z",
+    "number": 30607,
+    "production_files": [
+     "sympy/functions/elementary/trigonometric.py"
+    ],
+    "test_files": [],
+    "title": "doc fix: correct the function range of `acot(x)` for x in `Reals`"
+   },
+   {
+    "base_sha": "6aabf6ac9eddd1c5141ff9a3a35dcb53a7b02228",
+    "files": 3,
+    "head_sha": "e9a4b3c779fd9c4075e3aea8cfcd7983c9037955",
+    "merge_base": "2c037307929f917235dd30a8e456b0e47dc5d793",
+    "merge_commit": "751a37041610a83fb22559bc0618f84623fcea04",
+    "merged_at": "2026-09-29T18:32:19Z",
+    "number": 30453,
+    "production_files": [
+     "sympy/core/function.py"
+    ],
+    "test_files": [
+     "sympy/core/tests/test_function.py"
+    ],
+    "title": "Improve arity() and nargs for functions with *args"
+   },
+   {
+    "base_sha": "d701e5949291fcff55903d13dd2b711d75d4ee42",
+    "files": 3,
+    "head_sha": "dbe117d40300574959d9e4e0b6f188909209685c",
+    "merge_base": "d701e5949291fcff55903d13dd2b711d75d4ee42",
+    "merge_commit": "6aabf6ac9eddd1c5141ff9a3a35dcb53a7b02228",
+    "merged_at": "2026-09-28T15:33:22Z",
+    "number": 30596,
+    "production_files": [
+     "sympy/solvers/solveset.py"
+    ],
+    "test_files": [
+     "sympy/solvers/tests/test_solveset.py"
+    ],
+    "title": "Handle symbol-independent relationals in solveset"
+   },
+   {
+    "base_sha": "3f58eb0ce808f8c4917ab0b8ae67d133fc794c3f",
+    "files": 3,
+    "head_sha": "dc1562262a6e4a56f7409ef9ab7e92c6bb66c926",
+    "merge_base": "3f58eb0ce808f8c4917ab0b8ae67d133fc794c3f",
+    "merge_commit": "a1021ffb1f40f860960119e70e6329cd5937862c",
+    "merged_at": "2026-09-27T19:56:43Z",
+    "number": 30591,
+    "production_files": [
+     "sympy/core/evalf.py"
+    ],
+    "test_files": [
+     "sympy/core/tests/test_evalf.py"
+    ],
+    "title": "fix(evalf): do not truncate the term ratio to an integer in hypsum"
+   },
+   {
+    "base_sha": "3f58eb0ce808f8c4917ab0b8ae67d133fc794c3f",
+    "files": 5,
+    "head_sha": "43cf6ea378d18ddf6b35d7250a12aba32d652f90",
+    "merge_base": "3f58eb0ce808f8c4917ab0b8ae67d133fc794c3f",
+    "merge_commit": "94f14043f5195c6c58d2c21dcc2beccd9d476aa4",
+    "merged_at": "2026-09-27T19:48:07Z",
+    "number": 30590,
+    "production_files": [
+     "sympy/functions/elementary/hyperbolic.py",
+     "sympy/functions/elementary/trigonometric.py"
+    ],
+    "test_files": [
+     "sympy/functions/elementary/tests/test_hyperbolic.py",
+     "sympy/functions/elementary/tests/test_trigonometric.py"
+    ],
+    "title": "fix(acot, acoth): do not extract a minus sign at a possible branch point"
+   },
+   {
+    "base_sha": "5199eff1ff7e07ae38d81db6fcae6b0541d66124",
+    "files": 9,
+    "head_sha": "09a4396d36bd8a2fe6741d5bd7e81339fdd744ea",
+    "merge_base": "43c4ae7fd5777b48762642c07cb3b49fb41d52a7",
+    "merge_commit": "be5df6064ea0d10ee7cae7a517270d1766f6ed56",
+    "merged_at": "2026-09-27T15:28:51Z",
+    "number": 30601,
+    "production_files": [
+     "sympy/tensor/array/arrayop.py",
+     "sympy/tensor/array/expressions/array_expressions.py",
+     "sympy/tensor/array/expressions/from_array_to_indexed.py",
+     "sympy/tensor/array/expressions/from_array_to_matrix.py",
+     "sympy/tensor/array/expressions/from_indexed_to_array.py",
+     "sympy/tensor/array/expressions/from_matrix_to_array.py"
+    ],
+    "test_files": [
+     "sympy/printing/tests/test_torch.py",
+     "sympy/tensor/array/expressions/tests/test_array_expressions.py",
+     "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py"
+    ],
+    "title": "Remove _CodegenArrayAbstract"
+   },
+   {
+    "base_sha": "5ffd63560782f128df7632433b88bc144998087d",
+    "files": 3,
+    "head_sha": "9fa6372fb5755660375052cc41a131e174d73fa7",
+    "merge_base": "5ffd63560782f128df7632433b88bc144998087d",
+    "merge_commit": "5199eff1ff7e07ae38d81db6fcae6b0541d66124",
+    "merged_at": "2026-09-27T12:50:11Z",
+    "number": 28853,
+    "production_files": [
+     "sympy/matrices/expressions/kronecker.py"
+    ],
+    "test_files": [
+     "sympy/matrices/expressions/tests/test_kronecker.py",
+     "sympy/printing/pretty/tests/test_pretty.py"
+    ],
+    "title": "agglomerate singleton matrices together in Kronecker product"
+   },
+   {
+    "base_sha": "e0e25c8eaab46155ee7c35c783e3f6f41e147b9b",
+    "files": 6,
+    "head_sha": "3218cb5cab99d2d078831611a07687d6be0fe27e",
+    "merge_base": "e0e25c8eaab46155ee7c35c783e3f6f41e147b9b",
+    "merge_commit": "43c4ae7fd5777b48762642c07cb3b49fb41d52a7",
+    "merged_at": "2026-09-27T11:46:16Z",
+    "number": 30396,
+    "production_files": [
+     "sympy/printing/pycode.py",
+     "sympy/tensor/array/expressions/from_indexed_to_array.py"
+    ],
+    "test_files": [
+     "sympy/printing/tests/test_numpy.py",
+     "sympy/printing/tests/test_pycode.py",
+     "sympy/printing/tests/test_tensorflow.py",
+     "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py"
+    ],
+    "title": "ArrayPrinter: print scalar assignments as scalar code"
+   },
+   {
+    "base_sha": "d701e5949291fcff55903d13dd2b711d75d4ee42",
+    "files": 4,
+    "head_sha": "10eb21a7abead8e7b182e56a117824e46107f444",
+    "merge_base": "06fcaef06d1e72684a46659b055eeee6169567ad",
+    "merge_commit": "5ffd63560782f128df7632433b88bc144998087d",
+    "merged_at": "2026-09-26T20:53:06Z",
+    "number": 30585,
+    "production_files": [
+     "sympy/core/exprtools.py",
+     "sympy/polys/polyutils.py"
+    ],
+    "test_files": [
+     "sympy/core/tests/test_exprtools.py",
+     "sympy/polys/tests/test_polyutils.py"
+    ],
+    "title": "polys: remove redundant expansion in dict_from_expr"
+   },
+   {
+    "base_sha": "f14b5cd2d13c0145521eccec991c315794952117",
+    "files": 2,
+    "head_sha": "428ebf79f834ab6e640558ab7f8cfe83bb0e409c",
+    "merge_base": "f14b5cd2d13c0145521eccec991c315794952117",
+    "merge_commit": "0d7546fd17e5438fbe74830357e09dc93794bddf",
+    "merged_at": "2026-09-26T05:42:24Z",
+    "number": 30569,
+    "production_files": [
+     "sympy/series/gruntz.py"
+    ],
+    "test_files": [
+     "sympy/series/tests/test_limits.py"
+    ],
+    "title": "series: rewrite Min/Max to Abs during limit evaluation in gruntz"
+   },
+   {
+    "base_sha": "06fcaef06d1e72684a46659b055eeee6169567ad",
+    "files": 2,
+    "head_sha": "ecb40a7c1a0c879807ae1030d597bcaebdf5ac8c",
+    "merge_base": "05008308547b4897a5e62cef1be301ee7f280ff0",
+    "merge_commit": "3f58eb0ce808f8c4917ab0b8ae67d133fc794c3f",
+    "merged_at": "2026-09-25T19:17:14Z",
+    "number": 30575,
+    "production_files": [
+     "sympy/core/mul.py"
+    ],
+    "test_files": [
+     "sympy/series/tests/test_order.py"
+    ],
+    "title": "series: fix Order scaling on multiply and expand for x0 != 0"
+   },
+   {
+    "base_sha": "31e03dc7ed8114117274ea679be1835044cec9c9",
+    "files": 2,
+    "head_sha": "4d0c1dcf8b3609ba122a8a98c08b2fbaf54dec20",
+    "merge_base": "31e03dc7ed8114117274ea679be1835044cec9c9",
+    "merge_commit": "c59b9b67b0d52e085b917efdcbae78f54ecffd78",
+    "merged_at": "2026-09-25T19:00:38Z",
+    "number": 30530,
+    "production_files": [
+     "sympy/solvers/inequalities.py"
+    ],
+    "test_files": [
+     "sympy/solvers/tests/test_inequalities.py"
+    ],
+    "title": "solvers: preserve singularities in reduce_inequalities"
+   },
+   {
+    "base_sha": "c169dc6c618c091c38283abc7d20fcc3033ad70c",
+    "files": 2,
+    "head_sha": "3c00ff7d631cab00ae234f9530336528b6e5bde5",
+    "merge_base": "c169dc6c618c091c38283abc7d20fcc3033ad70c",
+    "merge_commit": "06fcaef06d1e72684a46659b055eeee6169567ad",
+    "merged_at": "2026-09-25T07:27:09Z",
+    "number": 28882,
+    "production_files": [
+     "sympy/simplify/trigsimp.py"
+    ],
+    "test_files": [],
+    "title": "docs: Clarify trigsimp behavior and suggest fu module for targeted simplification"
+   },
+   {
+    "base_sha": "fe6ffa53d1464e4ac139088b178e61cb645eb30a",
+    "files": 3,
+    "head_sha": "4673b0b6c544b99837bd3e09922bac5d03b3b791",
+    "merge_base": "fe6ffa53d1464e4ac139088b178e61cb645eb30a",
+    "merge_commit": "a7c459d910e8bc6de9eb2b6635ba70c123ce39ce",
+    "merged_at": "2026-09-25T06:03:15Z",
+    "number": 30563,
+    "production_files": [
+     "sympy/algebras/quaternion.py",
+     "sympy/simplify/trigsimp.py"
+    ],
+    "test_files": [
+     "sympy/algebras/tests/test_quaternion.py"
+    ],
+    "title": "Fixed complex expressions in Quaternion.norm"
+   },
+   {
+    "base_sha": "f14b5cd2d13c0145521eccec991c315794952117",
+    "files": 3,
+    "head_sha": "588b052257dbba5c484a760a8d397b7db324c233",
+    "merge_base": "379f910bbb8e7b54b7461d686032403859bc2a5f",
+    "merge_commit": "5c5ec9b873a29b2fdc8dc6759bb9a56f6b3d69c4",
+    "merged_at": "2026-09-23T23:14:30Z",
+    "number": 30567,
+    "production_files": [
+     "sympy/solvers/solvers.py"
+    ],
+    "test_files": [
+     "sympy/solvers/tests/test_solvers.py"
+    ],
+    "title": "Fix solve returning points outside the domain of a denominator (e.g. x/log(x))"
+   },
+   {
+    "base_sha": "05008308547b4897a5e62cef1be301ee7f280ff0",
+    "files": 5,
+    "head_sha": "99c830a6eb7dc032e5180bd0ea12894e853a86b9",
+    "merge_base": "05008308547b4897a5e62cef1be301ee7f280ff0",
+    "merge_commit": "253f564dd4cf9487f998bae4037a81ce94757ca5",
+    "merged_at": "2026-09-23T23:10:18Z",
+    "number": 30572,
+    "production_files": [
+     "sympy/printing/conventions.py",
+     "sympy/printing/latex.py",
+     "sympy/printing/pretty/pretty.py"
+    ],
+    "test_files": [
+     "sympy/printing/pretty/tests/test_pretty.py",
+     "sympy/printing/tests/test_latex.py"
+    ],
+    "title": "printing: elementwise function application notation for array expressions"
+   },
+   {
+    "base_sha": "6e5b7af0f803eacf02487b428dd0cba1ace90fbb",
+    "files": 3,
+    "head_sha": "847dbb1e0fbeae8a600819957b8411afd155809e",
+    "merge_base": "6e5b7af0f803eacf02487b428dd0cba1ace90fbb",
+    "merge_commit": "597e4865c754aa5a6d892ee2a6b8e2be60729b0b",
+    "merged_at": "2026-09-23T20:12:52Z",
+    "number": 30540,
+    "production_files": [
+     "sympy/solvers/solveset.py"
+    ],
+    "test_files": [
+     "sympy/solvers/tests/test_solveset.py"
+    ],
+    "title": "Fix denominator restrictions in nonlinsolve"
+   },
+   {
+    "base_sha": "a23073ee516bbf60863dc8b82a8446b15e6348f4",
+    "files": 4,
+    "head_sha": "79a3db2412535d11d84b5789451882095313ac43",
+    "merge_base": "a23073ee516bbf60863dc8b82a8446b15e6348f4",
+    "merge_commit": "05008308547b4897a5e62cef1be301ee7f280ff0",
+    "merged_at": "2026-09-23T16:47:35Z",
+    "number": 30477,
+    "production_files": [
+     "sympy/parsing/latex/lark/latex_parser.py",
+     "sympy/parsing/latex/lark/transformer.py"
+    ],
+    "test_files": [
+     "sympy/parsing/tests/test_latex_lark.py"
+    ],
+    "title": "parsing.latex.lark: end control words at the first non-letter"
+   },
+   {
+    "base_sha": "379f910bbb8e7b54b7461d686032403859bc2a5f",
+    "files": 3,
+    "head_sha": "1c1934784dd7ad9647ea4797ffc7d0d146174a4a",
+    "merge_base": "d9a9cd995650088a237d13e459b10f5da9cfa928",
+    "merge_commit": "f14b5cd2d13c0145521eccec991c315794952117",
+    "merged_at": "2026-09-23T10:46:56Z",
+    "number": 30515,
+    "production_files": [
+     "sympy/calculus/util.py"
+    ],
+    "test_files": [
+     "sympy/calculus/tests/test_util.py"
+    ],
+    "title": "Fix function_range for composed functions"
+   },
+   {
+    "base_sha": "d9232e0d2eac5c5b1112cc7d10d441f798e4eab8",
+    "files": 5,
+    "head_sha": "1bd75f90e7aed2213c0e7c15c9e77c04798948ea",
+    "merge_base": "a23073ee516bbf60863dc8b82a8446b15e6348f4",
+    "merge_commit": "379f910bbb8e7b54b7461d686032403859bc2a5f",
+    "merged_at": "2026-09-23T09:51:32Z",
+    "number": 30511,
+    "production_files": [
+     "sympy/assumptions/refine.py",
+     "sympy/calculus/util.py"
+    ],
+    "test_files": [
+     "sympy/assumptions/tests/test_refine.py",
+     "sympy/calculus/tests/test_util.py"
+    ],
+    "title": "calculus: Include evaluated values at discrete domain points in function_range"
+   },
+   {
+    "base_sha": "4b806232e239d308349711cdab286716c6bac7d8",
+    "files": 2,
+    "head_sha": "e2e41f9d973b3fd2e5e2d4299a3d88ad57104faf",
+    "merge_base": "a23073ee516bbf60863dc8b82a8446b15e6348f4",
+    "merge_commit": "ee699d48c852e1e98e719870c0dab6905e8326ed",
+    "merged_at": "2026-09-23T09:44:48Z",
+    "number": 30476,
+    "production_files": [
+     "sympy/assumptions/refine.py"
+    ],
+    "test_files": [
+     "sympy/assumptions/tests/test_refine.py"
+    ],
+    "title": "fix(assumptions): simplify Abs(z)**k under Q.imaginary(z) in refine_Pow (#30473)"
+   }
+  ]
+ },
+ "scanned": {
+  "django": {
+   "merged_scanned": 104,
+   "skipped_no_production_python": [
+    22149,
+    22073,
+    22109,
+    22093,
+    21859,
+    22121,
+    21734,
+    22122,
+    22114,
+    22113,
+    21012,
+    22060,
+    22118,
+    22107,
+    21919,
+    22108,
+    22087,
+    22098,
+    22090,
+    22089,
+    22067,
+    22066,
+    22063,
+    16294,
+    21613,
+    22054,
+    22045,
+    22042,
+    22035,
+    21138,
+    22016,
+    22004,
+    21889,
+    22002,
+    21809,
+    21989,
+    21501,
+    21986,
+    21985,
+    21934,
+    21795,
+    21793,
+    20842,
+    21929,
+    21900,
+    21897,
+    18246,
+    21597,
+    21381,
+    21898,
+    21547,
+    21865,
+    21860,
+    21836
+   ]
+  },
+  "sympy": {
+   "merged_scanned": 64,
+   "skipped_no_production_python": [
+    30750,
+    30712,
+    30703,
+    30707,
+    30696,
+    30669,
+    30648,
+    30650,
+    30639,
+    30142,
+    30504,
+    30602,
+    30305,
+    30565
+   ]
+  }
+ },
+ "selection": "- merged into the default branch (Django ``main``, sympy ``master``) before ``CUTOFF``;\n- ordered by merge time, newest first; the first 50 whose changed files include production Python are kept;\n- production Python: a ``.py`` file under the package (``django/``, ``sympy/``) and not in a ``tests`` or\n  ``benchmarks`` directory, whatever its status (added, modified, removed, renamed);\n- test files the pull request adds or edits: ``.py`` files under ``tests/`` (Django) or in a ``tests`` directory\n  (sympy), with status added, modified or renamed.",
+ "sha256": "471c9c59bf4641b30c4a8880f06cc9cacf9138d0e53dd8f8837c57d5299c839f",
+ "v": 1,
+ "window": "2026-06-01..2026-10-17",
+ "written": "2026-10-18"
+}
