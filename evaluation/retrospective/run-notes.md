@@ -1,0 +1,69 @@
+# Run notes (live; go into REPORT.md)
+- 2026-10-18 16:3x: first launch stopped 1 min into django 21820 (recording) because the driver starved probes of the suite lock; cleaned (.pth removed, tmp worktree removed, no cache written), hand-off added to run.py, relaunched 16:38. 21820 restarted from zero.
+- Finding: side-by-side targets (and so the automated tier's targets) include changed functions in test files (21820 test_invalid_view, 21861 ModelTest.test_eq). Count number 4 with and without them.
+- Environment: no GDAL/GEOS here; django.contrib.gis cannot be imported (21853 probe setup failed twice). GIS tests skip in this env too.
+- Protocol slip: for 21853 I ran attempt 2's setup by hand (try_setup.py) before submitting it. Rule from then on: try_setup only after the filter has failed a probe's setup, never on a rewrite before submitting.
+- KEPT django 21861 test_eq probe: AmuDbDefaultPk()==AmuDbDefaultPk() True -> False. Label: intended (ticket 37309: unsaved db_default pk instances compared equal).
+- DEFECT (django 21805): candidate label for a test method of a non-TestCase mixin (SharedEmailBackendTests.*) crashes Django's runner ("missing 1 required positional argument: 'self'", runner.py:988); shadow.run breaks out on the problem, so only 40 of 4128 candidates ran. Engine not changed (run live).
+- DEFECT (django 21805): a gis_tests label in a batch makes runtests abort ("A GIS database backend is required to run gis_tests"), so the PR's own tests were not replayed at all (29 replayed labels lost) and the original-test check aborted too.
+- 21805 has 173 probe targets; cap 20 min; production functions first.
+- 21805 probes: 173 attempted (15+45 production, 113 generic test-method), 32 kept, all intended (warning category/version rename, verified by normalising names). 3.2 min.
+- KEPT django 21872 x2: func_supports_parameter positional-only/varargs now False. Label: intended.
+- KEPT django 20817 _alter_field: base goes down column-type path, head comment-only path; both raise TypeError in the mocked SQLite setup. Label: intended (weak: outcomes are mock-setup errors, the difference is the path, which the PR intends).
+- 21881: 3 probes, all setup failures (no GDAL).
+- KEPT django 21801 _alter_field: dropping db_index dropped [idx, uniq] -> [idx]. Label: intended (ticket 37286).
+- KEPT django 21971 x2: JSONArray/JSONObject.as_postgresql emit native JSON_ARRAY/JSON_OBJECT even when is_postgresql_16 is False. Label: intended (PG15 dropped).
+- 22005: flips null (no candidate ran).
+- KEPT django 21610: wrong ADMINS message adds 'or Address objects'. intended. (probe leaves override_settings enabled; only probe in its process)
+- KEPT django 22057: UUID4.as_oracle SQL UUID() -> LOWER(RAWTOHEX(UUID())). intended.
+- ENV: no PyYAML in the Django venv (only install requirements): 22096 yaml serializer probe cannot run.
+- 21825: my probe file defined the same model twice in one process (setup failure); rewrote as_oracle once. Lesson: guard model definitions with apps.get_model.
+- KEPT django 22094: JSONField __in with Value(None) compiled params ('$','$','$','null') -> ('$','$','$') with IN (NULL). intended (crash fix).
+- KEPT django 22112: OracleParam with a 5000-char str: force_bytes str/input_size set -> LOB created, input_size None. intended (oracledb 26 compatibility).
+- 22139: GIS, setup failed (no GDAL).
+- KEPT django 22039: repr(Lexer) drops ', verbatim=False'. intended (edited test asserts it).
+- DEFECT (side-by-side, django 22039): a method the change deletes from a subclass (DebugLexer._tag_re_split) stays on the class in the as-changed run and shadows the method the change adds to the base class; 2 artifact rows.
+- PRODUCT DEFECT (owner, 2026-10-18): sympy 30476 recording (observe) took its spare, then amu.ci.run hit the wall cap: report {"error": "stopped at the wall cap of 1200 s; amu reported nothing"}, comment = that one line + footer. AMU must give the recording its own share and skip it when it would not fit, then still run and post. Fix after the retrospective.
+- PRODUCT DEFECT 2: a recording stopped at its time limit (killpg) leaves amu_edges_hook.py and zzz_amu_edges.pth in the project's site-packages (cleanup in edges.record's finally never runs). Fix with the first.
+- Owner decision: observe off for sympy from 30511 on (driver restarted 2026-10-18 with --no-observe sympy; 30511 had been running 6 min with observe, killed, rerun from zero).
+- KEPT django 22144: get_max_age with whitespace before '=' None -> 300. intended.
+- KEPT sympy 30511: refine(Abs(z)**n, Q.imaginary(z)) Abs(z)**n -> (-1)^(n/2) z**n. intended (PR's edited test_Abs asserts it; description does not mention refine).
+- ENV: no lark in sympy venv: 30477 Lark LaTeX parser probes cannot reach.
+- DEFECT (shadow.run memo rate, sympy 30511..30540): the measured tests/s rate carries over to every merge base (load_memo) and caps the next run's candidates; on sympy it decayed 15 -> 2 -> 3 -> ~0.2 tests/s and 30540 ran 48 of 12885 candidates in 47 s, leaving ~250 s of the 300 s budget unused. With the Action's restore-key cache fallback the same carry-over happens on GitHub. Engine not changed; sympy numbers from 30515 on predate a fix.
+- TIER LIMIT (sympy 30540): the Action's $0.10 generate cap refuses the request before sending (prompt of nonlinsolve+substitution before/after too long): the automated tier would generate nothing. Probes rerun with --dollars 1.0 (cost 0), flagged cap_blocked.
+- KEPT sympy 30540 x2 (cap-blocked at $0.10, run at $1.00): nonlinsolve {(x,1)} -> Complement({x},{1}); nonlinsolve z/(a+b) {(a,b,0)} -> ConditionSet with Ne(a+b,0). intended.
+- KEPT sympy 30572 x2: latex/pretty of ElementwiseApplyFunction(exp, X): lambda d -> e^d  ->  exp. intended.
+- Finding: targets include functions whose only change is the docstring (sympy 30530 solve_poly_inequalities).
+- KEPT sympy 30569 x2: gruntz(Min(exp x, exp 2x), oo) NotImplementedError -> oo; gruntz(Max(x, sin x), oo) NotImplementedError -> PoleError (limit() falls back to heuristics on PoleError, propagates NotImplementedError); mrv Min -> Abs form. intended.
+- KEPT sympy 30396 x2: NumPyPrinter ArrayElementwiseApplyFunc PrintMethodNotImplementedError -> numpy.sin(B), B**2; convert_indexed_to_array scalars ArrayAdd(1,x) -> x + 1. intended.
+- KEPT sympy 28853: pretty(a*KroneckerProduct(a,a)) for 1x1 a: 'a*(a x a)' -> a**3. intended.
+- KEPT sympy 30601 x2: convert_array_to_matrix(ArrayAdd(A, M)) TypeError -> ArrayAdd; PermuteDims(A) -> stays PermuteDims, not A.T. intended (PR: ArraySymbol stays an array expression).
+- KEPT sympy 30590 x4: acoth(-x)/acot(-x) no longer rewritten to -f(x); subs(x,0) now I*pi/2, pi/2; acot(-x)+acot(x) no longer 0. intended (PR: not odd at branch point).
+- KEPT sympy 30591: Sum(1.9**n/n!) evalf 2.718 -> 6.686. intended (issue 13365).
+- KEPT sympy 30600 x4: ArrayAdd(x,y) -> TypeError; _array_add scalars -> Add; convert_array_to_indexed(full contraction + x) -> Sum form; ArrayAdd(x, A) ValueError -> TypeError. intended (PR).
+- KEPT sympy 30642: is_eq(neg_inf, ext_nonpositive) True -> None (x2), False unchanged. intended.
+- KEPT sympy 30471: plain-text hook prints unapplied Function via SymPy (base fell to IPython pretty; AttributeError here because IPython absent). intended.
+- sympy 30589: run at $1.00 by my slip (before checking $0.10). AMU's own estimate at $0.10: batches 1-2 fit, 3-4 blocked; cumulative cost of batch 1 (~16k input tokens) would have stopped the tier after the first 5 targets. Report kept probes for all 20 and for the first 5.
+- KEPT sympy 30589 x2 (both within the first 5 targets): (x < x+1).simplify() True -> unevaluated, Eq(x+y, x+y+1) False -> unevaluated; is_eq(x, x+1) False -> None. intended (PR text says so).
+- KEPT sympy 30636: _monotonic_sign(p+q+r) None -> 3, (p+q-1).is_positive None -> True. intended.
+- KEPT sympy 30673: Poly(x**2+2x+3).nth(0.5) 3 -> TypeError. intended.
+- sympy 30697: docstring-only target again.
+- KEPT sympy 30684 x2: int_to_Integer keeps spacing/comments; enable_automatic_int_sympification registers input transformer instead of wrapping run_cell. intended.
+- sympy 30682: 10 trig*log integrals, same results both trees (no regression from the new parts_rule guard on these).
+- KEPT sympy 30605 x2: trigsimp leaves algebraic parts untouched (0 -> -x**2 + x*(x-1/x) + 1; 2 -> (x+1)**2 - x**2 - 2x + 1). intended (edited test asserts it).
+- KEPT sympy 30680 x7: lcm(0,0) ZeroDivisionError -> 0 at dup/dmp/ring levels. intended.
+- KEPT sympy 30667: Pow(zoo/oo/inf, negative rational).is_algebraic False -> True. intended.
+- KEPT sympy 30699 x2: rs_nth_root precision; e.g. cube root of x^6+x^7 to order 4: 3/4 x^2 + 1/4 x^3 (wrong) -> x^2 + x^3/3. intended.
+- KEPT sympy 30702: dsolve with ics drops redundant Eq(y,0). intended.
+- sympy 26912: run at $1.00 by the same slip; see the $0.10 estimate check in REPORT.
+  - 26912 at $0.10: each batch fits alone; batch 1 (~13k in) costs ~$0.09 with output, so the tier stops after the first 5 targets.
+- KEPT sympy 26912 x4 (3 within first 5 targets): as_base_exp literal: (x**2*y**2)->(x**2*y**2,1), S.Half**x ->(1/2,x); as_content_primitive (1/2)**x; Logarithmic density form 1/3**z -> (1/3)**z. intended.
+- KEPT-BUT-ARTIFACT sympy 30701 update_args_with_paths: outcome holds the tree's own absolute path (c1-base vs c1-head), so it differs only by location. Label: artifact (probe outcome depends on tree location; the filter's step 5 cannot tell). Filter weakness to report.
+- sympy 30715: 5 probes, 0 kept (pycosat/minisat/z3 absent; lra_satask same).
+- KEPT sympy 30428 x8: 6 intended (Mod parenthesised in negated products / reciprocal divisors; -(1/2)*Z as the PR says). 2 NOT INTENDED, cosmetic: mathematica_code(-2*Mod(x,y)) -> '-2*(Mod[x, y])' and cxxcode C++17 -2*fmod -> '-2*(std::fmod(x, y))': redundant parentheses around a function-call form; correct code; neither described in the PR nor asserted by its edited tests (they assert only the Rational case).
+- sympy 30734: docstring-only targets.
+- KEPT sympy 30748: swinnerton_dyer_poly('x') TypeError -> x**2-2; n=1.2 UnboundLocalError -> ValueError; polys=True with x PurePoly -> Poly. intended.
+- KEPT sympy 30752: log(integer/nonnegative/finite).is_finite True -> None. intended.
+- KEPT sympy 30558 x3: atan(cot) definite integral sign fixed; integrate(diff(atan(x*tan(x))),(-1,1)) -2*pi -> 0; integrate(atan(tan(y)), x) no floor terms in y. intended.
+- DEFECT (Django runner, GIS): a gis_tests label in a batch aborts runtests.py ("A GIS database backend is required to run gis_tests") and AMU loses the whole batch: see REPORT for the count of Django PRs hit; 4 ran 0 tests (21881, 22005, 21890, 22041 with 9600 candidates).
+- DEFECT (patch): sympy 30589 "other side of the change could not be built; nothing executed" (patch did not apply cleanly to test_solvers.py): no test ran.

@@ -1,0 +1,5611 @@
+{
+ "rows": [
+  {
+   "repo": "django",
+   "number": 21820,
+   "title": "Fixed #37296 -- Included the invalid view type in path()/re_path() error.",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": 0.5,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 435.1,
+   "flips": 1,
+   "counted": 1,
+   "not_counted": [],
+   "verify": {
+    "checked": 1,
+    "held": 1,
+    "false": 0,
+    "other": 0,
+    "problem": null,
+    "states": {
+     "tests/urlpatterns/tests.py::SimplifiedURLTests::test_invalid_view": "passed"
+    }
+   },
+   "ran": 965,
+   "candidates": 965,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 2,
+    "functions_called": 1,
+    "compared_calls": 5,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 0,
+   "changed_functions": 2,
+   "evidence": 1,
+   "replayed": 1,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 1,
+   "probes_attempted": 1,
+   "probes_kept": 0,
+   "probe_minutes": 0.4,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 21853,
+   "title": "Skipped more tests for 1-element GeometryCollections on Oracle 23.9.",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 1,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 16.0,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 14,
+   "candidates": 14,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 0,
+   "changed_functions": 1,
+   "evidence": 0,
+   "replayed": 0,
+   "quiet": true,
+   "recording_gap": null,
+   "probe_targets": 1,
+   "probes_attempted": 2,
+   "probes_kept": 0,
+   "probe_minutes": 2.4,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 21803,
+   "title": "Fixed #36945 -- Made .values() and .order_by() resolve FilteredRelation aliases correctly.",
+   "done": true,
+   "production_comparable": 3,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 24.1,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 237,
+   "candidates": 10944,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 3,
+    "functions_called": 3,
+    "compared_calls": 15,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 3,
+   "changed_functions": 6,
+   "evidence": 2,
+   "replayed": 2,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 21754,
+   "title": "Fixed #37263 -- Fixed changelist __exact search crashes and over-matching.",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 39.5,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 596,
+   "candidates": 3592,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 1,
+    "compared_calls": 5,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 8,
+   "changed_functions": 9,
+   "evidence": 6,
+   "replayed": 6,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 21834,
+   "title": "Fixed #37300 -- Fixed database routing for custom forward prefetch querysets.",
+   "done": true,
+   "production_comparable": 2,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 15.2,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 160,
+   "candidates": 4843,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 2,
+    "functions_called": 2,
+    "compared_calls": 7,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 2,
+   "changed_functions": 4,
+   "evidence": 2,
+   "replayed": 2,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 21714,
+   "title": "Fixed #37237 -- Improved RelatedIn lookup preparation performance.",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 67.9,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 2393,
+   "candidates": 4807,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 1,
+    "compared_calls": 5,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 0,
+   "changed_functions": 1,
+   "evidence": 0,
+   "replayed": 0,
+   "quiet": true,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 21861,
+   "title": "Fixed #37309 -- Used _is_pk_set() in Model.__eq__ and the XML serializer.",
+   "done": true,
+   "production_comparable": 2,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 24.3,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 280,
+   "candidates": 7069,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 3,
+    "functions_called": 2,
+    "compared_calls": 6,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 2,
+   "changed_functions": 5,
+   "evidence": 3,
+   "replayed": 3,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 1,
+   "probes_attempted": 1,
+   "probes_kept": 1,
+   "probe_minutes": 0.5,
+   "kept": [
+    {
+     "target": "tests/basic/tests.py#ModelTest.test_eq",
+     "call": "AmuDbDefaultPk() == AmuDbDefaultPk()",
+     "before": [
+      "return",
+      "bool",
+      "True"
+     ],
+     "after": [
+      "return",
+      "bool",
+      "False"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "django",
+   "number": 21864,
+   "title": "Fixed #37311 -- Prevented consumption of rhs iterators in annotation lookups.",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 202.7,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 4960,
+   "candidates": 10559,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 1,
+    "compared_calls": 5,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 2,
+   "changed_functions": 3,
+   "evidence": 2,
+   "replayed": 2,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 21867,
+   "title": "Fixed #37312, Refs #36605 -- Fixed annotation preservation and key selection in in_bulk().",
+   "done": true,
+   "production_comparable": 0,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 18.3,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 198,
+   "candidates": 16128,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 0,
+    "functions_called": null,
+    "compared_calls": null,
+    "differences": null,
+    "unstable": null
+   },
+   "not_compared": 8,
+   "changed_functions": 8,
+   "evidence": 7,
+   "replayed": 7,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 21659,
+   "title": "Fixed #37222 -- Fixed QuerySet.distinct() crash on duplicated selections.",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 23.4,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 236,
+   "candidates": 5568,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 1,
+    "compared_calls": 5,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 8,
+   "changed_functions": 9,
+   "evidence": 0,
+   "replayed": 8,
+   "quiet": true,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 21805,
+   "title": "Refs #37293 -- Updated deprecation warnings for new release cycle (DEP 20)",
+   "done": true,
+   "production_comparable": 67,
+   "production_uncalled": 60,
+   "verify_seconds": 0.5,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 41.6,
+   "flips": 3,
+   "counted": 3,
+   "not_counted": [],
+   "verify": {
+    "checked": 3,
+    "held": 3,
+    "false": 0,
+    "other": 0,
+    "problem": null,
+    "states": {
+     "tests/httpwrappers/tests.py::JsonResponseTests::test_json_response_raises_type_error_with_safe_arg": "passed",
+     "tests/mail/test_backends.py::BaseEmailBackendTests::test_unknown_kwargs_ignored": "passed",
+     "tests/pagination/tests.py::PaginationTests::test_orphans_value_larger_than_per_page_value": "passed"
+    }
+   },
+   "ran": 40,
+   "candidates": 4128,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 180,
+    "functions_called": 7,
+    "compared_calls": 56,
+    "differences": 0,
+    "unstable": 2
+   },
+   "not_compared": 6,
+   "changed_functions": 216,
+   "evidence": 28,
+   "replayed": 29,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 173,
+   "probes_attempted": 173,
+   "probes_kept": 32,
+   "probe_minutes": 3.2,
+   "kept": [
+    {
+     "target": "django/conf/__init__.py#UserSettingsHolder.__setattr__",
+     "call": "_warned(setattr, holder, 'EMAIL_HOST', 'mail.example.com')",
+     "before": [
+      "return",
+      "tuple",
+      "('NoneType', [('RemovedInDjango70Warning', 'The EMAIL_HOST setting is deprecated. Migrate to MAILERS before Django 7.0.')])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('NoneType', [('RemovedInDjango2028Warning', 'The EMAIL_HOST setting is deprecated. Migrate to MAILERS before Django 2028.')])"
+     ]
+    },
+    {
+     "target": "django/core/mail/__init__.py#get_connection",
+     "call": "_warned(get_connection, 'django.core.mail.backends.locmem.EmailBackend', True)",
+     "before": [
+      "return",
+      "tuple",
+      "('EmailBackend', [('RemovedInDjango70Warning', \"Passing positional argument(s) 'fail_silently' to get_connection() is deprecated. Use keyword arguments instead.\"), ('RemovedInDjango70Warning', \"get_connection() is deprecated. See 'Migrating email to mailers' in Django's documentation for recommended replacements.\"), ('RemovedInDjango70Warning', 'Django 7.0 will not have a default mailer. Configure settings.MAILERS to avoid errors when sending email.')])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('EmailBackend', [('RemovedInDjango2028Warning', \"Passing positional argument(s) 'fail_silently' to get_connection() is deprecated. Use keyword arguments instead.\"), ('RemovedInDjango2028Warning', \"get_connection() is deprecated. See 'Migrating email to mailers' in Django's documentation for recommended replacements.\"), ('RemovedInDjango2028Warning', 'Django 2028 will not have a default mailer. Configure settings.MAILERS to avoid errors when sending email.')])"
+     ]
+    },
+    {
+     "target": "django/core/mail/__init__.py#send_mail",
+     "call": "_warned(send_mail, 'subject', 'message', 'from@example.com', ['to@example.com'], True)",
+     "before": [
+      "return",
+      "tuple",
+      "('int', [('RemovedInDjango70Warning', \"Passing positional argument(s) 'fail_silently' to send_mail() is deprecated. Use keyword arguments instead.\"), ('RemovedInDjango70Warning', \"The 'fail_silently' argument is deprecated. See 'Migrating email to mailers' in Django's documentation for recommended replacements.\"), ('RemovedInDjango70Warning', 'Django 7.0 will not have a default mailer. Configure settings.MAILERS to avoid errors when sending email.')])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('int', [('RemovedInDjango2028Warning', \"Passing positional argument(s) 'fail_silently' to send_mail() is deprecated. Use keyword arguments instead.\"), ('RemovedInDjango2028Warning', \"The 'fail_silently' argument is deprecated. See 'Migrating email to mailers' in Django's documentation for recommended replacements.\"), ('RemovedInDjango2028Warning', 'Django 2028 will not have a default mailer. Configure settings.MAILERS to avoid errors when sending email.')])"
+     ]
+    },
+    {
+     "target": "django/core/mail/__init__.py#send_mass_mail",
+     "call": "_warned(send_mass_mail, [('s', 'm', 'from@example.com', ['to@example.com'])], True)",
+     "before": [
+      "return",
+      "tuple",
+      "('int', [('RemovedInDjango70Warning', \"Passing positional argument(s) 'fail_silently' to send_mass_mail() is deprecated. Use keyword arguments instead.\"), ('RemovedInDjango70Warning', \"The 'fail_silently' argument is deprecated. See 'Migrating email to mailers' in Django's documentation for recommended replacements.\"), ('RemovedInDjango70Warning', 'Django 7.0 will not have a default mailer. Configure settings.MAILERS to avoid errors when sending email.')])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('int', [('RemovedInDjango2028Warning', \"Passing positional argument(s) 'fail_silently' to send_mass_mail() is deprecated. Use keyword arguments instead.\"), ('RemovedInDjango2028Warning', \"The 'fail_silently' argument is deprecated. See 'Migrating email to mailers' in Django's documentation for recommended replacements.\"), ('RemovedInDjango2028Warning', 'Django 2028 will not have a default mailer. Configure settings.MAILERS to avoid errors when sending email.')])"
+     ]
+    },
+    {
+     "target": "django/core/mail/backends/base.py#BaseEmailBackend.__init__",
+     "call": "_warned(BaseEmailBackend, True)",
+     "before": [
+      "return",
+      "tuple",
+      "('BaseEmailBackend', [('RemovedInDjango70Warning', \"django.core.mail.backends.base.BaseEmailBackend.__init__() does not support 'fail_silently'. In Django 7.0, BaseEmailBackend will raise a TypeError for unknown keyword arguments.\")])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('BaseEmailBackend', [('RemovedInDjango2028Warning', \"django.core.mail.backends.base.BaseEmailBackend.__init__() does not support 'fail_silently'. In Django 2028, BaseEmailBackend will raise a TypeError for unknown keyword arguments.\")])"
+     ]
+    },
+    {
+     "target": "django/core/mail/message.py#EmailMessage.__init__",
+     "call": "_warned(EmailMessage, 'subject', 'body', 'from@example.com', ['to@example.com'], ['bcc@example.com'], None)",
+     "before": [
+      "return",
+      "tuple",
+      "('EmailMessage', [('RemovedInDjango70Warning', \"Passing positional argument(s) 'bcc', 'connection' to EmailMessage() is deprecated. Use keyword arguments instead.\")])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('EmailMessage', [('RemovedInDjango2028Warning', \"Passing positional argument(s) 'bcc', 'connection' to EmailMessage() is deprecated. Use keyword arguments instead.\")])"
+     ]
+    },
+    {
+     "target": "django/core/paginator.py#BasePaginator.__init__",
+     "call": "_warned(Paginator, list(range(10)), 2, orphans=5)",
+     "before": [
+      "return",
+      "tuple",
+      "('Paginator', [('RemovedInDjango70Warning', 'Support for the orphans argument being larger than or equal to the per_page argument is deprecated. This will raise a ValueError in Django 7.0.')])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('Paginator', [('RemovedInDjango2028Warning', 'Support for the orphans argument being larger than or equal to the per_page argument is deprecated. This will raise a ValueError in Django 2028.')])"
+     ]
+    },
+    {
+     "target": "django/core/mail/message.py#EmailMessage.send",
+     "call": "_warned(message.send, True)",
+     "before": [
+      "return",
+      "tuple",
+      "('int', [('RemovedInDjango70Warning', \"The 'fail_silently' argument is deprecated. See 'Migrating email to mailers' in Django's documentation for recommended replacements.\"), ('RemovedInDjango70Warning', 'Django 7.0 will not have a default mailer. Configure settings.MAILERS to avoid errors when sending email.')])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('int', [('RemovedInDjango2028Warning', \"The 'fail_silently' argument is deprecated. See 'Migrating email to mailers' in Django's documentation for recommended replacements.\"), ('RemovedInDjango2028Warning', 'Django 2028 will not have a default mailer. Configure settings.MAILERS to avoid errors when sending email.')])"
+     ]
+    },
+    {
+     "target": "django/core/signing.py#base64_hmac",
+     "call": "_warned(base64_hmac, 'salt', 'value', 'key')",
+     "before": [
+      "return",
+      "tuple",
+      "('str', [('RemovedInDjango70Warning', \"The default argument for algorithm in base64_hmac() will change from 'sha1' to 'sha256' in Django 7.0. Pass an explicit algorithm to silence this warning.\")])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('str', [('RemovedInDjango2028Warning', \"The default argument for algorithm in base64_hmac() will change from 'sha1' to 'sha256' in Django 2028. Pass an explicit algorithm to silence this warning.\")])"
+     ]
+    },
+    {
+     "target": "django/db/models/query.py#QuerySet.values_list",
+     "call": "_warned(lambda: str(User.objects.values_list(flat=True).query))",
+     "before": [
+      "return",
+      "tuple",
+      "('str', [('RemovedInDjango70Warning', \"Calling values_list() with no field name and flat=True is deprecated. Pass an explicit field name instead, like 'pk'.\")])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('str', [('RemovedInDjango2028Warning', \"Calling values_list() with no field name and flat=True is deprecated. Pass an explicit field name instead, like 'pk'.\")])"
+     ]
+    },
+    {
+     "target": "django/db/models/query.py#QuerySet.select_related",
+     "call": "_warned(lambda: User.objects.select_related())",
+     "before": [
+      "return",
+      "tuple",
+      "('QuerySet', [('RemovedInDjango70Warning', 'Calling select_related() with no arguments is deprecated. Specify the fields to fetch instead.')])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('QuerySet', [('RemovedInDjango2028Warning', 'Calling select_related() with no arguments is deprecated. Specify the fields to fetch instead.')])"
+     ]
+    },
+    {
+     "target": "django/http/response.py#JsonResponse.__init__",
+     "call": "_warned(JsonResponse, [1, 2], safe=False)",
+     "before": [
+      "return",
+      "tuple",
+      "('JsonResponse', [('RemovedInDjango71Warning', 'The safe parameter is deprecated.')])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('JsonResponse', [('RemovedInDjango2029Warning', 'The safe parameter is deprecated.')])"
+     ]
+    },
+    {
+     "target": "django/db/models/sql/compiler.py#SQLCompiler.quote_name_unless_alias",
+     "call": "_warned(compiler.quote_name_unless_alias, 'auth_user')",
+     "before": [
+      "return",
+      "tuple",
+      "('str', [('RemovedInDjango70Warning', 'SQLCompiler.quote_name_unless_alias() is deprecated. Use .quote_name() instead.')])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('str', [('RemovedInDjango2028Warning', 'SQLCompiler.quote_name_unless_alias() is deprecated. Use .quote_name() instead.')])"
+     ]
+    },
+    {
+     "target": "django/utils/crypto.py#salted_hmac",
+     "call": "_warned(salted_hmac, 'salt', 'value', secret='secret')",
+     "before": [
+      "return",
+      "tuple",
+      "('HMAC', [('RemovedInDjango70Warning', \"The default argument for algorithm in salted_hmac() will change from 'sha1' to 'sha256' in Django 7.0. Pass an explicit algorithm to silence this warning.\")])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('HMAC', [('RemovedInDjango2028Warning', \"The default argument for algorithm in salted_hmac() will change from 'sha1' to 'sha256' in Django 2028. Pass an explicit algorithm to silence this warning.\")])"
+     ]
+    },
+    {
+     "target": "django/utils/html.py#Urlizer.handle_word",
+     "call": "_warned(urlize, 'see example.com now')",
+     "before": [
+      "return",
+      "tuple",
+      "('str', [('RemovedInDjango70Warning', 'The default protocol will be changed from HTTP to HTTPS in Django 7.0. Set the URLIZE_ASSUME_HTTPS transitional setting to True to opt into using HTTPS as the new default protocol.')])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('str', [('RemovedInDjango2028Warning', 'The default protocol will be changed from HTTP to HTTPS in Django 2028. Set the URLIZE_ASSUME_HTTPS transitional setting to True to opt into using HTTPS as the new default protocol.')])"
+     ]
+    },
+    {
+     "target": "django/conf/__init__.py#LazySettings.configure",
+     "call": "_warned(lazy.configure, EMAIL_HOST='mail.example.com')",
+     "before": [
+      "return",
+      "tuple",
+      "('NoneType', [('RemovedInDjango70Warning', 'The EMAIL_HOST setting is deprecated. Migrate to MAILERS before Django 7.0.')])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('NoneType', [('RemovedInDjango2028Warning', 'The EMAIL_HOST setting is deprecated. Migrate to MAILERS before Django 2028.')])"
+     ]
+    },
+    {
+     "target": "django/conf/__init__.py#Settings.__init__",
+     "call": "_warned(Settings, 'amu_probe_settings')",
+     "before": [
+      "return",
+      "tuple",
+      "('Settings', [('RemovedInDjango70Warning', 'The EMAIL_HOST setting is deprecated. Migrate to MAILERS before Django 7.0.')])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('Settings', [('RemovedInDjango2028Warning', 'The EMAIL_HOST setting is deprecated. Migrate to MAILERS before Django 2028.')])"
+     ]
+    },
+    {
+     "target": "django/core/mail/__init__.py#_send_server_message",
+     "call": "_warned(mail_admins, 'subject', 'message', True)",
+     "before": [
+      "return",
+      "tuple",
+      "('NoneType', [('RemovedInDjango70Warning', \"Passing positional argument(s) 'fail_silently' to mail_admins() is deprecated. Use keyword arguments instead.\"), ('RemovedInDjango70Warning', \"The 'fail_silently' argument is deprecated. See 'Migrating email to mailers' in Django's documentation for recommended replacements.\")])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('NoneType', [('RemovedInDjango2028Warning', \"Passing positional argument(s) 'fail_silently' to mail_admins() is deprecated. Use keyword arguments instead.\"), ('RemovedInDjango2028Warning', \"The 'fail_silently' argument is deprecated. See 'Migrating email to mailers' in Django's documentation for recommended replacements.\")])"
+     ]
+    },
+    {
+     "target": "django/core/mail/__init__.py#__getattr__",
+     "call": "_warned(mail.__getattr__, 'SafeMIMEText')",
+     "before": [
+      "return",
+      "tuple",
+      "('type', [('RemovedInDjango70Warning', 'SafeMIMEText is deprecated. The return value of EmailMessage.message() is an email.message.EmailMessage.')])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('type', [('RemovedInDjango2028Warning', 'SafeMIMEText is deprecated. The return value of EmailMessage.message() is an email.message.EmailMessage.')])"
+     ]
+    },
+    {
+     "target": "django/core/mail/backends/base.py#BaseEmailBackend.__getattr__",
+     "call": "_warned(getattr, backend, 'fail_silently')",
+     "before": [
+      "return",
+      "tuple",
+      "('bool', [('RemovedInDjango70Warning', 'BaseEmailBackend.fail_silently is deprecated. A subclass that supports fail_silently must set its own attribute.')])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('bool', [('RemovedInDjango2028Warning', 'BaseEmailBackend.fail_silently is deprecated. A subclass that supports fail_silently must set its own attribute.')])"
+     ]
+    },
+    {
+     "target": "django/core/mail/backends/smtp.py#EmailBackend.__init__",
+     "call": "_warned(EmailBackend, 'localhost', 25, fail_silently=True)",
+     "before": [
+      "return",
+      "tuple",
+      "('EmailBackend', [('RemovedInDjango70Warning', 'Directly creating EmailBackend instances is deprecated. Use mail.mailers instead.')])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('EmailBackend', [('RemovedInDjango2028Warning', 'Directly creating EmailBackend instances is deprecated. Use mail.mailers instead.')])"
+     ]
+    },
+    {
+     "target": "django/core/mail/deprecation.py#warn_about_default_mailers_if_needed",
+     "call": "_warned(warn_about_default_mailers_if_needed)",
+     "before": [
+      "return",
+      "tuple",
+      "('NoneType', [('RemovedInDjango70Warning', 'Django 7.0 will not have a default mailer. Configure settings.MAILERS to avoid errors when sending email.')])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('NoneType', [('RemovedInDjango2028Warning', 'Django 2028 will not have a default mailer. Configure settings.MAILERS to avoid errors when sending email.')])"
+     ]
+    },
+    {
+     "target": "django/core/mail/handler.py#MailersHandler.create_connection",
+     "call": "_warned(lambda: type(handler.create_connection('default')).__name__)",
+     "before": [
+      "return",
+      "tuple",
+      "('str', [('RemovedInDjango70Warning', 'Django 7.0 will not have a default mailer. Configure settings.MAILERS to avoid errors when sending email.')])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('str', [('RemovedInDjango2028Warning', 'Django 2028 will not have a default mailer. Configure settings.MAILERS to avoid errors when sending email.')])"
+     ]
+    },
+    {
+     "target": "django/core/mail/message.py#forbid_multi_line_headers",
+     "call": "_warned(forbid_multi_line_headers, 'Subject', 'hello', 'utf-8')",
+     "before": [
+      "return",
+      "tuple",
+      "('tuple', [('RemovedInDjango70Warning', \"The internal API forbid_multi_line_headers() is deprecated. Python's modern email API (with email.message.EmailMessage or email.policy.default) will reject multi-line headers.\")])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('tuple', [('RemovedInDjango2028Warning', \"The internal API forbid_multi_line_headers() is deprecated. Python's modern email API (with email.message.EmailMessage or email.policy.default) will reject multi-line headers.\")])"
+     ]
+    },
+    {
+     "target": "django/core/mail/message.py#sanitize_address",
+     "call": "_warned(sanitize_address, 'to@example.com', 'utf-8')",
+     "before": [
+      "return",
+      "tuple",
+      "('str', [('RemovedInDjango70Warning', \"The internal API sanitize_address() is deprecated. Python's modern email API (with email.message.EmailMessage or email.policy.default) will handle most required validation and encoding. Use Python's email.headerregistry.Address to construct formatted addresses from component parts.\")])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('str', [('RemovedInDjango2028Warning', \"The internal API sanitize_address() is deprecated. Python's modern email API (with email.message.EmailMessage or email.policy.default) will handle most required validation and encoding. Use Python's email.headerregistry.Address to construct formatted addresses from component parts.\")])"
+     ]
+    },
+    {
+     "target": "django/core/mail/message.py#EmailMessage.connection",
+     "call": "_warned(lambda: message.connection)",
+     "before": [
+      "return",
+      "tuple",
+      "('NoneType', [('RemovedInDjango70Warning', 'The EmailMessage.connection attribute is deprecated.')])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('NoneType', [('RemovedInDjango2028Warning', 'The EmailMessage.connection attribute is deprecated.')])"
+     ]
+    },
+    {
+     "target": "django/core/mail/message.py#EmailMessage.attach",
+     "call": "_warned(message.attach, MIMEText('x'))",
+     "before": [
+      "return",
+      "tuple",
+      "('NoneType', [('RemovedInDjango70Warning', 'MIMEBase attachments are deprecated. Use an email.message.MIMEPart instead.')])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('NoneType', [('RemovedInDjango2028Warning', 'MIMEBase attachments are deprecated. Use an email.message.MIMEPart instead.')])"
+     ]
+    },
+    {
+     "target": "django/db/models/sql/query.py#Query.check_alias",
+     "call": "_warned(query.check_alias, 'name%s')",
+     "before": [
+      "return",
+      "tuple",
+      "('NoneType', [('RemovedInDjango70Warning', 'Using percent signs in a column alias is deprecated.')])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('NoneType', [('RemovedInDjango2028Warning', 'Using percent signs in a column alias is deprecated.')])"
+     ]
+    },
+    {
+     "target": "django/db/transaction.py#savepoint",
+     "call": "_warned(transaction.savepoint, 'default')",
+     "before": [
+      "return",
+      "tuple",
+      "('str', [('RemovedInDjango70Warning', 'savepoint() is deprecated. Use savepoint_create() instead.')])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('str', [('RemovedInDjango2028Warning', 'savepoint() is deprecated. Use savepoint_create() instead.')])"
+     ]
+    },
+    {
+     "target": "django/template/base.py#Parser.parse",
+     "call": "_warned(lambda: Template('{{ a..b }}').render.__name__)",
+     "before": [
+      "return",
+      "tuple",
+      "('str', [('RemovedInDjango70Warning', \"Support for double-dot lookups '..' which maps to a lookup of the empty string is deprecated.\\n  Template: <unknown source>\\n  Line: 1\")])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('str', [('RemovedInDjango2028Warning', \"Support for double-dot lookups '..' which maps to a lookup of the empty string is deprecated.\\n  Template: <unknown source>\\n  Line: 1\")])"
+     ]
+    },
+    {
+     "target": "django/utils/log.py#AdminEmailHandler.send_mail",
+     "call": "_warned(handler.send_mail, 'subject', 'message', fail_silently=True)",
+     "before": [
+      "return",
+      "tuple",
+      "('raised TypeError: fail_silently cannot be used with a connection. Pass fail_silently to get_connection() instead.', [('RemovedInDjango70Warning', 'Django 7.0 will not have a default mailer. Configure settings.MAILERS to avoid errors when sending email.')])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('raised TypeError: fail_silently cannot be used with a connection. Pass fail_silently to get_connection() instead.', [('RemovedInDjango2028Warning', 'Django 2028 will not have a default mailer. Configure settings.MAILERS to avoid errors when sending email.')])"
+     ]
+    },
+    {
+     "target": "tests/mail/test_backends.py#SMTPBackendTests.test_port_default_adapts_to_security",
+     "call": "case.test_port_default_adapts_to_security()",
+     "before": [
+      "raise",
+      "RemovedInDjango70Warning",
+      "RemovedInDjango70Warning('Directly creating EmailBackend instances is deprecated. Use mail.mailers instead.')"
+     ],
+     "after": [
+      "raise",
+      "RemovedInDjango2028Warning",
+      "RemovedInDjango2028Warning('Directly creating EmailBackend instances is deprecated. Use mail.mailers instead.')"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "django",
+   "number": 21886,
+   "title": "Fixed #37271 -- Added calendar version support to django.utils.version.",
+   "done": true,
+   "production_comparable": 5,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 19.6,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 439,
+   "candidates": 8256,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 6,
+    "functions_called": 5,
+    "compared_calls": 25,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 40,
+   "changed_functions": 46,
+   "evidence": 22,
+   "replayed": 22,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 1,
+   "probes_attempted": 1,
+   "probes_kept": 0,
+   "probe_minutes": 0.3,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 21875,
+   "title": "Fixed #36523 -- Added django.utils.module_loading.qualname helper.",
+   "done": true,
+   "production_comparable": 6,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 49.6,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 1238,
+   "candidates": 12768,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 6,
+    "functions_called": 6,
+    "compared_calls": 30,
+    "differences": 0,
+    "unstable": 5
+   },
+   "not_compared": 7,
+   "changed_functions": 13,
+   "evidence": 2,
+   "replayed": 2,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 21064,
+   "title": "Fixed #37013 -- Omitted tzinfo argument to Trunc & Extract with USE_TZ = True and TIME_ZONE != UTC creates ambiguity for migrations",
+   "done": true,
+   "production_comparable": 0,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 30.7,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 222,
+   "candidates": 222,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 0,
+    "functions_called": null,
+    "compared_calls": null,
+    "differences": null,
+    "unstable": null
+   },
+   "not_compared": 7,
+   "changed_functions": 7,
+   "evidence": 2,
+   "replayed": 6,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 21482,
+   "title": "Fixed #37145 -- Made ModelFormSet respect custom Form.add_prefix().",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 20.7,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 358,
+   "candidates": 2304,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 1,
+    "compared_calls": 5,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 4,
+   "changed_functions": 5,
+   "evidence": 1,
+   "replayed": 2,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 21881,
+   "title": "Fixed #37289 -- Avoided deleting network rasters.",
+   "done": true,
+   "production_comparable": 2,
+   "production_uncalled": 2,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 9.2,
+   "flips": null,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 0,
+   "candidates": 1996,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 3,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 2,
+   "changed_functions": 5,
+   "evidence": 0,
+   "replayed": 0,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 3,
+   "probes_attempted": 3,
+   "probes_kept": 0,
+   "probe_minutes": 0.8,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 21736,
+   "title": "Fixed #36809 -- Allowed customizing EmailValidator per-part validation.",
+   "done": true,
+   "production_comparable": 2,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 16.8,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 87,
+   "candidates": 10080,
+   "behaviour": 1,
+   "sbs": {
+    "targets": 2,
+    "functions_called": 2,
+    "compared_calls": 10,
+    "differences": 1,
+    "unstable": 0
+   },
+   "not_compared": 40,
+   "changed_functions": 42,
+   "evidence": 14,
+   "replayed": 20,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 21872,
+   "title": "Fixed false positive for func_supports_parameter() with args or kwargs.",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 1,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 167.9,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 2688,
+   "candidates": 2688,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 2,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 1,
+   "changed_functions": 3,
+   "evidence": 1,
+   "replayed": 1,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 2,
+   "probes_attempted": 2,
+   "probes_kept": 2,
+   "probe_minutes": 0.8,
+   "kept": [
+    {
+     "target": "django/utils/inspect.py#func_supports_parameter",
+     "call": "[func_supports_parameter(sample, name) for name in ('a', 'b', 'args', 'c', 'kwargs')]",
+     "before": [
+      "return",
+      "list",
+      "[True, True, True, True, True]"
+     ],
+     "after": [
+      "return",
+      "list",
+      "[False, True, False, True, False]"
+     ]
+    },
+    {
+     "target": "tests/utils_tests/test_inspect.py#TestInspectMethods.test_func_supports_parameter",
+     "call": "(func_supports_parameter(sample, 'args'), func_supports_parameter(sample, 'kwargs'))",
+     "before": [
+      "return",
+      "tuple",
+      "(True, True)"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "(False, False)"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "django",
+   "number": 20817,
+   "title": " Fixed #36947 -- Avoided altering column type when only db_comment changes.",
+   "done": true,
+   "production_comparable": 2,
+   "production_uncalled": 2,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 37.8,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 558,
+   "candidates": 2036,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 3,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 1,
+   "changed_functions": 4,
+   "evidence": 0,
+   "replayed": 2,
+   "quiet": true,
+   "recording_gap": null,
+   "probe_targets": 3,
+   "probes_attempted": 3,
+   "probes_kept": 1,
+   "probe_minutes": 2.6,
+   "kept": [
+    {
+     "target": "django/db/backends/base/schema.py#BaseDatabaseSchemaEditor._alter_field",
+     "call": "alter_comment_only()",
+     "before": [
+      "raise",
+      "TypeError",
+      "TypeError('DatabaseSchemaEditor._collate_sql() takes 2 positional arguments but 4 were given')"
+     ],
+     "after": [
+      "raise",
+      "TypeError",
+      "TypeError(\"unsupported operand type(s) for %: 'NoneType' and 'dict'\")"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "django",
+   "number": 21801,
+   "title": "Fixed #37286 -- Preserved unique constraints when removing db_index.",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 1,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 35.0,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 472,
+   "candidates": 1599,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 1,
+   "changed_functions": 2,
+   "evidence": 0,
+   "replayed": 1,
+   "quiet": true,
+   "recording_gap": null,
+   "probe_targets": 1,
+   "probes_attempted": 1,
+   "probes_kept": 1,
+   "probe_minutes": 0.3,
+   "kept": [
+    {
+     "target": "django/db/backends/base/schema.py#BaseDatabaseSchemaEditor._alter_field",
+     "call": "drop_db_index()",
+     "before": [
+      "return",
+      "list",
+      "['amu_code_idx', 'amu_code_uniq']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['amu_code_idx']"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "django",
+   "number": 21983,
+   "title": "Fixed #37348 -- Reverted \"Fixed #36806 -- Added system check for null kwarg in GeneratedField.\"",
+   "done": true,
+   "production_comparable": 2,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 24.9,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 116,
+   "candidates": 8182,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 2,
+    "functions_called": 2,
+    "compared_calls": 10,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 1,
+   "changed_functions": 4,
+   "evidence": 0,
+   "replayed": 0,
+   "quiet": true,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 21975,
+   "title": "Fixed #37344 -- Enabled FETCH_PEERS batching for instances loaded by select_related.",
+   "done": true,
+   "production_comparable": 2,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 118.9,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 2880,
+   "candidates": 2880,
+   "behaviour": 2,
+   "sbs": {
+    "targets": 2,
+    "functions_called": 2,
+    "compared_calls": 10,
+    "differences": 2,
+    "unstable": 0
+   },
+   "not_compared": 1,
+   "changed_functions": 3,
+   "evidence": 1,
+   "replayed": 1,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 21956,
+   "title": "Fixed #37339 -- Allowed ipaddress objects in GenericIPAddressField.",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 168.9,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 4720,
+   "candidates": 10047,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 1,
+    "compared_calls": 5,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 4,
+   "changed_functions": 5,
+   "evidence": 4,
+   "replayed": 4,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 21995,
+   "title": "Fixed #37357 -- Handled out-of-range year in admin date_hierarchy.",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 42.6,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 1576,
+   "candidates": 1577,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 1,
+    "compared_calls": 5,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 1,
+   "changed_functions": 2,
+   "evidence": 1,
+   "replayed": 1,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 21971,
+   "title": "Fixed #37114 -- Dropped support for PostgreSQL 15 and PostGIS 3.2.",
+   "done": true,
+   "production_comparable": 3,
+   "production_uncalled": 3,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 18.2,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 3,
+   "candidates": 610,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 6,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 0,
+   "changed_functions": 7,
+   "evidence": 0,
+   "replayed": 3,
+   "quiet": true,
+   "recording_gap": null,
+   "probe_targets": 6,
+   "probes_attempted": 6,
+   "probes_kept": 2,
+   "probe_minutes": 0.4,
+   "kept": [
+    {
+     "target": "django/db/models/functions/json.py#JSONArray.as_postgresql",
+     "call": "as_pg(JSONArray(Value(1), Value('a')))",
+     "before": [
+      "return",
+      "tuple",
+      "('JSONB_BUILD_ARRAY(CAST(%s AS integer), CAST(%s AS text))', (1, 'a'))"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('JSON_ARRAY(CAST(%s AS integer), CAST(%s AS text) NULL ON NULL RETURNING JSONB)', (1, 'a'))"
+     ]
+    },
+    {
+     "target": "django/db/models/functions/json.py#JSONObject.as_postgresql",
+     "call": "as_pg(JSONObject(a=Value(1)))",
+     "before": [
+      "return",
+      "tuple",
+      "('JSONB_BUILD_OBJECT(CAST(%s AS text), %s)', ('a', 1))"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('JSON_OBJECT((CAST(%s AS text)) VALUE %s RETURNING JSONB)', ('a', 1))"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "django",
+   "number": 22005,
+   "title": "Fixed #37358 -- Dropped support for GDAL 3.3 and 3.4.",
+   "done": true,
+   "production_comparable": 0,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 8.5,
+   "flips": null,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 0,
+   "candidates": 603,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 0,
+   "changed_functions": 1,
+   "evidence": 0,
+   "replayed": 0,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 1,
+   "probes_attempted": 1,
+   "probes_kept": 0,
+   "probe_minutes": 0.1,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 21523,
+   "title": "Fixed #37177 -- Reduced per-middleware context switching under ASGI.",
+   "done": true,
+   "production_comparable": 0,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 28.4,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 1280,
+   "candidates": 8917,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 0,
+    "functions_called": null,
+    "compared_calls": null,
+    "differences": null,
+    "unstable": null
+   },
+   "not_compared": 5,
+   "changed_functions": 5,
+   "evidence": 2,
+   "replayed": 2,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 22025,
+   "title": "Fixed #37066 -- Wrapped async iteration sites in (maybe_)aclosing.",
+   "done": true,
+   "production_comparable": 2,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 22.0,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 319,
+   "candidates": 13920,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 2,
+    "functions_called": 2,
+    "compared_calls": 10,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 25,
+   "changed_functions": 27,
+   "evidence": 6,
+   "replayed": 6,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 22044,
+   "title": "Fixed #37350 -- Made distinct(*fields) resolve aliases containing \"__\".",
+   "done": true,
+   "production_comparable": 2,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 17.6,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 119,
+   "candidates": 8352,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 2,
+    "functions_called": 2,
+    "compared_calls": 10,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 1,
+   "changed_functions": 3,
+   "evidence": 0,
+   "replayed": 1,
+   "quiet": true,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 22030,
+   "title": "Fixed #36496 -- Ensured the parent path to a sqlite file exists.",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 55.6,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 759,
+   "candidates": 1650,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 1,
+    "compared_calls": 7,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 4,
+   "changed_functions": 5,
+   "evidence": 4,
+   "replayed": 4,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 21806,
+   "title": "Fixed #37291 -- Prevented TupleIn lookups from hanging on F() expressions.",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 438.9,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 4640,
+   "candidates": 9641,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 1,
+    "compared_calls": 5,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 3,
+   "changed_functions": 4,
+   "evidence": 0,
+   "replayed": 2,
+   "quiet": true,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 21610,
+   "title": "Fixed #37167 -- Allowed Address objects as email addresses.",
+   "done": true,
+   "production_comparable": 3,
+   "production_uncalled": 0,
+   "verify_seconds": 0.5,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 31.3,
+   "flips": 2,
+   "counted": 2,
+   "not_counted": [],
+   "verify": {
+    "checked": 2,
+    "held": 2,
+    "false": 0,
+    "other": 0,
+    "problem": null,
+    "states": {
+     "tests/mail/tests.py::MailAdminsAndManagersTests::test_wrong_admins_managers": "passed",
+     "tests/mail/tests.py::MailAdminsAndManagersTestsWithMailers::test_wrong_admins_managers": "passed"
+    }
+   },
+   "ran": 400,
+   "candidates": 14689,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 4,
+    "functions_called": 3,
+    "compared_calls": 15,
+    "differences": 0,
+    "unstable": 5
+   },
+   "not_compared": 7,
+   "changed_functions": 11,
+   "evidence": 3,
+   "replayed": 7,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 1,
+   "probes_attempted": 1,
+   "probes_kept": 1,
+   "probe_minutes": 0.2,
+   "kept": [
+    {
+     "target": "tests/mail/tests.py#MailAdminsAndManagersTests.test_wrong_admins_managers",
+     "call": "(lambda: [_ for _ in [override_settings(ADMINS='test@example.com').enable()]] and mail.mail_admins('subject', 'content'))()",
+     "before": [
+      "raise",
+      "ImproperlyConfigured",
+      "ImproperlyConfigured('The ADMINS setting must be a list of email address strings.')"
+     ],
+     "after": [
+      "raise",
+      "ImproperlyConfigured",
+      "ImproperlyConfigured('The ADMINS setting must be a list of email address strings or Address objects.')"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "django",
+   "number": 22057,
+   "title": "Fixed #37376 -- Made UUID4() persist data in lowercase on Oracle.",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 1,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 6.6,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 9,
+   "candidates": 9,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 1,
+   "changed_functions": 2,
+   "evidence": 0,
+   "replayed": 1,
+   "quiet": true,
+   "recording_gap": null,
+   "probe_targets": 1,
+   "probes_attempted": 1,
+   "probes_kept": 1,
+   "probe_minutes": 0.7,
+   "kept": [
+    {
+     "target": "django/db/models/functions/uuid.py#UUID4.as_oracle",
+     "call": "(patch.start(), UUID4().as_oracle(compiler, connection), patch.stop())[1]",
+     "before": [
+      "return",
+      "tuple",
+      "('UUID()', ())"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('LOWER(RAWTOHEX(UUID()))', ())"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "django",
+   "number": 22018,
+   "title": "Fixed #37361 -- Fixed permission renames for chained RenameModel operations.",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 34.6,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 806,
+   "candidates": 809,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 1,
+    "compared_calls": 5,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 3,
+   "changed_functions": 4,
+   "evidence": 3,
+   "replayed": 3,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 22055,
+   "title": "Fixed #37386 -- Observed delete_confirmation_max_display=0 for inlines.",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 20.3,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 320,
+   "candidates": 3402,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 1,
+    "compared_calls": 5,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 5,
+   "changed_functions": 6,
+   "evidence": 1,
+   "replayed": 4,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 22051,
+   "title": "Fixed #37377 -- Fixed JSONField __in crash/incorrect results for bare Value() primitives.",
+   "done": true,
+   "production_comparable": 2,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 17.7,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 702,
+   "candidates": 702,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 2,
+    "functions_called": 2,
+    "compared_calls": 10,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 3,
+   "changed_functions": 5,
+   "evidence": 2,
+   "replayed": 3,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 21890,
+   "title": "Fixed #37322 -- Avoided transforms on spatial fields with srid=None.",
+   "done": true,
+   "production_comparable": 2,
+   "production_uncalled": 2,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 11.0,
+   "flips": null,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 0,
+   "candidates": 164,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 2,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 1,
+   "changed_functions": 3,
+   "evidence": 0,
+   "replayed": 0,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 2,
+   "probes_attempted": 2,
+   "probes_kept": 0,
+   "probe_minutes": 0.3,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 22096,
+   "title": "Fixed #37405 -- Fixed crash if sort_keys option is used with YAML serializer.",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 1,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 10.7,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 41,
+   "candidates": 778,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 1,
+   "changed_functions": 2,
+   "evidence": 0,
+   "replayed": 1,
+   "quiet": true,
+   "recording_gap": null,
+   "probe_targets": 1,
+   "probes_attempted": 1,
+   "probes_kept": 0,
+   "probe_minutes": 2.2,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 21825,
+   "title": "Fixed #37297 -- Prevented crash on JSONField key lookups when an integer key is outside PostgreSQL's int4 range.",
+   "done": true,
+   "production_comparable": 2,
+   "production_uncalled": 2,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 124.7,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 860,
+   "candidates": 860,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 2,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 4,
+   "changed_functions": 6,
+   "evidence": 0,
+   "replayed": 3,
+   "quiet": true,
+   "recording_gap": null,
+   "probe_targets": 2,
+   "probes_attempted": 3,
+   "probes_kept": 0,
+   "probe_minutes": 0.6,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 22094,
+   "title": "Fixed #37403 -- Fixed JSONField __in crash on SQLite with Value(None) expressions.",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 24.4,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 702,
+   "candidates": 702,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 2,
+    "functions_called": 1,
+    "compared_calls": 5,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 0,
+   "changed_functions": 2,
+   "evidence": 1,
+   "replayed": 1,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 1,
+   "probes_attempted": 1,
+   "probes_kept": 1,
+   "probe_minutes": 0.3,
+   "kept": [
+    {
+     "target": "tests/model_fields/test_jsonfield.py#TestQuerying.test_in_value_explicit_output_field",
+     "call": "compiled()",
+     "before": [
+      "return",
+      "tuple",
+      "('SELECT \"amu_generated_amujsonin\".\"id\", \"amu_generated_amujsonin\".\"value\" FROM \"amu_generated_amujsonin\" WHERE (CASE WHEN JSON_TYPE(\"amu_generated_amujsonin\".\"value\", %s) IN (\\'null\\',\\'false\\',\\'true\\') THEN JSON_TYPE(\"amu_generated_amujsonin\".\"value\", %s) ELSE JSON_EXTRACT(\"amu_generated_amujsonin\".\"value\", %s) END) IN (NULL)', ('$', '$', '$', 'null'))"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('SELECT \"amu_generated_amujsonin\".\"id\", \"amu_generated_amujsonin\".\"value\" FROM \"amu_generated_amujsonin\" WHERE (CASE WHEN JSON_TYPE(\"amu_generated_amujsonin\".\"value\", %s) IN (\\'null\\',\\'false\\',\\'true\\') THEN JSON_TYPE(\"amu_generated_amujsonin\".\"value\", %s) ELSE JSON_EXTRACT(\"amu_generated_amujsonin\".\"value\", %s) END) IN (NULL)', ('$', '$', '$'))"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "django",
+   "number": 22064,
+   "title": "Fixed #37382 -- Made @non_atomic_requests recognize async views.",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 13.8,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 160,
+   "candidates": 11166,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 1,
+    "compared_calls": 5,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 3,
+   "changed_functions": 4,
+   "evidence": 1,
+   "replayed": 1,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 21357,
+   "title": "Fixed #37118 -- Added variable support to the {% now %} template tag.",
+   "done": true,
+   "production_comparable": 3,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 9.0,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 81,
+   "candidates": 939,
+   "behaviour": 4,
+   "sbs": {
+    "targets": 3,
+    "functions_called": 3,
+    "compared_calls": 15,
+    "differences": 4,
+    "unstable": 0
+   },
+   "not_compared": 3,
+   "changed_functions": 6,
+   "evidence": 3,
+   "replayed": 3,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 22112,
+   "title": "Fixed #37411 -- Added compatibility for oracledb 26.0.0+.",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 1,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 10.4,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 141,
+   "candidates": 142,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 0,
+   "changed_functions": 1,
+   "evidence": 0,
+   "replayed": 0,
+   "quiet": true,
+   "recording_gap": null,
+   "probe_targets": 1,
+   "probes_attempted": 1,
+   "probes_kept": 1,
+   "probe_minutes": 16.8,
+   "kept": [
+    {
+     "target": "django/db/backends/oracle/base.py#OracleParam.__init__",
+     "call": "param('x' * 5000)",
+     "before": [
+      "return",
+      "tuple",
+      "('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', False)"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "('created a LOB of 5000 characters', True)"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "django",
+   "number": 22139,
+   "title": "Skipped 1-element geometry collection tests on all Oracle versions.",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 1,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 7.9,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 62,
+   "candidates": 62,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 0,
+   "changed_functions": 1,
+   "evidence": 0,
+   "replayed": 0,
+   "quiet": true,
+   "recording_gap": null,
+   "probe_targets": 1,
+   "probes_attempted": 1,
+   "probes_kept": 0,
+   "probe_minutes": 18.2,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 22061,
+   "title": "Fixed #28219 -- Made UnorderedObjectListWarning skip Django frames.",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": 0.8,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 153.2,
+   "flips": 1,
+   "counted": 1,
+   "not_counted": [],
+   "verify": {
+    "checked": 1,
+    "held": 1,
+    "false": 0,
+    "other": 0,
+    "problem": null,
+    "states": {
+     "tests/pagination/tests.py::ModelPaginationTests::test_paginating_unordered_queryset_raises_warning_async": "passed"
+    }
+   },
+   "ran": 2568,
+   "candidates": 2569,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 1,
+    "compared_calls": 5,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 1,
+   "changed_functions": 2,
+   "evidence": 1,
+   "replayed": 1,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 22041,
+   "title": "Refs #37372 -- Simplified NULL handling logic in sql.Query.build_filter().",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 1,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 26.9,
+   "flips": null,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 0,
+   "candidates": 9600,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 0,
+   "changed_functions": 1,
+   "evidence": 0,
+   "replayed": 0,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 1,
+   "probes_attempted": 1,
+   "probes_kept": 0,
+   "probe_minutes": 0.3,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 22039,
+   "title": "Fixed #23424 -- Corrected tokenization of verbatim blocks.",
+   "done": true,
+   "production_comparable": 4,
+   "production_uncalled": 0,
+   "verify_seconds": 2.3,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 316.5,
+   "flips": 1,
+   "counted": 1,
+   "not_counted": [],
+   "verify": {
+    "checked": 1,
+    "held": 1,
+    "false": 0,
+    "other": 0,
+    "problem": null,
+    "states": {
+     "tests/template_tests/test_parser.py::ParserTests::test_repr": "passed"
+    }
+   },
+   "ran": 5278,
+   "candidates": 8545,
+   "behaviour": 4,
+   "sbs": {
+    "targets": 5,
+    "functions_called": 4,
+    "compared_calls": 17,
+    "differences": 4,
+    "unstable": 0
+   },
+   "not_compared": 11,
+   "changed_functions": 16,
+   "evidence": 3,
+   "replayed": 10,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 1,
+   "probes_attempted": 1,
+   "probes_kept": 1,
+   "probe_minutes": 0.3,
+   "kept": [
+    {
+     "target": "tests/template_tests/test_parser.py#ParserTests.test_repr",
+     "call": "repr(Lexer('{% verbatim %}{{ a }}{% endverbatim %}'))",
+     "before": [
+      "return",
+      "str",
+      "'<Lexer template_string=\"{% verbatim %}{{ a }...\", verbatim=False>'"
+     ],
+     "after": [
+      "return",
+      "str",
+      "'<Lexer template_string=\"{% verbatim %}{{ a }...\">'"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "django",
+   "number": 22132,
+   "title": "Fixed #37418 -- Fixed JSONField/HStoreField crash on deeply nested JSON.",
+   "done": true,
+   "production_comparable": 3,
+   "production_uncalled": 1,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 10.5,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 121,
+   "candidates": 4783,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 3,
+    "functions_called": 2,
+    "compared_calls": 10,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 3,
+   "changed_functions": 6,
+   "evidence": 2,
+   "replayed": 3,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 1,
+   "probes_attempted": 2,
+   "probes_kept": 0,
+   "probe_minutes": 7.9,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 22141,
+   "title": "Fixed #32980 -- Reduced cost of building M2M related managers.",
+   "done": true,
+   "production_comparable": 2,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 21.2,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 280,
+   "candidates": 9258,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 2,
+    "functions_called": 2,
+    "compared_calls": 10,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 5,
+   "changed_functions": 7,
+   "evidence": 1,
+   "replayed": 1,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "django",
+   "number": 22144,
+   "title": "Fixed #37424 -- Fixed whitespace handling when parsing max-age directives.",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": null,
+   "aborted": false,
+   "seconds": 388.3,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 3678,
+   "candidates": 7277,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 2,
+    "functions_called": 1,
+    "compared_calls": 5,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 0,
+   "changed_functions": 2,
+   "evidence": 1,
+   "replayed": 1,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 1,
+   "probes_attempted": 1,
+   "probes_kept": 1,
+   "probe_minutes": 0.6,
+   "kept": [
+    {
+     "target": "tests/cache/tests.py#CacheUtils.test_get_max_age_strips_whitespace",
+     "call": "[max_age(v) for v in ('max-age =300', 'max-age\\t=300', ' max-age=300')]",
+     "before": [
+      "return",
+      "list",
+      "[None, None, 300]"
+     ],
+     "after": [
+      "return",
+      "list",
+      "[300, 300, 300]"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "sympy",
+   "number": 30476,
+   "title": "fix(assumptions): simplify Abs(z)**k under Q.imaginary(z) in refine_Pow (#30473)",
+   "done": true,
+   "production_comparable": 0,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": true,
+   "error": "stopped at the wall cap of 1200 s; amu reported nothing",
+   "aborted": false,
+   "seconds": 1140.1,
+   "flips": null,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": null,
+   "candidates": null,
+   "behaviour": 0,
+   "sbs": null,
+   "not_compared": 0,
+   "changed_functions": 0,
+   "evidence": 0,
+   "replayed": 0,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": null,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "sympy",
+   "number": 30511,
+   "title": "calculus: Include evaluated values at discrete domain points in function_range",
+   "done": true,
+   "production_comparable": 2,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 460.5,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 680,
+   "candidates": 3600,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 3,
+    "functions_called": 2,
+    "compared_calls": 10,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 1,
+   "changed_functions": 4,
+   "evidence": 2,
+   "replayed": 2,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 1,
+   "probes_attempted": 1,
+   "probes_kept": 1,
+   "probe_minutes": 1.1,
+   "kept": [
+    {
+     "target": "sympy/assumptions/tests/test_refine.py#test_Abs",
+     "call": "[str(refine(Abs(z)**n, q(z))) for n, q in ((2, Q.real), (2, Q.imaginary), (4, Q.imaginary), (6, Q.imaginary))]",
+     "before": [
+      "return",
+      "list",
+      "['z**2', 'Abs(z)**2', 'Abs(z)**4', 'Abs(z)**6']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['z**2', '-z**2', 'z**4', '-z**6']"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "sympy",
+   "number": 30515,
+   "title": "Fix function_range for composed functions",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 1,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 360.4,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 552,
+   "candidates": 552,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 2,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 0,
+   "changed_functions": 2,
+   "evidence": 0,
+   "replayed": 0,
+   "quiet": true,
+   "recording_gap": null,
+   "probe_targets": 2,
+   "probes_attempted": 2,
+   "probes_kept": 0,
+   "probe_minutes": 5.3,
+   "kept": []
+  },
+  {
+   "repo": "sympy",
+   "number": 30477,
+   "title": "parsing.latex.lark: end control words at the first non-letter",
+   "done": true,
+   "production_comparable": 2,
+   "production_uncalled": 2,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 380.2,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 73,
+   "candidates": 696,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 3,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 4,
+   "changed_functions": 7,
+   "evidence": 0,
+   "replayed": 3,
+   "quiet": true,
+   "recording_gap": null,
+   "probe_targets": 3,
+   "probes_attempted": 3,
+   "probes_kept": 0,
+   "probe_minutes": 0.8,
+   "kept": []
+  },
+  {
+   "repo": "sympy",
+   "number": 30540,
+   "title": "Fix denominator restrictions in nonlinsolve",
+   "done": true,
+   "production_comparable": 3,
+   "production_uncalled": 3,
+   "verify_seconds": 2.0,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 53.6,
+   "flips": 1,
+   "counted": 1,
+   "not_counted": [],
+   "verify": {
+    "checked": 1,
+    "held": 1,
+    "false": 0,
+    "other": 0,
+    "problem": null,
+    "states": {
+     "sympy/solvers/tests/test_solveset.py::test_issue_5132_2": "passed"
+    }
+   },
+   "ran": 48,
+   "candidates": 48,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 4,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 16,
+   "changed_functions": 20,
+   "evidence": 10,
+   "replayed": 11,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 4,
+   "probes_attempted": 8,
+   "probes_kept": 2,
+   "probe_minutes": 1.3,
+   "kept": [
+    {
+     "target": "sympy/solvers/solveset.py#nonlinsolve",
+     "call": "str(nonlinsolve([(x**2 - 1)/(x - 1) - x - 1, y - 1], [x, y]))",
+     "before": [
+      "return",
+      "str",
+      "'{(x, 1)}'"
+     ],
+     "after": [
+      "return",
+      "str",
+      "'FiniteSet((Complement({x}, {1}), 1))'"
+     ]
+    },
+    {
+     "target": "sympy/solvers/solveset.py#_return_conditionset",
+     "call": "str(nonlinsolve([c/(a + b)], [a, b, c]))",
+     "before": [
+      "return",
+      "str",
+      "'{(a, b, 0)}'"
+     ],
+     "after": [
+      "return",
+      "str",
+      "'ConditionSet((a, b, c), Eq(c, 0) & Ne(a + b, 0), ProductSet(Complexes, Complexes, Complexes))'"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "sympy",
+   "number": 30572,
+   "title": "printing: elementwise function application notation for array expressions",
+   "done": true,
+   "production_comparable": 2,
+   "production_uncalled": 2,
+   "verify_seconds": 8.6,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 225.3,
+   "flips": 2,
+   "counted": 2,
+   "not_counted": [],
+   "verify": {
+    "checked": 2,
+    "held": 2,
+    "false": 0,
+    "other": 0,
+    "problem": null,
+    "states": {
+     "sympy/printing/pretty/tests/test_pretty.py::test_MatrixExpressions": "passed",
+     "sympy/printing/tests/test_latex.py::test_ElementwiseApplyFunction": "passed"
+    }
+   },
+   "ran": 432,
+   "candidates": 432,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 4,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 3,
+   "changed_functions": 7,
+   "evidence": 4,
+   "replayed": 4,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 4,
+   "probes_attempted": 4,
+   "probes_kept": 2,
+   "probe_minutes": 0.6,
+   "kept": [
+    {
+     "target": "sympy/printing/latex.py#LatexPrinter._print_ElementwiseApplyFunction",
+     "call": "[latex(c) for c in cases]",
+     "before": [
+      "return",
+      "list",
+      "['{\\\\left( d \\\\mapsto e^{d} \\\\right)}_{\\\\circ}\\\\left({X}\\\\right)', '{\\\\left( x \\\\mapsto x^{2} \\\\right)}_{\\\\circ}\\\\left({X}\\\\right)']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['{\\\\exp}_{\\\\circ}\\\\left({X}\\\\right)', '{\\\\left( x \\\\mapsto x^{2} \\\\right)}_{\\\\circ}\\\\left({X}\\\\right)']"
+     ]
+    },
+    {
+     "target": "sympy/printing/pretty/pretty.py#PrettyPrinter._print_ElementwiseApplyFunction",
+     "call": "[pretty(c, use_unicode=False) for c in cases]",
+     "before": [
+      "return",
+      "list",
+      "['/      d\\\\    \\n\\\\d -> e /.(X)', '/      2\\\\    \\n\\\\x -> x /.(X)']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['exp.(X)', '/      2\\\\    \\n\\\\x -> x /.(X)']"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "sympy",
+   "number": 30567,
+   "title": "Fix solve returning points outside the domain of a denominator (e.g. x/log(x))",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 435.7,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 640,
+   "candidates": 1056,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 1,
+    "compared_calls": 5,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 2,
+   "changed_functions": 3,
+   "evidence": 1,
+   "replayed": 1,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "sympy",
+   "number": 30563,
+   "title": "Fixed complex expressions in Quaternion.norm",
+   "done": true,
+   "production_comparable": 2,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 58.4,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 504,
+   "candidates": 504,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 2,
+    "functions_called": 2,
+    "compared_calls": 10,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 1,
+   "changed_functions": 3,
+   "evidence": 1,
+   "replayed": 1,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "sympy",
+   "number": 28882,
+   "title": "docs: Clarify trigsimp behavior and suggest fu module for targeted simplification",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 427.9,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 1240,
+   "candidates": 3168,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 1,
+    "compared_calls": 5,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 0,
+   "changed_functions": 1,
+   "evidence": 0,
+   "replayed": 0,
+   "quiet": true,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "sympy",
+   "number": 30530,
+   "title": "solvers: preserve singularities in reduce_inequalities",
+   "done": true,
+   "production_comparable": 9,
+   "production_uncalled": 1,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 195.6,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 984,
+   "candidates": 984,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 9,
+    "functions_called": 8,
+    "compared_calls": 26,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 5,
+   "changed_functions": 14,
+   "evidence": 2,
+   "replayed": 2,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 1,
+   "probes_attempted": 1,
+   "probes_kept": 0,
+   "probe_minutes": 0.4,
+   "kept": []
+  },
+  {
+   "repo": "sympy",
+   "number": 30575,
+   "title": "series: fix Order scaling on multiply and expand for x0 != 0",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 359.3,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 956,
+   "candidates": 1704,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 1,
+    "compared_calls": 5,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 1,
+   "changed_functions": 2,
+   "evidence": 1,
+   "replayed": 1,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "sympy",
+   "number": 30569,
+   "title": "series: rewrite Min/Max to Abs during limit evaluation in gruntz",
+   "done": true,
+   "production_comparable": 2,
+   "production_uncalled": 2,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 397.2,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 768,
+   "candidates": 768,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 2,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 1,
+   "changed_functions": 3,
+   "evidence": 1,
+   "replayed": 1,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 2,
+   "probes_attempted": 2,
+   "probes_kept": 2,
+   "probe_minutes": 0.4,
+   "kept": [
+    {
+     "target": "sympy/series/gruntz.py#gruntz",
+     "call": "[outcome(lambda: gruntz(Min(exp(x), exp(2*x)), x, oo)), outcome(lambda: gruntz(Max(x, sin(x)), x, oo))]",
+     "before": [
+      "return",
+      "list",
+      "['raised NotImplementedError', 'raised NotImplementedError']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['oo', 'raised PoleError']"
+     ]
+    },
+    {
+     "target": "sympy/series/gruntz.py#mrv",
+     "call": "outcome(lambda: mrv(Min(exp(x), exp(2*x)), x)[1])",
+     "before": [
+      "return",
+      "str",
+      "'raised NotImplementedError'"
+     ],
+     "after": [
+      "return",
+      "str",
+      "'_Dummy_118/2 + _Dummy_132/2 - Abs(_Dummy_118 - _Dummy_132)/2'"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "sympy",
+   "number": 30585,
+   "title": "polys: remove redundant expansion in dict_from_expr",
+   "done": true,
+   "production_comparable": 6,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 176.7,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 672,
+   "candidates": 672,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 6,
+    "functions_called": 6,
+    "compared_calls": 30,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 4,
+   "changed_functions": 10,
+   "evidence": 2,
+   "replayed": 2,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "sympy",
+   "number": 30396,
+   "title": "ArrayPrinter: print scalar assignments as scalar code",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 1,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 509.7,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 998,
+   "candidates": 1440,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 2,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 10,
+   "changed_functions": 12,
+   "evidence": 4,
+   "replayed": 4,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 2,
+   "probes_attempted": 2,
+   "probes_kept": 2,
+   "probe_minutes": 1.2,
+   "kept": [
+    {
+     "target": "sympy/printing/tests/test_pycode.py#test_array_printer",
+     "call": "[outcome(lambda: NumPyPrinter().doprint(ArrayElementwiseApplyFunc(sin, B))), outcome(lambda: NumPyPrinter().doprint(ArrayElementwiseApplyFunc(Lambda(d, d**2), B)))]",
+     "before": [
+      "return",
+      "list",
+      "['raised PrintMethodNotImplementedError', 'raised PrintMethodNotImplementedError']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['numpy.sin(B)', 'B**2']"
+     ]
+    },
+    {
+     "target": "sympy/tensor/array/expressions/from_indexed_to_array.py#_convert_indexed_to_array",
+     "call": "[outcome(lambda: convert_indexed_to_array(e)) for e in (x + 1, x*y, sin(x))]",
+     "before": [
+      "return",
+      "list",
+      "['ArrayAdd(1, x)', 'x*y', 'ArrayElementwiseApplyFunc(Lambda(_d, sin(_d)), x)']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['x + 1', 'x*y', 'sin(x)']"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "sympy",
+   "number": 28853,
+   "title": "agglomerate singleton matrices together in Kronecker product",
+   "done": true,
+   "production_comparable": 0,
+   "production_uncalled": 0,
+   "verify_seconds": 8.7,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 649.0,
+   "flips": 1,
+   "counted": 1,
+   "not_counted": [],
+   "verify": {
+    "checked": 1,
+    "held": 1,
+    "false": 0,
+    "other": 0,
+    "problem": null,
+    "states": {
+     "sympy/printing/pretty/tests/test_pretty.py::test_issue_15560": "passed"
+    }
+   },
+   "ran": 760,
+   "candidates": 792,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 3,
+   "changed_functions": 4,
+   "evidence": 1,
+   "replayed": 2,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 1,
+   "probes_attempted": 1,
+   "probes_kept": 1,
+   "probe_minutes": 0.4,
+   "kept": [
+    {
+     "target": "sympy/printing/pretty/tests/test_pretty.py#test_issue_15560",
+     "call": "[pretty(a*KroneckerProduct(a, a)), str(KroneckerProduct(a, a))]",
+     "before": [
+      "return",
+      "list",
+      "['a*(a x a)', 'KroneckerProduct(a, a)']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "[' 3\\na ', 'KroneckerProduct(a, a)']"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "sympy",
+   "number": 30601,
+   "title": "Remove _CodegenArrayAbstract",
+   "done": true,
+   "production_comparable": 20,
+   "production_uncalled": 10,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 430.9,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 600,
+   "candidates": 600,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 21,
+    "functions_called": 10,
+    "compared_calls": 45,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 8,
+   "changed_functions": 31,
+   "evidence": 2,
+   "replayed": 2,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 11,
+   "probes_attempted": 11,
+   "probes_kept": 2,
+   "probe_minutes": 1.6,
+   "kept": [
+    {
+     "target": "sympy/tensor/array/expressions/from_array_to_matrix.py#_a2m_add",
+     "call": "[outcome(lambda: convert_array_to_matrix(ArrayAdd(A, M))), outcome(lambda: convert_array_to_matrix(ArrayAdd(Z, M)))]",
+     "before": [
+      "return",
+      "list",
+      "['raised TypeError', 'MatrixSymbol: M']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['ArrayAdd: ArrayAdd(A, M)', 'MatrixSymbol: M']"
+     ]
+    },
+    {
+     "target": "sympy/tensor/array/expressions/from_array_to_matrix.py#_a2m_transpose",
+     "call": "outcome(lambda: convert_array_to_matrix(PermuteDims(A, [1, 0])))",
+     "before": [
+      "return",
+      "str",
+      "'Transpose: A.T'"
+     ],
+     "after": [
+      "return",
+      "str",
+      "'PermuteDims: PermuteDims(A, (0 1))'"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "sympy",
+   "number": 30590,
+   "title": "fix(acot, acoth): do not extract a minus sign at a possible branch point",
+   "done": true,
+   "production_comparable": 2,
+   "production_uncalled": 1,
+   "verify_seconds": 3.2,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 92.1,
+   "flips": 2,
+   "counted": 2,
+   "not_counted": [],
+   "verify": {
+    "checked": 2,
+    "held": 2,
+    "false": 0,
+    "other": 0,
+    "problem": null,
+    "states": {
+     "sympy/functions/elementary/tests/test_hyperbolic.py::test_acoth": "passed",
+     "sympy/functions/elementary/tests/test_trigonometric.py::test_evenodd_rewrite": "passed"
+    }
+   },
+   "ran": 480,
+   "candidates": 480,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 5,
+    "functions_called": 1,
+    "compared_calls": 1,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 0,
+   "changed_functions": 5,
+   "evidence": 2,
+   "replayed": 3,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 4,
+   "probes_attempted": 4,
+   "probes_kept": 4,
+   "probe_minutes": 1.3,
+   "kept": [
+    {
+     "target": "sympy/functions/elementary/hyperbolic.py#acoth.eval",
+     "call": "[str(acoth(-x)), str(acoth(-x).subs(x, 0)), str(acoth(-n))]",
+     "before": [
+      "return",
+      "list",
+      "['-acoth(x)', '-I*pi/2', '-acoth(n)']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['acoth(-x)', 'I*pi/2', '-acoth(n)']"
+     ]
+    },
+    {
+     "target": "sympy/functions/elementary/tests/test_hyperbolic.py#test_acoth",
+     "call": "str(acoth(-x))",
+     "before": [
+      "return",
+      "str",
+      "'-acoth(x)'"
+     ],
+     "after": [
+      "return",
+      "str",
+      "'acoth(-x)'"
+     ]
+    },
+    {
+     "target": "sympy/functions/elementary/tests/test_trigonometric.py#test_acot",
+     "call": "[str(acot(-x)), str(acot(-x).subs(x, 0)), str(acot(-n))]",
+     "before": [
+      "return",
+      "list",
+      "['-acot(x)', '-pi/2', '-acot(n)']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['acot(-x)', 'pi/2', '-acot(n)']"
+     ]
+    },
+    {
+     "target": "sympy/functions/elementary/tests/test_trigonometric.py#test_evenodd_rewrite",
+     "call": "str(acot(-x) + acot(x))",
+     "before": [
+      "return",
+      "str",
+      "'0'"
+     ],
+     "after": [
+      "return",
+      "str",
+      "'acot(-x) + acot(x)'"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "sympy",
+   "number": 30591,
+   "title": "fix(evalf): do not truncate the term ratio to an integer in hypsum",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 1,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 447.8,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 680,
+   "candidates": 2952,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 2,
+   "changed_functions": 3,
+   "evidence": 1,
+   "replayed": 1,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 1,
+   "probes_attempted": 1,
+   "probes_kept": 1,
+   "probe_minutes": 0.4,
+   "kept": [
+    {
+     "target": "sympy/core/evalf.py#hypsum",
+     "call": "[str(Sum(Float('1.9')**n/factorial(n), (n, 0, oo)).evalf()), str(Sum(E/factorial(n), (n, 0, oo)).evalf()), str(Sum(1/n**2, (n, 100, oo)).evalf())]",
+     "before": [
+      "return",
+      "list",
+      "['2.71828182845905', '7.38905609893065', '0.0100501666633336']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['6.68589444227927', '7.38905609893065', '0.0100501666633336']"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "sympy",
+   "number": 30596,
+   "title": "Handle symbol-independent relationals in solveset",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 279.6,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 552,
+   "candidates": 552,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 1,
+    "compared_calls": 5,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 3,
+   "changed_functions": 4,
+   "evidence": 3,
+   "replayed": 3,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "sympy",
+   "number": 30453,
+   "title": "Improve arity() and nargs for functions with *args",
+   "done": true,
+   "production_comparable": 5,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 582.8,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 480,
+   "candidates": 624,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 5,
+    "functions_called": 5,
+    "compared_calls": 25,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 4,
+   "changed_functions": 9,
+   "evidence": 1,
+   "replayed": 1,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "sympy",
+   "number": 30607,
+   "title": "doc fix: correct the function range of `acot(x)` for x in `Reals`",
+   "done": true,
+   "production_comparable": 0,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 459.2,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 384,
+   "candidates": 384,
+   "behaviour": 0,
+   "sbs": null,
+   "not_compared": 0,
+   "changed_functions": 0,
+   "evidence": 0,
+   "replayed": 0,
+   "quiet": true,
+   "recording_gap": null,
+   "probe_targets": null,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "sympy",
+   "number": 30600,
+   "title": "ArrayAdd: do not allow scalar arguments",
+   "done": true,
+   "production_comparable": 8,
+   "production_uncalled": 8,
+   "verify_seconds": 6.7,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 297.4,
+   "flips": 2,
+   "counted": 2,
+   "not_counted": [],
+   "verify": {
+    "checked": 2,
+    "held": 2,
+    "false": 0,
+    "other": 0,
+    "problem": null,
+    "states": {
+     "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars": "passed",
+     "sympy/tensor/array/expressions/tests/test_simplification.py::test_array_add_collect_coefficients": "passed"
+    }
+   },
+   "ran": 360,
+   "candidates": 360,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 11,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 4,
+   "changed_functions": 17,
+   "evidence": 5,
+   "replayed": 6,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 11,
+   "probes_attempted": 11,
+   "probes_kept": 4,
+   "probe_minutes": 0.8,
+   "kept": [
+    {
+     "target": "sympy/tensor/array/expressions/array_expressions.py#ArrayAdd.__new__",
+     "call": "[outcome(lambda: ArrayAdd(x, y)), outcome(lambda: ArrayAdd(A, B))]",
+     "before": [
+      "return",
+      "list",
+      "['ArrayAdd: ArrayAdd(x, y)', 'ArrayAdd: ArrayAdd(A, B)']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['raised TypeError', 'ArrayAdd: ArrayAdd(A, B)']"
+     ]
+    },
+    {
+     "target": "sympy/tensor/array/expressions/array_expressions.py#_array_add",
+     "call": "[outcome(lambda: _array_add(x, y)), outcome(lambda: _array_add(full, x))]",
+     "before": [
+      "return",
+      "list",
+      "['ArrayAdd: ArrayAdd(x, y)', 'ArrayAdd: ArrayAdd(ArrayContraction(ArrayTensorProduct(v, v), (0, 1)), x)']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['Add: x + y', 'Add: x + ArrayContraction(ArrayTensorProduct(v, v), (0, 1))']"
+     ]
+    },
+    {
+     "target": "sympy/tensor/array/expressions/from_array_to_indexed.py#_ConvertArrayToIndexed.do_convert",
+     "call": "[outcome(lambda: convert_array_to_indexed(full + x, [])), outcome(lambda: convert_array_to_indexed(ArrayAdd(A, B), [i, j]))]",
+     "before": [
+      "return",
+      "list",
+      "['ArrayElement: (x + ArrayContraction(ArrayTensorProduct(v, v), (0, 1)))[]', 'Add: A[i, j] + B[i, j]']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['Add: x + Sum(v[_d0]**2, (_d0, 0, 2))', 'Add: A[i, j] + B[i, j]']"
+     ]
+    },
+    {
+     "target": "sympy/tensor/array/expressions/tests/test_array_expressions.py#test_array_expressions_no_canonicalization",
+     "call": "outcome(lambda: ArrayAdd(x, A, canonicalize=False))",
+     "before": [
+      "return",
+      "str",
+      "'raised ValueError'"
+     ],
+     "after": [
+      "return",
+      "str",
+      "'raised TypeError'"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "sympy",
+   "number": 30469,
+   "title": "Add an introduction with a worked example to the diffgeom documentation",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 271.4,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 552,
+   "candidates": 552,
+   "behaviour": 1,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 1,
+    "compared_calls": 1,
+    "differences": 1,
+    "unstable": 0
+   },
+   "not_compared": 0,
+   "changed_functions": 1,
+   "evidence": 0,
+   "replayed": 0,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "sympy",
+   "number": 29930,
+   "title": "docs: clarify unbranched_argument",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 525.9,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 1200,
+   "candidates": 1992,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 1,
+    "compared_calls": 5,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 0,
+   "changed_functions": 1,
+   "evidence": 0,
+   "replayed": 0,
+   "quiet": true,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "sympy",
+   "number": 30642,
+   "title": "Fixed (bug) func:is_eq returned True when x = neg_infinite and y = extended_nonpositive",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 375.4,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 960,
+   "candidates": 960,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 2,
+    "functions_called": 1,
+    "compared_calls": 10,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 0,
+   "changed_functions": 2,
+   "evidence": 1,
+   "replayed": 1,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 1,
+   "probes_attempted": 1,
+   "probes_kept": 1,
+   "probe_minutes": 0.3,
+   "kept": [
+    {
+     "target": "sympy/core/tests/test_relational.py#test_is_eq",
+     "call": "[is_eq(x, y, Q.negative_infinite(x) & Q.extended_nonpositive(y)), is_eq(x, y, Q.positive_infinite(x) & Q.extended_positive(y)), is_eq(x, y, Q.positive_infinite(x) & Q.extended_nonpositive(y))]",
+     "before": [
+      "return",
+      "list",
+      "[True, True, False]"
+     ],
+     "after": [
+      "return",
+      "list",
+      "[None, None, False]"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "sympy",
+   "number": 30471,
+   "title": "fix(interactive): support unapplied functions in interactive printing",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 1,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 109.6,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 936,
+   "candidates": 936,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 1,
+   "changed_functions": 2,
+   "evidence": 0,
+   "replayed": 0,
+   "quiet": true,
+   "recording_gap": null,
+   "probe_targets": 1,
+   "probes_attempted": 1,
+   "probes_kept": 1,
+   "probe_minutes": 0.5,
+   "kept": [
+    {
+     "target": "sympy/interactive/printing.py#_init_ipython_printing",
+     "call": "[show(Function('psi')), show([Function('f'), 1])]",
+     "before": [
+      "return",
+      "list",
+      "['raised AttributeError', 'raised AttributeError']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "[['psi'], ['[f, 1]']]"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "sympy",
+   "number": 30589,
+   "title": "improve Relational fidelity during simplification",
+   "done": true,
+   "production_comparable": 8,
+   "production_uncalled": 8,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 60.8,
+   "flips": null,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 0,
+   "candidates": null,
+   "behaviour": 0,
+   "sbs": null,
+   "not_compared": 0,
+   "changed_functions": 41,
+   "evidence": 0,
+   "replayed": 0,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 20,
+   "probes_attempted": 20,
+   "probes_kept": 2,
+   "probe_minutes": 1.7,
+   "kept": [
+    {
+     "target": "sympy/core/relational.py#Relational._eval_simplify",
+     "call": "[outcome(lambda: (x < x + 1).simplify()), outcome(lambda: (r < r + 1).simplify()), outcome(lambda: (x**2 + 1 > x**2).simplify()), outcome(lambda: Eq(x + y, y + x + 1).simplify())]",
+     "before": [
+      "return",
+      "list",
+      "['True', 'True', 'True', 'False']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['x < x + 1', 'True', 'x**2 < x**2 + 1', 'Eq(x + y, x + y + 1)']"
+     ]
+    },
+    {
+     "target": "sympy/core/relational.py#is_eq",
+     "call": "[outcome(lambda: is_eq(x, x + 1)), outcome(lambda: is_eq(r, r + 1)), outcome(lambda: is_eq(x**2, x**2 + 1))]",
+     "before": [
+      "return",
+      "list",
+      "['False', 'False', 'False']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['None', 'False', 'None']"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "sympy",
+   "number": 30636,
+   "title": "Handle same-signed groups in `_monotonic_sign`",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 333.3,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 2664,
+   "candidates": 2664,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 2,
+    "functions_called": 1,
+    "compared_calls": 5,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 1,
+   "changed_functions": 3,
+   "evidence": 2,
+   "replayed": 2,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 1,
+   "probes_attempted": 1,
+   "probes_kept": 1,
+   "probe_minutes": 0.3,
+   "kept": [
+    {
+     "target": "sympy/core/tests/test_exprtools.py#test_monotonic_sign",
+     "call": "[str(F(p + q + r)), str(F(-p - q)), str(F(p + q - 1)), str((p + q - 1).is_positive), str(F(nn[0] + nn[1]))]",
+     "before": [
+      "return",
+      "list",
+      "['None', 'None', '1', 'None', 'None']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['3', '-2', '1', 'True', '_nneg']"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "sympy",
+   "number": 30673,
+   "title": "polys: clean up argument handling for nth",
+   "done": true,
+   "production_comparable": 4,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 342.1,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 2400,
+   "candidates": 2400,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 6,
+    "functions_called": 4,
+    "compared_calls": 20,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 0,
+   "changed_functions": 6,
+   "evidence": 1,
+   "replayed": 2,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 2,
+   "probes_attempted": 2,
+   "probes_kept": 1,
+   "probe_minutes": 0.3,
+   "kept": [
+    {
+     "target": "sympy/polys/tests/test_polytools.py#test_Poly_nth",
+     "call": "[outcome(lambda: Poly(x**2 + 2*x + 3).nth(0.5)), outcome(lambda: Poly(x*y + 1, x, y).nth(1, 1)), outcome(lambda: Poly(x + 1).nth(-1))]",
+     "before": [
+      "return",
+      "list",
+      "['3', '1', 'raised IndexError']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['raised TypeError', '1', 'raised IndexError']"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "sympy",
+   "number": 30693,
+   "title": "Normalize path separators in convert_to_native_paths",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 183.6,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 2640,
+   "candidates": 2640,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 1,
+    "compared_calls": 2,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 1,
+   "changed_functions": 2,
+   "evidence": 1,
+   "replayed": 1,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "sympy",
+   "number": 30697,
+   "title": "Fix polys docstrings specialpolys",
+   "done": true,
+   "production_comparable": 3,
+   "production_uncalled": 1,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 423.6,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 3920,
+   "candidates": 4176,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 3,
+    "functions_called": 2,
+    "compared_calls": 7,
+    "differences": 0,
+    "unstable": 2
+   },
+   "not_compared": 0,
+   "changed_functions": 3,
+   "evidence": 0,
+   "replayed": 0,
+   "quiet": true,
+   "recording_gap": null,
+   "probe_targets": 1,
+   "probes_attempted": 1,
+   "probes_kept": 0,
+   "probe_minutes": 0.2,
+   "kept": []
+  },
+  {
+   "repo": "sympy",
+   "number": 30690,
+   "title": "tensor: fix typo and un-skip doctest in get_indices",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 237.0,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 3144,
+   "candidates": 3144,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 1,
+    "compared_calls": 5,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 0,
+   "changed_functions": 1,
+   "evidence": 0,
+   "replayed": 0,
+   "quiet": true,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "sympy",
+   "number": 30684,
+   "title": "Keep the original input in the IPython history with isympy -I",
+   "done": true,
+   "production_comparable": 2,
+   "production_uncalled": 2,
+   "verify_seconds": 1.2,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 11.1,
+   "flips": 1,
+   "counted": 1,
+   "not_counted": [],
+   "verify": {
+    "checked": 1,
+    "held": 1,
+    "false": 0,
+    "other": 0,
+    "problem": null,
+    "states": {
+     "sympy/interactive/tests/test_interactive.py::test_int_to_Integer": "passed"
+    }
+   },
+   "ran": 8,
+   "candidates": 8,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 4,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 3,
+   "changed_functions": 7,
+   "evidence": 1,
+   "replayed": 2,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 4,
+   "probes_attempted": 4,
+   "probes_kept": 2,
+   "probe_minutes": 0.4,
+   "kept": [
+    {
+     "target": "sympy/interactive/session.py#int_to_Integer",
+     "call": "[int_to_Integer('1.2 + 1/2 - 0x12 + a1'), int_to_Integer('eo = solveset(sin(x), x)  # keep\\n')]",
+     "before": [
+      "return",
+      "list",
+      "['1.2 +Integer (1 )/Integer (2 )-Integer (0x12 )+a1 ', 'eo =solveset (sin (x ),x )# keep\\n']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['1.2 + Integer(1)/Integer(2) - Integer(0x12) + a1', 'eo = solveset(sin(x), x)  # keep\\n']"
+     ]
+    },
+    {
+     "target": "sympy/interactive/session.py#enable_automatic_int_sympification",
+     "call": "(lambda shell: (enable_automatic_int_sympification(shell), shell.run_cell == 'original', len(shell.input_transformers_post), [f(['1/2\\n']) for f in shell.input_transformers_post]))(SimpleNamespace(run_cell='original', input_transformers_post=[]))[1:]",
+     "before": [
+      "return",
+      "tuple",
+      "(False, 0, [])"
+     ],
+     "after": [
+      "return",
+      "tuple",
+      "(True, 1, [['Integer(1)/Integer(2)\\n']])"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "sympy",
+   "number": 30682,
+   "title": "Manualintegrate trig log hang",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 1,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 355.4,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 3960,
+   "candidates": 3960,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 1,
+   "changed_functions": 2,
+   "evidence": 0,
+   "replayed": 0,
+   "quiet": true,
+   "recording_gap": null,
+   "probe_targets": 1,
+   "probes_attempted": 1,
+   "probes_kept": 0,
+   "probe_minutes": 0.8,
+   "kept": []
+  },
+  {
+   "repo": "sympy",
+   "number": 30605,
+   "title": "make `trigsimp` more targeted in transformation",
+   "done": true,
+   "production_comparable": 3,
+   "production_uncalled": 0,
+   "verify_seconds": 1.7,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 441.6,
+   "flips": 1,
+   "counted": 1,
+   "not_counted": [],
+   "verify": {
+    "checked": 1,
+    "held": 1,
+    "false": 0,
+    "other": 0,
+    "problem": null,
+    "states": {
+     "sympy/series/tests/test_series.py::test_issue_12791": "passed"
+    }
+   },
+   "ran": 3760,
+   "candidates": 4152,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 5,
+    "functions_called": 3,
+    "compared_calls": 15,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 5,
+   "changed_functions": 10,
+   "evidence": 2,
+   "replayed": 5,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 2,
+   "probes_attempted": 2,
+   "probes_kept": 2,
+   "probe_minutes": 0.3,
+   "kept": [
+    {
+     "target": "sympy/simplify/tests/test_trigsimp.py#test_hyperbolic_simp",
+     "call": "[str(trigsimp(x*(x - 1/x) - x**2 + cosh(x)**2 - sinh(x)**2)), str(trigsimp(y*(y + 1) - y**2 + sin(x)**2 + cos(x)**2))]",
+     "before": [
+      "return",
+      "list",
+      "['0', 'y + 1']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['-x**2 + x*(x - 1/x) + 1', '-y**2 + y*(y + 1) + 1']"
+     ]
+    },
+    {
+     "target": "sympy/series/tests/test_series.py#test_issue_12791",
+     "call": "str(trigsimp((x + 1)**2 - x**2 - 2*x + sin(x)**2 + cos(x)**2))",
+     "before": [
+      "return",
+      "str",
+      "'2'"
+     ],
+     "after": [
+      "return",
+      "str",
+      "'-x**2 - 2*x + (x + 1)**2 + 1'"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "sympy",
+   "number": 30680,
+   "title": "polys: return zero polynomial for lcm(0, 0) in the pure-Python backend",
+   "done": true,
+   "production_comparable": 4,
+   "production_uncalled": 4,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 265.3,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 3000,
+   "candidates": 3000,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 8,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 0,
+   "changed_functions": 8,
+   "evidence": 4,
+   "replayed": 4,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 8,
+   "probes_attempted": 8,
+   "probes_kept": 7,
+   "probe_minutes": 0.6,
+   "kept": [
+    {
+     "target": "sympy/polys/euclidtools.py#dup_ff_lcm",
+     "call": "[outcome(lambda: Rq.dup_ff_lcm(Rq(0), Rq(0))), outcome(lambda: Rq.dup_ff_lcm(xq, Rq(0)))]",
+     "before": [
+      "return",
+      "list",
+      "['raised ZeroDivisionError', '0']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['0', '0']"
+     ]
+    },
+    {
+     "target": "sympy/polys/euclidtools.py#dmp_rr_lcm",
+     "call": "[outcome(lambda: Rzz.dmp_rr_lcm(Rzz(0), Rzz(0))), outcome(lambda: Rzz.dmp_rr_lcm(a, Rzz(0)))]",
+     "before": [
+      "return",
+      "list",
+      "['raised ZeroDivisionError', '0']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['0', '0']"
+     ]
+    },
+    {
+     "target": "sympy/polys/euclidtools.py#dmp_ff_lcm",
+     "call": "[outcome(lambda: Rqq.dmp_ff_lcm(Rqq(0), Rqq(0))), outcome(lambda: Rqq.dmp_ff_lcm(aq, Rqq(0)))]",
+     "before": [
+      "return",
+      "list",
+      "['raised ZeroDivisionError', '0']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['0', '0']"
+     ]
+    },
+    {
+     "target": "sympy/polys/rings.py#PolyElement.lcm",
+     "call": "[outcome(lambda: Rz(0).lcm(Rz(0))), outcome(lambda: Rq(0).lcm(xq)), outcome(lambda: Rz(0).lcm(Rq(1)))]",
+     "before": [
+      "return",
+      "list",
+      "['raised ZeroDivisionError', '0', 'raised ValueError']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['0', '0', 'raised ValueError']"
+     ]
+    },
+    {
+     "target": "sympy/polys/tests/test_euclidtools.py#test_dup_lcm",
+     "call": "[outcome(lambda: Rz.dup_lcm(Rz(0), Rz(0))), outcome(lambda: Rq.dup_lcm(Rq(0), Rq(0)))]",
+     "before": [
+      "return",
+      "list",
+      "['0', 'raised ZeroDivisionError']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['0', '0']"
+     ]
+    },
+    {
+     "target": "sympy/polys/tests/test_euclidtools.py#test_dmp_lcm",
+     "call": "[outcome(lambda: Rzz.dmp_lcm(Rzz(0), Rzz(0))), outcome(lambda: Rqq.dmp_lcm(Rqq(0), Rqq(0)))]",
+     "before": [
+      "return",
+      "list",
+      "['raised ZeroDivisionError', 'raised ZeroDivisionError']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['0', '0']"
+     ]
+    },
+    {
+     "target": "sympy/polys/tests/test_rings.py#test_PolyElement_lcm",
+     "call": "[outcome(lambda: Rzz(0).lcm(Rzz(0))), outcome(lambda: Rqq(0).lcm(Rqq(0)))]",
+     "before": [
+      "return",
+      "list",
+      "['raised ZeroDivisionError', 'raised ZeroDivisionError']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['0', '0']"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "sympy",
+   "number": 30667,
+   "title": "Handle algebraicity of powers with an infinite base",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 396.4,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 3717,
+   "candidates": 4032,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 2,
+    "functions_called": 1,
+    "compared_calls": 10,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 0,
+   "changed_functions": 2,
+   "evidence": 1,
+   "replayed": 1,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 1,
+   "probes_attempted": 1,
+   "probes_kept": 1,
+   "probe_minutes": 0.3,
+   "kept": [
+    {
+     "target": "sympy/core/tests/test_assumptions.py#test_Pow_is_algebraic",
+     "call": "[Pow(zoo, -1, evaluate=False).is_algebraic, Pow(oo, -S.Half, evaluate=False).is_algebraic, Pow(inf, -1, evaluate=False).is_algebraic, Pow(inf, 2, evaluate=False).is_algebraic, Pow(inf, r, evaluate=False).is_algebraic, Pow(Pow(0, -1, evaluate=False), -1, evaluate=False).is_algebraic]",
+     "before": [
+      "return",
+      "list",
+      "[False, False, False, False, None, False]"
+     ],
+     "after": [
+      "return",
+      "list",
+      "[True, True, True, False, None, True]"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "sympy",
+   "number": 30699,
+   "title": "polys: fix precision calculation in rs_nth_root",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 1,
+   "verify_seconds": 1.8,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 359.3,
+   "flips": 1,
+   "counted": 1,
+   "not_counted": [],
+   "verify": {
+    "checked": 1,
+    "held": 1,
+    "false": 0,
+    "other": 0,
+    "problem": null,
+    "states": {
+     "sympy/polys/tests/test_ring_series.py::test_nth_root": "passed"
+    }
+   },
+   "ran": 2920,
+   "candidates": 2976,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 2,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 1,
+   "changed_functions": 3,
+   "evidence": 2,
+   "replayed": 2,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 2,
+   "probes_attempted": 2,
+   "probes_kept": 2,
+   "probe_minutes": 0.9,
+   "kept": [
+    {
+     "target": "sympy/polys/ring_series.py#rs_nth_root",
+     "call": "[outcome(lambda: rs_nth_root(x + x**2, -1, x, 3)), outcome(lambda: rs_nth_root(x**4 + x**5, 2, x, 3))]",
+     "before": [
+      "return",
+      "list",
+      "['-1 + x**(-1)', '0']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['-x**2 + x - 1 + x**(-1)', 'x**2']"
+     ]
+    },
+    {
+     "target": "sympy/polys/tests/test_ring_series.py#test_nth_root",
+     "call": "[outcome(lambda: rs_nth_root(x**2 + x**3, -1, x, 2)), outcome(lambda: rs_nth_root(x**6 + x**7, 3, x, 4))]",
+     "before": [
+      "return",
+      "list",
+      "['-2*x**(-1) + 2*x**(-2)', '1/4*x**3 + 3/4*x**2']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['-x + 1 - x**(-1) + x**(-2)', '1/3*x**3 + x**2']"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "sympy",
+   "number": 30702,
+   "title": "ode: drop redundant const sol's after applying ic",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 1,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 488.9,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 2200,
+   "candidates": 2328,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 1,
+   "changed_functions": 2,
+   "evidence": 1,
+   "replayed": 1,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 1,
+   "probes_attempted": 1,
+   "probes_kept": 1,
+   "probe_minutes": 1.0,
+   "kept": [
+    {
+     "target": "sympy/solvers/ode/ode.py#_helper_simplify",
+     "call": "[str(dsolve(eq, y, ics={y.subs(t, 0): 0})), str(dsolve(eq, y))]",
+     "before": [
+      "return",
+      "list",
+      "['[Eq(y(t), C2*t*exp(-t)), Eq(y(t), 0)]', 'Eq(y(t), (C1 + C2*t)*exp(-t))']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['Eq(y(t), C2*t*exp(-t))', 'Eq(y(t), (C1 + C2*t)*exp(-t))']"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "sympy",
+   "number": 26912,
+   "title": "make as_base_exp literal, like fraction",
+   "done": true,
+   "production_comparable": 4,
+   "production_uncalled": 3,
+   "verify_seconds": 16.2,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 572.6,
+   "flips": 5,
+   "counted": 5,
+   "not_counted": [],
+   "verify": {
+    "checked": 5,
+    "held": 5,
+    "false": 0,
+    "other": 0,
+    "problem": null,
+    "states": {
+     "sympy/core/tests/test_expr.py::test_as_base_exp": "passed",
+     "sympy/simplify/tests/test_simplify.py::test_as_content_primitive": "passed",
+     "sympy/solvers/tests/test_recurr.py::test_issue_6844": "passed",
+     "sympy/solvers/tests/test_solvers.py::test_issue_6605": "passed",
+     "sympy/stats/tests/test_discrete_rv.py::test_product_spaces": "passed"
+    }
+   },
+   "ran": 840,
+   "candidates": 1752,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 13,
+    "functions_called": 1,
+    "compared_calls": 5,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 0,
+   "changed_functions": 14,
+   "evidence": 0,
+   "replayed": 3,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 12,
+   "probes_attempted": 12,
+   "probes_kept": 4,
+   "probe_minutes": 2.2,
+   "kept": [
+    {
+     "target": "sympy/core/tests/test_expr.py#test_as_base_exp",
+     "call": "[outcome(lambda: (x**2*y**2).as_base_exp()), outcome(lambda: (S.Half**x).as_base_exp()), outcome(lambda: (1/2**x).as_base_exp())]",
+     "before": [
+      "return",
+      "list",
+      "['(x*y, 2)', '(2, -x)', '(2, -x)']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['(x**2*y**2, 1)', '(1/2, x)', '(2, -x)']"
+     ]
+    },
+    {
+     "target": "sympy/core/tests/test_power.py#test_pow_as_base_exp",
+     "call": "[outcome(lambda: Pow(S.Half, x, evaluate=False).as_base_exp()), outcome(lambda: Pow(Rational(1, 3), -x, evaluate=False).as_base_exp()), outcome(lambda: sqrt(x).as_base_exp())]",
+     "before": [
+      "return",
+      "list",
+      "['(2, -x)', '(3, x)', '(x, 1/2)']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['(1/2, x)', '(1/3, -x)', '(x, 1/2)']"
+     ]
+    },
+    {
+     "target": "sympy/simplify/tests/test_simplify.py#test_as_content_primitive",
+     "call": "[outcome(lambda: (2**(2 + x)).as_content_primitive()), outcome(lambda: (S.Half**x).as_content_primitive())]",
+     "before": [
+      "return",
+      "list",
+      "['(4, 2**x)', '(1, 2**(-x))']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['(4, 2**x)', '(1, (1/2)**x)']"
+     ]
+    },
+    {
+     "target": "sympy/stats/drv_types.py#Logarithmic",
+     "call": "outcome(lambda: __import__('sympy.stats', fromlist=['x']).density(__import__('sympy.stats', fromlist=['x']).Logarithmic('L', S(1)/3))(z))",
+     "before": [
+      "return",
+      "str",
+      "'-1/(3**z*z*log(2/3))'"
+     ],
+     "after": [
+      "return",
+      "str",
+      "'-(1/3)**z/(z*log(2/3))'"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "sympy",
+   "number": 30701,
+   "title": "biomechanics: update doctest expectations",
+   "done": true,
+   "production_comparable": 3,
+   "production_uncalled": 3,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 154.1,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 672,
+   "candidates": 672,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 3,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 3,
+   "changed_functions": 8,
+   "evidence": 5,
+   "replayed": 5,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 3,
+   "probes_attempted": 3,
+   "probes_kept": 1,
+   "probe_minutes": 0.5,
+   "kept": [
+    {
+     "target": "sympy/testing/runtests_pytest.py#update_args_with_paths",
+     "call": "outcome(lambda: rp.update_args_with_paths(paths=['sympy/core/tests/test_basic.py'], keywords=None, args=[]))",
+     "before": [
+      "return",
+      "str",
+      "\"['/Users/Shared/amu-retro-2026-10-18/tmp/amu-probe-98qdg0wz/c1-base/sympy/core/tests/test_basic.py']\""
+     ],
+     "after": [
+      "return",
+      "str",
+      "\"['/Users/Shared/amu-retro-2026-10-18/tmp/amu-probe-98qdg0wz/c1-head/sympy/core/tests/test_basic.py']\""
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "sympy",
+   "number": 30706,
+   "title": "polys: fix precision calculation in rs_pow for non-zero valuation series",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 329.5,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 1560,
+   "candidates": 1560,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 1,
+    "compared_calls": 5,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 1,
+   "changed_functions": 2,
+   "evidence": 1,
+   "replayed": 1,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "sympy",
+   "number": 30711,
+   "title": "polys: fix precision calculation in rs_pow for fractional powers with nonzero valuation",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 303.3,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 1488,
+   "candidates": 1488,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 1,
+    "compared_calls": 5,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 1,
+   "changed_functions": 2,
+   "evidence": 1,
+   "replayed": 1,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 0,
+   "probes_attempted": 0,
+   "probes_kept": 0,
+   "probe_minutes": null,
+   "kept": []
+  },
+  {
+   "repo": "sympy",
+   "number": 30715,
+   "title": "Bug: satisfiable(dpll2) returns {True: False} instead of returning False",
+   "done": true,
+   "production_comparable": 9,
+   "production_uncalled": 5,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 270.2,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 1320,
+   "candidates": 1320,
+   "behaviour": 6,
+   "sbs": {
+    "targets": 9,
+    "functions_called": 4,
+    "compared_calls": 12,
+    "differences": 6,
+    "unstable": 2
+   },
+   "not_compared": 7,
+   "changed_functions": 15,
+   "evidence": 1,
+   "replayed": 4,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 5,
+   "probes_attempted": 5,
+   "probes_kept": 0,
+   "probe_minutes": 0.8,
+   "kept": []
+  },
+  {
+   "repo": "sympy",
+   "number": 30687,
+   "title": "use the D-finite recurrence for Stirling subset numbers in Touchard polynomials",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 1,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 519.1,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 1632,
+   "candidates": 1632,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 1,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 0,
+   "changed_functions": 1,
+   "evidence": 0,
+   "replayed": 0,
+   "quiet": true,
+   "recording_gap": null,
+   "probe_targets": 1,
+   "probes_attempted": 1,
+   "probes_kept": 0,
+   "probe_minutes": 0.8,
+   "kept": []
+  },
+  {
+   "repo": "sympy",
+   "number": 30428,
+   "title": "Parenthesize Mod in code printers for negated products and reciprocal divisors",
+   "done": true,
+   "production_comparable": 4,
+   "production_uncalled": 3,
+   "verify_seconds": 5.3,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 722.5,
+   "flips": 3,
+   "counted": 3,
+   "not_counted": [],
+   "verify": {
+    "checked": 3,
+    "held": 3,
+    "false": 0,
+    "other": 0,
+    "problem": null,
+    "states": {
+     "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_print_code": "passed",
+     "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_derivative_print_code": "passed",
+     "sympy/printing/tests/test_cxx.py::test_CXX17CodePrinter": "passed"
+    }
+   },
+   "ran": 1320,
+   "candidates": 1560,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 9,
+    "functions_called": 1,
+    "compared_calls": 5,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 0,
+   "changed_functions": 10,
+   "evidence": 6,
+   "replayed": 6,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 8,
+   "probes_attempted": 8,
+   "probes_kept": 8,
+   "probe_minutes": 0.7,
+   "kept": [
+    {
+     "target": "sympy/physics/biomechanics/tests/test_curve.py#TestFiberForceLengthActiveDeGroote2016.test_derivative_print_code",
+     "call": "[PythonCodePrinter().doprint(-Rational(1, 2)*Z*x), PythonCodePrinter().doprint(-2*x/(y*y))]",
+     "before": [
+      "return",
+      "list",
+      "['-1/2*Z*x', '-2*x/y**2']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['-(1/2)*Z*x', '-2*x/y**2']"
+     ]
+    },
+    {
+     "target": "sympy/printing/jscode.py#JavascriptCodePrinter._print_Mod",
+     "call": "[jscode(Mod(p1, 1/p2)), jscode(-2*Mod(p1, p2))]",
+     "before": [
+      "return",
+      "list",
+      "['0', '-2*p1 % p2']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['0', '-2*(p1 % p2)']"
+     ]
+    },
+    {
+     "target": "sympy/printing/mathematica.py#mathematica_code",
+     "call": "[mathematica_code(-2*Mod(x, y)), mathematica_code(Mod(1, 1/x))]",
+     "before": [
+      "return",
+      "list",
+      "['-2*Mod[x, y]', 'Mod[1, x^(-1)]']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['-2*(Mod[x, y])', 'Mod[1, x^(-1)]']"
+     ]
+    },
+    {
+     "target": "sympy/printing/pycode.py#AbstractPythonCodePrinter._print_Mod",
+     "call": "[pycode(Mod(1, 1/x)), pycode(Mod(x, 1/sqrt(y))), pycode(-2*Mod(x, y))]",
+     "before": [
+      "return",
+      "list",
+      "['1 % 1/x', 'x % 1/math.sqrt(y)', '-2*x % y']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['1 % (1/x)', 'x % (1/math.sqrt(y))', '-2*(x % y)']"
+     ]
+    },
+    {
+     "target": "sympy/printing/tests/test_c.py#test_ccode_functions2",
+     "call": "[ccode(-2*Mod(p1, p2)), ccode(-p1/Mod(p1, p2))]",
+     "before": [
+      "return",
+      "list",
+      "['-2*p1 % p2', '-p1/p1 % p2']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['-2*(p1 % p2)', '-p1/(p1 % p2)']"
+     ]
+    },
+    {
+     "target": "sympy/printing/tests/test_cxx.py#test_CXX17CodePrinter",
+     "call": "[cxxcode(-2*Mod(x, y), standard='C++17'), cxxcode(-1.0*Z/2, standard='C++17')]",
+     "before": [
+      "return",
+      "list",
+      "['-2*std::fmod(x, y)', '-0.5*Z']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['-2*(std::fmod(x, y))', '-0.5*Z']"
+     ]
+    },
+    {
+     "target": "sympy/printing/tests/test_jscode.py#test_Mod",
+     "call": "[jscode(Mod(x, 1/y)), jscode(-x/Mod(x, y))]",
+     "before": [
+      "return",
+      "list",
+      "['((x % 1/y) + 1/y) % 1/y', '-x/((x % y) + y) % y']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['((x % (1/y)) + (1/y)) % (1/y)', '-x/(((x % y) + y) % y)']"
+     ]
+    },
+    {
+     "target": "sympy/printing/tests/test_pycode.py#test_PythonCodePrinter",
+     "call": "[pycode(-x/Mod(x, y)), pycode(-S(1)/2*Z)]",
+     "before": [
+      "return",
+      "list",
+      "['-x/x % y', '-1/2*Z']"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['-x/(x % y)', '-(1/2)*Z']"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "sympy",
+   "number": 30734,
+   "title": "geometry: fix typos and docstring inaccuracies in Polygon",
+   "done": true,
+   "production_comparable": 2,
+   "production_uncalled": 2,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 324.0,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 1056,
+   "candidates": 1056,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 2,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 0,
+   "changed_functions": 2,
+   "evidence": 0,
+   "replayed": 0,
+   "quiet": true,
+   "recording_gap": null,
+   "probe_targets": 2,
+   "probes_attempted": 2,
+   "probes_kept": 0,
+   "probe_minutes": 0.3,
+   "kept": []
+  },
+  {
+   "repo": "sympy",
+   "number": 30748,
+   "title": "polys: fix swinnerton_dyer_poly x-sympification and n validation",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 1,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 105.2,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 1896,
+   "candidates": 1896,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 2,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 0,
+   "changed_functions": 2,
+   "evidence": 1,
+   "replayed": 1,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 2,
+   "probes_attempted": 2,
+   "probes_kept": 1,
+   "probe_minutes": 0.4,
+   "kept": [
+    {
+     "target": "sympy/polys/specialpolys.py#swinnerton_dyer_poly",
+     "call": "[outcome(lambda: swinnerton_dyer_poly(1, 'x')), outcome(lambda: swinnerton_dyer_poly(1.2, x)), outcome(lambda: swinnerton_dyer_poly(2, x, polys=True))]",
+     "before": [
+      "return",
+      "list",
+      "['raised TypeError', 'raised UnboundLocalError', \"PurePoly: PurePoly(x**4 - 10*x**2 + 1, x, domain='ZZ')\"]"
+     ],
+     "after": [
+      "return",
+      "list",
+      "['Add: x**2 - 2', 'raised ValueError', \"Poly: Poly(x**4 - 10*x**2 + 1, x, domain='ZZ')\"]"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "sympy",
+   "number": 30752,
+   "title": "fix: preserve log finiteness at zero",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 0,
+   "verify_seconds": null,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 373.0,
+   "flips": 0,
+   "counted": 0,
+   "not_counted": [],
+   "verify": null,
+   "ran": 1434,
+   "candidates": 5328,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 2,
+    "functions_called": 1,
+    "compared_calls": 5,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 0,
+   "changed_functions": 2,
+   "evidence": 1,
+   "replayed": 1,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 1,
+   "probes_attempted": 1,
+   "probes_kept": 1,
+   "probe_minutes": 0.9,
+   "kept": [
+    {
+     "target": "sympy/functions/elementary/tests/test_exponential.py#test_log_assumptions",
+     "call": "[log(i).is_finite, log(nn).is_finite, log(nz).is_finite, log(f).is_finite]",
+     "before": [
+      "return",
+      "list",
+      "[True, True, True, True]"
+     ],
+     "after": [
+      "return",
+      "list",
+      "[None, None, True, None]"
+     ]
+    }
+   ]
+  },
+  {
+   "repo": "sympy",
+   "number": 30558,
+   "title": "integrals: fix the floor terms added to atan(tan) and atan(cot) antiderivatives",
+   "done": true,
+   "production_comparable": 1,
+   "production_uncalled": 1,
+   "verify_seconds": 9.1,
+   "observe": false,
+   "error": null,
+   "aborted": false,
+   "seconds": 343.8,
+   "flips": 3,
+   "counted": 3,
+   "not_counted": [],
+   "verify": {
+    "checked": 3,
+    "held": 3,
+    "false": 0,
+    "other": 0,
+    "problem": null,
+    "states": {
+     "sympy/integrals/tests/test_integrals.py::test_issue_8623": "passed",
+     "sympy/integrals/tests/test_integrals.py::test_issue_9569": "passed",
+     "sympy/integrals/tests/test_integrals.py::test_issue_13749": "passed"
+    }
+   },
+   "ran": 1152,
+   "candidates": 1152,
+   "behaviour": 0,
+   "sbs": {
+    "targets": 4,
+    "functions_called": 0,
+    "compared_calls": 0,
+    "differences": 0,
+    "unstable": 0
+   },
+   "not_compared": 3,
+   "changed_functions": 7,
+   "evidence": 4,
+   "replayed": 4,
+   "quiet": false,
+   "recording_gap": null,
+   "probe_targets": 4,
+   "probes_attempted": 4,
+   "probes_kept": 3,
+   "probe_minutes": 2.0,
+   "kept": [
+    {
+     "target": "sympy/integrals/integrals.py#Integral.doit",
+     "call": "outcome(lambda: integrate(diff(atan(2*cot(x)), x), (x, -1, 1)))",
+     "before": [
+      "return",
+      "str",
+      "'2*atan(2*cot(1)) + pi'"
+     ],
+     "after": [
+      "return",
+      "str",
+      "'-pi + 2*atan(2*cot(1))'"
+     ]
+    },
+    {
+     "target": "sympy/integrals/tests/test_integrals.py#test_issue_8623",
+     "call": "outcome(lambda: integrate(diff(atan(x*tan(x)), x), (x, -1, 1)))",
+     "before": [
+      "return",
+      "str",
+      "'-2*pi'"
+     ],
+     "after": [
+      "return",
+      "str",
+      "'0'"
+     ]
+    },
+    {
+     "target": "sympy/integrals/tests/test_integrals.py#test_issue_9569",
+     "call": "outcome(lambda: integrate(atan(tan(y)), x))",
+     "before": [
+      "return",
+      "str",
+      "'x*(atan(tan(y)) + pi*floor((y - pi/2)/pi))'"
+     ],
+     "after": [
+      "return",
+      "str",
+      "'x*atan(tan(y))'"
+     ]
+    }
+   ]
+  }
+ ],
+ "repos": {
+  "django": {
+   "prs": 50,
+   "done": 50,
+   "errors": 0,
+   "aborted": 0,
+   "counted_flips": 8,
+   "verify_checked": 8,
+   "verify_false": 0,
+   "verify_other": 0,
+   "false_flip_rate": 0.0,
+   "prs_with_counted_flip": 5,
+   "prs_with_difference": 4,
+   "difference_prs": [
+    "django#21736",
+    "django#21975",
+    "django#21357",
+    "django#22039"
+   ],
+   "sample": [
+    "django#21357",
+    "django#21736",
+    "django#21975",
+    "django#22039"
+   ],
+   "sample_rows": 11,
+   "sample_real": 9,
+   "precision": 0.8181818181818182,
+   "comparable_functions": 274,
+   "functions_called": 67,
+   "uncalled_share": 0.7554744525547445,
+   "uncalled_share_median_per_pr": 0.0,
+   "not_comparable": 238,
+   "median_seconds": 24.35,
+   "worst_seconds": 438.9,
+   "quiet": 14,
+   "with_evidence": 32,
+   "probes_attempted": 210,
+   "probes_kept": 45,
+   "production_comparable": 147,
+   "production_uncalled": 80,
+   "uncalled_share_production": 0.54421768707483,
+   "prs_with_probe_targets": 23,
+   "probe_minutes_median": 0.6,
+   "probe_minutes_max": 18.2,
+   "probe_labels": {
+    "intended": 45,
+    "not intended (cosmetic)": 0,
+    "not intended": 0,
+    "artifact": 0
+   },
+   "sample_artifacts": 2
+  },
+  "sympy": {
+   "prs": 50,
+   "done": 50,
+   "errors": 1,
+   "aborted": 0,
+   "counted_flips": 22,
+   "verify_checked": 22,
+   "verify_false": 0,
+   "verify_other": 0,
+   "false_flip_rate": 0.0,
+   "prs_with_counted_flip": 11,
+   "prs_with_difference": 2,
+   "difference_prs": [
+    "sympy#30469",
+    "sympy#30715"
+   ],
+   "sample": [
+    "sympy#30469",
+    "sympy#30715"
+   ],
+   "sample_rows": 7,
+   "sample_real": 2,
+   "precision": 0.2857142857142857,
+   "comparable_functions": 173,
+   "functions_called": 63,
+   "uncalled_share": 0.6358381502890174,
+   "uncalled_share_median_per_pr": 0.5555555555555556,
+   "not_comparable": 101,
+   "median_seconds": 357.35,
+   "worst_seconds": 1140.1,
+   "quiet": 11,
+   "with_evidence": 35,
+   "probes_attempted": 134,
+   "probes_kept": 60,
+   "production_comparable": 133,
+   "production_uncalled": 70,
+   "uncalled_share_production": 0.5263157894736842,
+   "prs_with_probe_targets": 35,
+   "probe_minutes_median": 0.7,
+   "probe_minutes_max": 5.3,
+   "probe_labels": {
+    "intended": 57,
+    "not intended (cosmetic)": 2,
+    "not intended": 0,
+    "artifact": 1
+   },
+   "sample_artifacts": 5
+  },
+  "both": {
+   "prs": 100,
+   "done": 100,
+   "errors": 1,
+   "aborted": 0,
+   "counted_flips": 30,
+   "verify_checked": 30,
+   "verify_false": 0,
+   "verify_other": 0,
+   "false_flip_rate": 0.0,
+   "prs_with_counted_flip": 16,
+   "prs_with_difference": 6,
+   "difference_prs": [
+    "django#21736",
+    "django#21975",
+    "django#21357",
+    "django#22039",
+    "sympy#30469",
+    "sympy#30715"
+   ],
+   "sample": [
+    "django#21357",
+    "django#21736",
+    "django#21975",
+    "django#22039",
+    "sympy#30469",
+    "sympy#30715"
+   ],
+   "sample_rows": 18,
+   "sample_real": 11,
+   "precision": 0.6111111111111112,
+   "comparable_functions": 447,
+   "functions_called": 130,
+   "uncalled_share": 0.70917225950783,
+   "uncalled_share_median_per_pr": 0.45,
+   "not_comparable": 339,
+   "median_seconds": 153.64999999999998,
+   "worst_seconds": 1140.1,
+   "quiet": 25,
+   "with_evidence": 67,
+   "probes_attempted": 344,
+   "probes_kept": 105,
+   "production_comparable": 280,
+   "production_uncalled": 150,
+   "uncalled_share_production": 0.5357142857142857,
+   "prs_with_probe_targets": 58,
+   "probe_minutes_median": 0.6,
+   "probe_minutes_max": 18.2,
+   "probe_labels": {
+    "intended": 102,
+    "not intended (cosmetic)": 2,
+    "not intended": 0,
+    "artifact": 1
+   },
+   "sample_artifacts": 7
+  }
+ }
+}

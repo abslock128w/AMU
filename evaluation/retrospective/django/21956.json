@@ -1,0 +1,597 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "6ade6258480fba84a7e895b4b1e1716dfc954778",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "73fb8064e74801f6a29e7a763bb30be303bb9fa9",
+  "install_ok": true,
+  "merge_base": "8cbdd4a814397f81adf0129288f32b615bd1f94f",
+  "pr": 21956,
+  "recording": true,
+  "runner": null,
+  "seconds": 168.9,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "6ade6258480fba84a7e895b4b1e1716dfc954778",
+  "head_sha": "73fb8064e74801f6a29e7a763bb30be303bb9fa9",
+  "merge_base": "8cbdd4a814397f81adf0129288f32b615bd1f94f",
+  "merged_at": "2026-09-18T15:53:05Z",
+  "number": 21956,
+  "repo": "django",
+  "title": "Fixed #37339 -- Allowed ipaddress objects in GenericIPAddressField."
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 1,
+  "called": 1,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/model_fields/test_genericipaddressfield.py::GenericIPAddressFieldTests::test_save_load_ipaddress",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/model_fields/test_genericipaddressfield.py::GenericIPAddressFieldTests::test_save_load_strips_whitespace",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/model_fields/test_genericipaddressfield.py::GenericIPAddressFieldTests::test_save_invalid_ipv6",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/model_fields/test_genericipaddressfield.py::GenericIPAddressFieldTests::test_get_prep_value",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "django/db/models/fields/__init__.py",
+    "lines": "2369",
+    "symbol": "GenericIPAddressField.get_prep_value"
+   },
+   {
+    "file": "tests/model_fields/test_genericipaddressfield.py",
+    "lines": "46-68",
+    "symbol": "GenericIPAddressFieldTests.test_save_load_ipaddress"
+   },
+   {
+    "file": "tests/model_fields/test_genericipaddressfield.py",
+    "lines": "70-76",
+    "symbol": "GenericIPAddressFieldTests.test_save_load_strips_whitespace"
+   },
+   {
+    "file": "tests/model_fields/test_genericipaddressfield.py",
+    "lines": "78-80",
+    "symbol": "GenericIPAddressFieldTests.test_save_invalid_ipv6"
+   },
+   {
+    "file": "tests/model_fields/test_genericipaddressfield.py",
+    "lines": "82-92",
+    "symbol": "GenericIPAddressFieldTests.test_get_prep_value"
+   }
+  ],
+  "changed_symbols": [
+   "django/db/models/fields/__init__.py#GenericIPAddressField.get_prep_value",
+   "tests/model_fields/test_genericipaddressfield.py#GenericIPAddressFieldTests.test_get_prep_value",
+   "tests/model_fields/test_genericipaddressfield.py#GenericIPAddressFieldTests.test_save_invalid_ipv6",
+   "tests/model_fields/test_genericipaddressfield.py#GenericIPAddressFieldTests.test_save_load_ipaddress",
+   "tests/model_fields/test_genericipaddressfield.py#GenericIPAddressFieldTests.test_save_load_strips_whitespace",
+   "tests/model_fields/test_genericipaddressfield.py#GenericIPAddressFieldTests",
+   "tests/model_fields/test_genericipaddressfield.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "GenericIPAddressField.get_prep_value return changed",
+    "path": [
+     "django/db/models/fields/__init__.py:2369 return",
+     "django/db/models/fields/__init__.py:2364 GenericIPAddressField.get_db_prep_value uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 4,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 10047,
+   "ran": 4720,
+   "replayed": 4,
+   "runner": "django-runtests",
+   "seconds": 164.9,
+   "selection": {
+    "candidates": 10047,
+    "closure_files": 603,
+    "closure_tests": 9657,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/contrib/admin/__init__.py",
+     "django/contrib/auth/models.py",
+     "django/core/management/base.py",
+     "django/db/migrations/__init__.py",
+     "django/db/models/__init__.py",
+     "django/db/models/expressions.py",
+     "django/db/models/functions/__init__.py",
+     "django/test/__init__.py",
+     "django/test/utils.py"
+    ],
+    "observed": 18,
+    "static_only": 16
+   },
+   "unrunnable": 240
+  },
+  "flips": 0,
+  "gaps": [
+   "110852 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "240 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "Skipped 2 non-Python file(s)",
+   "graph reused from the previous state; 9 changed file(s) relinked",
+   "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run stopped at its 300 s budget: 4800 of 10047 candidates run"
+  ],
+  "impacted": {
+   "count": 110,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2930,
+   "parsed_files": 2
+  },
+  "original_tests": {
+   "tests/model_fields/test_genericipaddressfield.py::GenericIPAddressFieldTests::test_blank_string_saved_as_null": "passed",
+   "tests/model_fields/test_genericipaddressfield.py::GenericIPAddressFieldTests::test_genericipaddressfield_formfield_protocol": "passed",
+   "tests/model_fields/test_genericipaddressfield.py::GenericIPAddressFieldTests::test_null_value": "passed",
+   "tests/model_fields/test_genericipaddressfield.py::GenericIPAddressFieldTests::test_save_load": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/model_fields/test_genericipaddressfield.py::GenericIPAddressFieldTests::test_save_load_ipaddress",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/model_fields/test_genericipaddressfield.py::GenericIPAddressFieldTests::test_save_load_strips_whitespace",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/model_fields/test_genericipaddressfield.py::GenericIPAddressFieldTests::test_save_invalid_ipv6",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/model_fields/test_genericipaddressfield.py::GenericIPAddressFieldTests::test_get_prep_value",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "2850b3232893",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [
+    "django/db/models/fields/__init__.py#GenericIPAddressField.get_prep_value"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 5,
+   "differences": 0,
+   "functions_called": 1,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "tests/model_fields/test_genericipaddressfield.py#GenericIPAddressFieldTests.test_get_prep_value": "not a module or class function on both sides (new, removed or nested)",
+    "tests/model_fields/test_genericipaddressfield.py#GenericIPAddressFieldTests.test_save_invalid_ipv6": "not a module or class function on both sides (new, removed or nested)",
+    "tests/model_fields/test_genericipaddressfield.py#GenericIPAddressFieldTests.test_save_load_ipaddress": "not a module or class function on both sides (new, removed or nested)",
+    "tests/model_fields/test_genericipaddressfield.py#GenericIPAddressFieldTests.test_save_load_strips_whitespace": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 93.2,
+   "targets": 1,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 4720 of 10047 candidate tests after the change with django-runtests in 164.9 s, failures confirmed before it: 0 now fail. 72 tests reach the change. 4 test(s) from edited test files also run as they were before the edit. 4 test(s) the change adds or edits replayed on the code before it: 4 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_genericipaddressfield.py::GenericIPAddressFieldTests::test_save_load_ipaddress",
+    "line": 46,
+    "run": "cd tests && python runtests.py model_fields.test_genericipaddressfield.GenericIPAddressFieldTests.test_save_load_ipaddress",
+    "score": 3.716,
+    "why": "via GenericIPAddressFieldTests (name: addres,field,generic,genericipaddressfield,ip)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_genericipaddressfield.py::GenericIPAddressFieldTests::test_get_prep_value",
+    "line": 82,
+    "run": "cd tests && python runtests.py model_fields.test_genericipaddressfield.GenericIPAddressFieldTests.test_get_prep_value",
+    "score": 2.148,
+    "why": "via GenericIPAddressFieldTests (name: addres,field,generic,genericipaddressfield,ip)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_genericipaddressfield.py::GenericIPAddressFieldTests::test_save_load_strips_whitespace",
+    "line": 70,
+    "run": "cd tests && python runtests.py model_fields.test_genericipaddressfield.GenericIPAddressFieldTests.test_save_load_strips_whitespace",
+    "score": 1.503,
+    "why": "via GenericIPAddressFieldTests (name: addres,field,generic,genericipaddressfield,ip)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_genericipaddressfield.py::GenericIPAddressFieldTests::test_save_invalid_ipv6",
+    "line": 78,
+    "run": "cd tests && python runtests.py model_fields.test_genericipaddressfield.GenericIPAddressFieldTests.test_save_invalid_ipv6",
+    "score": 1.179,
+    "why": "via GenericIPAddressFieldTests (name: addres,field,generic,genericipaddressfield,ip)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_genericipaddressfield.py::GenericIPAddressFieldTests::test_save_load",
+    "line": 41,
+    "run": "cd tests && python runtests.py model_fields.test_genericipaddressfield.GenericIPAddressFieldTests.test_save_load",
+    "score": 0.934,
+    "why": "via GenericIPAddressFieldTests (name: addres,field,generic,genericipaddressfield,ip)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_genericipaddressfield.py::GenericIPAddressFieldTests::test_genericipaddressfield_formfield_protocol",
+    "line": 11,
+    "run": "cd tests && python runtests.py model_fields.test_genericipaddressfield.GenericIPAddressFieldTests.test_genericipaddressfield_formfield_protocol",
+    "score": 0.84,
+    "why": "via GenericIPAddressFieldTests (name: addres,field,generic,genericipaddressfield,ip)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_genericipaddressfield.py::GenericIPAddressFieldTests::test_blank_string_saved_as_null",
+    "line": 33,
+    "run": "cd tests && python runtests.py model_fields.test_genericipaddressfield.GenericIPAddressFieldTests.test_blank_string_saved_as_null",
+    "score": 0.793,
+    "why": "via GenericIPAddressFieldTests (name: addres,field,generic,genericipaddressfield,ip)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_genericipaddressfield.py::GenericIPAddressFieldTests::test_null_value",
+    "line": 25,
+    "run": "cd tests && python runtests.py model_fields.test_genericipaddressfield.GenericIPAddressFieldTests.test_null_value",
+    "score": 0.748,
+    "why": "via GenericIPAddressFieldTests (name: addres,field,generic,genericipaddressfield,ip)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_promises.py::PromiseTest::test_FileField",
+    "line": 72,
+    "run": "cd tests && python runtests.py model_fields.test_promises.PromiseTest.test_FileField",
+    "score": 0.61,
+    "why": "via GenericIPAddressField.get_prep_value (name: field)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_promises.py::PromiseTest::test_ImageField",
+    "line": 88,
+    "run": "cd tests && python runtests.py model_fields.test_promises.PromiseTest.test_ImageField",
+    "score": 0.381,
+    "why": "via GenericIPAddressField.get_prep_value (name: field)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestMethods::test_get_prep_value",
+    "line": 125,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestMethods.test_get_prep_value",
+    "score": 0.256,
+    "why": "via JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value (name: get,prep,value)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/expressions/tests.py::ValueTests::test_compile_unresolved",
+    "line": 2503,
+    "run": "cd tests && python runtests.py expressions.tests.ValueTests.test_compile_unresolved",
+    "score": 0.05,
+    "why": "via Value.as_sql > Field.get_db_prep_save > JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value (name: value)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/expressions/tests.py::BasicExpressionsTests::test_subquery_sql",
+    "line": 750,
+    "run": "cd tests && python runtests.py expressions.tests.BasicExpressionsTests.test_subquery_sql",
+    "score": 0.037,
+    "why": "via Value.as_sql > Field.get_db_prep_save > JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/schema/tests.py::SchemaTests::test_add_field_default_transform",
+    "line": 892,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_add_field_default_transform",
+    "score": 0.028,
+    "why": "via DatabaseSchemaEditor.add_field > BaseDatabaseSchemaEditor.effective_default > Field.get_db_prep_save > JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value (name: field)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/schema/tests.py::SchemaTests::test_add_generated_field_contains",
+    "line": 1048,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_add_generated_field_contains",
+    "score": 0.027,
+    "why": "via DatabaseSchemaEditor.add_field > BaseDatabaseSchemaEditor.effective_default > Field.get_db_prep_save > JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value (name: field)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/introspection/tests.py::IntrospectionTests::test_get_relations",
+    "line": 218,
+    "run": "cd tests && python runtests.py introspection.tests.IntrospectionTests.test_get_relations",
+    "score": 0.026,
+    "why": "via DatabaseSchemaEditor.add_field > BaseDatabaseSchemaEditor.effective_default > Field.get_db_prep_save > JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value (name: get)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/queries/test_sqlcompiler.py::SQLCompilerTest::test_execute_sql_suppresses_cursor_closing_failure_on_exception",
+    "line": 23,
+    "run": "cd tests && python runtests.py queries.test_sqlcompiler.SQLCompilerTest.test_execute_sql_suppresses_cursor_closing_failure_on_exception",
+    "score": 0.025,
+    "why": "via SQLCompiler.execute_sql > SQLUpdateCompiler.as_sql > Field.get_db_prep_save > JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/schema/tests.py::SchemaTests::test_add_db_comment_generated_field",
+    "line": 5134,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_add_db_comment_generated_field",
+    "score": 0.024,
+    "why": "via DatabaseSchemaEditor.add_field > BaseDatabaseSchemaEditor.effective_default > Field.get_db_prep_save > JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value (name: field)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/indexes/tests.py::SchemaIndexesTests::test_alter_field_unique_false_removes_deferred_sql",
+    "line": 90,
+    "run": "cd tests && python runtests.py indexes.tests.SchemaIndexesTests.test_alter_field_unique_false_removes_deferred_sql",
+    "score": 0.024,
+    "why": "via DatabaseSchemaEditor.add_field > BaseDatabaseSchemaEditor.effective_default > Field.get_db_prep_save > JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value (name: field)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/schema/tests.py::SchemaTests::test_add_field",
+    "line": 788,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_add_field",
+    "score": 0.024,
+    "why": "via DatabaseSchemaEditor.add_field > BaseDatabaseSchemaEditor.effective_default > Field.get_db_prep_save > JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value (name: field)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/schema/tests.py::SchemaTests::test_add_field_o2o_nullable",
+    "line": 929,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_add_field_o2o_nullable",
+    "score": 0.024,
+    "why": "via DatabaseSchemaEditor.add_field > BaseDatabaseSchemaEditor.effective_default > Field.get_db_prep_save > JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value (name: field)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/schema/tests.py::SchemaTests::test_add_field_temp_default",
+    "line": 838,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_add_field_temp_default",
+    "score": 0.023,
+    "why": "via DatabaseSchemaEditor.add_field > BaseDatabaseSchemaEditor.effective_default > Field.get_db_prep_save > JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value (name: field)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/schema/tests.py::SchemaTests::test_add_field_temp_default_boolean",
+    "line": 866,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_add_field_temp_default_boolean",
+    "score": 0.023,
+    "why": "via DatabaseSchemaEditor.add_field > BaseDatabaseSchemaEditor.effective_default > Field.get_db_prep_save > JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value (name: field)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/schema/tests.py::SchemaTests::test_add_auto_field",
+    "line": 1149,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_add_auto_field",
+    "score": 0.021,
+    "why": "via DatabaseSchemaEditor.add_field > BaseDatabaseSchemaEditor.effective_default > Field.get_db_prep_save > JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value (name: field)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/schema/tests.py::SchemaTests::test_add_field_binary",
+    "line": 941,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_add_field_binary",
+    "score": 0.021,
+    "why": "via DatabaseSchemaEditor.add_field > BaseDatabaseSchemaEditor.effective_default > Field.get_db_prep_save > JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value (name: field)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/schema/tests.py::SchemaTests::test_add_field_both_defaults_preserves_db_default",
+    "line": 2564,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_add_field_both_defaults_preserves_db_default",
+    "score": 0.021,
+    "why": "via DatabaseSchemaEditor.add_field > BaseDatabaseSchemaEditor.effective_default > Field.get_db_prep_save > JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value (name: field)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/schema/tests.py::SchemaTests::test_add_field_db_collation",
+    "line": 5907,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_add_field_db_collation",
+    "score": 0.021,
+    "why": "via DatabaseSchemaEditor.add_field > BaseDatabaseSchemaEditor.effective_default > Field.get_db_prep_save > JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value (name: field)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/schema/tests.py::SchemaTests::test_add_field_default_dropped",
+    "line": 4908,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_add_field_default_dropped",
+    "score": 0.021,
+    "why": "via DatabaseSchemaEditor.add_field > BaseDatabaseSchemaEditor.effective_default > Field.get_db_prep_save > JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value (name: field)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/schema/tests.py::SchemaTests::test_add_field_default_nullable",
+    "line": 4938,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_add_field_default_nullable",
+    "score": 0.021,
+    "why": "via DatabaseSchemaEditor.add_field > BaseDatabaseSchemaEditor.effective_default > Field.get_db_prep_save > JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value (name: field)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/schema/tests.py::SchemaTests::test_add_field_durationfield_with_default",
+    "line": 958,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_add_field_durationfield_with_default",
+    "score": 0.02,
+    "why": "via DatabaseSchemaEditor.add_field > BaseDatabaseSchemaEditor.effective_default > Field.get_db_prep_save > JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value (name: field)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/schema/tests.py::SchemaTests::test_add_field_use_effective_default",
+    "line": 4880,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_add_field_use_effective_default",
+    "score": 0.02,
+    "why": "via DatabaseSchemaEditor.add_field > BaseDatabaseSchemaEditor.effective_default > Field.get_db_prep_save > JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value (name: field)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/indexes/tests.py::SchemaIndexesMySQLTests::test_no_index_for_foreignkey",
+    "line": 332,
+    "run": "cd tests && python runtests.py indexes.tests.SchemaIndexesMySQLTests.test_no_index_for_foreignkey",
+    "score": 0.019,
+    "why": "via DatabaseSchemaEditor.add_field > BaseDatabaseSchemaEditor.effective_default > Field.get_db_prep_save > JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/schema/tests.py::SchemaTests::test_remove_constraints_capital_letters",
+    "line": 4797,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_remove_constraints_capital_letters",
+    "score": 0.019,
+    "why": "via DatabaseSchemaEditor.add_field > BaseDatabaseSchemaEditor.effective_default > Field.get_db_prep_save > JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/tests.py::LastExecutedQueryTest::test_last_executed_query",
+    "line": 102,
+    "run": "cd tests && python runtests.py backends.tests.LastExecutedQueryTest.test_last_executed_query",
+    "score": 0.018,
+    "why": "via SQLCompiler.execute_sql > SQLUpdateCompiler.as_sql > Field.get_db_prep_save > JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/tests.py::LastExecutedQueryTest::test_query_encoding",
+    "line": 92,
+    "run": "cd tests && python runtests.py backends.tests.LastExecutedQueryTest.test_query_encoding",
+    "score": 0.018,
+    "why": "via SQLCompiler.execute_sql > SQLUpdateCompiler.as_sql > Field.get_db_prep_save > JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/queries/test_iterator.py::QuerySetIteratorTests::test_no_chunked_reads",
+    "line": 48,
+    "run": "cd tests && python runtests.py queries.test_iterator.QuerySetIteratorTests.test_no_chunked_reads",
+    "score": 0.017,
+    "why": "via SQLCompiler.execute_sql > SQLUpdateCompiler.as_sql > Field.get_db_prep_save > JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/queries/test_query.py::TestQueryNoModel::test_q_annotation",
+    "line": 182,
+    "run": "cd tests && python runtests.py queries.test_query.TestQueryNoModel.test_q_annotation",
+    "score": 0.017,
+    "why": "via SQLCompiler.execute_sql > SQLUpdateCompiler.as_sql > Field.get_db_prep_save > JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/queries/test_query.py::TestQueryNoModel::test_rawsql_annotation",
+    "line": 165,
+    "run": "cd tests && python runtests.py queries.test_query.TestQueryNoModel.test_rawsql_annotation",
+    "score": 0.017,
+    "why": "via SQLCompiler.execute_sql > SQLUpdateCompiler.as_sql > Field.get_db_prep_save > JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/queries/test_query.py::TestQueryNoModel::test_subquery_annotation",
+    "line": 176,
+    "run": "cd tests && python runtests.py queries.test_query.TestQueryNoModel.test_subquery_annotation",
+    "score": 0.017,
+    "why": "via SQLCompiler.execute_sql > SQLUpdateCompiler.as_sql > Field.get_db_prep_save > JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/schema/tests.py::SchemaTests::test_add_binaryfield_mediumblob",
+    "line": 971,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_add_binaryfield_mediumblob",
+    "score": 0.017,
+    "why": "via DatabaseSchemaEditor.add_field > BaseDatabaseSchemaEditor.effective_default > Field.get_db_prep_save > JSONField.get_db_prep_value > GenericIPAddressField.get_prep_value"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792323534.803852,
+  "job_seconds": 168.9,
+  "number": 21956,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 168.9,
+  "started": 1792323364.9665148
+ },
+ "verify": null
+}

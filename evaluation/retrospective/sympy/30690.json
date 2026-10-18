@@ -1,0 +1,273 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "319ea7a6186edf88bc23d502917242b10314ae51",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "b2610faf12711698f1438087ec106b16b411c245",
+  "install_ok": true,
+  "merge_base": "319ea7a6186edf88bc23d502917242b10314ae51",
+  "pr": 30690,
+  "recording": false,
+  "runner": null,
+  "seconds": 237.0,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "319ea7a6186edf88bc23d502917242b10314ae51",
+  "head_sha": "b2610faf12711698f1438087ec106b16b411c245",
+  "merge_base": "319ea7a6186edf88bc23d502917242b10314ae51",
+  "merged_at": "2026-10-07T21:48:45Z",
+  "number": 30690,
+  "repo": "sympy",
+  "title": "tensor: fix typo and un-skip doctest in get_indices"
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 1,
+  "called": 1,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "changed_functions": [
+   {
+    "file": "sympy/tensor/index_methods.py",
+    "lines": "233-238",
+    "symbol": "get_indices"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/tensor/index_methods.py#get_indices"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 0,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 3144,
+   "ran": 3144,
+   "replayed": 0,
+   "runner": "pytest",
+   "seconds": 230.3,
+   "selection": {
+    "candidates": 12921,
+    "closure_files": 1319,
+    "closure_tests": 12921,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 0
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "64670 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "9777 lower-ranked candidate(s) not run: about 13 tests/s per process fit 3144 in the 300 s allowed",
+   "Skipped 1 non-Python file(s)",
+   "graph reused from the previous state; 2 changed file(s) relinked"
+  ],
+  "impacted": {
+   "count": 11,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1607,
+   "parsed_files": 1
+  },
+  "predicted_failures": [],
+  "report_hash": "cc1370ade0b0",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [
+    "sympy/tensor/index_methods.py#get_indices"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 5,
+   "differences": 0,
+   "functions_called": 1,
+   "input_built_before_the_change": 0,
+   "not_compared": {},
+   "seconds": 37.2,
+   "targets": 1,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 3144 of 3144 candidate tests after the change with pytest in 230.3 s, failures confirmed before it: 0 now fail. 15 tests reach the change.",
+  "tests": [
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/tensor/tests/test_index_methods.py::test_get_indices_exceptions",
+    "line": 42,
+    "run": "python -m pytest sympy/tensor/tests/test_index_methods.py::test_get_indices_exceptions",
+    "score": 3.463,
+    "why": "calls get_indices (name: get,index,indice,method)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/tensor/tests/test_index_methods.py::test_get_indices_Idx",
+    "line": 26,
+    "run": "python -m pytest sympy/tensor/tests/test_index_methods.py::test_get_indices_Idx",
+    "score": 2.005,
+    "why": "calls get_indices (name: get,index,indice,method)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/tensor/tests/test_index_methods.py::test_get_indices_Indexed",
+    "line": 19,
+    "run": "python -m pytest sympy/tensor/tests/test_index_methods.py::test_get_indices_Indexed",
+    "score": 1.448,
+    "why": "calls get_indices (name: get,index,indice,method)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/tensor/tests/test_index_methods.py::test_get_indices_Pow",
+    "line": 70,
+    "run": "python -m pytest sympy/tensor/tests/test_index_methods.py::test_get_indices_Pow",
+    "score": 1.149,
+    "why": "calls get_indices (name: get,index,indice,method)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/tensor/tests/test_index_methods.py::test_get_indices_add",
+    "line": 57,
+    "run": "python -m pytest sympy/tensor/tests/test_index_methods.py::test_get_indices_add",
+    "score": 0.988,
+    "why": "calls get_indices (name: get,index,indice,method)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/tensor/tests/test_index_methods.py::test_get_indices_mul",
+    "line": 34,
+    "run": "python -m pytest sympy/tensor/tests/test_index_methods.py::test_get_indices_mul",
+    "score": 0.902,
+    "why": "calls get_indices (name: get,index,indice,method)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/tensor/tests/test_index_methods.py::test_trivial_indices",
+    "line": 11,
+    "run": "python -m pytest sympy/tensor/tests/test_index_methods.py::test_trivial_indices",
+    "score": 0.727,
+    "why": "calls get_indices (name: index,indice,method)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/tensor/tests/test_index_methods.py::test_scalar_broadcast",
+    "line": 49,
+    "run": "python -m pytest sympy/tensor/tests/test_index_methods.py::test_scalar_broadcast",
+    "score": 0.566,
+    "why": "calls get_indices (name: index,method)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/tensor/tests/test_index_methods.py::test_ufunc_support",
+    "line": 207,
+    "run": "python -m pytest sympy/tensor/tests/test_index_methods.py::test_ufunc_support",
+    "score": 0.559,
+    "why": "calls get_indices (name: index,method)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/tensor/tests/test_index_methods.py::test_get_contraction_structure_basic",
+    "line": 84,
+    "run": "python -m pytest sympy/tensor/tests/test_index_methods.py::test_get_contraction_structure_basic",
+    "score": 0.165,
+    "why": "via get_contraction_structure > _get_indices_Mul > get_indices (name: get,index,method)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/tensor/tests/test_index_methods.py::test_get_contraction_structure_complex",
+    "line": 96,
+    "run": "python -m pytest sympy/tensor/tests/test_index_methods.py::test_get_contraction_structure_complex",
+    "score": 0.165,
+    "why": "via get_contraction_structure > _get_indices_Mul > get_indices (name: get,index,method)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/tensor/tests/test_index_methods.py::test_contraction_structure_Add_in_Pow",
+    "line": 159,
+    "run": "python -m pytest sympy/tensor/tests/test_index_methods.py::test_contraction_structure_Add_in_Pow",
+    "score": 0.134,
+    "why": "via get_contraction_structure > _get_indices_Mul > get_indices (name: index,method)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/tensor/tests/test_index_methods.py::test_contraction_structure_Mul_and_Pow",
+    "line": 131,
+    "run": "python -m pytest sympy/tensor/tests/test_index_methods.py::test_contraction_structure_Mul_and_Pow",
+    "score": 0.134,
+    "why": "via get_contraction_structure > _get_indices_Mul > get_indices (name: index,method)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/tensor/tests/test_index_methods.py::test_contraction_structure_Pow_in_Pow",
+    "line": 185,
+    "run": "python -m pytest sympy/tensor/tests/test_index_methods.py::test_contraction_structure_Pow_in_Pow",
+    "score": 0.134,
+    "why": "via get_contraction_structure > _get_indices_Mul > get_indices (name: index,method)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/tensor/tests/test_index_methods.py::test_contraction_structure_simple_Pow",
+    "line": 109,
+    "run": "python -m pytest sympy/tensor/tests/test_index_methods.py::test_contraction_structure_simple_Pow",
+    "score": 0.133,
+    "why": "via get_contraction_structure > _get_indices_Mul > get_indices (name: index,method)"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792339465.108984,
+  "job_seconds": 237.0,
+  "number": 30690,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 237.2,
+  "started": 1792339227.211796
+ },
+ "verify": null
+}

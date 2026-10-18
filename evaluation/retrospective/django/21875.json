@@ -1,0 +1,665 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "026b005f3dc43a98557ce5a546b5e4938d06fed1",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "e715dcb350d68345e5fb8cd9b9f3498efe444052",
+  "install_ok": true,
+  "merge_base": "026b005f3dc43a98557ce5a546b5e4938d06fed1",
+  "pr": 21875,
+  "recording": true,
+  "runner": null,
+  "seconds": 49.6,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "026b005f3dc43a98557ce5a546b5e4938d06fed1",
+  "head_sha": "e715dcb350d68345e5fb8cd9b9f3498efe444052",
+  "merge_base": "026b005f3dc43a98557ce5a546b5e4938d06fed1",
+  "merged_at": "2026-09-04T19:43:51Z",
+  "number": 21875,
+  "repo": "django",
+  "title": "Fixed #36523 -- Added django.utils.module_loading.qualname helper."
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 6,
+  "called": 6,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/utils_tests/test_module_loading.py::QualnameTests::test_classes_and_functions",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/utils_tests/test_module_loading.py::QualnameTests::test_invalid_values",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "django/core/mail/backends/base.py",
+    "lines": "61",
+    "symbol": "BaseEmailBackend.__init__"
+   },
+   {
+    "file": "django/db/migrations/serializer.py",
+    "lines": "206-214",
+    "symbol": "FunctionTypeSerializer.serialize"
+   },
+   {
+    "file": "django/db/migrations/serializer.py",
+    "lines": "347",
+    "symbol": "TypeSerializer.serialize"
+   },
+   {
+    "file": "django/tasks/backends/immediate.py",
+    "lines": "63",
+    "symbol": "ImmediateBackend._execute_task"
+   },
+   {
+    "file": "django/tasks/base.py",
+    "lines": "148",
+    "symbol": "Task.module_path"
+   },
+   {
+    "file": "django/urls/resolvers.py",
+    "lines": "499-501",
+    "symbol": "URLPattern.lookup_str"
+   },
+   {
+    "file": "django/utils/module_loading.py",
+    "lines": "124-140",
+    "symbol": "qualname"
+   },
+   {
+    "file": "tests/utils_tests/test_module_loading.py",
+    "lines": "264-266",
+    "symbol": "TopLevelClass.NestedClass.clsmethod"
+   },
+   {
+    "file": "tests/utils_tests/test_module_loading.py",
+    "lines": "268-269",
+    "symbol": "TopLevelClass.NestedClass.method"
+   },
+   {
+    "file": "tests/utils_tests/test_module_loading.py",
+    "lines": "276-277",
+    "symbol": "top_level_func"
+   },
+   {
+    "file": "tests/utils_tests/test_module_loading.py",
+    "lines": "281-306",
+    "symbol": "QualnameTests.test_classes_and_functions"
+   },
+   {
+    "file": "tests/utils_tests/test_module_loading.py",
+    "lines": "308-322",
+    "symbol": "QualnameTests.test_invalid_values"
+   },
+   {
+    "file": "tests/utils_tests/test_module_loading.py",
+    "lines": "309-310",
+    "symbol": "QualnameTests.test_invalid_values.local_func"
+   }
+  ],
+  "changed_symbols": [
+   "django/core/mail/backends/base.py#BaseEmailBackend.__init__",
+   "django/db/migrations/serializer.py#FunctionTypeSerializer.serialize",
+   "django/db/migrations/serializer.py#TypeSerializer.serialize",
+   "django/tasks/backends/immediate.py#ImmediateBackend._execute_task",
+   "django/tasks/base.py#Task.module_path",
+   "django/urls/resolvers.py#URLPattern.lookup_str",
+   "django/utils/module_loading.py#qualname",
+   "tests/utils_tests/test_module_loading.py#QualnameTests.test_classes_and_functions",
+   "tests/utils_tests/test_module_loading.py#QualnameTests.test_invalid_values",
+   "tests/utils_tests/test_module_loading.py#QualnameTests.test_invalid_values.local_func",
+   "tests/utils_tests/test_module_loading.py#TopLevelClass.NestedClass.clsmethod",
+   "tests/utils_tests/test_module_loading.py#TopLevelClass.NestedClass.method",
+   "tests/utils_tests/test_module_loading.py#top_level_func",
+   "tests/utils_tests/test_module_loading.py#CustomException",
+   "tests/utils_tests/test_module_loading.py#QualnameTests",
+   "tests/utils_tests/test_module_loading.py#TopLevelClass",
+   "tests/utils_tests/test_module_loading.py#TopLevelClass.NestedClass",
+   "django/core/mail/backends/base.py",
+   "django/db/migrations/serializer.py",
+   "django/tasks/backends/immediate.py",
+   "django/tasks/base.py",
+   "django/urls/resolvers.py",
+   "django/utils/module_loading.py",
+   "tests/utils_tests/test_module_loading.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "qualname raises ValueError",
+    "path": [
+     "django/utils/module_loading.py:133 raise ValueError",
+     "django/db/migrations/serializer.py:208 FunctionTypeSerializer.serialize catches ValueError, raises ValueError"
+    ],
+    "to": "2 handlers catch ValueError; first is FunctionTypeSerializer.serialize"
+   },
+   {
+    "evidence": "static source path",
+    "from": "TypeSerializer.serialize return changed",
+    "path": [
+     "django/db/migrations/serializer.py:347 return",
+     "django/db/migrations/serializer.py:54 BaseSequenceSerializer.serialize uses the result",
+     "django/db/migrations/serializer.py:73 ChoicesSerializer.serialize uses the result",
+     "django/db/migrations/serializer.py:110 DeconstructibleSerializer.serialize_deconstructed uses the result"
+    ],
+    "to": "9 caller(s) use the result"
+   },
+   {
+    "evidence": "static source path",
+    "from": "qualname return changed",
+    "path": [
+     "django/utils/module_loading.py:130 return",
+     "django/core/mail/backends/base.py:61 BaseEmailBackend.__init__ uses the result",
+     "django/db/migrations/serializer.py:207 FunctionTypeSerializer.serialize uses the result",
+     "django/db/migrations/serializer.py:347 TypeSerializer.serialize uses the result"
+    ],
+    "to": "6 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 2,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 12768,
+   "ran": 1238,
+   "replayed": 2,
+   "runner": "django-runtests",
+   "seconds": 45.7,
+   "selection": {
+    "candidates": 16576,
+    "closure_files": 1147,
+    "closure_tests": 14343,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/apps/__init__.py",
+     "django/conf/__init__.py",
+     "django/contrib/admin/__init__.py",
+     "django/contrib/auth/models.py",
+     "django/core/checks/__init__.py",
+     "django/core/management/__init__.py",
+     "django/core/management/base.py",
+     "django/db/__init__.py",
+     "django/db/migrations/__init__.py",
+     "django/db/models/__init__.py",
+     "django/db/models/expressions.py",
+     "django/db/models/functions/__init__.py",
+     "django/db/transaction.py",
+     "django/forms/__init__.py",
+     "django/http/__init__.py",
+     "django/template/__init__.py",
+     "django/template/defaultfilters.py",
+     "django/test/__init__.py",
+     "django/test/utils.py",
+     "django/urls/__init__.py"
+    ],
+    "observed": 1,
+    "static_only": 1308
+   },
+   "unrunnable": 42
+  },
+  "flips": 0,
+  "gaps": [
+   "100515 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "3808 lower-ranked candidate(s) not run: about 13 tests/s per process fit 12768 in the 300 s allowed",
+   "42 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "graph reused from the previous state; 11 changed file(s) relinked",
+   "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run stopped at its 300 s budget: 1120 of 12768 candidates run"
+  ],
+  "impacted": {
+   "count": 242,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2928,
+   "parsed_files": 7
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/utils_tests/test_module_loading.py::QualnameTests::test_classes_and_functions",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/utils_tests/test_module_loading.py::QualnameTests::test_invalid_values",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "81d592a40e73",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [
+    "django/core/mail/backends/base.py#BaseEmailBackend.__init__",
+    "django/db/migrations/serializer.py#FunctionTypeSerializer.serialize",
+    "django/db/migrations/serializer.py#TypeSerializer.serialize",
+    "django/tasks/backends/immediate.py#ImmediateBackend._execute_task",
+    "django/tasks/base.py#Task.module_path",
+    "django/urls/resolvers.py#URLPattern.lookup_str"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 30,
+   "differences": 0,
+   "functions_called": 6,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "django/utils/module_loading.py#qualname": "not a module or class function on both sides (new, removed or nested)",
+    "tests/utils_tests/test_module_loading.py#QualnameTests.test_classes_and_functions": "not a module or class function on both sides (new, removed or nested)",
+    "tests/utils_tests/test_module_loading.py#QualnameTests.test_invalid_values": "not a module or class function on both sides (new, removed or nested)",
+    "tests/utils_tests/test_module_loading.py#QualnameTests.test_invalid_values.local_func": "not a module or class function on both sides (new, removed or nested)",
+    "tests/utils_tests/test_module_loading.py#TopLevelClass.NestedClass.clsmethod": "not a module or class function on both sides (new, removed or nested)",
+    "tests/utils_tests/test_module_loading.py#TopLevelClass.NestedClass.method": "not a module or class function on both sides (new, removed or nested)",
+    "tests/utils_tests/test_module_loading.py#top_level_func": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 16.2,
+   "targets": 6,
+   "unstable": 5
+  },
+  "summary": "EXECUTED 1238 of 12768 candidate tests after the change with django-runtests in 45.7 s, failures confirmed before it: 0 now fail. 6958 tests reach the change. 2 test(s) the change adds or edits replayed on the code before it: 2 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_module_loading.py::QualnameTests::test_classes_and_functions",
+    "line": 281,
+    "run": "cd tests && python runtests.py utils_tests.test_module_loading.QualnameTests.test_classes_and_functions",
+    "score": 19.171,
+    "why": "calls qualname (name: loading,module,qualname)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_module_loading.py::QualnameTests::test_invalid_values",
+    "line": 308,
+    "run": "cd tests && python runtests.py utils_tests.test_module_loading.QualnameTests.test_invalid_values",
+    "score": 8.669,
+    "why": "calls qualname (name: loading,module,qualname)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::BaseEmailBackendTests::test_unknown_kwargs_ignored",
+    "line": 56,
+    "run": "cd tests && python runtests.py mail.test_backends.BaseEmailBackendTests.test_unknown_kwargs_ignored",
+    "score": 3.731,
+    "why": "calls BaseEmailBackend.__init__ (name: backend,base,email)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_writer.py::WriterTests::test_serialize_class_based_validators",
+    "line": 739,
+    "run": "cd tests && python runtests.py migrations.test_writer.WriterTests.test_serialize_class_based_validators",
+    "score": 2.399,
+    "why": "via MigrationWriter.serialize > TypeSerializer.serialize (name: serialize)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::BaseEmailBackendTests::test_fail_silently_arg_accepted",
+    "line": 40,
+    "run": "cd tests && python runtests.py mail.test_backends.BaseEmailBackendTests.test_fail_silently_arg_accepted",
+    "score": 2.285,
+    "why": "calls BaseEmailBackend.__init__ (name: backend,base,email)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::BaseEmailBackendTests::test_unknown_kwargs_error",
+    "line": 50,
+    "run": "cd tests && python runtests.py mail.test_backends.BaseEmailBackendTests.test_unknown_kwargs_error",
+    "score": 1.607,
+    "why": "calls BaseEmailBackend.__init__ (name: backend,base,email)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_writer.py::WriterTests::test_serialize_type_model",
+    "line": 967,
+    "run": "cd tests && python runtests.py migrations.test_writer.WriterTests.test_serialize_type_model",
+    "score": 1.455,
+    "why": "via MigrationWriter.serialize > TypeSerializer.serialize (name: serialize,type)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::BaseEmailBackendTests::test_alias_arg_accepted",
+    "line": 35,
+    "run": "cd tests && python runtests.py mail.test_backends.BaseEmailBackendTests.test_alias_arg_accepted",
+    "score": 1.309,
+    "why": "calls BaseEmailBackend.__init__ (name: backend,base,email)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/tasks/test_tasks.py::TaskTestCase::test_module_path",
+    "line": 259,
+    "run": "cd tests && python runtests.py tasks.test_tasks.TaskTestCase.test_module_path",
+    "score": 1.204,
+    "why": "via Task.module_path (name: module,path,task)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/postgres_tests/test_apps.py::PostgresConfigTests::test_register_serializer_for_migrations",
+    "line": 54,
+    "run": "cd tests && python runtests.py postgres_tests.test_apps.PostgresConfigTests.test_register_serializer_for_migrations",
+    "score": 1.039,
+    "why": "via MigrationWriter.serialize > TypeSerializer.serialize (name: serializer)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::FileBackendTests::test_error_if_email_file_path_setting_not_defined",
+    "line": 389,
+    "run": "cd tests && python runtests.py mail.test_backends.FileBackendTests.test_error_if_email_file_path_setting_not_defined",
+    "score": 0.995,
+    "why": "calls BaseEmailBackend.__init__ (name: backend,email)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::FileBackendTests::test_email_file_path_override_settings",
+    "line": 379,
+    "run": "cd tests && python runtests.py mail.test_backends.FileBackendTests.test_email_file_path_override_settings",
+    "score": 0.917,
+    "why": "calls BaseEmailBackend.__init__ (name: backend,email)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::FileBackendTests::test_email_file_path_use_settings",
+    "line": 372,
+    "run": "cd tests && python runtests.py mail.test_backends.FileBackendTests.test_email_file_path_use_settings",
+    "score": 0.878,
+    "why": "calls BaseEmailBackend.__init__ (name: backend,email)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/tasks/test_immediate_backend.py::ImmediateBackendTestCase::test_successful_task_no_none_in_logs",
+    "line": 231,
+    "run": "cd tests && python runtests.py tasks.test_immediate_backend.ImmediateBackendTestCase.test_successful_task_no_none_in_logs",
+    "score": 0.858,
+    "why": "via ImmediateBackend.enqueue > ImmediateBackend._execute_task (name: backend,immediate,task)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::SMTPBackendTests::test_email_authentication_override_settings",
+    "line": 772,
+    "run": "cd tests && python runtests.py mail.test_backends.SMTPBackendTests.test_email_authentication_override_settings",
+    "score": 0.839,
+    "why": "calls BaseEmailBackend.__init__ (name: backend,email)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::SMTPBackendTests::test_email_authentication_use_settings",
+    "line": 762,
+    "run": "cd tests && python runtests.py mail.test_backends.SMTPBackendTests.test_email_authentication_use_settings",
+    "score": 0.821,
+    "why": "calls BaseEmailBackend.__init__ (name: backend,email)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_writer.py::WriterTests::test_serialize_functions",
+    "line": 648,
+    "run": "cd tests && python runtests.py migrations.test_writer.WriterTests.test_serialize_functions",
+    "score": 0.816,
+    "why": "via MigrationWriter.serialize > TypeSerializer.serialize (name: serialize)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::SMTPBackendTests::test_email_disabled_authentication",
+    "line": 782,
+    "run": "cd tests && python runtests.py mail.test_backends.SMTPBackendTests.test_email_disabled_authentication",
+    "score": 0.806,
+    "why": "calls BaseEmailBackend.__init__ (name: backend,email)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::SMTPBackendTests::test_email_host_override_settings",
+    "line": 738,
+    "run": "cd tests && python runtests.py mail.test_backends.SMTPBackendTests.test_email_host_override_settings",
+    "score": 0.797,
+    "why": "calls BaseEmailBackend.__init__ (name: backend,email)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::SMTPBackendTests::test_email_host_use_settings",
+    "line": 728,
+    "run": "cd tests && python runtests.py mail.test_backends.SMTPBackendTests.test_email_host_use_settings",
+    "score": 0.79,
+    "why": "calls BaseEmailBackend.__init__ (name: backend,email)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::SMTPBackendTests::test_email_ssl_certfile_override_settings",
+    "line": 905,
+    "run": "cd tests && python runtests.py mail.test_backends.SMTPBackendTests.test_email_ssl_certfile_override_settings",
+    "score": 0.785,
+    "why": "calls BaseEmailBackend.__init__ (name: backend,email)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::SMTPBackendTests::test_email_ssl_certfile_use_settings",
+    "line": 899,
+    "run": "cd tests && python runtests.py mail.test_backends.SMTPBackendTests.test_email_ssl_certfile_use_settings",
+    "score": 0.781,
+    "why": "calls BaseEmailBackend.__init__ (name: backend,email)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::SMTPBackendTests::test_email_ssl_keyfile_override_settings",
+    "line": 921,
+    "run": "cd tests && python runtests.py mail.test_backends.SMTPBackendTests.test_email_ssl_keyfile_override_settings",
+    "score": 0.778,
+    "why": "calls BaseEmailBackend.__init__ (name: backend,email)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::SMTPBackendTests::test_email_ssl_keyfile_use_settings",
+    "line": 915,
+    "run": "cd tests && python runtests.py mail.test_backends.SMTPBackendTests.test_email_ssl_keyfile_use_settings",
+    "score": 0.775,
+    "why": "calls BaseEmailBackend.__init__ (name: backend,email)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::SMTPBackendTests::test_email_ssl_override_settings",
+    "line": 889,
+    "run": "cd tests && python runtests.py mail.test_backends.SMTPBackendTests.test_email_ssl_override_settings",
+    "score": 0.773,
+    "why": "calls BaseEmailBackend.__init__ (name: backend,email)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::SMTPBackendTests::test_email_ssl_use_settings",
+    "line": 883,
+    "run": "cd tests && python runtests.py mail.test_backends.SMTPBackendTests.test_email_ssl_use_settings",
+    "score": 0.771,
+    "why": "calls BaseEmailBackend.__init__ (name: backend,email)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::SMTPBackendTests::test_email_timeout_override_settings",
+    "line": 984,
+    "run": "cd tests && python runtests.py mail.test_backends.SMTPBackendTests.test_email_timeout_override_settings",
+    "score": 0.769,
+    "why": "calls BaseEmailBackend.__init__ (name: backend,email)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::SMTPBackendTests::test_email_timeout_use_settings",
+    "line": 978,
+    "run": "cd tests && python runtests.py mail.test_backends.SMTPBackendTests.test_email_timeout_use_settings",
+    "score": 0.768,
+    "why": "calls BaseEmailBackend.__init__ (name: backend,email)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::SMTPBackendTests::test_email_tls_override_settings",
+    "line": 853,
+    "run": "cd tests && python runtests.py mail.test_backends.SMTPBackendTests.test_email_tls_override_settings",
+    "score": 0.767,
+    "why": "calls BaseEmailBackend.__init__ (name: backend,email)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::SMTPBackendTests::test_email_tls_use_settings",
+    "line": 847,
+    "run": "cd tests && python runtests.py mail.test_backends.SMTPBackendTests.test_email_tls_use_settings",
+    "score": 0.765,
+    "why": "calls BaseEmailBackend.__init__ (name: backend,email)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_writer.py::WriterTests::test_serialize_complex_func_index",
+    "line": 811,
+    "run": "cd tests && python runtests.py migrations.test_writer.WriterTests.test_serialize_complex_func_index",
+    "score": 0.699,
+    "why": "via MigrationWriter.serialize > TypeSerializer.serialize (name: serialize)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::SMTPBackendTests::test_direct_construction_deprecated",
+    "line": 690,
+    "run": "cd tests && python runtests.py mail.test_backends.SMTPBackendTests.test_direct_construction_deprecated",
+    "score": 0.648,
+    "why": "calls BaseEmailBackend.__init__ (name: backend)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_writer.py::WriterTests::test_database_on_delete_serializer_value",
+    "line": 974,
+    "run": "cd tests && python runtests.py migrations.test_writer.WriterTests.test_database_on_delete_serializer_value",
+    "score": 0.613,
+    "why": "via MigrationWriter.serialize > TypeSerializer.serialize (name: serializer)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::SMTPBackendTests::test_ssl_tls_settings_mutually_exclusive",
+    "line": 871,
+    "run": "cd tests && python runtests.py mail.test_backends.SMTPBackendTests.test_ssl_tls_settings_mutually_exclusive",
+    "score": 0.601,
+    "why": "calls BaseEmailBackend.__init__ (name: backend)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::FileBackendTests::test_file_path_option_required",
+    "line": 394,
+    "run": "cd tests && python runtests.py mail.test_backends.FileBackendTests.test_file_path_option_required",
+    "score": 0.598,
+    "why": "calls BaseEmailBackend.__init__ (name: backend)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::SMTPBackendTests::test_ignores_settings_when_initialized_with_alias",
+    "line": 667,
+    "run": "cd tests && python runtests.py mail.test_backends.SMTPBackendTests.test_ignores_settings_when_initialized_with_alias",
+    "score": 0.595,
+    "why": "calls BaseEmailBackend.__init__ (name: backend)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::LocmemBackendTests::test_adds_sent_using_attribute",
+    "line": 311,
+    "run": "cd tests && python runtests.py mail.test_backends.LocmemBackendTests.test_adds_sent_using_attribute",
+    "score": 0.591,
+    "why": "calls BaseEmailBackend.__init__ (name: backend)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::SMTPBackendTests::test_host_option_required",
+    "line": 702,
+    "run": "cd tests && python runtests.py mail.test_backends.SMTPBackendTests.test_host_option_required",
+    "score": 0.586,
+    "why": "calls BaseEmailBackend.__init__ (name: backend)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::SMTPBackendTests::test_connection_timeout_custom",
+    "line": 961,
+    "run": "cd tests && python runtests.py mail.test_backends.SMTPBackendTests.test_connection_timeout_custom",
+    "score": 0.578,
+    "why": "calls BaseEmailBackend.__init__ (name: backend)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/test_backends.py::SMTPBackendTests::test_port_default_adapts_to_security",
+    "line": 707,
+    "run": "cd tests && python runtests.py mail.test_backends.SMTPBackendTests.test_port_default_adapts_to_security",
+    "score": 0.576,
+    "why": "calls BaseEmailBackend.__init__ (name: backend)"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792322765.780221,
+  "job_seconds": 49.6,
+  "number": 21875,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 49.7,
+  "started": 1792322715.093835
+ },
+ "verify": null
+}

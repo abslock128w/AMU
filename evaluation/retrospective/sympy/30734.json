@@ -1,0 +1,569 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "6cd6805754ae248c0aabaa64c1b6827ab7e54faf",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "0c33bb03d648147a4db9bb2e4833bf1e0d22258a",
+  "install_ok": true,
+  "merge_base": "6cd6805754ae248c0aabaa64c1b6827ab7e54faf",
+  "pr": 30734,
+  "recording": false,
+  "runner": null,
+  "seconds": 324.0,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "6cd6805754ae248c0aabaa64c1b6827ab7e54faf",
+  "head_sha": "0c33bb03d648147a4db9bb2e4833bf1e0d22258a",
+  "merge_base": "6cd6805754ae248c0aabaa64c1b6827ab7e54faf",
+  "merged_at": "2026-10-12T08:24:59Z",
+  "number": 30734,
+  "repo": "sympy",
+  "title": "geometry: fix typos and docstring inaccuracies in Polygon"
+ },
+ "probe_minutes": {
+  "end": 1792345649.718266,
+  "minutes": 0.3,
+  "start": 1792345573.901813,
+  "waited": 60.119008250010666
+ },
+ "probe_targets": {
+  "all": 2,
+  "called": 0,
+  "targets": [
+   {
+    "after": "def _do_poly_distance(self, e2):\n    \"\"\"\n    Calculates the least distance between the exteriors of two\n    convex polygons e1 and e2. Does not check for the convexity\n    of the polygons as this is checked by Polygon.distance.\n\n    Notes\n    =====\n\n        - Prints a warning if the two polygons possibly intersect as the return\n          value will not be valid in such a case. For a more thorough test of\n          intersection use intersection().\n\n    See Also\n    ========\n\n    sympy.geometry.point.Point.distance\n\n    Examples\n    ========\n\n    >>> from sympy import Point, Polygon\n    >>> square = Polygon(Point(0, 0), Point(0, 1), Point(1, 1), Point(1, 0))\n    >>> triangle = Polygon(Point(1, 2), Point(2, 2), Point(2, 1))\n    >>> square._do_poly_distance(triangle)\n    sqrt(2)/2\n\n    Description of method used\n    ==========================\n\n    Method:\n    [1] https://web.archive.org/web/20150509035744/http://cgm.cs.mcgill.ca/~orm/mind2p.html\n    Uses rotating calipers:\n    [2] https://en.wikipedia.org/wiki/Rotating_calipers\n    and antipodal points:\n    [3] https://en.wikipedia.org/wiki/Antipodal_point\n    \"\"\"\n    e1 = self\n\n    '''Tests for a possible intersection between the polygons and outputs a warning'''\n    e1_center = e1.centroid\n    e2_center = e2.centroid\n    e1_max_radius = S.Zero\n    e2_max_radius = S.Zero\n    for vertex in e1.vertices:\n        r = Point.distance(e1_center, vertex)\n        if e1_max_radius < r:\n            e1_max_radius = r\n    for vertex in e2.vertices:\n        r = Point.distance(e2_center, vertex)\n        if e2_max_radius < r:\n            e2_max_radius = r\n    center_dist = Point.distance(e1_center, e2_center)\n    if center_dist <= e1_max_radius + e2_max_radius:\n        warnings.warn(\"Polygons may intersect producing erroneous output\",\n                      stacklevel=3)\n\n    '''\n    Find the upper rightmost vertex of e1 and the lowest leftmost vertex of e2\n    '''\n    e1_ymax = Point(0, -oo)\n    e2_ymin = Point(0, oo)\n\n    for vertex in e1.vertices:\n        if vertex.y > e1_ymax.y or (vertex.y == e1_ymax.y and vertex.x > e1_ymax.x):\n            e1_ymax = vertex\n    for vertex in e2.vertices:\n        if vertex.y < e2_ymin.y or (vertex.y == e2_ymin.y and vertex.x < e2_ymin.x):\n            e2_ymin = vertex\n    min_dist = Point.distance(e1_ymax, e2_ymin)\n\n    '''\n    Produce a dictionary with vertices of e1 as the keys and, for each vertex, the points\n    to which the vertex is connected as its value. The same is then done for e2.\n    '''\n    e1_connections = {}\n    e2_connections = {}\n\n    for side in e1.sides:\n        if side.p1 in e1_connections:\n            e1_connections[side.p1].append(side.p2)\n        else:\n            e1_connections[side.p1] = [side.p2]\n\n        if side.p2 in e1_connections:\n            e1_connections[side.p2].append(side.p1)\n        else:\n            e1_connections[side.p2] = [side.p1]\n\n    for side in e2.sides:\n        if side.p1 in e2_connections:\n            e2_connections[side.p1].append(side.p2)\n        else:\n            e2_connections[side.p1] = [side.p2]\n\n        if side.p2 in e2_connections:\n            e2_connections[side.p2].append(side.p1)\n        else:\n            e2_connections[side.p2] = [side.p1]\n\n    e1_current = e1_ymax\n    e2_current = e2_ymin\n    support_line = Line(Point(S.Zero, S.Zero), Point(S.One, S.Zero))\n\n    '''\n    Determine which point in e1 and e2 will be selected after e2_ymin and e1_ymax,\n    this information combined with the above produced dictionaries determines the\n    path that will be taken around the polygons\n    '''\n    point1 = e1_connections[e1_ymax][0]\n    point2 = e1_connections[e1_ymax][1]\n    angle1 = support_line.angle_between(Line(e1_ymax, point1))\n    angle2 = support_line.angle_between(Line(e1_ymax, point2))\n    if angle1 < angle2:\n        e1_next = point1\n    elif angle2 < angle1:\n        e1_next = point2\n    elif Point.distance(e1_ymax, point1) > Point.distance(e1_ymax, point2):\n        e1_next = point2\n    else:\n        e1_next = point1\n\n    point1 = e2_connections[e2_ymin][0]\n    point2 = e2_connections[e2_ymin][1]\n    angle1 = support_line.angle_between(Line(e2_ymin, point1))\n    angle2 = support_line.angle_between(Line(e2_ymin, point2))\n    if angle1 > angle2:\n        e2_next = point1\n    elif angle2 > angle1:\n        e2_next = point2\n    elif Point.distance(e2_ymin, point1) > Point.distance(e2_ymin, point2):\n        e2_next = point2\n    else:\n        e2_next = point1\n\n    '''\n    Loop which determines the distance between anti-podal pairs and updates the\n    minimum distance accordingly. It repeats until it reaches the starting position.\n    '''\n    while True:\n        e1_angle = support_line.angle_between(Line(e1_current, e1_next))\n        e2_angle = pi - support_line.angle_between(Line(\n            e2_current, e2_next))\n\n        if (e1_angle < e2_angle) is True:\n            support_line = Line(e1_current, e1_next)\n            e1_segment = Segment(e1_current, e1_next)\n            min_dist_current = e1_segment.distance(e2_current)\n\n            if min_dist_current.evalf() < min_dist.evalf():\n                min_dist = min_dist_current\n\n            if e1_connections[e1_next][0] != e1_current:\n                e1_current = e1_next\n                e1_next = e1_connections[e1_next][0]\n            else:\n                e1_current = e1_next\n                e1_next = e1_connections[e1_next][1]\n        elif (e1_angle > e2_angle) is True:\n            support_line = Line(e2_next, e2_current)\n            e2_segment = Segment(e2_current, e2_next)\n            min_dist_current = e2_segment.distance(e1_current)\n\n            if min_dist_current.evalf() < min_dist.evalf():\n                min_dist = min_dist_current\n\n            if e2_connections[e2_next][0] != e2_current:\n                e2_current = e2_next\n                e2_next = e2_connections[e2_next][0]\n            else:\n                e2_current = e2_next\n                e2_next = e2_connections[e2_next][1]\n        else:\n            support_line = Line(e1_current, e1_next)\n            e1_segment = Segment(e1_current, e1_next)\n            e2_segment = Segment(e2_current, e2_next)\n            min1 = e1_segment.distance(e2_next)\n            min2 = e2_segment.distance(e1_next)\n\n            min_dist_current = min(min1, min2)\n            if min_dist_current.evalf() < min_dist.evalf():\n                min_dist = min_dist_current\n\n            if e1_connections[e1_next][0] != e1_current:\n                e1_current = e1_next\n                e1_next = e1_connections[e1_next][0]\n            else:\n                e1_current = e1_next\n                e1_next = e1_connections[e1_next][1]\n\n            if e2_connections[e2_next][0] != e2_current:\n                e2_current = e2_next\n                e2_next = e2_connections[e2_next][0]\n            else:\n                e2_current = e2_next\n                e2_next = e2_connections[e2_next][1]\n        if e1_current == e1_ymax and e2_current == e2_ymin:\n            break\n    return min_dist\n",
+    "before": "def _do_poly_distance(self, e2):\n    \"\"\"\n    Calculates the least distance between the exteriors of two\n    convex polygons e1 and e2. Does not check for the convexity\n    of the polygons as this is checked by Polygon.distance.\n\n    Notes\n    =====\n\n        - Prints a warning if the two polygons possibly intersect as the return\n          value will not be valid in such a case. For a more through test of\n          intersection use intersection().\n\n    See Also\n    ========\n\n    sympy.geometry.point.Point.distance\n\n    Examples\n    ========\n\n    >>> from sympy import Point, Polygon\n    >>> square = Polygon(Point(0, 0), Point(0, 1), Point(1, 1), Point(1, 0))\n    >>> triangle = Polygon(Point(1, 2), Point(2, 2), Point(2, 1))\n    >>> square._do_poly_distance(triangle)\n    sqrt(2)/2\n\n    Description of method used\n    ==========================\n\n    Method:\n    [1] https://web.archive.org/web/20150509035744/http://cgm.cs.mcgill.ca/~orm/mind2p.html\n    Uses rotating calipers:\n    [2] https://en.wikipedia.org/wiki/Rotating_calipers\n    and antipodal points:\n    [3] https://en.wikipedia.org/wiki/Antipodal_point\n    \"\"\"\n    e1 = self\n\n    '''Tests for a possible intersection between the polygons and outputs a warning'''\n    e1_center = e1.centroid\n    e2_center = e2.centroid\n    e1_max_radius = S.Zero\n    e2_max_radius = S.Zero\n    for vertex in e1.vertices:\n        r = Point.distance(e1_center, vertex)\n        if e1_max_radius < r:\n            e1_max_radius = r\n    for vertex in e2.vertices:\n        r = Point.distance(e2_center, vertex)\n        if e2_max_radius < r:\n            e2_max_radius = r\n    center_dist = Point.distance(e1_center, e2_center)\n    if center_dist <= e1_max_radius + e2_max_radius:\n        warnings.warn(\"Polygons may intersect producing erroneous output\",\n                      stacklevel=3)\n\n    '''\n    Find the upper rightmost vertex of e1 and the lowest leftmost vertex of e2\n    '''\n    e1_ymax = Point(0, -oo)\n    e2_ymin = Point(0, oo)\n\n    for vertex in e1.vertices:\n        if vertex.y > e1_ymax.y or (vertex.y == e1_ymax.y and vertex.x > e1_ymax.x):\n            e1_ymax = vertex\n    for vertex in e2.vertices:\n        if vertex.y < e2_ymin.y or (vertex.y == e2_ymin.y and vertex.x < e2_ymin.x):\n            e2_ymin = vertex\n    min_dist = Point.distance(e1_ymax, e2_ymin)\n\n    '''\n    Produce a dictionary with vertices of e1 as the keys and, for each vertex, the points\n    to which the vertex is connected as its value. The same is then done for e2.\n    '''\n    e1_connections = {}\n    e2_connections = {}\n\n    for side in e1.sides:\n        if side.p1 in e1_connections:\n            e1_connections[side.p1].append(side.p2)\n        else:\n            e1_connections[side.p1] = [side.p2]\n\n        if side.p2 in e1_connections:\n            e1_connections[side.p2].append(side.p1)\n        else:\n            e1_connections[side.p2] = [side.p1]\n\n    for side in e2.sides:\n        if side.p1 in e2_connections:\n            e2_connections[side.p1].append(side.p2)\n        else:\n            e2_connections[side.p1] = [side.p2]\n\n        if side.p2 in e2_connections:\n            e2_connections[side.p2].append(side.p1)\n        else:\n            e2_connections[side.p2] = [side.p1]\n\n    e1_current = e1_ymax\n    e2_current = e2_ymin\n    support_line = Line(Point(S.Zero, S.Zero), Point(S.One, S.Zero))\n\n    '''\n    Determine which point in e1 and e2 will be selected after e2_ymin and e1_ymax,\n    this information combined with the above produced dictionaries determines the\n    path that will be taken around the polygons\n    '''\n    point1 = e1_connections[e1_ymax][0]\n    point2 = e1_connections[e1_ymax][1]\n    angle1 = support_line.angle_between(Line(e1_ymax, point1))\n    angle2 = support_line.angle_between(Line(e1_ymax, point2))\n    if angle1 < angle2:\n        e1_next = point1\n    elif angle2 < angle1:\n        e1_next = point2\n    elif Point.distance(e1_ymax, point1) > Point.distance(e1_ymax, point2):\n        e1_next = point2\n    else:\n        e1_next = point1\n\n    point1 = e2_connections[e2_ymin][0]\n    point2 = e2_connections[e2_ymin][1]\n    angle1 = support_line.angle_between(Line(e2_ymin, point1))\n    angle2 = support_line.angle_between(Line(e2_ymin, point2))\n    if angle1 > angle2:\n        e2_next = point1\n    elif angle2 > angle1:\n        e2_next = point2\n    elif Point.distance(e2_ymin, point1) > Point.distance(e2_ymin, point2):\n        e2_next = point2\n    else:\n        e2_next = point1\n\n    '''\n    Loop which determines the distance between anti-podal pairs and updates the\n    minimum distance accordingly. It repeats until it reaches the starting position.\n    '''\n    while True:\n        e1_angle = support_line.angle_between(Line(e1_current, e1_next))\n        e2_angle = pi - support_line.angle_between(Line(\n            e2_current, e2_next))\n\n        if (e1_angle < e2_angle) is True:\n            support_line = Line(e1_current, e1_next)\n            e1_segment = Segment(e1_current, e1_next)\n            min_dist_current = e1_segment.distance(e2_current)\n\n            if min_dist_current.evalf() < min_dist.evalf():\n                min_dist = min_dist_current\n\n            if e1_connections[e1_next][0] != e1_current:\n                e1_current = e1_next\n                e1_next = e1_connections[e1_next][0]\n            else:\n                e1_current = e1_next\n                e1_next = e1_connections[e1_next][1]\n        elif (e1_angle > e2_angle) is True:\n            support_line = Line(e2_next, e2_current)\n            e2_segment = Segment(e2_current, e2_next)\n            min_dist_current = e2_segment.distance(e1_current)\n\n            if min_dist_current.evalf() < min_dist.evalf():\n                min_dist = min_dist_current\n\n            if e2_connections[e2_next][0] != e2_current:\n                e2_current = e2_next\n                e2_next = e2_connections[e2_next][0]\n            else:\n                e2_current = e2_next\n                e2_next = e2_connections[e2_next][1]\n        else:\n            support_line = Line(e1_current, e1_next)\n            e1_segment = Segment(e1_current, e1_next)\n            e2_segment = Segment(e2_current, e2_next)\n            min1 = e1_segment.distance(e2_next)\n            min2 = e2_segment.distance(e1_next)\n\n            min_dist_current = min(min1, min2)\n            if min_dist_current.evalf() < min_dist.evalf():\n                min_dist = min_dist_current\n\n            if e1_connections[e1_next][0] != e1_current:\n                e1_current = e1_next\n                e1_next = e1_connections[e1_next][0]\n            else:\n                e1_current = e1_next\n                e1_next = e1_connections[e1_next][1]\n\n            if e2_connections[e2_next][0] != e2_current:\n                e2_current = e2_next\n                e2_next = e2_connections[e2_next][0]\n            else:\n                e2_current = e2_next\n                e2_next = e2_connections[e2_next][1]\n        if e1_current == e1_ymax and e2_current == e2_ymin:\n            break\n    return min_dist\n",
+    "file": "sympy/geometry/polygon.py",
+    "id": "sympy/geometry/polygon.py#Polygon._do_poly_distance",
+    "name": "_do_poly_distance",
+    "qual": "Polygon._do_poly_distance",
+    "signature_changed": false
+   },
+   {
+    "after": "def __contains__(self, o):\n    \"\"\"\n    Return True if o is contained within the boundary lines of self\n\n    Parameters\n    ==========\n\n    other : GeometryEntity\n\n    Returns\n    =======\n\n    contained in : bool\n        The points (and sides, if applicable) are contained in self.\n\n    See Also\n    ========\n\n    sympy.geometry.entity.GeometryEntity.encloses\n\n    Examples\n    ========\n\n    >>> from sympy import Line, Segment, Point\n    >>> p = Point(0, 0)\n    >>> q = Point(1, 1)\n    >>> s = Segment(p, q*2)\n    >>> l = Line(p, q)\n    >>> p in q\n    False\n    >>> p in s\n    True\n    >>> q*3 in s\n    False\n    >>> s in l\n    True\n\n    \"\"\"\n\n    if isinstance(o, Polygon):\n        return self == o\n    elif isinstance(o, Segment):\n        return any(o in s for s in self.sides)\n    elif isinstance(o, Point):\n        if o in self.vertices:\n            return True\n        for side in self.sides:\n            if o in side:\n                return True\n\n    return False\n",
+    "before": "def __contains__(self, o):\n    \"\"\"\n    Return True if o is contained within the boundary lines of self.altitudes\n\n    Parameters\n    ==========\n\n    other : GeometryEntity\n\n    Returns\n    =======\n\n    contained in : bool\n        The points (and sides, if applicable) are contained in self.\n\n    See Also\n    ========\n\n    sympy.geometry.entity.GeometryEntity.encloses\n\n    Examples\n    ========\n\n    >>> from sympy import Line, Segment, Point\n    >>> p = Point(0, 0)\n    >>> q = Point(1, 1)\n    >>> s = Segment(p, q*2)\n    >>> l = Line(p, q)\n    >>> p in q\n    False\n    >>> p in s\n    True\n    >>> q*3 in s\n    False\n    >>> s in l\n    True\n\n    \"\"\"\n\n    if isinstance(o, Polygon):\n        return self == o\n    elif isinstance(o, Segment):\n        return any(o in s for s in self.sides)\n    elif isinstance(o, Point):\n        if o in self.vertices:\n            return True\n        for side in self.sides:\n            if o in side:\n                return True\n\n    return False\n",
+    "file": "sympy/geometry/polygon.py",
+    "id": "sympy/geometry/polygon.py#Polygon.__contains__",
+    "name": "__contains__",
+    "qual": "Polygon.__contains__",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [],
+   "dollars_cap": 0.1,
+   "filter_seconds": 9.1,
+   "gaps": [],
+   "info": {
+    "accepted": 0,
+    "compiled": 2,
+    "cost": 0.0,
+    "differed": 0,
+    "dollars_cap": 0.1,
+    "functions": 2,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 2,
+    "ran": 2,
+    "reached": 0,
+    "requests": 1,
+    "seconds": 9.0,
+    "stable": 2
+   },
+   "probes": [
+    {
+     "call": "str(square._do_poly_distance(triangle))",
+     "function": "sympy/geometry/polygon.py#Polygon._do_poly_distance",
+     "setup": "import warnings\nfrom sympy import Point, Polygon\nsquare = Polygon(Point(0, 0), Point(0, 1), Point(1, 1), Point(1, 0))\ntriangle = Polygon(Point(1, 2), Point(2, 2), Point(2, 1))\nwarnings.simplefilter('ignore')",
+     "why": "docstring example"
+    },
+    {
+     "call": "[Point(0, 0) in square, Point(5, 5) in square]",
+     "function": "sympy/geometry/polygon.py#Polygon.__contains__",
+     "setup": "import warnings\nfrom sympy import Point, Polygon\nsquare = Polygon(Point(0, 0), Point(0, 1), Point(1, 1), Point(1, 0))\ntriangle = Polygon(Point(1, 2), Point(2, 2), Point(2, 1))\nwarnings.simplefilter('ignore')",
+     "why": "docstring-only change; vertices and outside points"
+    }
+   ],
+   "targets": [
+    "sympy/geometry/polygon.py#Polygon._do_poly_distance",
+    "sympy/geometry/polygon.py#Polygon.__contains__"
+   ],
+   "waited_seconds": 60.1
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "changed_functions": [
+   {
+    "file": "sympy/geometry/polygon.py",
+    "lines": "1115",
+    "symbol": "Polygon._do_poly_distance"
+   },
+   {
+    "file": "sympy/geometry/polygon.py",
+    "lines": "1347",
+    "symbol": "Polygon.__contains__"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/geometry/polygon.py#Polygon.__contains__",
+   "sympy/geometry/polygon.py#Polygon._do_poly_distance",
+   "sympy/geometry/polygon.py#Polygon"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 0,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 1056,
+   "ran": 1056,
+   "replayed": 0,
+   "runner": "pytest",
+   "seconds": 145.8,
+   "selection": {
+    "candidates": 12973,
+    "closure_files": 1322,
+    "closure_tests": 12953,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 20
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "11917 lower-ranked candidate(s) not run: about 4 tests/s per process fit 1056 in the 300 s allowed",
+   "64030 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "side-by-side: none of the 2 changed function(s) was called by the tests run on the code before the change"
+  ],
+  "impacted": {
+   "count": 4960,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1608,
+   "parsed_files": 1
+  },
+  "predicted_failures": [],
+  "report_hash": "ac0190e9be03",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 0,
+   "differences": 0,
+   "functions_called": 0,
+   "input_built_before_the_change": 0,
+   "not_compared": {},
+   "seconds": 9.7,
+   "targets": 2,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 1056 of 1056 candidate tests after the change with pytest in 145.8 s, failures confirmed before it: 0 now fail. 3693 tests reach the change.",
+  "tests": [
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_polygon.py::test_do_poly_distance",
+    "line": 668,
+    "run": "python -m pytest sympy/geometry/tests/test_polygon.py::test_do_poly_distance",
+    "score": 5.13,
+    "why": "calls Polygon._do_poly_distance (name: distance,do,poly,polygon)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_polygon.py::test_polygon",
+    "line": 24,
+    "run": "python -m pytest sympy/geometry/tests/test_polygon.py::test_polygon",
+    "score": 2.472,
+    "why": "via Polygon (name: polygon)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_polygon.py::test_bisectors",
+    "line": 429,
+    "run": "python -m pytest sympy/geometry/tests/test_polygon.py::test_bisectors",
+    "score": 1.214,
+    "why": "via Polygon (name: polygon)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_polygon.py::test_intersection",
+    "line": 487,
+    "run": "python -m pytest sympy/geometry/tests/test_polygon.py::test_intersection",
+    "score": 0.994,
+    "why": "via Polygon (name: polygon)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_polygon.py::test_encloses",
+    "line": 376,
+    "run": "python -m pytest sympy/geometry/tests/test_polygon.py::test_encloses",
+    "score": 0.827,
+    "why": "via Polygon (name: polygon)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_polygon.py::test_issue_12966",
+    "line": 532,
+    "run": "python -m pytest sympy/geometry/tests/test_polygon.py::test_issue_12966",
+    "score": 0.751,
+    "why": "via Polygon (name: polygon)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_polygon.py::test_cut_section",
+    "line": 612,
+    "run": "python -m pytest sympy/geometry/tests/test_polygon.py::test_cut_section",
+    "score": 0.68,
+    "why": "via Polygon (name: polygon)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_polygon.py::test_first_moment",
+    "line": 577,
+    "run": "python -m pytest sympy/geometry/tests/test_polygon.py::test_first_moment",
+    "score": 0.61,
+    "why": "via Polygon (name: polygon)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_polygon.py::test_second_moment_of_area",
+    "line": 543,
+    "run": "python -m pytest sympy/geometry/tests/test_polygon.py::test_second_moment_of_area",
+    "score": 0.599,
+    "why": "via Polygon (name: polygon)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_polygon.py::test_section_modulus_and_polar_second_moment_of_area",
+    "line": 596,
+    "run": "python -m pytest sympy/geometry/tests/test_polygon.py::test_section_modulus_and_polar_second_moment_of_area",
+    "score": 0.593,
+    "why": "via Polygon (name: polygon)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_polygon.py::test_parameter_value",
+    "line": 521,
+    "run": "python -m pytest sympy/geometry/tests/test_polygon.py::test_parameter_value",
+    "score": 0.588,
+    "why": "via Polygon (name: polygon)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_polygon.py::test_centroid_zero_area",
+    "line": 687,
+    "run": "python -m pytest sympy/geometry/tests/test_polygon.py::test_centroid_zero_area",
+    "score": 0.576,
+    "why": "via Polygon (name: polygon)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_polygon.py::test_reflect",
+    "line": 407,
+    "run": "python -m pytest sympy/geometry/tests/test_polygon.py::test_reflect",
+    "score": 0.567,
+    "why": "via Polygon (name: polygon)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_polygon.py::test_type_of_triangle",
+    "line": 649,
+    "run": "python -m pytest sympy/geometry/tests/test_polygon.py::test_type_of_triangle",
+    "score": 0.564,
+    "why": "via Polygon (name: polygon)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_args.py::test_sympy__geometry__polygon__Polygon",
+    "line": 4963,
+    "run": "python -m pytest sympy/core/tests/test_args.py::test_sympy__geometry__polygon__Polygon",
+    "score": 0.552,
+    "why": "via Polygon (name: polygon)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_polygon.py::test_convex_hull",
+    "line": 348,
+    "run": "python -m pytest sympy/geometry/tests/test_polygon.py::test_convex_hull",
+    "score": 0.551,
+    "why": "via Polygon (name: polygon)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_polygon.py::test_transform",
+    "line": 397,
+    "run": "python -m pytest sympy/geometry/tests/test_polygon.py::test_transform",
+    "score": 0.551,
+    "why": "via Polygon (name: polygon)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_ellipse.py::test_ellipse_geom",
+    "line": 59,
+    "run": "python -m pytest sympy/geometry/tests/test_ellipse.py::test_ellipse_geom",
+    "score": 0.465,
+    "why": "via Polygon"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_polygon.py::test_excenters",
+    "line": 450,
+    "run": "python -m pytest sympy/geometry/tests/test_polygon.py::test_excenters",
+    "score": 0.33,
+    "why": "via Polygon.sides > Polygon (name: polygon)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_polygon.py::test_exradii",
+    "line": 463,
+    "run": "python -m pytest sympy/geometry/tests/test_polygon.py::test_exradii",
+    "score": 0.33,
+    "why": "via Polygon.sides > Polygon (name: polygon)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_util.py::test_farthest_points_closest_points",
+    "line": 100,
+    "run": "python -m pytest sympy/geometry/tests/test_util.py::test_farthest_points_closest_points",
+    "score": 0.317,
+    "why": "via farthest_points > farthest_points.rotatingCalipers > Polygon"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/sets/tests/test_sets.py::test_contains",
+    "line": 830,
+    "run": "python -m pytest sympy/sets/tests/test_sets.py::test_contains",
+    "score": 0.289,
+    "why": "via GeometrySet._contains > Polygon.__contains__ (name: contain)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_entity.py::test_entity",
+    "line": 11,
+    "run": "python -m pytest sympy/geometry/tests/test_entity.py::test_entity",
+    "score": 0.269,
+    "why": "via Polygon"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_plane.py::test_plane",
+    "line": 12,
+    "run": "python -m pytest sympy/geometry/tests/test_plane.py::test_plane",
+    "score": 0.261,
+    "why": "via Polygon.distance > Polygon._do_poly_distance"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_polygon.py::test_inradius",
+    "line": 456,
+    "run": "python -m pytest sympy/geometry/tests/test_polygon.py::test_inradius",
+    "score": 0.246,
+    "why": "via Triangle.inradius > Polygon.area > Polygon (name: polygon)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_ellipse.py::test_is_tangent",
+    "line": 439,
+    "run": "python -m pytest sympy/geometry/tests/test_ellipse.py::test_is_tangent",
+    "score": 0.243,
+    "why": "via Polygon"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_line.py::test_distance_2d",
+    "line": 347,
+    "run": "python -m pytest sympy/geometry/tests/test_line.py::test_distance_2d",
+    "score": 0.213,
+    "why": "via Line3D.distance > Polygon.distance > Polygon._do_poly_distance (name: distance)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_entity.py::test_subs",
+    "line": 42,
+    "run": "python -m pytest sympy/geometry/tests/test_entity.py::test_subs",
+    "score": 0.209,
+    "why": "via Polygon"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/vector/tests/test_parametricregion.py::test_parametric_region_list",
+    "line": 74,
+    "run": "python -m pytest sympy/vector/tests/test_parametricregion.py::test_parametric_region_list",
+    "score": 0.209,
+    "why": "via Polygon"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_line.py::test_distance_3d",
+    "line": 381,
+    "run": "python -m pytest sympy/geometry/tests/test_line.py::test_distance_3d",
+    "score": 0.208,
+    "why": "via Line3D.distance > Polygon.distance > Polygon._do_poly_distance (name: distance)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_curve.py::test_free_symbols",
+    "line": 56,
+    "run": "python -m pytest sympy/geometry/tests/test_curve.py::test_free_symbols",
+    "score": 0.2,
+    "why": "via Polygon"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_entity.py::test_geometry_EvalfMixin",
+    "line": 110,
+    "run": "python -m pytest sympy/geometry/tests/test_entity.py::test_geometry_EvalfMixin",
+    "score": 0.2,
+    "why": "via Polygon"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_geometrysets.py::test_booleans",
+    "line": 8,
+    "run": "python -m pytest sympy/geometry/tests/test_geometrysets.py::test_booleans",
+    "score": 0.2,
+    "why": "via Polygon"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/utilities/tests/test_pickling.py::test_geometry",
+    "line": 271,
+    "run": "python -m pytest sympy/utilities/tests/test_pickling.py::test_geometry",
+    "score": 0.2,
+    "why": "via Polygon"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_intpoly.py::test_polytope_integrate",
+    "line": 65,
+    "run": "python -m pytest sympy/integrals/tests/test_intpoly.py::test_polytope_integrate",
+    "score": 0.199,
+    "why": "via Polygon"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_polygon.py::test_incenter",
+    "line": 446,
+    "run": "python -m pytest sympy/geometry/tests/test_polygon.py::test_incenter",
+    "score": 0.196,
+    "why": "via Triangle.incenter > Polygon.vertices > Polygon (name: polygon)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_polygon.py::test_medial",
+    "line": 471,
+    "run": "python -m pytest sympy/geometry/tests/test_polygon.py::test_medial",
+    "score": 0.196,
+    "why": "via Triangle.medial > Polygon.sides > Polygon (name: polygon)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/geometry/tests/test_polygon.py::test_medians",
+    "line": 467,
+    "run": "python -m pytest sympy/geometry/tests/test_polygon.py::test_medians",
+    "score": 0.196,
+    "why": "via Triangle.medians > Polygon.vertices > Polygon (name: polygon)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_intpoly.py::test_integration_reduction_dynamic",
+    "line": 599,
+    "run": "python -m pytest sympy/integrals/tests/test_intpoly.py::test_integration_reduction_dynamic",
+    "score": 0.195,
+    "why": "via Polygon"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/continuum_mechanics/tests/test_beam.py::test_cross_section",
+    "line": 1314,
+    "run": "python -m pytest sympy/physics/continuum_mechanics/tests/test_beam.py::test_cross_section",
+    "score": 0.194,
+    "why": "via Polygon"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792345506.344646,
+  "job_seconds": 324.0,
+  "number": 30734,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 324.2,
+  "started": 1792345181.3340118
+ },
+ "verify": null
+}

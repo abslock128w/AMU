@@ -1,0 +1,1103 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "6e5b7af0f803eacf02487b428dd0cba1ace90fbb",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "847dbb1e0fbeae8a600819957b8411afd155809e",
+  "install_ok": true,
+  "merge_base": "6e5b7af0f803eacf02487b428dd0cba1ace90fbb",
+  "pr": 30540,
+  "recording": false,
+  "runner": null,
+  "seconds": 53.6,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "6e5b7af0f803eacf02487b428dd0cba1ace90fbb",
+  "head_sha": "847dbb1e0fbeae8a600819957b8411afd155809e",
+  "merge_base": "6e5b7af0f803eacf02487b428dd0cba1ace90fbb",
+  "merged_at": "2026-09-23T20:12:52Z",
+  "number": 30540,
+  "repo": "sympy",
+  "title": "Fix denominator restrictions in nonlinsolve"
+ },
+ "probe_minutes": {
+  "end": 1792330581.178551,
+  "minutes": 1.3,
+  "start": 1792329885.1354449,
+  "waited": 617.1992215420032
+ },
+ "probe_targets": {
+  "all": 4,
+  "called": 0,
+  "targets": [
+   {
+    "after": "def _return_conditionset(eqs, symbols, exclude=()):\n    # return conditionset\n    eqs = (Eq(lhs, 0) for lhs in eqs)\n    condition_set = ConditionSet(\n        Tuple(*symbols), And(*eqs, *(Ne(d, 0) for d in exclude)),\n        S.Complexes**len(symbols))\n    return condition_set\n",
+    "before": "def _return_conditionset(eqs, symbols):\n    # return conditionset\n    eqs = (Eq(lhs, 0) for lhs in eqs)\n    condition_set = ConditionSet(\n        Tuple(*symbols), And(*eqs), S.Complexes**len(symbols))\n    return condition_set\n",
+    "file": "sympy/solvers/solveset.py",
+    "id": "sympy/solvers/solveset.py#_return_conditionset",
+    "name": "_return_conditionset",
+    "qual": "_return_conditionset",
+    "signature_changed": true
+   },
+   {
+    "after": "def substitution(system, symbols, result=[{}], known_symbols=[],\n                 exclude=[], all_symbols=None):\n    r\"\"\"\n    Solves the `system` using substitution method. It is used in\n    :func:`~.nonlinsolve`. This will be called from :func:`~.nonlinsolve` when any\n    equation(s) is non polynomial equation.\n\n    Parameters\n    ==========\n\n    system : list of equations\n        The target system of equations\n    symbols : list of symbols to be solved.\n        The variable(s) for which the system is solved\n    known_symbols : list of solved symbols\n        Values are known for these variable(s)\n    result : An empty list or list of dict\n        If No symbol values is known then empty list otherwise\n        symbol as keys and corresponding value in dict.\n    exclude : Set of expression.\n        Mostly denominator expression(s) of the equations of the system.\n        Final solution should not satisfy these expressions.\n    all_symbols : known_symbols + symbols(unsolved).\n\n    Returns\n    =======\n\n    A FiniteSet of ordered tuple of values of `all_symbols` for which the\n    `system` has solution. Order of values in the tuple is same as symbols\n    present in the parameter `all_symbols`. If parameter `all_symbols` is None\n    then same as symbols present in the parameter `symbols`.\n\n    Please note that general FiniteSet is unordered, the solution returned\n    here is not simply a FiniteSet of solutions, rather it is a FiniteSet of\n    ordered tuple, i.e. the first & only argument to FiniteSet is a tuple of\n    solutions, which is ordered, & hence the returned solution is ordered.\n\n    Also note that solution could also have been returned as an ordered tuple,\n    FiniteSet is just a wrapper `{}` around the tuple. It has no other\n    significance except for the fact it is just used to maintain a consistent\n    output format throughout the solveset.\n\n    Raises\n    ======\n\n    ValueError\n        The input is not valid.\n        The symbols are not given.\n    AttributeError\n        The input symbols are not :class:`~.Symbol` type.\n\n    Examples\n    ========\n\n    >>> from sympy import symbols, substitution\n    >>> x, y = symbols('x, y', real=True)\n    >>> substitution([x + y], [x], [{y: 1}], [y], set([]), [x, y])\n    {(-1, 1)}\n\n    * When you want a soln not satisfying $x + 1 = 0$\n\n    >>> substitution([x + y], [x], [{y: 1}], [y], set([x + 1]), [y, x])\n    EmptySet\n    >>> substitution([x + y], [x], [{y: 1}], [y], set([x - 1]), [y, x])\n    {(1, -1)}\n    >>> substitution([x + y - 1, y - x**2 + 5], [x, y])\n    {(-3, 4), (2, -1)}\n\n    * Returns both real and complex solution\n\n    >>> x, y, z = symbols('x, y, z')\n    >>> from sympy import exp, sin\n    >>> substitution([exp(x) - sin(y), y**2 - 4], [x, y])\n    {(ImageSet(Lambda(_n, I*(2*_n*pi + pi) + log(sin(2))), Integers), -2),\n     (ImageSet(Lambda(_n, 2*_n*I*pi + log(sin(2))), Integers), 2)}\n\n    >>> eqs = [z**2 + exp(2*x) - sin(y), -3 + exp(-y)]\n    >>> substitution(eqs, [y, z])\n    {(-log(3), -sqrt(-exp(2*x) - sin(log(3)))),\n     (-log(3), sqrt(-exp(2*x) - sin(log(3)))),\n     (ImageSet(Lambda(_n, 2*_n*I*pi - log(3)), Integers),\n      ImageSet(Lambda(_n, -sqrt(-exp(2*x) + sin(2*_n*I*pi - log(3)))), Integers)),\n     (ImageSet(Lambda(_n, 2*_n*I*pi - log(3)), Integers),\n      ImageSet(Lambda(_n, sqrt(-exp(2*x) + sin(2*_n*I*pi - log(3)))), Integers))}\n\n    \"\"\"\n\n    if not system:\n        return S.EmptySet\n\n    for i, e in enumerate(system):\n        if isinstance(e, Eq):\n            system[i] = e.lhs - e.rhs\n\n    if not symbols:\n        msg = ('Symbols must be given, for which solution of the '\n               'system is to be found.')\n        raise ValueError(filldedent(msg))\n\n    if not is_sequence(symbols):\n        msg = ('symbols should be given as a sequence, e.g. a list.'\n               'Not type %s: %s')\n        raise TypeError(filldedent(msg % (type(symbols), symbols)))\n\n    if not getattr(symbols[0], 'is_Symbol', False):\n        msg = ('Iterable of symbols must be given as '\n               'second argument, not type %s: %s')\n        raise ValueError(filldedent(msg % (type(symbols[0]), symbols[0])))\n\n    # By default `all_symbols` will be same as `symbols`\n    if all_symbols is None:\n        all_symbols = symbols\n\n    old_result = result\n    # storing complements and intersection for particular symbol\n    complements = {}\n    intersections = {}\n\n    # when total_solveset_call equals total_conditionset\n    # it means that solveset failed to solve all eqs.\n    total_conditionset = -1\n    total_solveset_call = -1\n\n    def _unsolved_syms(eq, sort=False):\n        \"\"\"Returns the unsolved symbol present\n        in the equation `eq`.\n        \"\"\"\n        free = eq.free_symbols\n        unsolved = (free - set(known_symbols)) & set(all_symbols)\n        if sort:\n            unsolved = list(unsolved)\n            unsolved.sort(key=default_sort_key)\n        return unsolved\n\n    # sort such that equation with the fewest potential symbols is first.\n    # means eq with less number of variable first in the list.\n    eqs_in_better_order = list(\n        ordered(system, lambda _: len(_unsolved_syms(_))))\n\n    def add_intersection_complement(result, intersection_dict, complement_dict):\n        # If solveset has returned some intersection/complement\n        # for any symbol, it will be added in the final solution.\n        final_result = []\n        for res in result:\n            res_copy = res.copy()\n            for key_res, value_res in res.items():\n                intersect_set, complement_set = None, None\n                for key_sym, value_sym in intersection_dict.items():\n                    if key_sym == key_res:\n                        intersect_set = value_sym\n                for key_sym, value_sym in complement_dict.items():\n                    if key_sym == key_res:\n                        complement_set = value_sym\n                if intersect_set or complement_set:\n                    new_value = FiniteSet(value_res)\n                    if intersect_set and intersect_set != S.Complexes:\n                        new_value = Intersection(new_value, intersect_set)\n                    if complement_set:\n                        new_value = Complement(new_value, complement_set)\n                    if new_value is S.EmptySet:\n                        res_copy = None\n                        break\n                    elif new_value.is_FiniteSet and len(new_value) == 1:\n                        res_copy[key_res] = set(new_value).pop()\n                    else:\n                        res_copy[key_res] = new_value\n\n            if res_copy is not None:\n                final_result.append(res_copy)\n        return final_result\n\n    def _extract_main_soln(sym, sol, soln_imageset):\n        \"\"\"Separate the Complements, Intersections, ImageSet lambda expr and\n        its base_set. This function returns the unmasked sol from different classes\n        of sets and also returns the appended ImageSet elements in a\n        soln_imageset dict: `{unmasked element: ImageSet}`.\n        \"\"\"\n        # if there is union, then need to check\n        # Complement, Intersection, Imageset.\n        # Order should not be changed.\n        if isinstance(sol, ConditionSet):\n            # extracts any solution in ConditionSet\n            sol = sol.base_set\n\n        if isinstance(sol, Complement):\n            # extract solution and complement\n            complements[sym] = sol.args[1]\n            sol = sol.args[0]\n            # complement will be added at the end\n            # using `add_intersection_complement` method\n\n        # if there is union of Imageset or other in soln.\n        # no testcase is written for this if block\n        if isinstance(sol, Union):\n            sol_args = sol.args\n            sol = S.EmptySet\n            # We need in sequence so append finteset elements\n            # and then imageset or other.\n            for sol_arg2 in sol_args:\n                if isinstance(sol_arg2, FiniteSet):\n                    sol += sol_arg2\n                else:\n                    # ImageSet, Intersection, complement then\n                    # append them directly\n                    sol += FiniteSet(sol_arg2)\n\n        if isinstance(sol, Intersection):\n            # Interval/Set will be at 0th index always\n            if sol.args[0] not in (S.Reals, S.Complexes):\n                # Sometimes solveset returns soln with intersection\n                # S.Reals or S.Complexes. We don't consider that\n                # intersection.\n                intersections[sym] = sol.args[0]\n            sol = sol.args[1]\n        # after intersection and complement Imageset should\n        # be checked.\n        if isinstance(sol, ImageSet):\n            soln_imagest = sol\n            expr2 = sol.lamda.expr\n            sol = FiniteSet(expr2)\n            soln_imageset[expr2] = soln_imagest\n\n        if not isinstance(sol, FiniteSet):\n            sol = FiniteSet(sol)\n        return sol, soln_imageset\n\n    def _restore_imgset(rnew, original_imageset, newresult):\n        restore_sym = set(rnew.keys()) & \\\n            set(original_imageset.keys())\n        for key_sym in restore_sym:\n            img = original_imageset[key_sym]\n            rnew[key_sym] = img\n        if rnew not in newresult:\n            newresult.append(rnew)\n\n    def _append_eq(eq, result, res, delete_soln, n=None):\n        u = Dummy('u')\n        if n:\n            eq = eq.subs(n, 0)\n        satisfy = eq if eq in (True, False) else checksol(u, u, eq, minimal=True)\n        if satisfy is False:\n            delete_soln = True\n            res = {}\n        else:\n            result.append(res)\n        return result, res, delete_soln\n\n    def _append_new_soln(rnew, sym, sol, imgset_yes, soln_imageset,\n                         original_imageset, newresult, eq=None):\n        \"\"\"If `rnew` (A dict <symbol: soln>) contains valid soln\n        append it to `newresult` list.\n        `imgset_yes` is (base, dummy_var) if there was imageset in previously\n         calculated result(otherwise empty tuple). `original_imageset` is dict\n         of imageset expr and imageset from this result.\n        `soln_imageset` dict of imageset expr and imageset of new soln.\n        \"\"\"\n        delete_soln = False\n        local_n = None\n        # if it is imageset\n        if imgset_yes:\n            local_n = imgset_yes[0]\n            base = imgset_yes[1]\n            if sym and sol:\n                # when `sym` and `sol` is `None` means no new\n                # soln. In that case we will append rnew directly after\n                # substituting original imagesets in rnew values if present\n                # (second last line of this function using _restore_imgset)\n                dummy_list = list(sol.atoms(Dummy))\n                # use one dummy `n` which is in\n                # previous imageset\n                local_n_list = [\n                    local_n for i in range(\n                        0, len(dummy_list))]\n\n                dummy_zip = zip(dummy_list, local_n_list)\n                lam = Lambda(local_n, sol.subs(dummy_zip))\n                rnew[sym] = ImageSet(lam, base)\n            if eq is not None:\n                newresult, rnew, delete_soln = _append_eq(\n                    eq, newresult, rnew, delete_soln, local_n)\n        elif eq is not None:\n            newresult, rnew, delete_soln = _append_eq(\n                eq, newresult, rnew, delete_soln)\n        elif sol in soln_imageset.keys():\n            rnew[sym] = soln_imageset[sol]\n            # restore original imageset\n            _restore_imgset(rnew, original_imageset, newresult)\n        else:\n            newresult.append(rnew)\n        _restore_imgset(rnew, original_imageset, newresult)\n        return newresult, delete_soln\n\n    def _new_order_result(result, eq):\n        # separate first, second priority. `res` that makes `eq` value equals\n        # to zero, should be used first then other result(second priority).\n        # If it is not done then we may miss some soln.\n        first_priority = []\n        second_priority = []\n        for res in result:\n            if not any(isinstance(val, ImageSet) for val in res.values()):\n                if eq.subs(res) == 0:\n                    first_priority.append(res)\n                else:\n                    second_priority.append(res)\n        if first_priority or second_priority:\n            return first_priority + second_priority\n        return result\n\n    def _solve_using_known_values(result, solver):\n        \"\"\"Solves the system using already known solution\n        (result contains the dict <symbol: value>).\n        solver is :func:`~.solveset_complex` or :func:`~.solveset_real`.\n        \"\"\"\n        # stores imageset <expr: imageset(Lambda(n, expr), base)>.\n        soln_imageset = {}\n        total_solvest_call = 0\n        total_conditionst = 0\n\n        # sort equations so the one with the fewest potential\n        # symbols appears first\n        for index, eq in enumerate(eqs_in_better_order):\n            newresult = []\n            # if imageset, expr is used to solve for other symbol\n            imgset_yes = False\n            for res in result:\n                original_imageset = {}\n                got_symbol = set()  # symbols solved in one iteration\n                # find the imageset and use its expr.\n                for k, v in res.items():\n                    if isinstance(v, ImageSet):\n                        res[k] = v.lamda.expr\n                        original_imageset[k] = v\n                        dummy_n = v.lamda.expr.atoms(Dummy).pop()\n                        (base,) = v.base_sets\n                        imgset_yes = (dummy_n, base)\n                    assert not isinstance(v, FiniteSet)  # if so, internal error\n                # update eq with everything that is known so far\n                eq2 = eq.subs(res).expand()\n                if imgset_yes and not eq2.has(imgset_yes[0]):\n                    # The substituted equation simplified in such a way that\n                    # it's no longer necessary to encapsulate a potential new\n                    # solution in an ImageSet. (E.g. at the previous step some\n                    # {n*2*pi} was found as partial solution for one of the\n                    # unknowns, but its main solution expression n*2*pi has now\n                    # been substituted in a trigonometric function.)\n                    imgset_yes = False\n\n                unsolved_syms = _unsolved_syms(eq2, sort=True)\n                if not unsolved_syms:\n                    if res:\n                        newresult, delete_res = _append_new_soln(\n                            res, None, None, imgset_yes, soln_imageset,\n                            original_imageset, newresult, eq2)\n                        if delete_res:\n                            result.remove(res)\n                    continue  # skip as it's independent of desired symbols\n                depen1, depen2 = eq2.as_independent(*unsolved_syms)\n                if (depen1.has(Abs) or depen2.has(Abs)) and solver == solveset_complex:\n                    # Absolute values cannot be inverted in the\n                    # complex domain\n                    raise NotImplementedError(\n                        \"nonlinsolve cannot solve equations with Abs in the complex domain\"\n                    )\n                soln_imageset = {}\n                for sym in unsolved_syms:\n                    not_solvable = False\n                    try:\n                        soln = solver(eq2, sym)\n                        total_solvest_call += 1\n                        soln_new = S.EmptySet\n                        if isinstance(soln, Complement):\n                            # separate solution and complement\n                            complements[sym] = soln.args[1]\n                            soln = soln.args[0]\n                            # complement will be added at the end\n                        if isinstance(soln, Intersection):\n                            # Interval will be at 0th index always\n                            if soln.args[0] != Interval(-oo, oo):\n                                # sometimes solveset returns soln\n                                # with intersection S.Reals, to confirm that\n                                # soln is in domain=S.Reals\n                                intersections[sym] = soln.args[0]\n                            soln_new += soln.args[1]\n                        soln = soln_new if soln_new else soln\n                        if index > 0 and solver == solveset_real:\n                            # one symbol's real soln, another symbol may have\n                            # corresponding complex soln.\n                            if not isinstance(soln, (ImageSet, ConditionSet)):\n                                soln += solveset_complex(eq2, sym)  # might give ValueError with Abs\n\n                        if not isinstance(soln, (FiniteSet, ImageSet, ConditionSet, Union)) and soln is not S.EmptySet:\n                            raise NotImplementedError(\n                                f\"nonlinsolve cannot handle solution of type {type(soln).__name__} \"\n                                f\"for symbol {sym}. Got {soln} from equation {eq2}.\"\n                            )\n                    except ValueError:\n                        # If solveset is not able to solve equation `eq2`. Next\n                        # time we may get soln using next equation `eq2`\n                        continue\n                    if isinstance(soln, ConditionSet):\n                        if soln.base_set in (S.Reals, S.Complexes):\n                            soln = S.EmptySet\n                            # don't do `continue` we may get soln\n                            # in terms of other symbol(s)\n                            not_solvable = True\n                            total_conditionst += 1\n                        else:\n                            soln = soln.base_set\n\n                    if soln is not S.EmptySet:\n                        soln, soln_imageset = _extract_main_soln(\n                            sym, soln, soln_imageset)\n\n                    for sol in soln:\n                        # sol is not a `Union` since we checked it\n                        # before this loop\n                        sol, soln_imageset = _extract_main_soln(\n                            sym, sol, soln_imageset)\n                        sol = set(sol).pop()  # XXX what if there are more solutions?\n                        free = sol.free_symbols\n                        if got_symbol and any(\n                            ss in free for ss in got_symbol\n                        ):\n                            # sol depends on previously solved symbols\n                            # then continue\n                            continue\n                        rnew = res.copy()\n                        # put each solution in res and append the new  result\n                        # in the new result list (solution for symbol `s`)\n                        # along with old results.\n                        for k, v in res.items():\n                            if isinstance(v, Expr) and isinstance(sol, Expr):\n                                # if any unsolved symbol is present\n                                # Then subs known value\n                                rnew[k] = v.subs(sym, sol)\n                        # and add this new solution\n                        if sol in soln_imageset.keys():\n                            # replace all lambda variables with 0.\n                            imgst = soln_imageset[sol]\n                            rnew[sym] = imgst.lamda(\n                                *[0 for i in range(0, len(\n                                    imgst.lamda.variables))])\n                        else:\n                            rnew[sym] = sol\n                        newresult, delete_res = _append_new_soln(\n                            rnew, sym, sol, imgset_yes, soln_imageset,\n                            original_imageset, newresult)\n                        if delete_res:\n                            result.remove(res)\n                    # solution got for sym\n                    if not not_solvable:\n                        got_symbol.add(sym)\n            # next time use this new soln\n            if newresult:\n                result = newresult\n        return result, total_solvest_call, total_conditionst\n\n    new_result_real, solve_call1, cnd_call1 = _solve_using_known_values(\n        old_result, solveset_real)\n    new_result_complex, solve_call2, cnd_call2 = _solve_using_known_values(\n        old_result, solveset_complex)\n\n    # If total_solveset_call is equal to total_conditionset\n    # then solveset failed to solve all of the equations.\n    # In this case we return a ConditionSet here.\n    total_conditionset += (cnd_call1 + cnd_call2)\n    total_solveset_call += (solve_call1 + solve_call2)\n\n    if total_conditionset == total_solveset_call and total_solveset_call != -1:\n        return _return_conditionset(eqs_in_better_order, all_symbols, exclude)\n\n    # don't keep duplicate solutions\n    filtered_complex = []\n    for i in list(new_result_complex):\n        for j in list(new_result_real):\n            if i.keys() != j.keys():\n                continue\n            if all(a.dummy_eq(b) for a, b in zip(i.values(), j.values()) \\\n                if not (isinstance(a, int) and isinstance(b, int))):\n                break\n        else:\n            filtered_complex.append(i)\n    # overall result\n    result = new_result_real + filtered_complex\n\n    result_all_variables = []\n    result_infinite = []\n    for res in result:\n        if not res:\n            # means {None : None}\n            continue\n        # If length < len(all_symbols) means infinite soln.\n        # Some or all the soln is dependent on 1 symbol.\n        # eg. {x: y+2} then final soln {x: y+2, y: y}\n        if len(res) < len(all_symbols):\n            solved_symbols = res.keys()\n            unsolved = list(filter(\n                lambda x: x not in solved_symbols, all_symbols))\n            for unsolved_sym in unsolved:\n                res[unsolved_sym] = unsolved_sym\n            result_infinite.append(res)\n        if res not in result_all_variables:\n            result_all_variables.append(res)\n\n    if result_infinite:\n        # we have general soln\n        # eg : [{x: -1, y : 1}, {x : -y, y: y}] then\n        # return [{x : -y, y : y}]\n        result_all_variables = result_infinite\n    processed_branches = []\n    for res in result_all_variables:\n        processed = _process_exclusions_for_branch(res, exclude, all_symbols)\n        if processed is None:\n            continue\n        branch_complements, conditions = processed\n        for symbol, forbidden in complements.items():\n            branch_complements[symbol] = Union(\n                branch_complements.get(symbol, S.EmptySet), forbidden)\n        restricted = add_intersection_complement(\n            [res], intersections, branch_complements)\n        for branch in restricted:\n            processed_branches.append((res, branch_complements, conditions, branch))\n\n    # Symbolic-family tuples cannot be mixed with actual point sets in a Union.\n    if any(conditions for _, _, conditions, _ in processed_branches):\n        return Union(*(_branch_as_conditionset(\n            res, all_symbols, intersections, branch_complements, conditions)\n            for res, branch_complements, conditions, _ in processed_branches))\n    return FiniteSet(*(tuple(branch[s] for s in all_symbols)\n                       for _, _, _, branch in processed_branches))\n",
+    "before": "def substitution(system, symbols, result=[{}], known_symbols=[],\n                 exclude=[], all_symbols=None):\n    r\"\"\"\n    Solves the `system` using substitution method. It is used in\n    :func:`~.nonlinsolve`. This will be called from :func:`~.nonlinsolve` when any\n    equation(s) is non polynomial equation.\n\n    Parameters\n    ==========\n\n    system : list of equations\n        The target system of equations\n    symbols : list of symbols to be solved.\n        The variable(s) for which the system is solved\n    known_symbols : list of solved symbols\n        Values are known for these variable(s)\n    result : An empty list or list of dict\n        If No symbol values is known then empty list otherwise\n        symbol as keys and corresponding value in dict.\n    exclude : Set of expression.\n        Mostly denominator expression(s) of the equations of the system.\n        Final solution should not satisfy these expressions.\n    all_symbols : known_symbols + symbols(unsolved).\n\n    Returns\n    =======\n\n    A FiniteSet of ordered tuple of values of `all_symbols` for which the\n    `system` has solution. Order of values in the tuple is same as symbols\n    present in the parameter `all_symbols`. If parameter `all_symbols` is None\n    then same as symbols present in the parameter `symbols`.\n\n    Please note that general FiniteSet is unordered, the solution returned\n    here is not simply a FiniteSet of solutions, rather it is a FiniteSet of\n    ordered tuple, i.e. the first & only argument to FiniteSet is a tuple of\n    solutions, which is ordered, & hence the returned solution is ordered.\n\n    Also note that solution could also have been returned as an ordered tuple,\n    FiniteSet is just a wrapper `{}` around the tuple. It has no other\n    significance except for the fact it is just used to maintain a consistent\n    output format throughout the solveset.\n\n    Raises\n    ======\n\n    ValueError\n        The input is not valid.\n        The symbols are not given.\n    AttributeError\n        The input symbols are not :class:`~.Symbol` type.\n\n    Examples\n    ========\n\n    >>> from sympy import symbols, substitution\n    >>> x, y = symbols('x, y', real=True)\n    >>> substitution([x + y], [x], [{y: 1}], [y], set([]), [x, y])\n    {(-1, 1)}\n\n    * When you want a soln not satisfying $x + 1 = 0$\n\n    >>> substitution([x + y], [x], [{y: 1}], [y], set([x + 1]), [y, x])\n    EmptySet\n    >>> substitution([x + y], [x], [{y: 1}], [y], set([x - 1]), [y, x])\n    {(1, -1)}\n    >>> substitution([x + y - 1, y - x**2 + 5], [x, y])\n    {(-3, 4), (2, -1)}\n\n    * Returns both real and complex solution\n\n    >>> x, y, z = symbols('x, y, z')\n    >>> from sympy import exp, sin\n    >>> substitution([exp(x) - sin(y), y**2 - 4], [x, y])\n    {(ImageSet(Lambda(_n, I*(2*_n*pi + pi) + log(sin(2))), Integers), -2),\n     (ImageSet(Lambda(_n, 2*_n*I*pi + log(sin(2))), Integers), 2)}\n\n    >>> eqs = [z**2 + exp(2*x) - sin(y), -3 + exp(-y)]\n    >>> substitution(eqs, [y, z])\n    {(-log(3), -sqrt(-exp(2*x) - sin(log(3)))),\n     (-log(3), sqrt(-exp(2*x) - sin(log(3)))),\n     (ImageSet(Lambda(_n, 2*_n*I*pi - log(3)), Integers),\n      ImageSet(Lambda(_n, -sqrt(-exp(2*x) + sin(2*_n*I*pi - log(3)))), Integers)),\n     (ImageSet(Lambda(_n, 2*_n*I*pi - log(3)), Integers),\n      ImageSet(Lambda(_n, sqrt(-exp(2*x) + sin(2*_n*I*pi - log(3)))), Integers))}\n\n    \"\"\"\n\n    if not system:\n        return S.EmptySet\n\n    for i, e in enumerate(system):\n        if isinstance(e, Eq):\n            system[i] = e.lhs - e.rhs\n\n    if not symbols:\n        msg = ('Symbols must be given, for which solution of the '\n               'system is to be found.')\n        raise ValueError(filldedent(msg))\n\n    if not is_sequence(symbols):\n        msg = ('symbols should be given as a sequence, e.g. a list.'\n               'Not type %s: %s')\n        raise TypeError(filldedent(msg % (type(symbols), symbols)))\n\n    if not getattr(symbols[0], 'is_Symbol', False):\n        msg = ('Iterable of symbols must be given as '\n               'second argument, not type %s: %s')\n        raise ValueError(filldedent(msg % (type(symbols[0]), symbols[0])))\n\n    # By default `all_symbols` will be same as `symbols`\n    if all_symbols is None:\n        all_symbols = symbols\n\n    old_result = result\n    # storing complements and intersection for particular symbol\n    complements = {}\n    intersections = {}\n\n    # when total_solveset_call equals total_conditionset\n    # it means that solveset failed to solve all eqs.\n    total_conditionset = -1\n    total_solveset_call = -1\n\n    def _unsolved_syms(eq, sort=False):\n        \"\"\"Returns the unsolved symbol present\n        in the equation `eq`.\n        \"\"\"\n        free = eq.free_symbols\n        unsolved = (free - set(known_symbols)) & set(all_symbols)\n        if sort:\n            unsolved = list(unsolved)\n            unsolved.sort(key=default_sort_key)\n        return unsolved\n\n    # sort such that equation with the fewest potential symbols is first.\n    # means eq with less number of variable first in the list.\n    eqs_in_better_order = list(\n        ordered(system, lambda _: len(_unsolved_syms(_))))\n\n    def add_intersection_complement(result, intersection_dict, complement_dict):\n        # If solveset has returned some intersection/complement\n        # for any symbol, it will be added in the final solution.\n        final_result = []\n        for res in result:\n            res_copy = res\n            for key_res, value_res in res.items():\n                intersect_set, complement_set = None, None\n                for key_sym, value_sym in intersection_dict.items():\n                    if key_sym == key_res:\n                        intersect_set = value_sym\n                for key_sym, value_sym in complement_dict.items():\n                    if key_sym == key_res:\n                        complement_set = value_sym\n                if intersect_set or complement_set:\n                    new_value = FiniteSet(value_res)\n                    if intersect_set and intersect_set != S.Complexes:\n                        new_value = Intersection(new_value, intersect_set)\n                    if complement_set:\n                        new_value = Complement(new_value, complement_set)\n                    if new_value is S.EmptySet:\n                        res_copy = None\n                        break\n                    elif new_value.is_FiniteSet and len(new_value) == 1:\n                        res_copy[key_res] = set(new_value).pop()\n                    else:\n                        res_copy[key_res] = new_value\n\n            if res_copy is not None:\n                final_result.append(res_copy)\n        return final_result\n\n    def _extract_main_soln(sym, sol, soln_imageset):\n        \"\"\"Separate the Complements, Intersections, ImageSet lambda expr and\n        its base_set. This function returns the unmasked sol from different classes\n        of sets and also returns the appended ImageSet elements in a\n        soln_imageset dict: `{unmasked element: ImageSet}`.\n        \"\"\"\n        # if there is union, then need to check\n        # Complement, Intersection, Imageset.\n        # Order should not be changed.\n        if isinstance(sol, ConditionSet):\n            # extracts any solution in ConditionSet\n            sol = sol.base_set\n\n        if isinstance(sol, Complement):\n            # extract solution and complement\n            complements[sym] = sol.args[1]\n            sol = sol.args[0]\n            # complement will be added at the end\n            # using `add_intersection_complement` method\n\n        # if there is union of Imageset or other in soln.\n        # no testcase is written for this if block\n        if isinstance(sol, Union):\n            sol_args = sol.args\n            sol = S.EmptySet\n            # We need in sequence so append finteset elements\n            # and then imageset or other.\n            for sol_arg2 in sol_args:\n                if isinstance(sol_arg2, FiniteSet):\n                    sol += sol_arg2\n                else:\n                    # ImageSet, Intersection, complement then\n                    # append them directly\n                    sol += FiniteSet(sol_arg2)\n\n        if isinstance(sol, Intersection):\n            # Interval/Set will be at 0th index always\n            if sol.args[0] not in (S.Reals, S.Complexes):\n                # Sometimes solveset returns soln with intersection\n                # S.Reals or S.Complexes. We don't consider that\n                # intersection.\n                intersections[sym] = sol.args[0]\n            sol = sol.args[1]\n        # after intersection and complement Imageset should\n        # be checked.\n        if isinstance(sol, ImageSet):\n            soln_imagest = sol\n            expr2 = sol.lamda.expr\n            sol = FiniteSet(expr2)\n            soln_imageset[expr2] = soln_imagest\n\n        if not isinstance(sol, FiniteSet):\n            sol = FiniteSet(sol)\n        return sol, soln_imageset\n\n    def _check_exclude(rnew, imgset_yes):\n        rnew_ = rnew\n        if imgset_yes:\n            # replace all dummy variables (Imageset lambda variables)\n            # with zero before `checksol`. Considering fundamental soln\n            # for `checksol`.\n            rnew_copy = rnew.copy()\n            dummy_n = imgset_yes[0]\n            for key_res, value_res in rnew_copy.items():\n                rnew_copy[key_res] = value_res.subs(dummy_n, 0)\n            rnew_ = rnew_copy\n        # satisfy_exclude == true if it satisfies the expr of `exclude` list.\n        try:\n            # something like : `Mod(-log(3), 2*I*pi)` can't be\n            # simplified right now, so `checksol` returns `TypeError`.\n            # when this issue is fixed this try block should be\n            # removed. Mod(-log(3), 2*I*pi) == -log(3)\n            satisfy_exclude = any(\n                checksol(d, rnew_) for d in exclude)\n        except TypeError:\n            satisfy_exclude = None\n        return satisfy_exclude\n\n    def _restore_imgset(rnew, original_imageset, newresult):\n        restore_sym = set(rnew.keys()) & \\\n            set(original_imageset.keys())\n        for key_sym in restore_sym:\n            img = original_imageset[key_sym]\n            rnew[key_sym] = img\n        if rnew not in newresult:\n            newresult.append(rnew)\n\n    def _append_eq(eq, result, res, delete_soln, n=None):\n        u = Dummy('u')\n        if n:\n            eq = eq.subs(n, 0)\n        satisfy = eq if eq in (True, False) else checksol(u, u, eq, minimal=True)\n        if satisfy is False:\n            delete_soln = True\n            res = {}\n        else:\n            result.append(res)\n        return result, res, delete_soln\n\n    def _append_new_soln(rnew, sym, sol, imgset_yes, soln_imageset,\n                         original_imageset, newresult, eq=None):\n        \"\"\"If `rnew` (A dict <symbol: soln>) contains valid soln\n        append it to `newresult` list.\n        `imgset_yes` is (base, dummy_var) if there was imageset in previously\n         calculated result(otherwise empty tuple). `original_imageset` is dict\n         of imageset expr and imageset from this result.\n        `soln_imageset` dict of imageset expr and imageset of new soln.\n        \"\"\"\n        satisfy_exclude = _check_exclude(rnew, imgset_yes)\n        delete_soln = False\n        # soln should not satisfy expr present in `exclude` list.\n        if not satisfy_exclude:\n            local_n = None\n            # if it is imageset\n            if imgset_yes:\n                local_n = imgset_yes[0]\n                base = imgset_yes[1]\n                if sym and sol:\n                    # when `sym` and `sol` is `None` means no new\n                    # soln. In that case we will append rnew directly after\n                    # substituting original imagesets in rnew values if present\n                    # (second last line of this function using _restore_imgset)\n                    dummy_list = list(sol.atoms(Dummy))\n                    # use one dummy `n` which is in\n                    # previous imageset\n                    local_n_list = [\n                        local_n for i in range(\n                            0, len(dummy_list))]\n\n                    dummy_zip = zip(dummy_list, local_n_list)\n                    lam = Lambda(local_n, sol.subs(dummy_zip))\n                    rnew[sym] = ImageSet(lam, base)\n                if eq is not None:\n                    newresult, rnew, delete_soln = _append_eq(\n                        eq, newresult, rnew, delete_soln, local_n)\n            elif eq is not None:\n                newresult, rnew, delete_soln = _append_eq(\n                    eq, newresult, rnew, delete_soln)\n            elif sol in soln_imageset.keys():\n                rnew[sym] = soln_imageset[sol]\n                # restore original imageset\n                _restore_imgset(rnew, original_imageset, newresult)\n            else:\n                newresult.append(rnew)\n        elif satisfy_exclude:\n            delete_soln = True\n            rnew = {}\n        _restore_imgset(rnew, original_imageset, newresult)\n        return newresult, delete_soln\n\n    def _new_order_result(result, eq):\n        # separate first, second priority. `res` that makes `eq` value equals\n        # to zero, should be used first then other result(second priority).\n        # If it is not done then we may miss some soln.\n        first_priority = []\n        second_priority = []\n        for res in result:\n            if not any(isinstance(val, ImageSet) for val in res.values()):\n                if eq.subs(res) == 0:\n                    first_priority.append(res)\n                else:\n                    second_priority.append(res)\n        if first_priority or second_priority:\n            return first_priority + second_priority\n        return result\n\n    def _solve_using_known_values(result, solver):\n        \"\"\"Solves the system using already known solution\n        (result contains the dict <symbol: value>).\n        solver is :func:`~.solveset_complex` or :func:`~.solveset_real`.\n        \"\"\"\n        # stores imageset <expr: imageset(Lambda(n, expr), base)>.\n        soln_imageset = {}\n        total_solvest_call = 0\n        total_conditionst = 0\n\n        # sort equations so the one with the fewest potential\n        # symbols appears first\n        for index, eq in enumerate(eqs_in_better_order):\n            newresult = []\n            # if imageset, expr is used to solve for other symbol\n            imgset_yes = False\n            for res in result:\n                original_imageset = {}\n                got_symbol = set()  # symbols solved in one iteration\n                # find the imageset and use its expr.\n                for k, v in res.items():\n                    if isinstance(v, ImageSet):\n                        res[k] = v.lamda.expr\n                        original_imageset[k] = v\n                        dummy_n = v.lamda.expr.atoms(Dummy).pop()\n                        (base,) = v.base_sets\n                        imgset_yes = (dummy_n, base)\n                    assert not isinstance(v, FiniteSet)  # if so, internal error\n                # update eq with everything that is known so far\n                eq2 = eq.subs(res).expand()\n                if imgset_yes and not eq2.has(imgset_yes[0]):\n                    # The substituted equation simplified in such a way that\n                    # it's no longer necessary to encapsulate a potential new\n                    # solution in an ImageSet. (E.g. at the previous step some\n                    # {n*2*pi} was found as partial solution for one of the\n                    # unknowns, but its main solution expression n*2*pi has now\n                    # been substituted in a trigonometric function.)\n                    imgset_yes = False\n\n                unsolved_syms = _unsolved_syms(eq2, sort=True)\n                if not unsolved_syms:\n                    if res:\n                        newresult, delete_res = _append_new_soln(\n                            res, None, None, imgset_yes, soln_imageset,\n                            original_imageset, newresult, eq2)\n                        if delete_res:\n                            # `delete_res` is true, means substituting `res` in\n                            # eq2 doesn't return `zero` or deleting the `res`\n                            # (a soln) since it satisfies expr of `exclude`\n                            # list.\n                            result.remove(res)\n                    continue  # skip as it's independent of desired symbols\n                depen1, depen2 = eq2.as_independent(*unsolved_syms)\n                if (depen1.has(Abs) or depen2.has(Abs)) and solver == solveset_complex:\n                    # Absolute values cannot be inverted in the\n                    # complex domain\n                    raise NotImplementedError(\n                        \"nonlinsolve cannot solve equations with Abs in the complex domain\"\n                    )\n                soln_imageset = {}\n                for sym in unsolved_syms:\n                    not_solvable = False\n                    try:\n                        soln = solver(eq2, sym)\n                        total_solvest_call += 1\n                        soln_new = S.EmptySet\n                        if isinstance(soln, Complement):\n                            # separate solution and complement\n                            complements[sym] = soln.args[1]\n                            soln = soln.args[0]\n                            # complement will be added at the end\n                        if isinstance(soln, Intersection):\n                            # Interval will be at 0th index always\n                            if soln.args[0] != Interval(-oo, oo):\n                                # sometimes solveset returns soln\n                                # with intersection S.Reals, to confirm that\n                                # soln is in domain=S.Reals\n                                intersections[sym] = soln.args[0]\n                            soln_new += soln.args[1]\n                        soln = soln_new if soln_new else soln\n                        if index > 0 and solver == solveset_real:\n                            # one symbol's real soln, another symbol may have\n                            # corresponding complex soln.\n                            if not isinstance(soln, (ImageSet, ConditionSet)):\n                                soln += solveset_complex(eq2, sym)  # might give ValueError with Abs\n\n                        if not isinstance(soln, (FiniteSet, ImageSet, ConditionSet, Union)) and soln is not S.EmptySet:\n                            raise NotImplementedError(\n                                f\"nonlinsolve cannot handle solution of type {type(soln).__name__} \"\n                                f\"for symbol {sym}. Got {soln} from equation {eq2}.\"\n                            )\n                    except ValueError:\n                        # If solveset is not able to solve equation `eq2`. Next\n                        # time we may get soln using next equation `eq2`\n                        continue\n                    if isinstance(soln, ConditionSet):\n                        if soln.base_set in (S.Reals, S.Complexes):\n                            soln = S.EmptySet\n                            # don't do `continue` we may get soln\n                            # in terms of other symbol(s)\n                            not_solvable = True\n                            total_conditionst += 1\n                        else:\n                            soln = soln.base_set\n\n                    if soln is not S.EmptySet:\n                        soln, soln_imageset = _extract_main_soln(\n                            sym, soln, soln_imageset)\n\n                    for sol in soln:\n                        # sol is not a `Union` since we checked it\n                        # before this loop\n                        sol, soln_imageset = _extract_main_soln(\n                            sym, sol, soln_imageset)\n                        sol = set(sol).pop()  # XXX what if there are more solutions?\n                        free = sol.free_symbols\n                        if got_symbol and any(\n                            ss in free for ss in got_symbol\n                        ):\n                            # sol depends on previously solved symbols\n                            # then continue\n                            continue\n                        rnew = res.copy()\n                        # put each solution in res and append the new  result\n                        # in the new result list (solution for symbol `s`)\n                        # along with old results.\n                        for k, v in res.items():\n                            if isinstance(v, Expr) and isinstance(sol, Expr):\n                                # if any unsolved symbol is present\n                                # Then subs known value\n                                rnew[k] = v.subs(sym, sol)\n                        # and add this new solution\n                        if sol in soln_imageset.keys():\n                            # replace all lambda variables with 0.\n                            imgst = soln_imageset[sol]\n                            rnew[sym] = imgst.lamda(\n                                *[0 for i in range(0, len(\n                                    imgst.lamda.variables))])\n                        else:\n                            rnew[sym] = sol\n                        newresult, delete_res = _append_new_soln(\n                            rnew, sym, sol, imgset_yes, soln_imageset,\n                            original_imageset, newresult)\n                        if delete_res:\n                            # deleting the `res` (a soln) since it satisfies\n                            # eq of `exclude` list\n                            result.remove(res)\n                    # solution got for sym\n                    if not not_solvable:\n                        got_symbol.add(sym)\n            # next time use this new soln\n            if newresult:\n                result = newresult\n        return result, total_solvest_call, total_conditionst\n\n    new_result_real, solve_call1, cnd_call1 = _solve_using_known_values(\n        old_result, solveset_real)\n    new_result_complex, solve_call2, cnd_call2 = _solve_using_known_values(\n        old_result, solveset_complex)\n\n    # If total_solveset_call is equal to total_conditionset\n    # then solveset failed to solve all of the equations.\n    # In this case we return a ConditionSet here.\n    total_conditionset += (cnd_call1 + cnd_call2)\n    total_solveset_call += (solve_call1 + solve_call2)\n\n    if total_conditionset == total_solveset_call and total_solveset_call != -1:\n        return _return_conditionset(eqs_in_better_order, all_symbols)\n\n    # don't keep duplicate solutions\n    filtered_complex = []\n    for i in list(new_result_complex):\n        for j in list(new_result_real):\n            if i.keys() != j.keys():\n                continue\n            if all(a.dummy_eq(b) for a, b in zip(i.values(), j.values()) \\\n                if not (isinstance(a, int) and isinstance(b, int))):\n                break\n        else:\n            filtered_complex.append(i)\n    # overall result\n    result = new_result_real + filtered_complex\n\n    result_all_variables = []\n    result_infinite = []\n    for res in result:\n        if not res:\n            # means {None : None}\n            continue\n        # If length < len(all_symbols) means infinite soln.\n        # Some or all the soln is dependent on 1 symbol.\n        # eg. {x: y+2} then final soln {x: y+2, y: y}\n        if len(res) < len(all_symbols):\n            solved_symbols = res.keys()\n            unsolved = list(filter(\n                lambda x: x not in solved_symbols, all_symbols))\n            for unsolved_sym in unsolved:\n                res[unsolved_sym] = unsolved_sym\n            result_infinite.append(res)\n        if res not in result_all_variables:\n            result_all_variables.append(res)\n\n    if result_infinite:\n        # we have general soln\n        # eg : [{x: -1, y : 1}, {x : -y, y: y}] then\n        # return [{x : -y, y : y}]\n        result_all_variables = result_infinite\n    if intersections or complements:\n        result_all_variables = add_intersection_complement(\n            result_all_variables, intersections, complements)\n\n    # convert to ordered tuple\n    result = S.EmptySet\n    for r in result_all_variables:\n        temp = [r[symb] for symb in all_symbols]\n        result += FiniteSet(tuple(temp))\n    return result\n",
+    "file": "sympy/solvers/solveset.py",
+    "id": "sympy/solvers/solveset.py#substitution",
+    "name": "substitution",
+    "qual": "substitution",
+    "signature_changed": false
+   },
+   {
+    "after": "def nonlinsolve(system, *symbols):\n    r\"\"\"\n    Solve system of $N$ nonlinear equations with $M$ variables, which means both\n    under and overdetermined systems are supported. Positive dimensional\n    system is also supported (A system with infinitely many solutions is said\n    to be positive-dimensional). In a positive dimensional system the solution will\n    be dependent on at least one symbol. Returns both real solution\n    and complex solution (if they exist).\n\n    Parameters\n    ==========\n\n    system : list of equations\n        The target system of equations\n    symbols : list of Symbols\n        symbols should be given as a sequence eg. list\n\n    Returns\n    =======\n\n    A :class:`~.Set` representing the ordered values of `symbols` for which\n    the `system` has a solution. Results are typically returned as a\n    :class:`~.FiniteSet` of ordered tuples. Unresolved denominator restrictions\n    may require a :class:`~.ConditionSet`, and multiple set-valued branches\n    may form a :class:`~.Union`.\n\n    A :class:`~.FiniteSet` is unordered, but the values in each solution tuple\n    follow the order of the parameter `symbols`.\n\n    For the given set of equations, the respective input types\n    are given below:\n\n    .. math:: xy - 1 = 0\n    .. math:: 4x^2 + y^2 - 5 = 0\n\n    ::\n\n       system  = [x*y - 1, 4*x**2 + y**2 - 5]\n       symbols = [x, y]\n\n    Raises\n    ======\n\n    ValueError\n        The input is not valid.\n        The symbols are not given.\n    AttributeError\n        The input symbols are not `Symbol` type.\n\n    Examples\n    ========\n\n    >>> from sympy import symbols, nonlinsolve\n    >>> x, y, z = symbols('x, y, z', real=True)\n    >>> nonlinsolve([x*y - 1, 4*x**2 + y**2 - 5], [x, y])\n    {(-1, -1), (-1/2, -2), (1/2, 2), (1, 1)}\n\n    1. Positive dimensional system and complements:\n\n    >>> from sympy import pprint\n    >>> from sympy.polys.polytools import is_zero_dimensional\n    >>> a, b, c, d = symbols('a, b, c, d', extended_real=True)\n    >>> eq1 =  a + b + c + d\n    >>> eq2 = a*b + b*c + c*d + d*a\n    >>> eq3 = a*b*c + b*c*d + c*d*a + d*a*b\n    >>> eq4 = a*b*c*d - 1\n    >>> system = [eq1, eq2, eq3, eq4]\n    >>> is_zero_dimensional(system)\n    False\n    >>> pprint(nonlinsolve(system, [a, b, c, d]), use_unicode=False)\n      -1       1               1      -1\n    {(---, -d, -, {d} \\ {0}), (-, -d, ---, {d} \\ {0})}\n       d       d               d       d\n    >>> nonlinsolve([(x+y)**2 - 4, x + y - 2], [x, y])\n    {(2 - y, y)}\n\n    2. If some of the equations are non-polynomial then `nonlinsolve`\n    will call the ``substitution`` function and return real and complex solutions,\n    if present.\n\n    >>> from sympy import exp, sin\n    >>> nonlinsolve([exp(x) - sin(y), y**2 - 4], [x, y])\n    {(ImageSet(Lambda(_n, I*(2*_n*pi + pi) + log(sin(2))), Integers), -2),\n     (ImageSet(Lambda(_n, 2*_n*I*pi + log(sin(2))), Integers), 2)}\n\n    3. If system is non-linear polynomial and zero-dimensional then it\n    returns both solution (real and complex solutions, if present) using\n    :func:`~.solve_poly_system`:\n\n    >>> from sympy import sqrt\n    >>> nonlinsolve([x**2 - 2*y**2 -2, x*y - 2], [x, y])\n    {(-2, -1), (2, 1), (-sqrt(2)*I, sqrt(2)*I), (sqrt(2)*I, -sqrt(2)*I)}\n\n    4. ``nonlinsolve`` can solve some linear (zero or positive dimensional)\n    system (because it uses the :func:`sympy.polys.polytools.groebner` function to get the\n    groebner basis and then uses the ``substitution`` function basis as the\n    new `system`). But it is not recommended to solve linear system using\n    ``nonlinsolve``, because :func:`~.linsolve` is better for general linear systems.\n\n    >>> nonlinsolve([x + 2*y -z - 3, x - y - 4*z + 9, y + z - 4], [x, y, z])\n    {(3*z - 5, 4 - z, z)}\n\n    5. System having polynomial equations and only real solution is\n    solved using :func:`~.solve_poly_system`:\n\n    >>> e1 = sqrt(x**2 + y**2) - 10\n    >>> e2 = sqrt(y**2 + (-x + 10)**2) - 3\n    >>> nonlinsolve((e1, e2), (x, y))\n    {(191/20, -3*sqrt(391)/20), (191/20, 3*sqrt(391)/20)}\n    >>> nonlinsolve([x**2 + 2/y - 2, x + y - 3], [x, y])\n    {(1, 2), (1 - sqrt(5), 2 + sqrt(5)), (1 + sqrt(5), 2 - sqrt(5))}\n    >>> nonlinsolve([x**2 + 2/y - 2, x + y - 3], [y, x])\n    {(2, 1), (2 - sqrt(5), 1 + sqrt(5)), (2 + sqrt(5), 1 - sqrt(5))}\n\n    6. It is better to use symbols instead of trigonometric functions or\n    :class:`~.Function`. For example, replace $\\sin(x)$ with a symbol, replace\n    $f(x)$ with a symbol and so on. Get a solution from ``nonlinsolve`` and then\n    use :func:`~.solveset` to get the value of $x$.\n\n    How nonlinsolve is better than old solver ``_solve_system`` :\n    =============================================================\n\n    1. A positive dimensional system solver: nonlinsolve can return\n    solution for positive dimensional system. It finds the\n    Groebner Basis of the positive dimensional system(calling it as\n    basis) then we can start solving equation(having least number of\n    variable first in the basis) using solveset and substituting that\n    solved solutions into other equation(of basis) to get solution in\n    terms of minimum variables. Here the important thing is how we\n    are substituting the known values and in which equations.\n\n    2. Real and complex solutions: nonlinsolve returns both real\n    and complex solution. If all the equations in the system are polynomial\n    then using :func:`~.solve_poly_system` both real and complex solution is returned.\n    If all the equations in the system are not polynomial equation then goes to\n    ``substitution`` method with this polynomial and non polynomial equation(s),\n    to solve for unsolved variables. Here to solve for particular variable\n    solveset_real and solveset_complex is used. For both real and complex\n    solution ``_solve_using_known_values`` is used inside ``substitution``\n    (``substitution`` will be called when any non-polynomial equation is present).\n    If a solution is valid its general solution is added to the final result.\n\n    3. :class:`~.Complement` and :class:`~.Intersection` will be added:\n    nonlinsolve maintains dict for complements and intersections. If solveset\n    find complements or/and intersections with any interval or set during the\n    execution of ``substitution`` function, then complement or/and\n    intersection for that variable is added before returning final solution.\n\n    \"\"\"\n    if not system:\n        return S.EmptySet\n\n    if not symbols:\n        msg = ('Symbols must be given, for which solution of the '\n               'system is to be found.')\n        raise ValueError(filldedent(msg))\n\n    if hasattr(symbols[0], '__iter__'):\n        symbols = symbols[0]\n\n    if not is_sequence(symbols) or not symbols:\n        msg = ('Symbols must be given, for which solution of the '\n               'system is to be found.')\n        raise IndexError(filldedent(msg))\n\n    symbols = list(map(_sympify, symbols))\n    system = [_sympify(eq) for eq in system]\n    system, symbols, swap = recast_to_symbols(system, symbols)\n    if swap:\n        soln = nonlinsolve(system, symbols)\n        return soln.subs(swap, simultaneous=True)\n\n    if len(system) == 1 and len(symbols) == 1:\n        return _solveset_work(system, symbols)\n\n    # main code of def nonlinsolve() starts from here\n\n    polys, polys_expr, nonpolys, denominators, unrad_changed = \\\n        _separate_poly_nonpoly(system, symbols)\n\n    poly_eqs = []\n    poly_sol = [{}]\n\n    if polys:\n        poly_sol, poly_eqs = _handle_poly(polys, symbols)\n        if poly_sol and poly_sol[0]:\n            poly_syms = set().union(*(eq.free_symbols for eq in polys))\n            unrad_syms = set().union(*(eq.free_symbols for eq in unrad_changed))\n            if unrad_syms == poly_syms and unrad_changed:\n                # if all the symbols have been solved by _handle_poly\n                # and unrad has been used then check solutions\n                poly_sol = [sol for sol in poly_sol if checksol(unrad_changed, sol)]\n\n    # Collect together the unsolved polynomials with the non-polynomial\n    # equations.\n    remaining = poly_eqs + nonpolys\n\n    # to_tuple converts a solution dictionary to a tuple containing the\n    # value for each symbol\n    to_tuple = lambda sol: tuple(sol.get(s, s) for s in symbols)\n\n    if not remaining:\n        # Validate denominators even when there is nothing left to solve.\n        if denominators:\n            branches = [{s: sol.get(s, s) for s in symbols} for sol in poly_sol]\n            return substitution([S.Zero], symbols, result=branches,\n                                exclude=denominators)\n        return FiniteSet(*map(to_tuple, poly_sol))\n    else:\n        # Here we handle:\n        #\n        #  1. The Groebner basis if solve_poly_system failed.\n        #  2. The Groebner basis in the positive-dimensional case.\n        #  3. Any non-polynomial equations\n        #\n        # If solve_poly_system did succeed then we pass those solutions in as\n        # preliminary results.\n        subs_res = substitution(remaining, symbols, result=poly_sol, exclude=denominators)\n\n        if not isinstance(subs_res, FiniteSet):\n            return subs_res\n\n        # check solutions produced by substitution. Currently, checking is done for\n        # only those solutions which have non-Set variable values.\n        if unrad_changed:\n            result = [dict(zip(symbols, sol)) for sol in subs_res.args]\n            correct_sols = [sol for sol in result if any(isinstance(v, Set) for v in sol)\n                            or checksol(unrad_changed, sol) != False]\n            return FiniteSet(*map(to_tuple, correct_sols))\n        else:\n            return subs_res\n",
+    "before": "def nonlinsolve(system, *symbols):\n    r\"\"\"\n    Solve system of $N$ nonlinear equations with $M$ variables, which means both\n    under and overdetermined systems are supported. Positive dimensional\n    system is also supported (A system with infinitely many solutions is said\n    to be positive-dimensional). In a positive dimensional system the solution will\n    be dependent on at least one symbol. Returns both real solution\n    and complex solution (if they exist).\n\n    Parameters\n    ==========\n\n    system : list of equations\n        The target system of equations\n    symbols : list of Symbols\n        symbols should be given as a sequence eg. list\n\n    Returns\n    =======\n\n    A :class:`~.FiniteSet` of ordered tuple of values of `symbols` for which the `system`\n    has solution. Order of values in the tuple is same as symbols present in\n    the parameter `symbols`.\n\n    Please note that general :class:`~.FiniteSet` is unordered, the solution\n    returned here is not simply a :class:`~.FiniteSet` of solutions, rather it\n    is a :class:`~.FiniteSet` of ordered tuple, i.e. the first and only\n    argument to :class:`~.FiniteSet` is a tuple of solutions, which is\n    ordered, and, hence ,the returned solution is ordered.\n\n    Also note that solution could also have been returned as an ordered tuple,\n    FiniteSet is just a wrapper ``{}`` around the tuple. It has no other\n    significance except for the fact it is just used to maintain a consistent\n    output format throughout the solveset.\n\n    For the given set of equations, the respective input types\n    are given below:\n\n    .. math:: xy - 1 = 0\n    .. math:: 4x^2 + y^2 - 5 = 0\n\n    ::\n\n       system  = [x*y - 1, 4*x**2 + y**2 - 5]\n       symbols = [x, y]\n\n    Raises\n    ======\n\n    ValueError\n        The input is not valid.\n        The symbols are not given.\n    AttributeError\n        The input symbols are not `Symbol` type.\n\n    Examples\n    ========\n\n    >>> from sympy import symbols, nonlinsolve\n    >>> x, y, z = symbols('x, y, z', real=True)\n    >>> nonlinsolve([x*y - 1, 4*x**2 + y**2 - 5], [x, y])\n    {(-1, -1), (-1/2, -2), (1/2, 2), (1, 1)}\n\n    1. Positive dimensional system and complements:\n\n    >>> from sympy import pprint\n    >>> from sympy.polys.polytools import is_zero_dimensional\n    >>> a, b, c, d = symbols('a, b, c, d', extended_real=True)\n    >>> eq1 =  a + b + c + d\n    >>> eq2 = a*b + b*c + c*d + d*a\n    >>> eq3 = a*b*c + b*c*d + c*d*a + d*a*b\n    >>> eq4 = a*b*c*d - 1\n    >>> system = [eq1, eq2, eq3, eq4]\n    >>> is_zero_dimensional(system)\n    False\n    >>> pprint(nonlinsolve(system, [a, b, c, d]), use_unicode=False)\n      -1       1               1      -1\n    {(---, -d, -, {d} \\ {0}), (-, -d, ---, {d} \\ {0})}\n       d       d               d       d\n    >>> nonlinsolve([(x+y)**2 - 4, x + y - 2], [x, y])\n    {(2 - y, y)}\n\n    2. If some of the equations are non-polynomial then `nonlinsolve`\n    will call the ``substitution`` function and return real and complex solutions,\n    if present.\n\n    >>> from sympy import exp, sin\n    >>> nonlinsolve([exp(x) - sin(y), y**2 - 4], [x, y])\n    {(ImageSet(Lambda(_n, I*(2*_n*pi + pi) + log(sin(2))), Integers), -2),\n     (ImageSet(Lambda(_n, 2*_n*I*pi + log(sin(2))), Integers), 2)}\n\n    3. If system is non-linear polynomial and zero-dimensional then it\n    returns both solution (real and complex solutions, if present) using\n    :func:`~.solve_poly_system`:\n\n    >>> from sympy import sqrt\n    >>> nonlinsolve([x**2 - 2*y**2 -2, x*y - 2], [x, y])\n    {(-2, -1), (2, 1), (-sqrt(2)*I, sqrt(2)*I), (sqrt(2)*I, -sqrt(2)*I)}\n\n    4. ``nonlinsolve`` can solve some linear (zero or positive dimensional)\n    system (because it uses the :func:`sympy.polys.polytools.groebner` function to get the\n    groebner basis and then uses the ``substitution`` function basis as the\n    new `system`). But it is not recommended to solve linear system using\n    ``nonlinsolve``, because :func:`~.linsolve` is better for general linear systems.\n\n    >>> nonlinsolve([x + 2*y -z - 3, x - y - 4*z + 9, y + z - 4], [x, y, z])\n    {(3*z - 5, 4 - z, z)}\n\n    5. System having polynomial equations and only real solution is\n    solved using :func:`~.solve_poly_system`:\n\n    >>> e1 = sqrt(x**2 + y**2) - 10\n    >>> e2 = sqrt(y**2 + (-x + 10)**2) - 3\n    >>> nonlinsolve((e1, e2), (x, y))\n    {(191/20, -3*sqrt(391)/20), (191/20, 3*sqrt(391)/20)}\n    >>> nonlinsolve([x**2 + 2/y - 2, x + y - 3], [x, y])\n    {(1, 2), (1 - sqrt(5), 2 + sqrt(5)), (1 + sqrt(5), 2 - sqrt(5))}\n    >>> nonlinsolve([x**2 + 2/y - 2, x + y - 3], [y, x])\n    {(2, 1), (2 - sqrt(5), 1 + sqrt(5)), (2 + sqrt(5), 1 - sqrt(5))}\n\n    6. It is better to use symbols instead of trigonometric functions or\n    :class:`~.Function`. For example, replace $\\sin(x)$ with a symbol, replace\n    $f(x)$ with a symbol and so on. Get a solution from ``nonlinsolve`` and then\n    use :func:`~.solveset` to get the value of $x$.\n\n    How nonlinsolve is better than old solver ``_solve_system`` :\n    =============================================================\n\n    1. A positive dimensional system solver: nonlinsolve can return\n    solution for positive dimensional system. It finds the\n    Groebner Basis of the positive dimensional system(calling it as\n    basis) then we can start solving equation(having least number of\n    variable first in the basis) using solveset and substituting that\n    solved solutions into other equation(of basis) to get solution in\n    terms of minimum variables. Here the important thing is how we\n    are substituting the known values and in which equations.\n\n    2. Real and complex solutions: nonlinsolve returns both real\n    and complex solution. If all the equations in the system are polynomial\n    then using :func:`~.solve_poly_system` both real and complex solution is returned.\n    If all the equations in the system are not polynomial equation then goes to\n    ``substitution`` method with this polynomial and non polynomial equation(s),\n    to solve for unsolved variables. Here to solve for particular variable\n    solveset_real and solveset_complex is used. For both real and complex\n    solution ``_solve_using_known_values`` is used inside ``substitution``\n    (``substitution`` will be called when any non-polynomial equation is present).\n    If a solution is valid its general solution is added to the final result.\n\n    3. :class:`~.Complement` and :class:`~.Intersection` will be added:\n    nonlinsolve maintains dict for complements and intersections. If solveset\n    find complements or/and intersections with any interval or set during the\n    execution of ``substitution`` function, then complement or/and\n    intersection for that variable is added before returning final solution.\n\n    \"\"\"\n    if not system:\n        return S.EmptySet\n\n    if not symbols:\n        msg = ('Symbols must be given, for which solution of the '\n               'system is to be found.')\n        raise ValueError(filldedent(msg))\n\n    if hasattr(symbols[0], '__iter__'):\n        symbols = symbols[0]\n\n    if not is_sequence(symbols) or not symbols:\n        msg = ('Symbols must be given, for which solution of the '\n               'system is to be found.')\n        raise IndexError(filldedent(msg))\n\n    symbols = list(map(_sympify, symbols))\n    system = [_sympify(eq) for eq in system]\n    system, symbols, swap = recast_to_symbols(system, symbols)\n    if swap:\n        soln = nonlinsolve(system, symbols)\n        return FiniteSet(*[tuple(i.xreplace(swap) for i in s) for s in soln])\n\n    if len(system) == 1 and len(symbols) == 1:\n        return _solveset_work(system, symbols)\n\n    # main code of def nonlinsolve() starts from here\n\n    polys, polys_expr, nonpolys, denominators, unrad_changed = \\\n        _separate_poly_nonpoly(system, symbols)\n\n    poly_eqs = []\n    poly_sol = [{}]\n\n    if polys:\n        poly_sol, poly_eqs = _handle_poly(polys, symbols)\n        if poly_sol and poly_sol[0]:\n            poly_syms = set().union(*(eq.free_symbols for eq in polys))\n            unrad_syms = set().union(*(eq.free_symbols for eq in unrad_changed))\n            if unrad_syms == poly_syms and unrad_changed:\n                # if all the symbols have been solved by _handle_poly\n                # and unrad has been used then check solutions\n                poly_sol = [sol for sol in poly_sol if checksol(unrad_changed, sol)]\n\n    # Collect together the unsolved polynomials with the non-polynomial\n    # equations.\n    remaining = poly_eqs + nonpolys\n\n    # to_tuple converts a solution dictionary to a tuple containing the\n    # value for each symbol\n    to_tuple = lambda sol: tuple(sol.get(s, s) for s in symbols)\n\n    if not remaining:\n        # If there is nothing left to solve then return the solution from\n        # solve_poly_system directly.\n        return FiniteSet(*map(to_tuple, poly_sol))\n    else:\n        # Here we handle:\n        #\n        #  1. The Groebner basis if solve_poly_system failed.\n        #  2. The Groebner basis in the positive-dimensional case.\n        #  3. Any non-polynomial equations\n        #\n        # If solve_poly_system did succeed then we pass those solutions in as\n        # preliminary results.\n        subs_res = substitution(remaining, symbols, result=poly_sol, exclude=denominators)\n\n        if not isinstance(subs_res, FiniteSet):\n            return subs_res\n\n        # check solutions produced by substitution. Currently, checking is done for\n        # only those solutions which have non-Set variable values.\n        if unrad_changed:\n            result = [dict(zip(symbols, sol)) for sol in subs_res.args]\n            correct_sols = [sol for sol in result if any(isinstance(v, Set) for v in sol)\n                            or checksol(unrad_changed, sol) != False]\n            return FiniteSet(*map(to_tuple, correct_sols))\n        else:\n            return subs_res\n",
+    "file": "sympy/solvers/solveset.py",
+    "id": "sympy/solvers/solveset.py#nonlinsolve",
+    "name": "nonlinsolve",
+    "qual": "nonlinsolve",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_issue_5132_2():\n    x, y = symbols('x, y', real=True)\n    eqs = [exp(x)**2 - sin(y) + z**2]\n    n = Dummy('n')\n    soln_real = (log(-z**2 + sin(y))/2, z)\n    lam = Lambda( n, I*(2*n*pi + arg(-z**2 + sin(y)))/2 + log(Abs(z**2 - sin(y)))/2)\n    img = ImageSet(lam, S.Integers)\n    # not sure about the complex soln. But it looks correct.\n    soln_complex = (img, z)\n    soln = FiniteSet(soln_real, soln_complex)\n    assert dumeq(nonlinsolve(eqs, [x, z]), soln)\n\n    system = [r - x**2 - y**2, tan(t) - y/x]\n    s_x = sqrt(r*cos(t)**2)\n    s_y = s_x*tan(t)\n    soln = Union(*(ConditionSet(\n        Tuple(x, y), Eq(x, sign*s_x) & Eq(y, sign*s_y) & Ne(sign*s_x, 0),\n        S.Reals**2) for sign in (-1, 1)))\n    result = nonlinsolve(system, [x, y])\n    assert trigsimp(result) == soln\n    assert result.xreplace({r: S.Zero, t: S.Zero}) is S.EmptySet\n    valid = result.xreplace({r: S.One, t: S.Zero})\n    assert valid.contains((1, 0)) is S.true\n    assert valid.contains((-1, 0)) is S.true\n",
+    "before": "def test_issue_5132_2():\n    x, y = symbols('x, y', real=True)\n    eqs = [exp(x)**2 - sin(y) + z**2]\n    n = Dummy('n')\n    soln_real = (log(-z**2 + sin(y))/2, z)\n    lam = Lambda( n, I*(2*n*pi + arg(-z**2 + sin(y)))/2 + log(Abs(z**2 - sin(y)))/2)\n    img = ImageSet(lam, S.Integers)\n    # not sure about the complex soln. But it looks correct.\n    soln_complex = (img, z)\n    soln = FiniteSet(soln_real, soln_complex)\n    assert dumeq(nonlinsolve(eqs, [x, z]), soln)\n\n    system = [r - x**2 - y**2, tan(t) - y/x]\n    s_x = sqrt(r/(tan(t)**2 + 1))\n    s_y = sqrt(r/(tan(t)**2 + 1))*tan(t)\n    soln = FiniteSet((s_x, s_y), (-s_x, -s_y))\n    assert nonlinsolve(system, [x, y]) == soln\n",
+    "file": "sympy/solvers/tests/test_solveset.py",
+    "id": "sympy/solvers/tests/test_solveset.py#test_issue_5132_2",
+    "name": "test_issue_5132_2",
+    "qual": "test_issue_5132_2",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [],
+   "filter_seconds": 0.0,
+   "gaps": [
+    "generated tests: the dollar cap leaves too little for one request ($0.100)"
+   ],
+   "info": {
+    "accepted": 0,
+    "compiled": 0,
+    "cost": 0.0,
+    "differed": 0,
+    "dollars_cap": 0.1,
+    "functions": 4,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 0,
+    "ran": 0,
+    "reached": 0,
+    "requests": 0,
+    "stable": 0
+   },
+   "probes": [
+    {
+     "call": "str(nonlinsolve([(x**2 - 1)/(x - 1) - x - 1, y - 1], [x, y]))",
+     "function": "sympy/solvers/solveset.py#nonlinsolve",
+     "setup": "from sympy import symbols\nfrom sympy.solvers.solveset import nonlinsolve, substitution\nx, y = symbols('x y', real=True)\na, b, c = symbols('a b c')",
+     "why": "issue 30522: x = 1 must stay excluded"
+    },
+    {
+     "call": "str(substitution([(x*y - x)/(x - 1) - y], [x, y]))",
+     "function": "sympy/solvers/solveset.py#substitution",
+     "setup": "from sympy import symbols\nfrom sympy.solvers.solveset import nonlinsolve, substitution\nx, y = symbols('x y', real=True)\na, b, c = symbols('a b c')",
+     "why": "issue 30521: a restriction carried through x = y"
+    },
+    {
+     "call": "str(nonlinsolve([c/(a + b)], [a, b, c]))",
+     "function": "sympy/solvers/solveset.py#_return_conditionset",
+     "setup": "from sympy import symbols\nfrom sympy.solvers.solveset import nonlinsolve, substitution\nx, y = symbols('x y', real=True)\na, b, c = symbols('a b c')",
+     "why": "a restriction with two free parameters becomes a ConditionSet condition"
+    },
+    {
+     "call": "test_issue_5132_2()",
+     "function": "sympy/solvers/tests/test_solveset.py#test_issue_5132_2",
+     "setup": "from sympy.solvers.tests.test_solveset import test_issue_5132_2",
+     "why": "runs the edited test"
+    }
+   ],
+   "targets": [
+    "sympy/solvers/solveset.py#_return_conditionset",
+    "sympy/solvers/solveset.py#substitution",
+    "sympy/solvers/solveset.py#nonlinsolve",
+    "sympy/solvers/tests/test_solveset.py#test_issue_5132_2"
+   ],
+   "waited_seconds": 202.3
+  },
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "return",
+      "str",
+      "'FiniteSet((Complement({x}, {1}), 1))'"
+     ],
+     "before": [
+      "return",
+      "str",
+      "'{(x, 1)}'"
+     ],
+     "call": "str(nonlinsolve([(x**2 - 1)/(x - 1) - x - 1, y - 1], [x, y]))",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import symbols\nfrom sympy.solvers.solveset import nonlinsolve, substitution\nx, y = symbols('x y', real=True)\na, b, c = symbols('a b c')",
+     "target": "sympy/solvers/solveset.py#nonlinsolve",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import symbols\n    from sympy.solvers.solveset import nonlinsolve, substitution\n    x, y = symbols('x y', real=True)\n    a, b, c = symbols('a b c')\n    assert repr(str(nonlinsolve([(x**2 - 1)/(x - 1) - x - 1, y - 1], [x, y]))) == \"'FiniteSet((Complement({x}, {1}), 1))'\"\n",
+     "why": "issue 30522: x = 1 must stay excluded"
+    },
+    {
+     "after": [
+      "return",
+      "str",
+      "'ConditionSet((a, b, c), Eq(c, 0) & Ne(a + b, 0), ProductSet(Complexes, Complexes, Complexes))'"
+     ],
+     "before": [
+      "return",
+      "str",
+      "'{(a, b, 0)}'"
+     ],
+     "call": "str(nonlinsolve([c/(a + b)], [a, b, c]))",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import symbols\nfrom sympy.solvers.solveset import nonlinsolve, substitution\nx, y = symbols('x y', real=True)\na, b, c = symbols('a b c')",
+     "target": "sympy/solvers/solveset.py#_return_conditionset",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import symbols\n    from sympy.solvers.solveset import nonlinsolve, substitution\n    x, y = symbols('x y', real=True)\n    a, b, c = symbols('a b c')\n    assert repr(str(nonlinsolve([c/(a + b)], [a, b, c]))) == \"'ConditionSet((a, b, c), Eq(c, 0) & Ne(a + b, 0), ProductSet(Complexes, Complexes, Complexes))'\"\n",
+     "why": "a restriction with two free parameters becomes a ConditionSet condition"
+    }
+   ],
+   "dollars_cap": 1.0,
+   "filter_seconds": 36.4,
+   "gaps": [],
+   "info": {
+    "accepted": 2,
+    "compiled": 4,
+    "cost": 0.0,
+    "differed": 2,
+    "dollars_cap": 1.0,
+    "functions": 4,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 4,
+    "ran": 4,
+    "reached": 4,
+    "requests": 1,
+    "seconds": 36.2,
+    "stable": 4
+   },
+   "probes": [
+    {
+     "call": "str(nonlinsolve([(x**2 - 1)/(x - 1) - x - 1, y - 1], [x, y]))",
+     "function": "sympy/solvers/solveset.py#nonlinsolve",
+     "setup": "from sympy import symbols\nfrom sympy.solvers.solveset import nonlinsolve, substitution\nx, y = symbols('x y', real=True)\na, b, c = symbols('a b c')",
+     "why": "issue 30522: x = 1 must stay excluded"
+    },
+    {
+     "call": "str(substitution([(x*y - x)/(x - 1) - y], [x, y]))",
+     "function": "sympy/solvers/solveset.py#substitution",
+     "setup": "from sympy import symbols\nfrom sympy.solvers.solveset import nonlinsolve, substitution\nx, y = symbols('x y', real=True)\na, b, c = symbols('a b c')",
+     "why": "issue 30521: a restriction carried through x = y"
+    },
+    {
+     "call": "str(nonlinsolve([c/(a + b)], [a, b, c]))",
+     "function": "sympy/solvers/solveset.py#_return_conditionset",
+     "setup": "from sympy import symbols\nfrom sympy.solvers.solveset import nonlinsolve, substitution\nx, y = symbols('x y', real=True)\na, b, c = symbols('a b c')",
+     "why": "a restriction with two free parameters becomes a ConditionSet condition"
+    },
+    {
+     "call": "test_issue_5132_2()",
+     "function": "sympy/solvers/tests/test_solveset.py#test_issue_5132_2",
+     "setup": "from sympy.solvers.tests.test_solveset import test_issue_5132_2",
+     "why": "runs the edited test"
+    }
+   ],
+   "targets": [
+    "sympy/solvers/solveset.py#_return_conditionset",
+    "sympy/solvers/solveset.py#substitution",
+    "sympy/solvers/solveset.py#nonlinsolve",
+    "sympy/solvers/tests/test_solveset.py#test_issue_5132_2"
+   ],
+   "waited_seconds": 414.9
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_issue_30522",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_issue_30521",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_denominator_restrictions",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_denominator_restrictions_periodic",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_coupled_denominator_restrictions",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_denominator_restrictions_recast",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/solvers/tests/test_solveset.py::test_substitution_denominator_restrictions_normalization",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_denominator_restrictions_fallback",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_denominator_restrictions_polynomial",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_5132_2",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/solvers/solveset.py",
+    "lines": "3177-3182",
+    "symbol": "_return_conditionset"
+   },
+   {
+    "file": "sympy/solvers/solveset.py",
+    "lines": "3186-3213",
+    "symbol": "_process_exclusions_for_branch"
+   },
+   {
+    "file": "sympy/solvers/solveset.py",
+    "lines": "3216-3240",
+    "symbol": "_branch_as_conditionset"
+   },
+   {
+    "file": "sympy/solvers/solveset.py",
+    "lines": "3387",
+    "symbol": "substitution.add_intersection_complement"
+   },
+   {
+    "file": "sympy/solvers/solveset.py",
+    "lines": "3387-3772",
+    "symbol": "substitution"
+   },
+   {
+    "file": "sympy/solvers/solveset.py",
+    "lines": "3469",
+    "symbol": "substitution._restore_imgset"
+   },
+   {
+    "file": "sympy/solvers/solveset.py",
+    "lines": "3499-3531",
+    "symbol": "substitution._append_new_soln"
+   },
+   {
+    "file": "sympy/solvers/solveset.py",
+    "lines": "3597-3691",
+    "symbol": "substitution._solve_using_known_values"
+   },
+   {
+    "file": "sympy/solvers/solveset.py",
+    "lines": "3964-4150",
+    "symbol": "nonlinsolve"
+   },
+   {
+    "file": "sympy/solvers/tests/test_solveset.py",
+    "lines": "1950-1955",
+    "symbol": "test_nonlinsolve_issue_30522"
+   },
+   {
+    "file": "sympy/solvers/tests/test_solveset.py",
+    "lines": "1958-1961",
+    "symbol": "test_nonlinsolve_issue_30521"
+   },
+   {
+    "file": "sympy/solvers/tests/test_solveset.py",
+    "lines": "1964-1971",
+    "symbol": "test_nonlinsolve_denominator_restrictions"
+   },
+   {
+    "file": "sympy/solvers/tests/test_solveset.py",
+    "lines": "1974-1978",
+    "symbol": "test_nonlinsolve_denominator_restrictions_near_zero"
+   },
+   {
+    "file": "sympy/solvers/tests/test_solveset.py",
+    "lines": "1981-1987",
+    "symbol": "test_nonlinsolve_denominator_restrictions_periodic"
+   },
+   {
+    "file": "sympy/solvers/tests/test_solveset.py",
+    "lines": "1990-2025",
+    "symbol": "test_nonlinsolve_coupled_denominator_restrictions"
+   },
+   {
+    "file": "sympy/solvers/tests/test_solveset.py",
+    "lines": "2028-2052",
+    "symbol": "test_nonlinsolve_denominator_restrictions_recast"
+   },
+   {
+    "file": "sympy/solvers/tests/test_solveset.py",
+    "lines": "2055-2064",
+    "symbol": "test_substitution_denominator_restrictions_normalization"
+   },
+   {
+    "file": "sympy/solvers/tests/test_solveset.py",
+    "lines": "2067-2078",
+    "symbol": "test_nonlinsolve_denominator_restrictions_fallback"
+   },
+   {
+    "file": "sympy/solvers/tests/test_solveset.py",
+    "lines": "2081-2085",
+    "symbol": "test_nonlinsolve_denominator_restrictions_polynomial"
+   },
+   {
+    "file": "sympy/solvers/tests/test_solveset.py",
+    "lines": "2464-2474",
+    "symbol": "test_issue_5132_2"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/solvers/solveset.py#_branch_as_conditionset",
+   "sympy/solvers/solveset.py#_process_exclusions_for_branch",
+   "sympy/solvers/solveset.py#_return_conditionset",
+   "sympy/solvers/solveset.py#nonlinsolve",
+   "sympy/solvers/solveset.py#substitution",
+   "sympy/solvers/solveset.py#substitution._append_new_soln",
+   "sympy/solvers/solveset.py#substitution._restore_imgset",
+   "sympy/solvers/solveset.py#substitution._solve_using_known_values",
+   "sympy/solvers/solveset.py#substitution.add_intersection_complement",
+   "sympy/solvers/tests/test_solveset.py#test_issue_5132_2",
+   "sympy/solvers/tests/test_solveset.py#test_nonlinsolve_coupled_denominator_restrictions",
+   "sympy/solvers/tests/test_solveset.py#test_nonlinsolve_denominator_restrictions",
+   "sympy/solvers/tests/test_solveset.py#test_nonlinsolve_denominator_restrictions_fallback",
+   "sympy/solvers/tests/test_solveset.py#test_nonlinsolve_denominator_restrictions_near_zero",
+   "sympy/solvers/tests/test_solveset.py#test_nonlinsolve_denominator_restrictions_periodic",
+   "sympy/solvers/tests/test_solveset.py#test_nonlinsolve_denominator_restrictions_polynomial",
+   "sympy/solvers/tests/test_solveset.py#test_nonlinsolve_denominator_restrictions_recast",
+   "sympy/solvers/tests/test_solveset.py#test_nonlinsolve_issue_30521",
+   "sympy/solvers/tests/test_solveset.py#test_nonlinsolve_issue_30522",
+   "sympy/solvers/tests/test_solveset.py#test_substitution_denominator_restrictions_normalization",
+   "sympy/solvers/solveset.py",
+   "sympy/solvers/tests/test_solveset.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "nonlinsolve return changed",
+    "path": [
+     "sympy/solvers/solveset.py:4114 return",
+     "sympy/solvers/tests/test_solveset.py:2509 _test_issue_5335 uses the result",
+     "sympy/vector/implicitregion.py:305 ImplicitRegion.singular_points uses the result"
+    ],
+    "to": "2 caller(s) use the result"
+   },
+   {
+    "evidence": "static source path",
+    "from": "substitution return changed",
+    "path": [
+     "sympy/solvers/solveset.py:3712 return",
+     "sympy/solvers/solveset.py:3796 _handle_positive_dimensional uses the result",
+     "sympy/solvers/solveset.py:4149 nonlinsolve uses the result"
+    ],
+    "to": "2 caller(s) use the result"
+   },
+   {
+    "evidence": "static source path",
+    "from": "_branch_as_conditionset return changed",
+    "path": [
+     "sympy/solvers/solveset.py:3240 return",
+     "sympy/solvers/solveset.py:3768 substitution uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   },
+   {
+    "evidence": "static source path",
+    "from": "_process_exclusions_for_branch return changed",
+    "path": [
+     "sympy/solvers/solveset.py:3198 return",
+     "sympy/solvers/solveset.py:3754 substitution uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 12,
+    "stored": 2
+   },
+   "budget": 300,
+   "candidates": 48,
+   "ran": 48,
+   "replayed": 11,
+   "runner": "pytest",
+   "seconds": 47.3,
+   "selection": {
+    "candidates": 12885,
+    "closure_files": 1321,
+    "closure_tests": 12885,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 0
+   },
+   "unrunnable": 0
+  },
+  "flip_trust": [
+   {
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_5132_2",
+    "label": "fails",
+    "reach": 62,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "why": "as the test was before the edit: failed again in every rerun; ran 62 changed line(s)"
+   }
+  ],
+  "flips": 1,
+  "gaps": [
+   "12837 lower-ranked candidate(s) not run: about 0 tests/s per process fit 48 in the 300 s allowed",
+   "66197 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "Skipped 1 non-Python file(s)",
+   "graph reused from the previous state; 17 changed file(s) relinked",
+   "side-by-side: none of the 4 changed function(s) was called by the tests run on the code before the change"
+  ],
+  "impacted": {
+   "count": 14,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1607,
+   "parsed_files": 14
+  },
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "original_tests": {
+   "sympy/solvers/tests/test_solveset.py::test_issue_5132_2": "failed"
+  },
+  "predicted_failures": [
+   {
+    "after": "failed",
+    "before": "passed",
+    "edited_form": "passed",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_5132_2",
+    "label": "test edited, not fixed",
+    "reach": 62,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 62 changed line(s)"
+   }
+  ],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_issue_30522",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_issue_30521",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_denominator_restrictions",
+    "verdict": "evidence"
+   },
+   {
+    "base": "passed",
+    "head": "passed",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_denominator_restrictions_near_zero",
+    "verdict": "none"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_denominator_restrictions_periodic",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_coupled_denominator_restrictions",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_denominator_restrictions_recast",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/solvers/tests/test_solveset.py::test_substitution_denominator_restrictions_normalization",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_denominator_restrictions_fallback",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_denominator_restrictions_polynomial",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_5132_2",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "dd9c4635560a",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 0,
+   "differences": 0,
+   "functions_called": 0,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "sympy/solvers/solveset.py#_branch_as_conditionset": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/solvers/solveset.py#_process_exclusions_for_branch": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/solvers/solveset.py#substitution._append_new_soln": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/solvers/solveset.py#substitution._restore_imgset": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/solvers/solveset.py#substitution._solve_using_known_values": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/solvers/solveset.py#substitution.add_intersection_complement": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/solvers/tests/test_solveset.py#test_nonlinsolve_coupled_denominator_restrictions": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/solvers/tests/test_solveset.py#test_nonlinsolve_denominator_restrictions": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/solvers/tests/test_solveset.py#test_nonlinsolve_denominator_restrictions_fallback": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/solvers/tests/test_solveset.py#test_nonlinsolve_denominator_restrictions_near_zero": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/solvers/tests/test_solveset.py#test_nonlinsolve_denominator_restrictions_periodic": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/solvers/tests/test_solveset.py#test_nonlinsolve_denominator_restrictions_polynomial": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/solvers/tests/test_solveset.py#test_nonlinsolve_denominator_restrictions_recast": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/solvers/tests/test_solveset.py#test_nonlinsolve_issue_30521": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/solvers/tests/test_solveset.py#test_nonlinsolve_issue_30522": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/solvers/tests/test_solveset.py#test_substitution_denominator_restrictions_normalization": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 2.4,
+   "targets": 4,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 48 of 48 candidate tests after the change with pytest in 47.3 s, failures confirmed before it: 1 now fail. 74 tests reach the change. 1 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 11 test(s) the change adds or edits replayed on the code before it: 10 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "direct",
+    "expect": "fails",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_5132_2",
+    "line": 2451,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_issue_5132_2",
+    "score": 1.939,
+    "why": "calls nonlinsolve (name: solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solveset.py::test_substitution_denominator_restrictions_normalization",
+    "line": 2055,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_substitution_denominator_restrictions_normalization",
+    "score": 12.102,
+    "why": "calls substitution (name: solveset,substitution)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_using_substitution",
+    "line": 2117,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_nonlinsolve_using_substitution",
+    "score": 7.645,
+    "why": "calls nonlinsolve (name: nonlinsolve,solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_5132_substitution",
+    "line": 2624,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_issue_5132_substitution",
+    "score": 6.154,
+    "why": "calls substitution (name: solveset,substitution)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_substitution_basic",
+    "line": 2573,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_substitution_basic",
+    "score": 4.428,
+    "why": "calls substitution (name: solveset,substitution)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_conditionset",
+    "line": 2558,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_nonlinsolve_conditionset",
+    "score": 3.903,
+    "why": "calls nonlinsolve (name: nonlinsolve,solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_substitution_incorrect",
+    "line": 2587,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_substitution_incorrect",
+    "score": 3.468,
+    "why": "calls substitution (name: solveset,substitution)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_substitution_redundant",
+    "line": 2613,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_substitution_redundant",
+    "score": 3.176,
+    "why": "calls substitution (name: solveset,substitution)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_raises_substitution",
+    "line": 2651,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_raises_substitution",
+    "score": 3.029,
+    "why": "calls substitution (name: solveset,substitution)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_denominator_restrictions_recast",
+    "line": 2028,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_nonlinsolve_denominator_restrictions_recast",
+    "score": 2.817,
+    "why": "calls nonlinsolve (name: nonlinsolve,solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_coupled_denominator_restrictions",
+    "line": 1990,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_nonlinsolve_coupled_denominator_restrictions",
+    "score": 2.484,
+    "why": "calls nonlinsolve (name: nonlinsolve,solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_substitution_with_infeasible_solution",
+    "line": 3549,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_substitution_with_infeasible_solution",
+    "score": 2.338,
+    "why": "calls nonlinsolve (name: solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_denominator_restrictions_fallback",
+    "line": 2067,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_nonlinsolve_denominator_restrictions_fallback",
+    "score": 2.269,
+    "why": "calls nonlinsolve (name: nonlinsolve,solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_basic",
+    "line": 1834,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_nonlinsolve_basic",
+    "score": 2.193,
+    "why": "calls nonlinsolve (name: nonlinsolve,solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_polysys",
+    "line": 2088,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_nonlinsolve_polysys",
+    "score": 2.141,
+    "why": "calls nonlinsolve (name: nonlinsolve,solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_denominator_restrictions_polynomial",
+    "line": 2081,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_nonlinsolve_denominator_restrictions_polynomial",
+    "score": 2.121,
+    "why": "calls nonlinsolve (name: nonlinsolve,solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_complex",
+    "line": 2136,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_nonlinsolve_complex",
+    "score": 2.111,
+    "why": "calls nonlinsolve (name: nonlinsolve,solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_denominator_restrictions_periodic",
+    "line": 1981,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_nonlinsolve_denominator_restrictions_periodic",
+    "score": 2.102,
+    "why": "calls nonlinsolve (name: nonlinsolve,solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_denominator_restrictions",
+    "line": 1964,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_nonlinsolve_denominator_restrictions",
+    "score": 2.097,
+    "why": "calls nonlinsolve (name: nonlinsolve,solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_issue_28646",
+    "line": 2196,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_nonlinsolve_issue_28646",
+    "score": 2.095,
+    "why": "calls nonlinsolve (name: nonlinsolve,solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_inexact",
+    "line": 2165,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_nonlinsolve_inexact",
+    "score": 2.094,
+    "why": "calls nonlinsolve (name: nonlinsolve,solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_positive_dimensional",
+    "line": 1927,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_nonlinsolve_positive_dimensional",
+    "score": 2.092,
+    "why": "calls nonlinsolve (name: nonlinsolve,solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_denominator_restrictions_near_zero",
+    "line": 1974,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_nonlinsolve_denominator_restrictions_near_zero",
+    "score": 2.087,
+    "why": "calls nonlinsolve (name: nonlinsolve,solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_issue_29750",
+    "line": 2246,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_nonlinsolve_issue_29750",
+    "score": 2.075,
+    "why": "calls nonlinsolve (name: nonlinsolve,solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_issue_30521",
+    "line": 1958,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_nonlinsolve_issue_30521",
+    "score": 2.073,
+    "why": "calls nonlinsolve (name: nonlinsolve,solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_issue_30522",
+    "line": 1950,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_nonlinsolve_issue_30522",
+    "score": 2.073,
+    "why": "calls nonlinsolve (name: nonlinsolve,solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_sign",
+    "line": 1882,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_nonlinsolve_sign",
+    "score": 2.072,
+    "why": "calls nonlinsolve (name: nonlinsolve,solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_issue_25182",
+    "line": 2232,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_nonlinsolve_issue_25182",
+    "score": 2.066,
+    "why": "calls nonlinsolve (name: nonlinsolve,solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_raise_exception_nonlinsolve",
+    "line": 1889,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_raise_exception_nonlinsolve",
+    "score": 2.051,
+    "why": "calls nonlinsolve (name: nonlinsolve,solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_abs",
+    "line": 1875,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_nonlinsolve_abs",
+    "score": 2.046,
+    "why": "calls nonlinsolve (name: nonlinsolve,solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_nonlinsolve_radical",
+    "line": 2161,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_nonlinsolve_radical",
+    "score": 2.042,
+    "why": "calls nonlinsolve (name: nonlinsolve,solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_5132_1",
+    "line": 2428,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_issue_5132_1",
+    "score": 1.847,
+    "why": "calls nonlinsolve (name: solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_18208",
+    "line": 3467,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_issue_18208",
+    "score": 1.835,
+    "why": "calls nonlinsolve (name: solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_16618",
+    "line": 2397,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_issue_16618",
+    "score": 1.833,
+    "why": "calls nonlinsolve (name: solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_21022",
+    "line": 2659,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_issue_21022",
+    "score": 1.827,
+    "why": "calls nonlinsolve (name: solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_solve_nonlinear_trans",
+    "line": 2218,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_solve_nonlinear_trans",
+    "score": 1.812,
+    "why": "calls nonlinsolve (name: solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_trig_system_fail",
+    "line": 1903,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_trig_system_fail",
+    "score": 1.802,
+    "why": "calls nonlinsolve (name: solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_trig_system",
+    "line": 1894,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_trig_system",
+    "score": 1.801,
+    "why": "calls nonlinsolve (name: solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_17933_bis",
+    "line": 2711,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_issue_17933_bis",
+    "score": 1.779,
+    "why": "calls nonlinsolve (name: solveset)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_solveset.py::test_issue_19144",
+    "line": 3665,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_issue_19144",
+    "score": 1.779,
+    "why": "calls nonlinsolve (name: solveset)"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/solvers/tests/test_solveset.py",
+    "lines": "1950-1955",
+    "symbol": "test_nonlinsolve_issue_30522"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/solvers/tests/test_solveset.py",
+    "lines": "1958-1961",
+    "symbol": "test_nonlinsolve_issue_30521"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/solvers/tests/test_solveset.py",
+    "lines": "1964-1971",
+    "symbol": "test_nonlinsolve_denominator_restrictions"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/solvers/tests/test_solveset.py",
+    "lines": "1974-1978",
+    "symbol": "test_nonlinsolve_denominator_restrictions_near_zero"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/solvers/tests/test_solveset.py",
+    "lines": "1981-1987",
+    "symbol": "test_nonlinsolve_denominator_restrictions_periodic"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/solvers/tests/test_solveset.py",
+    "lines": "1990-2025",
+    "symbol": "test_nonlinsolve_coupled_denominator_restrictions"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/solvers/tests/test_solveset.py",
+    "lines": "2028-2052",
+    "symbol": "test_nonlinsolve_denominator_restrictions_recast"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/solvers/tests/test_solveset.py",
+    "lines": "2055-2064",
+    "symbol": "test_substitution_denominator_restrictions_normalization"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/solvers/tests/test_solveset.py",
+    "lines": "2067-2078",
+    "symbol": "test_nonlinsolve_denominator_restrictions_fallback"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/solvers/tests/test_solveset.py",
+    "lines": "2081-2085",
+    "symbol": "test_nonlinsolve_denominator_restrictions_polynomial"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/solvers/tests/test_solveset.py",
+    "lines": "2464-2474",
+    "symbol": "test_issue_5132_2"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792329820.6793349,
+  "job_seconds": 53.6,
+  "number": 30540,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 53.7,
+  "started": 1792329764.3480241,
+  "verify_seconds": 2.0
+ },
+ "verify": {
+  "checked": 1,
+  "false": 0,
+  "held": 1,
+  "merge_base": "6e5b7af0f803eacf02487b428dd0cba1ace90fbb",
+  "other": 0,
+  "problem": null,
+  "states": {
+   "sympy/solvers/tests/test_solveset.py::test_issue_5132_2": "passed"
+  },
+  "v": 1
+ }
+}

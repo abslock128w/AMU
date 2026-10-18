@@ -1,0 +1,580 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "6aabf6ac9eddd1c5141ff9a3a35dcb53a7b02228",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "e9a4b3c779fd9c4075e3aea8cfcd7983c9037955",
+  "install_ok": true,
+  "merge_base": "2c037307929f917235dd30a8e456b0e47dc5d793",
+  "pr": 30453,
+  "recording": false,
+  "runner": null,
+  "seconds": 582.8,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "6aabf6ac9eddd1c5141ff9a3a35dcb53a7b02228",
+  "head_sha": "e9a4b3c779fd9c4075e3aea8cfcd7983c9037955",
+  "merge_base": "2c037307929f917235dd30a8e456b0e47dc5d793",
+  "merged_at": "2026-09-29T18:32:19Z",
+  "number": 30453,
+  "repo": "sympy",
+  "title": "Improve arity() and nargs for functions with *args"
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 5,
+  "called": 5,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/core/tests/test_function.py::test_nargs_varargs",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/core/function.py",
+    "lines": "137-167",
+    "symbol": "arity"
+   },
+   {
+    "file": "sympy/core/function.py",
+    "lines": "196-200",
+    "symbol": "FunctionClass.__init__"
+   },
+   {
+    "file": "sympy/core/function.py",
+    "lines": "273-297",
+    "symbol": "FunctionClass.nargs"
+   },
+   {
+    "file": "sympy/core/function.py",
+    "lines": "370-375",
+    "symbol": "Application.__new__"
+   },
+   {
+    "file": "sympy/core/function.py",
+    "lines": "503-515",
+    "symbol": "Function._new_"
+   },
+   {
+    "file": "sympy/core/tests/test_function.py",
+    "lines": "230-259",
+    "symbol": "test_nargs_varargs"
+   },
+   {
+    "file": "sympy/core/tests/test_function.py",
+    "lines": "233-235",
+    "symbol": "test_nargs_varargs.f.eval"
+   },
+   {
+    "file": "sympy/core/tests/test_function.py",
+    "lines": "244-246",
+    "symbol": "test_nargs_varargs.g.eval"
+   },
+   {
+    "file": "sympy/core/tests/test_function.py",
+    "lines": "254-256",
+    "symbol": "test_nargs_varargs.h.eval"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/core/function.py#Application.__new__",
+   "sympy/core/function.py#Function._new_",
+   "sympy/core/function.py#FunctionClass.__init__",
+   "sympy/core/function.py#FunctionClass.nargs",
+   "sympy/core/function.py#arity",
+   "sympy/core/tests/test_function.py#test_nargs_varargs",
+   "sympy/core/tests/test_function.py#test_nargs_varargs.f.eval",
+   "sympy/core/tests/test_function.py#test_nargs_varargs.g.eval",
+   "sympy/core/tests/test_function.py#test_nargs_varargs.h.eval",
+   "sympy/core/tests/test_function.py#test_nargs_varargs.f",
+   "sympy/core/tests/test_function.py#test_nargs_varargs.g",
+   "sympy/core/tests/test_function.py#test_nargs_varargs.h",
+   "sympy/core/tests/test_function.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "arity return changed",
+    "path": [
+     "sympy/core/function.py:163 return",
+     "sympy/core/function.py:186 FunctionClass.__init__ uses the result",
+     "sympy/plotting/series.py:793 BaseSeries.eval_color_func uses the result",
+     "sympy/plotting/series.py:1213 Line2DBaseSeries.get_color_array uses the result"
+    ],
+    "to": "4 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 1,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 624,
+   "ran": 480,
+   "replayed": 1,
+   "runner": "pytest",
+   "seconds": 401.0,
+   "selection": {
+    "candidates": 8895,
+    "closure_files": 2,
+    "closure_tests": 92,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/core/function.py"
+    ],
+    "observed": 0,
+    "static_only": 8803
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "63853 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "8271 lower-ranked candidate(s) not run: about 3 tests/s per process fit 624 in the 300 s allowed",
+   "Skipped 1 non-Python file(s)",
+   "shadow run stopped at its 300 s budget: 480 of 624 candidates run"
+  ],
+  "impacted": {
+   "count": 4773,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1606,
+   "parsed_files": 2
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/core/tests/test_function.py::test_nargs_varargs",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "1f67dc575fb7",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [
+    "sympy/core/function.py#Application.__new__",
+    "sympy/core/function.py#Function._new_",
+    "sympy/core/function.py#FunctionClass.__init__",
+    "sympy/core/function.py#FunctionClass.nargs",
+    "sympy/core/function.py#arity"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 25,
+   "differences": 0,
+   "functions_called": 5,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "sympy/core/tests/test_function.py#test_nargs_varargs": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/core/tests/test_function.py#test_nargs_varargs.f.eval": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/core/tests/test_function.py#test_nargs_varargs.g.eval": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/core/tests/test_function.py#test_nargs_varargs.h.eval": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 86.7,
+   "targets": 5,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 480 of 624 candidate tests after the change with pytest in 401.0 s, failures confirmed before it: 0 now fail. 8862 tests reach the change. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_function.py::test_nargs_varargs",
+    "line": 230,
+    "run": "python -m pytest sympy/core/tests/test_function.py::test_nargs_varargs",
+    "score": 14.449,
+    "why": "via test_nargs_varargs.f (name: function,narg,vararg)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_fortran.py::test_inline_function",
+    "line": 229,
+    "run": "python -m pytest sympy/printing/tests/test_fortran.py::test_inline_function",
+    "score": 5.34,
+    "why": "calls FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_jscode.py::test_jscode_inline_function",
+    "line": 92,
+    "run": "python -m pytest sympy/printing/tests/test_jscode.py::test_jscode_inline_function",
+    "score": 3.833,
+    "why": "calls FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_c.py::test_ccode_inline_function",
+    "line": 125,
+    "run": "python -m pytest sympy/printing/tests/test_c.py::test_ccode_inline_function",
+    "score": 2.974,
+    "why": "calls FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_rcode.py::test_rcode_inline_function",
+    "line": 88,
+    "run": "python -m pytest sympy/printing/tests/test_rcode.py::test_rcode_inline_function",
+    "score": 2.509,
+    "why": "calls FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_rust.py::test_inline_function",
+    "line": 325,
+    "run": "python -m pytest sympy/printing/tests/test_rust.py::test_inline_function",
+    "score": 2.224,
+    "why": "calls FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_evalf.py::test_implemented_function_evalf",
+    "line": 381,
+    "run": "python -m pytest sympy/core/tests/test_evalf.py::test_implemented_function_evalf",
+    "score": 2.002,
+    "why": "calls FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_function.py::test_arity",
+    "line": 220,
+    "run": "python -m pytest sympy/core/tests/test_function.py::test_arity",
+    "score": 1.653,
+    "why": "calls arity (name: arity,function)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/utilities/tests/test_codegen.py::test_inline_function",
+    "line": 1286,
+    "run": "python -m pytest sympy/utilities/tests/test_codegen.py::test_inline_function",
+    "score": 1.339,
+    "why": "calls FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_function.py::test_issue_7688",
+    "line": 1087,
+    "run": "python -m pytest sympy/core/tests/test_function.py::test_issue_7688",
+    "score": 1.287,
+    "why": "calls FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_glsl.py::test_glsl_code_inline_function",
+    "line": 83,
+    "run": "python -m pytest sympy/printing/tests/test_glsl.py::test_glsl_code_inline_function",
+    "score": 1.255,
+    "why": "calls FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/combinatorial/tests/test_comb_numbers.py::test_motzkin",
+    "line": 1174,
+    "run": "python -m pytest sympy/functions/combinatorial/tests/test_comb_numbers.py::test_motzkin",
+    "score": 1.195,
+    "why": "via test_nargs_varargs.f.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/special/tests/test_gamma_functions.py::test_loggamma",
+    "line": 528,
+    "run": "python -m pytest sympy/functions/special/tests/test_gamma_functions.py::test_loggamma",
+    "score": 0.913,
+    "why": "via NO.doit > Function.__new__ > FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/control/tests/test_lti.py::test_DiscreteTransferFunction_functions",
+    "line": 690,
+    "run": "python -m pytest sympy/physics/control/tests/test_lti.py::test_DiscreteTransferFunction_functions",
+    "score": 0.843,
+    "why": "via NO.doit > Function.__new__ > FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/control/tests/test_lti.py::test_TransferFunction_functions",
+    "line": 192,
+    "run": "python -m pytest sympy/physics/control/tests/test_lti.py::test_TransferFunction_functions",
+    "score": 0.797,
+    "why": "via NO.doit > Function.__new__ > FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_function.py::test_Subs",
+    "line": 392,
+    "run": "python -m pytest sympy/core/tests/test_function.py::test_Subs",
+    "score": 0.734,
+    "why": "via NO.doit > Function.__new__ > FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/special/tests/test_beta_functions.py::test_beta",
+    "line": 18,
+    "run": "python -m pytest sympy/functions/special/tests/test_beta_functions.py::test_beta",
+    "score": 0.703,
+    "why": "via NO.doit > Function.__new__ > FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/control/tests/test_lti.py::test_Feedback_functions",
+    "line": 2304,
+    "run": "python -m pytest sympy/physics/control/tests/test_lti.py::test_Feedback_functions",
+    "score": 0.689,
+    "why": "via NO.doit > Function.__new__ > FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/control/tests/test_lti.py::test_MIMOParallel_functions",
+    "line": 2054,
+    "run": "python -m pytest sympy/physics/control/tests/test_lti.py::test_MIMOParallel_functions",
+    "score": 0.68,
+    "why": "via NO.doit > Function.__new__ > FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/control/tests/test_lti.py::test_MIMOSeries_functions",
+    "line": 1493,
+    "run": "python -m pytest sympy/physics/control/tests/test_lti.py::test_MIMOSeries_functions",
+    "score": 0.674,
+    "why": "via NO.doit > Function.__new__ > FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/control/tests/test_lti.py::test_Parallel_functions",
+    "line": 1883,
+    "run": "python -m pytest sympy/physics/control/tests/test_lti.py::test_Parallel_functions",
+    "score": 0.67,
+    "why": "via NO.doit > Function.__new__ > FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/control/tests/test_lti.py::test_Series_functions",
+    "line": 1346,
+    "run": "python -m pytest sympy/physics/control/tests/test_lti.py::test_Series_functions",
+    "score": 0.666,
+    "why": "via NO.doit > Function.__new__ > FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_function.py::test_subs_in_derivative",
+    "line": 774,
+    "run": "python -m pytest sympy/core/tests/test_function.py::test_subs_in_derivative",
+    "score": 0.662,
+    "why": "via NO.doit > Function.__new__ > FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/special/tests/test_error_functions.py::test_owent_rewrite_Sum",
+    "line": 1050,
+    "run": "python -m pytest sympy/functions/special/tests/test_error_functions.py::test_owent_rewrite_Sum",
+    "score": 0.658,
+    "why": "via NO.doit > Function.__new__ > FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/control/tests/test_lti.py::test_TransferFunctionMatrix_functions",
+    "line": 2868,
+    "run": "python -m pytest sympy/physics/control/tests/test_lti.py::test_TransferFunctionMatrix_functions",
+    "score": 0.657,
+    "why": "via NO.doit > Function.__new__ > FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/special/tests/test_gamma_functions.py::test_multigamma",
+    "line": 679,
+    "run": "python -m pytest sympy/functions/special/tests/test_gamma_functions.py::test_multigamma",
+    "score": 0.649,
+    "why": "via NO.doit > Function.__new__ > FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_integrals.py::test_integrate_SingularityFunction",
+    "line": 606,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_integrate_SingularityFunction",
+    "score": 0.648,
+    "why": "via NO.doit > Function.__new__ > FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/special/tests/test_zeta_functions.py::test_issue_8404",
+    "line": 185,
+    "run": "python -m pytest sympy/functions/special/tests/test_zeta_functions.py::test_issue_8404",
+    "score": 0.647,
+    "why": "via NO.doit > Function.__new__ > FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/vector/tests/test_field_functions.py::test_gradient_of_vector_cartesian_coordinates",
+    "line": 402,
+    "run": "python -m pytest sympy/vector/tests/test_field_functions.py::test_gradient_of_vector_cartesian_coordinates",
+    "score": 0.646,
+    "why": "via NO.doit > Function.__new__ > FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/vector/tests/test_field_functions.py::test_gradient_of_vector_cylindrical_coordinates",
+    "line": 415,
+    "run": "python -m pytest sympy/vector/tests/test_field_functions.py::test_gradient_of_vector_cylindrical_coordinates",
+    "score": 0.645,
+    "why": "via NO.doit > Function.__new__ > FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/vector/tests/test_field_functions.py::test_gradient_of_vector_spherical_coordinates",
+    "line": 428,
+    "run": "python -m pytest sympy/vector/tests/test_field_functions.py::test_gradient_of_vector_spherical_coordinates",
+    "score": 0.645,
+    "why": "via NO.doit > Function.__new__ > FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_function.py::test_func_deriv",
+    "line": 540,
+    "run": "python -m pytest sympy/core/tests/test_function.py::test_func_deriv",
+    "score": 0.643,
+    "why": "via NO.doit > Function.__new__ > FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/vector/tests/test_field_functions.py::test_gradient_of_vector_cartesian_cylindrical",
+    "line": 445,
+    "run": "python -m pytest sympy/vector/tests/test_field_functions.py::test_gradient_of_vector_cartesian_cylindrical",
+    "score": 0.64,
+    "why": "via NO.doit > Function.__new__ > FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_function.py::test_issue_12996",
+    "line": 1117,
+    "run": "python -m pytest sympy/core/tests/test_function.py::test_issue_12996",
+    "score": 0.639,
+    "why": "via NO.doit > Function.__new__ > FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_function.py::test_issue_13843",
+    "line": 1254,
+    "run": "python -m pytest sympy/core/tests/test_function.py::test_issue_13843",
+    "score": 0.639,
+    "why": "via NO.doit > Function.__new__ > FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_function.py::test_issue_15084_13166",
+    "line": 1376,
+    "run": "python -m pytest sympy/core/tests/test_function.py::test_issue_15084_13166",
+    "score": 0.639,
+    "why": "via NO.doit > Function.__new__ > FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_function.py::test_issue_15226",
+    "line": 1353,
+    "run": "python -m pytest sympy/core/tests/test_function.py::test_issue_15226",
+    "score": 0.639,
+    "why": "via NO.doit > Function.__new__ > FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_function.py::test_issue_20683",
+    "line": 1485,
+    "run": "python -m pytest sympy/core/tests/test_function.py::test_issue_20683",
+    "score": 0.639,
+    "why": "via NO.doit > Function.__new__ > FunctionClass.__init__ (name: function)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/physics/tests/test_secondquant.py::test_commutation",
+    "line": 236,
+    "run": "python -m pytest sympy/physics/tests/test_secondquant.py::test_commutation",
+    "score": 0.638,
+    "why": "via test_nargs_varargs.f.eval"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/special/tests/test_tensor_functions.py::test_levicivita",
+    "line": 13,
+    "run": "python -m pytest sympy/functions/special/tests/test_tensor_functions.py::test_levicivita",
+    "score": 0.634,
+    "why": "via NO.doit > Function.__new__ > FunctionClass.__init__ (name: function)"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/core/tests/test_function.py",
+    "lines": "230-259",
+    "symbol": "test_nargs_varargs"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792335593.367757,
+  "job_seconds": 582.8,
+  "number": 30453,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 583.0,
+  "started": 1792335008.221637
+ },
+ "verify": null
+}

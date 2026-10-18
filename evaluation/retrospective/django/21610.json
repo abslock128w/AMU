@@ -1,0 +1,936 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "23e8bcc464e5faefec28bf36a2f4610a5e7f4be5",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "9673000ae917222cf7ee64f15364ecb6e90e3278",
+  "install_ok": true,
+  "merge_base": "23e8bcc464e5faefec28bf36a2f4610a5e7f4be5",
+  "pr": 21610,
+  "recording": true,
+  "runner": null,
+  "seconds": 31.3,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "23e8bcc464e5faefec28bf36a2f4610a5e7f4be5",
+  "head_sha": "9673000ae917222cf7ee64f15364ecb6e90e3278",
+  "merge_base": "23e8bcc464e5faefec28bf36a2f4610a5e7f4be5",
+  "merged_at": "2026-10-01T14:36:14Z",
+  "number": 21610,
+  "repo": "django",
+  "title": "Fixed #37167 -- Allowed Address objects as email addresses."
+ },
+ "probe_minutes": {
+  "end": 1792324321.282832,
+  "minutes": 0.2,
+  "start": 1792324286.356544,
+  "waited": 20.01245729200309
+ },
+ "probe_targets": {
+  "all": 4,
+  "called": 3,
+  "targets": [
+   {
+    "after": "def test_wrong_admins_managers(self):\n    tests = (\n        \"test@example.com\",\n        gettext_lazy(\"test@example.com\"),\n        # RemovedInDjango2028Warning: uncomment these cases when support\n        # for deprecated (name, address) tuples is removed.\n        #    [\n        #        (\"nobody\", \"nobody@example.com\"),\n        #        (\"other\", \"other@example.com\")\n        #    ],\n        #    [\n        #        [\"nobody\", \"nobody@example.com\"],\n        #        [\"other\", \"other@example.com\"]\n        #    ],\n        [(\"name\", \"test\", \"example.com\")],\n        [(\"Name <test@example.com\",)],\n        [[]],\n    )\n    for setting, mail_func in (\n        (\"ADMINS\", mail_admins),\n        (\"MANAGERS\", mail_managers),\n    ):\n        msg = (\n            f\"The {setting} setting must be a list of email address \"\n            \"strings or Address objects.\"\n        )\n        for value in tests:\n            mail.outbox = []\n            with (\n                self.subTest(setting=setting, value=value),\n                self.settings(**{setting: value}),\n            ):\n                with self.assertRaisesMessage(ImproperlyConfigured, msg):\n                    mail_func(\"subject\", \"content\")\n",
+    "before": "def test_wrong_admins_managers(self):\n    tests = (\n        \"test@example.com\",\n        gettext_lazy(\"test@example.com\"),\n        # RemovedInDjango2028Warning: uncomment these cases when support\n        # for deprecated (name, address) tuples is removed.\n        #    [\n        #        (\"nobody\", \"nobody@example.com\"),\n        #        (\"other\", \"other@example.com\")\n        #    ],\n        #    [\n        #        [\"nobody\", \"nobody@example.com\"],\n        #        [\"other\", \"other@example.com\"]\n        #    ],\n        [(\"name\", \"test\", \"example.com\")],\n        [(\"Name <test@example.com\",)],\n        [[]],\n    )\n    for setting, mail_func in (\n        (\"ADMINS\", mail_admins),\n        (\"MANAGERS\", mail_managers),\n    ):\n        msg = f\"The {setting} setting must be a list of email address strings.\"\n        for value in tests:\n            mail.outbox = []\n            with (\n                self.subTest(setting=setting, value=value),\n                self.settings(**{setting: value}),\n            ):\n                with self.assertRaisesMessage(ImproperlyConfigured, msg):\n                    mail_func(\"subject\", \"content\")\n",
+    "file": "tests/mail/tests.py",
+    "id": "tests/mail/tests.py#MailAdminsAndManagersTests.test_wrong_admins_managers",
+    "name": "test_wrong_admins_managers",
+    "qual": "MailAdminsAndManagersTests.test_wrong_admins_managers",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "raise",
+      "ImproperlyConfigured",
+      "ImproperlyConfigured('The ADMINS setting must be a list of email address strings or Address objects.')"
+     ],
+     "before": [
+      "raise",
+      "ImproperlyConfigured",
+      "ImproperlyConfigured('The ADMINS setting must be a list of email address strings.')"
+     ],
+     "call": "(lambda: [_ for _ in [override_settings(ADMINS='test@example.com').enable()]] and mail.mail_admins('subject', 'content'))()",
+     "label": "generated test shows a difference",
+     "setup": "from django.core import mail\nfrom django.test import override_settings",
+     "target": "tests/mail/tests.py#MailAdminsAndManagersTests.test_wrong_admins_managers",
+     "test": "import pytest\n\n\ndef test_generated():\n    from django.core import mail\n    from django.test import override_settings\n    with pytest.raises(ImproperlyConfigured):\n        (lambda: [_ for _ in [override_settings(ADMINS='test@example.com').enable()]] and mail.mail_admins('subject', 'content'))()\n",
+     "why": "the error message for a wrong ADMINS value"
+    }
+   ],
+   "filter_seconds": 6.6,
+   "gaps": [],
+   "info": {
+    "accepted": 1,
+    "compiled": 1,
+    "cost": 0.0,
+    "differed": 1,
+    "dollars_cap": 0.1,
+    "functions": 1,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 1,
+    "ran": 1,
+    "reached": 1,
+    "requests": 1,
+    "seconds": 5.7,
+    "stable": 1
+   },
+   "probes": [
+    {
+     "call": "(lambda: [_ for _ in [override_settings(ADMINS='test@example.com').enable()]] and mail.mail_admins('subject', 'content'))()",
+     "function": "tests/mail/tests.py#MailAdminsAndManagersTests.test_wrong_admins_managers",
+     "setup": "from django.core import mail\nfrom django.test import override_settings",
+     "why": "the error message for a wrong ADMINS value"
+    }
+   ],
+   "targets": [
+    "tests/mail/tests.py#MailAdminsAndManagersTests.test_wrong_admins_managers"
+   ],
+   "waited_seconds": 20.0
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_message_keeps_address_objects_unconverted",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/mail/tests.py::MailAdminsAndManagersTests::test_mail_admins_and_managers_with_address_objects",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/mail/tests.py::MailAdminsAndManagersTests::test_wrong_admins_managers",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "django/core/mail/__init__.py",
+    "lines": "308-312",
+    "symbol": "_send_server_message"
+   },
+   {
+    "file": "django/core/mail/message.py",
+    "lines": "345-350",
+    "symbol": "EmailMessage.message"
+   },
+   {
+    "file": "django/core/mail/message.py",
+    "lines": "574-578",
+    "symbol": "EmailMessage._set_list_header_if_not_empty"
+   },
+   {
+    "file": "tests/mail/tests.py",
+    "lines": "467-490",
+    "symbol": "EmailMessageTests.test_email_message_with_address_objects"
+   },
+   {
+    "file": "tests/mail/tests.py",
+    "lines": "492-499",
+    "symbol": "EmailMessageTests.test_email_message_mixed_address_and_str"
+   },
+   {
+    "file": "tests/mail/tests.py",
+    "lines": "501-522",
+    "symbol": "EmailMessageTests.test_message_keeps_address_objects_unconverted"
+   },
+   {
+    "file": "tests/mail/tests.py",
+    "lines": "508-510",
+    "symbol": "EmailMessageTests.test_message_keeps_address_objects_unconverted.CapturingPolicy.header_store_parse"
+   },
+   {
+    "file": "tests/mail/tests.py",
+    "lines": "618-625",
+    "symbol": "EmailMessageTests.test_default_from_email_with_address_object"
+   },
+   {
+    "file": "tests/mail/tests.py",
+    "lines": "2469-2481",
+    "symbol": "MailAdminsAndManagersTests.test_mail_admins_and_managers_with_address_objects"
+   },
+   {
+    "file": "tests/mail/tests.py",
+    "lines": "2483-2489",
+    "symbol": "MailAdminsAndManagersTests.test_server_email_with_address_object"
+   },
+   {
+    "file": "tests/mail/tests.py",
+    "lines": "2610-2613",
+    "symbol": "MailAdminsAndManagersTests.test_wrong_admins_managers"
+   }
+  ],
+  "changed_symbols": [
+   "django/core/mail/__init__.py#_send_server_message",
+   "django/core/mail/message.py#EmailMessage._set_list_header_if_not_empty",
+   "django/core/mail/message.py#EmailMessage.message",
+   "tests/mail/tests.py#EmailMessageTests.test_default_from_email_with_address_object",
+   "tests/mail/tests.py#EmailMessageTests.test_email_message_mixed_address_and_str",
+   "tests/mail/tests.py#EmailMessageTests.test_email_message_with_address_objects",
+   "tests/mail/tests.py#EmailMessageTests.test_message_keeps_address_objects_unconverted",
+   "tests/mail/tests.py#EmailMessageTests.test_message_keeps_address_objects_unconverted.CapturingPolicy.header_store_parse",
+   "tests/mail/tests.py#MailAdminsAndManagersTests.test_mail_admins_and_managers_with_address_objects",
+   "tests/mail/tests.py#MailAdminsAndManagersTests.test_server_email_with_address_object",
+   "tests/mail/tests.py#MailAdminsAndManagersTests.test_wrong_admins_managers",
+   "tests/mail/tests.py#EmailMessageTests",
+   "tests/mail/tests.py#EmailMessageTests.test_message_keeps_address_objects_unconverted.CapturingPolicy",
+   "tests/mail/tests.py#MailAdminsAndManagersTests",
+   "django/core/mail/__init__.py"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 9,
+    "stored": 6
+   },
+   "budget": 300,
+   "candidates": 14689,
+   "ran": 400,
+   "replayed": 7,
+   "runner": "django-runtests",
+   "seconds": 27.1,
+   "selection": {
+    "candidates": 16477,
+    "closure_files": 1105,
+    "closure_tests": 14375,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/conf/__init__.py",
+     "django/contrib/admin/__init__.py",
+     "django/contrib/auth/models.py",
+     "django/core/checks/__init__.py",
+     "django/core/management/__init__.py",
+     "django/core/management/base.py",
+     "django/db/__init__.py",
+     "django/db/migrations/__init__.py",
+     "django/db/models/__init__.py",
+     "django/db/models/expressions.py",
+     "django/db/models/functions/__init__.py",
+     "django/db/transaction.py",
+     "django/forms/__init__.py",
+     "django/http/__init__.py",
+     "django/template/__init__.py",
+     "django/template/defaultfilters.py",
+     "django/test/__init__.py",
+     "django/test/utils.py",
+     "django/urls/__init__.py",
+     "django/utils/deprecation.py"
+    ],
+    "observed": 0,
+    "static_only": 1198
+   },
+   "unrunnable": 81
+  },
+  "flip_trust": [
+   {
+    "id": "tests/mail/tests.py::MailAdminsAndManagersTests::test_wrong_admins_managers",
+    "label": "fails",
+    "reach": 3,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": null
+    },
+    "why": "as the test was before the edit: failed again in every rerun; ran 3 changed line(s); not rerun: the rerun in the same process"
+   },
+   {
+    "id": "tests/mail/tests.py::MailAdminsAndManagersTestsWithMailers::test_wrong_admins_managers",
+    "label": "fails",
+    "reach": 3,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": null
+    },
+    "why": "as the test was before the edit: failed again in every rerun; ran 3 changed line(s); not rerun: the rerun in the same process"
+   }
+  ],
+  "flips": 2,
+  "gaps": [
+   "101218 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "1789 lower-ranked candidate(s) not run: about 15 tests/s per process fit 14688 in the 300 s allowed",
+   "81 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "Skipped 4 non-Python file(s)",
+   "graph reused from the previous state; 7 changed file(s) relinked",
+   "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run stopped at its 300 s budget: 320 of 14688 candidates run"
+  ],
+  "impacted": {
+   "count": 3850,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2930,
+   "parsed_files": 7
+  },
+  "order": "the same explicit order on both sides (fixed hash seed)",
+  "original_tests": {
+   "tests/mail/tests.py::EmailMessageTests::test_address_header_handling": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_address_header_injection": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_all_params_can_be_set_before_send": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_all_params_optional": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_alternative_alternatives": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_alternatives": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_alternatives_and_attachment_serializable": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_alternatives_constructor": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_alternatives_constructor_from_tuple": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_ascii": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_attach_8bit_rfc822_message_non_ascii": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_attach_content_is_required": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_attach_file": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_attach_mime_image": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_attach_mime_image_in_constructor": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_attach_mime_part": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_attach_mime_part_in_constructor": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_attach_mimepart_prohibits_other_params": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_attach_non_utf8_text_as_bytes": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_attach_rfc822_message": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_attach_text_as_bytes": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_attach_text_as_bytes_using_property": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_attach_utf8_text_as_bytes": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_attachments": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_attachments_constructor": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_attachments_constructor_from_tuple": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_attachments_constructor_omit_mimetype": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_attachments_with_alternative_parts": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_bcc_in_headers_raises_error": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_bcc_not_in_headers": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_body_contains": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_body_contains_alternative_non_text": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_body_content_transfer_encoding": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_cc": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_cc_headers": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_cc_in_headers_only": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_connection_arg_deprecated": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_connection_attr_deprecated": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_date_header_localtime": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_date_header_utc": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_datetime_in_date_header": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_decoded_attachment_text_MIMEPart": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_dont_mangle_from_in_body": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_email_multi_alternatives_content_mimetype_none": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_encoding": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_encoding_alternatives": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_fail_silently_deprecated": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_folding_white_space": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_from_header": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_header_injection": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_header_omitted_for_no_to_recipients": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_idn_addresses": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_lazy_addresses": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_lazy_headers": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_localpart_only_address": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_long_lines": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_message_header_overrides": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_message_is_python_email_message": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_message_policy_compat32": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_message_policy_cte_7bit": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_message_policy_smtputf8": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_mime_structure": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_multipart_with_attachments": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_multiple_message_call": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_multiple_recipients": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_non_ascii_attachment_filename": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_non_ascii_dns_non_unicode_email": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_non_utf8_headers_multipart": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_none_body": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_positional_arguments_order": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_recipients_as_string": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_recipients_as_tuple": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_recipients_with_empty_strings": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_reply_to": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_reply_to_header": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_reply_to_in_headers_only": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_send": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_send_fail_silently_conflict": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_to_header": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_to_in_headers_only": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_unicode_address_header": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_unicode_display_name_in_from_email": "passed",
+   "tests/mail/tests.py::EmailMessageTests::test_unicode_headers": "passed",
+   "tests/mail/tests.py::EmailMessageTestsWithMailers::test_send_using": "passed",
+   "tests/mail/tests.py::EmailMessageTestsWithMailers::test_send_using_conflicts_with_connection": "passed",
+   "tests/mail/tests.py::EmailMessageTestsWithMailers::test_send_using_conflicts_with_fail_silently": "passed",
+   "tests/mail/tests.py::GetConnectionTests::test_arbitrary_keyword": "passed",
+   "tests/mail/tests.py::GetConnectionTests::test_backend_arg": "passed",
+   "tests/mail/tests.py::GetConnectionTests::test_backend_specific_kwargs": "passed",
+   "tests/mail/tests.py::GetConnectionTests::test_custom_backend": "passed",
+   "tests/mail/tests.py::GetConnectionTests::test_deprecated": "passed",
+   "tests/mail/tests.py::GetConnectionTests::test_mailers_compatibility": "passed",
+   "tests/mail/tests.py::GetConnectionTests::test_mailers_compatibility_no_default_mailer": "passed",
+   "tests/mail/tests.py::GetConnectionTests::test_raises_error_from_backend_init": "passed",
+   "tests/mail/tests.py::GetConnectionTests::test_uses_email_backend_setting": "passed",
+   "tests/mail/tests.py::LegacyAPINotUsedTests::test_no_legacy_apis_imported": "passed",
+   "tests/mail/tests.py::MailAdminsAndManagersTests::test_connection_arg_mail_admins": "passed",
+   "tests/mail/tests.py::MailAdminsAndManagersTests::test_connection_arg_mail_managers": "passed",
+   "tests/mail/tests.py::MailAdminsAndManagersTests::test_deprecated_admins_managers_tuples": "passed",
+   "tests/mail/tests.py::MailAdminsAndManagersTests::test_empty_admins": "passed",
+   "tests/mail/tests.py::MailAdminsAndManagersTests::test_fail_silently_deprecated": "passed",
+   "tests/mail/tests.py::MailAdminsAndManagersTests::test_html_mail_admins": "passed",
+   "tests/mail/tests.py::MailAdminsAndManagersTests::test_html_mail_managers": "passed",
+   "tests/mail/tests.py::MailAdminsAndManagersTests::test_mail_admins_and_managers": "passed",
+   "tests/mail/tests.py::MailAdminsAndManagersTests::test_mail_admins_fail_silently_conflict": "passed",
+   "tests/mail/tests.py::MailAdminsAndManagersTests::test_mail_managers_fail_silently_conflict": "passed",
+   "tests/mail/tests.py::MailAdminsAndManagersTests::test_manager_and_admin_mail_prefix": "passed",
+   "tests/mail/tests.py::MailAdminsAndManagersTests::test_sends_using_default_mailer": "passed",
+   "tests/mail/tests.py::MailAdminsAndManagersTests::test_wrong_admins_managers": "failed",
+   "tests/mail/tests.py::MailAdminsAndManagersTestsWithMailers::test_using_arg": "passed",
+   "tests/mail/tests.py::MailAdminsAndManagersTestsWithMailers::test_wrong_admins_managers": "failed",
+   "tests/mail/tests.py::MailDeprecatedPositionalArgsTests::test_email_message_init": "passed",
+   "tests/mail/tests.py::MailDeprecatedPositionalArgsTests::test_email_multi_alternatives_init": "passed",
+   "tests/mail/tests.py::MailDeprecatedPositionalArgsTests::test_get_connection": "passed",
+   "tests/mail/tests.py::MailDeprecatedPositionalArgsTests::test_mail_admins": "passed",
+   "tests/mail/tests.py::MailDeprecatedPositionalArgsTests::test_mail_managers": "passed",
+   "tests/mail/tests.py::MailDeprecatedPositionalArgsTests::test_send_mail": "passed",
+   "tests/mail/tests.py::MailDeprecatedPositionalArgsTests::test_send_mass_mail": "passed",
+   "tests/mail/tests.py::SendMailTests::test_auth_conflict": "passed",
+   "tests/mail/tests.py::SendMailTests::test_auth_passed_to_backend_init": "passed",
+   "tests/mail/tests.py::SendMailTests::test_connection_arg": "passed",
+   "tests/mail/tests.py::SendMailTests::test_fail_silently_conflict": "passed",
+   "tests/mail/tests.py::SendMailTests::test_fail_silently_passed_to_backend_init": "passed",
+   "tests/mail/tests.py::SendMailTests::test_html_send_mail": "passed",
+   "tests/mail/tests.py::SendMailTests::test_idn_addresses": "passed",
+   "tests/mail/tests.py::SendMailTests::test_lazy_addresses": "passed",
+   "tests/mail/tests.py::SendMailTests::test_plaintext_send_mail": "passed",
+   "tests/mail/tests.py::SendMailTests::test_returns_count_of_messages_sent": "passed",
+   "tests/mail/tests.py::SendMailTests::test_sends_using_default_mailer": "passed",
+   "tests/mail/tests.py::SendMailTests::test_using_auth_conflict": "passed",
+   "tests/mail/tests.py::SendMailTests::test_using_connection_conflict": "passed",
+   "tests/mail/tests.py::SendMailTests::test_using_fail_silently_conflict": "passed",
+   "tests/mail/tests.py::SendMailTestsWithMailers::test_using_arg": "passed",
+   "tests/mail/tests.py::SendMassMailTests::test_connection_arg": "passed",
+   "tests/mail/tests.py::SendMassMailTests::test_send_auth_conflict": "passed",
+   "tests/mail/tests.py::SendMassMailTests::test_send_fail_silently_conflict": "passed",
+   "tests/mail/tests.py::SendMassMailTests::test_send_mass_mail": "passed",
+   "tests/mail/tests.py::SendMassMailTests::test_sends_using_default_mailer": "passed",
+   "tests/mail/tests.py::SendMassMailTestsWithMailers::test_using_arg": "passed"
+  },
+  "predicted_failures": [
+   {
+    "after": "failed",
+    "before": "passed",
+    "edited_form": "passed",
+    "id": "tests/mail/tests.py::MailAdminsAndManagersTests::test_wrong_admins_managers",
+    "label": "test edited, not fixed",
+    "reach": 3,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": null
+    },
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 3 changed line(s); not rerun: the rerun in the same process"
+   },
+   {
+    "after": "failed",
+    "before": "passed",
+    "edited_form": "passed",
+    "id": "tests/mail/tests.py::MailAdminsAndManagersTestsWithMailers::test_wrong_admins_managers",
+    "label": "test edited, not fixed",
+    "reach": 3,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": null
+    },
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 3 changed line(s); not rerun: the rerun in the same process"
+   }
+  ],
+  "replayed": [
+   {
+    "base": "passed",
+    "head": "passed",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_email_message_with_address_objects",
+    "verdict": "none"
+   },
+   {
+    "base": "passed",
+    "head": "passed",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_email_message_mixed_address_and_str",
+    "verdict": "none"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_message_keeps_address_objects_unconverted",
+    "verdict": "evidence"
+   },
+   {
+    "base": "passed",
+    "head": "passed",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_default_from_email_with_address_object",
+    "verdict": "none"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/mail/tests.py::MailAdminsAndManagersTests::test_mail_admins_and_managers_with_address_objects",
+    "verdict": "evidence"
+   },
+   {
+    "base": "passed",
+    "head": "passed",
+    "id": "tests/mail/tests.py::MailAdminsAndManagersTests::test_server_email_with_address_object",
+    "verdict": "none"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/mail/tests.py::MailAdminsAndManagersTests::test_wrong_admins_managers",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "1593df873853",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [
+    "django/core/mail/__init__.py#_send_server_message",
+    "django/core/mail/message.py#EmailMessage._set_list_header_if_not_empty",
+    "django/core/mail/message.py#EmailMessage.message"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 15,
+   "differences": 0,
+   "functions_called": 3,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "tests/mail/tests.py#EmailMessageTests.test_default_from_email_with_address_object": "not a module or class function on both sides (new, removed or nested)",
+    "tests/mail/tests.py#EmailMessageTests.test_email_message_mixed_address_and_str": "not a module or class function on both sides (new, removed or nested)",
+    "tests/mail/tests.py#EmailMessageTests.test_email_message_with_address_objects": "not a module or class function on both sides (new, removed or nested)",
+    "tests/mail/tests.py#EmailMessageTests.test_message_keeps_address_objects_unconverted": "not a module or class function on both sides (new, removed or nested)",
+    "tests/mail/tests.py#EmailMessageTests.test_message_keeps_address_objects_unconverted.CapturingPolicy.header_store_parse": "not a module or class function on both sides (new, removed or nested)",
+    "tests/mail/tests.py#MailAdminsAndManagersTests.test_mail_admins_and_managers_with_address_objects": "not a module or class function on both sides (new, removed or nested)",
+    "tests/mail/tests.py#MailAdminsAndManagersTests.test_server_email_with_address_object": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 4.5,
+   "targets": 4,
+   "unstable": 5
+  },
+  "summary": "EXECUTED 400 of 14689 candidate tests after the change with django-runtests in 27.1 s, failures confirmed before it: 2 now fail. 6575 tests reach the change. 139 test(s) from edited test files also run as they were before the edit. 2 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 7 test(s) the change adds or edits replayed on the code before it: 3 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "executed",
+    "expect": "fails",
+    "id": "tests/mail/tests.py::MailAdminsAndManagersTestsWithMailers::test_wrong_admins_managers",
+    "line": 0,
+    "run": "cd tests && python runtests.py mail.tests.MailAdminsAndManagersTestsWithMailers.test_wrong_admins_managers",
+    "score": 0.0,
+    "why": "failed when executed after the change"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "fails",
+    "id": "tests/mail/tests.py::MailAdminsAndManagersTests::test_wrong_admins_managers",
+    "line": 2588,
+    "run": "cd tests && python runtests.py mail.tests.MailAdminsAndManagersTests.test_wrong_admins_managers",
+    "score": 2.484,
+    "why": "via MailAdminsAndManagersTests (name: admin,mail,manager)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_message_keeps_address_objects_unconverted",
+    "line": 501,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_message_keeps_address_objects_unconverted",
+    "score": 11.902,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_all_params_can_be_set_before_send",
+    "line": 1784,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_all_params_can_be_set_before_send",
+    "score": 5.626,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::MailAdminsAndManagersTests::test_server_email_with_address_object",
+    "line": 2483,
+    "run": "cd tests && python runtests.py mail.tests.MailAdminsAndManagersTests.test_server_email_with_address_object",
+    "score": 4.249,
+    "why": "via MailAdminsAndManagersTests (name: admin,mail,manager)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_address_header_injection",
+    "line": 1490,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_address_header_injection",
+    "score": 3.873,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_non_utf8_headers_multipart",
+    "line": 764,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_non_utf8_headers_multipart",
+    "score": 2.897,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_unicode_headers",
+    "line": 740,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_unicode_headers",
+    "score": 2.49,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_positional_arguments_order",
+    "line": 1743,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_positional_arguments_order",
+    "score": 2.251,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_unicode_address_header",
+    "line": 704,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_unicode_address_header",
+    "score": 2.128,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_bcc_not_in_headers",
+    "line": 386,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_bcc_not_in_headers",
+    "score": 2.062,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_address_header_handling",
+    "line": 1425,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_address_header_handling",
+    "score": 2.017,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_message_header_overrides",
+    "line": 553,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_message_header_overrides",
+    "score": 1.988,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_default_from_email_with_address_object",
+    "line": 618,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_default_from_email_with_address_object",
+    "score": 1.97,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_bcc_in_headers_raises_error",
+    "line": 400,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_bcc_in_headers_raises_error",
+    "score": 1.963,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_cc_headers",
+    "line": 365,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_cc_headers",
+    "score": 1.958,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_cc_in_headers_only",
+    "line": 376,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_cc_in_headers_only",
+    "score": 1.956,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_header_injection",
+    "line": 524,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_header_injection",
+    "score": 1.952,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_reply_to_header",
+    "line": 665,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_reply_to_header",
+    "score": 1.945,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_reply_to_in_headers_only",
+    "line": 676,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_reply_to_in_headers_only",
+    "score": 1.944,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_to_header",
+    "line": 627,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_to_header",
+    "score": 1.941,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_to_in_headers_only",
+    "line": 659,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_to_in_headers_only",
+    "score": 1.934,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_lazy_headers",
+    "line": 682,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_lazy_headers",
+    "score": 1.932,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_from_header",
+    "line": 607,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_from_header",
+    "score": 1.931,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_multiple_message_call",
+    "line": 690,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_multiple_message_call",
+    "score": 1.877,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_email_message_with_address_objects",
+    "line": 467,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_email_message_with_address_objects",
+    "score": 1.876,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_folding_white_space",
+    "line": 537,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_folding_white_space",
+    "score": 1.869,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_header_omitted_for_no_to_recipients",
+    "line": 285,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_header_omitted_for_no_to_recipients",
+    "score": 1.86,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_email_message_mixed_address_and_str",
+    "line": 492,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_email_message_mixed_address_and_str",
+    "score": 1.853,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_datetime_in_date_header",
+    "line": 569,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_datetime_in_date_header",
+    "score": 1.84,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_date_header_localtime",
+    "line": 595,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_date_header_localtime",
+    "score": 1.827,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_date_header_utc",
+    "line": 582,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_date_header_utc",
+    "score": 1.822,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_localpart_only_address",
+    "line": 1550,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_localpart_only_address",
+    "score": 1.812,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_alternative_alternatives",
+    "line": 858,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_alternative_alternatives",
+    "score": 1.787,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_none_body",
+    "line": 897,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_none_body",
+    "score": 1.783,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_attachments_with_alternative_parts",
+    "line": 1023,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_attachments_with_alternative_parts",
+    "score": 1.779,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_encoding",
+    "line": 912,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_encoding",
+    "score": 1.774,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_decoded_attachment_text_MIMEPart",
+    "line": 1041,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_decoded_attachment_text_MIMEPart",
+    "score": 1.768,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_message_policy_smtputf8",
+    "line": 1858,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_message_policy_smtputf8",
+    "score": 1.759,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_body_content_transfer_encoding",
+    "line": 1365,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_body_content_transfer_encoding",
+    "score": 1.747,
+    "why": "calls EmailMessage.message (name: email,message)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/mail/tests.py::EmailMessageTests::test_alternatives",
+    "line": 808,
+    "run": "cd tests && python runtests.py mail.tests.EmailMessageTests.test_alternatives",
+    "score": 1.743,
+    "why": "calls EmailMessage.message (name: email,message)"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792324265.374044,
+  "job_seconds": 31.3,
+  "number": 21610,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 31.4,
+  "started": 1792324232.9678788,
+  "verify_seconds": 0.5
+ },
+ "verify": {
+  "checked": 2,
+  "false": 0,
+  "held": 2,
+  "merge_base": "23e8bcc464e5faefec28bf36a2f4610a5e7f4be5",
+  "other": 0,
+  "problem": null,
+  "states": {
+   "tests/mail/tests.py::MailAdminsAndManagersTests::test_wrong_admins_managers": "passed",
+   "tests/mail/tests.py::MailAdminsAndManagersTestsWithMailers::test_wrong_admins_managers": "passed"
+  },
+  "v": 1
+ }
+}

@@ -1,0 +1,747 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "2b30f6255b5ef84afbd827993643d52ef2c0963a",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "a4c63d17dfd6d7b0ebc2b7bd3a172e4e904f1dbe",
+  "install_ok": true,
+  "merge_base": "2b30f6255b5ef84afbd827993643d52ef2c0963a",
+  "pr": 21971,
+  "recording": true,
+  "runner": null,
+  "seconds": 18.2,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "2b30f6255b5ef84afbd827993643d52ef2c0963a",
+  "head_sha": "a4c63d17dfd6d7b0ebc2b7bd3a172e4e904f1dbe",
+  "merge_base": "2b30f6255b5ef84afbd827993643d52ef2c0963a",
+  "merged_at": "2026-09-19T22:39:58Z",
+  "number": 21971,
+  "repo": "django",
+  "title": "Fixed #37114 -- Dropped support for PostgreSQL 15 and PostGIS 3.2."
+ },
+ "probe_minutes": {
+  "end": 1792323670.017743,
+  "minutes": 0.4,
+  "start": 1792323629.4183638,
+  "waited": 15.013029875000939
+ },
+ "probe_targets": {
+  "all": 6,
+  "called": 0,
+  "targets": [
+   {
+    "after": "def spatial_version(self):\n    \"\"\"Determine the version of the PostGIS library.\"\"\"\n    # Trying to get the PostGIS version because the function\n    # signatures will depend on the version used. The cost\n    # here is a database query to determine the version, which\n    # can be mitigated by setting `POSTGIS_VERSION` with a 3-tuple\n    # comprising user-supplied values for the major, minor, and\n    # subminor revision of PostGIS.\n    if hasattr(settings, \"POSTGIS_VERSION\"):\n        version = settings.POSTGIS_VERSION\n    else:\n        # Run a basic query to check the status of the connection so we're\n        # sure we only raise the error below if the problem comes from\n        # PostGIS and not from PostgreSQL itself (see #24862).\n        self._get_postgis_func(\"version\")\n\n        try:\n            vtup = self.postgis_version_tuple()\n        except ProgrammingError:\n            raise ImproperlyConfigured(\n                'Cannot determine PostGIS version for database \"%s\" '\n                'using command \"SELECT postgis_lib_version()\". '\n                \"GeoDjango requires at least PostGIS version 3.3. \"\n                \"Was the database created from a spatial database \"\n                \"template?\" % self.connection.settings_dict[\"NAME\"]\n            )\n        version = vtup[1:]\n    return version\n",
+    "before": "def spatial_version(self):\n    \"\"\"Determine the version of the PostGIS library.\"\"\"\n    # Trying to get the PostGIS version because the function\n    # signatures will depend on the version used. The cost\n    # here is a database query to determine the version, which\n    # can be mitigated by setting `POSTGIS_VERSION` with a 3-tuple\n    # comprising user-supplied values for the major, minor, and\n    # subminor revision of PostGIS.\n    if hasattr(settings, \"POSTGIS_VERSION\"):\n        version = settings.POSTGIS_VERSION\n    else:\n        # Run a basic query to check the status of the connection so we're\n        # sure we only raise the error below if the problem comes from\n        # PostGIS and not from PostgreSQL itself (see #24862).\n        self._get_postgis_func(\"version\")\n\n        try:\n            vtup = self.postgis_version_tuple()\n        except ProgrammingError:\n            raise ImproperlyConfigured(\n                'Cannot determine PostGIS version for database \"%s\" '\n                'using command \"SELECT postgis_lib_version()\". '\n                \"GeoDjango requires at least PostGIS version 3.2. \"\n                \"Was the database created from a spatial database \"\n                \"template?\" % self.connection.settings_dict[\"NAME\"]\n            )\n        version = vtup[1:]\n    return version\n",
+    "file": "django/contrib/gis/db/backends/postgis/operations.py",
+    "id": "django/contrib/gis/db/backends/postgis/operations.py#PostGISOperations.spatial_version",
+    "name": "spatial_version",
+    "qual": "PostGISOperations.spatial_version",
+    "signature_changed": false
+   },
+   {
+    "after": "def as_postgresql(self, compiler, connection, **extra_context):\n    # Casting source expressions is only required using JSONB_BUILD_ARRAY\n    # or when using JSON_ARRAY on PostgreSQL 16+ with server-side bindings.\n    # This is done in all cases for consistency.\n    casted_obj = self.copy()\n    casted_obj.set_source_expressions(\n        [\n            (\n                # Conditional Cast to avoid unnecessary wrapping.\n                expression\n                if isinstance(expression, Cast)\n                else Cast(expression, expression.output_field)\n            )\n            for expression in casted_obj.get_source_expressions()\n        ]\n    )\n    return casted_obj.as_native(\n        compiler, connection, returning=\"JSONB\", **extra_context\n    )\n",
+    "before": "def as_postgresql(self, compiler, connection, **extra_context):\n    # Casting source expressions is only required using JSONB_BUILD_ARRAY\n    # or when using JSON_ARRAY on PostgreSQL 16+ with server-side bindings.\n    # This is done in all cases for consistency.\n    casted_obj = self.copy()\n    casted_obj.set_source_expressions(\n        [\n            (\n                # Conditional Cast to avoid unnecessary wrapping.\n                expression\n                if isinstance(expression, Cast)\n                else Cast(expression, expression.output_field)\n            )\n            for expression in casted_obj.get_source_expressions()\n        ]\n    )\n\n    if connection.features.is_postgresql_16:\n        return casted_obj.as_native(\n            compiler, connection, returning=\"JSONB\", **extra_context\n        )\n\n    return casted_obj.as_sql(\n        compiler,\n        connection,\n        function=\"JSONB_BUILD_ARRAY\",\n        **extra_context,\n    )\n",
+    "file": "django/db/models/functions/json.py",
+    "id": "django/db/models/functions/json.py#JSONArray.as_postgresql",
+    "name": "as_postgresql",
+    "qual": "JSONArray.as_postgresql",
+    "signature_changed": false
+   },
+   {
+    "after": "def as_postgresql(self, compiler, connection, **extra_context):\n    # Casting keys to text is only required when using JSONB_BUILD_OBJECT\n    # or when using JSON_OBJECT on PostgreSQL 16+ with server-side\n    # bindings. This is done in all cases for consistency.\n    copy = self.copy()\n    copy.set_source_expressions(\n        [\n            Cast(expression, TextField()) if index % 2 == 0 else expression\n            for index, expression in enumerate(copy.get_source_expressions())\n        ]\n    )\n    return copy.as_native(compiler, connection, returning=\"JSONB\", **extra_context)\n",
+    "before": "def as_postgresql(self, compiler, connection, **extra_context):\n    # Casting keys to text is only required when using JSONB_BUILD_OBJECT\n    # or when using JSON_OBJECT on PostgreSQL 16+ with server-side\n    # bindings. This is done in all cases for consistency.\n    copy = self.copy()\n    copy.set_source_expressions(\n        [\n            Cast(expression, TextField()) if index % 2 == 0 else expression\n            for index, expression in enumerate(copy.get_source_expressions())\n        ]\n    )\n\n    if connection.features.is_postgresql_16:\n        return copy.as_native(\n            compiler, connection, returning=\"JSONB\", **extra_context\n        )\n\n    return super(JSONObject, copy).as_sql(\n        compiler,\n        connection,\n        function=\"JSONB_BUILD_OBJECT\",\n        **extra_context,\n    )\n",
+    "file": "django/db/models/functions/json.py",
+    "id": "django/db/models/functions/json.py#JSONObject.as_postgresql",
+    "name": "as_postgresql",
+    "qual": "JSONObject.as_postgresql",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_get_database_version(self):\n    new_connection = no_pool_connection()\n    new_connection.pg_version = 160009\n    self.assertEqual(new_connection.get_database_version(), (16, 9))\n",
+    "before": "def test_get_database_version(self):\n    new_connection = no_pool_connection()\n    new_connection.pg_version = 150009\n    self.assertEqual(new_connection.get_database_version(), (15, 9))\n",
+    "file": "tests/backends/postgresql/tests.py",
+    "id": "tests/backends/postgresql/tests.py#Tests.test_get_database_version",
+    "name": "test_get_database_version",
+    "qual": "Tests.test_get_database_version",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_check_database_version_supported(self, mocked_get_database_version):\n    msg = \"PostgreSQL 16 or later is required (found 15).\"\n    with self.assertRaisesMessage(NotSupportedError, msg):\n        connection.check_database_version_supported()\n    self.assertTrue(mocked_get_database_version.called)\n",
+    "before": "def test_check_database_version_supported(self, mocked_get_database_version):\n    msg = \"PostgreSQL 15 or later is required (found 14).\"\n    with self.assertRaisesMessage(NotSupportedError, msg):\n        connection.check_database_version_supported()\n    self.assertTrue(mocked_get_database_version.called)\n",
+    "file": "tests/backends/postgresql/tests.py",
+    "id": "tests/backends/postgresql/tests.py#Tests.test_check_database_version_supported",
+    "name": "test_check_database_version_supported",
+    "qual": "Tests.test_check_database_version_supported",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_postgres_options(self):\n    qs = Tag.objects.filter(name=\"test\")\n    test_options = [\n        {\"COSTS\": False, \"BUFFERS\": True, \"ANALYZE\": True},\n        {\"costs\": False, \"buffers\": True, \"analyze\": True},\n        {\"verbose\": True, \"timing\": True, \"analyze\": True},\n        {\"verbose\": False, \"timing\": False, \"analyze\": True},\n        {\"summary\": True},\n        {\"settings\": True},\n        {\"analyze\": True, \"wal\": True},\n        {\"generic_plan\": True},\n    ]\n    if connection.features.is_postgresql_17:\n        test_options.append({\"memory\": True})\n        test_options.append({\"serialize\": \"TEXT\", \"analyze\": True})\n        test_options.append({\"serialize\": \"text\", \"analyze\": True})\n        test_options.append({\"serialize\": \"BINARY\", \"analyze\": True})\n        test_options.append({\"serialize\": \"binary\", \"analyze\": True})\n    for options in test_options:\n        with self.subTest(**options), transaction.atomic():\n            with CaptureQueriesContext(connection) as captured_queries:\n                qs.explain(format=\"text\", **options)\n            self.assertEqual(len(captured_queries), 1)\n            for name, value in options.items():\n                if isinstance(value, str):\n                    option = \"{} {}\".format(name.upper(), value.upper())\n                else:\n                    option = \"{} {}\".format(\n                        name.upper(), \"true\" if value else \"false\"\n                    )\n                self.assertIn(option, captured_queries[0][\"sql\"])\n",
+    "before": "def test_postgres_options(self):\n    qs = Tag.objects.filter(name=\"test\")\n    test_options = [\n        {\"COSTS\": False, \"BUFFERS\": True, \"ANALYZE\": True},\n        {\"costs\": False, \"buffers\": True, \"analyze\": True},\n        {\"verbose\": True, \"timing\": True, \"analyze\": True},\n        {\"verbose\": False, \"timing\": False, \"analyze\": True},\n        {\"summary\": True},\n        {\"settings\": True},\n        {\"analyze\": True, \"wal\": True},\n    ]\n    if connection.features.is_postgresql_16:\n        test_options.append({\"generic_plan\": True})\n    if connection.features.is_postgresql_17:\n        test_options.append({\"memory\": True})\n        test_options.append({\"serialize\": \"TEXT\", \"analyze\": True})\n        test_options.append({\"serialize\": \"text\", \"analyze\": True})\n        test_options.append({\"serialize\": \"BINARY\", \"analyze\": True})\n        test_options.append({\"serialize\": \"binary\", \"analyze\": True})\n    for options in test_options:\n        with self.subTest(**options), transaction.atomic():\n            with CaptureQueriesContext(connection) as captured_queries:\n                qs.explain(format=\"text\", **options)\n            self.assertEqual(len(captured_queries), 1)\n            for name, value in options.items():\n                if isinstance(value, str):\n                    option = \"{} {}\".format(name.upper(), value.upper())\n                else:\n                    option = \"{} {}\".format(\n                        name.upper(), \"true\" if value else \"false\"\n                    )\n                self.assertIn(option, captured_queries[0][\"sql\"])\n",
+    "file": "tests/queries/test_explain.py",
+    "id": "tests/queries/test_explain.py#ExplainTests.test_postgres_options",
+    "name": "test_postgres_options",
+    "qual": "ExplainTests.test_postgres_options",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "return",
+      "tuple",
+      "('JSON_ARRAY(CAST(%s AS integer), CAST(%s AS text) NULL ON NULL RETURNING JSONB)', (1, 'a'))"
+     ],
+     "before": [
+      "return",
+      "tuple",
+      "('JSONB_BUILD_ARRAY(CAST(%s AS integer), CAST(%s AS text))', (1, 'a'))"
+     ],
+     "call": "as_pg(JSONArray(Value(1), Value('a')))",
+     "label": "generated test shows a difference",
+     "setup": "from unittest import mock\nfrom django.db import connection\nfrom django.db.models import Value\nfrom django.db.models.functions import JSONArray, JSONObject\nfrom django.contrib.auth.models import Group\ncompiler = Group.objects.all().query.get_compiler(connection=connection)\n\ndef as_pg(expression):\n    with mock.patch.object(type(connection.features), 'is_postgresql_16', False, create=True):\n        try:\n            return expression.as_postgresql(compiler, connection)\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__ + ': ' + str(exc)[:200]\n",
+     "target": "django/db/models/functions/json.py#JSONArray.as_postgresql",
+     "test": "import pytest\n\n\ndef test_generated():\n    from unittest import mock\n    from django.db import connection\n    from django.db.models import Value\n    from django.db.models.functions import JSONArray, JSONObject\n    from django.contrib.auth.models import Group\n    compiler = Group.objects.all().query.get_compiler(connection=connection)\n\n    def as_pg(expression):\n        with mock.patch.object(type(connection.features), 'is_postgresql_16', False, create=True):\n            try:\n                return expression.as_postgresql(compiler, connection)\n            except Exception as exc:\n                return 'raised ' + type(exc).__name__ + ': ' + str(exc)[:200]\n    assert repr(as_pg(JSONArray(Value(1), Value('a')))) == \"('JSON_ARRAY(CAST(%s AS integer), CAST(%s AS text) NULL ON NULL RETURNING JSONB)', (1, 'a'))\"\n",
+     "why": "PostgreSQL below 16 path"
+    },
+    {
+     "after": [
+      "return",
+      "tuple",
+      "('JSON_OBJECT((CAST(%s AS text)) VALUE %s RETURNING JSONB)', ('a', 1))"
+     ],
+     "before": [
+      "return",
+      "tuple",
+      "('JSONB_BUILD_OBJECT(CAST(%s AS text), %s)', ('a', 1))"
+     ],
+     "call": "as_pg(JSONObject(a=Value(1)))",
+     "label": "generated test shows a difference",
+     "setup": "from unittest import mock\nfrom django.db import connection\nfrom django.db.models import Value\nfrom django.db.models.functions import JSONArray, JSONObject\nfrom django.contrib.auth.models import Group\ncompiler = Group.objects.all().query.get_compiler(connection=connection)\n\ndef as_pg(expression):\n    with mock.patch.object(type(connection.features), 'is_postgresql_16', False, create=True):\n        try:\n            return expression.as_postgresql(compiler, connection)\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__ + ': ' + str(exc)[:200]\n",
+     "target": "django/db/models/functions/json.py#JSONObject.as_postgresql",
+     "test": "import pytest\n\n\ndef test_generated():\n    from unittest import mock\n    from django.db import connection\n    from django.db.models import Value\n    from django.db.models.functions import JSONArray, JSONObject\n    from django.contrib.auth.models import Group\n    compiler = Group.objects.all().query.get_compiler(connection=connection)\n\n    def as_pg(expression):\n        with mock.patch.object(type(connection.features), 'is_postgresql_16', False, create=True):\n            try:\n                return expression.as_postgresql(compiler, connection)\n            except Exception as exc:\n                return 'raised ' + type(exc).__name__ + ': ' + str(exc)[:200]\n    assert repr(as_pg(JSONObject(a=Value(1)))) == \"('JSON_OBJECT((CAST(%s AS text)) VALUE %s RETURNING JSONB)', ('a', 1))\"\n",
+     "why": "PostgreSQL below 16 path"
+    }
+   ],
+   "filter_seconds": 9.1,
+   "gaps": [],
+   "info": {
+    "accepted": 2,
+    "compiled": 6,
+    "cost": 0.0,
+    "differed": 2,
+    "dollars_cap": 0.1,
+    "functions": 6,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 6,
+    "ran": 4,
+    "reached": 2,
+    "requests": 2,
+    "seconds": 8.3,
+    "stable": 4
+   },
+   "probes": [
+    {
+     "call": "PostGISOperations.spatial_version.func(ops)",
+     "function": "django/contrib/gis/db/backends/postgis/operations.py#PostGISOperations.spatial_version",
+     "setup": "import sys\nfrom unittest import mock\nfor _n in ('psycopg', 'psycopg.adapt', 'psycopg.postgres', 'psycopg.types', 'psycopg.types.range', 'psycopg.types.json', 'psycopg.pq', 'psycopg_pool'):\n    sys.modules.setdefault(_n, mock.MagicMock())\nfrom django.db.utils import ProgrammingError\nfrom django.contrib.gis.db.backends.postgis.operations import PostGISOperations\nops = mock.MagicMock()\nops.postgis_version_tuple.side_effect = ProgrammingError('x')\nops.connection.settings_dict = {'NAME': 'db'}",
+     "why": "the error message names the minimum PostGIS version"
+    },
+    {
+     "call": "as_pg(JSONArray(Value(1), Value('a')))",
+     "function": "django/db/models/functions/json.py#JSONArray.as_postgresql",
+     "setup": "from unittest import mock\nfrom django.db import connection\nfrom django.db.models import Value\nfrom django.db.models.functions import JSONArray, JSONObject\nfrom django.contrib.auth.models import Group\ncompiler = Group.objects.all().query.get_compiler(connection=connection)\n\ndef as_pg(expression):\n    with mock.patch.object(type(connection.features), 'is_postgresql_16', False, create=True):\n        try:\n            return expression.as_postgresql(compiler, connection)\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__ + ': ' + str(exc)[:200]\n",
+     "why": "PostgreSQL below 16 path"
+    },
+    {
+     "call": "as_pg(JSONObject(a=Value(1)))",
+     "function": "django/db/models/functions/json.py#JSONObject.as_postgresql",
+     "setup": "from unittest import mock\nfrom django.db import connection\nfrom django.db.models import Value\nfrom django.db.models.functions import JSONArray, JSONObject\nfrom django.contrib.auth.models import Group\ncompiler = Group.objects.all().query.get_compiler(connection=connection)\n\ndef as_pg(expression):\n    with mock.patch.object(type(connection.features), 'is_postgresql_16', False, create=True):\n        try:\n            return expression.as_postgresql(compiler, connection)\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__ + ': ' + str(exc)[:200]\n",
+     "why": "PostgreSQL below 16 path"
+    },
+    {
+     "call": "case.test_get_database_version()",
+     "function": "tests/backends/postgresql/tests.py#Tests.test_get_database_version",
+     "setup": "from backends.postgresql.tests import Tests\ncase = Tests('test_get_database_version')",
+     "why": "runs the edited test"
+    },
+    {
+     "call": "case.test_check_database_version_supported()",
+     "function": "tests/backends/postgresql/tests.py#Tests.test_check_database_version_supported",
+     "setup": "from backends.postgresql.tests import Tests\ncase = Tests('test_check_database_version_supported')",
+     "why": "runs the edited test"
+    },
+    {
+     "call": "case.test_postgres_options()",
+     "function": "tests/queries/test_explain.py#ExplainTests.test_postgres_options",
+     "setup": "from queries.test_explain import ExplainTests\ncase = ExplainTests('test_postgres_options')",
+     "why": "runs the edited test"
+    }
+   ],
+   "targets": [
+    "django/contrib/gis/db/backends/postgis/operations.py#PostGISOperations.spatial_version",
+    "django/db/models/functions/json.py#JSONArray.as_postgresql",
+    "django/db/models/functions/json.py#JSONObject.as_postgresql",
+    "tests/backends/postgresql/tests.py#Tests.test_get_database_version",
+    "tests/backends/postgresql/tests.py#Tests.test_check_database_version_supported",
+    "tests/queries/test_explain.py#ExplainTests.test_postgres_options"
+   ],
+   "waited_seconds": 15.0
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [],
+  "changed_functions": [
+   {
+    "file": "django/contrib/gis/db/backends/postgis/operations.py",
+    "lines": "214",
+    "symbol": "PostGISOperations.spatial_version"
+   },
+   {
+    "file": "django/db/backends/postgresql/features.py",
+    "lines": "176",
+    "symbol": "DatabaseFeatures.is_postgresql_17"
+   },
+   {
+    "file": "django/db/models/functions/json.py",
+    "lines": "51-52",
+    "symbol": "JSONArray.as_postgresql"
+   },
+   {
+    "file": "django/db/models/functions/json.py",
+    "lines": "101",
+    "symbol": "JSONObject.as_postgresql"
+   },
+   {
+    "file": "tests/backends/postgresql/tests.py",
+    "lines": "582-583",
+    "symbol": "Tests.test_get_database_version"
+   },
+   {
+    "file": "tests/backends/postgresql/tests.py",
+    "lines": "585-587",
+    "symbol": "Tests.test_check_database_version_supported"
+   },
+   {
+    "file": "tests/queries/test_explain.py",
+    "lines": "90-92",
+    "symbol": "ExplainTests.test_postgres_options"
+   }
+  ],
+  "changed_symbols": [
+   "django/contrib/gis/db/backends/postgis/operations.py#PostGISOperations.spatial_version",
+   "django/db/backends/postgresql/features.py#DatabaseFeatures.is_postgresql_17",
+   "django/db/backends/postgresql/features.py#DatabaseFeatures.minimum_database_version",
+   "django/db/backends/postgresql/features.py#DatabaseFeatures.supports_any_value",
+   "django/db/models/functions/json.py#JSONArray.as_postgresql",
+   "django/db/models/functions/json.py#JSONObject.as_postgresql",
+   "tests/backends/postgresql/tests.py#Tests.test_check_database_version_supported",
+   "tests/backends/postgresql/tests.py#Tests.test_get_database_version",
+   "tests/queries/test_explain.py#ExplainTests.test_postgres_options",
+   "django/db/backends/postgresql/features.py#DatabaseFeatures.is_postgresql_16 (renamed or removed)"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 3,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 610,
+   "ran": 3,
+   "replayed": 3,
+   "runner": "django-runtests",
+   "seconds": 5.9,
+   "selection": {
+    "candidates": 610,
+    "closure_files": 14,
+    "closure_tests": 77,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/db/models/functions/__init__.py"
+    ],
+    "observed": 0,
+    "static_only": 530
+   },
+   "unrunnable": 157
+  },
+  "flips": 0,
+  "gaps": [
+   "100124 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "157 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "Skipped 7 non-Python file(s)",
+   "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run stopped at its 300 s budget: 0 of 610 candidates run",
+   "side-by-side: none of the 6 changed function(s) was called by the tests run on the code before the change",
+   "tests/test_runner_apps/tagged/tests_syntax_error.py: SyntaxError"
+  ],
+  "impacted": {
+   "count": 169,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2930,
+   "parsed_files": 6
+  },
+  "original_tests": {
+   "tests/backends/postgresql/tests.py::Tests::test_bypass_role_configuration": "skipped",
+   "tests/backends/postgresql/tests.py::Tests::test_cannot_open_new_connection_in_atomic_block": "skipped",
+   "tests/backends/postgresql/tests.py::Tests::test_check_database_version_supported": "skipped",
+   "tests/backends/postgresql/tests.py::Tests::test_client_encoding_utf8_enforce": "skipped",
+   "tests/backends/postgresql/tests.py::Tests::test_connect_and_rollback": "skipped",
+   "tests/backends/postgresql/tests.py::Tests::test_connect_custom_cursor_factory": "skipped",
+   "tests/backends/postgresql/tests.py::Tests::test_connect_invalid_isolation_level": "skipped",
+   "tests/backends/postgresql/tests.py::Tests::test_connect_no_is_usable_checks": "skipped",
+   "tests/backends/postgresql/tests.py::Tests::test_connect_pool": "skipped",
+   "tests/backends/postgresql/tests.py::Tests::test_connect_pool_setting_ignored_for_psycopg2": "skipped",
+   "tests/backends/postgresql/tests.py::Tests::test_connect_role": "skipped",
+   "tests/backends/postgresql/tests.py::Tests::test_connect_server_side_binding": "skipped",
+   "tests/backends/postgresql/tests.py::Tests::test_correct_extraction_psycopg_version": "skipped",
+   "tests/backends/postgresql/tests.py::Tests::test_database_name_empty": "skipped",
+   "tests/backends/postgresql/tests.py::Tests::test_database_name_too_long": "skipped",
+   "tests/backends/postgresql/tests.py::Tests::test_get_database_version": "skipped",
+   "tests/backends/postgresql/tests.py::Tests::test_nodb_cursor": "skipped",
+   "tests/backends/postgresql/tests.py::Tests::test_nodb_cursor_raises_postgres_authentication_failure": "skipped",
+   "tests/backends/postgresql/tests.py::Tests::test_pool_check_can_be_overridden": "skipped",
+   "tests/backends/postgresql/tests.py::Tests::test_pooling_health_checks": "skipped",
+   "tests/queries/test_explain.py::ExplainTests::test_basic": "passed",
+   "tests/queries/test_explain.py::ExplainTests::test_invalid_option_names": "passed",
+   "tests/queries/test_explain.py::ExplainTests::test_multi_page_text_explain": "skipped",
+   "tests/queries/test_explain.py::ExplainTests::test_mysql_analyze": "skipped",
+   "tests/queries/test_explain.py::ExplainTests::test_mysql_text_to_traditional": "skipped",
+   "tests/queries/test_explain.py::ExplainTests::test_option_sql_injection": "passed",
+   "tests/queries/test_explain.py::ExplainTests::test_postgres_options": "skipped",
+   "tests/queries/test_explain.py::ExplainTests::test_unknown_format": "passed",
+   "tests/queries/test_explain.py::ExplainTests::test_unknown_options": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "skipped",
+    "head": "skipped",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_get_database_version",
+    "verdict": "none"
+   },
+   {
+    "base": "skipped",
+    "head": "skipped",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_check_database_version_supported",
+    "verdict": "none"
+   },
+   {
+    "base": "skipped",
+    "head": "skipped",
+    "id": "tests/queries/test_explain.py::ExplainTests::test_postgres_options",
+    "verdict": "none"
+   }
+  ],
+  "report_hash": "d43c8cd4117e",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 0,
+   "differences": 0,
+   "functions_called": 0,
+   "input_built_before_the_change": 0,
+   "not_compared": {},
+   "seconds": 0.0,
+   "targets": 6,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 3 of 610 candidate tests after the change with django-runtests in 5.9 s, failures confirmed before it: 0 now fail. 585 tests reach the change. 29 test(s) from edited test files also run as they were before the edit. 3 test(s) the change adds or edits replayed on the code before it: 0 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/tests.py::TestPostGISVersionCheck::test_no_version_number",
+    "line": 94,
+    "run": "cd tests && python runtests.py gis_tests.tests.TestPostGISVersionCheck.test_no_version_number",
+    "score": 2.082,
+    "why": "via PostGISOperations.spatial_version (name: gis,post,version)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/tests.py::TestPostGISVersionCheck::test_valid_version_numbers",
+    "line": 81,
+    "run": "cd tests && python runtests.py gis_tests.tests.TestPostGISVersionCheck.test_valid_version_numbers",
+    "score": 1.301,
+    "why": "via PostGISOperations.spatial_version (name: gis,post,version)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_check_database_version_supported",
+    "line": 585,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_check_database_version_supported",
+    "score": 0.841,
+    "why": "via BaseDatabaseWrapper.check_database_version_supported > DatabaseFeatures.minimum_database_version (name: database,version)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/queries/test_explain.py::ExplainTests::test_postgres_options",
+    "line": 79,
+    "run": "cd tests && python runtests.py queries.test_explain.ExplainTests.test_postgres_options",
+    "score": 0.718,
+    "why": "via DatabaseFeatures.is_postgresql_17"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/aggregation/tests.py::AggregateTestCase::test_group_by_nested_expression_with_params",
+    "line": 1696,
+    "run": "cd tests && python runtests.py aggregation.tests.AggregateTestCase.test_group_by_nested_expression_with_params",
+    "score": 0.468,
+    "why": "via DatabaseFeatures.supports_any_value"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/backends/base/test_base.py::DatabaseWrapperTests::test_check_database_version_supported_with_none_as_database_version",
+    "line": 61,
+    "run": "cd tests && python runtests.py backends.base.test_base.DatabaseWrapperTests.test_check_database_version_supported_with_none_as_database_version",
+    "score": 0.306,
+    "why": "via BaseDatabaseWrapper.check_database_version_supported > DatabaseFeatures.minimum_database_version (name: database,version)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/db_functions/json/test_json_array.py::JSONArrayObjectTests::test_nested_json_array_object",
+    "line": 125,
+    "run": "cd tests && python runtests.py db_functions.json.test_json_array.JSONArrayObjectTests.test_nested_json_array_object",
+    "score": 0.216,
+    "why": "via JSONArray (name: array,json)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/backends/mysql/tests.py::Tests::test_check_database_version_supported",
+    "line": 106,
+    "run": "cd tests && python runtests.py backends.mysql.tests.Tests.test_check_database_version_supported",
+    "score": 0.204,
+    "why": "via BaseDatabaseWrapper.check_database_version_supported > DatabaseFeatures.minimum_database_version (name: database,version)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/expressions/tests.py::ValueTests::test_compile_unresolved",
+    "line": 2503,
+    "run": "cd tests && python runtests.py expressions.tests.ValueTests.test_compile_unresolved",
+    "score": 0.197,
+    "why": "via AnyValue.as_sql > DatabaseFeatures.supports_any_value (name: value)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/geogapp/tests.py::GeographyFunctionTests::test_distance_function",
+    "line": 141,
+    "run": "cd tests && python runtests.py gis_tests.geogapp.tests.GeographyFunctionTests.test_distance_function",
+    "score": 0.192,
+    "why": "via PostGISOperations.spatial_version"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/backends/oracle/tests.py::Tests::test_check_database_version_supported",
+    "line": 72,
+    "run": "cd tests && python runtests.py backends.oracle.tests.Tests.test_check_database_version_supported",
+    "score": 0.163,
+    "why": "via BaseDatabaseWrapper.check_database_version_supported > DatabaseFeatures.minimum_database_version (name: database,version)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_get_database_version",
+    "line": 580,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_get_database_version",
+    "score": 0.154,
+    "why": "via Tests (name: database,get,version)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/backends/sqlite/tests.py::Tests::test_check_database_version_supported",
+    "line": 117,
+    "run": "cd tests && python runtests.py backends.sqlite.tests.Tests.test_check_database_version_supported",
+    "score": 0.139,
+    "why": "via BaseDatabaseWrapper.check_database_version_supported > DatabaseFeatures.minimum_database_version (name: database,version)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/db_functions/json/test_json_array.py::JSONArrayObjectTests::test_nested_json_object_array",
+    "line": 152,
+    "run": "cd tests && python runtests.py db_functions.json.test_json_array.JSONArrayObjectTests.test_nested_json_object_array",
+    "score": 0.138,
+    "why": "via JSONArray (name: array,json)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/expressions/tests.py::BasicExpressionsTests::test_subquery_sql",
+    "line": 750,
+    "run": "cd tests && python runtests.py expressions.tests.BasicExpressionsTests.test_subquery_sql",
+    "score": 0.129,
+    "why": "via AnyValue.as_sql > DatabaseFeatures.supports_any_value"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/db_functions/json/test_json_array.py::JSONArrayObjectTests::test_order_by_nested_key",
+    "line": 173,
+    "run": "cd tests && python runtests.py db_functions.json.test_json_array.JSONArrayObjectTests.test_order_by_nested_key",
+    "score": 0.095,
+    "why": "via JSONArray (name: array,json)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_database_name_too_long",
+    "line": 138,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_database_name_too_long",
+    "score": 0.084,
+    "why": "via Tests (name: database)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/queries/test_explain.py::ExplainTests::test_invalid_option_names",
+    "line": 129,
+    "run": "cd tests && python runtests.py queries.test_explain.ExplainTests.test_invalid_option_names",
+    "score": 0.081,
+    "why": "via ExplainTests (name: explain,option)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/tests.py::TestPostGISBackend::test_non_db_connection_classes",
+    "line": 102,
+    "run": "cd tests && python runtests.py gis_tests.tests.TestPostGISBackend.test_non_db_connection_classes",
+    "score": 0.08,
+    "why": "via PostGISOperations (name: gis,post)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_nodb_cursor",
+    "line": 37,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_nodb_cursor",
+    "score": 0.075,
+    "why": "via BaseDatabaseWrapper.connect > BaseDatabaseWrapper.init_connection_state > BaseDatabaseWrapper.check_database_version_supported > DatabaseFeatures.minimum_database_version"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/queries/test_explain.py::ExplainTests::test_option_sql_injection",
+    "line": 122,
+    "run": "cd tests && python runtests.py queries.test_explain.ExplainTests.test_option_sql_injection",
+    "score": 0.068,
+    "why": "via ExplainTests (name: explain,option)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_database_name_empty",
+    "line": 152,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_database_name_empty",
+    "score": 0.064,
+    "why": "via Tests (name: database)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/backends/base/test_base.py::MultiDatabaseTests::test_multi_database_init_connection_state_called_once",
+    "line": 424,
+    "run": "cd tests && python runtests.py backends.base.test_base.MultiDatabaseTests.test_multi_database_init_connection_state_called_once",
+    "score": 0.061,
+    "why": "via BaseDatabaseWrapper.init_connection_state > BaseDatabaseWrapper.check_database_version_supported > DatabaseFeatures.minimum_database_version (name: database)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_connect_role",
+    "line": 423,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_connect_role",
+    "score": 0.059,
+    "why": "via BaseDatabaseWrapper.connect > BaseDatabaseWrapper.init_connection_state > BaseDatabaseWrapper.check_database_version_supported > DatabaseFeatures.minimum_database_version"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/queries/test_explain.py::ExplainTests::test_unknown_options",
+    "line": 64,
+    "run": "cd tests && python runtests.py queries.test_explain.ExplainTests.test_unknown_options",
+    "score": 0.058,
+    "why": "via ExplainTests (name: explain,option)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_connect_pool_setting_ignored_for_psycopg2",
+    "line": 375,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_connect_pool_setting_ignored_for_psycopg2",
+    "score": 0.055,
+    "why": "via BaseDatabaseWrapper.connect > BaseDatabaseWrapper.init_connection_state > BaseDatabaseWrapper.check_database_version_supported > DatabaseFeatures.minimum_database_version"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_connect_custom_cursor_factory",
+    "line": 457,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_connect_custom_cursor_factory",
+    "score": 0.052,
+    "why": "via BaseDatabaseWrapper.connect > BaseDatabaseWrapper.init_connection_state > BaseDatabaseWrapper.check_database_version_supported > DatabaseFeatures.minimum_database_version"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_connect_server_side_binding",
+    "line": 438,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_connect_server_side_binding",
+    "score": 0.051,
+    "why": "via BaseDatabaseWrapper.connect > BaseDatabaseWrapper.init_connection_state > BaseDatabaseWrapper.check_database_version_supported > DatabaseFeatures.minimum_database_version"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_bypass_role_configuration",
+    "line": 630,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_bypass_role_configuration",
+    "score": 0.05,
+    "why": "via BaseDatabaseWrapper.connect > BaseDatabaseWrapper.init_connection_state > BaseDatabaseWrapper.check_database_version_supported > DatabaseFeatures.minimum_database_version"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/queries/test_explain.py::ExplainTests::test_basic",
+    "line": 15,
+    "run": "cd tests && python runtests.py queries.test_explain.ExplainTests.test_basic",
+    "score": 0.048,
+    "why": "via ExplainTests (name: explain)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_connect_pool",
+    "line": 236,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_connect_pool",
+    "score": 0.047,
+    "why": "via Tests.test_connect_pool.get_connection > BaseDatabaseWrapper.connect > BaseDatabaseWrapper.init_connection_state > BaseDatabaseWrapper.check_database_version_supported > DatabaseFeatures.minimum_database_version"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_client_encoding_utf8_enforce",
+    "line": 484,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_client_encoding_utf8_enforce",
+    "score": 0.045,
+    "why": "via BaseDatabaseWrapper.connect > BaseDatabaseWrapper.init_connection_state > BaseDatabaseWrapper.check_database_version_supported > DatabaseFeatures.minimum_database_version"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/db_functions/json/test_json_array.py::JSONArrayTests::test_explicit_cast",
+    "line": 89,
+    "run": "cd tests && python runtests.py db_functions.json.test_json_array.JSONArrayTests.test_explicit_cast",
+    "score": 0.044,
+    "why": "via JSONArray (name: array,json)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/rasterapp/test_rasterfield.py::RasterFieldTest::test_all_gis_lookups_with_rasters",
+    "line": 171,
+    "run": "cd tests && python runtests.py gis_tests.rasterapp.test_rasterfield.RasterFieldTest.test_all_gis_lookups_with_rasters",
+    "score": 0.043,
+    "why": "via PostGISOperations (name: gis)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_correct_extraction_psycopg_version",
+    "line": 544,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_correct_extraction_psycopg_version",
+    "score": 0.042,
+    "why": "via Tests (name: version)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/queries/test_explain.py::ExplainTests::test_multi_page_text_explain",
+    "line": 112,
+    "run": "cd tests && python runtests.py queries.test_explain.ExplainTests.test_multi_page_text_explain",
+    "score": 0.039,
+    "why": "via ExplainTests (name: explain)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_connect_invalid_isolation_level",
+    "line": 412,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_connect_invalid_isolation_level",
+    "score": 0.037,
+    "why": "via BaseDatabaseWrapper.ensure_connection > BaseDatabaseWrapper.connect > BaseDatabaseWrapper.init_connection_state > BaseDatabaseWrapper.check_database_version_supported > DatabaseFeatures.minimum_database_version"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/queries/test_explain.py::ExplainTests::test_mysql_text_to_traditional",
+    "line": 151,
+    "run": "cd tests && python runtests.py queries.test_explain.ExplainTests.test_mysql_text_to_traditional",
+    "score": 0.036,
+    "why": "via ExplainTests (name: explain)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/postgres_tests/test_array.py::TestQuerying::test_annotated_array_subquery_with_json_objects",
+    "line": 743,
+    "run": "cd tests && python runtests.py postgres_tests.test_array.TestQuerying.test_annotated_array_subquery_with_json_objects",
+    "score": 0.036,
+    "why": "via JSONObject (name: json,object)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/backends/mysql/tests.py::IsolationLevelTests::test_auto_is_null_auto_config",
+    "line": 48,
+    "run": "cd tests && python runtests.py backends.mysql.tests.IsolationLevelTests.test_auto_is_null_auto_config",
+    "score": 0.036,
+    "why": "via BaseDatabaseWrapper.init_connection_state > BaseDatabaseWrapper.check_database_version_supported > DatabaseFeatures.minimum_database_version"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792323616.8452659,
+  "job_seconds": 18.2,
+  "number": 21971,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 18.3,
+  "started": 1792323597.644166
+ },
+ "verify": null
+}

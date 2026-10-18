@@ -1,0 +1,673 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "9bc95b1a80941bcfe64c1d60e3417fc7bea2562a",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "e2ca4e6bebaa84898316f3c5e898265775e9ed52",
+  "install_ok": true,
+  "merge_base": "3f58eb0ce808f8c4917ab0b8ae67d133fc794c3f",
+  "pr": 30667,
+  "recording": false,
+  "runner": null,
+  "seconds": 396.4,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "9bc95b1a80941bcfe64c1d60e3417fc7bea2562a",
+  "head_sha": "e2ca4e6bebaa84898316f3c5e898265775e9ed52",
+  "merge_base": "3f58eb0ce808f8c4917ab0b8ae67d133fc794c3f",
+  "merged_at": "2026-10-08T09:38:50Z",
+  "number": 30667,
+  "repo": "sympy",
+  "title": "Handle algebraicity of powers with an infinite base"
+ },
+ "probe_minutes": {
+  "end": 1792341419.166972,
+  "minutes": 0.3,
+  "start": 1792341061.33604,
+  "waited": 338.0568707080092
+ },
+ "probe_targets": {
+  "all": 2,
+  "called": 1,
+  "targets": [
+   {
+    "after": "def test_Pow_is_algebraic():\n    e = Symbol('e', algebraic=True)\n\n    assert Pow(1, e, evaluate=False).is_algebraic\n    assert Pow(0, e, evaluate=False).is_algebraic is None\n\n    for exponent in [-1, -S.Half, -oo, Symbol('n', negative=True)]:\n        assert Pow(0, exponent, evaluate=False).is_algebraic is False\n    for exponent in [0, 1, S.Half, oo, Symbol('p', nonnegative=True)]:\n        assert Pow(0, exponent, evaluate=False).is_algebraic is True\n    assert Pow(0, -1, evaluate=False).is_finite is False\n\n    # issue 30665\n    for exponent in [-1, -S.Half, -Integer(2)]:\n        assert Pow(zoo, exponent, evaluate=False).is_algebraic is True\n    for exponent in [1, S.Half, Integer(2)]:\n        assert Pow(zoo, exponent, evaluate=False).is_algebraic is False\n    assert Pow(zoo, 0, evaluate=False).is_algebraic is True\n    one_over_zero = Pow(0, -1, evaluate=False)\n    assert Pow(one_over_zero, -1, evaluate=False).is_algebraic is True\n\n    inf = Symbol('inf', infinite=True)\n    for exponent in [-1, -S.Half]:\n        p = Pow(inf, exponent, evaluate=False)\n        assert p.is_algebraic is True\n        assert p.is_zero is True\n    assert Pow(inf, 0, evaluate=False).is_algebraic is True\n    assert Pow(inf, 2, evaluate=False).is_algebraic is False\n    r = Symbol('r', rational=True)\n    assert Pow(inf, r, evaluate=False).is_algebraic is None\n\n    a = Symbol('a', algebraic=True)\n    azf = Symbol('azf', algebraic=True, zero=False)\n    na = Symbol('na', algebraic=False)\n    ia = Symbol('ia', algebraic=True, irrational=True)\n    ib = Symbol('ib', algebraic=True, irrational=True)\n    r = Symbol('r', rational=True)\n    x = Symbol('x')\n    assert (a**2).is_algebraic is True\n    assert (a**r).is_algebraic is None\n    assert (azf**r).is_algebraic is True\n    assert (a**x).is_algebraic is None\n    assert (na**r).is_algebraic is None\n    assert (ia**r).is_algebraic is True\n    assert (ia**ib).is_algebraic is False\n\n    assert (a**e).is_algebraic is None\n\n    # Gelfond-Schneider constant:\n    assert Pow(2, sqrt(2), evaluate=False).is_algebraic is False\n\n    assert Pow(S.GoldenRatio, sqrt(3), evaluate=False).is_algebraic is False\n\n    # issue 8649\n    t = Symbol('t', real=True, transcendental=True)\n    n = Symbol('n', integer=True)\n    assert (t**n).is_algebraic is None\n    assert (t**n).is_integer is None\n\n    assert (pi**3).is_algebraic is False\n    r = Symbol('r', zero=True)\n    assert (pi**r).is_algebraic is True\n",
+    "before": "def test_Pow_is_algebraic():\n    e = Symbol('e', algebraic=True)\n\n    assert Pow(1, e, evaluate=False).is_algebraic\n    assert Pow(0, e, evaluate=False).is_algebraic is None\n\n    for exponent in [-1, -S.Half, -oo, Symbol('n', negative=True)]:\n        assert Pow(0, exponent, evaluate=False).is_algebraic is False\n    for exponent in [0, 1, S.Half, oo, Symbol('p', nonnegative=True)]:\n        assert Pow(0, exponent, evaluate=False).is_algebraic is True\n    assert Pow(0, -1, evaluate=False).is_finite is False\n\n    a = Symbol('a', algebraic=True)\n    azf = Symbol('azf', algebraic=True, zero=False)\n    na = Symbol('na', algebraic=False)\n    ia = Symbol('ia', algebraic=True, irrational=True)\n    ib = Symbol('ib', algebraic=True, irrational=True)\n    r = Symbol('r', rational=True)\n    x = Symbol('x')\n    assert (a**2).is_algebraic is True\n    assert (a**r).is_algebraic is None\n    assert (azf**r).is_algebraic is True\n    assert (a**x).is_algebraic is None\n    assert (na**r).is_algebraic is None\n    assert (ia**r).is_algebraic is True\n    assert (ia**ib).is_algebraic is False\n\n    assert (a**e).is_algebraic is None\n\n    # Gelfond-Schneider constant:\n    assert Pow(2, sqrt(2), evaluate=False).is_algebraic is False\n\n    assert Pow(S.GoldenRatio, sqrt(3), evaluate=False).is_algebraic is False\n\n    # issue 8649\n    t = Symbol('t', real=True, transcendental=True)\n    n = Symbol('n', integer=True)\n    assert (t**n).is_algebraic is None\n    assert (t**n).is_integer is None\n\n    assert (pi**3).is_algebraic is False\n    r = Symbol('r', zero=True)\n    assert (pi**r).is_algebraic is True\n",
+    "file": "sympy/core/tests/test_assumptions.py",
+    "id": "sympy/core/tests/test_assumptions.py#test_Pow_is_algebraic",
+    "name": "test_Pow_is_algebraic",
+    "qual": "test_Pow_is_algebraic",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "return",
+      "list",
+      "[True, True, True, False, None, True]"
+     ],
+     "before": [
+      "return",
+      "list",
+      "[False, False, False, False, None, False]"
+     ],
+     "call": "[Pow(zoo, -1, evaluate=False).is_algebraic, Pow(oo, -S.Half, evaluate=False).is_algebraic, Pow(inf, -1, evaluate=False).is_algebraic, Pow(inf, 2, evaluate=False).is_algebraic, Pow(inf, r, evaluate=False).is_algebraic, Pow(Pow(0, -1, evaluate=False), -1, evaluate=False).is_algebraic]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import Integer, Pow, S, Symbol, oo, zoo\ninf = Symbol('inf', infinite=True)\nr = Symbol('r', rational=True)",
+     "target": "sympy/core/tests/test_assumptions.py#test_Pow_is_algebraic",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import Integer, Pow, S, Symbol, oo, zoo\n    inf = Symbol('inf', infinite=True)\n    r = Symbol('r', rational=True)\n    assert repr([Pow(zoo, -1, evaluate=False).is_algebraic, Pow(oo, -S.Half, evaluate=False).is_algebraic, Pow(inf, -1, evaluate=False).is_algebraic, Pow(inf, 2, evaluate=False).is_algebraic, Pow(inf, r, evaluate=False).is_algebraic, Pow(Pow(0, -1, evaluate=False), -1, evaluate=False).is_algebraic]) == '[True, True, True, False, None, True]'\n",
+     "why": "infinite bases with rational exponents, issue 30665"
+    }
+   ],
+   "dollars_cap": 0.1,
+   "filter_seconds": 13.3,
+   "gaps": [],
+   "info": {
+    "accepted": 1,
+    "compiled": 1,
+    "cost": 0.0,
+    "differed": 1,
+    "dollars_cap": 0.1,
+    "functions": 1,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 1,
+    "ran": 1,
+    "reached": 1,
+    "requests": 1,
+    "seconds": 13.2,
+    "stable": 1
+   },
+   "probes": [
+    {
+     "call": "[Pow(zoo, -1, evaluate=False).is_algebraic, Pow(oo, -S.Half, evaluate=False).is_algebraic, Pow(inf, -1, evaluate=False).is_algebraic, Pow(inf, 2, evaluate=False).is_algebraic, Pow(inf, r, evaluate=False).is_algebraic, Pow(Pow(0, -1, evaluate=False), -1, evaluate=False).is_algebraic]",
+     "function": "sympy/core/tests/test_assumptions.py#test_Pow_is_algebraic",
+     "setup": "from sympy import Integer, Pow, S, Symbol, oo, zoo\ninf = Symbol('inf', infinite=True)\nr = Symbol('r', rational=True)",
+     "why": "infinite bases with rational exponents, issue 30665"
+    }
+   ],
+   "targets": [
+    "sympy/core/tests/test_assumptions.py#test_Pow_is_algebraic"
+   ],
+   "waited_seconds": 338.1
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/core/tests/test_assumptions.py::test_Pow_is_algebraic",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/core/power.py",
+    "lines": "1308-1313",
+    "symbol": "Pow._eval_is_algebraic"
+   },
+   {
+    "file": "sympy/core/tests/test_assumptions.py",
+    "lines": "853-871",
+    "symbol": "test_Pow_is_algebraic"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/core/power.py#Pow._eval_is_algebraic",
+   "sympy/core/tests/test_assumptions.py#test_Pow_is_algebraic",
+   "sympy/core/tests/test_assumptions.py"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 1,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 4032,
+   "ran": 3717,
+   "replayed": 1,
+   "runner": "pytest",
+   "seconds": 349.2,
+   "selection": {
+    "candidates": 12961,
+    "closure_files": 1321,
+    "closure_tests": 12906,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 55
+   },
+   "unrunnable": 3
+  },
+  "flips": 0,
+  "gaps": [
+   "3 candidate(s) could not be run by pytest and are not covered by this result",
+   "63928 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "8929 lower-ranked candidate(s) not run: about 17 tests/s per process fit 4032 in the 300 s allowed",
+   "shadow run stopped at its 300 s budget: 3720 of 4032 candidates run"
+  ],
+  "impacted": {
+   "count": 0,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1607,
+   "parsed_files": 2
+  },
+  "original_tests": {
+   "sympy/core/tests/test_assumptions.py::test_Add_is_algebraic": "passed",
+   "sympy/core/tests/test_assumptions.py::test_Add_is_imaginary": "passed",
+   "sympy/core/tests/test_assumptions.py::test_Add_is_pos_neg": "passed",
+   "sympy/core/tests/test_assumptions.py::test_E": "passed",
+   "sympy/core/tests/test_assumptions.py::test_I": "passed",
+   "sympy/core/tests/test_assumptions.py::test_Mul_is_algebraic": "passed",
+   "sympy/core/tests/test_assumptions.py::test_Mul_is_infinite": "passed",
+   "sympy/core/tests/test_assumptions.py::test_Mul_is_prime_composite": "passed",
+   "sympy/core/tests/test_assumptions.py::test_Pow_is_algebraic": "passed",
+   "sympy/core/tests/test_assumptions.py::test_Pow_is_pos_neg": "passed",
+   "sympy/core/tests/test_assumptions.py::test_Pow_is_prime_composite": "passed",
+   "sympy/core/tests/test_assumptions.py::test_assumptions_copy": "passed",
+   "sympy/core/tests/test_assumptions.py::test_check_assumptions": "passed",
+   "sympy/core/tests/test_assumptions.py::test_common_assumptions": "passed",
+   "sympy/core/tests/test_assumptions.py::test_complex_reciprocal_imaginary": "passed",
+   "sympy/core/tests/test_assumptions.py::test_evaluate_false": "passed",
+   "sympy/core/tests/test_assumptions.py::test_failing_assumptions": "passed",
+   "sympy/core/tests/test_assumptions.py::test_hash_vs_eq": "passed",
+   "sympy/core/tests/test_assumptions.py::test_hash_vs_typeinfo": "passed",
+   "sympy/core/tests/test_assumptions.py::test_hash_vs_typeinfo_2": "passed",
+   "sympy/core/tests/test_assumptions.py::test_inconsistent": "passed",
+   "sympy/core/tests/test_assumptions.py::test_infinity": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_10024": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_16313": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_16579": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_17556": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_21651": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_2730": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_2920": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_3825": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_4822": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_6275": "skipped",
+   "sympy/core/tests/test_assumptions.py::test_issue_6631": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_7899": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_7993": "skipped",
+   "sympy/core/tests/test_assumptions.py::test_issue_8075": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_8642": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_9115_9150": "passed",
+   "sympy/core/tests/test_assumptions.py::test_issue_9165": "passed",
+   "sympy/core/tests/test_assumptions.py::test_nan": "passed",
+   "sympy/core/tests/test_assumptions.py::test_neg_infinity": "passed",
+   "sympy/core/tests/test_assumptions.py::test_neg_rational": "passed",
+   "sympy/core/tests/test_assumptions.py::test_neg_symbol_falsenegative": "passed",
+   "sympy/core/tests/test_assumptions.py::test_neg_symbol_falsenonnegative": "skipped",
+   "sympy/core/tests/test_assumptions.py::test_neg_symbol_falsenonnegative_real": "passed",
+   "sympy/core/tests/test_assumptions.py::test_neg_symbol_falsepositive": "passed",
+   "sympy/core/tests/test_assumptions.py::test_neg_symbol_falsepositive_real": "passed",
+   "sympy/core/tests/test_assumptions.py::test_neg_symbol_nonpositive": "passed",
+   "sympy/core/tests/test_assumptions.py::test_neg_symbol_positive": "passed",
+   "sympy/core/tests/test_assumptions.py::test_negativeone": "passed",
+   "sympy/core/tests/test_assumptions.py::test_one": "passed",
+   "sympy/core/tests/test_assumptions.py::test_other_symbol": "passed",
+   "sympy/core/tests/test_assumptions.py::test_pi": "passed",
+   "sympy/core/tests/test_assumptions.py::test_pos_rational": "passed",
+   "sympy/core/tests/test_assumptions.py::test_prime": "passed",
+   "sympy/core/tests/test_assumptions.py::test_prime_symbol": "passed",
+   "sympy/core/tests/test_assumptions.py::test_sanitize_assumptions": "passed",
+   "sympy/core/tests/test_assumptions.py::test_symbol_extended_real_false": "passed",
+   "sympy/core/tests/test_assumptions.py::test_symbol_falsenonnegative": "passed",
+   "sympy/core/tests/test_assumptions.py::test_symbol_falsenonnegative_real": "passed",
+   "sympy/core/tests/test_assumptions.py::test_symbol_falsepositive": "passed",
+   "sympy/core/tests/test_assumptions.py::test_symbol_falsepositive_mul": "passed",
+   "sympy/core/tests/test_assumptions.py::test_symbol_falsepositive_real": "passed",
+   "sympy/core/tests/test_assumptions.py::test_symbol_imaginary": "passed",
+   "sympy/core/tests/test_assumptions.py::test_symbol_infinitereal_mul": "skipped",
+   "sympy/core/tests/test_assumptions.py::test_symbol_noncommutative": "passed",
+   "sympy/core/tests/test_assumptions.py::test_symbol_nonpositive": "passed",
+   "sympy/core/tests/test_assumptions.py::test_symbol_positive": "passed",
+   "sympy/core/tests/test_assumptions.py::test_symbol_real_false": "passed",
+   "sympy/core/tests/test_assumptions.py::test_symbol_unset": "passed",
+   "sympy/core/tests/test_assumptions.py::test_symbol_zero": "passed",
+   "sympy/core/tests/test_assumptions.py::test_zero": "passed",
+   "sympy/core/tests/test_assumptions.py::test_zoo": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/core/tests/test_assumptions.py::test_Pow_is_algebraic",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "7084ad3f63f6",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [
+    "sympy/core/power.py#Pow._eval_is_algebraic"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 10,
+   "differences": 0,
+   "functions_called": 1,
+   "input_built_before_the_change": 0,
+   "not_compared": {},
+   "seconds": 43.6,
+   "targets": 2,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 3717 of 4032 candidate tests after the change with pytest in 349.2 s, failures confirmed before it: 0 now fail. 8156 tests reach the change. 73 test(s) from edited test files also run as they were before the edit. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_power.py::test_pow_as_base_exp",
+    "line": 285,
+    "run": "python -m pytest sympy/core/tests/test_power.py::test_pow_as_base_exp",
+    "score": 0.033,
+    "why": "via Pow (name: pow,power)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_arit.py::test_Pow_is_zero",
+    "line": 1312,
+    "run": "python -m pytest sympy/core/tests/test_arit.py::test_Pow_is_zero",
+    "score": 0.02,
+    "why": "via Pow (name: pow)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_power.py::test_Pow_Expr_args",
+    "line": 201,
+    "run": "python -m pytest sympy/core/tests/test_power.py::test_Pow_Expr_args",
+    "score": 0.013,
+    "why": "via Pow (name: pow,power)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/assumptions/tests/test_query.py::test_algebraic",
+    "line": 2167,
+    "run": "python -m pytest sympy/assumptions/tests/test_query.py::test_algebraic",
+    "score": 0.011,
+    "why": "via Pow (name: algebraic)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_assumptions.py::test_Pow_is_algebraic",
+    "line": 841,
+    "run": "python -m pytest sympy/core/tests/test_assumptions.py::test_Pow_is_algebraic",
+    "score": 0.009,
+    "why": "via Pow (name: algebraic,pow)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/printing/tests/test_c.py::test_ccode_Pow",
+    "line": 48,
+    "run": "python -m pytest sympy/printing/tests/test_c.py::test_ccode_Pow",
+    "score": 0.008,
+    "why": "via Pow (name: pow)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/tensor/tests/test_index_methods.py::test_get_indices_Pow",
+    "line": 70,
+    "run": "python -m pytest sympy/tensor/tests/test_index_methods.py::test_get_indices_Pow",
+    "score": 0.007,
+    "why": "via Pow (name: pow)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_subs.py::test_pow_eval_subs_no_cache",
+    "line": 758,
+    "run": "python -m pytest sympy/core/tests/test_subs.py::test_pow_eval_subs_no_cache",
+    "score": 0.007,
+    "why": "via Pow (name: eval,pow)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/physics/quantum/tests/test_operator.py::test_eval_power",
+    "line": 243,
+    "run": "python -m pytest sympy/physics/quantum/tests/test_operator.py::test_eval_power",
+    "score": 0.007,
+    "why": "via Pow (name: eval,power)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_args.py::test_sympy__core__power__Pow",
+    "line": 851,
+    "run": "python -m pytest sympy/core/tests/test_args.py::test_sympy__core__power__Pow",
+    "score": 0.006,
+    "why": "via Pow (name: pow,power)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/assumptions/tests/test_query.py::test_real_pow",
+    "line": 2061,
+    "run": "python -m pytest sympy/assumptions/tests/test_query.py::test_real_pow",
+    "score": 0.006,
+    "why": "via Pow (name: pow)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_power.py::test_power_dispatcher",
+    "line": 627,
+    "run": "python -m pytest sympy/core/tests/test_power.py::test_power_dispatcher",
+    "score": 0.006,
+    "why": "via Pow (name: power)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_constantsimp.py::test_constant_power_as_base",
+    "line": 78,
+    "run": "python -m pytest sympy/solvers/tests/test_constantsimp.py::test_constant_power_as_base",
+    "score": 0.006,
+    "why": "via Pow (name: power)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/elementary/tests/test_complexes.py::test_sign",
+    "line": 217,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_complexes.py::test_sign",
+    "score": 0.006,
+    "why": "via Pow"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/special/tests/test_hyper.py::test_meijerg_eval",
+    "line": 332,
+    "run": "python -m pytest sympy/functions/special/tests/test_hyper.py::test_meijerg_eval",
+    "score": 0.006,
+    "why": "via Pow (name: eval)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_arit.py::test_Pow_is_real",
+    "line": 1108,
+    "run": "python -m pytest sympy/core/tests/test_arit.py::test_Pow_is_real",
+    "score": 0.006,
+    "why": "via Pow (name: pow)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_arit.py::test_pow_arit",
+    "line": 128,
+    "run": "python -m pytest sympy/core/tests/test_arit.py::test_pow_arit",
+    "score": 0.006,
+    "why": "via Pow (name: pow)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/integrals/tests/test_manual.py::test_manualintegrate_exp_trig_pow",
+    "line": 733,
+    "run": "python -m pytest sympy/integrals/tests/test_manual.py::test_manualintegrate_exp_trig_pow",
+    "score": 0.006,
+    "why": "via Pow (name: pow)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_power.py::test_issue_17450",
+    "line": 545,
+    "run": "python -m pytest sympy/core/tests/test_power.py::test_issue_17450",
+    "score": 0.006,
+    "why": "via Pow (name: power)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_power.py::test_issue_2993",
+    "line": 505,
+    "run": "python -m pytest sympy/core/tests/test_power.py::test_issue_2993",
+    "score": 0.006,
+    "why": "via Pow (name: power)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_power.py::test_issue_7638",
+    "line": 385,
+    "run": "python -m pytest sympy/core/tests/test_power.py::test_issue_7638",
+    "score": 0.006,
+    "why": "via Pow (name: power)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_power.py::test_power_rewrite_exp",
+    "line": 228,
+    "run": "python -m pytest sympy/core/tests/test_power.py::test_power_rewrite_exp",
+    "score": 0.006,
+    "why": "via Pow (name: power)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_constantsimp.py::test_constant_power_as_exp",
+    "line": 92,
+    "run": "python -m pytest sympy/solvers/tests/test_constantsimp.py::test_constant_power_as_exp",
+    "score": 0.006,
+    "why": "via Pow (name: power)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/assumptions/tests/test_query.py::test_imaginary",
+    "line": 1600,
+    "run": "python -m pytest sympy/assumptions/tests/test_query.py::test_imaginary",
+    "score": 0.005,
+    "why": "via Pow"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/assumptions/tests/test_query.py::test_nonzero",
+    "line": 1766,
+    "run": "python -m pytest sympy/assumptions/tests/test_query.py::test_nonzero",
+    "score": 0.005,
+    "why": "via Pow"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/assumptions/tests/test_query.py::test_rational",
+    "line": 1417,
+    "run": "python -m pytest sympy/assumptions/tests/test_query.py::test_rational",
+    "score": 0.005,
+    "why": "via Pow"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_numbers.py::test_simplify_AlgebraicNumber",
+    "line": 1952,
+    "run": "python -m pytest sympy/core/tests/test_numbers.py::test_simplify_AlgebraicNumber",
+    "score": 0.005,
+    "why": "via Pow (name: algebraic)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/matrices/tests/test_eigen.py::test_dom_eigenvects_algebraic",
+    "line": 36,
+    "run": "python -m pytest sympy/polys/matrices/tests/test_eigen.py::test_dom_eigenvects_algebraic",
+    "score": 0.005,
+    "why": "via Pow (name: algebraic)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/polys/numberfields/tests/test_minpoly.py::test_minpoly_op_algebraic_element_not_impl",
+    "line": 479,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_minpoly.py::test_minpoly_op_algebraic_element_not_impl",
+    "score": 0.005,
+    "why": "via Pow (name: algebraic)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/numberfields/tests/test_numbers.py::test_AlgebraicNumber",
+    "line": 17,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_numbers.py::test_AlgebraicNumber",
+    "score": 0.005,
+    "why": "via Pow (name: algebraic)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/polys/tests/test_modulargcd.py::test_modgcd_algebraic_field",
+    "line": 275,
+    "run": "python -m pytest sympy/polys/tests/test_modulargcd.py::test_modgcd_algebraic_field",
+    "score": 0.005,
+    "why": "via Pow (name: algebraic)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_expr.py::test_extractions",
+    "line": 1335,
+    "run": "python -m pytest sympy/core/tests/test_expr.py::test_extractions",
+    "score": 0.005,
+    "why": "via Pow"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/elementary/tests/test_exponential.py::test_exp_values",
+    "line": 29,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_exponential.py::test_exp_values",
+    "score": 0.005,
+    "why": "via Pow"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/quantum/tests/test_qubit.py::test_eval_trace",
+    "line": 206,
+    "run": "python -m pytest sympy/physics/quantum/tests/test_qubit.py::test_eval_trace",
+    "score": 0.005,
+    "why": "via Pow (name: eval)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/calculus/tests/test_accumulationbounds.py::test_AccumBounds_pow",
+    "line": 162,
+    "run": "python -m pytest sympy/calculus/tests/test_accumulationbounds.py::test_AccumBounds_pow",
+    "score": 0.005,
+    "why": "via Pow (name: pow)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_arit.py::test_Mod_Pow",
+    "line": 2037,
+    "run": "python -m pytest sympy/core/tests/test_arit.py::test_Mod_Pow",
+    "score": 0.005,
+    "why": "via Pow (name: pow)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_arit.py::test_Pow_is_integer",
+    "line": 1032,
+    "run": "python -m pytest sympy/core/tests/test_arit.py::test_Pow_is_integer",
+    "score": 0.005,
+    "why": "via Pow (name: pow)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_arit.py::test_pow_im",
+    "line": 250,
+    "run": "python -m pytest sympy/core/tests/test_arit.py::test_pow_im",
+    "score": 0.005,
+    "why": "via Pow (name: pow)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/physics/units/tests/test_util.py::test_dim_simplify_pow",
+    "line": 38,
+    "run": "python -m pytest sympy/physics/units/tests/test_util.py::test_dim_simplify_pow",
+    "score": 0.005,
+    "why": "via Pow (name: pow)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/printing/tests/test_jax.py::test_jax_pow",
+    "line": 222,
+    "run": "python -m pytest sympy/printing/tests/test_jax.py::test_jax_pow",
+    "score": 0.005,
+    "why": "via Pow (name: pow)"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/core/tests/test_assumptions.py",
+    "lines": "853-871",
+    "symbol": "test_Pow_is_algebraic"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792341011.018504,
+  "job_seconds": 396.4,
+  "number": 30667,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 396.4,
+  "started": 1792340613.7530482
+ },
+ "verify": null
+}

@@ -1,0 +1,627 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "1a9fba7a6c2a0acead19bbb45c25ceb0fdcca7c8",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "f8cff2bec3a8c35f3bd4160691092dfc49ac6f2d",
+  "install_ok": true,
+  "merge_base": "1a9fba7a6c2a0acead19bbb45c25ceb0fdcca7c8",
+  "pr": 22141,
+  "recording": true,
+  "runner": null,
+  "seconds": 21.2,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "1a9fba7a6c2a0acead19bbb45c25ceb0fdcca7c8",
+  "head_sha": "f8cff2bec3a8c35f3bd4160691092dfc49ac6f2d",
+  "merge_base": "1a9fba7a6c2a0acead19bbb45c25ceb0fdcca7c8",
+  "merged_at": "2026-10-14T01:04:35Z",
+  "number": 22141,
+  "repo": "django",
+  "title": "Fixed #32980 -- Reduced cost of building M2M related managers."
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 2,
+  "called": 2,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/multiple_database/tests.py::RouterTestCase::test_reverse_foreign_object_related_queryset_routes_once",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "django/db/models/fields/related_descriptors.py",
+    "lines": "747-749",
+    "symbol": "create_reverse_many_to_one_manager.RelatedManager._empty_strings_as_null"
+   },
+   {
+    "file": "django/db/models/fields/related_descriptors.py",
+    "lines": "747-771",
+    "symbol": "create_reverse_many_to_one_manager"
+   },
+   {
+    "file": "django/db/models/fields/related_descriptors.py",
+    "lines": "755-771",
+    "symbol": "create_reverse_many_to_one_manager.RelatedManager._apply_rel_filters"
+   },
+   {
+    "file": "django/db/models/fields/related_descriptors.py",
+    "lines": "1090-1125",
+    "symbol": "create_forward_many_to_many_manager"
+   },
+   {
+    "file": "django/db/models/fields/related_descriptors.py",
+    "lines": "1116-1125",
+    "symbol": "create_forward_many_to_many_manager.ManyRelatedManager.__init__"
+   },
+   {
+    "file": "tests/multiple_database/tests.py",
+    "lines": "1969-1998",
+    "symbol": "RouterTestCase.test_reverse_foreign_object_related_queryset_routes_once"
+   },
+   {
+    "file": "tests/multiple_database/tests.py",
+    "lines": "1977-1979",
+    "symbol": "RouterTestCase.test_reverse_foreign_object_related_queryset_routes_once.SpyRouter.db_for_read"
+   }
+  ],
+  "changed_symbols": [
+   "django/db/models/fields/related_descriptors.py#create_forward_many_to_many_manager",
+   "django/db/models/fields/related_descriptors.py#create_forward_many_to_many_manager.ManyRelatedManager.__init__",
+   "django/db/models/fields/related_descriptors.py#create_forward_many_to_many_manager.ManyRelatedManager.model",
+   "django/db/models/fields/related_descriptors.py#create_forward_many_to_many_manager.ManyRelatedManager.pk_field_names",
+   "django/db/models/fields/related_descriptors.py#create_forward_many_to_many_manager.ManyRelatedManager.prefetch_cache_name",
+   "django/db/models/fields/related_descriptors.py#create_forward_many_to_many_manager.ManyRelatedManager.query_field_name",
+   "django/db/models/fields/related_descriptors.py#create_forward_many_to_many_manager.ManyRelatedManager.source_field",
+   "django/db/models/fields/related_descriptors.py#create_forward_many_to_many_manager.ManyRelatedManager.source_field_name",
+   "django/db/models/fields/related_descriptors.py#create_forward_many_to_many_manager.ManyRelatedManager.symmetrical",
+   "django/db/models/fields/related_descriptors.py#create_forward_many_to_many_manager.ManyRelatedManager.target_field",
+   "django/db/models/fields/related_descriptors.py#create_forward_many_to_many_manager.ManyRelatedManager.target_field_name",
+   "django/db/models/fields/related_descriptors.py#create_forward_many_to_many_manager.ManyRelatedManager.through",
+   "django/db/models/fields/related_descriptors.py#create_reverse_many_to_one_manager",
+   "django/db/models/fields/related_descriptors.py#create_reverse_many_to_one_manager.RelatedManager._apply_rel_filters",
+   "django/db/models/fields/related_descriptors.py#create_reverse_many_to_one_manager.RelatedManager._empty_strings_as_null",
+   "tests/multiple_database/models.py#Pet.owner_first_name",
+   "tests/multiple_database/models.py#Pet.related_user",
+   "tests/multiple_database/tests.py#RouterTestCase.test_reverse_foreign_object_related_queryset_routes_once",
+   "tests/multiple_database/tests.py#RouterTestCase.test_reverse_foreign_object_related_queryset_routes_once.SpyRouter.db_for_read",
+   "django/db/models/fields/related_descriptors.py#create_forward_many_to_many_manager.ManyRelatedManager",
+   "django/db/models/fields/related_descriptors.py#create_reverse_many_to_one_manager.RelatedManager",
+   "tests/multiple_database/tests.py#RouterTestCase.test_reverse_foreign_object_related_queryset_routes_once.SpyRouter",
+   "tests/multiple_database/tests.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "create_forward_many_to_many_manager.ManyRelatedManager.__init__ writes self.model",
+    "path": [
+     "django/db/models/fields/related_descriptors.py:1117 self.model assigned",
+     "django/db/models/fields/related_descriptors.py:1144 create_forward_many_to_many_manager.ManyRelatedManager.__call__ reads self.model",
+     "django/db/models/fields/related_descriptors.py:1372 create_forward_many_to_many_manager.ManyRelatedManager._clear_base reads self.model",
+     "django/db/models/fields/related_descriptors.py:1427 create_forward_many_to_many_manager.ManyRelatedManager.set_base reads self.model"
+    ],
+    "to": "6 reader(s) in create_forward_many_to_many_manager.ManyRelatedManager"
+   },
+   {
+    "evidence": "static source path",
+    "from": "create_reverse_many_to_one_manager.RelatedManager._apply_rel_filters return changed",
+    "path": [
+     "django/db/models/fields/related_descriptors.py:771 return",
+     "django/db/models/fields/related_descriptors.py:818 create_reverse_many_to_one_manager.RelatedManager.get_queryset uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   },
+   {
+    "evidence": "static source path",
+    "from": "create_reverse_many_to_one_manager.RelatedManager._empty_strings_as_null return changed",
+    "path": [
+     "django/db/models/fields/related_descriptors.py:749 return",
+     "django/db/models/fields/related_descriptors.py:769 create_reverse_many_to_one_manager.RelatedManager._apply_rel_filters uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 1,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 9258,
+   "ran": 280,
+   "replayed": 1,
+   "runner": "django-runtests",
+   "seconds": 14.6,
+   "selection": {
+    "candidates": 9258,
+    "closure_files": 239,
+    "closure_tests": 4380,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/contrib/admin/__init__.py",
+     "django/core/management/base.py",
+     "django/db/migrations/__init__.py",
+     "django/db/models/__init__.py"
+    ],
+    "observed": 394,
+    "static_only": 4006
+   },
+   "unrunnable": 40
+  },
+  "flips": 0,
+  "gaps": [
+   "104243 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "40 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "Skipped 1 non-Python file(s)",
+   "graph reused from the previous state; 17 changed file(s) relinked",
+   "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run stopped at its 300 s budget: 160 of 9258 candidates run"
+  ],
+  "impacted": {
+   "count": 4525,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2931,
+   "parsed_files": 4
+  },
+  "original_tests": {
+   "tests/multiple_database/tests.py::QueryTestCase::test_foreign_key_reverse_operations": "passed",
+   "tests/multiple_database/tests.py::QueryTestCase::test_generic_key_reverse_operations": "passed",
+   "tests/multiple_database/tests.py::QueryTestCase::test_m2m_deletion": "passed",
+   "tests/multiple_database/tests.py::QueryTestCase::test_m2m_forward_operations": "passed",
+   "tests/multiple_database/tests.py::QueryTestCase::test_m2m_reverse_operations": "passed",
+   "tests/multiple_database/tests.py::QueryTestCase::test_m2m_separation": "passed",
+   "tests/multiple_database/tests.py::QueryTestCase::test_related_manager": "passed",
+   "tests/multiple_database/tests.py::RouteForWriteTestCase::test_m2m_add": "passed",
+   "tests/multiple_database/tests.py::RouteForWriteTestCase::test_m2m_clear": "passed",
+   "tests/multiple_database/tests.py::RouteForWriteTestCase::test_m2m_get_or_create": "passed",
+   "tests/multiple_database/tests.py::RouteForWriteTestCase::test_m2m_remove": "passed",
+   "tests/multiple_database/tests.py::RouteForWriteTestCase::test_reverse_fk_get_or_create": "passed",
+   "tests/multiple_database/tests.py::RouteForWriteTestCase::test_reverse_m2m_add": "passed",
+   "tests/multiple_database/tests.py::RouteForWriteTestCase::test_reverse_m2m_clear": "passed",
+   "tests/multiple_database/tests.py::RouteForWriteTestCase::test_reverse_m2m_get_or_create": "passed",
+   "tests/multiple_database/tests.py::RouteForWriteTestCase::test_reverse_m2m_remove": "passed",
+   "tests/multiple_database/tests.py::RouterModelArgumentTestCase::test_m2m_collection": "passed",
+   "tests/multiple_database/tests.py::RouterTestCase::test_foreign_key_cross_database_protection": "passed",
+   "tests/multiple_database/tests.py::RouterTestCase::test_m2m_cross_database_protection": "passed",
+   "tests/multiple_database/tests.py::SignalTests::test_database_arg_m2m": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/multiple_database/tests.py::RouterTestCase::test_reverse_foreign_object_related_queryset_routes_once",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "6798cb23ad72",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [
+    "django/db/models/fields/related_descriptors.py#create_forward_many_to_many_manager",
+    "django/db/models/fields/related_descriptors.py#create_reverse_many_to_one_manager"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 10,
+   "differences": 0,
+   "functions_called": 2,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "django/db/models/fields/related_descriptors.py#create_forward_many_to_many_manager.ManyRelatedManager.__init__": "not a module or class function on both sides (new, removed or nested)",
+    "django/db/models/fields/related_descriptors.py#create_reverse_many_to_one_manager.RelatedManager._apply_rel_filters": "not a module or class function on both sides (new, removed or nested)",
+    "django/db/models/fields/related_descriptors.py#create_reverse_many_to_one_manager.RelatedManager._empty_strings_as_null": "not a module or class function on both sides (new, removed or nested)",
+    "tests/multiple_database/tests.py#RouterTestCase.test_reverse_foreign_object_related_queryset_routes_once": "not a module or class function on both sides (new, removed or nested)",
+    "tests/multiple_database/tests.py#RouterTestCase.test_reverse_foreign_object_related_queryset_routes_once.SpyRouter.db_for_read": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 4.7,
+   "targets": 2,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 280 of 9258 candidate tests after the change with django-runtests in 14.6 s, failures confirmed before it: 0 now fail. 6612 tests reach the change. 20 test(s) from edited test files also run as they were before the edit. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/multiple_database/tests.py::RouterTestCase::test_reverse_foreign_object_related_queryset_routes_once",
+    "line": 1969,
+    "run": "cd tests && python runtests.py multiple_database.tests.RouterTestCase.test_reverse_foreign_object_related_queryset_routes_once",
+    "score": 5.706,
+    "why": "via RouterTestCase.test_reverse_foreign_object_related_queryset_routes_once.SpyRouter (name: foreign,object,once,queryset,related,reverse,route,router)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/many_to_one_null/tests.py::ManyToOneNullTests::test_related_null_to_field_related_managers",
+    "line": 160,
+    "run": "cd tests && python runtests.py many_to_one_null.tests.ManyToOneNullTests.test_related_null_to_field_related_managers",
+    "score": 2.957,
+    "why": "via create_reverse_many_to_one_manager.RelatedManager.get_or_create > create_reverse_many_to_one_manager.RelatedManager (name: manager,many,one,related,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/custom_managers/tests.py::CustomManagerTests::test_removal_through_default_gfk_related_manager",
+    "line": 387,
+    "run": "cd tests && python runtests.py custom_managers.tests.CustomManagerTests.test_removal_through_default_gfk_related_manager",
+    "score": 1.73,
+    "why": "via create_forward_many_to_many_manager.ManyRelatedManager.remove > create_forward_many_to_many_manager.ManyRelatedManager.through (name: manager,related,through)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/m2m_signals/tests.py::ManyToManySignalsTest::test_m2m_relations_set_base_raw",
+    "line": 621,
+    "run": "cd tests && python runtests.py m2m_signals.tests.ManyToManySignalsTest.test_m2m_relations_set_base_raw",
+    "score": 1.338,
+    "why": "via create_forward_many_to_many_manager.ManyRelatedManager.set_base > create_forward_many_to_many_manager.ManyRelatedManager (name: many,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/many_to_one/tests.py::ManyToOneTests::test_get_prefetch_querysets_reverse_invalid_querysets_length",
+    "line": 924,
+    "run": "cd tests && python runtests.py many_to_one.tests.ManyToOneTests.test_get_prefetch_querysets_reverse_invalid_querysets_length",
+    "score": 1.172,
+    "why": "via create_reverse_many_to_one_manager.RelatedManager.get_prefetch_querysets > create_reverse_many_to_one_manager.RelatedManager (name: many,one,reverse,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/prefetch_related/tests.py::DirectPrefetchedObjectCacheReuseTests::test_remove_clears_prefetched_objects",
+    "line": 1995,
+    "run": "cd tests && python runtests.py prefetch_related.tests.DirectPrefetchedObjectCacheReuseTests.test_remove_clears_prefetched_objects",
+    "score": 1.023,
+    "why": "via create_reverse_many_to_one_manager.RelatedManager.remove > create_reverse_many_to_one_manager.RelatedManager"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/m2m_signals/tests.py::ManyToManySignalsTest::test_m2m_relations_set_base_raw_clear",
+    "line": 663,
+    "run": "cd tests && python runtests.py m2m_signals.tests.ManyToManySignalsTest.test_m2m_relations_set_base_raw_clear",
+    "score": 0.883,
+    "why": "via create_forward_many_to_many_manager.ManyRelatedManager.set_base > create_forward_many_to_many_manager.ManyRelatedManager (name: many,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/custom_managers/tests.py::CustomManagerTests::test_removal_through_default_fk_related_manager",
+    "line": 294,
+    "run": "cd tests && python runtests.py custom_managers.tests.CustomManagerTests.test_removal_through_default_fk_related_manager",
+    "score": 0.796,
+    "why": "via create_forward_many_to_many_manager.ManyRelatedManager.remove > create_forward_many_to_many_manager.ManyRelatedManager.through (name: manager,related,through)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/m2m_signals/tests.py::ManyToManySignalsTest::test_m2m_relations_signals_reverse_relation_with_custom_related_name",
+    "line": 238,
+    "run": "cd tests && python runtests.py m2m_signals.tests.ManyToManySignalsTest.test_m2m_relations_signals_reverse_relation_with_custom_related_name",
+    "score": 0.73,
+    "why": "via create_reverse_many_to_one_manager.RelatedManager.remove > create_reverse_many_to_one_manager.RelatedManager (name: many,related,reverse,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/many_to_one/tests.py::ManyToOneTests::test_get_prefetch_querysets_invalid_querysets_length",
+    "line": 912,
+    "run": "cd tests && python runtests.py many_to_one.tests.ManyToOneTests.test_get_prefetch_querysets_invalid_querysets_length",
+    "score": 0.688,
+    "why": "via create_reverse_many_to_one_manager.RelatedManager.get_prefetch_querysets > create_reverse_many_to_one_manager.RelatedManager (name: many,one,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/custom_managers/tests.py::CustomManagerTests::test_removal_through_default_m2m_related_manager",
+    "line": 487,
+    "run": "cd tests && python runtests.py custom_managers.tests.CustomManagerTests.test_removal_through_default_m2m_related_manager",
+    "score": 0.671,
+    "why": "via ManyToManyDescriptor.through > create_forward_many_to_many_manager.ManyRelatedManager.through (name: manager,related,through)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/custom_managers/tests.py::CustomManagerTests::test_removal_through_specified_fk_related_manager",
+    "line": 338,
+    "run": "cd tests && python runtests.py custom_managers.tests.CustomManagerTests.test_removal_through_specified_fk_related_manager",
+    "score": 0.654,
+    "why": "via create_forward_many_to_many_manager.ManyRelatedManager.remove > create_forward_many_to_many_manager.ManyRelatedManager.through (name: manager,related,through)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/custom_managers/tests.py::CustomManagerTests::test_removal_through_specified_gfk_related_manager",
+    "line": 437,
+    "run": "cd tests && python runtests.py custom_managers.tests.CustomManagerTests.test_removal_through_specified_gfk_related_manager",
+    "score": 0.643,
+    "why": "via create_forward_many_to_many_manager.ManyRelatedManager.remove > create_forward_many_to_many_manager.ManyRelatedManager.through (name: manager,related,through)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/custom_managers/tests.py::CustomManagerTests::test_removal_through_specified_m2m_related_manager",
+    "line": 527,
+    "run": "cd tests && python runtests.py custom_managers.tests.CustomManagerTests.test_removal_through_specified_m2m_related_manager",
+    "score": 0.635,
+    "why": "via create_forward_many_to_many_manager.ManyRelatedManager.remove > create_forward_many_to_many_manager.ManyRelatedManager.through (name: manager,related,through)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/many_to_one_null/tests.py::ManyToOneNullTests::test_created_without_related",
+    "line": 42,
+    "run": "cd tests && python runtests.py many_to_one_null.tests.ManyToOneNullTests.test_created_without_related",
+    "score": 0.618,
+    "why": "via create_reverse_many_to_one_manager.RelatedManager.remove > create_reverse_many_to_one_manager.RelatedManager (name: many,one,related,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/many_to_many/tests.py::ManyToManyTests::test_get_prefetch_querysets_invalid_querysets_length",
+    "line": 582,
+    "run": "cd tests && python runtests.py many_to_many.tests.ManyToManyTests.test_get_prefetch_querysets_invalid_querysets_length",
+    "score": 0.586,
+    "why": "via create_forward_many_to_many_manager.ManyRelatedManager.get_prefetch_querysets > create_forward_many_to_many_manager.ManyRelatedManager.prefetch_cache_name (name: many,prefetch)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/m2m_through_regress/tests.py::ToFieldThroughTests::test_add_null_reverse_related",
+    "line": 198,
+    "run": "cd tests && python runtests.py m2m_through_regress.tests.ToFieldThroughTests.test_add_null_reverse_related",
+    "score": 0.556,
+    "why": "via create_forward_many_to_many_manager.ManyRelatedManager._add_items > create_forward_many_to_many_manager.ManyRelatedManager.through (name: related,through)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/m2m_signals/tests.py::ManyToManySignalsTest::test_pk_set_on_repeated_add_remove",
+    "line": 73,
+    "run": "cd tests && python runtests.py m2m_signals.tests.ManyToManySignalsTest.test_pk_set_on_repeated_add_remove",
+    "score": 0.532,
+    "why": "via create_forward_many_to_many_manager.ManyRelatedManager.remove > create_forward_many_to_many_manager.ManyRelatedManager (name: many,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/many_to_one/tests.py::ManyToOneTests::test_add_then_remove_after_prefetch",
+    "line": 867,
+    "run": "cd tests && python runtests.py many_to_one.tests.ManyToOneTests.test_add_then_remove_after_prefetch",
+    "score": 0.516,
+    "why": "via create_reverse_many_to_one_manager.RelatedManager.remove > create_reverse_many_to_one_manager.RelatedManager (name: many,one,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/many_to_one/tests.py::ManyToOneTests::test_remove_after_prefetch",
+    "line": 841,
+    "run": "cd tests && python runtests.py many_to_one.tests.ManyToOneTests.test_remove_after_prefetch",
+    "score": 0.515,
+    "why": "via create_reverse_many_to_one_manager.RelatedManager.remove > create_reverse_many_to_one_manager.RelatedManager (name: many,one,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/m2m_through_regress/tests.py::ToFieldThroughTests::test_add_related_null",
+    "line": 180,
+    "run": "cd tests && python runtests.py m2m_through_regress.tests.ToFieldThroughTests.test_add_related_null",
+    "score": 0.513,
+    "why": "via create_forward_many_to_many_manager.ManyRelatedManager._add_items > create_forward_many_to_many_manager.ManyRelatedManager.through (name: related,through)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/contenttypes_tests/test_fields.py::GetPrefetchQuerySetsTests::test_generic_relation_invalid_length",
+    "line": 123,
+    "run": "cd tests && python runtests.py contenttypes_tests.test_fields.GetPrefetchQuerySetsTests.test_generic_relation_invalid_length",
+    "score": 0.503,
+    "why": "via create_forward_many_to_many_manager.ManyRelatedManager.get_prefetch_querysets > create_forward_many_to_many_manager.ManyRelatedManager.query_field_name (name: field,query)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/many_to_many/tests.py::ManyToManyTests::test_add_then_remove_after_prefetch",
+    "line": 540,
+    "run": "cd tests && python runtests.py many_to_many.tests.ManyToManyTests.test_add_then_remove_after_prefetch",
+    "score": 0.499,
+    "why": "via create_forward_many_to_many_manager.ManyRelatedManager.remove > create_forward_many_to_many_manager.ManyRelatedManager (name: many,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/many_to_many/tests.py::ManyToManyTests::test_remove_after_prefetch",
+    "line": 514,
+    "run": "cd tests && python runtests.py many_to_many.tests.ManyToManyTests.test_remove_after_prefetch",
+    "score": 0.499,
+    "why": "via create_forward_many_to_many_manager.ManyRelatedManager.remove > create_forward_many_to_many_manager.ManyRelatedManager (name: many,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/many_to_one/tests.py::ManyToOneTests::test_add_remove_set_by_pk_raises",
+    "line": 901,
+    "run": "cd tests && python runtests.py many_to_one.tests.ManyToOneTests.test_add_remove_set_by_pk_raises",
+    "score": 0.496,
+    "why": "via create_reverse_many_to_one_manager.RelatedManager.remove > create_reverse_many_to_one_manager.RelatedManager (name: many,one,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/many_to_one_null/tests.py::ManyToOneNullTests::test_remove_from_wrong_set",
+    "line": 73,
+    "run": "cd tests && python runtests.py many_to_one_null.tests.ManyToOneNullTests.test_remove_from_wrong_set",
+    "score": 0.488,
+    "why": "via create_reverse_many_to_one_manager.RelatedManager.remove > create_reverse_many_to_one_manager.RelatedManager (name: many,one,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/m2m_signals/tests.py::ManyToManySignalsTest::test_m2m_relations_signals_remove_relation",
+    "line": 158,
+    "run": "cd tests && python runtests.py m2m_signals.tests.ManyToManySignalsTest.test_m2m_relations_signals_remove_relation",
+    "score": 0.48,
+    "why": "via create_forward_many_to_many_manager.ManyRelatedManager.remove > create_forward_many_to_many_manager.ManyRelatedManager (name: many,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/multiple_database/tests.py::RouteForWriteTestCase::test_reverse_m2m_remove",
+    "line": 2570,
+    "run": "cd tests && python runtests.py multiple_database.tests.RouteForWriteTestCase.test_reverse_m2m_remove",
+    "score": 0.479,
+    "why": "via create_forward_many_to_many_manager.ManyRelatedManager.through"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/many_to_many/tests.py::ManyToManyTests::test_add_remove_set_by_to_field",
+    "line": 94,
+    "run": "cd tests && python runtests.py many_to_many.tests.ManyToManyTests.test_add_remove_set_by_to_field",
+    "score": 0.474,
+    "why": "via create_forward_many_to_many_manager.ManyRelatedManager.remove > create_forward_many_to_many_manager.ManyRelatedManager (name: many,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/many_to_many/tests.py::ManyToManyTests::test_add_remove_set_by_pk",
+    "line": 85,
+    "run": "cd tests && python runtests.py many_to_many.tests.ManyToManyTests.test_add_remove_set_by_pk",
+    "score": 0.466,
+    "why": "via create_forward_many_to_many_manager.ManyRelatedManager.remove > create_forward_many_to_many_manager.ManyRelatedManager (name: many,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/m2m_through_regress/tests.py::ToFieldThroughTests::test_remove_reverse",
+    "line": 212,
+    "run": "cd tests && python runtests.py m2m_through_regress.tests.ToFieldThroughTests.test_remove_reverse",
+    "score": 0.462,
+    "why": "via create_forward_many_to_many_manager.ManyRelatedManager._remove_items > create_forward_many_to_many_manager.ManyRelatedManager.through (name: through)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/one_to_one/tests.py::OneToOneTests::test_get_prefetch_querysets_invalid_querysets_length",
+    "line": 614,
+    "run": "cd tests && python runtests.py one_to_one.tests.OneToOneTests.test_get_prefetch_querysets_invalid_querysets_length",
+    "score": 0.461,
+    "why": "via create_reverse_many_to_one_manager.RelatedManager.get_prefetch_querysets > create_reverse_many_to_one_manager.RelatedManager (name: one,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/multiple_database/tests.py::RouterTestCase::test_m2m_cross_database_protection",
+    "line": 1667,
+    "run": "cd tests && python runtests.py multiple_database.tests.RouterTestCase.test_m2m_cross_database_protection",
+    "score": 0.459,
+    "why": "via create_forward_many_to_many_manager.ManyRelatedManager.through"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/schema/tests.py::SchemaTests::test_m2m_rename",
+    "line": 2985,
+    "run": "cd tests && python runtests.py schema.tests.SchemaTests.test_m2m_rename",
+    "score": 0.452,
+    "why": "via create_reverse_many_to_one_manager.RelatedManager.remove > create_reverse_many_to_one_manager.RelatedManager"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/many_to_many/tests.py::ManyToManyTests::test_remove",
+    "line": 354,
+    "run": "cd tests && python runtests.py many_to_many.tests.ManyToManyTests.test_remove",
+    "score": 0.452,
+    "why": "via create_forward_many_to_many_manager.ManyRelatedManager.remove > create_forward_many_to_many_manager.ManyRelatedManager (name: many,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/async/test_async_related_managers.py::AsyncRelatedManagersOperationTest::test_aset_reverse",
+    "line": 94,
+    "run": "cd tests && python runtests.py async.test_async_related_managers.AsyncRelatedManagersOperationTest.test_aset_reverse",
+    "score": 0.45,
+    "why": "via create_reverse_many_to_one_manager.RelatedManager.aset > create_reverse_many_to_one_manager.RelatedManager (name: manager,related,reverse)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/multiple_database/tests.py::QueryTestCase::test_related_manager",
+    "line": 1297,
+    "run": "cd tests && python runtests.py multiple_database.tests.QueryTestCase.test_related_manager",
+    "score": 0.448,
+    "why": "via create_forward_many_to_many_manager.ManyRelatedManager.get_or_create > create_forward_many_to_many_manager.ManyRelatedManager (name: manager,related)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/async/test_async_related_managers.py::AsyncRelatedManagersOperationTest::test_aadd_reverse",
+    "line": 70,
+    "run": "cd tests && python runtests.py async.test_async_related_managers.AsyncRelatedManagersOperationTest.test_aadd_reverse",
+    "score": 0.445,
+    "why": "via create_reverse_many_to_one_manager.RelatedManager.aadd > create_reverse_many_to_one_manager.RelatedManager (name: manager,related,reverse)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/get_or_create/tests.py::UpdateOrCreateTests::test_create_with_related_manager",
+    "line": 385,
+    "run": "cd tests && python runtests.py get_or_create.tests.UpdateOrCreateTests.test_create_with_related_manager",
+    "score": 0.444,
+    "why": "via create_forward_many_to_many_manager.ManyRelatedManager.update_or_create > create_forward_many_to_many_manager.ManyRelatedManager (name: create,manager,related)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/get_or_create/tests.py::UpdateOrCreateTests::test_update_with_related_manager",
+    "line": 401,
+    "run": "cd tests && python runtests.py get_or_create.tests.UpdateOrCreateTests.test_update_with_related_manager",
+    "score": 0.444,
+    "why": "via create_forward_many_to_many_manager.ManyRelatedManager.update_or_create > create_forward_many_to_many_manager.ManyRelatedManager (name: create,manager,related)"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "django/db/models/fields/related_descriptors.py",
+    "lines": "1090-1125",
+    "symbol": "create_forward_many_to_many_manager"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792326203.571626,
+  "job_seconds": 21.2,
+  "number": 22141,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 21.3,
+  "started": 1792326181.543305
+ },
+ "verify": null
+}

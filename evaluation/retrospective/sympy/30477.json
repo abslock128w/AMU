@@ -1,0 +1,713 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "a23073ee516bbf60863dc8b82a8446b15e6348f4",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "79a3db2412535d11d84b5789451882095313ac43",
+  "install_ok": true,
+  "merge_base": "a23073ee516bbf60863dc8b82a8446b15e6348f4",
+  "pr": 30477,
+  "recording": false,
+  "runner": null,
+  "seconds": 380.2,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "a23073ee516bbf60863dc8b82a8446b15e6348f4",
+  "head_sha": "79a3db2412535d11d84b5789451882095313ac43",
+  "merge_base": "a23073ee516bbf60863dc8b82a8446b15e6348f4",
+  "merged_at": "2026-09-23T16:47:35Z",
+  "number": 30477,
+  "repo": "sympy",
+  "title": "parsing.latex.lark: end control words at the first non-letter"
+ },
+ "probe_minutes": {
+  "end": 1792329862.172364,
+  "minutes": 0.8,
+  "start": 1792329776.243639,
+  "waited": 35.260030625009676
+ },
+ "probe_targets": {
+  "all": 3,
+  "called": 0,
+  "targets": [
+   {
+    "after": "def __init__(self, print_debug_output=False, transform=True, grammar_file=None, transformer=None):\n    grammar_dir_path = os.path.join(os.path.dirname(__file__), \"grammar/\")\n\n    if grammar_file is None:\n        latex_grammar = Path(os.path.join(grammar_dir_path, \"latex.lark\")).read_text(encoding=\"utf-8\")\n    else:\n        latex_grammar = Path(grammar_file).read_text(encoding=\"utf-8\")\n\n    self.parser = _lark.Lark(\n        latex_grammar,\n        source_path=grammar_dir_path,\n        parser=\"earley\",\n        start=\"latex_string\",\n        lexer=\"auto\",\n        ambiguity=\"explicit\",\n        propagate_positions=False,\n        maybe_placeholders=False,\n        keep_all_tokens=True)\n\n    # The control words defined in the grammar, e.g. \"frac\" for \"\\\\frac\", so that\n    # an unknown one is not split into a known command followed by symbols.\n    self.control_words = {word for _, (tree, _) in self.parser.grammar.term_defs\n                          for token in tree.scan_values(lambda v: isinstance(v, _lark.Token))\n                          for word in re.findall(r\"\\\\\\\\([a-zA-Z]+)\", token)}\n\n    self.print_debug_output = print_debug_output\n    self.transform_expr = transform\n\n    if transformer is None:\n        self.transformer = TransformToSymPyExpr()\n    else:\n        self.transformer = transformer()\n",
+    "before": "def __init__(self, print_debug_output=False, transform=True, grammar_file=None, transformer=None):\n    grammar_dir_path = os.path.join(os.path.dirname(__file__), \"grammar/\")\n\n    if grammar_file is None:\n        latex_grammar = Path(os.path.join(grammar_dir_path, \"latex.lark\")).read_text(encoding=\"utf-8\")\n    else:\n        latex_grammar = Path(grammar_file).read_text(encoding=\"utf-8\")\n\n    self.parser = _lark.Lark(\n        latex_grammar,\n        source_path=grammar_dir_path,\n        parser=\"earley\",\n        start=\"latex_string\",\n        lexer=\"auto\",\n        ambiguity=\"explicit\",\n        propagate_positions=False,\n        maybe_placeholders=False,\n        keep_all_tokens=True)\n\n    self.print_debug_output = print_debug_output\n    self.transform_expr = transform\n\n    if transformer is None:\n        self.transformer = TransformToSymPyExpr()\n    else:\n        self.transformer = transformer()\n",
+    "file": "sympy/parsing/latex/lark/latex_parser.py",
+    "id": "sympy/parsing/latex/lark/latex_parser.py#LarkLaTeXParser.__init__",
+    "name": "__init__",
+    "qual": "LarkLaTeXParser.__init__",
+    "signature_changed": false
+   },
+   {
+    "after": "def doparse(self, s: str):\n    if self.print_debug_output:\n        _lark.logger.setLevel(logging.DEBUG)\n\n    for match in re.finditer(r\"\\\\(?:\\\\|([a-zA-Z]+)|.)\", s):\n        if match.group(1) and match.group(1) not in self.control_words:\n            raise LaTeXParsingError(\"Unknown command %s\" % match.group(0))\n\n    parse_tree = self.parser.parse(s)\n\n    if not self.transform_expr:\n        # exit early and return the parse tree\n        _lark.logger.debug(\"expression = %s\", s)\n        _lark.logger.debug(parse_tree)\n        _lark.logger.debug(parse_tree.pretty())\n        return parse_tree\n\n    if self.print_debug_output:\n        # print this stuff before attempting to run the transformer\n        _lark.logger.debug(\"expression = %s\", s)\n        # print the `parse_tree` variable\n        _lark.logger.debug(parse_tree.pretty())\n\n    sympy_expression = self.transformer.transform(parse_tree)\n\n    if self.print_debug_output:\n        _lark.logger.debug(\"SymPy expression = %s\", sympy_expression)\n\n    return sympy_expression\n",
+    "before": "def doparse(self, s: str):\n    if self.print_debug_output:\n        _lark.logger.setLevel(logging.DEBUG)\n\n    parse_tree = self.parser.parse(s)\n\n    if not self.transform_expr:\n        # exit early and return the parse tree\n        _lark.logger.debug(\"expression = %s\", s)\n        _lark.logger.debug(parse_tree)\n        _lark.logger.debug(parse_tree.pretty())\n        return parse_tree\n\n    if self.print_debug_output:\n        # print this stuff before attempting to run the transformer\n        _lark.logger.debug(\"expression = %s\", s)\n        # print the `parse_tree` variable\n        _lark.logger.debug(parse_tree.pretty())\n\n    sympy_expression = self.transformer.transform(parse_tree)\n\n    if self.print_debug_output:\n        _lark.logger.debug(\"SymPy expression = %s\", sympy_expression)\n\n    return sympy_expression\n",
+    "file": "sympy/parsing/latex/lark/latex_parser.py",
+    "id": "sympy/parsing/latex/lark/latex_parser.py#LarkLaTeXParser.doparse",
+    "name": "doparse",
+    "qual": "LarkLaTeXParser.doparse",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_trigonometric_expressions():\n    for latex_str, sympy_expr in TRIGONOMETRIC_EXPRESSION_PAIRS:\n        with evaluate(False):\n            assert parse_latex_lark(latex_str) == sympy_expr, latex_str\n",
+    "before": "def test_trigonometric_expressions():\n    expected_failures = {3}\n    for i, (latex_str, sympy_expr) in enumerate(TRIGONOMETRIC_EXPRESSION_PAIRS):\n        if i in expected_failures:\n            continue\n        with evaluate(False):\n            assert parse_latex_lark(latex_str) == sympy_expr, latex_str\n",
+    "file": "sympy/parsing/tests/test_latex_lark.py",
+    "id": "sympy/parsing/tests/test_latex_lark.py#test_trigonometric_expressions",
+    "name": "test_trigonometric_expressions",
+    "qual": "test_trigonometric_expressions",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [],
+   "filter_seconds": 41.1,
+   "gaps": [],
+   "info": {
+    "accepted": 0,
+    "compiled": 3,
+    "cost": 0.0,
+    "differed": 0,
+    "dollars_cap": 0.1,
+    "functions": 3,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 3,
+    "ran": 3,
+    "reached": 3,
+    "requests": 1,
+    "seconds": 40.6,
+    "stable": 3
+   },
+   "probes": [
+    {
+     "call": "sorted(LarkLaTeXParser().control_words)[:5]",
+     "function": "sympy/parsing/latex/lark/latex_parser.py#LarkLaTeXParser.__init__",
+     "setup": "from sympy.parsing.latex.lark import LarkLaTeXParser",
+     "why": "the control words the parser now collects"
+    },
+    {
+     "call": "str(LarkLaTeXParser().doparse(r'\\sinh x'))",
+     "function": "sympy/parsing/latex/lark/latex_parser.py#LarkLaTeXParser.doparse",
+     "setup": "from sympy.parsing.latex.lark import LarkLaTeXParser",
+     "why": "the PR example"
+    },
+    {
+     "call": "test_trigonometric_expressions()",
+     "function": "sympy/parsing/tests/test_latex_lark.py#test_trigonometric_expressions",
+     "setup": "from sympy.parsing.tests.test_latex_lark import test_trigonometric_expressions",
+     "why": "runs the edited test"
+    }
+   ],
+   "targets": [
+    "sympy/parsing/latex/lark/latex_parser.py#LarkLaTeXParser.__init__",
+    "sympy/parsing/latex/lark/latex_parser.py#LarkLaTeXParser.doparse",
+    "sympy/parsing/tests/test_latex_lark.py#test_trigonometric_expressions"
+   ],
+   "waited_seconds": 35.3
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [],
+  "changed_functions": [
+   {
+    "file": "sympy/parsing/latex/lark/latex_parser.py",
+    "lines": "64-69",
+    "symbol": "LarkLaTeXParser.__init__"
+   },
+   {
+    "file": "sympy/parsing/latex/lark/latex_parser.py",
+    "lines": "82-85",
+    "symbol": "LarkLaTeXParser.doparse"
+   },
+   {
+    "file": "sympy/parsing/latex/lark/transformer.py",
+    "lines": "560-561",
+    "symbol": "TransformToSymPyExpr.trigonometric_function"
+   },
+   {
+    "file": "sympy/parsing/latex/lark/transformer.py",
+    "lines": "563-568",
+    "symbol": "TransformToSymPyExpr.trigonometric_function_power"
+   },
+   {
+    "file": "sympy/parsing/tests/test_latex_lark.py",
+    "lines": "829",
+    "symbol": "test_trigonometric_expressions"
+   },
+   {
+    "file": "sympy/parsing/tests/test_latex_lark.py",
+    "lines": "918-939",
+    "symbol": "test_function_arguments"
+   },
+   {
+    "file": "sympy/parsing/tests/test_latex_lark.py",
+    "lines": "942-950",
+    "symbol": "test_unknown_commands"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/parsing/latex/lark/latex_parser.py#LarkLaTeXParser.__init__",
+   "sympy/parsing/latex/lark/latex_parser.py#LarkLaTeXParser.doparse",
+   "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr._inverse_trigonometric_functions",
+   "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr._trigonometric_functions",
+   "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.trigonometric_function",
+   "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.trigonometric_function_power",
+   "sympy/parsing/tests/test_latex_lark.py#test_function_arguments",
+   "sympy/parsing/tests/test_latex_lark.py#test_trigonometric_expressions",
+   "sympy/parsing/tests/test_latex_lark.py#test_unknown_commands",
+   "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr",
+   "sympy/parsing/latex/lark/latex_parser.py",
+   "sympy/parsing/tests/test_latex_lark.py",
+   "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.sin (renamed or removed)",
+   "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.cos (renamed or removed)",
+   "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.tan (renamed or removed)",
+   "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.csc (renamed or removed)",
+   "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.sec (renamed or removed)",
+   "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.cot (renamed or removed)",
+   "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.sin_power (renamed or removed)",
+   "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.cos_power (renamed or removed)",
+   "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.tan_power (renamed or removed)",
+   "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.csc_power (renamed or removed)",
+   "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.sec_power (renamed or removed)",
+   "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.cot_power (renamed or removed)",
+   "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.arcsin (renamed or removed)",
+   "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.arccos (renamed or removed)",
+   "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.arctan (renamed or removed)",
+   "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.arccsc (renamed or removed)",
+   "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.arcsec (renamed or removed)",
+   "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.arccot (renamed or removed)",
+   "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.sinh (renamed or removed)",
+   "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.cosh (renamed or removed)",
+   "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.tanh (renamed or removed)",
+   "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.asinh (renamed or removed)",
+   "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.acosh (renamed or removed)",
+   "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.atanh (renamed or removed)"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "LarkLaTeXParser.__init__ writes self.control_words",
+    "path": [
+     "sympy/parsing/latex/lark/latex_parser.py:66 self.control_words assigned",
+     "sympy/parsing/latex/lark/latex_parser.py:83 LarkLaTeXParser.doparse reads self.control_words"
+    ],
+    "to": "1 reader(s) in LarkLaTeXParser"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 3,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 696,
+   "ran": 73,
+   "replayed": 3,
+   "runner": "pytest",
+   "seconds": 359.7,
+   "selection": {
+    "candidates": 1830,
+    "closure_files": 8,
+    "closure_tests": 37,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [],
+    "observed": 0,
+    "static_only": 1793
+   },
+   "unrunnable": 7
+  },
+  "flips": 0,
+  "gaps": [
+   "1134 lower-ranked candidate(s) not run: about 3 tests/s per process fit 696 in the 300 s allowed",
+   "64649 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "7 candidate(s) could not be run by pytest and are not covered by this result",
+   "Skipped 1 non-Python file(s)",
+   "graph reused from the previous state; 6 changed file(s) relinked",
+   "shadow run stopped at its 300 s budget: 80 of 696 candidates run",
+   "side-by-side: none of the 3 changed function(s) was called by the tests run on the code before the change"
+  ],
+  "impacted": {
+   "count": 1729,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1606,
+   "parsed_files": 3
+  },
+  "original_tests": {
+   "sympy/parsing/tests/test_latex_lark.py::test_applied_function_expressions": "skipped",
+   "sympy/parsing/tests/test_latex_lark.py::test_binomial_expressions": "skipped",
+   "sympy/parsing/tests/test_latex_lark.py::test_common_function_expressions": "skipped",
+   "sympy/parsing/tests/test_latex_lark.py::test_derivative_expressions": "skipped",
+   "sympy/parsing/tests/test_latex_lark.py::test_factorial_expressions": "skipped",
+   "sympy/parsing/tests/test_latex_lark.py::test_fraction_expressions": "skipped",
+   "sympy/parsing/tests/test_latex_lark.py::test_integral_expressions": "skipped",
+   "sympy/parsing/tests/test_latex_lark.py::test_latex_cases_environment_error": "skipped",
+   "sympy/parsing/tests/test_latex_lark.py::test_limit_expressions": "skipped",
+   "sympy/parsing/tests/test_latex_lark.py::test_literal_brace_multiplication": "skipped",
+   "sympy/parsing/tests/test_latex_lark.py::test_literal_complex_number_expressions": "skipped",
+   "sympy/parsing/tests/test_latex_lark.py::test_matrix_expressions": "skipped",
+   "sympy/parsing/tests/test_latex_lark.py::test_miscellaneous_expressions": "skipped",
+   "sympy/parsing/tests/test_latex_lark.py::test_mixed_bracket_brace_multiplication": "skipped",
+   "sympy/parsing/tests/test_latex_lark.py::test_negthinspace_not_equal_conflict": "skipped",
+   "sympy/parsing/tests/test_latex_lark.py::test_power_expressions": "skipped",
+   "sympy/parsing/tests/test_latex_lark.py::test_product_expressions": "skipped",
+   "sympy/parsing/tests/test_latex_lark.py::test_relation_expressions": "skipped",
+   "sympy/parsing/tests/test_latex_lark.py::test_simple_expressions": "skipped",
+   "sympy/parsing/tests/test_latex_lark.py::test_spacing": "skipped",
+   "sympy/parsing/tests/test_latex_lark.py::test_square_bracket_multiplication": "skipped",
+   "sympy/parsing/tests/test_latex_lark.py::test_square_root_expressions": "skipped",
+   "sympy/parsing/tests/test_latex_lark.py::test_sum_expressions": "skipped",
+   "sympy/parsing/tests/test_latex_lark.py::test_superscript_implicit_multiplication": "skipped",
+   "sympy/parsing/tests/test_latex_lark.py::test_symbol_expressions": "skipped",
+   "sympy/parsing/tests/test_latex_lark.py::test_trigonometric_expressions": "skipped"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "skipped",
+    "head": "skipped",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_trigonometric_expressions",
+    "verdict": "none"
+   },
+   {
+    "base": "skipped",
+    "head": "skipped",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_function_arguments",
+    "verdict": "none"
+   },
+   {
+    "base": "skipped",
+    "head": "skipped",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_unknown_commands",
+    "verdict": "none"
+   }
+  ],
+  "report_hash": "d6a55889bdb7",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 0,
+   "differences": 0,
+   "functions_called": 0,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.trigonometric_function": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.trigonometric_function_power": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/parsing/tests/test_latex_lark.py#test_function_arguments": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/parsing/tests/test_latex_lark.py#test_unknown_commands": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 45.8,
+   "targets": 3,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 73 of 696 candidate tests after the change with pytest in 359.7 s, failures confirmed before it: 0 now fail. 1829 tests reach the change. 26 test(s) from edited test files also run as they were before the edit. 3 test(s) the change adds or edits replayed on the code before it: 0 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "lexical",
+    "expect": "unchanged",
+    "id": "sympy/plotting/intervalmath/tests/test_interval_functions.py::test_acos",
+    "line": 291,
+    "run": "python -m pytest sympy/plotting/intervalmath/tests/test_interval_functions.py::test_acos",
+    "score": 0.5,
+    "why": "uses removed arccos"
+   },
+   {
+    "confidence": "lexical",
+    "expect": "unchanged",
+    "id": "sympy/plotting/intervalmath/tests/test_interval_functions.py::test_asin",
+    "line": 267,
+    "run": "python -m pytest sympy/plotting/intervalmath/tests/test_interval_functions.py::test_asin",
+    "score": 0.312,
+    "why": "uses removed arcsin"
+   },
+   {
+    "confidence": "lexical",
+    "expect": "unchanged",
+    "id": "sympy/plotting/intervalmath/tests/test_interval_functions.py::test_atan",
+    "line": 98,
+    "run": "python -m pytest sympy/plotting/intervalmath/tests/test_interval_functions.py::test_atan",
+    "score": 0.219,
+    "why": "uses removed arctan"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_custom_latex.py::test_custom1",
+    "line": 39,
+    "run": "python -m pytest sympy/parsing/tests/test_custom_latex.py::test_custom1",
+    "score": 2.677,
+    "why": "calls LarkLaTeXParser.doparse (name: latex)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_power_expressions",
+    "line": 780,
+    "run": "python -m pytest sympy/parsing/tests/test_latex_lark.py::test_power_expressions",
+    "score": 1.734,
+    "why": "via parse_latex_lark > LarkLaTeXParser.doparse (name: lark,latex)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_custom_latex.py::test_custom2",
+    "line": 56,
+    "run": "python -m pytest sympy/parsing/tests/test_custom_latex.py::test_custom2",
+    "score": 1.345,
+    "why": "calls LarkLaTeXParser.doparse (name: latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/parsing/tests/test_fortran_parser.py::test_sym_expr",
+    "line": 24,
+    "run": "python -m pytest sympy/parsing/tests/test_fortran_parser.py::test_sym_expr",
+    "score": 1.332,
+    "why": "named like sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.arccos, renamed or removed (name: expr,sym)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/parsing/tests/test_sym_expr.py::test_c_parse",
+    "line": 21,
+    "run": "python -m pytest sympy/parsing/tests/test_sym_expr.py::test_c_parse",
+    "score": 0.832,
+    "why": "named like sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.arccos, renamed or removed (name: expr,sym)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_unknown_commands",
+    "line": 942,
+    "run": "python -m pytest sympy/parsing/tests/test_latex_lark.py::test_unknown_commands",
+    "score": 0.774,
+    "why": "via parse_latex_lark > LarkLaTeXParser.doparse (name: lark,latex)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_function_arguments",
+    "line": 918,
+    "run": "python -m pytest sympy/parsing/tests/test_latex_lark.py::test_function_arguments",
+    "score": 0.602,
+    "why": "via parse_latex_lark > LarkLaTeXParser.doparse (name: lark,latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/parsing/tests/test_sym_expr.py::test_convert_c",
+    "line": 177,
+    "run": "python -m pytest sympy/parsing/tests/test_sym_expr.py::test_convert_c",
+    "score": 0.583,
+    "why": "named like sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.arccos, renamed or removed (name: expr,sym)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_trigonometric_expressions",
+    "line": 828,
+    "run": "python -m pytest sympy/parsing/tests/test_latex_lark.py::test_trigonometric_expressions",
+    "score": 0.53,
+    "why": "via parse_latex_lark > LarkLaTeXParser.doparse (name: lark,latex)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_symbol_expressions",
+    "line": 743,
+    "run": "python -m pytest sympy/parsing/tests/test_latex_lark.py::test_symbol_expressions",
+    "score": 0.5,
+    "why": "via parse_latex_lark > LarkLaTeXParser.doparse (name: lark,latex)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_applied_function_expressions",
+    "line": 872,
+    "run": "python -m pytest sympy/parsing/tests/test_latex_lark.py::test_applied_function_expressions",
+    "score": 0.48,
+    "why": "via parse_latex_lark > LarkLaTeXParser.doparse (name: lark,latex)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_common_function_expressions",
+    "line": 883,
+    "run": "python -m pytest sympy/parsing/tests/test_latex_lark.py::test_common_function_expressions",
+    "score": 0.467,
+    "why": "via parse_latex_lark > LarkLaTeXParser.doparse (name: lark,latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/parsing/tests/test_sym_expr.py::test_convert_fort",
+    "line": 153,
+    "run": "python -m pytest sympy/parsing/tests/test_sym_expr.py::test_convert_fort",
+    "score": 0.458,
+    "why": "named like sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.arccos, renamed or removed (name: expr,sym)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_binomial_expressions",
+    "line": 953,
+    "run": "python -m pytest sympy/parsing/tests/test_latex_lark.py::test_binomial_expressions",
+    "score": 0.456,
+    "why": "via parse_latex_lark > LarkLaTeXParser.doparse (name: lark,latex)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_derivative_expressions",
+    "line": 814,
+    "run": "python -m pytest sympy/parsing/tests/test_latex_lark.py::test_derivative_expressions",
+    "score": 0.45,
+    "why": "via parse_latex_lark > LarkLaTeXParser.doparse (name: lark,latex)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_factorial_expressions",
+    "line": 849,
+    "run": "python -m pytest sympy/parsing/tests/test_latex_lark.py::test_factorial_expressions",
+    "score": 0.446,
+    "why": "via parse_latex_lark > LarkLaTeXParser.doparse (name: lark,latex)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_fraction_expressions",
+    "line": 766,
+    "run": "python -m pytest sympy/parsing/tests/test_latex_lark.py::test_fraction_expressions",
+    "score": 0.444,
+    "why": "via parse_latex_lark > LarkLaTeXParser.doparse (name: lark,latex)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_integral_expressions",
+    "line": 800,
+    "run": "python -m pytest sympy/parsing/tests/test_latex_lark.py::test_integral_expressions",
+    "score": 0.442,
+    "why": "via parse_latex_lark > LarkLaTeXParser.doparse (name: lark,latex)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_limit_expressions",
+    "line": 834,
+    "run": "python -m pytest sympy/parsing/tests/test_latex_lark.py::test_limit_expressions",
+    "score": 0.44,
+    "why": "via parse_latex_lark > LarkLaTeXParser.doparse (name: lark,latex)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_literal_brace_multiplication",
+    "line": 979,
+    "run": "python -m pytest sympy/parsing/tests/test_latex_lark.py::test_literal_brace_multiplication",
+    "score": 0.439,
+    "why": "via parse_latex_lark > LarkLaTeXParser.doparse (name: lark,latex)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_literal_complex_number_expressions",
+    "line": 994,
+    "run": "python -m pytest sympy/parsing/tests/test_latex_lark.py::test_literal_complex_number_expressions",
+    "score": 0.439,
+    "why": "via parse_latex_lark > LarkLaTeXParser.doparse (name: lark,latex)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_matrix_expressions",
+    "line": 1000,
+    "run": "python -m pytest sympy/parsing/tests/test_latex_lark.py::test_matrix_expressions",
+    "score": 0.438,
+    "why": "via parse_latex_lark > LarkLaTeXParser.doparse (name: lark,latex)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_miscellaneous_expressions",
+    "line": 962,
+    "run": "python -m pytest sympy/parsing/tests/test_latex_lark.py::test_miscellaneous_expressions",
+    "score": 0.438,
+    "why": "via parse_latex_lark > LarkLaTeXParser.doparse (name: lark,latex)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_mixed_bracket_brace_multiplication",
+    "line": 986,
+    "run": "python -m pytest sympy/parsing/tests/test_latex_lark.py::test_mixed_bracket_brace_multiplication",
+    "score": 0.438,
+    "why": "via parse_latex_lark > LarkLaTeXParser.doparse (name: lark,latex)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_product_expressions",
+    "line": 867,
+    "run": "python -m pytest sympy/parsing/tests/test_latex_lark.py::test_product_expressions",
+    "score": 0.438,
+    "why": "via parse_latex_lark > LarkLaTeXParser.doparse (name: lark,latex)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_relation_expressions",
+    "line": 775,
+    "run": "python -m pytest sympy/parsing/tests/test_latex_lark.py::test_relation_expressions",
+    "score": 0.437,
+    "why": "via parse_latex_lark > LarkLaTeXParser.doparse (name: lark,latex)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_simple_expressions",
+    "line": 752,
+    "run": "python -m pytest sympy/parsing/tests/test_latex_lark.py::test_simple_expressions",
+    "score": 0.437,
+    "why": "via parse_latex_lark > LarkLaTeXParser.doparse (name: lark,latex)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_spacing",
+    "line": 892,
+    "run": "python -m pytest sympy/parsing/tests/test_latex_lark.py::test_spacing",
+    "score": 0.437,
+    "why": "via parse_latex_lark > LarkLaTeXParser.doparse (name: lark,latex)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_square_bracket_multiplication",
+    "line": 968,
+    "run": "python -m pytest sympy/parsing/tests/test_latex_lark.py::test_square_bracket_multiplication",
+    "score": 0.437,
+    "why": "via parse_latex_lark > LarkLaTeXParser.doparse (name: lark,latex)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_square_root_expressions",
+    "line": 840,
+    "run": "python -m pytest sympy/parsing/tests/test_latex_lark.py::test_square_root_expressions",
+    "score": 0.437,
+    "why": "via parse_latex_lark > LarkLaTeXParser.doparse (name: lark,latex)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_sum_expressions",
+    "line": 858,
+    "run": "python -m pytest sympy/parsing/tests/test_latex_lark.py::test_sum_expressions",
+    "score": 0.437,
+    "why": "via parse_latex_lark > LarkLaTeXParser.doparse (name: lark,latex)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_superscript_implicit_multiplication",
+    "line": 794,
+    "run": "python -m pytest sympy/parsing/tests/test_latex_lark.py::test_superscript_implicit_multiplication",
+    "score": 0.437,
+    "why": "via parse_latex_lark > LarkLaTeXParser.doparse (name: lark,latex)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_latex_lark.py::test_negthinspace_not_equal_conflict",
+    "line": 898,
+    "run": "python -m pytest sympy/parsing/tests/test_latex_lark.py::test_negthinspace_not_equal_conflict",
+    "score": 0.431,
+    "why": "via parse_latex_lark > LarkLaTeXParser.doparse (name: lark,latex)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/parsing/tests/test_sym_expr.py::test_convert_py",
+    "line": 129,
+    "run": "python -m pytest sympy/parsing/tests/test_sym_expr.py::test_convert_py",
+    "score": 0.395,
+    "why": "named like sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.arccos, renamed or removed (name: expr,sym)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/parsing/tests/test_sym_expr.py::test_exceptions",
+    "line": 201,
+    "run": "python -m pytest sympy/parsing/tests/test_sym_expr.py::test_exceptions",
+    "score": 0.364,
+    "why": "named like sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.arccos, renamed or removed (name: expr,sym)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/parsing/tests/test_sym_expr.py::test_fortran_parse",
+    "line": 67,
+    "run": "python -m pytest sympy/parsing/tests/test_sym_expr.py::test_fortran_parse",
+    "score": 0.349,
+    "why": "named like sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.arccos, renamed or removed (name: expr,sym)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/parsing/tests/test_sym_expr.py::test_raise",
+    "line": 208,
+    "run": "python -m pytest sympy/parsing/tests/test_sym_expr.py::test_raise",
+    "score": 0.341,
+    "why": "named like sympy/parsing/latex/lark/transformer.py#TransformToSymPyExpr.arccos, renamed or removed (name: expr,sym)"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/parsing/tests/test_latex_lark.py",
+    "lines": "829",
+    "symbol": "test_trigonometric_expressions"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/parsing/tests/test_latex_lark.py",
+    "lines": "918-939",
+    "symbol": "test_function_arguments"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/parsing/tests/test_latex_lark.py",
+    "lines": "942-950",
+    "symbol": "test_unknown_commands"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792329456.5877671,
+  "job_seconds": 380.2,
+  "number": 30477,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 380.3,
+  "started": 1792329074.1371222
+ },
+ "verify": null
+}

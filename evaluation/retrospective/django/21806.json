@@ -1,0 +1,622 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "5a4511adb247a44a1cada11fe4763abba0a42663",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "a3ca24d0575a622891881642a3014a1b0a485b1b",
+  "install_ok": true,
+  "merge_base": "5a4511adb247a44a1cada11fe4763abba0a42663",
+  "pr": 21806,
+  "recording": true,
+  "runner": null,
+  "seconds": 438.9,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "5a4511adb247a44a1cada11fe4763abba0a42663",
+  "head_sha": "a3ca24d0575a622891881642a3014a1b0a485b1b",
+  "merge_base": "5a4511adb247a44a1cada11fe4763abba0a42663",
+  "merged_at": "2026-09-30T21:30:39Z",
+  "number": 21806,
+  "repo": "django",
+  "title": "Fixed #37291 -- Prevented TupleIn lookups from hanging on F() expressions."
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 1,
+  "called": 1,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [],
+  "changed_functions": [
+   {
+    "file": "django/db/models/fields/tuple_lookups.py",
+    "lines": "89-94",
+    "symbol": "TupleLookupMixin.get_lhs_str"
+   },
+   {
+    "file": "tests/composite_pk/test_filter.py",
+    "lines": "550-558",
+    "symbol": "CompositePKFilterTests.test_filter_by_pk_in_rhs_f_object_lhs"
+   },
+   {
+    "file": "tests/foreign_object/test_tuple_lookups.py",
+    "lines": "172-180",
+    "symbol": "TupleLookupsTests.test_tuple_in_subquery_lhs_f_pk"
+   },
+   {
+    "file": "tests/foreign_object/test_tuple_lookups.py",
+    "lines": "182-195",
+    "symbol": "TupleLookupsTests.test_tuple_lookups_f_invalid_rhs"
+   }
+  ],
+  "changed_symbols": [
+   "django/db/models/fields/tuple_lookups.py#TupleLookupMixin.get_lhs_str",
+   "tests/composite_pk/test_filter.py#CompositePKFilterTests.test_filter_by_pk_in_rhs_f_object_lhs",
+   "tests/foreign_object/test_tuple_lookups.py#TupleLookupsTests.test_tuple_in_subquery_lhs_f_pk",
+   "tests/foreign_object/test_tuple_lookups.py#TupleLookupsTests.test_tuple_lookups_f_invalid_rhs",
+   "tests/composite_pk/test_filter.py#CompositePKFilterTests",
+   "tests/foreign_object/test_tuple_lookups.py#TupleLookupsTests",
+   "django/db/models/fields/tuple_lookups.py",
+   "tests/composite_pk/test_filter.py",
+   "tests/foreign_object/test_tuple_lookups.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "TupleLookupMixin.get_lhs_str return changed",
+    "path": [
+     "django/db/models/fields/tuple_lookups.py:93 return",
+     "django/db/models/fields/tuple_lookups.py:326 TupleIn.check_rhs_elements_length_equals_lhs_length uses the result",
+     "django/db/models/fields/tuple_lookups.py:317 TupleIn.check_rhs_is_collection_of_tuples_or_lists uses the result",
+     "django/db/models/fields/tuple_lookups.py:334 TupleIn.check_rhs_is_query uses the result"
+    ],
+    "to": "6 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 3,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 9641,
+   "ran": 4640,
+   "replayed": 2,
+   "runner": "django-runtests",
+   "seconds": 424.1,
+   "selection": {
+    "candidates": 9641,
+    "closure_files": 540,
+    "closure_tests": 9136,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/contrib/admin/__init__.py",
+     "django/contrib/auth/models.py",
+     "django/core/management/base.py",
+     "django/db/migrations/__init__.py",
+     "django/db/models/__init__.py",
+     "django/db/models/expressions.py",
+     "django/db/models/functions/__init__.py",
+     "django/test/__init__.py",
+     "django/test/utils.py"
+    ],
+    "observed": 151,
+    "static_only": 6
+   },
+   "unrunnable": 160
+  },
+  "flips": 0,
+  "gaps": [
+   "100282 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "160 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "Skipped 1 non-Python file(s)",
+   "replaying the change's own tests (before the change, django-runtests): timed out",
+   "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run stopped at its 300 s budget: 4640 of 9641 candidates run",
+   "side-by-side run stopped at its time limit; calls captured until then are compared",
+   "tests/test_runner_apps/tagged/tests_syntax_error.py: SyntaxError"
+  ],
+  "impacted": {
+   "count": 91,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2930,
+   "parsed_files": 5
+  },
+  "original_tests": {
+   "tests/composite_pk/test_filter.py::CompositePKExcludeNoneTests::test_exclude_pk_in_full_none": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKExcludeNoneTests::test_exclude_pk_in_partial_none": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKExcludeNoneTests::test_filter_pk_in_full_none": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKExcludeNoneTests::test_filter_pk_in_partial_none": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_cannot_cast_pk": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_explicit_subquery": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_and_count_user_by_pk": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_by_pk_exact_rhs_f_object": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_by_pk_in_none": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_by_pk_in_subquery_invalid_selected_columns": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_by_tuple_containing_expression": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_case_when": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_comments_by_pk_exact_subquery": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_comments_by_pk_gt": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_comments_by_pk_gte": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_comments_by_pk_in": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_comments_by_pk_in_subquery": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_comments_by_pk_isnull": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_comments_by_pk_lt": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_comments_by_pk_lte": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_comments_by_user_and_contains": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_comments_by_user_and_exclude_by_pk": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_comments_by_user_and_order_by_pk_asc": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_comments_by_user_and_order_by_pk_desc": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_comments_by_users_subquery": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_query_does_not_mutate": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_users_by_comments_exact": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_users_by_comments_gt": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_users_by_comments_gte": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_users_by_comments_in": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_users_by_comments_isnull": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_users_by_comments_lt": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_users_by_comments_lte": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_users_by_comments_subquery": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_outer_ref_in_filtered_relation": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_outer_ref_not_composite_pk": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_outer_ref_pk": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_outer_ref_pk_filter_on_pk_comparison": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_outer_ref_pk_filter_on_pk_comparison_unsupported": "skipped",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_outer_ref_pk_filter_on_pk_exact": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_rhs_combinable": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_rhs_pk": "passed",
+   "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_unsupported_rhs": "passed",
+   "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_exact": "passed",
+   "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_exact_subquery": "passed",
+   "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_gt": "passed",
+   "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_gt_subquery": "passed",
+   "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_gte": "passed",
+   "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_gte_subquery": "passed",
+   "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_in": "passed",
+   "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_in_subquery": "passed",
+   "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_isnull": "passed",
+   "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_isnull_subquery": "passed",
+   "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_lookup_errors": "passed",
+   "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_lt": "passed",
+   "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_lt_subquery": "passed",
+   "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_lte": "passed",
+   "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_lte_subquery": "passed",
+   "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_tuple_in_rhs_must_be_collection_of_tuples_or_lists": "passed",
+   "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_tuple_in_rhs_must_have_2_elements_each": "passed",
+   "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_tuple_in_subquery": "passed",
+   "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_tuple_in_subquery_must_be_query": "passed",
+   "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_tuple_in_subquery_must_have_2_fields": "passed",
+   "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_tuple_lookup_names": "passed",
+   "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_tuple_lookup_rhs_must_be_tuple_or_list": "passed",
+   "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_tuple_lookup_rhs_must_have_2_elements": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": null,
+    "head": "skipped",
+    "id": "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_by_pk_in_rhs_f_object_lhs",
+    "verdict": "none"
+   },
+   {
+    "base": null,
+    "head": "skipped",
+    "id": "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_tuple_in_subquery_lhs_f_pk",
+    "verdict": "none"
+   }
+  ],
+  "report_hash": "a1f8752e8d15",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [
+    "django/db/models/fields/tuple_lookups.py#TupleLookupMixin.get_lhs_str"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 5,
+   "differences": 0,
+   "functions_called": 1,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "tests/composite_pk/test_filter.py#CompositePKFilterTests.test_filter_by_pk_in_rhs_f_object_lhs": "not a module or class function on both sides (new, removed or nested)",
+    "tests/foreign_object/test_tuple_lookups.py#TupleLookupsTests.test_tuple_in_subquery_lhs_f_pk": "not a module or class function on both sides (new, removed or nested)",
+    "tests/foreign_object/test_tuple_lookups.py#TupleLookupsTests.test_tuple_lookups_f_invalid_rhs": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 120.0,
+   "targets": 1,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 4640 of 9641 candidate tests after the change with django-runtests in 424.1 s, failures confirmed before it: 0 now fail. 128 tests reach the change. 66 test(s) from edited test files also run as they were before the edit. 2 test(s) the change adds or edits replayed on the code before it: 0 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_by_pk_in_rhs_f_object_lhs",
+    "line": 550,
+    "run": "cd tests && python runtests.py composite_pk.test_filter.CompositePKFilterTests.test_filter_by_pk_in_rhs_f_object_lhs",
+    "score": 3.264,
+    "why": "via CompositePKFilterTests (name: composite,filter,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_tuple_in_subquery_lhs_f_pk",
+    "line": 172,
+    "run": "cd tests && python runtests.py foreign_object.test_tuple_lookups.TupleLookupsTests.test_tuple_in_subquery_lhs_f_pk",
+    "score": 3.175,
+    "why": "via TupleLookupsTests (name: lookup,tuple)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_tuple_lookups_f_invalid_rhs",
+    "line": 182,
+    "run": "cd tests && python runtests.py foreign_object.test_tuple_lookups.TupleLookupsTests.test_tuple_lookups_f_invalid_rhs",
+    "score": 1.917,
+    "why": "via TupleLookupsTests (name: lookup,tuple)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_outer_ref_pk_filter_on_pk_comparison_unsupported",
+    "line": 521,
+    "run": "cd tests && python runtests.py composite_pk.test_filter.CompositePKFilterTests.test_outer_ref_pk_filter_on_pk_comparison_unsupported",
+    "score": 1.672,
+    "why": "via CompositePKFilterTests (name: composite,filter,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_tuple_in_subquery_must_be_query",
+    "line": 132,
+    "run": "cd tests && python runtests.py foreign_object.test_tuple_lookups.TupleLookupsTests.test_tuple_in_subquery_must_be_query",
+    "score": 1.367,
+    "why": "via TupleLookupsTests (name: lookup,tuple)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_unsupported_rhs",
+    "line": 535,
+    "run": "cd tests && python runtests.py composite_pk.test_filter.CompositePKFilterTests.test_unsupported_rhs",
+    "score": 1.234,
+    "why": "via CompositePKFilterTests (name: composite,filter,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_tuple_in_subquery_must_have_2_fields",
+    "line": 143,
+    "run": "cd tests && python runtests.py foreign_object.test_tuple_lookups.TupleLookupsTests.test_tuple_in_subquery_must_have_2_fields",
+    "score": 1.083,
+    "why": "via TupleLookupsTests (name: lookup,tuple)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_outer_ref_pk_filter_on_pk_comparison",
+    "line": 507,
+    "run": "cd tests && python runtests.py composite_pk.test_filter.CompositePKFilterTests.test_outer_ref_pk_filter_on_pk_comparison",
+    "score": 0.975,
+    "why": "via CompositePKFilterTests (name: composite,filter,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_tuple_in_subquery",
+    "line": 153,
+    "run": "cd tests && python runtests.py foreign_object.test_tuple_lookups.TupleLookupsTests.test_tuple_in_subquery",
+    "score": 0.937,
+    "why": "via TupleLookupsTests (name: lookup,tuple)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_gte",
+    "line": 364,
+    "run": "cd tests && python runtests.py foreign_object.test_tuple_lookups.TupleLookupsTests.test_gte",
+    "score": 0.854,
+    "why": "via TupleLookupsTests (name: lookup,tuple)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_rhs_pk",
+    "line": 75,
+    "run": "cd tests && python runtests.py composite_pk.test_filter.CompositePKFilterTests.test_rhs_pk",
+    "score": 0.825,
+    "why": "via CompositePKFilterTests (name: composite,filter,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_lt",
+    "line": 228,
+    "run": "cd tests && python runtests.py foreign_object.test_tuple_lookups.TupleLookupsTests.test_lt",
+    "score": 0.804,
+    "why": "via TupleLookupsTests (name: lookup,tuple)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_lte",
+    "line": 276,
+    "run": "cd tests && python runtests.py foreign_object.test_tuple_lookups.TupleLookupsTests.test_lte",
+    "score": 0.781,
+    "why": "via TupleLookupsTests (name: lookup,tuple)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_gt",
+    "line": 324,
+    "run": "cd tests && python runtests.py foreign_object.test_tuple_lookups.TupleLookupsTests.test_gt",
+    "score": 0.768,
+    "why": "via TupleLookupsTests (name: lookup,tuple)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_tuple_lookup_rhs_must_be_tuple_or_list",
+    "line": 496,
+    "run": "cd tests && python runtests.py foreign_object.test_tuple_lookups.TupleLookupsTests.test_tuple_lookup_rhs_must_be_tuple_or_list",
+    "score": 0.754,
+    "why": "via TupleLookupsTests (name: lookup,tuple)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_exact",
+    "line": 36,
+    "run": "cd tests && python runtests.py foreign_object.test_tuple_lookups.TupleLookupsTests.test_exact",
+    "score": 0.743,
+    "why": "via TupleLookupsTests (name: lookup,tuple)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_by_pk_in_subquery_invalid_selected_columns",
+    "line": 215,
+    "run": "cd tests && python runtests.py composite_pk.test_filter.CompositePKFilterTests.test_filter_by_pk_in_subquery_invalid_selected_columns",
+    "score": 0.742,
+    "why": "via CompositePKFilterTests (name: composite,filter,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_tuple_in_rhs_must_be_collection_of_tuples_or_lists",
+    "line": 197,
+    "run": "cd tests && python runtests.py foreign_object.test_tuple_lookups.TupleLookupsTests.test_tuple_in_rhs_must_be_collection_of_tuples_or_lists",
+    "score": 0.74,
+    "why": "via TupleLookupsTests (name: lookup,tuple)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_tuple_lookup_rhs_must_have_2_elements",
+    "line": 526,
+    "run": "cd tests && python runtests.py foreign_object.test_tuple_lookups.TupleLookupsTests.test_tuple_lookup_rhs_must_have_2_elements",
+    "score": 0.732,
+    "why": "via TupleLookupsTests (name: lookup,tuple)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_in",
+    "line": 77,
+    "run": "cd tests && python runtests.py foreign_object.test_tuple_lookups.TupleLookupsTests.test_in",
+    "score": 0.725,
+    "why": "via TupleLookupsTests (name: lookup,tuple)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_tuple_in_rhs_must_have_2_elements_each",
+    "line": 212,
+    "run": "cd tests && python runtests.py foreign_object.test_tuple_lookups.TupleLookupsTests.test_tuple_in_rhs_must_have_2_elements_each",
+    "score": 0.716,
+    "why": "via TupleLookupsTests (name: lookup,tuple)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_isnull",
+    "line": 412,
+    "run": "cd tests && python runtests.py foreign_object.test_tuple_lookups.TupleLookupsTests.test_isnull",
+    "score": 0.709,
+    "why": "via TupleLookupsTests (name: lookup,tuple)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_exact_subquery",
+    "line": 66,
+    "run": "cd tests && python runtests.py foreign_object.test_tuple_lookups.TupleLookupsTests.test_exact_subquery",
+    "score": 0.703,
+    "why": "via TupleLookupsTests (name: lookup,tuple)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_by_pk_exact_rhs_f_object",
+    "line": 544,
+    "run": "cd tests && python runtests.py composite_pk.test_filter.CompositePKFilterTests.test_filter_by_pk_exact_rhs_f_object",
+    "score": 0.697,
+    "why": "via CompositePKFilterTests (name: composite,filter,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_lookup_errors",
+    "line": 456,
+    "run": "cd tests && python runtests.py foreign_object.test_tuple_lookups.TupleLookupsTests.test_lookup_errors",
+    "score": 0.678,
+    "why": "via TupleLookupsTests (name: lookup,tuple)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_by_tuple_containing_expression",
+    "line": 609,
+    "run": "cd tests && python runtests.py composite_pk.test_filter.CompositePKFilterTests.test_filter_by_tuple_containing_expression",
+    "score": 0.671,
+    "why": "via CompositePKFilterTests (name: composite,filter,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_gt_subquery",
+    "line": 355,
+    "run": "cd tests && python runtests.py foreign_object.test_tuple_lookups.TupleLookupsTests.test_gt_subquery",
+    "score": 0.665,
+    "why": "via TupleLookupsTests (name: lookup,tuple)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_gte_subquery",
+    "line": 403,
+    "run": "cd tests && python runtests.py foreign_object.test_tuple_lookups.TupleLookupsTests.test_gte_subquery",
+    "score": 0.665,
+    "why": "via TupleLookupsTests (name: lookup,tuple)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_isnull_subquery",
+    "line": 447,
+    "run": "cd tests && python runtests.py foreign_object.test_tuple_lookups.TupleLookupsTests.test_isnull_subquery",
+    "score": 0.665,
+    "why": "via TupleLookupsTests (name: lookup,tuple)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_lt_subquery",
+    "line": 267,
+    "run": "cd tests && python runtests.py foreign_object.test_tuple_lookups.TupleLookupsTests.test_lt_subquery",
+    "score": 0.665,
+    "why": "via TupleLookupsTests (name: lookup,tuple)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_lte_subquery",
+    "line": 315,
+    "run": "cd tests && python runtests.py foreign_object.test_tuple_lookups.TupleLookupsTests.test_lte_subquery",
+    "score": 0.665,
+    "why": "via TupleLookupsTests (name: lookup,tuple)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_rhs_combinable",
+    "line": 80,
+    "run": "cd tests && python runtests.py composite_pk.test_filter.CompositePKFilterTests.test_rhs_combinable",
+    "score": 0.654,
+    "why": "via CompositePKFilterTests (name: composite,filter,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_tuple_lookup_names",
+    "line": 481,
+    "run": "cd tests && python runtests.py foreign_object.test_tuple_lookups.TupleLookupsTests.test_tuple_lookup_names",
+    "score": 0.651,
+    "why": "via TupleLookupsTests (name: lookup,tuple)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/foreign_object/test_tuple_lookups.py::TupleLookupsTests::test_in_subquery",
+    "line": 124,
+    "run": "cd tests && python runtests.py foreign_object.test_tuple_lookups.TupleLookupsTests.test_in_subquery",
+    "score": 0.643,
+    "why": "via TupleLookupsTests (name: lookup,tuple)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_outer_ref_not_composite_pk",
+    "line": 585,
+    "run": "cd tests && python runtests.py composite_pk.test_filter.CompositePKFilterTests.test_outer_ref_not_composite_pk",
+    "score": 0.643,
+    "why": "via CompositePKFilterTests (name: composite,filter,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_outer_ref_pk",
+    "line": 488,
+    "run": "cd tests && python runtests.py composite_pk.test_filter.CompositePKFilterTests.test_outer_ref_pk",
+    "score": 0.637,
+    "why": "via CompositePKFilterTests (name: composite,filter,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_comments_by_pk_exact_subquery",
+    "line": 560,
+    "run": "cd tests && python runtests.py composite_pk.test_filter.CompositePKFilterTests.test_filter_comments_by_pk_exact_subquery",
+    "score": 0.62,
+    "why": "via CompositePKFilterTests (name: composite,filter,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_cannot_cast_pk",
+    "line": 470,
+    "run": "cd tests && python runtests.py composite_pk.test_filter.CompositePKFilterTests.test_cannot_cast_pk",
+    "score": 0.617,
+    "why": "via CompositePKFilterTests (name: composite,filter,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_outer_ref_in_filtered_relation",
+    "line": 593,
+    "run": "cd tests && python runtests.py composite_pk.test_filter.CompositePKFilterTests.test_outer_ref_in_filtered_relation",
+    "score": 0.609,
+    "why": "via CompositePKFilterTests (name: composite,filter,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/test_filter.py::CompositePKFilterTests::test_filter_query_does_not_mutate",
+    "line": 255,
+    "run": "cd tests && python runtests.py composite_pk.test_filter.CompositePKFilterTests.test_filter_query_does_not_mutate",
+    "score": 0.608,
+    "why": "via CompositePKFilterTests (name: composite,filter,pk)"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792324229.2927098,
+  "job_seconds": 438.9,
+  "number": 21806,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 439.0,
+  "started": 1792323789.32076
+ },
+ "verify": null
+}

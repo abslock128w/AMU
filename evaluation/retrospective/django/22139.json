@@ -1,0 +1,533 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "b33bab33709bbd74f4dfc376786ba0b3912c3f53",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "da0781c5bf4ecf41760b44db5c245e27b1d4ad2e",
+  "install_ok": true,
+  "merge_base": "0f34a4cf9f1b5f3e68decbdca76aebb71268ba93",
+  "pr": 22139,
+  "recording": true,
+  "runner": null,
+  "seconds": 7.9,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "b33bab33709bbd74f4dfc376786ba0b3912c3f53",
+  "head_sha": "da0781c5bf4ecf41760b44db5c245e27b1d4ad2e",
+  "merge_base": "0f34a4cf9f1b5f3e68decbdca76aebb71268ba93",
+  "merged_at": "2026-10-12T15:02:32Z",
+  "number": 22139,
+  "repo": "django",
+  "title": "Skipped 1-element geometry collection tests on all Oracle versions."
+ },
+ "probe_minutes": {
+  "end": 1792325790.9039528,
+  "minutes": 18.2,
+  "start": 1792324698.598072,
+  "waited": 0.0009579590114299208
+ },
+ "probe_targets": {
+  "all": 1,
+  "called": 0,
+  "targets": [
+   {
+    "after": "def django_test_skips(self):\n    skips = super().django_test_skips\n    skips.update(\n        {\n            \"Oracle doesn't support spatial operators in constraints.\": {\n                \"gis_tests.gis_migrations.test_operations.OperationTests.\"\n                \"test_add_check_constraint\",\n            },\n            \"Oracle doesn't support nested geometry collections.\": {\n                \"gis_tests.geoapp.tests.SaveLoadTests.\"\n                \"test_geometrycollectionfield_default_max_ignored_on_read\",\n            },\n            \"Oracle unpacks 1-element geometry collections.\": {\n                \"gis_tests.geogapp.tests.GeographyTest.\"\n                \"test05_geography_layermapping\",\n                \"gis_tests.layermap.tests.LayerMapTest.\"\n                \"test_layermap_unique_multigeometry_fk\",\n                \"gis_tests.layermap.tests.LayerMapTest.test_null_geom_with_unique\",\n                \"gis_tests.layermap.tests.LayerMapTest.test_test_fid_range_step\",\n            },\n        }\n    )\n    return skips\n",
+    "before": "def django_test_skips(self):\n    skips = super().django_test_skips\n    skips.update(\n        {\n            \"Oracle doesn't support spatial operators in constraints.\": {\n                \"gis_tests.gis_migrations.test_operations.OperationTests.\"\n                \"test_add_check_constraint\",\n            },\n            \"Oracle doesn't support nested geometry collections.\": {\n                \"gis_tests.geoapp.tests.SaveLoadTests.\"\n                \"test_geometrycollectionfield_default_max_ignored_on_read\",\n            },\n        }\n    )\n    if self.connection.oracle_version >= (23, 9):\n        skips.update(\n            {\n                \"Oracle 23ai unpacks 1-element geometry collections.\": {\n                    \"gis_tests.geogapp.tests.GeographyTest.\"\n                    \"test05_geography_layermapping\",\n                    \"gis_tests.layermap.tests.LayerMapTest.\"\n                    \"test_layermap_unique_multigeometry_fk\",\n                    \"gis_tests.layermap.tests.LayerMapTest.\"\n                    \"test_null_geom_with_unique\",\n                    \"gis_tests.layermap.tests.LayerMapTest.\"\n                    \"test_test_fid_range_step\",\n                },\n            },\n        )\n    return skips\n",
+    "file": "django/contrib/gis/db/backends/oracle/features.py",
+    "id": "django/contrib/gis/db/backends/oracle/features.py#DatabaseFeatures.django_test_skips",
+    "name": "django_test_skips",
+    "qual": "DatabaseFeatures.django_test_skips",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [],
+   "filter_seconds": 5.3,
+   "gaps": [],
+   "info": {
+    "accepted": 0,
+    "compiled": 1,
+    "cost": 0.0,
+    "differed": 0,
+    "dollars_cap": 0.1,
+    "functions": 1,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 1,
+    "ran": 0,
+    "reached": 0,
+    "requests": 1,
+    "seconds": 4.8,
+    "stable": 0
+   },
+   "probes": [
+    {
+     "call": "sorted((reason, sorted(tests)) for reason, tests in features.django_test_skips.items())",
+     "function": "django/contrib/gis/db/backends/oracle/features.py#DatabaseFeatures.django_test_skips",
+     "setup": "import sys\nfrom unittest import mock\nsys.modules.setdefault('oracledb', mock.MagicMock(__version__='3.0.0', version='3.0.0'))\nfrom django.contrib.gis.db.backends.oracle.features import DatabaseFeatures\nfeatures = DatabaseFeatures(mock.MagicMock(oracle_version=(19, 0)))",
+     "why": "Oracle 19 now gets the 1-element collection skips"
+    }
+   ],
+   "targets": [
+    "django/contrib/gis/db/backends/oracle/features.py#DatabaseFeatures.django_test_skips"
+   ],
+   "waited_seconds": 0.0
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "changed_functions": [
+   {
+    "file": "django/contrib/gis/db/backends/oracle/features.py",
+    "lines": "30-40",
+    "symbol": "DatabaseFeatures.django_test_skips"
+   }
+  ],
+  "changed_symbols": [
+   "django/contrib/gis/db/backends/oracle/features.py#DatabaseFeatures.django_test_skips"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 0,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 62,
+   "ran": 62,
+   "replayed": 0,
+   "runner": "django-runtests",
+   "seconds": 5.6,
+   "selection": {
+    "candidates": 62,
+    "closure_files": 2,
+    "closure_tests": 0,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [],
+    "observed": 0,
+    "static_only": 62
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "102598 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "graph reused from the previous state; 1 changed file(s) relinked",
+   "side-by-side: none of the 1 changed function(s) was called by the tests run on the code before the change"
+  ],
+  "impacted": {
+   "count": 50,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2931,
+   "parsed_files": 1
+  },
+  "predicted_failures": [],
+  "report_hash": "58a24ae47272",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 0,
+   "differences": 0,
+   "functions_called": 0,
+   "input_built_before_the_change": 0,
+   "not_compared": {},
+   "seconds": 2.4,
+   "targets": 1,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 62 of 62 candidate tests after the change with django-runtests in 5.6 s, failures confirmed before it: 0 now fail. 62 tests reach the change.",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/base/test_creation.py::TestMarkTests::test_mark_expected_failures_and_skips",
+    "line": 323,
+    "run": "cd tests && python runtests.py backends.base.test_creation.TestMarkTests.test_mark_expected_failures_and_skips",
+    "score": 0.493,
+    "why": "via BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips (name: skip)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/base/test_creation.py::TestDbCreationTests::test_mark_expected_failures_and_skips_call",
+    "line": 151,
+    "run": "cd tests && python runtests.py backends.base.test_creation.TestDbCreationTests.test_mark_expected_failures_and_skips_call",
+    "score": 0.185,
+    "why": "via BaseDatabaseCreation.create_test_db > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips (name: skip)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/base/test_creation.py::TestDbCreationTests::test_migrate_test_setting_false",
+    "line": 78,
+    "run": "cd tests && python runtests.py backends.base.test_creation.TestDbCreationTests.test_migrate_test_setting_false",
+    "score": 0.096,
+    "why": "via BaseDatabaseCreation.create_test_db > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/base/test_creation.py::TestDbCreationTests::test_migrate_test_setting_false_ensure_schema",
+    "line": 103,
+    "run": "cd tests && python runtests.py backends.base.test_creation.TestDbCreationTests.test_migrate_test_setting_false_ensure_schema",
+    "score": 0.086,
+    "why": "via BaseDatabaseCreation.create_test_db > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/base/test_creation.py::TestDbCreationTests::test_migrate_test_setting_true",
+    "line": 128,
+    "run": "cd tests && python runtests.py backends.base.test_creation.TestDbCreationTests.test_migrate_test_setting_true",
+    "score": 0.079,
+    "why": "via BaseDatabaseCreation.create_test_db > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/base/test_creation.py::TestDbCreationTests::test_serialize_deprecation",
+    "line": 173,
+    "run": "cd tests && python runtests.py backends.base.test_creation.TestDbCreationTests.test_serialize_deprecation",
+    "score": 0.073,
+    "why": "via BaseDatabaseCreation.create_test_db > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_runner/tests.py::SetupDatabasesTests::test_serialization",
+    "line": 929,
+    "run": "cd tests && python runtests.py test_runner.tests.SetupDatabasesTests.test_serialization",
+    "score": 0.065,
+    "why": "via BaseDatabaseCreation.create_test_db > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips (name: database)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_utils/tests.py::SkippingClassTestCase::test_skip_class_unless_db_feature",
+    "line": 165,
+    "run": "cd tests && python runtests.py test_utils.tests.SkippingClassTestCase.test_skip_class_unless_db_feature",
+    "score": 0.059,
+    "why": "via ParallelTestSuite.run > _init_worker > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips (name: feature,skip)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_runner/tests.py::TestRunnerInitializerTests::test_no_initialize_suite_test_runner",
+    "line": 707,
+    "run": "cd tests && python runtests.py test_runner.tests.TestRunnerInitializerTests.test_no_initialize_suite_test_runner",
+    "score": 0.041,
+    "why": "via _init_worker > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_utils/tests.py::SkippingClassTestCase::test_missing_default_databases",
+    "line": 198,
+    "run": "cd tests && python runtests.py test_utils.tests.SkippingClassTestCase.test_missing_default_databases",
+    "score": 0.035,
+    "why": "via ParallelTestSuite.run > _init_worker > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips (name: database)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_runner/tests.py::AliasedDefaultTestSetupTest::test_setup_aliased_default_database",
+    "line": 839,
+    "run": "cd tests && python runtests.py test_runner.tests.AliasedDefaultTestSetupTest.test_setup_aliased_default_database",
+    "score": 0.029,
+    "why": "via DiscoverRunner.setup_databases > setup_databases > BaseDatabaseCreation.create_test_db > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips (name: database)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_runner/tests.py::DummyBackendTest::test_setup_databases",
+    "line": 827,
+    "run": "cd tests && python runtests.py test_runner.tests.DummyBackendTest.test_setup_databases",
+    "score": 0.028,
+    "why": "via DiscoverRunner.setup_databases > setup_databases > BaseDatabaseCreation.create_test_db > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips (name: database)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_runner/tests.py::SetupDatabasesTests::test_setup_aliased_databases",
+    "line": 856,
+    "run": "cd tests && python runtests.py test_runner.tests.SetupDatabasesTests.test_setup_aliased_databases",
+    "score": 0.028,
+    "why": "via DiscoverRunner.setup_databases > setup_databases > BaseDatabaseCreation.create_test_db > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips (name: database)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/migrations/test_loader.py::LoaderTests::test_loading_order_does_not_create_circular_dependency",
+    "line": 657,
+    "run": "cd tests && python runtests.py migrations.test_loader.LoaderTests.test_loading_order_does_not_create_circular_dependency",
+    "score": 0.024,
+    "why": "via ParallelTestSuite.run > _init_worker > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_runner/test_parallel.py::ParallelTestSuiteTest::test_buffer_mode_reports_setupclass_failure",
+    "line": 356,
+    "run": "cd tests && python runtests.py test_runner.test_parallel.ParallelTestSuiteTest.test_buffer_mode_reports_setupclass_failure",
+    "score": 0.023,
+    "why": "via ParallelTestSuite.run > _init_worker > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_runner/test_parallel.py::ParallelTestSuiteTest::test_handle_add_error_before_first_test",
+    "line": 292,
+    "run": "cd tests && python runtests.py test_runner.test_parallel.ParallelTestSuiteTest.test_handle_add_error_before_first_test",
+    "score": 0.023,
+    "why": "via ParallelTestSuite.run > _init_worker > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_runner/test_parallel.py::RemoteTestResultTest::test_add_failing_subtests",
+    "line": 205,
+    "run": "cd tests && python runtests.py test_runner.test_parallel.RemoteTestResultTest.test_add_failing_subtests",
+    "score": 0.023,
+    "why": "via ParallelTestSuite.run > _init_worker > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_runner/test_parallel.py::RemoteTestResultTest::test_unpicklable_subtest",
+    "line": 194,
+    "run": "cd tests && python runtests.py test_runner.test_parallel.RemoteTestResultTest.test_unpicklable_subtest",
+    "score": 0.023,
+    "why": "via ParallelTestSuite.run > _init_worker > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_utils/test_simpletestcase.py::DebugInvocationTests::test_debug_skipped_test_no_cleanup",
+    "line": 140,
+    "run": "cd tests && python runtests.py test_utils.test_simpletestcase.DebugInvocationTests.test_debug_skipped_test_no_cleanup",
+    "score": 0.022,
+    "why": "via ParallelTestSuite.run > _init_worker > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_utils/test_simpletestcase.py::DebugInvocationTests::test_run_skipped_test_no_cleanup",
+    "line": 78,
+    "run": "cd tests && python runtests.py test_utils.test_simpletestcase.DebugInvocationTests.test_run_skipped_test_no_cleanup",
+    "score": 0.022,
+    "why": "via ParallelTestSuite.run > _init_worker > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/async/tests.py::ViewTests::test_http_method_not_allowed_responds_correctly",
+    "line": 161,
+    "run": "cd tests && python runtests.py async.tests.ViewTests.test_http_method_not_allowed_responds_correctly",
+    "score": 0.021,
+    "why": "via ParallelTestSuite.run > _init_worker > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/async/tests.py::ViewTests::test_options_handler_responds_correctly",
+    "line": 143,
+    "run": "cd tests && python runtests.py async.tests.ViewTests.test_options_handler_responds_correctly",
+    "score": 0.021,
+    "why": "via ParallelTestSuite.run > _init_worker > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/builtin_server/tests.py::ServerHandlerChunksProperly::test_chunked_data",
+    "line": 166,
+    "run": "cd tests && python runtests.py builtin_server.tests.ServerHandlerChunksProperly.test_chunked_data",
+    "score": 0.021,
+    "why": "via ParallelTestSuite.run > _init_worker > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/builtin_server/tests.py::WSGIFileWrapperTests::test_file_response_call_request_finished",
+    "line": 119,
+    "run": "cd tests && python runtests.py builtin_server.tests.WSGIFileWrapperTests.test_file_response_call_request_finished",
+    "score": 0.021,
+    "why": "via ParallelTestSuite.run > _init_worker > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/builtin_server/tests.py::WSGIFileWrapperTests::test_file_response_closing",
+    "line": 98,
+    "run": "cd tests && python runtests.py builtin_server.tests.WSGIFileWrapperTests.test_file_response_closing",
+    "score": 0.021,
+    "why": "via ParallelTestSuite.run > _init_worker > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/builtin_server/tests.py::WSGIFileWrapperTests::test_file_wrapper_no_sendfile",
+    "line": 90,
+    "run": "cd tests && python runtests.py builtin_server.tests.WSGIFileWrapperTests.test_file_wrapper_no_sendfile",
+    "score": 0.021,
+    "why": "via ParallelTestSuite.run > _init_worker > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/builtin_server/tests.py::WSGIFileWrapperTests::test_file_wrapper_uses_sendfile",
+    "line": 82,
+    "run": "cd tests && python runtests.py builtin_server.tests.WSGIFileWrapperTests.test_file_wrapper_uses_sendfile",
+    "score": 0.02,
+    "why": "via ParallelTestSuite.run > _init_worker > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/dbshell/test_mysql.py::MySqlDbshellCommandTestCase::test_crash_password_does_not_leak",
+    "line": 203,
+    "run": "cd tests && python runtests.py dbshell.test_mysql.MySqlDbshellCommandTestCase.test_crash_password_does_not_leak",
+    "score": 0.02,
+    "why": "via ParallelTestSuite.run > _init_worker > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/dbshell/test_postgresql.py::PostgreSqlDbshellCommandTestCase::test_crash_password_does_not_leak",
+    "line": 177,
+    "run": "cd tests && python runtests.py dbshell.test_postgresql.PostgreSqlDbshellCommandTestCase.test_crash_password_does_not_leak",
+    "score": 0.02,
+    "why": "via ParallelTestSuite.run > _init_worker > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/postgres_tests/test_integration.py::PostgresIntegrationTests::test_check",
+    "line": 9,
+    "run": "cd tests && python runtests.py postgres_tests.test_integration.PostgresIntegrationTests.test_check",
+    "score": 0.02,
+    "why": "via ParallelTestSuite.run > _init_worker > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/shell/tests.py::ShellCommandTestCase::test_no_settings",
+    "line": 51,
+    "run": "cd tests && python runtests.py shell.tests.ShellCommandTestCase.test_no_settings",
+    "score": 0.02,
+    "why": "via ParallelTestSuite.run > _init_worker > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_runner/test_debug_sql.py::TestDebugSQL::test_setupclass_exception",
+    "line": 313,
+    "run": "cd tests && python runtests.py test_runner.test_debug_sql.TestDebugSQL.test_setupclass_exception",
+    "score": 0.02,
+    "why": "via ParallelTestSuite.run > _init_worker > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_utils/test_simpletestcase.py::DebugInvocationTests::test_debug_bubbles_error",
+    "line": 96,
+    "run": "cd tests && python runtests.py test_utils.test_simpletestcase.DebugInvocationTests.test_debug_bubbles_error",
+    "score": 0.02,
+    "why": "via ParallelTestSuite.run > _init_worker > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_utils/test_simpletestcase.py::DebugInvocationTests::test_debug_bubbles_post_teardown_error",
+    "line": 125,
+    "run": "cd tests && python runtests.py test_utils.test_simpletestcase.DebugInvocationTests.test_debug_bubbles_post_teardown_error",
+    "score": 0.02,
+    "why": "via ParallelTestSuite.run > _init_worker > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_utils/test_simpletestcase.py::DebugInvocationTests::test_debug_bubbles_pre_setup_error",
+    "line": 110,
+    "run": "cd tests && python runtests.py test_utils.test_simpletestcase.DebugInvocationTests.test_debug_bubbles_pre_setup_error",
+    "score": 0.02,
+    "why": "via ParallelTestSuite.run > _init_worker > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_utils/test_simpletestcase.py::DebugInvocationTests::test_run_cleanup",
+    "line": 35,
+    "run": "cd tests && python runtests.py test_utils.test_simpletestcase.DebugInvocationTests.test_run_cleanup",
+    "score": 0.02,
+    "why": "via ParallelTestSuite.run > _init_worker > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_utils/test_simpletestcase.py::DebugInvocationTests::test_run_post_teardown_error",
+    "line": 64,
+    "run": "cd tests && python runtests.py test_utils.test_simpletestcase.DebugInvocationTests.test_run_post_teardown_error",
+    "score": 0.02,
+    "why": "via ParallelTestSuite.run > _init_worker > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_utils/test_simpletestcase.py::DebugInvocationTests::test_run_pre_setup_error",
+    "line": 50,
+    "run": "cd tests && python runtests.py test_utils.test_simpletestcase.DebugInvocationTests.test_run_pre_setup_error",
+    "score": 0.02,
+    "why": "via ParallelTestSuite.run > _init_worker > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_inspect.py::IsModuleLevelFunctionTestCase::test_from_module",
+    "line": 143,
+    "run": "cd tests && python runtests.py utils_tests.test_inspect.IsModuleLevelFunctionTestCase.test_from_module",
+    "score": 0.02,
+    "why": "via ParallelTestSuite.run > _init_worker > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_runner/tests.py::SQLiteInMemoryTestDbs::test_transaction_support",
+    "line": 768,
+    "run": "cd tests && python runtests.py test_runner.tests.SQLiteInMemoryTestDbs.test_transaction_support",
+    "score": 0.018,
+    "why": "via DiscoverRunner.setup_databases > setup_databases > BaseDatabaseCreation.create_test_db > BaseDatabaseCreation.mark_expected_failures_and_skips > DatabaseFeatures.django_test_skips"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792324656.095664,
+  "job_seconds": 7.9,
+  "number": 22139,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 8.0,
+  "started": 1792324647.500743
+ },
+ "verify": null
+}

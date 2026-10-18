@@ -1,0 +1,638 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "fd91518f17c8a84fa47fe0e5534ef46afa7a0f7a",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "150f167d0ec25973e81ca4d42ec37a3906b7322a",
+  "install_ok": true,
+  "merge_base": "7847227a3fecde4b2a169552b84c60c6286b6025",
+  "pr": 22055,
+  "recording": true,
+  "runner": null,
+  "seconds": 20.3,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "fd91518f17c8a84fa47fe0e5534ef46afa7a0f7a",
+  "head_sha": "150f167d0ec25973e81ca4d42ec37a3906b7322a",
+  "merge_base": "7847227a3fecde4b2a169552b84c60c6286b6025",
+  "merged_at": "2026-10-05T21:36:31Z",
+  "number": 22055,
+  "repo": "django",
+  "title": "Fixed #37386 -- Observed delete_confirmation_max_display=0 for inlines."
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 1,
+  "called": 1,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/admin_inlines/tests.py::TestInline::test_delete_protected_message_lists_nothing_when_limit_zero",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "django/contrib/admin/options.py",
+    "lines": "2789-2833",
+    "symbol": "InlineModelAdmin.get_formset"
+   },
+   {
+    "file": "django/contrib/admin/options.py",
+    "lines": "2824-2833",
+    "symbol": "InlineModelAdmin.get_formset.DeleteProtectedModelForm.hand_clean_DELETE"
+   },
+   {
+    "file": "tests/admin_inlines/tests.py",
+    "lines": "905-935",
+    "symbol": "TestInline.test_delete_protected_message_lists_nothing_when_limit_zero"
+   },
+   {
+    "file": "tests/admin_views/test_actions.py",
+    "lines": "184-202",
+    "symbol": "AdminActionsTest.test_delete_protected_message_lists_nothing_when_limit_zero"
+   },
+   {
+    "file": "tests/admin_views/test_actions.py",
+    "lines": "264-277",
+    "symbol": "AdminActionsTest.test_delete_selected_hides_objects_when_limit_zero"
+   },
+   {
+    "file": "tests/admin_views/tests.py",
+    "lines": "4194-4205",
+    "symbol": "AdminViewDeletedObjectsTest.test_protected_zero_display"
+   }
+  ],
+  "changed_symbols": [
+   "django/contrib/admin/options.py#InlineModelAdmin.get_formset",
+   "django/contrib/admin/options.py#InlineModelAdmin.get_formset.DeleteProtectedModelForm.hand_clean_DELETE",
+   "tests/admin_inlines/admin.py#ZeroDisplayChapterInline.delete_confirmation_max_display",
+   "tests/admin_inlines/admin.py#ZeroDisplayChapterInline.model",
+   "tests/admin_inlines/admin.py#site5",
+   "tests/admin_inlines/tests.py#TestInline.test_delete_protected_message_lists_nothing_when_limit_zero",
+   "tests/admin_inlines/urls.py#urlpatterns",
+   "tests/admin_views/customadmin.py#QuestionAdminZeroDisplay.delete_confirmation_max_display",
+   "tests/admin_views/test_actions.py#AdminActionsTest.test_delete_protected_message_lists_nothing_when_limit_zero",
+   "tests/admin_views/test_actions.py#AdminActionsTest.test_delete_selected_hides_objects_when_limit_zero",
+   "tests/admin_views/tests.py#AdminViewDeletedObjectsTest.test_protected_zero_display",
+   "tests/admin_inlines/admin.py#ZeroDisplayChapterInline",
+   "tests/admin_views/customadmin.py#QuestionAdminZeroDisplay",
+   "tests/admin_views/test_actions.py#AdminActionsTest",
+   "tests/admin_views/tests.py#AdminViewDeletedObjectsTest",
+   "tests/admin_inlines/admin.py",
+   "tests/admin_inlines/tests.py",
+   "tests/admin_views/customadmin.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static; a receiver was guessed",
+    "from": "InlineModelAdmin.get_formset.DeleteProtectedModelForm.hand_clean_DELETE raises ValidationError",
+    "path": [
+     "django/contrib/admin/options.py:2825 raise ValidationError",
+     "django/forms/forms.py:349 BaseForm._clean_fields catches ValidationError, handles it"
+    ],
+    "to": "5 handlers catch ValidationError; first is BaseForm._clean_fields"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 4,
+    "stored": 3
+   },
+   "budget": 300,
+   "candidates": 3402,
+   "ran": 320,
+   "replayed": 4,
+   "runner": "django-runtests",
+   "seconds": 15.3,
+   "selection": {
+    "candidates": 3402,
+    "closure_files": 60,
+    "closure_tests": 1573,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/contrib/admin/__init__.py"
+    ],
+    "observed": 0,
+    "static_only": 1821
+   },
+   "unrunnable": 160
+  },
+  "flips": 0,
+  "gaps": [
+   "107807 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "160 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "Skipped 3 non-Python file(s)",
+   "graph reused from the previous state; 7 changed file(s) relinked",
+   "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run stopped at its 300 s budget: 320 of 3402 candidates run"
+  ],
+  "impacted": {
+   "count": 435,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2931,
+   "parsed_files": 7
+  },
+  "original_tests": {
+   "tests/admin_inlines/tests.py::TestInline::test_delete_protected_message_does_not_limit_small_amount_of_objects": "passed",
+   "tests/admin_inlines/tests.py::TestInline::test_delete_protected_message_limits_number_of_objects_displayed": "passed",
+   "tests/admin_inlines/tests.py::TestVerboseNameInlineForms::test_both_verbose_names_inline": "passed",
+   "tests/admin_inlines/tests.py::TestVerboseNameInlineForms::test_verbose_name_inline": "passed",
+   "tests/admin_inlines/tests.py::TestVerboseNameInlineForms::test_verbose_name_plural_inline": "passed",
+   "tests/admin_views/test_actions.py::AdminActionsTest::test_action_column_class": "passed",
+   "tests/admin_views/test_actions.py::AdminActionsTest::test_actions_ordering": "passed",
+   "tests/admin_views/test_actions.py::AdminActionsTest::test_custom_function_action_no_perm_response": "passed",
+   "tests/admin_views/test_actions.py::AdminActionsTest::test_custom_function_action_streaming_response": "passed",
+   "tests/admin_views/test_actions.py::AdminActionsTest::test_custom_function_action_with_redirect": "passed",
+   "tests/admin_views/test_actions.py::AdminActionsTest::test_custom_function_mail_action": "passed",
+   "tests/admin_views/test_actions.py::AdminActionsTest::test_default_delete_action_nonexistent_pk": "passed",
+   "tests/admin_views/test_actions.py::AdminActionsTest::test_default_redirect": "passed",
+   "tests/admin_views/test_actions.py::AdminActionsTest::test_delete_queryset_hook": "passed",
+   "tests/admin_views/test_actions.py::AdminActionsTest::test_delete_selected_uses_delete_confirmation_max_display": "passed",
+   "tests/admin_views/test_actions.py::AdminActionsTest::test_delete_selected_uses_get_deleted_objects": "passed",
+   "tests/admin_views/test_actions.py::AdminActionsTest::test_media_from_actions_form": "passed",
+   "tests/admin_views/test_actions.py::AdminActionsTest::test_model_admin_custom_action": "passed",
+   "tests/admin_views/test_actions.py::AdminActionsTest::test_model_admin_default_delete_action": "passed",
+   "tests/admin_views/test_actions.py::AdminActionsTest::test_model_admin_default_delete_action_no_change_url": "passed",
+   "tests/admin_views/test_actions.py::AdminActionsTest::test_model_admin_default_delete_action_protected": "passed",
+   "tests/admin_views/test_actions.py::AdminActionsTest::test_model_without_action": "passed",
+   "tests/admin_views/test_actions.py::AdminActionsTest::test_model_without_action_still_has_jquery": "passed",
+   "tests/admin_views/test_actions.py::AdminActionsTest::test_multiple_actions_form": "passed",
+   "tests/admin_views/test_actions.py::AdminActionsTest::test_non_localized_pk": "passed",
+   "tests/admin_views/test_actions.py::AdminActionsTest::test_popup_actions": "passed",
+   "tests/admin_views/test_actions.py::AdminActionsTest::test_popup_template_escaping": "passed",
+   "tests/admin_views/test_actions.py::AdminActionsTest::test_popup_template_response_on_add": "passed",
+   "tests/admin_views/test_actions.py::AdminActionsTest::test_popup_template_response_on_change": "passed",
+   "tests/admin_views/test_actions.py::AdminActionsTest::test_popup_template_response_on_delete": "passed",
+   "tests/admin_views/test_actions.py::AdminActionsTest::test_selection_counter": "passed",
+   "tests/admin_views/test_actions.py::AdminActionsTest::test_user_message_on_no_action": "passed",
+   "tests/admin_views/test_actions.py::AdminActionsTest::test_user_message_on_none_selected": "passed",
+   "tests/admin_views/tests.py::AdminCustomTemplateTests::test_change_password_template_helptext_no_id": "passed",
+   "tests/admin_views/tests.py::AdminViewBasicTest::test_change_list_sorting_model_str": "passed",
+   "tests/admin_views/tests.py::AdminViewBasicTest::test_resolve_admin_views": "passed",
+   "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_cyclic": "passed",
+   "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_delete_view_hides_objects_when_delete_confirmation_max_display_is_zero": "passed",
+   "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_delete_view_uses_delete_confirmation_max_display": "passed",
+   "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_delete_view_uses_get_deleted_objects": "passed",
+   "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_generic_relations": "passed",
+   "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_generic_relations_with_related_query_name": "passed",
+   "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_inheritance": "passed",
+   "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_multiple_fkeys_to_same_instance": "passed",
+   "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_multiple_fkeys_to_same_model": "passed",
+   "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_nesting": "passed",
+   "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_not_registered": "passed",
+   "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_perms_needed": "passed",
+   "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_post_delete_protected": "passed",
+   "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_post_delete_restricted": "passed",
+   "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_protected": "passed",
+   "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_restricted": "passed",
+   "tests/admin_views/tests.py::AdminViewListEditable::test_non_form_errors_is_errorlist": "passed",
+   "tests/admin_views/tests.py::AdminViewOnSiteTests::test_custom_admin_site": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/admin_inlines/tests.py::TestInline::test_delete_protected_message_lists_nothing_when_limit_zero",
+    "verdict": "evidence"
+   },
+   {
+    "base": "passed",
+    "head": "passed",
+    "id": "tests/admin_views/test_actions.py::AdminActionsTest::test_delete_protected_message_lists_nothing_when_limit_zero",
+    "verdict": "none"
+   },
+   {
+    "base": "passed",
+    "head": "passed",
+    "id": "tests/admin_views/test_actions.py::AdminActionsTest::test_delete_selected_hides_objects_when_limit_zero",
+    "verdict": "none"
+   },
+   {
+    "base": "passed",
+    "head": "passed",
+    "id": "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_protected_zero_display",
+    "verdict": "none"
+   }
+  ],
+  "report_hash": "d819c145d93a",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [
+    "django/contrib/admin/options.py#InlineModelAdmin.get_formset"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 5,
+   "differences": 0,
+   "functions_called": 1,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "django/contrib/admin/options.py#InlineModelAdmin.get_formset.DeleteProtectedModelForm.hand_clean_DELETE": "not a module or class function on both sides (new, removed or nested)",
+    "tests/admin_inlines/tests.py#TestInline.test_delete_protected_message_lists_nothing_when_limit_zero": "not a module or class function on both sides (new, removed or nested)",
+    "tests/admin_views/test_actions.py#AdminActionsTest.test_delete_protected_message_lists_nothing_when_limit_zero": "not a module or class function on both sides (new, removed or nested)",
+    "tests/admin_views/test_actions.py#AdminActionsTest.test_delete_selected_hides_objects_when_limit_zero": "not a module or class function on both sides (new, removed or nested)",
+    "tests/admin_views/tests.py#AdminViewDeletedObjectsTest.test_protected_zero_display": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 2.6,
+   "targets": 1,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 320 of 3402 candidate tests after the change with django-runtests in 15.3 s, failures confirmed before it: 0 now fail. 2227 tests reach the change. 54 test(s) from edited test files also run as they were before the edit. 4 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_protected_zero_display",
+    "line": 4194,
+    "run": "cd tests && python runtests.py admin_views.tests.AdminViewDeletedObjectsTest.test_protected_zero_display",
+    "score": 3.655,
+    "why": "via AdminViewDeletedObjectsTest (name: admin,deleted,object,view)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/test_actions.py::AdminActionsTest::test_delete_protected_message_lists_nothing_when_limit_zero",
+    "line": 184,
+    "run": "cd tests && python runtests.py admin_views.test_actions.AdminActionsTest.test_delete_protected_message_lists_nothing_when_limit_zero",
+    "score": 3.517,
+    "why": "via AdminActionsTest (name: action,admin)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/generic_inline_admin/tests.py::GenericInlineModelAdminTest::test_get_formset_kwargs",
+    "line": 422,
+    "run": "cd tests && python runtests.py generic_inline_admin.tests.GenericInlineModelAdminTest.test_get_formset_kwargs",
+    "score": 2.681,
+    "why": "calls InlineModelAdmin.get_formset (name: admin,formset,get,inline,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_post_delete_protected",
+    "line": 4207,
+    "run": "cd tests && python runtests.py admin_views.tests.AdminViewDeletedObjectsTest.test_post_delete_protected",
+    "score": 2.149,
+    "why": "via AdminViewDeletedObjectsTest (name: admin,deleted,object,view)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/test_actions.py::AdminActionsTest::test_model_admin_default_delete_action_protected",
+    "line": 140,
+    "run": "cd tests && python runtests.py admin_views.test_actions.AdminActionsTest.test_model_admin_default_delete_action_protected",
+    "score": 1.978,
+    "why": "via AdminActionsTest (name: action,admin)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/generic_inline_admin/tests.py::GenericInlineAdminPermissionsTest::test_add_inline_with_change_permission_only",
+    "line": 344,
+    "run": "cd tests && python runtests.py generic_inline_admin.tests.GenericInlineAdminPermissionsTest.test_add_inline_with_change_permission_only",
+    "score": 1.556,
+    "why": "calls InlineModelAdmin.get_formset (name: admin,inline)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_protected",
+    "line": 4172,
+    "run": "cd tests && python runtests.py admin_views.tests.AdminViewDeletedObjectsTest.test_protected",
+    "score": 1.523,
+    "why": "via AdminViewDeletedObjectsTest (name: admin,deleted,object,view)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/test_actions.py::AdminActionsTest::test_delete_selected_hides_objects_when_limit_zero",
+    "line": 264,
+    "run": "cd tests && python runtests.py admin_views.test_actions.AdminActionsTest.test_delete_selected_hides_objects_when_limit_zero",
+    "score": 1.436,
+    "why": "via AdminActionsTest (name: action,admin)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/generic_inline_admin/tests.py::GenericInlineAdminPermissionsTest::test_add_inline_without_add_permission",
+    "line": 314,
+    "run": "cd tests && python runtests.py generic_inline_admin.tests.GenericInlineAdminPermissionsTest.test_add_inline_without_add_permission",
+    "score": 1.153,
+    "why": "calls InlineModelAdmin.get_formset (name: admin,inline)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_restricted",
+    "line": 4223,
+    "run": "cd tests && python runtests.py admin_views.tests.AdminViewDeletedObjectsTest.test_restricted",
+    "score": 1.077,
+    "why": "via AdminViewDeletedObjectsTest (name: admin,deleted,object,view)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/test_actions.py::AdminActionsTest::test_delete_selected_uses_delete_confirmation_max_display",
+    "line": 251,
+    "run": "cd tests && python runtests.py admin_views.test_actions.AdminActionsTest.test_delete_selected_uses_delete_confirmation_max_display",
+    "score": 1.02,
+    "why": "via AdminActionsTest (name: action,admin)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/generic_inline_admin/tests.py::GenericInlineModelAdminTest::test_get_fieldsets",
+    "line": 504,
+    "run": "cd tests && python runtests.py generic_inline_admin.tests.GenericInlineModelAdminTest.test_get_fieldsets",
+    "score": 0.938,
+    "why": "calls InlineModelAdmin.get_formset (name: admin,get,inline,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_post_delete_restricted",
+    "line": 4239,
+    "run": "cd tests && python runtests.py admin_views.tests.AdminViewDeletedObjectsTest.test_post_delete_restricted",
+    "score": 0.938,
+    "why": "via AdminViewDeletedObjectsTest (name: admin,deleted,object,view)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/test_actions.py::AdminActionsTest::test_delete_selected_uses_get_deleted_objects",
+    "line": 239,
+    "run": "cd tests && python runtests.py admin_views.test_actions.AdminActionsTest.test_delete_selected_uses_get_deleted_objects",
+    "score": 0.882,
+    "why": "via AdminActionsTest (name: action,admin)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_delete_view_hides_objects_when_delete_confirmation_max_display_is_zero",
+    "line": 4365,
+    "run": "cd tests && python runtests.py admin_views.tests.AdminViewDeletedObjectsTest.test_delete_view_hides_objects_when_delete_confirmation_max_display_is_zero",
+    "score": 0.817,
+    "why": "via AdminViewDeletedObjectsTest (name: admin,deleted,object,view)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/test_actions.py::AdminActionsTest::test_model_admin_default_delete_action",
+    "line": 65,
+    "run": "cd tests && python runtests.py admin_views.test_actions.AdminActionsTest.test_model_admin_default_delete_action",
+    "score": 0.793,
+    "why": "via AdminActionsTest (name: action,admin)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/generic_inline_admin/tests.py::GenericInlineModelAdminTest::test_get_exclude_is_respected",
+    "line": 581,
+    "run": "cd tests && python runtests.py generic_inline_admin.tests.GenericInlineModelAdminTest.test_get_exclude_is_respected",
+    "score": 0.755,
+    "why": "calls InlineModelAdmin.get_formset (name: admin,get,inline,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_generic_relations_with_related_query_name",
+    "line": 4331,
+    "run": "cd tests && python runtests.py admin_views.tests.AdminViewDeletedObjectsTest.test_generic_relations_with_related_query_name",
+    "score": 0.743,
+    "why": "via AdminViewDeletedObjectsTest (name: admin,deleted,object,view)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/test_actions.py::AdminActionsTest::test_user_message_on_none_selected",
+    "line": 431,
+    "run": "cd tests && python runtests.py admin_views.test_actions.AdminActionsTest.test_user_message_on_none_selected",
+    "score": 0.742,
+    "why": "via AdminActionsTest (name: action,admin)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_delete_view_uses_delete_confirmation_max_display",
+    "line": 4355,
+    "run": "cd tests && python runtests.py admin_views.tests.AdminViewDeletedObjectsTest.test_delete_view_uses_delete_confirmation_max_display",
+    "score": 0.719,
+    "why": "via AdminViewDeletedObjectsTest (name: admin,deleted,object,view)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/test_actions.py::AdminActionsTest::test_default_delete_action_nonexistent_pk",
+    "line": 106,
+    "run": "cd tests && python runtests.py admin_views.test_actions.AdminActionsTest.test_default_delete_action_nonexistent_pk",
+    "score": 0.714,
+    "why": "via AdminActionsTest (name: action,admin)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/test_actions.py::AdminActionsTest::test_user_message_on_no_action",
+    "line": 451,
+    "run": "cd tests && python runtests.py admin_views.test_actions.AdminActionsTest.test_user_message_on_no_action",
+    "score": 0.696,
+    "why": "via AdminActionsTest (name: action,admin)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_generic_relations",
+    "line": 4316,
+    "run": "cd tests && python runtests.py admin_views.tests.AdminViewDeletedObjectsTest.test_generic_relations",
+    "score": 0.694,
+    "why": "via AdminViewDeletedObjectsTest (name: admin,deleted,object,view)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/test_actions.py::AdminActionsTest::test_non_localized_pk",
+    "line": 121,
+    "run": "cd tests && python runtests.py admin_views.test_actions.AdminActionsTest.test_non_localized_pk",
+    "score": 0.685,
+    "why": "via AdminActionsTest (name: action,admin)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_multiple_fkeys_to_same_model",
+    "line": 4259,
+    "run": "cd tests && python runtests.py admin_views.tests.AdminViewDeletedObjectsTest.test_multiple_fkeys_to_same_model",
+    "score": 0.681,
+    "why": "via AdminViewDeletedObjectsTest (name: admin,deleted,object,view)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/test_actions.py::AdminActionsTest::test_model_admin_default_delete_action_no_change_url",
+    "line": 204,
+    "run": "cd tests && python runtests.py admin_views.test_actions.AdminActionsTest.test_model_admin_default_delete_action_no_change_url",
+    "score": 0.675,
+    "why": "via AdminActionsTest (name: action,admin)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_delete_view_uses_get_deleted_objects",
+    "line": 4346,
+    "run": "cd tests && python runtests.py admin_views.tests.AdminViewDeletedObjectsTest.test_delete_view_uses_get_deleted_objects",
+    "score": 0.671,
+    "why": "via AdminViewDeletedObjectsTest (name: admin,deleted,object,view)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_nesting",
+    "line": 4118,
+    "run": "cd tests && python runtests.py admin_views.tests.AdminViewDeletedObjectsTest.test_nesting",
+    "score": 0.666,
+    "why": "via AdminViewDeletedObjectsTest (name: admin,deleted,object,view)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/test_actions.py::AdminActionsTest::test_delete_queryset_hook",
+    "line": 224,
+    "run": "cd tests && python runtests.py admin_views.test_actions.AdminActionsTest.test_delete_queryset_hook",
+    "score": 0.661,
+    "why": "via AdminActionsTest (name: action,admin)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_cyclic",
+    "line": 4136,
+    "run": "cd tests && python runtests.py admin_views.tests.AdminViewDeletedObjectsTest.test_cyclic",
+    "score": 0.659,
+    "why": "via AdminViewDeletedObjectsTest (name: admin,deleted,object,view)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_inheritance",
+    "line": 4291,
+    "run": "cd tests && python runtests.py admin_views.tests.AdminViewDeletedObjectsTest.test_inheritance",
+    "score": 0.657,
+    "why": "via AdminViewDeletedObjectsTest (name: admin,deleted,object,view)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_multiple_fkeys_to_same_instance",
+    "line": 4277,
+    "run": "cd tests && python runtests.py admin_views.tests.AdminViewDeletedObjectsTest.test_multiple_fkeys_to_same_instance",
+    "score": 0.656,
+    "why": "via AdminViewDeletedObjectsTest (name: admin,deleted,object,view)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_not_registered",
+    "line": 4252,
+    "run": "cd tests && python runtests.py admin_views.tests.AdminViewDeletedObjectsTest.test_not_registered",
+    "score": 0.656,
+    "why": "via AdminViewDeletedObjectsTest (name: admin,deleted,object,view)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/tests.py::AdminViewDeletedObjectsTest::test_perms_needed",
+    "line": 4154,
+    "run": "cd tests && python runtests.py admin_views.tests.AdminViewDeletedObjectsTest.test_perms_needed",
+    "score": 0.655,
+    "why": "via AdminViewDeletedObjectsTest (name: admin,deleted,object,view)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/test_actions.py::AdminActionsTest::test_multiple_actions_form",
+    "line": 402,
+    "run": "cd tests && python runtests.py admin_views.test_actions.AdminActionsTest.test_multiple_actions_form",
+    "score": 0.647,
+    "why": "via AdminActionsTest (name: action,admin)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/test_actions.py::AdminActionsTest::test_default_redirect",
+    "line": 304,
+    "run": "cd tests && python runtests.py admin_views.test_actions.AdminActionsTest.test_default_redirect",
+    "score": 0.64,
+    "why": "via AdminActionsTest (name: action,admin)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/test_actions.py::AdminActionsTest::test_custom_function_action_streaming_response",
+    "line": 318,
+    "run": "cd tests && python runtests.py admin_views.test_actions.AdminActionsTest.test_custom_function_action_streaming_response",
+    "score": 0.638,
+    "why": "via AdminActionsTest (name: action,admin)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/test_actions.py::AdminActionsTest::test_custom_function_action_no_perm_response",
+    "line": 334,
+    "run": "cd tests && python runtests.py admin_views.test_actions.AdminActionsTest.test_custom_function_action_no_perm_response",
+    "score": 0.631,
+    "why": "via AdminActionsTest (name: action,admin)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/test_actions.py::AdminActionsTest::test_custom_function_action_with_redirect",
+    "line": 292,
+    "run": "cd tests && python runtests.py admin_views.test_actions.AdminActionsTest.test_custom_function_action_with_redirect",
+    "score": 0.631,
+    "why": "via AdminActionsTest (name: action,admin)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_views/test_actions.py::AdminActionsTest::test_popup_template_response_on_delete",
+    "line": 518,
+    "run": "cd tests && python runtests.py admin_views.test_actions.AdminActionsTest.test_popup_template_response_on_delete",
+    "score": 0.628,
+    "why": "via AdminActionsTest (name: action,admin)"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792324354.616052,
+  "job_seconds": 20.3,
+  "number": 22055,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 20.3,
+  "started": 1792324333.6757782
+ },
+ "verify": null
+}

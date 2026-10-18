@@ -1,0 +1,45 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "4b806232e239d308349711cdab286716c6bac7d8",
+  "budget": 300,
+  "cached_index": false,
+  "counters": false,
+  "head": "e2e41f9d973b3fd2e5e2d4299a3d88ad57104faf",
+  "install_ok": true,
+  "merge_base": "a23073ee516bbf60863dc8b82a8446b15e6348f4",
+  "pr": 30476,
+  "recording": false,
+  "runner": null,
+  "seconds": 1140.1,
+  "status": "error",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "4b806232e239d308349711cdab286716c6bac7d8",
+  "head_sha": "e2e41f9d973b3fd2e5e2d4299a3d88ad57104faf",
+  "merge_base": "a23073ee516bbf60863dc8b82a8446b15e6348f4",
+  "merged_at": "2026-09-23T09:44:48Z",
+  "number": 30476,
+  "repo": "sympy",
+  "title": "fix(assumptions): simplify Abs(z)**k under Q.imaginary(z) in refine_Pow (#30473)"
+ },
+ "probe_minutes": null,
+ "probe_targets": null,
+ "probes": null,
+ "report": {
+  "error": "stopped at the wall cap of 1200 s; amu reported nothing"
+ },
+ "timing": {
+  "cache_restored": false,
+  "finished": 1792327760.613339,
+  "job_seconds": 1140.1,
+  "number": 30476,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 1140.1,
+  "started": 1792326619.312916
+ },
+ "verify": null
+}

@@ -1,0 +1,1576 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "08ba4d0e0f62e322c6727596ee7a324465076a76",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "d62405f042875407589bf2667f06d3604003c69d",
+  "install_ok": true,
+  "merge_base": "08ba4d0e0f62e322c6727596ee7a324465076a76",
+  "pr": 21975,
+  "recording": true,
+  "runner": null,
+  "seconds": 118.9,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "08ba4d0e0f62e322c6727596ee7a324465076a76",
+  "head_sha": "d62405f042875407589bf2667f06d3604003c69d",
+  "merge_base": "08ba4d0e0f62e322c6727596ee7a324465076a76",
+  "merged_at": "2026-09-18T14:27:35Z",
+  "number": 21975,
+  "repo": "django",
+  "title": "Fixed #37344 -- Enabled FETCH_PEERS batching for instances loaded by select_related."
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 2,
+  "called": 2,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [
+   {
+    "after": {
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        [
+         [
+          "django.db.models.query.RelatedPopulator",
+          [
+           "dict",
+           [
+            [
+             "'cols_end'",
+             "6"
+            ],
+            [
+             "'cols_start'",
+             "3"
+            ],
+            [
+             "'db'",
+             "'default'"
+            ],
+            [
+             "'fetch_mode'",
+             "FetchOne:<django.db.models.fetch_modes.FetchOne object at 0x?>"
+            ],
+            [
+             "'from_db'",
+             "partial:functools.partial(<bound method Model.from_db of <class 'select_related.models.Genus'>>, fetch_mode=<django.db.models.fetch_modes.FetchOne object at 0x?>)"
+            ],
+            [
+             "'init_list'",
+             [
+              "list",
+              [
+               "'id'",
+               "'name'",
+               "'family_id'"
+              ]
+             ]
+            ],
+            [
+             "'local_setter'",
+             "method:<bound method FieldCacheMixin.set_cached_value of <django.db.models.fields.related.ForeignKey: genus>>"
+            ],
+            [
+             "'model_cls'",
+             "ModelBase:<class 'select_related.models.Genus'>"
+            ],
+            [
+             "'peers'",
+             [
+              "list",
+              []
+             ]
+            ],
+            [
+             "'pk_idx'",
+             "0"
+            ],
+            [
+             "'related_populators'",
+             [
+              "list",
+              [
+               "<RelatedPopulator>"
+              ]
+             ]
+            ],
+            [
+             "'remote_setter'",
+             "function:<function SQLCompiler.get_related_selections.<locals>.<lambda> at 0x?>"
+            ],
+            [
+             "'reorder_for_init'",
+             "None"
+            ]
+           ]
+          ]
+         ],
+         [
+          "dict",
+          [
+           [
+            "'field'",
+            "ForeignKey:<django.db.models.fields.related.ForeignKey: genus>"
+           ],
+           [
+            "'from_parent'",
+            "False"
+           ],
+           [
+            "'local_setter'",
+            "method:<bound method FieldCacheMixin.set_cached_value of <django.db.models.fields.related.ForeignKey: genus>>"
+           ],
+           [
+            "'model'",
+            "ModelBase:<class 'select_related.models.Genus'>"
+           ],
+           [
+            "'related_klass_infos'",
+            [
+             "list",
+             [
+              [
+               "dict",
+               [
+                [
+                 "'field'",
+                 "<ForeignKey>"
+                ],
+                [
+                 "'from_parent'",
+                 "False"
+                ],
+                [
+                 "'local_setter'",
+                 "<method>"
+                ],
+                [
+                 "'model'",
+                 "<ModelBase>"
+                ],
+                [
+                 "'related_klass_infos'",
+                 "<list>"
+                ],
+                [
+                 "'remote_setter'",
+                 "<function>"
+                ],
+                [
+                 "'reverse'",
+                 "False"
+                ],
+                [
+                 "'select_fields'",
+                 "<list>"
+                ]
+               ]
+              ]
+             ]
+            ]
+           ],
+           [
+            "'remote_setter'",
+            "function:<function SQLCompiler.get_related_selections.<locals>.<lambda> at 0x?>"
+           ],
+           [
+            "'reverse'",
+            "False"
+           ],
+           [
+            "'select_fields'",
+            [
+             "list",
+             [
+              "3",
+              "4",
+              "5"
+             ]
+            ]
+           ]
+          ]
+         ],
+         [
+          "list",
+          [
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_species, select_related.Species.id)",
+             [
+              "tuple",
+              [
+               "'\"select_related_species\".\"id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_species, select_related.Species.name)",
+             [
+              "tuple",
+              [
+               "'\"select_related_species\".\"name\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_species, select_related.Species.genus)",
+             [
+              "tuple",
+              [
+               "'\"select_related_species\".\"genus_id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_genus, select_related.Genus.id)",
+             [
+              "tuple",
+              [
+               "'\"select_related_genus\".\"id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_genus, select_related.Genus.name)",
+             [
+              "tuple",
+              [
+               "'\"select_related_genus\".\"name\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_genus, select_related.Genus.family)",
+             [
+              "tuple",
+              [
+               "'\"select_related_genus\".\"family_id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_family, select_related.Family.id)",
+             [
+              "tuple",
+              [
+               "'\"select_related_family\".\"id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_family, select_related.Family.name)",
+             [
+              "tuple",
+              [
+               "'\"select_related_family\".\"name\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_family, select_related.Family.order)",
+             [
+              "tuple",
+              [
+               "'\"select_related_family\".\"order_id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ]
+          ]
+         ],
+         "'default'",
+         "FetchOne:<django.db.models.fetch_modes.FetchOne object at 0x?>"
+        ]
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "calls": [],
+     "result": [
+      "return",
+      "None"
+     ],
+     "stdout": ""
+    },
+    "before": {
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        [
+         [
+          "django.db.models.query.RelatedPopulator",
+          [
+           "dict",
+           [
+            [
+             "'cols_end'",
+             "6"
+            ],
+            [
+             "'cols_start'",
+             "3"
+            ],
+            [
+             "'db'",
+             "'default'"
+            ],
+            [
+             "'fetch_mode'",
+             "FetchOne:<django.db.models.fetch_modes.FetchOne object at 0x?>"
+            ],
+            [
+             "'from_db'",
+             "partial:functools.partial(<bound method Model.from_db of <class 'select_related.models.Genus'>>, fetch_mode=<django.db.models.fetch_modes.FetchOne object at 0x?>)"
+            ],
+            [
+             "'init_list'",
+             [
+              "list",
+              [
+               "'id'",
+               "'name'",
+               "'family_id'"
+              ]
+             ]
+            ],
+            [
+             "'local_setter'",
+             "method:<bound method FieldCacheMixin.set_cached_value of <django.db.models.fields.related.ForeignKey: genus>>"
+            ],
+            [
+             "'model_cls'",
+             "ModelBase:<class 'select_related.models.Genus'>"
+            ],
+            [
+             "'pk_idx'",
+             "0"
+            ],
+            [
+             "'related_populators'",
+             [
+              "list",
+              [
+               "<RelatedPopulator>"
+              ]
+             ]
+            ],
+            [
+             "'remote_setter'",
+             "function:<function SQLCompiler.get_related_selections.<locals>.<lambda> at 0x?>"
+            ],
+            [
+             "'reorder_for_init'",
+             "None"
+            ]
+           ]
+          ]
+         ],
+         [
+          "dict",
+          [
+           [
+            "'field'",
+            "ForeignKey:<django.db.models.fields.related.ForeignKey: genus>"
+           ],
+           [
+            "'from_parent'",
+            "False"
+           ],
+           [
+            "'local_setter'",
+            "method:<bound method FieldCacheMixin.set_cached_value of <django.db.models.fields.related.ForeignKey: genus>>"
+           ],
+           [
+            "'model'",
+            "ModelBase:<class 'select_related.models.Genus'>"
+           ],
+           [
+            "'related_klass_infos'",
+            [
+             "list",
+             [
+              [
+               "dict",
+               [
+                [
+                 "'field'",
+                 "<ForeignKey>"
+                ],
+                [
+                 "'from_parent'",
+                 "False"
+                ],
+                [
+                 "'local_setter'",
+                 "<method>"
+                ],
+                [
+                 "'model'",
+                 "<ModelBase>"
+                ],
+                [
+                 "'related_klass_infos'",
+                 "<list>"
+                ],
+                [
+                 "'remote_setter'",
+                 "<function>"
+                ],
+                [
+                 "'reverse'",
+                 "False"
+                ],
+                [
+                 "'select_fields'",
+                 "<list>"
+                ]
+               ]
+              ]
+             ]
+            ]
+           ],
+           [
+            "'remote_setter'",
+            "function:<function SQLCompiler.get_related_selections.<locals>.<lambda> at 0x?>"
+           ],
+           [
+            "'reverse'",
+            "False"
+           ],
+           [
+            "'select_fields'",
+            [
+             "list",
+             [
+              "3",
+              "4",
+              "5"
+             ]
+            ]
+           ]
+          ]
+         ],
+         [
+          "list",
+          [
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_species, select_related.Species.id)",
+             [
+              "tuple",
+              [
+               "'\"select_related_species\".\"id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_species, select_related.Species.name)",
+             [
+              "tuple",
+              [
+               "'\"select_related_species\".\"name\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_species, select_related.Species.genus)",
+             [
+              "tuple",
+              [
+               "'\"select_related_species\".\"genus_id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_genus, select_related.Genus.id)",
+             [
+              "tuple",
+              [
+               "'\"select_related_genus\".\"id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_genus, select_related.Genus.name)",
+             [
+              "tuple",
+              [
+               "'\"select_related_genus\".\"name\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_genus, select_related.Genus.family)",
+             [
+              "tuple",
+              [
+               "'\"select_related_genus\".\"family_id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_family, select_related.Family.id)",
+             [
+              "tuple",
+              [
+               "'\"select_related_family\".\"id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_family, select_related.Family.name)",
+             [
+              "tuple",
+              [
+               "'\"select_related_family\".\"name\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_family, select_related.Family.order)",
+             [
+              "tuple",
+              [
+               "'\"select_related_family\".\"order_id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ]
+          ]
+         ],
+         "'default'",
+         "FetchOne:<django.db.models.fetch_modes.FetchOne object at 0x?>"
+        ]
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "calls": [],
+     "result": [
+      "return",
+      "None"
+     ],
+     "stdout": ""
+    },
+    "differs": [
+     "args_after"
+    ],
+    "input": "([<django.db.models.query.RelatedPopulator object at 0x?>, {'model': <class 'select_related.models.Genus'>, 'field': <django.db.models.fields.related.ForeignKey: genus>, 'reverse': False, 'local_setter': <bound method FieldCacheMixin.set_cached_value of <django.db.models.fields.related.ForeignKey: genus>>, 'remote_setter': <function SQLCompiler.get_related_selections.<locals>.<lambda> at 0x?>, 'fr",
+    "label": "behaviour differs on captured input",
+    "target": "django/db/models/query.py#RelatedPopulator.__init__",
+    "test": "select_related.tests.SelectRelatedTests.test_list_with_depth"
+   },
+   {
+    "after": {
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        [
+         [
+          "django.db.models.query.RelatedPopulator",
+          [
+           "dict",
+           [
+            [
+             "'cols_end'",
+             "9"
+            ],
+            [
+             "'cols_start'",
+             "6"
+            ],
+            [
+             "'db'",
+             "'default'"
+            ],
+            [
+             "'fetch_mode'",
+             "FetchOne:<django.db.models.fetch_modes.FetchOne object at 0x?>"
+            ],
+            [
+             "'from_db'",
+             "partial:functools.partial(<bound method Model.from_db of <class 'select_related.models.Family'>>, fetch_mode=<django.db.models.fetch_modes.FetchOne object at 0x?>)"
+            ],
+            [
+             "'init_list'",
+             [
+              "list",
+              [
+               "'id'",
+               "'name'",
+               "'order_id'"
+              ]
+             ]
+            ],
+            [
+             "'local_setter'",
+             "method:<bound method FieldCacheMixin.set_cached_value of <django.db.models.fields.related.ForeignKey: family>>"
+            ],
+            [
+             "'model_cls'",
+             "ModelBase:<class 'select_related.models.Family'>"
+            ],
+            [
+             "'peers'",
+             [
+              "list",
+              []
+             ]
+            ],
+            [
+             "'pk_idx'",
+             "0"
+            ],
+            [
+             "'related_populators'",
+             [
+              "list",
+              []
+             ]
+            ],
+            [
+             "'remote_setter'",
+             "function:<function SQLCompiler.get_related_selections.<locals>.<lambda> at 0x?>"
+            ],
+            [
+             "'reorder_for_init'",
+             "None"
+            ]
+           ]
+          ]
+         ],
+         [
+          "dict",
+          [
+           [
+            "'field'",
+            "ForeignKey:<django.db.models.fields.related.ForeignKey: family>"
+           ],
+           [
+            "'from_parent'",
+            "False"
+           ],
+           [
+            "'local_setter'",
+            "method:<bound method FieldCacheMixin.set_cached_value of <django.db.models.fields.related.ForeignKey: family>>"
+           ],
+           [
+            "'model'",
+            "ModelBase:<class 'select_related.models.Family'>"
+           ],
+           [
+            "'related_klass_infos'",
+            [
+             "list",
+             []
+            ]
+           ],
+           [
+            "'remote_setter'",
+            "function:<function SQLCompiler.get_related_selections.<locals>.<lambda> at 0x?>"
+           ],
+           [
+            "'reverse'",
+            "False"
+           ],
+           [
+            "'select_fields'",
+            [
+             "list",
+             [
+              "6",
+              "7",
+              "8"
+             ]
+            ]
+           ]
+          ]
+         ],
+         [
+          "list",
+          [
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_species, select_related.Species.id)",
+             [
+              "tuple",
+              [
+               "'\"select_related_species\".\"id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_species, select_related.Species.name)",
+             [
+              "tuple",
+              [
+               "'\"select_related_species\".\"name\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_species, select_related.Species.genus)",
+             [
+              "tuple",
+              [
+               "'\"select_related_species\".\"genus_id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_genus, select_related.Genus.id)",
+             [
+              "tuple",
+              [
+               "'\"select_related_genus\".\"id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_genus, select_related.Genus.name)",
+             [
+              "tuple",
+              [
+               "'\"select_related_genus\".\"name\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_genus, select_related.Genus.family)",
+             [
+              "tuple",
+              [
+               "'\"select_related_genus\".\"family_id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_family, select_related.Family.id)",
+             [
+              "tuple",
+              [
+               "'\"select_related_family\".\"id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_family, select_related.Family.name)",
+             [
+              "tuple",
+              [
+               "'\"select_related_family\".\"name\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_family, select_related.Family.order)",
+             [
+              "tuple",
+              [
+               "'\"select_related_family\".\"order_id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ]
+          ]
+         ],
+         "'default'",
+         "FetchOne:<django.db.models.fetch_modes.FetchOne object at 0x?>"
+        ]
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "calls": [],
+     "result": [
+      "return",
+      "None"
+     ],
+     "stdout": ""
+    },
+    "before": {
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        [
+         [
+          "django.db.models.query.RelatedPopulator",
+          [
+           "dict",
+           [
+            [
+             "'cols_end'",
+             "9"
+            ],
+            [
+             "'cols_start'",
+             "6"
+            ],
+            [
+             "'db'",
+             "'default'"
+            ],
+            [
+             "'fetch_mode'",
+             "FetchOne:<django.db.models.fetch_modes.FetchOne object at 0x?>"
+            ],
+            [
+             "'from_db'",
+             "partial:functools.partial(<bound method Model.from_db of <class 'select_related.models.Family'>>, fetch_mode=<django.db.models.fetch_modes.FetchOne object at 0x?>)"
+            ],
+            [
+             "'init_list'",
+             [
+              "list",
+              [
+               "'id'",
+               "'name'",
+               "'order_id'"
+              ]
+             ]
+            ],
+            [
+             "'local_setter'",
+             "method:<bound method FieldCacheMixin.set_cached_value of <django.db.models.fields.related.ForeignKey: family>>"
+            ],
+            [
+             "'model_cls'",
+             "ModelBase:<class 'select_related.models.Family'>"
+            ],
+            [
+             "'pk_idx'",
+             "0"
+            ],
+            [
+             "'related_populators'",
+             [
+              "list",
+              []
+             ]
+            ],
+            [
+             "'remote_setter'",
+             "function:<function SQLCompiler.get_related_selections.<locals>.<lambda> at 0x?>"
+            ],
+            [
+             "'reorder_for_init'",
+             "None"
+            ]
+           ]
+          ]
+         ],
+         [
+          "dict",
+          [
+           [
+            "'field'",
+            "ForeignKey:<django.db.models.fields.related.ForeignKey: family>"
+           ],
+           [
+            "'from_parent'",
+            "False"
+           ],
+           [
+            "'local_setter'",
+            "method:<bound method FieldCacheMixin.set_cached_value of <django.db.models.fields.related.ForeignKey: family>>"
+           ],
+           [
+            "'model'",
+            "ModelBase:<class 'select_related.models.Family'>"
+           ],
+           [
+            "'related_klass_infos'",
+            [
+             "list",
+             []
+            ]
+           ],
+           [
+            "'remote_setter'",
+            "function:<function SQLCompiler.get_related_selections.<locals>.<lambda> at 0x?>"
+           ],
+           [
+            "'reverse'",
+            "False"
+           ],
+           [
+            "'select_fields'",
+            [
+             "list",
+             [
+              "6",
+              "7",
+              "8"
+             ]
+            ]
+           ]
+          ]
+         ],
+         [
+          "list",
+          [
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_species, select_related.Species.id)",
+             [
+              "tuple",
+              [
+               "'\"select_related_species\".\"id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_species, select_related.Species.name)",
+             [
+              "tuple",
+              [
+               "'\"select_related_species\".\"name\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_species, select_related.Species.genus)",
+             [
+              "tuple",
+              [
+               "'\"select_related_species\".\"genus_id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_genus, select_related.Genus.id)",
+             [
+              "tuple",
+              [
+               "'\"select_related_genus\".\"id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_genus, select_related.Genus.name)",
+             [
+              "tuple",
+              [
+               "'\"select_related_genus\".\"name\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_genus, select_related.Genus.family)",
+             [
+              "tuple",
+              [
+               "'\"select_related_genus\".\"family_id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_family, select_related.Family.id)",
+             [
+              "tuple",
+              [
+               "'\"select_related_family\".\"id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_family, select_related.Family.name)",
+             [
+              "tuple",
+              [
+               "'\"select_related_family\".\"name\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ],
+           [
+            "tuple",
+            [
+             "Col:Col(select_related_family, select_related.Family.order)",
+             [
+              "tuple",
+              [
+               "'\"select_related_family\".\"order_id\"'",
+               "<tuple>"
+              ]
+             ],
+             "None"
+            ]
+           ]
+          ]
+         ],
+         "'default'",
+         "FetchOne:<django.db.models.fetch_modes.FetchOne object at 0x?>"
+        ]
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "calls": [],
+     "result": [
+      "return",
+      "None"
+     ],
+     "stdout": ""
+    },
+    "differs": [
+     "args_after"
+    ],
+    "input": "([<django.db.models.query.RelatedPopulator object at 0x?>, {'model': <class 'select_related.models.Family'>, 'field': <django.db.models.fields.related.ForeignKey: family>, 'reverse': False, 'local_setter': <bound method FieldCacheMixin.set_cached_value of <django.db.models.fields.related.ForeignKey: family>>, 'remote_setter': <function SQLCompiler.get_related_selections.<locals>.<lambda> at 0x?>, ",
+    "label": "behaviour differs on captured input",
+    "target": "django/db/models/query.py#RelatedPopulator.__init__",
+    "test": "select_related.tests.SelectRelatedTests.test_list_with_depth"
+   }
+  ],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/select_related/tests.py::SelectRelatedTests::test_fetch_peers_for_select_related_objects",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "django/db/models/query.py",
+    "lines": "3104",
+    "symbol": "RelatedPopulator.__init__"
+   },
+   {
+    "file": "django/db/models/query.py",
+    "lines": "3121-3123",
+    "symbol": "RelatedPopulator.populate"
+   },
+   {
+    "file": "tests/select_related/tests.py",
+    "lines": "284-295",
+    "symbol": "SelectRelatedTests.test_fetch_peers_for_select_related_objects"
+   }
+  ],
+  "changed_symbols": [
+   "django/db/models/query.py#RelatedPopulator.__init__",
+   "django/db/models/query.py#RelatedPopulator.populate",
+   "tests/select_related/tests.py#SelectRelatedTests.test_fetch_peers_for_select_related_objects",
+   "tests/select_related/tests.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "RelatedPopulator.__init__ writes self.peers",
+    "path": [
+     "django/db/models/query.py:3104 self.peers assigned",
+     "django/db/models/query.py:3122 RelatedPopulator.populate reads self.peers"
+    ],
+    "to": "1 reader(s) in RelatedPopulator"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 1,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 2880,
+   "ran": 2880,
+   "replayed": 1,
+   "runner": "django-runtests",
+   "seconds": 115.3,
+   "selection": {
+    "candidates": 10090,
+    "closure_files": 600,
+    "closure_tests": 9655,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/contrib/admin/__init__.py",
+     "django/contrib/auth/models.py",
+     "django/core/management/base.py",
+     "django/db/migrations/__init__.py",
+     "django/db/models/__init__.py",
+     "django/db/models/expressions.py",
+     "django/db/models/functions/__init__.py",
+     "django/test/__init__.py",
+     "django/test/utils.py"
+    ],
+    "observed": 72,
+    "static_only": 0
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "109275 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "7210 lower-ranked candidate(s) not run: about 3 tests/s per process fit 2880 in the 300 s allowed",
+   "Skipped 1 non-Python file(s)",
+   "graph reused from the previous state; 3 changed file(s) relinked"
+  ],
+  "impacted": {
+   "count": 2,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2930,
+   "parsed_files": 3
+  },
+  "original_tests": {
+   "tests/select_related/tests.py::SelectRelatedTests::test_access_fks_with_select_related": "passed",
+   "tests/select_related/tests.py::SelectRelatedTests::test_access_fks_without_select_related": "passed",
+   "tests/select_related/tests.py::SelectRelatedTests::test_certain_fields": "passed",
+   "tests/select_related/tests.py::SelectRelatedTests::test_chaining": "passed",
+   "tests/select_related/tests.py::SelectRelatedTests::test_fetch_mode_copied_fetching_many": "passed",
+   "tests/select_related/tests.py::SelectRelatedTests::test_fetch_mode_copied_fetching_one": "passed",
+   "tests/select_related/tests.py::SelectRelatedTests::test_field_traversal": "passed",
+   "tests/select_related/tests.py::SelectRelatedTests::test_list_with_depth": "passed",
+   "tests/select_related/tests.py::SelectRelatedTests::test_list_with_select_related": "passed",
+   "tests/select_related/tests.py::SelectRelatedTests::test_list_without_select_related": "passed",
+   "tests/select_related/tests.py::SelectRelatedTests::test_more_certain_fields": "passed",
+   "tests/select_related/tests.py::SelectRelatedTests::test_none_clears_list": "passed",
+   "tests/select_related/tests.py::SelectRelatedTests::test_reverse_relation_caching": "passed",
+   "tests/select_related/tests.py::SelectRelatedTests::test_select_related_after_values": "passed",
+   "tests/select_related/tests.py::SelectRelatedTests::test_select_related_after_values_list": "passed",
+   "tests/select_related/tests.py::SelectRelatedTests::test_select_related_memory_leak": "passed",
+   "tests/select_related/tests.py::SelectRelatedTests::test_select_related_no_arguments_deprecated": "passed",
+   "tests/select_related/tests.py::SelectRelatedTests::test_select_related_with_extra": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/select_related/tests.py::SelectRelatedTests::test_fetch_peers_for_select_related_objects",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "64b0231d5a99",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [
+    "django/db/models/query.py#RelatedPopulator.__init__",
+    "django/db/models/query.py#RelatedPopulator.populate"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 10,
+   "differences": 2,
+   "functions_called": 2,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "tests/select_related/tests.py#SelectRelatedTests.test_fetch_peers_for_select_related_objects": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 72.7,
+   "targets": 2,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 2880 of 2880 candidate tests after the change with django-runtests in 115.3 s, failures confirmed before it: 0 now fail. 20 tests reach the change. 18 test(s) from edited test files also run as they were before the edit. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/select_related/tests.py::SelectRelatedTests::test_fetch_peers_for_select_related_objects",
+    "line": 284,
+    "run": "cd tests && python runtests.py select_related.tests.SelectRelatedTests.test_fetch_peers_for_select_related_objects",
+    "score": 0.196,
+    "why": "via SelectRelatedTests (name: fetch,object,peer,related,select)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/select_related/tests.py::SelectRelatedTests::test_list_with_depth",
+    "line": 143,
+    "run": "cd tests && python runtests.py select_related.tests.SelectRelatedTests.test_list_with_depth",
+    "score": 0.077,
+    "why": "via SelectRelatedTests (name: related,select)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/select_related/tests.py::SelectRelatedTests::test_fetch_mode_copied_fetching_many",
+    "line": 269,
+    "run": "cd tests && python runtests.py select_related.tests.SelectRelatedTests.test_fetch_mode_copied_fetching_many",
+    "score": 0.06,
+    "why": "via SelectRelatedTests (name: fetch,related,select)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/select_related/tests.py::SelectRelatedTests::test_fetch_mode_copied_fetching_one",
+    "line": 253,
+    "run": "cd tests && python runtests.py select_related.tests.SelectRelatedTests.test_fetch_mode_copied_fetching_one",
+    "score": 0.051,
+    "why": "via SelectRelatedTests (name: fetch,related,select)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/select_related/tests.py::SelectRelatedTests::test_field_traversal",
+    "line": 198,
+    "run": "cd tests && python runtests.py select_related.tests.SelectRelatedTests.test_field_traversal",
+    "score": 0.039,
+    "why": "via SelectRelatedTests (name: related,select)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/select_related/tests.py::SelectRelatedTests::test_more_certain_fields",
+    "line": 186,
+    "run": "cd tests && python runtests.py select_related.tests.SelectRelatedTests.test_more_certain_fields",
+    "score": 0.035,
+    "why": "via SelectRelatedTests (name: related,select)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/select_related/tests.py::SelectRelatedTests::test_access_fks_with_select_related",
+    "line": 88,
+    "run": "cd tests && python runtests.py select_related.tests.SelectRelatedTests.test_access_fks_with_select_related",
+    "score": 0.03,
+    "why": "via SelectRelatedTests (name: related,select)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/select_related/tests.py::SelectRelatedTests::test_access_fks_without_select_related",
+    "line": 79,
+    "run": "cd tests && python runtests.py select_related.tests.SelectRelatedTests.test_access_fks_without_select_related",
+    "score": 0.029,
+    "why": "via SelectRelatedTests (name: related,select)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/select_related/tests.py::SelectRelatedTests::test_certain_fields",
+    "line": 170,
+    "run": "cd tests && python runtests.py select_related.tests.SelectRelatedTests.test_certain_fields",
+    "score": 0.027,
+    "why": "via SelectRelatedTests (name: related,select)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/select_related/tests.py::SelectRelatedTests::test_list_with_select_related",
+    "line": 115,
+    "run": "cd tests && python runtests.py select_related.tests.SelectRelatedTests.test_list_with_select_related",
+    "score": 0.026,
+    "why": "via SelectRelatedTests (name: related,select)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/select_related/tests.py::SelectRelatedTests::test_list_without_select_related",
+    "line": 100,
+    "run": "cd tests && python runtests.py select_related.tests.SelectRelatedTests.test_list_without_select_related",
+    "score": 0.025,
+    "why": "via SelectRelatedTests (name: related,select)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/select_related/tests.py::SelectRelatedTests::test_reverse_relation_caching",
+    "line": 226,
+    "run": "cd tests && python runtests.py select_related.tests.SelectRelatedTests.test_reverse_relation_caching",
+    "score": 0.023,
+    "why": "via SelectRelatedTests (name: related,select)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/select_related/tests.py::SelectRelatedTests::test_chaining",
+    "line": 213,
+    "run": "cd tests && python runtests.py select_related.tests.SelectRelatedTests.test_chaining",
+    "score": 0.022,
+    "why": "via SelectRelatedTests (name: related,select)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/select_related/tests.py::SelectRelatedTests::test_select_related_after_values",
+    "line": 237,
+    "run": "cd tests && python runtests.py select_related.tests.SelectRelatedTests.test_select_related_after_values",
+    "score": 0.021,
+    "why": "via SelectRelatedTests (name: related,select)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/select_related/tests.py::SelectRelatedTests::test_select_related_after_values_list",
+    "line": 245,
+    "run": "cd tests && python runtests.py select_related.tests.SelectRelatedTests.test_select_related_after_values_list",
+    "score": 0.021,
+    "why": "via SelectRelatedTests (name: related,select)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/select_related/tests.py::SelectRelatedTests::test_select_related_with_extra",
+    "line": 156,
+    "run": "cd tests && python runtests.py select_related.tests.SelectRelatedTests.test_select_related_with_extra",
+    "score": 0.021,
+    "why": "via SelectRelatedTests (name: related,select)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/select_related/tests.py::SelectRelatedTests::test_none_clears_list",
+    "line": 209,
+    "run": "cd tests && python runtests.py select_related.tests.SelectRelatedTests.test_none_clears_list",
+    "score": 0.021,
+    "why": "via SelectRelatedTests (name: related,select)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/select_related/tests.py::SelectRelatedTests::test_select_related_memory_leak",
+    "line": 164,
+    "run": "cd tests && python runtests.py select_related.tests.SelectRelatedTests.test_select_related_memory_leak",
+    "score": 0.021,
+    "why": "via SelectRelatedTests (name: related,select)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/select_related/tests.py::SelectRelatedTests::test_select_related_no_arguments_deprecated",
+    "line": 135,
+    "run": "cd tests && python runtests.py select_related.tests.SelectRelatedTests.test_select_related_no_arguments_deprecated",
+    "score": 0.02,
+    "why": "via SelectRelatedTests (name: related,select)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_utils/test_testcase.py::TestTestCase::test_reset_sequences",
+    "line": 66,
+    "run": "cd tests && python runtests.py test_utils.test_testcase.TestTestCase.test_reset_sequences",
+    "score": 0.004,
+    "why": "via TestCase._fixture_setup > SelectRelatedTests.setUpTestData > SelectRelatedTests"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "django/db/models/query.py",
+    "lines": "3104",
+    "symbol": "RelatedPopulator.__init__"
+   },
+   {
+    "basis": "static_only",
+    "file": "django/db/models/query.py",
+    "lines": "3121-3123",
+    "symbol": "RelatedPopulator.populate"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792323345.568186,
+  "job_seconds": 118.9,
+  "number": 21975,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 119.0,
+  "started": 1792323225.699471
+ },
+ "verify": null
+}

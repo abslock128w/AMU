@@ -1,0 +1,542 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "dd6f6b1531984823e3dc56740dfa93f3ceb09357",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "ae1deb557019db886430a4398374d91141c2dec6",
+  "install_ok": true,
+  "merge_base": "dd6f6b1531984823e3dc56740dfa93f3ceb09357",
+  "pr": 22005,
+  "recording": true,
+  "runner": null,
+  "seconds": 8.5,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "dd6f6b1531984823e3dc56740dfa93f3ceb09357",
+  "head_sha": "ae1deb557019db886430a4398374d91141c2dec6",
+  "merge_base": "dd6f6b1531984823e3dc56740dfa93f3ceb09357",
+  "merged_at": "2026-09-24T07:09:21Z",
+  "number": 22005,
+  "repo": "django",
+  "title": "Fixed #37358 -- Dropped support for GDAL 3.3 and 3.4."
+ },
+ "probe_minutes": {
+  "end": 1792323704.47394,
+  "minutes": 0.1,
+  "start": 1792323680.2739398,
+  "waited": 20.016255417009233
+ },
+ "probe_targets": {
+  "all": 1,
+  "called": 0,
+  "targets": [
+   {
+    "after": "def test_time_field(self):\n    # Getting the database identifier used by OGR, if None returned\n    # GDAL does not have the support compiled in.\n    ogr_db = get_ogr_db_string()\n    if not ogr_db:\n        self.skipTest(\"Unable to setup an OGR connection to your database\")\n\n    try:\n        # Writing shapefiles via GDAL currently does not support writing\n        # OGRTime fields, so we need to actually use a database\n        model_def = ogrinspect(\n            ogr_db,\n            \"Measurement\",\n            layer_key=AllOGRFields._meta.db_table,\n            decimal=[\"f_decimal\"],\n        )\n    except GDALException:\n        self.skipTest(\"Unable to setup an OGR connection to your database\")\n\n    self.assertTrue(\n        model_def.startswith(\n            \"# This is an auto-generated Django model module created by \"\n            \"ogrinspect.\\n\"\n            \"from django.contrib.gis.db import models\\n\"\n            \"\\n\"\n            \"\\n\"\n            \"class Measurement(models.Model):\\n\"\n        )\n    )\n\n    # The ordering of model fields might vary depending on several factors.\n    self.assertIn(\n        \"    f_decimal = models.DecimalField(max_digits=0, decimal_places=0)\",\n        model_def,\n    )\n    self.assertIn(\"    f_int = models.IntegerField()\", model_def)\n    if not connection.ops.mariadb:\n        # Probably a bug between GDAL and MariaDB on time fields.\n        self.assertIn(\"    f_datetime = models.DateTimeField()\", model_def)\n        self.assertIn(\"    f_time = models.TimeField()\", model_def)\n    self.assertIn(\"    f_float = models.FloatField()\", model_def)\n    max_length = 0 if connection.vendor == \"sqlite\" else 10\n    self.assertIn(\n        \"    f_char = models.CharField(max_length=%s)\" % max_length, model_def\n    )\n    self.assertIn(\"    f_date = models.DateField()\", model_def)\n\n    # Some backends may have srid=-1\n    self.assertIsNotNone(\n        re.search(r\"    geom = models.PolygonField\\(([^\\)])*\\)\", model_def)\n    )\n",
+    "before": "def test_time_field(self):\n    # Getting the database identifier used by OGR, if None returned\n    # GDAL does not have the support compiled in.\n    ogr_db = get_ogr_db_string()\n    if not ogr_db:\n        self.skipTest(\"Unable to setup an OGR connection to your database\")\n\n    try:\n        # Writing shapefiles via GDAL currently does not support writing\n        # OGRTime fields, so we need to actually use a database\n        model_def = ogrinspect(\n            ogr_db,\n            \"Measurement\",\n            layer_key=AllOGRFields._meta.db_table,\n            decimal=[\"f_decimal\"],\n        )\n    except GDALException:\n        self.skipTest(\"Unable to setup an OGR connection to your database\")\n\n    self.assertTrue(\n        model_def.startswith(\n            \"# This is an auto-generated Django model module created by \"\n            \"ogrinspect.\\n\"\n            \"from django.contrib.gis.db import models\\n\"\n            \"\\n\"\n            \"\\n\"\n            \"class Measurement(models.Model):\\n\"\n        )\n    )\n\n    # The ordering of model fields might vary depending on several factors\n    # (version of GDAL, etc.).\n    if connection.vendor == \"sqlite\" and GDAL_VERSION < (3, 4):\n        # SpatiaLite introspection is somewhat lacking on GDAL < 3.4\n        # (#29461).\n        self.assertIn(\"    f_decimal = models.CharField(max_length=0)\", model_def)\n    else:\n        self.assertIn(\n            \"    f_decimal = models.DecimalField(max_digits=0, decimal_places=0)\",\n            model_def,\n        )\n    self.assertIn(\"    f_int = models.IntegerField()\", model_def)\n    if not connection.ops.mariadb:\n        # Probably a bug between GDAL and MariaDB on time fields.\n        self.assertIn(\"    f_datetime = models.DateTimeField()\", model_def)\n        self.assertIn(\"    f_time = models.TimeField()\", model_def)\n    if connection.vendor == \"sqlite\" and GDAL_VERSION < (3, 4):\n        self.assertIn(\"    f_float = models.CharField(max_length=0)\", model_def)\n    else:\n        self.assertIn(\"    f_float = models.FloatField()\", model_def)\n    max_length = 0 if connection.vendor == \"sqlite\" else 10\n    self.assertIn(\n        \"    f_char = models.CharField(max_length=%s)\" % max_length, model_def\n    )\n    self.assertIn(\"    f_date = models.DateField()\", model_def)\n\n    # Some backends may have srid=-1\n    self.assertIsNotNone(\n        re.search(r\"    geom = models.PolygonField\\(([^\\)])*\\)\", model_def)\n    )\n",
+    "file": "tests/gis_tests/inspectapp/tests.py",
+    "id": "tests/gis_tests/inspectapp/tests.py#OGRInspectTest.test_time_field",
+    "name": "test_time_field",
+    "qual": "OGRInspectTest.test_time_field",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [],
+   "filter_seconds": 4.2,
+   "gaps": [],
+   "info": {
+    "accepted": 0,
+    "compiled": 1,
+    "cost": 0.0,
+    "differed": 0,
+    "dollars_cap": 0.1,
+    "functions": 1,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 1,
+    "ran": 0,
+    "reached": 0,
+    "requests": 1,
+    "seconds": 3.8,
+    "stable": 0
+   },
+   "probes": [
+    {
+     "call": "case.test_time_field()",
+     "function": "tests/gis_tests/inspectapp/tests.py#OGRInspectTest.test_time_field",
+     "setup": "from gis_tests.inspectapp.tests import OGRInspectTest\ncase = OGRInspectTest('test_time_field')",
+     "why": "runs the edited test (GIS)"
+    }
+   ],
+   "targets": [
+    "tests/gis_tests/inspectapp/tests.py#OGRInspectTest.test_time_field"
+   ],
+   "waited_seconds": 20.0
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "changed_functions": [
+   {
+    "file": "tests/gis_tests/inspectapp/tests.py",
+    "lines": "145-155",
+    "symbol": "OGRInspectTest.test_time_field"
+   }
+  ],
+  "changed_symbols": [
+   "django/contrib/gis/gdal/raster/const.py#GDAL_PIXEL_TYPES",
+   "tests/gis_tests/inspectapp/tests.py#OGRInspectTest.test_time_field",
+   "django/contrib/gis/gdal/libgdal.py",
+   "tests/gis_tests/inspectapp/tests.py"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 0,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 603,
+   "ran": 0,
+   "replayed": 0,
+   "runner": "django-runtests",
+   "seconds": 5.2,
+   "selection": {
+    "candidates": 603,
+    "closure_files": 125,
+    "closure_tests": 598,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [],
+    "observed": 0,
+    "static_only": 5
+   },
+   "unrunnable": 160
+  },
+  "flips": null,
+  "gaps": [
+   "104708 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "160 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "Skipped 3 non-Python file(s)",
+   "graph reused from the previous state; 25 changed file(s) relinked",
+   "replaying the change's own tests (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run (original tests on the changed code, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run stopped at its 300 s budget: 0 of 603 candidates run",
+   "side-by-side: none of the 1 changed function(s) was called by the tests run on the code before the change"
+  ],
+  "impacted": {
+   "count": 24,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2930,
+   "parsed_files": 5
+  },
+  "predicted_failures": [],
+  "report_hash": "1751aacb6e4b",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 0,
+   "differences": 0,
+   "functions_called": 0,
+   "input_built_before_the_change": 0,
+   "not_compared": {},
+   "seconds": 0.0,
+   "targets": 1,
+   "unstable": 0
+  },
+  "summary": "NOT EXECUTED: no candidate test could be run; static analysis only. 0 likely_fail, 77 tests reach the change.",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALBandTests::test_band_data",
+    "line": 803,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALBandTests.test_band_data",
+    "score": 0.48,
+    "why": "via GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_compressed_file_based_raster_creation",
+    "line": 436,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_compressed_file_based_raster_creation",
+    "score": 0.245,
+    "why": "via GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/inspectapp/tests.py::OGRInspectTest::test_time_field",
+    "line": 115,
+    "run": "cd tests && python runtests.py gis_tests.inspectapp.tests.OGRInspectTest.test_time_field",
+    "score": 0.224,
+    "why": "via OGRInspectTest (name: field,inspect,ogr,time)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_file_based_raster_creation",
+    "line": 152,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_file_based_raster_creation",
+    "score": 0.185,
+    "why": "via GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_raster_transform",
+    "line": 633,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_raster_transform",
+    "score": 0.149,
+    "why": "via GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_raster_warp",
+    "line": 492,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_raster_warp",
+    "score": 0.128,
+    "why": "via GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/inspectapp/tests.py::OGRInspectTest::test_date_field",
+    "line": 96,
+    "run": "cd tests && python runtests.py gis_tests.inspectapp.tests.OGRInspectTest.test_date_field",
+    "score": 0.105,
+    "why": "via OGRInspectTest (name: field,inspect,ogr)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/inspectapp/tests.py::OGRInspectTest::test_poly",
+    "line": 69,
+    "run": "cd tests && python runtests.py gis_tests.inspectapp.tests.OGRInspectTest.test_poly",
+    "score": 0.074,
+    "why": "via OGRInspectTest (name: inspect,ogr)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALBandTests::test_band_data_setters",
+    "line": 868,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALBandTests.test_band_data_setters",
+    "score": 0.07,
+    "why": "via GDALBand.nodata_value > GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALBandTests::test_band_delete_nodata",
+    "line": 990,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALBandTests.test_band_delete_nodata",
+    "score": 0.067,
+    "why": "via GDALBand.nodata_value > GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_raster_warp_nodata_zone",
+    "line": 566,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_raster_warp_nodata_zone",
+    "score": 0.065,
+    "why": "via GDALRaster.warp > GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/inspectapp/tests.py::OGRInspectTest::test_mapping_option",
+    "line": 174,
+    "run": "cd tests && python runtests.py gis_tests.inspectapp.tests.OGRInspectTest.test_mapping_option",
+    "score": 0.054,
+    "why": "via OGRInspectTest (name: inspect,ogr)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/inspectapp/tests.py::OGRInspectTest::test_poly_multi",
+    "line": 87,
+    "run": "cd tests && python runtests.py gis_tests.inspectapp.tests.OGRInspectTest.test_poly_multi",
+    "score": 0.048,
+    "why": "via OGRInspectTest (name: inspect,ogr)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/inspectapp/tests.py::OGRInspectTest::test_management_command",
+    "line": 167,
+    "run": "cd tests && python runtests.py gis_tests.inspectapp.tests.OGRInspectTest.test_management_command",
+    "score": 0.043,
+    "why": "via OGRInspectTest (name: inspect,ogr)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/rasterapp/test_rasterfield.py::RasterFieldTest::test_deserialize_with_pixeltype_flags",
+    "line": 61,
+    "run": "cd tests && python runtests.py gis_tests.rasterapp.test_rasterfield.RasterFieldTest.test_deserialize_with_pixeltype_flags",
+    "score": 0.042,
+    "why": "via GDALBand.nodata_value > GDALBand.datatype > GDAL_PIXEL_TYPES"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALBandTests::test_band_data_replication",
+    "line": 1002,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALBandTests.test_band_data_replication",
+    "score": 0.038,
+    "why": "via GDALRaster.__init__ > GDALBand.nodata_value > GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALBandTests::test_band_statistics",
+    "line": 824,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALBandTests.test_band_statistics",
+    "score": 0.038,
+    "why": "via GDALRaster.__init__ > GDALBand.nodata_value > GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALBandTests::test_band_statistics_automatic_refresh",
+    "line": 958,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALBandTests.test_band_statistics_automatic_refresh",
+    "score": 0.038,
+    "why": "via GDALRaster.__init__ > GDALBand.nodata_value > GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALBandTests::test_band_statistics_empty_band",
+    "line": 979,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALBandTests.test_band_statistics_empty_band",
+    "score": 0.037,
+    "why": "via GDALRaster.__init__ > GDALBand.nodata_value > GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALBandTests::test_read_mode_error",
+    "line": 857,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALBandTests.test_read_mode_error",
+    "score": 0.037,
+    "why": "via GDALRaster.__init__ > GDALBand.nodata_value > GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_gdalraster_input_as_path",
+    "line": 31,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_gdalraster_input_as_path",
+    "score": 0.037,
+    "why": "via GDALRaster.__init__ > GDALBand.nodata_value > GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_geotransform_and_friends",
+    "line": 63,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_geotransform_and_friends",
+    "score": 0.037,
+    "why": "via GDALRaster.__init__ > GDALBand.nodata_value > GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_geotransform_bad_inputs",
+    "line": 97,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_geotransform_bad_inputs",
+    "score": 0.037,
+    "why": "via GDALRaster.__init__ > GDALBand.nodata_value > GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_memory_based_raster_creation",
+    "line": 127,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_memory_based_raster_creation",
+    "score": 0.037,
+    "why": "via GDALRaster.__init__ > GDALBand.nodata_value > GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_non_vsimem_raster_not_unlinked",
+    "line": 291,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_non_vsimem_raster_not_unlinked",
+    "score": 0.036,
+    "why": "via GDALRaster.__init__ > GDALBand.nodata_value > GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_nonexistent_file",
+    "line": 194,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_nonexistent_file",
+    "score": 0.036,
+    "why": "via GDALRaster.__init__ > GDALBand.nodata_value > GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_offset_size_and_shape_on_raster_creation",
+    "line": 304,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_offset_size_and_shape_on_raster_creation",
+    "score": 0.036,
+    "why": "via GDALRaster.__init__ > GDALBand.nodata_value > GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_raster_clone",
+    "line": 594,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_raster_clone",
+    "score": 0.036,
+    "why": "via GDALRaster.__init__ > GDALBand.nodata_value > GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_raster_metadata_property",
+    "line": 366,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_raster_metadata_property",
+    "score": 0.036,
+    "why": "via GDALRaster.__init__ > GDALBand.nodata_value > GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_raster_transform_clone",
+    "line": 741,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_raster_transform_clone",
+    "score": 0.036,
+    "why": "via GDALRaster.__init__ > GDALBand.nodata_value > GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_raster_transform_clone_name",
+    "line": 771,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_raster_transform_clone_name",
+    "score": 0.036,
+    "why": "via GDALRaster.__init__ > GDALBand.nodata_value > GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_rs_srid",
+    "line": 51,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_rs_srid",
+    "score": 0.036,
+    "why": "via GDALRaster.__init__ > GDALBand.nodata_value > GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_set_nodata_none_on_raster_creation",
+    "line": 347,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_set_nodata_none_on_raster_creation",
+    "score": 0.036,
+    "why": "via GDALRaster.__init__ > GDALBand.nodata_value > GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_set_nodata_value_on_raster_creation",
+    "line": 329,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_set_nodata_value_on_raster_creation",
+    "score": 0.036,
+    "why": "via GDALRaster.__init__ > GDALBand.nodata_value > GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_vsi_buffer_length",
+    "line": 273,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_vsi_buffer_length",
+    "score": 0.036,
+    "why": "via GDALRaster.__init__ > GDALBand.nodata_value > GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_vsi_buffer_property",
+    "line": 248,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_vsi_buffer_property",
+    "score": 0.036,
+    "why": "via GDALRaster.__init__ > GDALBand.nodata_value > GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_vsi_invalid_buffer_error",
+    "line": 243,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_vsi_invalid_buffer_error",
+    "score": 0.036,
+    "why": "via GDALRaster.__init__ > GDALBand.nodata_value > GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_vsi_raster_creation",
+    "line": 202,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_vsi_raster_creation",
+    "score": 0.036,
+    "why": "via GDALRaster.__init__ > GDALBand.nodata_value > GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_vsi_raster_deletion",
+    "line": 215,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_vsi_raster_deletion",
+    "score": 0.036,
+    "why": "via GDALRaster.__init__ > GDALBand.nodata_value > GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/gdal_tests/test_raster.py::GDALRasterTests::test_vsi_vsizip_filesystem",
+    "line": 279,
+    "run": "cd tests && python runtests.py gis_tests.gdal_tests.test_raster.GDALRasterTests.test_vsi_vsizip_filesystem",
+    "score": 0.036,
+    "why": "via GDALRaster.__init__ > GDALBand.nodata_value > GDALBand.datatype > GDAL_PIXEL_TYPES (name: gdal)"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792323629.026436,
+  "job_seconds": 8.5,
+  "number": 22005,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 8.6,
+  "started": 1792323619.8832278
+ },
+ "verify": null
+}

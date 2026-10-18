@@ -1,0 +1,1166 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "f1d11117c6a3e227ce7cdd263cf0743f0eb73070",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "8dd0670301b53752638575c410fba05117378223",
+  "install_ok": true,
+  "merge_base": "b33bab33709bbd74f4dfc376786ba0b3912c3f53",
+  "pr": 22039,
+  "recording": true,
+  "runner": null,
+  "seconds": 316.5,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "f1d11117c6a3e227ce7cdd263cf0743f0eb73070",
+  "head_sha": "8dd0670301b53752638575c410fba05117378223",
+  "merge_base": "b33bab33709bbd74f4dfc376786ba0b3912c3f53",
+  "merged_at": "2026-10-13T13:20:41Z",
+  "number": 22039,
+  "repo": "django",
+  "title": "Fixed #23424 -- Corrected tokenization of verbatim blocks."
+ },
+ "probe_minutes": {
+  "end": 1792326217.033207,
+  "minutes": 0.3,
+  "start": 1792326184.77186,
+  "waited": 15.009974667002098
+ },
+ "probe_targets": {
+  "all": 5,
+  "called": 4,
+  "targets": [
+   {
+    "after": "def test_repr(self):\n    token = Token(TokenType.BLOCK, \"some text\")\n    self.assertEqual(repr(token), '<Block token: \"some text...\">')\n    parser = Parser([token], builtins=[filter_library])\n    self.assertEqual(\n        repr(parser),\n        '<Parser tokens=[<Block token: \"some text...\">]>',\n    )\n    filter_expression = FilterExpression(\"news|upper\", parser)\n    self.assertEqual(repr(filter_expression), \"<FilterExpression 'news|upper'>\")\n    lexer = Lexer(\"{% for i in 1 %}{{ a }}\\n{% endfor %}\")\n    self.assertEqual(\n        repr(lexer),\n        '<Lexer template_string=\"{% for i in 1 %}{{ a...\">',\n    )\n",
+    "before": "def test_repr(self):\n    token = Token(TokenType.BLOCK, \"some text\")\n    self.assertEqual(repr(token), '<Block token: \"some text...\">')\n    parser = Parser([token], builtins=[filter_library])\n    self.assertEqual(\n        repr(parser),\n        '<Parser tokens=[<Block token: \"some text...\">]>',\n    )\n    filter_expression = FilterExpression(\"news|upper\", parser)\n    self.assertEqual(repr(filter_expression), \"<FilterExpression 'news|upper'>\")\n    lexer = Lexer(\"{% for i in 1 %}{{ a }}\\n{% endfor %}\")\n    self.assertEqual(\n        repr(lexer),\n        '<Lexer template_string=\"{% for i in 1 %}{{ a...\", verbatim=False>',\n    )\n",
+    "file": "tests/template_tests/test_parser.py",
+    "id": "tests/template_tests/test_parser.py#ParserTests.test_repr",
+    "name": "test_repr",
+    "qual": "ParserTests.test_repr",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "return",
+      "str",
+      "'<Lexer template_string=\"{% verbatim %}{{ a }...\">'"
+     ],
+     "before": [
+      "return",
+      "str",
+      "'<Lexer template_string=\"{% verbatim %}{{ a }...\", verbatim=False>'"
+     ],
+     "call": "repr(Lexer('{% verbatim %}{{ a }}{% endverbatim %}'))",
+     "label": "generated test shows a difference",
+     "setup": "from django.template.base import Lexer",
+     "target": "tests/template_tests/test_parser.py#ParserTests.test_repr",
+     "test": "import pytest\n\n\ndef test_generated():\n    from django.template.base import Lexer\n    assert repr(repr(Lexer('{% verbatim %}{{ a }}{% endverbatim %}'))) == '\\'<Lexer template_string=\"{% verbatim %}{{ a }...\">\\''\n",
+     "why": "the Lexer repr the edited test asserts"
+    }
+   ],
+   "filter_seconds": 8.8,
+   "gaps": [],
+   "info": {
+    "accepted": 1,
+    "compiled": 1,
+    "cost": 0.0,
+    "differed": 1,
+    "dollars_cap": 0.1,
+    "functions": 1,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 1,
+    "ran": 1,
+    "reached": 1,
+    "requests": 1,
+    "seconds": 8.0,
+    "stable": 1
+   },
+   "probes": [
+    {
+     "call": "repr(Lexer('{% verbatim %}{{ a }}{% endverbatim %}'))",
+     "function": "tests/template_tests/test_parser.py#ParserTests.test_repr",
+     "setup": "from django.template.base import Lexer",
+     "why": "the Lexer repr the edited test asserts"
+    }
+   ],
+   "targets": [
+    "tests/template_tests/test_parser.py#ParserTests.test_repr"
+   ],
+   "waited_seconds": 15.0
+  }
+ ],
+ "report": {
+  "behaviour_differences": [
+   {
+    "after": {
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        [
+         "DebugLexer:<DebugLexer template_string=\"{% verbatim block1 %...\", verbatim=False>"
+        ]
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "calls": [],
+     "result": [
+      "return",
+      [
+       "list",
+       [
+        "Token:<Block token: \"verbatim block1...\">",
+        "Token:<Text token: \"...\">",
+        "Token:<Block token: \"partialdef testing-n...\">",
+        "Token:<Text token: \"...\">",
+        "Token:<Block token: \"endverbatim block1...\">",
+        "Token:<Text token: \"...\">",
+        "Token:<Block token: \"partialdef testing-n...\">",
+        "Token:<Text token: \"<p>Named Content</p...\">",
+        "Token:<Block token: \"endpartialdef...\">",
+        "Token:<Text token: \"...\">"
+       ]
+      ]
+     ],
+     "stdout": ""
+    },
+    "before": {
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        [
+         "DebugLexer:<DebugLexer template_string=\"{% verbatim block1 %...\", verbatim=False>"
+        ]
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "calls": [],
+     "result": [
+      "return",
+      [
+       "list",
+       [
+        "Token:<Block token: \"verbatim block1...\">",
+        "Token:<Text token: \"...\">",
+        "Token:<Text token: \"{% partialdef testin...\">",
+        "Token:<Text token: \"...\">",
+        "Token:<Block token: \"endverbatim block1...\">",
+        "Token:<Text token: \"...\">",
+        "Token:<Block token: \"partialdef testing-n...\">",
+        "Token:<Text token: \"<p>Named Content</p...\">",
+        "Token:<Block token: \"endpartialdef...\">",
+        "Token:<Text token: \"...\">"
+       ]
+      ]
+     ],
+     "stdout": ""
+    },
+    "differs": [
+     "result"
+    ],
+    "input": "([<DebugLexer template_string=\"{% verbatim block1 %...\", verbatim=False>], {})",
+    "label": "behaviour differs on captured input",
+    "target": "django/template/base.py#DebugLexer.tokenize",
+    "test": "template_tests.test_partials.FindPartialSourceTests.test_partial_template_embedded_in_named_verbatim"
+   },
+   {
+    "after": {
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        [
+         "DebugLexer:<DebugLexer template_string=\"{% partialdef testin...\", verbatim=False>"
+        ]
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "calls": [],
+     "result": [
+      "return",
+      [
+       "list",
+       [
+        "Token:<Block token: \"partialdef testing-n...\">",
+        "Token:<Text token: \"...\">",
+        "Token:<Block token: \"verbatim...\">",
+        "Token:<Block token: \"endpartialdef...\">",
+        "Token:<Block token: \"endverbatim...\">",
+        "Token:<Text token: \"<p>Body</p>...\">",
+        "Token:<Block token: \"endpartialdef...\">",
+        "Token:<Text token: \"...\">"
+       ]
+      ]
+     ],
+     "stdout": ""
+    },
+    "before": {
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        [
+         "DebugLexer:<DebugLexer template_string=\"{% partialdef testin...\", verbatim=False>"
+        ]
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "calls": [],
+     "result": [
+      "return",
+      [
+       "list",
+       [
+        "Token:<Block token: \"partialdef testing-n...\">",
+        "Token:<Text token: \"...\">",
+        "Token:<Block token: \"verbatim...\">",
+        "Token:<Text token: \"{% endpartialdef %}...\">",
+        "Token:<Block token: \"endverbatim...\">",
+        "Token:<Text token: \"<p>Body</p>...\">",
+        "Token:<Block token: \"endpartialdef...\">",
+        "Token:<Text token: \"...\">"
+       ]
+      ]
+     ],
+     "stdout": ""
+    },
+    "differs": [
+     "result"
+    ],
+    "input": "([<DebugLexer template_string=\"{% partialdef testin...\", verbatim=False>], {})",
+    "label": "behaviour differs on captured input",
+    "target": "django/template/base.py#DebugLexer.tokenize",
+    "test": "template_tests.test_partials.FindPartialSourceTests.test_partial_template_contains_fake_end_inside_verbatim"
+   },
+   {
+    "after": {
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        [
+         "Lexer:<Lexer template_string=\"{% endfor %}...\", verbatim=False>"
+        ]
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "calls": [],
+     "result": [
+      "return",
+      "'<Lexer template_string=\"{% endfor %}...\">'"
+     ],
+     "stdout": ""
+    },
+    "before": {
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        [
+         "Lexer:<Lexer template_string=\"{% endfor %}...\", verbatim=False>"
+        ]
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "calls": [],
+     "result": [
+      "return",
+      "'<Lexer template_string=\"{% endfor %}...\", verbatim=False>'"
+     ],
+     "stdout": ""
+    },
+    "differs": [
+     "result"
+    ],
+    "input": "([<Lexer template_string=\"{% endfor %}...\", verbatim=False>], {})",
+    "label": "behaviour differs on captured input",
+    "target": "django/template/base.py#Lexer.__repr__",
+    "test": "template_tests.syntax_tests.test_basic.TemplateNameInExceptionTests.test_template_name_not_in_debug_view"
+   },
+   {
+    "after": {
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        [
+         "DebugLexer:<DebugLexer template_string=\"Template with error:...\", verbatim=False>"
+        ]
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "calls": [],
+     "result": [
+      "return",
+      "'<DebugLexer template_string=\"Template with error:...\">'"
+     ],
+     "stdout": ""
+    },
+    "before": {
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        [
+         "DebugLexer:<DebugLexer template_string=\"Template with error:...\", verbatim=False>"
+        ]
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "calls": [],
+     "result": [
+      "return",
+      "'<DebugLexer template_string=\"Template with error:...\", verbatim=False>'"
+     ],
+     "stdout": ""
+    },
+    "differs": [
+     "result"
+    ],
+    "input": "([<DebugLexer template_string=\"Template with error:...\", verbatim=False>], {})",
+    "label": "behaviour differs on captured input",
+    "target": "django/template/base.py#Lexer.__repr__",
+    "test": "view_tests.tests.test_debug.PlainTextReportTests.test_template_exception"
+   }
+  ],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/template_tests/syntax_tests/test_verbatim.py::VerbatimTagTests::test_multiple_verbatim_tags_on_same_line",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/template_tests/test_parser.py::ParserTests::test_repr",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/template_tests/test_partials.py::FindPartialSourceTests::test_partial_with_named_verbatim_blocks",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "django/template/base.py",
+    "lines": "424-427",
+    "symbol": "Lexer.__repr__"
+   },
+   {
+    "file": "django/template/base.py",
+    "lines": "429-453",
+    "symbol": "Lexer._raw_end_tag_re"
+   },
+   {
+    "file": "django/template/base.py",
+    "lines": "455-482",
+    "symbol": "Lexer._tag_re_split"
+   },
+   {
+    "file": "django/template/base.py",
+    "lines": "491-497",
+    "symbol": "Lexer.tokenize"
+   },
+   {
+    "file": "django/template/base.py",
+    "lines": "517-523",
+    "symbol": "Lexer.create_token"
+   },
+   {
+    "file": "django/template/base.py",
+    "lines": "528-532",
+    "symbol": "DebugLexer.tokenize"
+   },
+   {
+    "file": "tests/template_tests/syntax_tests/test_comment.py",
+    "lines": "97-100",
+    "symbol": "CommentSyntaxTests.test_closing_tag_after_literal_opening_brace"
+   },
+   {
+    "file": "tests/template_tests/syntax_tests/test_comment.py",
+    "lines": "102-113",
+    "symbol": "CommentSyntaxTests.test_template_syntax_in_raw_blocks"
+   },
+   {
+    "file": "tests/template_tests/syntax_tests/test_comment.py",
+    "lines": "115-118",
+    "symbol": "CommentSyntaxTests.test_literal_multiline_block_opener_in_raw_blocks"
+   },
+   {
+    "file": "tests/template_tests/syntax_tests/test_verbatim.py",
+    "lines": "57-97",
+    "symbol": "VerbatimTagTests.test_multiple_verbatim_tags_on_same_line"
+   },
+   {
+    "file": "tests/template_tests/syntax_tests/test_verbatim.py",
+    "lines": "99-114",
+    "symbol": "VerbatimTagTests.test_literal_multiline_opener_in_named_verbatim"
+   },
+   {
+    "file": "tests/template_tests/syntax_tests/test_verbatim.py",
+    "lines": "116-123",
+    "symbol": "VerbatimTagTests.test_named_verbatim_preserves_name_whitespace"
+   },
+   {
+    "file": "tests/template_tests/syntax_tests/test_verbatim.py",
+    "lines": "125-136",
+    "symbol": "VerbatimTagTests.test_template_syntax_in_raw_blocks"
+   },
+   {
+    "file": "tests/template_tests/syntax_tests/test_verbatim.py",
+    "lines": "138-141",
+    "symbol": "VerbatimTagTests.test_literal_multiline_block_opener_in_raw_blocks"
+   },
+   {
+    "file": "tests/template_tests/test_parser.py",
+    "lines": "49",
+    "symbol": "ParserTests.test_repr"
+   },
+   {
+    "file": "tests/template_tests/test_partials.py",
+    "lines": "606-632",
+    "symbol": "FindPartialSourceTests.test_partial_with_named_verbatim_blocks"
+   }
+  ],
+  "changed_symbols": [
+   "django/template/base.py#DebugLexer.tokenize",
+   "django/template/base.py#Lexer.__repr__",
+   "django/template/base.py#Lexer._comment_end_re",
+   "django/template/base.py#Lexer._raw_end_tag_re",
+   "django/template/base.py#Lexer._raw_start_re",
+   "django/template/base.py#Lexer._tag_re_split",
+   "django/template/base.py#Lexer._verbatim_end_re",
+   "django/template/base.py#Lexer.create_token",
+   "django/template/base.py#Lexer.tokenize",
+   "tests/template_tests/syntax_tests/test_comment.py#CommentSyntaxTests.test_closing_tag_after_literal_opening_brace",
+   "tests/template_tests/syntax_tests/test_comment.py#CommentSyntaxTests.test_literal_multiline_block_opener_in_raw_blocks",
+   "tests/template_tests/syntax_tests/test_comment.py#CommentSyntaxTests.test_template_syntax_in_raw_blocks",
+   "tests/template_tests/syntax_tests/test_verbatim.py#VerbatimTagTests.test_literal_multiline_block_opener_in_raw_blocks",
+   "tests/template_tests/syntax_tests/test_verbatim.py#VerbatimTagTests.test_literal_multiline_opener_in_named_verbatim",
+   "tests/template_tests/syntax_tests/test_verbatim.py#VerbatimTagTests.test_multiple_verbatim_tags_on_same_line",
+   "tests/template_tests/syntax_tests/test_verbatim.py#VerbatimTagTests.test_named_verbatim_preserves_name_whitespace",
+   "tests/template_tests/syntax_tests/test_verbatim.py#VerbatimTagTests.test_template_syntax_in_raw_blocks",
+   "tests/template_tests/test_parser.py#ParserTests.test_repr",
+   "tests/template_tests/test_partials.py#FindPartialSourceTests.test_partial_with_named_verbatim_blocks",
+   "django/template/base.py#Lexer",
+   "tests/template_tests/syntax_tests/test_comment.py#CommentSyntaxTests",
+   "tests/template_tests/syntax_tests/test_verbatim.py#VerbatimTagTests",
+   "tests/template_tests/test_partials.py#FindPartialSourceTests",
+   "django/template/base.py#DebugLexer._tag_re_split_positions (renamed or removed)",
+   "django/template/base.py#DebugLexer._tag_re_split (renamed or removed)"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "Lexer._tag_re_split return changed",
+    "path": [
+     "django/template/base.py:471 return",
+     "django/template/base.py:539 DebugLexer.tokenize uses the result",
+     "django/template/base.py:496 Lexer.tokenize uses the result"
+    ],
+    "to": "2 caller(s) use the result"
+   },
+   {
+    "evidence": "static source path",
+    "from": "Lexer._raw_end_tag_re return changed",
+    "path": [
+     "django/template/base.py:436 return",
+     "django/template/base.py:476 Lexer._tag_re_split uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 11,
+    "stored": 8
+   },
+   "budget": 300,
+   "candidates": 8545,
+   "ran": 5278,
+   "replayed": 10,
+   "runner": "django-runtests",
+   "seconds": 294.9,
+   "selection": {
+    "candidates": 8545,
+    "closure_files": 400,
+    "closure_tests": 6682,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/contrib/admin/__init__.py",
+     "django/forms/__init__.py",
+     "django/template/__init__.py",
+     "django/template/defaultfilters.py",
+     "django/test/__init__.py",
+     "django/test/utils.py",
+     "django/utils/translation/__init__.py",
+     "tests/template_tests/utils.py"
+    ],
+    "observed": 1184,
+    "static_only": 192
+   },
+   "unrunnable": 162
+  },
+  "flip_trust": [
+   {
+    "id": "tests/template_tests/test_parser.py::ParserTests::test_repr",
+    "label": "fails",
+    "reach": 21,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": null
+    },
+    "why": "as the test was before the edit: failed again in every rerun; ran 21 changed line(s); not rerun: the rerun in the same process"
+   }
+  ],
+  "flips": 1,
+  "gaps": [
+   "100522 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "162 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run stopped at its 300 s budget: 5280 of 8545 candidates run",
+   "side-by-side run stopped at its time limit; calls captured until then are compared",
+   "tests/test_runner_apps/tagged/tests_syntax_error.py: SyntaxError"
+  ],
+  "impacted": {
+   "count": 119,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2931,
+   "parsed_files": 6
+  },
+  "order": "the same explicit order on both sides (fixed hash seed)",
+  "original_tests": {
+   "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_comment_syntax01": "passed",
+   "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_comment_syntax02": "passed",
+   "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_comment_syntax03": "passed",
+   "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_comment_syntax04": "passed",
+   "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_comment_syntax05": "passed",
+   "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_comment_syntax06": "passed",
+   "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_comment_syntax07": "passed",
+   "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_comment_syntax08": "passed",
+   "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_comment_syntax09": "passed",
+   "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_comment_syntax10": "passed",
+   "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_comment_syntax11": "passed",
+   "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_comment_syntax12": "passed",
+   "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_comment_tag01": "passed",
+   "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_comment_tag02": "passed",
+   "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_comment_tag03": "passed",
+   "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_comment_tag04": "passed",
+   "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_comment_tag05": "passed",
+   "tests/template_tests/syntax_tests/test_verbatim.py::VerbatimTagTests::test_verbatim_tag01": "passed",
+   "tests/template_tests/syntax_tests/test_verbatim.py::VerbatimTagTests::test_verbatim_tag02": "passed",
+   "tests/template_tests/syntax_tests/test_verbatim.py::VerbatimTagTests::test_verbatim_tag03": "passed",
+   "tests/template_tests/syntax_tests/test_verbatim.py::VerbatimTagTests::test_verbatim_tag04": "passed",
+   "tests/template_tests/syntax_tests/test_verbatim.py::VerbatimTagTests::test_verbatim_tag05": "passed",
+   "tests/template_tests/syntax_tests/test_verbatim.py::VerbatimTagTests::test_verbatim_tag06": "passed",
+   "tests/template_tests/test_parser.py::ParserTests::test_cannot_find_variable": "passed",
+   "tests/template_tests/test_parser.py::ParserTests::test_cannot_parse_characters": "passed",
+   "tests/template_tests/test_parser.py::ParserTests::test_filter_args_count": "passed",
+   "tests/template_tests/test_parser.py::ParserTests::test_filter_deferred_annotation": "passed",
+   "tests/template_tests/test_parser.py::ParserTests::test_filter_numeric_argument_parsing": "passed",
+   "tests/template_tests/test_parser.py::ParserTests::test_filter_parsing": "passed",
+   "tests/template_tests/test_parser.py::ParserTests::test_repr": "failed",
+   "tests/template_tests/test_parser.py::ParserTests::test_token_smart_split": "passed",
+   "tests/template_tests/test_parser.py::ParserTests::test_variable_parsing": "passed",
+   "tests/template_tests/test_partials.py::FindPartialSourceTests::test_find_partial_source_empty_partial": "passed",
+   "tests/template_tests/test_partials.py::FindPartialSourceTests::test_find_partial_source_fallback_cases": "passed",
+   "tests/template_tests/test_partials.py::FindPartialSourceTests::test_find_partial_source_multiple_consecutive_partials": "passed",
+   "tests/template_tests/test_partials.py::FindPartialSourceTests::test_find_partial_source_success": "passed",
+   "tests/template_tests/test_partials.py::FindPartialSourceTests::test_find_partial_source_supports_named_end_tag": "passed",
+   "tests/template_tests/test_partials.py::FindPartialSourceTests::test_find_partial_source_supports_nested_partials": "passed",
+   "tests/template_tests/test_partials.py::FindPartialSourceTests::test_find_partial_source_supports_nested_partials_and_mixed_end_tags_1": "passed",
+   "tests/template_tests/test_partials.py::FindPartialSourceTests::test_find_partial_source_supports_nested_partials_and_mixed_end_tags_2": "passed",
+   "tests/template_tests/test_partials.py::FindPartialSourceTests::test_find_partial_source_supports_nested_partials_and_named_end_tags": "passed",
+   "tests/template_tests/test_partials.py::FindPartialSourceTests::test_find_partial_source_with_inline": "passed",
+   "tests/template_tests/test_partials.py::FindPartialSourceTests::test_partial_source_uses_offsets_in_debug": "passed",
+   "tests/template_tests/test_partials.py::FindPartialSourceTests::test_partial_template_contains_fake_end_inside_verbatim": "passed",
+   "tests/template_tests/test_partials.py::FindPartialSourceTests::test_partial_template_embedded_in_comment_block": "passed",
+   "tests/template_tests/test_partials.py::FindPartialSourceTests::test_partial_template_embedded_in_inline_comment": "passed",
+   "tests/template_tests/test_partials.py::FindPartialSourceTests::test_partial_template_embedded_in_named_verbatim": "passed",
+   "tests/template_tests/test_partials.py::FindPartialSourceTests::test_partial_template_embedded_in_verbatim": "passed",
+   "tests/template_tests/test_partials.py::FindPartialSourceTests::test_partials_with_duplicate_names": "passed",
+   "tests/template_tests/test_partials.py::PartialTagsTests::test_chained_exception_forwarded": "passed",
+   "tests/template_tests/test_partials.py::PartialTagsTests::test_context_available_in_response_for_partial_template": "passed",
+   "tests/template_tests/test_partials.py::PartialTagsTests::test_full_template_from_loader": "passed",
+   "tests/template_tests/test_partials.py::PartialTagsTests::test_invalid_template_name_raises_template_does_not_exist": "passed",
+   "tests/template_tests/test_partials.py::PartialTagsTests::test_partial_engine_assignment_with_real_template": "passed",
+   "tests/template_tests/test_partials.py::PartialTagsTests::test_partials_use_cached_loader_when_configured": "passed",
+   "tests/template_tests/test_partials.py::PartialTagsTests::test_response_with_multiple_parts": "passed",
+   "tests/template_tests/test_partials.py::PartialTagsTests::test_template_source_warning": "passed",
+   "tests/template_tests/test_partials.py::RobustPartialHandlingTests::test_nested_partials_rendering_with_context": "passed"
+  },
+  "predicted_failures": [
+   {
+    "after": "failed",
+    "before": "passed",
+    "edited_form": "passed",
+    "id": "tests/template_tests/test_parser.py::ParserTests::test_repr",
+    "label": "test edited, not fixed",
+    "reach": 21,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": null
+    },
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 21 changed line(s); not rerun: the rerun in the same process"
+   }
+  ],
+  "replayed": [
+   {
+    "base": "passed",
+    "head": "passed",
+    "id": "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_closing_tag_after_literal_opening_brace",
+    "verdict": "none"
+   },
+   {
+    "base": "passed",
+    "head": "passed",
+    "id": "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_template_syntax_in_raw_blocks",
+    "verdict": "none"
+   },
+   {
+    "base": "passed",
+    "head": "passed",
+    "id": "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_literal_multiline_block_opener_in_raw_blocks",
+    "verdict": "none"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/template_tests/syntax_tests/test_verbatim.py::VerbatimTagTests::test_multiple_verbatim_tags_on_same_line",
+    "verdict": "evidence"
+   },
+   {
+    "base": "passed",
+    "head": "passed",
+    "id": "tests/template_tests/syntax_tests/test_verbatim.py::VerbatimTagTests::test_literal_multiline_opener_in_named_verbatim",
+    "verdict": "none"
+   },
+   {
+    "base": "passed",
+    "head": "passed",
+    "id": "tests/template_tests/syntax_tests/test_verbatim.py::VerbatimTagTests::test_named_verbatim_preserves_name_whitespace",
+    "verdict": "none"
+   },
+   {
+    "base": "passed",
+    "head": "passed",
+    "id": "tests/template_tests/syntax_tests/test_verbatim.py::VerbatimTagTests::test_template_syntax_in_raw_blocks",
+    "verdict": "none"
+   },
+   {
+    "base": "passed",
+    "head": "passed",
+    "id": "tests/template_tests/syntax_tests/test_verbatim.py::VerbatimTagTests::test_literal_multiline_block_opener_in_raw_blocks",
+    "verdict": "none"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/template_tests/test_parser.py::ParserTests::test_repr",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/template_tests/test_partials.py::FindPartialSourceTests::test_partial_with_named_verbatim_blocks",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "68f5f7413bcb",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [
+    "django/template/base.py#DebugLexer.tokenize",
+    "django/template/base.py#Lexer.__repr__",
+    "django/template/base.py#Lexer.create_token",
+    "django/template/base.py#Lexer.tokenize"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 17,
+   "differences": 4,
+   "functions_called": 4,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "django/template/base.py#Lexer._raw_end_tag_re": "not a module or class function on both sides (new, removed or nested)",
+    "django/template/base.py#Lexer._tag_re_split": "not a module or class function on both sides (new, removed or nested)",
+    "tests/template_tests/syntax_tests/test_comment.py#CommentSyntaxTests.test_closing_tag_after_literal_opening_brace": "not a module or class function on both sides (new, removed or nested)",
+    "tests/template_tests/syntax_tests/test_comment.py#CommentSyntaxTests.test_literal_multiline_block_opener_in_raw_blocks": "not a module or class function on both sides (new, removed or nested)",
+    "tests/template_tests/syntax_tests/test_comment.py#CommentSyntaxTests.test_template_syntax_in_raw_blocks": "not a module or class function on both sides (new, removed or nested)",
+    "tests/template_tests/syntax_tests/test_verbatim.py#VerbatimTagTests.test_literal_multiline_block_opener_in_raw_blocks": "not a module or class function on both sides (new, removed or nested)",
+    "tests/template_tests/syntax_tests/test_verbatim.py#VerbatimTagTests.test_literal_multiline_opener_in_named_verbatim": "not a module or class function on both sides (new, removed or nested)",
+    "tests/template_tests/syntax_tests/test_verbatim.py#VerbatimTagTests.test_multiple_verbatim_tags_on_same_line": "not a module or class function on both sides (new, removed or nested)",
+    "tests/template_tests/syntax_tests/test_verbatim.py#VerbatimTagTests.test_named_verbatim_preserves_name_whitespace": "not a module or class function on both sides (new, removed or nested)",
+    "tests/template_tests/syntax_tests/test_verbatim.py#VerbatimTagTests.test_template_syntax_in_raw_blocks": "not a module or class function on both sides (new, removed or nested)",
+    "tests/template_tests/test_partials.py#FindPartialSourceTests.test_partial_with_named_verbatim_blocks": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 120.0,
+   "targets": 5,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 5278 of 8545 candidate tests after the change with django-runtests in 294.9 s, failures confirmed before it: 1 now fail. 1765 tests reach the change. 58 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 10 test(s) the change adds or edits replayed on the code before it: 3 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "executed",
+    "expect": "fails",
+    "id": "tests/template_tests/test_parser.py::ParserTests::test_repr",
+    "line": 0,
+    "run": "cd tests && python runtests.py template_tests.test_parser.ParserTests.test_repr",
+    "score": 0.0,
+    "why": "failed when executed after the change"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/template_tests/test_base.py::LexerTestMixin::test_tokenize",
+    "line": 24,
+    "run": "cd tests && python runtests.py template_tests.test_base.LexerTestMixin.test_tokenize",
+    "score": 6.894,
+    "why": "via Lexer.tokenize (name: base,lexer,tokenize)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/test_partials.py::FindPartialSourceTests::test_partials_with_duplicate_names",
+    "line": 307,
+    "run": "cd tests && python runtests.py template_tests.test_partials.FindPartialSourceTests.test_partials_with_duplicate_names",
+    "score": 4.012,
+    "why": "via FindPartialSourceTests (name: find,partial,source)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_verbatim.py::VerbatimTagTests::test_multiple_verbatim_tags_on_same_line",
+    "line": 57,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_verbatim.VerbatimTagTests.test_multiple_verbatim_tags_on_same_line",
+    "score": 3.941,
+    "why": "via VerbatimTagTests (name: tag,verbatim)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_closing_tag_after_literal_opening_brace",
+    "line": 97,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_comment.CommentSyntaxTests.test_closing_tag_after_literal_opening_brace",
+    "score": 3.619,
+    "why": "via CommentSyntaxTests (name: comment,syntax)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/test_partials.py::FindPartialSourceTests::test_partial_with_named_verbatim_blocks",
+    "line": 606,
+    "run": "cd tests && python runtests.py template_tests.test_partials.FindPartialSourceTests.test_partial_with_named_verbatim_blocks",
+    "score": 2.608,
+    "why": "via FindPartialSourceTests (name: find,partial,source)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_verbatim.py::VerbatimTagTests::test_literal_multiline_block_opener_in_raw_blocks",
+    "line": 138,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_verbatim.VerbatimTagTests.test_literal_multiline_block_opener_in_raw_blocks",
+    "score": 2.32,
+    "why": "via VerbatimTagTests (name: tag,verbatim)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_literal_multiline_block_opener_in_raw_blocks",
+    "line": 115,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_comment.CommentSyntaxTests.test_literal_multiline_block_opener_in_raw_blocks",
+    "score": 2.252,
+    "why": "via CommentSyntaxTests (name: comment,syntax)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_verbatim.py::VerbatimTagTests::test_literal_multiline_opener_in_named_verbatim",
+    "line": 99,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_verbatim.VerbatimTagTests.test_literal_multiline_opener_in_named_verbatim",
+    "score": 1.725,
+    "why": "via VerbatimTagTests (name: tag,verbatim)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/test_partials.py::FindPartialSourceTests::test_partial_template_embedded_in_named_verbatim",
+    "line": 519,
+    "run": "cd tests && python runtests.py template_tests.test_partials.FindPartialSourceTests.test_partial_template_embedded_in_named_verbatim",
+    "score": 1.602,
+    "why": "via FindPartialSourceTests (name: find,partial,source)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_template_syntax_in_raw_blocks",
+    "line": 102,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_comment.CommentSyntaxTests.test_template_syntax_in_raw_blocks",
+    "score": 1.595,
+    "why": "via CommentSyntaxTests (name: comment,syntax)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/template_tests/test_base.py::TemplateTests::test_repr",
+    "line": 55,
+    "run": "cd tests && python runtests.py template_tests.test_base.TemplateTests.test_repr",
+    "score": 1.465,
+    "why": "via Template.__init__ > Template.compile_nodelist > Lexer.tokenize (name: base)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_verbatim.py::VerbatimTagTests::test_template_syntax_in_raw_blocks",
+    "line": 125,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_verbatim.VerbatimTagTests.test_template_syntax_in_raw_blocks",
+    "score": 1.38,
+    "why": "via VerbatimTagTests (name: tag,verbatim)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/template_tests/test_base.py::TemplateTests::test_lazy_template_string",
+    "line": 51,
+    "run": "cd tests && python runtests.py template_tests.test_base.TemplateTests.test_lazy_template_string",
+    "score": 1.294,
+    "why": "via Template.__init__ > Template.compile_nodelist > Lexer.tokenize (name: base)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/test_partials.py::FindPartialSourceTests::test_partial_template_contains_fake_end_inside_verbatim",
+    "line": 584,
+    "run": "cd tests && python runtests.py template_tests.test_partials.FindPartialSourceTests.test_partial_template_contains_fake_end_inside_verbatim",
+    "score": 1.242,
+    "why": "via FindPartialSourceTests (name: find,partial,source)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_comment_tag01",
+    "line": 67,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_comment.CommentSyntaxTests.test_comment_tag01",
+    "score": 1.163,
+    "why": "via CommentSyntaxTests (name: comment,syntax)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_verbatim.py::VerbatimTagTests::test_named_verbatim_preserves_name_whitespace",
+    "line": 116,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_verbatim.VerbatimTagTests.test_named_verbatim_preserves_name_whitespace",
+    "score": 1.137,
+    "why": "via VerbatimTagTests (name: tag,verbatim)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_comment_tag02",
+    "line": 72,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_comment.CommentSyntaxTests.test_comment_tag02",
+    "score": 1.03,
+    "why": "via CommentSyntaxTests (name: comment,syntax)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/test_partials.py::FindPartialSourceTests::test_partial_template_embedded_in_verbatim",
+    "line": 475,
+    "run": "cd tests && python runtests.py template_tests.test_partials.FindPartialSourceTests.test_partial_template_embedded_in_verbatim",
+    "score": 1.002,
+    "why": "via FindPartialSourceTests (name: find,partial,source)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_basic.py::TemplateNameInExceptionTests::test_template_name_not_in_debug_view",
+    "line": 471,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_basic.TemplateNameInExceptionTests.test_template_name_not_in_debug_view",
+    "score": 0.993,
+    "why": "via Template.__init__ > Template.compile_nodelist > DebugLexer.tokenize (name: debug)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_verbatim.py::VerbatimTagTests::test_verbatim_tag02",
+    "line": 13,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_verbatim.VerbatimTagTests.test_verbatim_tag02",
+    "score": 0.974,
+    "why": "via VerbatimTagTests (name: tag,verbatim)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_comment_tag03",
+    "line": 82,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_comment.CommentSyntaxTests.test_comment_tag03",
+    "score": 0.926,
+    "why": "via CommentSyntaxTests (name: comment,syntax)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/i18n/patterns/tests.py::URLTagTests::test_strings_only",
+    "line": 486,
+    "run": "cd tests && python runtests.py i18n.patterns.tests.URLTagTests.test_strings_only",
+    "score": 0.914,
+    "why": "via Template.__init__ > Template.compile_nodelist > Lexer.tokenize"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_verbatim.py::VerbatimTagTests::test_verbatim_tag03",
+    "line": 18,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_verbatim.VerbatimTagTests.test_verbatim_tag03",
+    "score": 0.905,
+    "why": "via VerbatimTagTests (name: tag,verbatim)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_comment_tag04",
+    "line": 87,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_comment.CommentSyntaxTests.test_comment_tag04",
+    "score": 0.876,
+    "why": "via CommentSyntaxTests (name: comment,syntax)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_verbatim.py::VerbatimTagTests::test_verbatim_tag01",
+    "line": 8,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_verbatim.VerbatimTagTests.test_verbatim_tag01",
+    "score": 0.874,
+    "why": "via VerbatimTagTests (name: tag,verbatim)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/test_partials.py::FindPartialSourceTests::test_partial_source_uses_offsets_in_debug",
+    "line": 498,
+    "run": "cd tests && python runtests.py template_tests.test_partials.FindPartialSourceTests.test_partial_source_uses_offsets_in_debug",
+    "score": 0.869,
+    "why": "via FindPartialSourceTests (name: find,partial,source)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_verbatim.py::VerbatimTagTests::test_verbatim_tag05",
+    "line": 36,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_verbatim.VerbatimTagTests.test_verbatim_tag05",
+    "score": 0.855,
+    "why": "via VerbatimTagTests (name: tag,verbatim)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_comment_tag05",
+    "line": 92,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_comment.CommentSyntaxTests.test_comment_tag05",
+    "score": 0.849,
+    "why": "via CommentSyntaxTests (name: comment,syntax)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_verbatim.py::VerbatimTagTests::test_verbatim_tag06",
+    "line": 47,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_verbatim.VerbatimTagTests.test_verbatim_tag06",
+    "score": 0.842,
+    "why": "via VerbatimTagTests (name: tag,verbatim)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/i18n/test_blocktranslate.py::TranslationBlockTranslateTagTests::test_bad_placeholder_2",
+    "line": 734,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.i18n.test_blocktranslate.TranslationBlockTranslateTagTests.test_bad_placeholder_2",
+    "score": 0.819,
+    "why": "via Template.__init__ > Template.compile_nodelist > Lexer.tokenize"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/test_partials.py::FindPartialSourceTests::test_partial_template_embedded_in_comment_block",
+    "line": 540,
+    "run": "cd tests && python runtests.py template_tests.test_partials.FindPartialSourceTests.test_partial_template_embedded_in_comment_block",
+    "score": 0.813,
+    "why": "via FindPartialSourceTests (name: find,partial,source)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_comment_syntax01",
+    "line": 7,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_comment.CommentSyntaxTests.test_comment_syntax01",
+    "score": 0.797,
+    "why": "via CommentSyntaxTests (name: comment,syntax)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_comment_syntax02",
+    "line": 12,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_comment.CommentSyntaxTests.test_comment_syntax02",
+    "score": 0.788,
+    "why": "via CommentSyntaxTests (name: comment,syntax)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/i18n/patterns/tests.py::URLTagTests::test_args",
+    "line": 503,
+    "run": "cd tests && python runtests.py i18n.patterns.tests.URLTagTests.test_args",
+    "score": 0.774,
+    "why": "via Template.__init__ > Template.compile_nodelist > Lexer.tokenize"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/test_partials.py::FindPartialSourceTests::test_find_partial_source_supports_named_end_tag",
+    "line": 342,
+    "run": "cd tests && python runtests.py template_tests.test_partials.FindPartialSourceTests.test_find_partial_source_supports_named_end_tag",
+    "score": 0.77,
+    "why": "via FindPartialSourceTests (name: find,partial,source)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_comment_syntax03",
+    "line": 17,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_comment.CommentSyntaxTests.test_comment_syntax03",
+    "score": 0.762,
+    "why": "via CommentSyntaxTests (name: comment,syntax)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_comment_syntax04",
+    "line": 22,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_comment.CommentSyntaxTests.test_comment_syntax04",
+    "score": 0.759,
+    "why": "via CommentSyntaxTests (name: comment,syntax)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_comment_syntax05",
+    "line": 27,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_comment.CommentSyntaxTests.test_comment_syntax05",
+    "score": 0.756,
+    "why": "via CommentSyntaxTests (name: comment,syntax)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/syntax_tests/test_comment.py::CommentSyntaxTests::test_comment_syntax06",
+    "line": 32,
+    "run": "cd tests && python runtests.py template_tests.syntax_tests.test_comment.CommentSyntaxTests.test_comment_syntax06",
+    "score": 0.755,
+    "why": "via CommentSyntaxTests (name: comment,syntax)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/template_tests/test_partials.py::FindPartialSourceTests::test_find_partial_source_supports_nested_partials_and_named_end_tags",
+    "line": 387,
+    "run": "cd tests && python runtests.py template_tests.test_partials.FindPartialSourceTests.test_find_partial_source_supports_nested_partials_and_named_end_tags",
+    "score": 0.754,
+    "why": "via FindPartialSourceTests (name: find,partial,source)"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792326148.31866,
+  "job_seconds": 316.5,
+  "number": 22039,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 316.6,
+  "started": 1792325825.876294,
+  "verify_seconds": 2.3
+ },
+ "verify": {
+  "checked": 1,
+  "false": 0,
+  "held": 1,
+  "merge_base": "b33bab33709bbd74f4dfc376786ba0b3912c3f53",
+  "other": 0,
+  "problem": null,
+  "states": {
+   "tests/template_tests/test_parser.py::ParserTests::test_repr": "passed"
+  },
+  "v": 1
+ }
+}

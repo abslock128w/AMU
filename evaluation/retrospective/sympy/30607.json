@@ -1,0 +1,457 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "a1021ffb1f40f860960119e70e6329cd5937862c",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "9d08bdf35c22f37c806c135dfae56077dffeaf93",
+  "install_ok": true,
+  "merge_base": "a1021ffb1f40f860960119e70e6329cd5937862c",
+  "pr": 30607,
+  "recording": false,
+  "runner": null,
+  "seconds": 459.2,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "a1021ffb1f40f860960119e70e6329cd5937862c",
+  "head_sha": "9d08bdf35c22f37c806c135dfae56077dffeaf93",
+  "merge_base": "a1021ffb1f40f860960119e70e6329cd5937862c",
+  "merged_at": "2026-09-29T21:28:19Z",
+  "number": 30607,
+  "repo": "sympy",
+  "title": "doc fix: correct the function range of `acot(x)` for x in `Reals`"
+ },
+ "probe_minutes": null,
+ "probe_targets": null,
+ "probes": null,
+ "report": {
+  "caveats": "Static unless a row says observed. Not proof.",
+  "changed_functions": [],
+  "changed_symbols": [
+   "sympy/functions/elementary/trigonometric.py#acot"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 0,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 384,
+   "ran": 384,
+   "replayed": 0,
+   "runner": "pytest",
+   "seconds": 263.2,
+   "selection": {
+    "candidates": 2651,
+    "closure_files": 1,
+    "closure_tests": 0,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/functions/elementary/trigonometric.py"
+    ],
+    "observed": 0,
+    "static_only": 2651
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "2267 lower-ranked candidate(s) not run: about 2 tests/s per process fit 384 in the 300 s allowed",
+   "63952 call sites unresolved repo-wide; dynamic dispatch may reach more"
+  ],
+  "impacted": {
+   "count": 2214,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1607,
+   "parsed_files": 1
+  },
+  "predicted_failures": [],
+  "report_hash": "69a9950e9ad8",
+  "runner": "pytest",
+  "summary": "EXECUTED 384 of 384 candidate tests after the change with pytest in 263.2 s, failures confirmed before it: 0 now fail. 2651 tests reach the change.",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_acot",
+    "line": 1266,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_trigonometric.py::test_acot",
+    "score": 2.317,
+    "why": "via acot (name: acot,trigonometric)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_acot_leading_term",
+    "line": 1320,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_trigonometric.py::test_acot_leading_term",
+    "score": 1.372,
+    "why": "via acot (name: acot,trigonometric)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_acot_nseries",
+    "line": 2072,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_trigonometric.py::test_acot_nseries",
+    "score": 0.982,
+    "why": "via acot (name: acot,trigonometric)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_acot_rewrite",
+    "line": 1304,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_trigonometric.py::test_acot_rewrite",
+    "score": 0.777,
+    "why": "via acot (name: acot,trigonometric)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_args.py::test_sympy__functions__elementary__trigonometric__acot",
+    "line": 2387,
+    "run": "python -m pytest sympy/core/tests/test_args.py::test_sympy__functions__elementary__trigonometric__acot",
+    "score": 0.64,
+    "why": "via acot (name: acot,trigonometric)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_acot_fdiff",
+    "line": 1316,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_trigonometric.py::test_acot_fdiff",
+    "score": 0.588,
+    "why": "via acot (name: acot,trigonometric)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/calculus/tests/test_util.py::test_function_range_acot",
+    "line": 414,
+    "run": "python -m pytest sympy/calculus/tests/test_util.py::test_function_range_acot",
+    "score": 0.504,
+    "why": "via acot (name: acot)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/calculus/tests/test_util.py::test_continuous_domain_acot",
+    "line": 156,
+    "run": "python -m pytest sympy/calculus/tests/test_util.py::test_continuous_domain_acot",
+    "score": 0.46,
+    "why": "via acot (name: acot)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_atan",
+    "line": 1091,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_trigonometric.py::test_atan",
+    "score": 0.405,
+    "why": "via acot (name: trigonometric)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_cos",
+    "line": 309,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_trigonometric.py::test_cos",
+    "score": 0.402,
+    "why": "via acot (name: trigonometric)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_sin",
+    "line": 52,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_trigonometric.py::test_sin",
+    "score": 0.4,
+    "why": "via acot (name: trigonometric)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_asec",
+    "line": 1855,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_trigonometric.py::test_asec",
+    "score": 0.368,
+    "why": "via acot (name: trigonometric)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_cot",
+    "line": 670,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_trigonometric.py::test_cot",
+    "score": 0.367,
+    "why": "via acot (name: trigonometric)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_tan",
+    "line": 496,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_trigonometric.py::test_tan",
+    "score": 0.367,
+    "why": "via acot (name: trigonometric)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_real_assumptions",
+    "line": 2171,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_trigonometric.py::test_real_assumptions",
+    "score": 0.342,
+    "why": "via acot (name: trigonometric)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_acos_rewrite",
+    "line": 1075,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_trigonometric.py::test_acos_rewrite",
+    "score": 0.336,
+    "why": "via acot (name: trigonometric)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_acsc",
+    "line": 1932,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_trigonometric.py::test_acsc",
+    "score": 0.335,
+    "why": "via acot (name: trigonometric)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_asin_rewrite",
+    "line": 986,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_trigonometric.py::test_asin_rewrite",
+    "score": 0.335,
+    "why": "via acot (name: trigonometric)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_atan_rewrite",
+    "line": 1146,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_trigonometric.py::test_atan_rewrite",
+    "score": 0.335,
+    "why": "via acot (name: trigonometric)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_evenodd_rewrite",
+    "line": 1369,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_trigonometric.py::test_evenodd_rewrite",
+    "score": 0.335,
+    "why": "via acot (name: trigonometric)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_issue_14320",
+    "line": 2192,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_trigonometric.py::test_issue_14320",
+    "score": 0.335,
+    "why": "via acot (name: trigonometric)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_issue_23843",
+    "line": 2277,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_trigonometric.py::test_issue_23843",
+    "score": 0.335,
+    "why": "via acot (name: trigonometric)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_issue_25847",
+    "line": 2252,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_trigonometric.py::test_issue_25847",
+    "score": 0.335,
+    "why": "via acot (name: trigonometric)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_aseries",
+    "line": 1433,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_trigonometric.py::test_aseries",
+    "score": 0.311,
+    "why": "via acot (name: trigonometric)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/functions/elementary/tests/test_trigonometric.py::test_inverses",
+    "line": 1552,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_trigonometric.py::test_inverses",
+    "score": 0.311,
+    "why": "via acot (name: trigonometric)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/calculus/tests/test_util.py::test_continuous_domain",
+    "line": 78,
+    "run": "python -m pytest sympy/calculus/tests/test_util.py::test_continuous_domain",
+    "score": 0.273,
+    "why": "via acot"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/solvers/tests/test_solveset.py::test_invert_real",
+    "line": 85,
+    "run": "python -m pytest sympy/solvers/tests/test_solveset.py::test_invert_real",
+    "score": 0.229,
+    "why": "via acot"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/assumptions/tests/test_query.py::test_issue_7246",
+    "line": 2387,
+    "run": "python -m pytest sympy/assumptions/tests/test_query.py::test_issue_7246",
+    "score": 0.205,
+    "why": "via acot"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/assumptions/tests/test_query.py::test_rational",
+    "line": 1417,
+    "run": "python -m pytest sympy/assumptions/tests/test_query.py::test_rational",
+    "score": 0.205,
+    "why": "via acot"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/assumptions/tests/test_query.py::test_algebraic",
+    "line": 2167,
+    "run": "python -m pytest sympy/assumptions/tests/test_query.py::test_algebraic",
+    "score": 0.199,
+    "why": "via acot"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/integrals/tests/test_manual.py::test_manualintegrate_inversetrig",
+    "line": 376,
+    "run": "python -m pytest sympy/integrals/tests/test_manual.py::test_manualintegrate_inversetrig",
+    "score": 0.199,
+    "why": "via acot"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/series/tests/test_gruntz.py::test_aseries_trig",
+    "line": 426,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_aseries_trig",
+    "score": 0.199,
+    "why": "via acot"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/series/tests/test_limits.py::test_branch_cuts",
+    "line": 605,
+    "run": "python -m pytest sympy/series/tests/test_limits.py::test_branch_cuts",
+    "score": 0.199,
+    "why": "via acot"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/series/tests/test_limits.py::test_issue_25582",
+    "line": 1344,
+    "run": "python -m pytest sympy/series/tests/test_limits.py::test_issue_25582",
+    "score": 0.199,
+    "why": "via acot"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/series/tests/test_limits.py::test_issue_25847",
+    "line": 1354,
+    "run": "python -m pytest sympy/series/tests/test_limits.py::test_issue_25847",
+    "score": 0.199,
+    "why": "via acot"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/printing/tests/test_mathml.py::test_content_mathml_trig",
+    "line": 272,
+    "run": "python -m pytest sympy/printing/tests/test_mathml.py::test_content_mathml_trig",
+    "score": 0.175,
+    "why": "via acot"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/printing/tests/test_octave.py::test_trigfun",
+    "line": 462,
+    "run": "python -m pytest sympy/printing/tests/test_octave.py::test_trigfun",
+    "score": 0.175,
+    "why": "via acot"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_inverse",
+    "line": 513,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_trigsimp_inverse",
+    "score": 0.175,
+    "why": "via acot"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/utilities/tests/test_pickling.py::test_functions",
+    "line": 240,
+    "run": "python -m pytest sympy/utilities/tests/test_pickling.py::test_functions",
+    "score": 0.175,
+    "why": "via acot"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/utilities/tests/test_wester.py::test_V15",
+    "line": 2421,
+    "run": "python -m pytest sympy/utilities/tests/test_wester.py::test_V15",
+    "score": 0.175,
+    "why": "via acot"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792336058.563334,
+  "job_seconds": 459.2,
+  "number": 30607,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 459.4,
+  "started": 1792335596.944921
+ },
+ "verify": null
+}

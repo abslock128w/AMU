@@ -1,0 +1,710 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "7f48e266a83110d62ffb4663d72c9e347db75a9b",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "9937ea4b414fb1ddfcb8515a55dbcb40f4b6849c",
+  "install_ok": true,
+  "merge_base": "cf564bf3a7e0d92bc32292ccff1eca5aeb24b1ef",
+  "pr": 22094,
+  "recording": true,
+  "runner": null,
+  "seconds": 24.4,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "7f48e266a83110d62ffb4663d72c9e347db75a9b",
+  "head_sha": "9937ea4b414fb1ddfcb8515a55dbcb40f4b6849c",
+  "merge_base": "cf564bf3a7e0d92bc32292ccff1eca5aeb24b1ef",
+  "merged_at": "2026-10-08T12:25:38Z",
+  "number": 22094,
+  "repo": "django",
+  "title": "Fixed #37403 -- Fixed JSONField __in crash on SQLite with Value(None) expressions."
+ },
+ "probe_minutes": {
+  "end": 1792324668.179046,
+  "minutes": 0.3,
+  "start": 1792324635.606376,
+  "waited": 15.016663166999933
+ },
+ "probe_targets": {
+  "all": 2,
+  "called": 1,
+  "targets": [
+   {
+    "after": "def test_in_value_explicit_output_field(self):\n    tests = [\n        ([Value(\"7\", output_field=IntegerField())], [self.objs[11]]),\n        ([Value(\"yes\", output_field=models.CharField())], [self.objs[10]]),\n        # None with anything but JSONField is almost certainly not what the\n        # user intends--nothing is IN (NULL)--but it shouldn't crash.\n        ([Value(None, output_field=models.CharField())], []),\n    ]\n    for lookup_value, expected in tests:\n        with self.subTest(value__in=lookup_value), transaction.atomic():\n            self.assertSequenceEqual(\n                NullableJSONModel.objects.filter(value__in=lookup_value), expected\n            )\n",
+    "before": "def test_in_value_explicit_output_field(self):\n    tests = [\n        ([Value(\"7\", output_field=IntegerField())], [self.objs[11]]),\n        ([Value(\"yes\", output_field=models.CharField())], [self.objs[10]]),\n    ]\n    for lookup_value, expected in tests:\n        with self.subTest(value__in=lookup_value), transaction.atomic():\n            self.assertSequenceEqual(\n                NullableJSONModel.objects.filter(value__in=lookup_value), expected\n            )\n",
+    "file": "tests/model_fields/test_jsonfield.py",
+    "id": "tests/model_fields/test_jsonfield.py#TestQuerying.test_in_value_explicit_output_field",
+    "name": "test_in_value_explicit_output_field",
+    "qual": "TestQuerying.test_in_value_explicit_output_field",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "return",
+      "tuple",
+      "('SELECT \"amu_generated_amujsonin\".\"id\", \"amu_generated_amujsonin\".\"value\" FROM \"amu_generated_amujsonin\" WHERE (CASE WHEN JSON_TYPE(\"amu_generated_amujsonin\".\"value\", %s) IN (\\'null\\',\\'false\\',\\'true\\') THEN JSON_TYPE(\"amu_generated_amujsonin\".\"value\", %s) ELSE JSON_EXTRACT(\"amu_generated_amujsonin\".\"value\", %s) END) IN (NULL)', ('$', '$', '$'))"
+     ],
+     "before": [
+      "return",
+      "tuple",
+      "('SELECT \"amu_generated_amujsonin\".\"id\", \"amu_generated_amujsonin\".\"value\" FROM \"amu_generated_amujsonin\" WHERE (CASE WHEN JSON_TYPE(\"amu_generated_amujsonin\".\"value\", %s) IN (\\'null\\',\\'false\\',\\'true\\') THEN JSON_TYPE(\"amu_generated_amujsonin\".\"value\", %s) ELSE JSON_EXTRACT(\"amu_generated_amujsonin\".\"value\", %s) END) IN (NULL)', ('$', '$', '$', 'null'))"
+     ],
+     "call": "compiled()",
+     "label": "generated test shows a difference",
+     "setup": "from django.apps import apps\nfrom django.db import connection, models\nfrom django.db.models import Value\n\ntry:\n    AmuJsonIn = apps.get_model('amu_generated', 'AmuJsonIn')\nexcept LookupError:\n    class AmuJsonIn(models.Model):\n        value = models.JSONField(null=True)\n\n        class Meta:\n            app_label = 'amu_generated'\n\ndef compiled():\n    query = AmuJsonIn.objects.filter(value__in=[Value(None, output_field=models.CharField())]).query\n    return query.get_compiler(connection=connection).as_sql()\n",
+     "target": "tests/model_fields/test_jsonfield.py#TestQuerying.test_in_value_explicit_output_field",
+     "test": "import pytest\n\n\ndef test_generated():\n    from django.apps import apps\n    from django.db import connection, models\n    from django.db.models import Value\n\n    try:\n        AmuJsonIn = apps.get_model('amu_generated', 'AmuJsonIn')\n    except LookupError:\n        class AmuJsonIn(models.Model):\n            value = models.JSONField(null=True)\n\n            class Meta:\n                app_label = 'amu_generated'\n\n    def compiled():\n        query = AmuJsonIn.objects.filter(value__in=[Value(None, output_field=models.CharField())]).query\n        return query.get_compiler(connection=connection).as_sql()\n    assert repr(compiled()) == '(\\'SELECT \"amu_generated_amujsonin\".\"id\", \"amu_generated_amujsonin\".\"value\" FROM \"amu_generated_amujsonin\" WHERE (CASE WHEN JSON_TYPE(\"amu_generated_amujsonin\".\"value\", %s) IN (\\\\\\'null\\\\\\',\\\\\\'false\\\\\\',\\\\\\'true\\\\\\') THEN JSON_TYPE(\"amu_generated_amujsonin\".\"value\", %s) ELSE JSON_EXTRACT(\"amu_generated_amujsonin\".\"value\", %s) END) IN (NULL)\\', (\\'$\\', \\'$\\', \\'$\\'))'\n",
+     "why": "the Value(None) case the edited test adds, compiled on SQLite"
+    }
+   ],
+   "filter_seconds": 7.8,
+   "gaps": [],
+   "info": {
+    "accepted": 1,
+    "compiled": 1,
+    "cost": 0.0,
+    "differed": 1,
+    "dollars_cap": 0.1,
+    "functions": 1,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 1,
+    "ran": 1,
+    "reached": 1,
+    "requests": 1,
+    "seconds": 7.0,
+    "stable": 1
+   },
+   "probes": [
+    {
+     "call": "compiled()",
+     "function": "tests/model_fields/test_jsonfield.py#TestQuerying.test_in_value_explicit_output_field",
+     "setup": "from django.apps import apps\nfrom django.db import connection, models\nfrom django.db.models import Value\n\ntry:\n    AmuJsonIn = apps.get_model('amu_generated', 'AmuJsonIn')\nexcept LookupError:\n    class AmuJsonIn(models.Model):\n        value = models.JSONField(null=True)\n\n        class Meta:\n            app_label = 'amu_generated'\n\ndef compiled():\n    query = AmuJsonIn.objects.filter(value__in=[Value(None, output_field=models.CharField())]).query\n    return query.get_compiler(connection=connection).as_sql()\n",
+     "why": "the Value(None) case the edited test adds, compiled on SQLite"
+    }
+   ],
+   "targets": [
+    "tests/model_fields/test_jsonfield.py#TestQuerying.test_in_value_explicit_output_field"
+   ],
+   "waited_seconds": 15.0
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_in_value_explicit_output_field",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "django/db/models/fields/json.py",
+    "lines": "412-431",
+    "symbol": "JSONIn.resolve_expression_parameter"
+   },
+   {
+    "file": "tests/model_fields/test_jsonfield.py",
+    "lines": "1054-1056",
+    "symbol": "TestQuerying.test_in_value_explicit_output_field"
+   }
+  ],
+  "changed_symbols": [
+   "django/db/models/fields/json.py#JSONIn.resolve_expression_parameter",
+   "tests/model_fields/test_jsonfield.py#TestQuerying.test_in_value_explicit_output_field"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 1,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 702,
+   "ran": 702,
+   "replayed": 1,
+   "runner": "django-runtests",
+   "seconds": 13.2,
+   "selection": {
+    "candidates": 702,
+    "closure_files": 10,
+    "closure_tests": 698,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/db/models/__init__.py",
+     "django/db/models/functions/__init__.py"
+    ],
+    "observed": 0,
+    "static_only": 4
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "100374 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "Skipped 1 non-Python file(s)",
+   "tests/test_runner_apps/tagged/tests_syntax_error.py: SyntaxError"
+  ],
+  "impacted": {
+   "count": 73,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2931,
+   "parsed_files": 5
+  },
+  "original_tests": {
+   "tests/model_fields/test_jsonfield.py::JSONExactNoneDeprecationTests::test_annotation_q_filter": "passed",
+   "tests/model_fields/test_jsonfield.py::JSONExactNoneDeprecationTests::test_case_when": "passed",
+   "tests/model_fields/test_jsonfield.py::JSONExactNoneDeprecationTests::test_filter": "passed",
+   "tests/model_fields/test_jsonfield.py::JSONFieldTests::test_custom_encoder_decoder": "passed",
+   "tests/model_fields/test_jsonfield.py::JSONFieldTests::test_db_check_constraints": "passed",
+   "tests/model_fields/test_jsonfield.py::JSONFieldTests::test_invalid_value": "passed",
+   "tests/model_fields/test_jsonfield.py::JSONNullTests::test_bulk_update": "passed",
+   "tests/model_fields/test_jsonfield.py::JSONNullTests::test_case_expr_with_jsonnull_condition": "passed",
+   "tests/model_fields/test_jsonfield.py::JSONNullTests::test_case_expression_with_jsonnull_then": "passed",
+   "tests/model_fields/test_jsonfield.py::JSONNullTests::test_constraint_validation": "passed",
+   "tests/model_fields/test_jsonfield.py::JSONNullTests::test_constraint_validation_key_transform": "passed",
+   "tests/model_fields/test_jsonfield.py::JSONNullTests::test_create": "passed",
+   "tests/model_fields/test_jsonfield.py::JSONNullTests::test_custom_jsonnull_encoder": "passed",
+   "tests/model_fields/test_jsonfield.py::JSONNullTests::test_deconstruct": "passed",
+   "tests/model_fields/test_jsonfield.py::JSONNullTests::test_default": "passed",
+   "tests/model_fields/test_jsonfield.py::JSONNullTests::test_filter": "passed",
+   "tests/model_fields/test_jsonfield.py::JSONNullTests::test_filter_in": "passed",
+   "tests/model_fields/test_jsonfield.py::JSONNullTests::test_index_lookup": "passed",
+   "tests/model_fields/test_jsonfield.py::JSONNullTests::test_key_in": "passed",
+   "tests/model_fields/test_jsonfield.py::JSONNullTests::test_key_transform_exact_filter": "passed",
+   "tests/model_fields/test_jsonfield.py::JSONNullTests::test_repr": "passed",
+   "tests/model_fields/test_jsonfield.py::JSONNullTests::test_save_load": "passed",
+   "tests/model_fields/test_jsonfield.py::JSONNullTests::test_update": "passed",
+   "tests/model_fields/test_jsonfield.py::TestFormField::test_formfield": "passed",
+   "tests/model_fields/test_jsonfield.py::TestFormField::test_formfield_custom_encoder_decoder": "passed",
+   "tests/model_fields/test_jsonfield.py::TestMethods::test_deconstruct": "passed",
+   "tests/model_fields/test_jsonfield.py::TestMethods::test_deconstruct_custom_encoder_decoder": "passed",
+   "tests/model_fields/test_jsonfield.py::TestMethods::test_get_prep_value": "passed",
+   "tests/model_fields/test_jsonfield.py::TestMethods::test_get_transforms": "passed",
+   "tests/model_fields/test_jsonfield.py::TestMethods::test_key_transform_text_lookup_mixin_non_key_transform": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_array_key_contains": "skipped",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_cast_with_key_text_transform": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_contained_by": "skipped",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_contained_by_unsupported": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_contains": "skipped",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_contains_contained_by_with_key_transform": "skipped",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_contains_primitives": "skipped",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_contains_unsupported": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_deep_distinct": "skipped",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_deep_lookup_array": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_deep_lookup_mixed": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_deep_lookup_objs": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_deep_lookup_transform": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_deep_negative_lookup_array": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_deep_negative_lookup_mixed": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_deep_values": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_exact": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_exact_complex": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_expression_wrapper_key_transform": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_has_any_keys": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_has_key": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_has_key_deep": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_has_key_list": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_has_key_literal_lookup": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_has_key_null_value": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_has_key_number": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_has_keys": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_icontains": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_in": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_in_json_whitespace": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_in_value_explicit_output_field": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_in_value_without_explicit_output_field": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_isnull": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_isnull_key": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_isnull_key_or_none": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_join_key_transform_annotation_expression": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_json_type_casting_with_coalesce": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_contains": "skipped",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_endswith": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_escape": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_icontains": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_iendswith": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_iexact": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_iexact_none": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_in": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_iregex": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_istartswith": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_quoted_string": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_regex": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_sql_injection": "skipped",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_sql_injection_escape": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_startswith": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_text_transform_char_lookup": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_text_transform_from_lookup": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_text_transform_from_lookup_invalid": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_transform_annotation_expression": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_transform_expression": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_transform_raw_expression": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_values": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_values_boolean": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_literal_annotation_filtering": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_lookup_exclude": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_lookup_exclude_nonexistent_key": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_lookups_special_chars": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_lookups_special_chars_double_quotes": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_lookups_with_key_transform": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_nested_key_transform_annotation_expression": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_nested_key_transform_expression": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_nested_key_transform_on_subquery": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_nested_key_transform_raw_expression": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_none_key": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_none_key_and_exact_lookup": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_none_key_exclude": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_numeric_lookups_with_expression": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_obj_subquery_lookup": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_order_grouping_custom_decoder": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_ordering_by_transform": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_ordering_grouping_by_count": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_ordering_grouping_by_key_transform": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_shallow_list_lookup": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_shallow_list_negative_lookup": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_shallow_lookup_obj_target": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_shallow_obj_lookup": "passed",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_unsupported_negative_lookup": "skipped",
+   "tests/model_fields/test_jsonfield.py::TestQuerying::test_usage_in_subquery": "passed",
+   "tests/model_fields/test_jsonfield.py::TestSaveLoad::test_bulk_update_custom_get_prep_value": "passed",
+   "tests/model_fields/test_jsonfield.py::TestSaveLoad::test_dict": "passed",
+   "tests/model_fields/test_jsonfield.py::TestSaveLoad::test_json_null_different_from_sql_null": "passed",
+   "tests/model_fields/test_jsonfield.py::TestSaveLoad::test_list": "passed",
+   "tests/model_fields/test_jsonfield.py::TestSaveLoad::test_null": "passed",
+   "tests/model_fields/test_jsonfield.py::TestSaveLoad::test_primitives": "passed",
+   "tests/model_fields/test_jsonfield.py::TestSaveLoad::test_realistic_object": "passed",
+   "tests/model_fields/test_jsonfield.py::TestSerialization::test_dumping": "passed",
+   "tests/model_fields/test_jsonfield.py::TestSerialization::test_loading": "passed",
+   "tests/model_fields/test_jsonfield.py::TestSerialization::test_xml_serialization": "passed",
+   "tests/model_fields/test_jsonfield.py::TestValidation::test_custom_encoder": "passed",
+   "tests/model_fields/test_jsonfield.py::TestValidation::test_invalid_decoder": "passed",
+   "tests/model_fields/test_jsonfield.py::TestValidation::test_invalid_encoder": "passed",
+   "tests/model_fields/test_jsonfield.py::TestValidation::test_validation_error": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_in_value_explicit_output_field",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "3aac9ae0b619",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [
+    "django/db/models/fields/json.py#JSONIn.resolve_expression_parameter"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 5,
+   "differences": 0,
+   "functions_called": 1,
+   "input_built_before_the_change": 0,
+   "not_compared": {},
+   "seconds": 1.9,
+   "targets": 2,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 702 of 702 candidate tests after the change with django-runtests in 13.2 s, failures confirmed before it: 0 now fail. 89 tests reach the change. 129 test(s) from edited test files also run as they were before the edit. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/expressions/tests.py::BasicExpressionsTests::test_subquery_sql",
+    "line": 750,
+    "run": "cd tests && python runtests.py expressions.tests.BasicExpressionsTests.test_subquery_sql",
+    "score": 0.173,
+    "why": "via GISLookup.as_sql > In.process_rhs > FieldGetDbPrepValueIterableMixin.batch_process_rhs > JSONIn.resolve_expression_parameter (name: expression)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_in_value_explicit_output_field",
+    "line": 1048,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_in_value_explicit_output_field",
+    "score": 0.092,
+    "why": "via TestQuerying (name: explicit,field,jsonfield,output,querying,value)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/expressions/tests.py::ValueTests::test_compile_unresolved",
+    "line": 2503,
+    "run": "cd tests && python runtests.py expressions.tests.ValueTests.test_compile_unresolved",
+    "score": 0.09,
+    "why": "via GISLookup.as_sql > In.process_rhs > FieldGetDbPrepValueIterableMixin.batch_process_rhs > JSONIn.resolve_expression_parameter"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_in_value_without_explicit_output_field",
+    "line": 1032,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_in_value_without_explicit_output_field",
+    "score": 0.056,
+    "why": "via TestQuerying (name: explicit,field,jsonfield,output,querying,value)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/custom_lookups/tests.py::YearLteTests::test_custom_implementation_year_exact",
+    "line": 553,
+    "run": "cd tests && python runtests.py custom_lookups.tests.YearLteTests.test_custom_implementation_year_exact",
+    "score": 0.045,
+    "why": "via YearLteTests.test_custom_implementation_year_exact.CustomYearExact.as_custom_sql > In.process_rhs > FieldGetDbPrepValueIterableMixin.batch_process_rhs > JSONIn.resolve_expression_parameter"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_has_key_null_value",
+    "line": 583,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_has_key_null_value",
+    "score": 0.027,
+    "why": "via TestQuerying (name: jsonfield,querying,value)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_deep_values",
+    "line": 735,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_deep_values",
+    "score": 0.022,
+    "why": "via TestQuerying (name: jsonfield,querying,value)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_values",
+    "line": 1127,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_key_values",
+    "score": 0.02,
+    "why": "via TestQuerying (name: jsonfield,querying,value)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_values_boolean",
+    "line": 1145,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_key_values_boolean",
+    "score": 0.018,
+    "why": "via TestQuerying (name: jsonfield,querying,value)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_lookups_special_chars",
+    "line": 889,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_lookups_special_chars",
+    "score": 0.016,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_deep_distinct",
+    "line": 741,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_deep_distinct",
+    "score": 0.015,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_ordering_grouping_by_key_transform",
+    "line": 425,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_ordering_grouping_by_key_transform",
+    "score": 0.015,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_text_transform_char_lookup",
+    "line": 555,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_key_text_transform_char_lookup",
+    "score": 0.014,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_lookups_special_chars_double_quotes",
+    "line": 921,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_lookups_special_chars_double_quotes",
+    "score": 0.014,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_array_key_contains",
+    "line": 996,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_array_key_contains",
+    "score": 0.014,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_cast_with_key_text_transform",
+    "line": 1261,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_cast_with_key_text_transform",
+    "score": 0.013,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_contains",
+    "line": 682,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_contains",
+    "score": 0.013,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_contains_contained_by_with_key_transform",
+    "line": 1267,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_contains_contained_by_with_key_transform",
+    "score": 0.013,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_contains_primitives",
+    "line": 712,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_contains_primitives",
+    "score": 0.013,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_expression_wrapper_key_transform",
+    "line": 566,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_expression_wrapper_key_transform",
+    "score": 0.013,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_has_key_literal_lookup",
+    "line": 620,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_has_key_literal_lookup",
+    "score": 0.013,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_join_key_transform_annotation_expression",
+    "line": 1300,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_join_key_transform_annotation_expression",
+    "score": 0.013,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_json_type_casting_with_coalesce",
+    "line": 1343,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_json_type_casting_with_coalesce",
+    "score": 0.013,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_in",
+    "line": 1082,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_key_in",
+    "score": 0.013,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_transform_annotation_expression",
+    "line": 499,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_key_transform_annotation_expression",
+    "score": 0.013,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_transform_expression",
+    "line": 487,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_key_transform_expression",
+    "score": 0.013,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_literal_annotation_filtering",
+    "line": 1336,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_literal_annotation_filtering",
+    "score": 0.013,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_nested_key_transform_annotation_expression",
+    "line": 526,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_nested_key_transform_annotation_expression",
+    "score": 0.013,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_nested_key_transform_expression",
+    "line": 512,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_nested_key_transform_expression",
+    "score": 0.013,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_ordering_by_transform",
+    "line": 401,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_ordering_by_transform",
+    "score": 0.013,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_deep_negative_lookup_array",
+    "line": 858,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_deep_negative_lookup_array",
+    "score": 0.013,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_deep_negative_lookup_mixed",
+    "line": 871,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_deep_negative_lookup_mixed",
+    "score": 0.013,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_has_key_deep",
+    "line": 589,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_has_key_deep",
+    "score": 0.013,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_has_key_list",
+    "line": 628,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_has_key_list",
+    "score": 0.013,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_has_key_number",
+    "line": 655,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_has_key_number",
+    "score": 0.013,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_in",
+    "line": 1019,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_in",
+    "score": 0.013,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_in_json_whitespace",
+    "line": 1064,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_in_json_whitespace",
+    "score": 0.013,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_escape",
+    "line": 1233,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_key_escape",
+    "score": 0.013,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_sql_injection",
+    "line": 1205,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_key_sql_injection",
+    "score": 0.013,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_fields/test_jsonfield.py::TestQuerying::test_key_sql_injection_escape",
+    "line": 1221,
+    "run": "cd tests && python runtests.py model_fields.test_jsonfield.TestQuerying.test_key_sql_injection_escape",
+    "score": 0.013,
+    "why": "via TestQuerying (name: jsonfield,querying)"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792324571.086486,
+  "job_seconds": 24.4,
+  "number": 22094,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 24.4,
+  "started": 1792324546.1212218
+ },
+ "verify": null
+}

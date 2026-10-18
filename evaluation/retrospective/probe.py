@@ -78,7 +78,7 @@ class Reply:
                                stop_reason='end_turn', content=[SimpleNamespace(type='text', text=json.dumps(dict(probes=wanted)))])
 
 
-def run(root, name, number, probes_file, minutes):
+def run(root, name, number, probes_file, minutes, dollars=0.10):
     root, head, base, out = paths(root, name, number)
     report, meta = load(out)
     uncalled, _ = targets(root, name, number)
@@ -92,16 +92,23 @@ def run(root, name, number, probes_file, minutes):
     example = (head/wanted['example']).read_text() if wanted.get('example') else ''
     began = time.monotonic()
     with suite_lock(root, f'probe {name} {number}'):
+        waited = time.monotonic() - began
         with tempfile.TemporaryDirectory(prefix='amu-probe-', dir=environment(root)['TMPDIR']) as scratch:
-            info, differences, gaps = generate.run(runner, python, head, base, uncalled, changed, example, scratch, 0.10, minutes,
+            info, differences, gaps = generate.run(runner, python, head, base, uncalled, changed, example, scratch, dollars, minutes,
                                                    generate.MODEL, api=Reply(probes), copy_before=True)
     seconds = round(time.monotonic() - began, 1)
-    record = dict(attempt=wanted.get('attempt', 1), probes=probes, info=info, differences=differences, gaps=gaps,
-                  filter_seconds=seconds, targets=[t['id'] for t in uncalled])
+    record = dict(attempt=wanted.get('attempt', 1), dollars_cap=dollars, probes=probes, info=info, differences=differences, gaps=gaps,
+                  filter_seconds=round(seconds - waited, 1), waited_seconds=round(waited, 1), targets=[t['id'] for t in uncalled])
     log = out/'probes.json'
     history = json.loads(log.read_text()) if log.exists() else []
     history.append(record)
     log.write_text(json.dumps(history, indent=1))
+    clock = out/'probe-minutes.json'
+    stamps = json.loads(clock.read_text()) if clock.exists() else dict(start=time.time() - seconds)
+    stamps.update(end=time.time(), waited=stamps.get('waited', 0) + waited)
+    # Time queued behind a pull request's job is not the probe writer's time.
+    stamps['minutes'] = round((stamps['end'] - stamps['start'] - stamps['waited']) / 60, 1)
+    clock.write_text(json.dumps(stamps))
     print(json.dumps(dict(info=info, gaps=gaps, kept=[d['target'] for d in differences]), indent=1))
     return record
 
@@ -133,22 +140,49 @@ def append_to_comment(root, name, number):
     return (staged/'comment.md').read_text()
 
 
+def brief(root, name, number):
+    """What the probe writer sees: the pull request's title and description, its test files, the targets."""
+    import subprocess
+    from freeze import REPOS, check
+    root, head, base, out = paths(root, name, number)
+    pr = next(r for r in check()['prs'][name] if r['number'] == number)
+    cached = out/'pr-body.txt'
+    if not cached.exists():
+        body = subprocess.run(['gh', 'pr', 'view', str(number), '--repo', REPOS[name]['slug'], '--json', 'body', '--jq', '.body'],
+                              capture_output=True, text=True).stdout
+        cached.write_text(body)
+    uncalled, found = targets(root, name, number)
+    clock = out/'probe-minutes.json'
+    if not clock.exists():
+        clock.write_text(json.dumps(dict(start=time.time())))
+    lines = [f"# {name} #{number}: {pr['title']}", '', cached.read_text().strip()[:3000], '',
+             f"Production files: {', '.join(pr['production_files'])}", f"Test files: {', '.join(pr['test_files']) or 'none'}",
+             f'{len(uncalled)} of {len(found)} comparable changed functions had no captured call']
+    for t in uncalled:
+        lines += ['', f"## {t['id']}", '### before', t['before'], '### after', t['after']]
+    return '\n'.join(lines)
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__.split('\n')[0])
-    p.add_argument('action', choices=['targets', 'run', 'comment'])
+    p.add_argument('action', choices=['targets', 'brief', 'run', 'comment'])
     p.add_argument('--root', required=True)
     p.add_argument('--repo', required=True)
     p.add_argument('--pr', type=int, required=True)
     p.add_argument('--probes')
     p.add_argument('--minutes', type=float, default=20)
+    # The Action's default cap is 0.10; a larger one only when that cap blocked the request before any probe ran.
+    p.add_argument('--dollars', type=float, default=0.10)
     a = p.parse_args(argv)
     if a.action == 'targets':
         uncalled, found = targets(a.root, a.repo, a.pr)
         print(f'{len(uncalled)} of {len(found)} comparable changed functions had no captured call')
         for t in uncalled:
             print(f"\n## {t['id']}\n### before\n{t['before']}\n### after\n{t['after']}")
+    elif a.action == 'brief':
+        print(brief(a.root, a.repo, a.pr))
     elif a.action == 'run':
-        run(a.root, a.repo, a.pr, a.probes, a.minutes)
+        run(a.root, a.repo, a.pr, a.probes, a.minutes, a.dollars)
     else:
         print(append_to_comment(a.root, a.repo, a.pr))
 

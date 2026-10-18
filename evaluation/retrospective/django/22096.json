@@ -1,0 +1,570 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "8c34887b1ad8bb3ec61c6e713442dab3c643d557",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "04c01c1ac4b79bd53ef0f79f88ee890dce0a75da",
+  "install_ok": true,
+  "merge_base": "8c34887b1ad8bb3ec61c6e713442dab3c643d557",
+  "pr": 22096,
+  "recording": true,
+  "runner": null,
+  "seconds": 10.7,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "8c34887b1ad8bb3ec61c6e713442dab3c643d557",
+  "head_sha": "04c01c1ac4b79bd53ef0f79f88ee890dce0a75da",
+  "merge_base": "8c34887b1ad8bb3ec61c6e713442dab3c643d557",
+  "merged_at": "2026-10-07T00:58:59Z",
+  "number": 22096,
+  "repo": "django",
+  "title": "Fixed #37405 -- Fixed crash if sort_keys option is used with YAML serializer."
+ },
+ "probe_minutes": {
+  "end": 1792324542.496819,
+  "minutes": 2.2,
+  "start": 1792324412.5634701,
+  "waited": 0.00019420900207478553
+ },
+ "probe_targets": {
+  "all": 1,
+  "called": 0,
+  "targets": [
+   {
+    "after": "def end_serialization(self):\n    self.options.setdefault(\"allow_unicode\", True)\n    self.options.setdefault(\"sort_keys\", False)\n    yaml.dump(\n        self.objects,\n        self.stream,\n        Dumper=DjangoSafeDumper,\n        **self.options,\n    )\n",
+    "before": "def end_serialization(self):\n    self.options.setdefault(\"allow_unicode\", True)\n    yaml.dump(\n        self.objects,\n        self.stream,\n        Dumper=DjangoSafeDumper,\n        sort_keys=False,\n        **self.options,\n    )\n",
+    "file": "django/core/serializers/pyyaml.py",
+    "id": "django/core/serializers/pyyaml.py#Serializer.end_serialization",
+    "name": "end_serialization",
+    "qual": "Serializer.end_serialization",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [],
+   "filter_seconds": 4.7,
+   "gaps": [],
+   "info": {
+    "accepted": 0,
+    "compiled": 1,
+    "cost": 0.0,
+    "differed": 0,
+    "dollars_cap": 0.1,
+    "functions": 1,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 1,
+    "ran": 1,
+    "reached": 0,
+    "requests": 1,
+    "seconds": 4.3,
+    "stable": 1
+   },
+   "probes": [
+    {
+     "call": "serializers.serialize('yaml', [Group(pk=1, name='b')], sort_keys=True)",
+     "function": "django/core/serializers/pyyaml.py#Serializer.end_serialization",
+     "setup": "from django.core import serializers\nfrom django.contrib.auth.models import Group",
+     "why": "the sort_keys option the ticket says crashes"
+    }
+   ],
+   "targets": [
+    "django/core/serializers/pyyaml.py#Serializer.end_serialization"
+   ],
+   "waited_seconds": 0.0
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [],
+  "changed_functions": [
+   {
+    "file": "django/core/serializers/pyyaml.py",
+    "lines": "49-54",
+    "symbol": "Serializer.end_serialization"
+   },
+   {
+    "file": "tests/serializers/test_yaml.py",
+    "lines": "158-161",
+    "symbol": "YamlSerializerTestCase.test_sort_keys_option"
+   }
+  ],
+  "changed_symbols": [
+   "django/core/serializers/pyyaml.py#Serializer.end_serialization",
+   "tests/serializers/test_yaml.py#YamlSerializerTestCase.test_sort_keys_option",
+   "tests/serializers/test_yaml.py"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 1,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 778,
+   "ran": 41,
+   "replayed": 1,
+   "runner": "django-runtests",
+   "seconds": 7.5,
+   "selection": {
+    "candidates": 778,
+    "closure_files": 3,
+    "closure_tests": 14,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [],
+    "observed": 0,
+    "static_only": 677
+   },
+   "unrunnable": 119
+  },
+  "flips": 0,
+  "gaps": [
+   "119 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "121184 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "Skipped 1 non-Python file(s)",
+   "graph reused from the previous state; 17 changed file(s) relinked",
+   "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run stopped at its 300 s budget: 0 of 778 candidates run",
+   "side-by-side: none of the 1 changed function(s) was called by the tests run on the code before the change"
+  ],
+  "impacted": {
+   "count": 1,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2931,
+   "parsed_files": 15
+  },
+  "original_tests": {
+   "tests/serializers/test_yaml.py::NoYamlSerializerTestCase::test_serializer_pyyaml_error_message": "passed",
+   "tests/serializers/test_yaml.py::YamlSerializerTestCase::test_custom_field_serialization": "skipped",
+   "tests/serializers/test_yaml.py::YamlSerializerTestCase::test_deferred_field_serialization": "skipped",
+   "tests/serializers/test_yaml.py::YamlSerializerTestCase::test_float_serialization": "skipped",
+   "tests/serializers/test_yaml.py::YamlSerializerTestCase::test_one_to_one_as_pk": "skipped",
+   "tests/serializers/test_yaml.py::YamlSerializerTestCase::test_serialize_no_only_pk_with_natural_keys": "skipped",
+   "tests/serializers/test_yaml.py::YamlSerializerTestCase::test_serialize_prefetch_related_m2m_with_natural_keys": "skipped",
+   "tests/serializers/test_yaml.py::YamlSerializerTestCase::test_serialize_progressbar": "skipped",
+   "tests/serializers/test_yaml.py::YamlSerializerTestCase::test_serialize_superfluous_queries": "skipped",
+   "tests/serializers/test_yaml.py::YamlSerializerTestCase::test_serialize_to_stream": "skipped",
+   "tests/serializers/test_yaml.py::YamlSerializerTestCase::test_serialize_with_null_pk": "skipped",
+   "tests/serializers/test_yaml.py::YamlSerializerTestCase::test_unicode_serialization": "skipped",
+   "tests/serializers/test_yaml.py::YamlSerializerTestCase::test_yaml_deserializer_exception": "skipped"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "skipped",
+    "head": "skipped",
+    "id": "tests/serializers/test_yaml.py::YamlSerializerTestCase::test_sort_keys_option",
+    "verdict": "none"
+   }
+  ],
+  "report_hash": "9d747392ce3a",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 0,
+   "differences": 0,
+   "functions_called": 0,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "tests/serializers/test_yaml.py#YamlSerializerTestCase.test_sort_keys_option": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 1.2,
+   "targets": 1,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 41 of 778 candidate tests after the change with django-runtests in 7.5 s, failures confirmed before it: 0 now fail. 680 tests reach the change. 13 test(s) from edited test files also run as they were before the edit. 1 test(s) the change adds or edits replayed on the code before it: 0 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/serializers/test_json.py::JsonSerializerTestCase::test_custom_encoder",
+    "line": 78,
+    "run": "cd tests && python runtests.py serializers.test_json.JsonSerializerTestCase.test_custom_encoder",
+    "score": 0.421,
+    "why": "via Serializer.serialize > Serializer.end_serialization (name: serializer)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/serializers/test_yaml.py::YamlSerializerTestCase::test_sort_keys_option",
+    "line": 158,
+    "run": "cd tests && python runtests.py serializers.test_yaml.YamlSerializerTestCase.test_sort_keys_option",
+    "score": 0.391,
+    "why": "via YamlSerializerTestCase (name: case,key,option,serializer,sort,yaml)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/serializers/test_json.py::JsonSerializerTestCase::test_indentation_whitespace",
+    "line": 71,
+    "run": "cd tests && python runtests.py serializers.test_json.JsonSerializerTestCase.test_indentation_whitespace",
+    "score": 0.26,
+    "why": "via Serializer.serialize > Serializer.end_serialization (name: serializer)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/serializers/test_jsonl.py::JsonlSerializerTestCase::test_custom_encoder",
+    "line": 66,
+    "run": "cd tests && python runtests.py serializers.test_jsonl.JsonlSerializerTestCase.test_custom_encoder",
+    "score": 0.183,
+    "why": "via Serializer.serialize > Serializer.end_serialization (name: serializer)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/serializers/test_jsonl.py::JsonlSerializerTestCase::test_no_indentation",
+    "line": 60,
+    "run": "cd tests && python runtests.py serializers.test_jsonl.JsonlSerializerTestCase.test_no_indentation",
+    "score": 0.144,
+    "why": "via Serializer.serialize > Serializer.end_serialization (name: serializer)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/serializers/tests.py::SerializerAPITests::test_stream_class",
+    "line": 477,
+    "run": "cd tests && python runtests.py serializers.tests.SerializerAPITests.test_stream_class",
+    "score": 0.125,
+    "why": "via Serializer.serialize > Serializer.end_serialization (name: serializer)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/serializers/test_yaml.py::YamlSerializerTestCase::test_yaml_deserializer_exception",
+    "line": 153,
+    "run": "cd tests && python runtests.py serializers.test_yaml.YamlSerializerTestCase.test_yaml_deserializer_exception",
+    "score": 0.124,
+    "why": "via YamlSerializerTestCase (name: case,serializer,yaml)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/user_commands/tests.py::CommandTests::test_call_command_option_parsing",
+    "line": 144,
+    "run": "cd tests && python runtests.py user_commands.tests.CommandTests.test_call_command_option_parsing",
+    "score": 0.005,
+    "why": "via Serializer.getvalue > Serializer"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/i18n/test_extraction.py::BasicExtractorTests::test_invalid_locale_end_with_underscore",
+    "line": 263,
+    "run": "cd tests && python runtests.py i18n.test_extraction.BasicExtractorTests.test_invalid_locale_end_with_underscore",
+    "score": 0.005,
+    "why": "via Serializer.getvalue > Serializer (name: end)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/user_commands/tests.py::CommandTests::test_calling_a_command_with_only_empty_parameter_should_ends_gracefully",
+    "line": 163,
+    "run": "cd tests && python runtests.py user_commands.tests.CommandTests.test_calling_a_command_with_only_empty_parameter_should_ends_gracefully",
+    "score": 0.005,
+    "why": "via Serializer.getvalue > Serializer (name: end)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/user_commands/tests.py::CommandTests::test_calling_command_with_parameters_and_app_labels_at_the_end_should_be_ok",
+    "line": 175,
+    "run": "cd tests && python runtests.py user_commands.tests.CommandTests.test_calling_command_with_parameters_and_app_labels_at_the_end_should_be_ok",
+    "score": 0.005,
+    "why": "via Serializer.getvalue > Serializer (name: end)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/m2m_through_regress/tests.py::M2MThroughSerializationTestCase::test_serialization",
+    "line": 72,
+    "run": "cd tests && python runtests.py m2m_through_regress.tests.M2MThroughSerializationTestCase.test_serialization",
+    "score": 0.004,
+    "why": "via Serializer.getvalue > Serializer (name: serialization)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/serializers/tests.py::SerializersTestBase::test_serialize_progressbar",
+    "line": 252,
+    "run": "cd tests && python runtests.py serializers.tests.SerializersTestBase.test_serialize_progressbar",
+    "score": 0.004,
+    "why": "via Serializer.getvalue > Serializer (name: serializer)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/serializers/tests.py::SerializersTestBase::test_serialize_to_stream",
+    "line": 145,
+    "run": "cd tests && python runtests.py serializers.tests.SerializersTestBase.test_serialize_to_stream",
+    "score": 0.004,
+    "why": "via Serializer.getvalue > Serializer (name: serializer)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_existing_username_provided_via_option_and_interactive",
+    "line": 1240,
+    "run": "cd tests && python runtests.py auth_tests.test_management.CreatesuperuserManagementCommandTestCase.test_existing_username_provided_via_option_and_interactive",
+    "score": 0.004,
+    "why": "via CreatesuperuserManagementCommandTestCase.test_existing_username_provided_via_option_and_interactive.test > Serializer.getvalue > Serializer"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_fields_with_fk_via_option_interactive",
+    "line": 646,
+    "run": "cd tests && python runtests.py auth_tests.test_management.CreatesuperuserManagementCommandTestCase.test_fields_with_fk_via_option_interactive",
+    "score": 0.004,
+    "why": "via CreatesuperuserManagementCommandTestCase.test_fields_with_fk_via_option_interactive.test > Serializer.getvalue > Serializer"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_validate_password_against_required_fields_via_option",
+    "line": 976,
+    "run": "cd tests && python runtests.py auth_tests.test_management.CreatesuperuserManagementCommandTestCase.test_validate_password_against_required_fields_via_option",
+    "score": 0.004,
+    "why": "via CreatesuperuserManagementCommandTestCase.test_validate_password_against_required_fields_via_option.test > Serializer.getvalue > Serializer"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/auth_tests/test_management.py::MultiDBChangepasswordManagementCommandTestCase::test_that_changepassword_command_with_database_option_uses_given_db",
+    "line": 269,
+    "run": "cd tests && python runtests.py auth_tests.test_management.MultiDBChangepasswordManagementCommandTestCase.test_that_changepassword_command_with_database_option_uses_given_db",
+    "score": 0.004,
+    "why": "via Serializer.getvalue > Serializer"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/auth_tests/test_management.py::MultiDBCreatesuperuserTestCase::test_createsuperuser_command_with_database_option",
+    "line": 1467,
+    "run": "cd tests && python runtests.py auth_tests.test_management.MultiDBCreatesuperuserTestCase.test_createsuperuser_command_with_database_option",
+    "score": 0.004,
+    "why": "via Serializer.getvalue > Serializer"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/fixtures/tests.py::FixtureLoadingTests::test_dumpdata_progressbar",
+    "line": 794,
+    "run": "cd tests && python runtests.py fixtures.tests.FixtureLoadingTests.test_dumpdata_progressbar",
+    "score": 0.004,
+    "why": "via Serializer.getvalue > Serializer"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/inspectapp/tests.py::OGRInspectTest::test_mapping_option",
+    "line": 174,
+    "run": "cd tests && python runtests.py gis_tests.inspectapp.tests.OGRInspectTest.test_mapping_option",
+    "score": 0.004,
+    "why": "via Serializer.getvalue > Serializer"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/inspectdb/tests.py::InspectDBTestCase::test_stealth_table_name_filter_option",
+    "line": 52,
+    "run": "cd tests && python runtests.py inspectdb.tests.InspectDBTestCase.test_stealth_table_name_filter_option",
+    "score": 0.004,
+    "why": "via Serializer.getvalue > Serializer"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/inspectdb/tests.py::InspectDBTestCase::test_table_option",
+    "line": 65,
+    "run": "cd tests && python runtests.py inspectdb.tests.InspectDBTestCase.test_table_option",
+    "score": 0.004,
+    "why": "via Serializer.getvalue > Serializer"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/inspectdb/tests.py::InspectDBTransactionalTests::test_foreign_data_wrapper",
+    "line": 650,
+    "run": "cd tests && python runtests.py inspectdb.tests.InspectDBTransactionalTests.test_foreign_data_wrapper",
+    "score": 0.004,
+    "why": "via Serializer.getvalue > Serializer"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/migrations/test_commands.py::MakeMigrationsTests::test_makemigration_merge_dry_run",
+    "line": 2261,
+    "run": "cd tests && python runtests.py migrations.test_commands.MakeMigrationsTests.test_makemigration_merge_dry_run",
+    "score": 0.004,
+    "why": "via Serializer.getvalue > Serializer"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/migrations/test_commands.py::MakeMigrationsTests::test_makemigrations_interactive_unique_callable_default_addition",
+    "line": 2795,
+    "run": "cd tests && python runtests.py migrations.test_commands.MakeMigrationsTests.test_makemigrations_interactive_unique_callable_default_addition",
+    "score": 0.004,
+    "why": "via Serializer.getvalue > Serializer"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/migrations/test_questioner.py::QuestionerHelperMethodsTests::test_questioner_no_choice_keyboard_interrupt",
+    "line": 110,
+    "run": "cd tests && python runtests.py migrations.test_questioner.QuestionerHelperMethodsTests.test_questioner_no_choice_keyboard_interrupt",
+    "score": 0.004,
+    "why": "via Serializer.getvalue > Serializer"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/shell/tests.py::ShellCommandTestCase::test_command_option_globals",
+    "line": 41,
+    "run": "cd tests && python runtests.py shell.tests.ShellCommandTestCase.test_command_option_globals",
+    "score": 0.004,
+    "why": "via Serializer.getvalue > Serializer"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/shell/tests.py::ShellCommandTestCase::test_command_option_inline_function_call",
+    "line": 46,
+    "run": "cd tests && python runtests.py shell.tests.ShellCommandTestCase.test_command_option_inline_function_call",
+    "score": 0.004,
+    "why": "via Serializer.getvalue > Serializer"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/user_commands/tests.py::CommandTests::test_call_command_option_parsing_non_string_arg",
+    "line": 155,
+    "run": "cd tests && python runtests.py user_commands.tests.CommandTests.test_call_command_option_parsing_non_string_arg",
+    "score": 0.004,
+    "why": "via Serializer.getvalue > Serializer"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/user_commands/tests.py::CommandTests::test_call_command_with_required_parameters_in_mixed_options",
+    "line": 283,
+    "run": "cd tests && python runtests.py user_commands.tests.CommandTests.test_call_command_with_required_parameters_in_mixed_options",
+    "score": 0.004,
+    "why": "via Serializer.getvalue > Serializer"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/user_commands/tests.py::CommandTests::test_call_command_with_required_parameters_in_options",
+    "line": 275,
+    "run": "cd tests && python runtests.py user_commands.tests.CommandTests.test_call_command_with_required_parameters_in_options",
+    "score": 0.004,
+    "why": "via Serializer.getvalue > Serializer"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/user_commands/tests.py::CommandTests::test_mutually_exclusive_group_required_const_options",
+    "line": 312,
+    "run": "cd tests && python runtests.py user_commands.tests.CommandTests.test_mutually_exclusive_group_required_const_options",
+    "score": 0.004,
+    "why": "via Serializer.getvalue > Serializer"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/user_commands/tests.py::CommandTests::test_mutually_exclusive_group_required_options",
+    "line": 296,
+    "run": "cd tests && python runtests.py user_commands.tests.CommandTests.test_mutually_exclusive_group_required_options",
+    "score": 0.004,
+    "why": "via Serializer.getvalue > Serializer"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/user_commands/tests.py::CommandTests::test_required_const_options",
+    "line": 389,
+    "run": "cd tests && python runtests.py user_commands.tests.CommandTests.test_required_const_options",
+    "score": 0.004,
+    "why": "via Serializer.getvalue > Serializer"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/user_commands/tests.py::CommandTests::test_required_list_option",
+    "line": 372,
+    "run": "cd tests && python runtests.py user_commands.tests.CommandTests.test_required_list_option",
+    "score": 0.004,
+    "why": "via Serializer.getvalue > Serializer"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/gis_tests/geoapp/test_serializers.py::GeoJSONSerializerTests::test_serialization_base",
+    "line": 23,
+    "run": "cd tests && python runtests.py gis_tests.geoapp.test_serializers.GeoJSONSerializerTests.test_serialization_base",
+    "score": 0.004,
+    "why": "via serialize > Serializer.getvalue > Serializer (name: serialization,serializer)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_swappable_user_no_natural_key_interactive",
+    "line": 490,
+    "run": "cd tests && python runtests.py auth_tests.test_management.CreatesuperuserManagementCommandTestCase.test_swappable_user_no_natural_key_interactive",
+    "score": 0.004,
+    "why": "via CreatesuperuserManagementCommandTestCase.test_swappable_user_no_natural_key_interactive.createsuperuser > Serializer.getvalue > Serializer"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "tests/auth_tests/test_management.py::CreatesuperuserManagementCommandTestCase::test_swappable_user_no_natural_key_non_interactive",
+    "line": 475,
+    "run": "cd tests && python runtests.py auth_tests.test_management.CreatesuperuserManagementCommandTestCase.test_swappable_user_no_natural_key_non_interactive",
+    "score": 0.004,
+    "why": "via Serializer.getvalue > Serializer"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/fixtures/tests.py::FixtureLoadingTests::test_dumpdata_with_uuid_pks",
+    "line": 684,
+    "run": "cd tests && python runtests.py fixtures.tests.FixtureLoadingTests.test_dumpdata_with_uuid_pks",
+    "score": 0.004,
+    "why": "via Serializer.getvalue > Serializer"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792324404.103627,
+  "job_seconds": 10.7,
+  "number": 22096,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 10.7,
+  "started": 1792324392.809459
+ },
+ "verify": null
+}

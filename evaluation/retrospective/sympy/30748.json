@@ -1,0 +1,266 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "01f79a5f52d4ec14da9d028f4fe9a7f9627679c5",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "d09332896357e3957a2d1ce38294d74706d36846",
+  "install_ok": true,
+  "merge_base": "01f79a5f52d4ec14da9d028f4fe9a7f9627679c5",
+  "pr": 30748,
+  "recording": false,
+  "runner": null,
+  "seconds": 105.2,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "01f79a5f52d4ec14da9d028f4fe9a7f9627679c5",
+  "head_sha": "d09332896357e3957a2d1ce38294d74706d36846",
+  "merge_base": "01f79a5f52d4ec14da9d028f4fe9a7f9627679c5",
+  "merged_at": "2026-10-13T20:12:19Z",
+  "number": 30748,
+  "repo": "sympy",
+  "title": "polys: fix swinnerton_dyer_poly x-sympification and n validation"
+ },
+ "probe_minutes": {
+  "end": 1792346043.157459,
+  "minutes": 0.4,
+  "start": 1792345667.8112,
+  "waited": 352.78106195799774
+ },
+ "probe_targets": {
+  "all": 2,
+  "called": 0,
+  "targets": [
+   {
+    "after": "def swinnerton_dyer_poly(n, x=None, polys=False):\n    \"\"\"Generates n-th Swinnerton-Dyer polynomial in `x`.\n\n    Parameters\n    ----------\n    n : int\n        `n` decides the order of polynomial\n    x : optional\n    polys : bool, optional\n        If True, return a ``Poly`` when ``x`` is specified, or a\n        ``PurePoly`` otherwise. If False (default), return an expression\n        using ``x`` when specified, or the default generator otherwise.\n    \"\"\"\n    n = as_int(n)\n\n    if n <= 0:\n        raise ValueError(\n            \"Cannot generate Swinnerton-Dyer polynomial of order %s\" % n)\n\n    if x is not None:\n        x = sympify(x)\n        poly_cls = Poly\n    else:\n        x = Dummy('x')\n        poly_cls = PurePoly\n\n    if n == 1:\n        ex = x**2 - 2\n    elif n == 2:\n        ex = x**4 - 10*x**2 + 1\n    elif n == 3:\n        ex = x**8 - 40*x**6 + 352*x**4 - 960*x**2 + 576\n    else:\n        from sympy.functions.elementary.miscellaneous import sqrt\n        from .numberfields import minimal_polynomial\n        p = 2\n        a = [sqrt(2)]\n        for i in range(2, n + 1):\n            p = nextprime(p)\n            a.append(sqrt(p))\n        ex = minimal_polynomial(Add(*a), x)\n\n    return poly_cls(ex, x) if polys else ex\n",
+    "before": "def swinnerton_dyer_poly(n, x=None, polys=False):\n    \"\"\"Generates n-th Swinnerton-Dyer polynomial in `x`.\n\n    Parameters\n    ----------\n    n : int\n        `n` decides the order of polynomial\n    x : optional\n    polys : bool, optional\n        Returns a Poly object when ``polys=True``, otherwise\n        (default) returns an expression.\n    \"\"\"\n    if n <= 0:\n        raise ValueError(\n            \"Cannot generate Swinnerton-Dyer polynomial of order %s\" % n)\n\n    if x is not None:\n        sympify(x)\n    else:\n        x = Dummy('x')\n\n    if n > 3:\n        from sympy.functions.elementary.miscellaneous import sqrt\n        from .numberfields import minimal_polynomial\n        p = 2\n        a = [sqrt(2)]\n        for i in range(2, n + 1):\n            p = nextprime(p)\n            a.append(sqrt(p))\n        return minimal_polynomial(Add(*a), x, polys=polys)\n\n    if n == 1:\n        ex = x**2 - 2\n    elif n == 2:\n        ex = x**4 - 10*x**2 + 1\n    elif n == 3:\n        ex = x**8 - 40*x**6 + 352*x**4 - 960*x**2 + 576\n\n    return PurePoly(ex, x) if polys else ex\n",
+    "file": "sympy/polys/specialpolys.py",
+    "id": "sympy/polys/specialpolys.py#swinnerton_dyer_poly",
+    "name": "swinnerton_dyer_poly",
+    "qual": "swinnerton_dyer_poly",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_swinnerton_dyer_poly():\n    raises(ValueError, lambda: swinnerton_dyer_poly(0, x))\n\n    assert swinnerton_dyer_poly(1, x, polys=True) == Poly(x**2 - 2)\n\n    assert swinnerton_dyer_poly(1, x) == x**2 - 2\n    assert swinnerton_dyer_poly(2, x) == x**4 - 10*x**2 + 1\n    assert swinnerton_dyer_poly(\n        3, x) == x**8 - 40*x**6 + 352*x**4 - 960*x**2 + 576\n    # we only need to check that the polys arg works but\n    # we may as well test that the roots are correct\n    p = [sqrt(prime(i)) for i in range(1, 5)]\n    p4 = swinnerton_dyer_poly(4, polys=True)\n    assert type(swinnerton_dyer_poly(1, polys=True)) is PurePoly\n    assert type(swinnerton_dyer_poly(1, x, polys=True)) is Poly\n    assert type(swinnerton_dyer_poly(4, polys=True)) is PurePoly\n    assert type(swinnerton_dyer_poly(4, x, polys=True)) is Poly\n    assert str([i.n(3) for i in\n        p4.all_roots()]\n        ) == str(sorted([Add(*i).n(3) for i in permute_signs(p)]))\n    raises(ValueError, lambda: swinnerton_dyer_poly(1.2, x))\n",
+    "before": "def test_swinnerton_dyer_poly():\n    raises(ValueError, lambda: swinnerton_dyer_poly(0, x))\n\n    assert swinnerton_dyer_poly(1, x, polys=True) == Poly(x**2 - 2)\n\n    assert swinnerton_dyer_poly(1, x) == x**2 - 2\n    assert swinnerton_dyer_poly(2, x) == x**4 - 10*x**2 + 1\n    assert swinnerton_dyer_poly(\n        3, x) == x**8 - 40*x**6 + 352*x**4 - 960*x**2 + 576\n    # we only need to check that the polys arg works but\n    # we may as well test that the roots are correct\n    p = [sqrt(prime(i)) for i in range(1, 5)]\n    assert str([i.n(3) for i in\n        swinnerton_dyer_poly(4, polys=True).all_roots()]\n        ) == str(sorted([Add(*i).n(3) for i in permute_signs(p)]))\n",
+    "file": "sympy/polys/tests/test_specialpolys.py",
+    "id": "sympy/polys/tests/test_specialpolys.py#test_swinnerton_dyer_poly",
+    "name": "test_swinnerton_dyer_poly",
+    "qual": "test_swinnerton_dyer_poly",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "return",
+      "list",
+      "['Add: x**2 - 2', 'raised ValueError', \"Poly: Poly(x**4 - 10*x**2 + 1, x, domain='ZZ')\"]"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['raised TypeError', 'raised UnboundLocalError', \"PurePoly: PurePoly(x**4 - 10*x**2 + 1, x, domain='ZZ')\"]"
+     ],
+     "call": "[outcome(lambda: swinnerton_dyer_poly(1, 'x')), outcome(lambda: swinnerton_dyer_poly(1.2, x)), outcome(lambda: swinnerton_dyer_poly(2, x, polys=True))]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import symbols\nfrom sympy.polys.specialpolys import swinnerton_dyer_poly\nx = symbols('x')\n\ndef outcome(f):\n    try:\n        value = f()\n        return type(value).__name__ + ': ' + str(value)\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__",
+     "target": "sympy/polys/specialpolys.py#swinnerton_dyer_poly",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import symbols\n    from sympy.polys.specialpolys import swinnerton_dyer_poly\n    x = symbols('x')\n\n    def outcome(f):\n        try:\n            value = f()\n            return type(value).__name__ + ': ' + str(value)\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__\n    assert repr([outcome(lambda: swinnerton_dyer_poly(1, 'x')), outcome(lambda: swinnerton_dyer_poly(1.2, x)), outcome(lambda: swinnerton_dyer_poly(2, x, polys=True))]) == '[\\'Add: x**2 - 2\\', \\'raised ValueError\\', \"Poly: Poly(x**4 - 10*x**2 + 1, x, domain=\\'ZZ\\')\"]'\n",
+     "why": "issue 30742 inputs: a string x, a non-integer n, polys=True with x"
+    }
+   ],
+   "dollars_cap": 0.1,
+   "filter_seconds": 12.0,
+   "gaps": [],
+   "info": {
+    "accepted": 1,
+    "compiled": 2,
+    "cost": 0.0,
+    "differed": 1,
+    "dollars_cap": 0.1,
+    "functions": 2,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 2,
+    "ran": 2,
+    "reached": 2,
+    "requests": 1,
+    "seconds": 11.8,
+    "stable": 2
+   },
+   "probes": [
+    {
+     "call": "[outcome(lambda: swinnerton_dyer_poly(1, 'x')), outcome(lambda: swinnerton_dyer_poly(1.2, x)), outcome(lambda: swinnerton_dyer_poly(2, x, polys=True))]",
+     "function": "sympy/polys/specialpolys.py#swinnerton_dyer_poly",
+     "setup": "from sympy import symbols\nfrom sympy.polys.specialpolys import swinnerton_dyer_poly\nx = symbols('x')\n\ndef outcome(f):\n    try:\n        value = f()\n        return type(value).__name__ + ': ' + str(value)\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__",
+     "why": "issue 30742 inputs: a string x, a non-integer n, polys=True with x"
+    },
+    {
+     "call": "[outcome(lambda: swinnerton_dyer_poly(1, polys=True)), outcome(lambda: swinnerton_dyer_poly(4, x, polys=True).degree())]",
+     "function": "sympy/polys/tests/test_specialpolys.py#test_swinnerton_dyer_poly",
+     "setup": "from sympy import symbols\nfrom sympy.polys.specialpolys import swinnerton_dyer_poly\nx = symbols('x')\n\ndef outcome(f):\n    try:\n        value = f()\n        return type(value).__name__ + ': ' + str(value)\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__",
+     "why": "polys=True without x, and the n > 3 branch"
+    }
+   ],
+   "targets": [
+    "sympy/polys/specialpolys.py#swinnerton_dyer_poly",
+    "sympy/polys/tests/test_specialpolys.py#test_swinnerton_dyer_poly"
+   ],
+   "waited_seconds": 352.8
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/polys/tests/test_specialpolys.py::test_swinnerton_dyer_poly",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/polys/specialpolys.py",
+    "lines": "35-68",
+    "symbol": "swinnerton_dyer_poly"
+   },
+   {
+    "file": "sympy/polys/tests/test_specialpolys.py",
+    "lines": "42-50",
+    "symbol": "test_swinnerton_dyer_poly"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/polys/specialpolys.py#swinnerton_dyer_poly",
+   "sympy/polys/tests/test_specialpolys.py#test_swinnerton_dyer_poly",
+   "sympy/polys/specialpolys.py",
+   "sympy/polys/tests/test_specialpolys.py"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 1,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 1896,
+   "ran": 1896,
+   "replayed": 1,
+   "runner": "pytest",
+   "seconds": 103.6,
+   "selection": {
+    "candidates": 12953,
+    "closure_files": 1322,
+    "closure_tests": 12953,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 0
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "11057 lower-ranked candidate(s) not run: about 8 tests/s per process fit 1896 in the 300 s allowed",
+   "64085 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "Skipped 1 non-Python file(s)",
+   "graph reused from the previous state; 2 changed file(s) relinked",
+   "side-by-side: none of the 2 changed function(s) was called by the tests run on the code before the change"
+  ],
+  "impacted": {
+   "count": 0,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1608,
+   "parsed_files": 2
+  },
+  "original_tests": {
+   "sympy/polys/tests/test_specialpolys.py::test_swinnerton_dyer_poly": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/polys/tests/test_specialpolys.py::test_swinnerton_dyer_poly",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "77b6e9ab2c81",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 0,
+   "differences": 0,
+   "functions_called": 0,
+   "input_built_before_the_change": 0,
+   "not_compared": {},
+   "seconds": 14.3,
+   "targets": 2,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 1896 of 1896 candidate tests after the change with pytest in 103.6 s, failures confirmed before it: 0 now fail. 1 tests reach the change. 1 test(s) from edited test files also run as they were before the edit. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/tests/test_specialpolys.py::test_swinnerton_dyer_poly",
+    "line": 30,
+    "run": "python -m pytest sympy/polys/tests/test_specialpolys.py::test_swinnerton_dyer_poly",
+    "score": 3.191,
+    "why": "calls swinnerton_dyer_poly (name: dyer,poly,specialpoly,swinnerton)"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/polys/tests/test_specialpolys.py",
+    "lines": "42-50",
+    "symbol": "test_swinnerton_dyer_poly"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792345640.3535202,
+  "job_seconds": 105.2,
+  "number": 30748,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 105.3,
+  "started": 1792345534.2897742
+ },
+ "verify": null
+}

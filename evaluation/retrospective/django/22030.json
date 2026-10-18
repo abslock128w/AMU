@@ -1,0 +1,595 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "9332b163a67eabe5bdbf8066b1c5da394be9aa9c",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "34971a4f076ee11ffdb8a1280e020c6d8c55a1e7",
+  "install_ok": true,
+  "merge_base": "dd6f6b1531984823e3dc56740dfa93f3ceb09357",
+  "pr": 22030,
+  "recording": true,
+  "runner": null,
+  "seconds": 55.6,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "9332b163a67eabe5bdbf8066b1c5da394be9aa9c",
+  "head_sha": "34971a4f076ee11ffdb8a1280e020c6d8c55a1e7",
+  "merge_base": "dd6f6b1531984823e3dc56740dfa93f3ceb09357",
+  "merged_at": "2026-09-29T15:39:45Z",
+  "number": 22030,
+  "repo": "django",
+  "title": "Fixed #36496 -- Ensured the parent path to a sqlite file exists."
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 1,
+  "called": 1,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/backends/sqlite/tests.py::Tests::test_nested_path_name",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/backends/sqlite/tests.py::Tests::test_nested_str_path_name",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/backends/sqlite/tests.py::Tests::test_database_name_with_file_in_path_not_allowed",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/backends/sqlite/tests.py::Tests::test_make_parent_path_oserror",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "django/db/backends/sqlite3/base.py",
+    "lines": "206-210",
+    "symbol": "DatabaseWrapper.get_new_connection"
+   },
+   {
+    "file": "tests/backends/sqlite/tests.py",
+    "lines": "148-161",
+    "symbol": "Tests.test_nested_path_name"
+   },
+   {
+    "file": "tests/backends/sqlite/tests.py",
+    "lines": "163-174",
+    "symbol": "Tests.test_nested_str_path_name"
+   },
+   {
+    "file": "tests/backends/sqlite/tests.py",
+    "lines": "176-194",
+    "symbol": "Tests.test_database_name_with_file_in_path_not_allowed"
+   },
+   {
+    "file": "tests/backends/sqlite/tests.py",
+    "lines": "196-214",
+    "symbol": "Tests.test_make_parent_path_oserror"
+   }
+  ],
+  "changed_symbols": [
+   "django/db/backends/sqlite3/base.py#DatabaseWrapper.get_new_connection",
+   "tests/backends/sqlite/tests.py#Tests.test_database_name_with_file_in_path_not_allowed",
+   "tests/backends/sqlite/tests.py#Tests.test_make_parent_path_oserror",
+   "tests/backends/sqlite/tests.py#Tests.test_nested_path_name",
+   "tests/backends/sqlite/tests.py#Tests.test_nested_str_path_name",
+   "tests/backends/sqlite/tests.py#Tests",
+   "django/db/backends/sqlite3/base.py",
+   "tests/backends/sqlite/tests.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static; a receiver was guessed",
+    "from": "DatabaseWrapper.get_new_connection raises InterfaceError",
+    "path": [
+     "django/db/backends/sqlite3/base.py:210 raise InterfaceError",
+     "django/test/utils.py:519 override_settings.enable catches InterfaceError, handles it"
+    ],
+    "to": "override_settings.enable handles it"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 4,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 1650,
+   "ran": 759,
+   "replayed": 4,
+   "runner": "django-runtests",
+   "seconds": 43.5,
+   "selection": {
+    "candidates": 1650,
+    "closure_files": 8,
+    "closure_tests": 23,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [],
+    "observed": 119,
+    "static_only": 1435
+   },
+   "unrunnable": 41
+  },
+  "flips": 0,
+  "gaps": [
+   "100237 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "41 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run stopped at its 300 s budget: 640 of 1650 candidates run",
+   "tests/test_runner_apps/tagged/tests_syntax_error.py: SyntaxError"
+  ],
+  "impacted": {
+   "count": 641,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2930,
+   "parsed_files": 3
+  },
+  "original_tests": {
+   "tests/backends/sqlite/tests.py::LastExecutedQueryTest::test_parameter_count_exceeds_variable_or_column_limit": "passed",
+   "tests/backends/sqlite/tests.py::LastExecutedQueryTest::test_parameter_quoting": "passed",
+   "tests/backends/sqlite/tests.py::SchemaTests::test_constraint_checks_disabled_atomic_allowed": "passed",
+   "tests/backends/sqlite/tests.py::TestTransactionMode::test_invalid_transaction_mode": "passed",
+   "tests/backends/sqlite/tests.py::TestTransactionMode::test_valid_transaction_modes": "passed",
+   "tests/backends/sqlite/tests.py::Tests::test_aggregation": "passed",
+   "tests/backends/sqlite/tests.py::Tests::test_check_database_version_supported": "passed",
+   "tests/backends/sqlite/tests.py::Tests::test_distinct_aggregation": "passed",
+   "tests/backends/sqlite/tests.py::Tests::test_init_command": "passed",
+   "tests/backends/sqlite/tests.py::Tests::test_memory_db_test_name": "passed",
+   "tests/backends/sqlite/tests.py::Tests::test_pathlib_name": "passed",
+   "tests/backends/sqlite/tests.py::Tests::test_regexp_function": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/backends/sqlite/tests.py::Tests::test_nested_path_name",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/backends/sqlite/tests.py::Tests::test_nested_str_path_name",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/backends/sqlite/tests.py::Tests::test_database_name_with_file_in_path_not_allowed",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/backends/sqlite/tests.py::Tests::test_make_parent_path_oserror",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "d92ce427f940",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [
+    "django/db/backends/sqlite3/base.py#DatabaseWrapper.get_new_connection"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 7,
+   "differences": 0,
+   "functions_called": 1,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "tests/backends/sqlite/tests.py#Tests.test_database_name_with_file_in_path_not_allowed": "not a module or class function on both sides (new, removed or nested)",
+    "tests/backends/sqlite/tests.py#Tests.test_make_parent_path_oserror": "not a module or class function on both sides (new, removed or nested)",
+    "tests/backends/sqlite/tests.py#Tests.test_nested_path_name": "not a module or class function on both sides (new, removed or nested)",
+    "tests/backends/sqlite/tests.py#Tests.test_nested_str_path_name": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 22.0,
+   "targets": 1,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 759 of 1650 candidate tests after the change with django-runtests in 43.5 s, failures confirmed before it: 0 now fail. 1459 tests reach the change. 12 test(s) from edited test files also run as they were before the edit. 4 test(s) the change adds or edits replayed on the code before it: 4 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/sqlite/tests.py::Tests::test_make_parent_path_oserror",
+    "line": 196,
+    "run": "cd tests && python runtests.py backends.sqlite.tests.Tests.test_make_parent_path_oserror",
+    "score": 2.687,
+    "why": "via Tests"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/sqlite/tests.py::Tests::test_database_name_with_file_in_path_not_allowed",
+    "line": 176,
+    "run": "cd tests && python runtests.py backends.sqlite.tests.Tests.test_database_name_with_file_in_path_not_allowed",
+    "score": 1.744,
+    "why": "via Tests"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/sqlite/tests.py::Tests::test_nested_path_name",
+    "line": 148,
+    "run": "cd tests && python runtests.py backends.sqlite.tests.Tests.test_nested_path_name",
+    "score": 1.053,
+    "why": "via Tests"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/sqlite/tests.py::Tests::test_nested_str_path_name",
+    "line": 163,
+    "run": "cd tests && python runtests.py backends.sqlite.tests.Tests.test_nested_str_path_name",
+    "score": 0.831,
+    "why": "via Tests"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/sqlite/tests.py::Tests::test_pathlib_name",
+    "line": 105,
+    "run": "cd tests && python runtests.py backends.sqlite.tests.Tests.test_pathlib_name",
+    "score": 0.648,
+    "why": "via Tests"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/sqlite/tests.py::Tests::test_init_command",
+    "line": 125,
+    "run": "cd tests && python runtests.py backends.sqlite.tests.Tests.test_init_command",
+    "score": 0.463,
+    "why": "via Tests"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/sqlite/tests.py::Tests::test_memory_db_test_name",
+    "line": 74,
+    "run": "cd tests && python runtests.py backends.sqlite.tests.Tests.test_memory_db_test_name",
+    "score": 0.342,
+    "why": "via Tests"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/sqlite/tests.py::Tests::test_check_database_version_supported",
+    "line": 118,
+    "run": "cd tests && python runtests.py backends.sqlite.tests.Tests.test_check_database_version_supported",
+    "score": 0.33,
+    "why": "via Tests"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/sqlite/tests.py::Tests::test_aggregation",
+    "line": 32,
+    "run": "cd tests && python runtests.py backends.sqlite.tests.Tests.test_aggregation",
+    "score": 0.293,
+    "why": "via Tests"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/sqlite/tests.py::Tests::test_distinct_aggregation",
+    "line": 53,
+    "run": "cd tests && python runtests.py backends.sqlite.tests.Tests.test_distinct_aggregation",
+    "score": 0.284,
+    "why": "via Tests"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/sqlite/tests.py::Tests::test_regexp_function",
+    "line": 89,
+    "run": "cd tests && python runtests.py backends.sqlite.tests.Tests.test_regexp_function",
+    "score": 0.27,
+    "why": "via Tests"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_utils/test_testcase.py::TestTestCase::test_disallowed_database_connection",
+    "line": 46,
+    "run": "cd tests && python runtests.py test_utils.test_testcase.TestTestCase.test_disallowed_database_connection",
+    "score": 0.188,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.get_new_connection (name: connection,database)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_utils/tests.py::DisallowedDatabaseQueriesTests::test_disallowed_database_connections",
+    "line": 2258,
+    "run": "cd tests && python runtests.py test_utils.tests.DisallowedDatabaseQueriesTests.test_disallowed_database_connections",
+    "score": 0.161,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.get_new_connection (name: connection,database)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/servers/tests.py::LiveServerInMemoryDatabaseLockTest::test_in_memory_database_lock",
+    "line": 111,
+    "run": "cd tests && python runtests.py servers.tests.LiveServerInMemoryDatabaseLockTest.test_in_memory_database_lock",
+    "score": 0.145,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.get_new_connection (name: database)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/servers/test_liveserverthread.py::LiveServerThreadTest::test_closes_connections",
+    "line": 19,
+    "run": "cd tests && python runtests.py servers.test_liveserverthread.LiveServerThreadTest.test_closes_connections",
+    "score": 0.124,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.get_new_connection (name: connection)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/servers/tests.py::LiveServerTestCloseConnectionTest::test_closes_connections",
+    "line": 91,
+    "run": "cd tests && python runtests.py servers.tests.LiveServerTestCloseConnectionTest.test_closes_connections",
+    "score": 0.117,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.get_new_connection (name: connection)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/transaction_hooks/tests.py::TestConnectionOnCommit::test_hooks_cleared_on_reconnect",
+    "line": 259,
+    "run": "cd tests && python runtests.py transaction_hooks.tests.TestConnectionOnCommit.test_hooks_cleared_on_reconnect",
+    "score": 0.109,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.get_new_connection (name: connection)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_bypass_role_configuration",
+    "line": 630,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_bypass_role_configuration",
+    "score": 0.095,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.get_new_connection"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_nodb_cursor",
+    "line": 37,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_nodb_cursor",
+    "score": 0.095,
+    "why": "via Tests.test_nodb_cursor.mocked_connect > BaseDatabaseWrapper.connect > DatabaseWrapper.get_new_connection"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_connect_role",
+    "line": 423,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_connect_role",
+    "score": 0.093,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.get_new_connection"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/sqlite/test_creation.py::TestDbSignatureTests::test_setup_worker_connection_respects_test_database_name",
+    "line": 46,
+    "run": "cd tests && python runtests.py backends.sqlite.test_creation.TestDbSignatureTests.test_setup_worker_connection_respects_test_database_name",
+    "score": 0.086,
+    "why": "via DatabaseCreation.setup_worker_connection > BaseDatabaseWrapper.connect > DatabaseWrapper.get_new_connection (name: connection,database)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/oracle/tests.py::Tests::test_pool_reuse",
+    "line": 91,
+    "run": "cd tests && python runtests.py backends.oracle.tests.Tests.test_pool_reuse",
+    "score": 0.085,
+    "why": "via Tests.test_pool_reuse.get_connection > BaseDatabaseWrapper.connect > DatabaseWrapper.get_new_connection"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_connect_pool",
+    "line": 236,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_connect_pool",
+    "score": 0.085,
+    "why": "via Tests.test_connect_pool.get_connection > BaseDatabaseWrapper.connect > DatabaseWrapper.get_new_connection"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/db_utils/tests.py::ConnectionHandlerTests::test_no_default_database",
+    "line": 37,
+    "run": "cd tests && python runtests.py db_utils.tests.ConnectionHandlerTests.test_no_default_database",
+    "score": 0.085,
+    "why": "via BaseDatabaseWrapper.ensure_connection > BaseDatabaseWrapper.connect > DatabaseWrapper.get_new_connection (name: connection,database)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/oracle/tests.py::TransactionalTests::test_password_with_at_sign",
+    "line": 146,
+    "run": "cd tests && python runtests.py backends.oracle.tests.TransactionalTests.test_password_with_at_sign",
+    "score": 0.083,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.get_new_connection"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/oracle/tests.py::Tests::test_cannot_open_new_connection_in_atomic_block",
+    "line": 124,
+    "run": "cd tests && python runtests.py backends.oracle.tests.Tests.test_cannot_open_new_connection_in_atomic_block",
+    "score": 0.081,
+    "why": "via BaseDatabaseWrapper.ensure_connection > BaseDatabaseWrapper.connect > DatabaseWrapper.get_new_connection (name: connection,new)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_cannot_open_new_connection_in_atomic_block",
+    "line": 355,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_cannot_open_new_connection_in_atomic_block",
+    "score": 0.081,
+    "why": "via BaseDatabaseWrapper.ensure_connection > BaseDatabaseWrapper.connect > DatabaseWrapper.get_new_connection (name: connection,new)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_connect_custom_cursor_factory",
+    "line": 457,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_connect_custom_cursor_factory",
+    "score": 0.08,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.get_new_connection"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_connect_pool_setting_ignored_for_psycopg2",
+    "line": 375,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_connect_pool_setting_ignored_for_psycopg2",
+    "score": 0.08,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.get_new_connection"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_connect_server_side_binding",
+    "line": 438,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_connect_server_side_binding",
+    "score": 0.08,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.get_new_connection"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_client_encoding_utf8_enforce",
+    "line": 484,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_client_encoding_utf8_enforce",
+    "score": 0.075,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.get_new_connection"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/postgresql/tests.py::Tests::test_connect_no_is_usable_checks",
+    "line": 475,
+    "run": "cd tests && python runtests.py backends.postgresql.tests.Tests.test_connect_no_is_usable_checks",
+    "score": 0.075,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.get_new_connection"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/delete/tests.py::DeletionTests::test_only_referenced_fields_selected",
+    "line": 698,
+    "run": "cd tests && python runtests.py delete.tests.DeletionTests.test_only_referenced_fields_selected",
+    "score": 0.075,
+    "why": "via BaseDatabaseWrapper.connect > DatabaseWrapper.get_new_connection"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/mysql/test_creation.py::DatabaseCreationTests::test_clone_test_db_database_exists",
+    "line": 53,
+    "run": "cd tests && python runtests.py backends.mysql.test_creation.DatabaseCreationTests.test_clone_test_db_database_exists",
+    "score": 0.067,
+    "why": "via DatabaseCreation._clone_test_db > BaseDatabaseWrapper.connect > DatabaseWrapper.get_new_connection (name: database)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/sqlite/tests.py::TestTransactionMode::test_invalid_transaction_mode",
+    "line": 375,
+    "run": "cd tests && python runtests.py backends.sqlite.tests.TestTransactionMode.test_invalid_transaction_mode",
+    "score": 0.05,
+    "why": "via BaseDatabaseWrapper.ensure_connection > BaseDatabaseWrapper.connect > DatabaseWrapper.get_new_connection"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/db_utils/tests.py::ConnectionHandlerTests::test_connection_handler_no_databases",
+    "line": 13,
+    "run": "cd tests && python runtests.py db_utils.tests.ConnectionHandlerTests.test_connection_handler_no_databases",
+    "score": 0.049,
+    "why": "via ConnectionHandlerTests.assertImproperlyConfigured > BaseDatabaseWrapper.ensure_connection > BaseDatabaseWrapper.connect > DatabaseWrapper.get_new_connection (name: connection,database)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_utils/tests.py::AssertNumQueriesUponConnectionTests::test_ignores_connection_configuration_queries",
+    "line": 250,
+    "run": "cd tests && python runtests.py test_utils.tests.AssertNumQueriesUponConnectionTests.test_ignores_connection_configuration_queries",
+    "score": 0.049,
+    "why": "via BaseDatabaseWrapper.ensure_connection > BaseDatabaseWrapper.connect > DatabaseWrapper.get_new_connection (name: connection)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/migrate_signals/tests.py::MigrateSignalTests::test_args",
+    "line": 76,
+    "run": "cd tests && python runtests.py migrate_signals.tests.MigrateSignalTests.test_args",
+    "score": 0.048,
+    "why": "via Receiver.__init__ > BaseDatabaseWrapper.connect > DatabaseWrapper.get_new_connection"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/migrate_signals/tests.py::MigrateSignalTests::test_migrations_only",
+    "line": 100,
+    "run": "cd tests && python runtests.py migrate_signals.tests.MigrateSignalTests.test_migrations_only",
+    "score": 0.048,
+    "why": "via Receiver.__init__ > BaseDatabaseWrapper.connect > DatabaseWrapper.get_new_connection"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/backends/base/test_base.py::ConnectionHealthChecksTests::test_set_autocommit_health_checks_enabled",
+    "line": 370,
+    "run": "cd tests && python runtests.py backends.base.test_base.ConnectionHealthChecksTests.test_set_autocommit_health_checks_enabled",
+    "score": 0.048,
+    "why": "via BaseDatabaseWrapper.set_autocommit > BaseDatabaseWrapper.ensure_connection > BaseDatabaseWrapper.connect > DatabaseWrapper.get_new_connection (name: base,connection)"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792323785.791502,
+  "job_seconds": 55.6,
+  "number": 22030,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 55.7,
+  "started": 1792323729.152983
+ },
+ "verify": null
+}

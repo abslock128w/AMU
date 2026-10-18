@@ -1,0 +1,653 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "f14b5cd2d13c0145521eccec991c315794952117",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "428ebf79f834ab6e640558ab7f8cfe83bb0e409c",
+  "install_ok": true,
+  "merge_base": "f14b5cd2d13c0145521eccec991c315794952117",
+  "pr": 30569,
+  "recording": false,
+  "runner": null,
+  "seconds": 397.2,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "f14b5cd2d13c0145521eccec991c315794952117",
+  "head_sha": "428ebf79f834ab6e640558ab7f8cfe83bb0e409c",
+  "merge_base": "f14b5cd2d13c0145521eccec991c315794952117",
+  "merged_at": "2026-09-26T05:42:24Z",
+  "number": 30569,
+  "repo": "sympy",
+  "title": "series: rewrite Min/Max to Abs during limit evaluation in gruntz"
+ },
+ "probe_minutes": {
+  "end": 1792332278.962516,
+  "minutes": 0.4,
+  "start": 1792332094.402894,
+  "waited": 160.8281415419915
+ },
+ "probe_targets": {
+  "all": 2,
+  "called": 0,
+  "targets": [
+   {
+    "after": "def mrv(e, x):\n    \"\"\"Returns a SubsSet of most rapidly varying (mrv) subexpressions of 'e',\n       and e rewritten in terms of these\"\"\"\n    from sympy.simplify.powsimp import powsimp\n    e = powsimp(e, deep=True, combine='exp')\n    if not isinstance(e, Basic):\n        raise TypeError(\"e should be an instance of Basic\")\n    if not e.has(x):\n        return SubsSet(), e\n    elif e == x:\n        s = SubsSet()\n        return s, s[x]\n    elif e.is_Mul or e.is_Add:\n        i, d = e.as_independent(x)  # throw away x-independent terms\n        if d.func != e.func:\n            s, expr = mrv(d, x)\n            return s, e.func(i, expr)\n        a, b = d.as_two_terms()\n        s1, e1 = mrv(a, x)\n        s2, e2 = mrv(b, x)\n        return mrv_max1(s1, s2, e.func(i, e1, e2), x)\n    elif e.is_Pow and e.base != S.Exp1:\n        e1 = S.One\n        while e.is_Pow:\n            b1 = e.base\n            e1 *= e.exp\n            e = b1\n        if b1 == 1:\n            return SubsSet(), b1\n        if e1.has(x):\n            return mrv(exp(e1*log(b1)), x)\n        else:\n            s, expr = mrv(b1, x)\n            return s, expr**e1\n    elif isinstance(e, log):\n        s, expr = mrv(e.args[0], x)\n        return s, log(expr)\n    elif isinstance(e, exp) or (e.is_Pow and e.base == S.Exp1):\n        # We know from the theory of this algorithm that exp(log(...)) may always\n        # be simplified here, and doing so is vital for termination.\n        if isinstance(e.exp, log):\n            return mrv(e.exp.args[0], x)\n        # if a product has an infinite factor the result will be\n        # infinite if there is no zero, otherwise NaN; here, we\n        # consider the result infinite if any factor is infinite\n        li = limitinf(e.exp, x)\n        if any(_.is_infinite for _ in Mul.make_args(li)):\n            s1 = SubsSet()\n            e1 = s1[e]\n            s2, e2 = mrv(e.exp, x)\n            su = s1.union(s2)[0]\n            su.rewrites[e1] = exp(e2)\n            return mrv_max3(s1, e1, s2, exp(e2), su, e1, x)\n        else:\n            s, expr = mrv(e.exp, x)\n            return s, exp(expr)\n    elif isinstance(e, AppliedUndef):\n        raise ValueError(\"MRV set computation for UndefinedFunction is not allowed\")\n    elif e.is_Function:\n        from sympy.functions.elementary.miscellaneous import Min, Max\n        if isinstance(e, (Min, Max)):\n            from sympy.functions.elementary.complexes import Abs\n            return mrv(e.rewrite(Abs), x)\n        l = [mrv(a, x) for a in e.args]\n        l2 = [s for (s, _) in l if s != SubsSet()]\n        if len(l2) != 1:\n            # e.g. something like BesselJ(x, x)\n            raise NotImplementedError(\"MRV set computation for functions in\"\n                                      \" several variables not implemented.\")\n        s, ss = l2[0], SubsSet()\n        args = [ss.do_subs(x[1]) for x in l]\n        return s, e.func(*args)\n    elif e.is_Derivative:\n        raise NotImplementedError(\"MRV set computation for derivatives\"\n                                  \" not implemented yet.\")\n    raise NotImplementedError(\n        \"Don't know how to calculate the mrv of '%s'\" % e)\n",
+    "before": "def mrv(e, x):\n    \"\"\"Returns a SubsSet of most rapidly varying (mrv) subexpressions of 'e',\n       and e rewritten in terms of these\"\"\"\n    from sympy.simplify.powsimp import powsimp\n    e = powsimp(e, deep=True, combine='exp')\n    if not isinstance(e, Basic):\n        raise TypeError(\"e should be an instance of Basic\")\n    if not e.has(x):\n        return SubsSet(), e\n    elif e == x:\n        s = SubsSet()\n        return s, s[x]\n    elif e.is_Mul or e.is_Add:\n        i, d = e.as_independent(x)  # throw away x-independent terms\n        if d.func != e.func:\n            s, expr = mrv(d, x)\n            return s, e.func(i, expr)\n        a, b = d.as_two_terms()\n        s1, e1 = mrv(a, x)\n        s2, e2 = mrv(b, x)\n        return mrv_max1(s1, s2, e.func(i, e1, e2), x)\n    elif e.is_Pow and e.base != S.Exp1:\n        e1 = S.One\n        while e.is_Pow:\n            b1 = e.base\n            e1 *= e.exp\n            e = b1\n        if b1 == 1:\n            return SubsSet(), b1\n        if e1.has(x):\n            return mrv(exp(e1*log(b1)), x)\n        else:\n            s, expr = mrv(b1, x)\n            return s, expr**e1\n    elif isinstance(e, log):\n        s, expr = mrv(e.args[0], x)\n        return s, log(expr)\n    elif isinstance(e, exp) or (e.is_Pow and e.base == S.Exp1):\n        # We know from the theory of this algorithm that exp(log(...)) may always\n        # be simplified here, and doing so is vital for termination.\n        if isinstance(e.exp, log):\n            return mrv(e.exp.args[0], x)\n        # if a product has an infinite factor the result will be\n        # infinite if there is no zero, otherwise NaN; here, we\n        # consider the result infinite if any factor is infinite\n        li = limitinf(e.exp, x)\n        if any(_.is_infinite for _ in Mul.make_args(li)):\n            s1 = SubsSet()\n            e1 = s1[e]\n            s2, e2 = mrv(e.exp, x)\n            su = s1.union(s2)[0]\n            su.rewrites[e1] = exp(e2)\n            return mrv_max3(s1, e1, s2, exp(e2), su, e1, x)\n        else:\n            s, expr = mrv(e.exp, x)\n            return s, exp(expr)\n    elif isinstance(e, AppliedUndef):\n        raise ValueError(\"MRV set computation for UndefinedFunction is not allowed\")\n    elif e.is_Function:\n        l = [mrv(a, x) for a in e.args]\n        l2 = [s for (s, _) in l if s != SubsSet()]\n        if len(l2) != 1:\n            # e.g. something like BesselJ(x, x)\n            raise NotImplementedError(\"MRV set computation for functions in\"\n                                      \" several variables not implemented.\")\n        s, ss = l2[0], SubsSet()\n        args = [ss.do_subs(x[1]) for x in l]\n        return s, e.func(*args)\n    elif e.is_Derivative:\n        raise NotImplementedError(\"MRV set computation for derivatives\"\n                                  \" not implemented yet.\")\n    raise NotImplementedError(\n        \"Don't know how to calculate the mrv of '%s'\" % e)\n",
+    "file": "sympy/series/gruntz.py",
+    "id": "sympy/series/gruntz.py#mrv",
+    "name": "mrv",
+    "qual": "mrv",
+    "signature_changed": false
+   },
+   {
+    "after": "def gruntz(e, z, z0, dir=\"+\"):\n    \"\"\"\n    Compute the limit of e(z) at the point z0 using the Gruntz algorithm.\n\n    Explanation\n    ===========\n\n    ``z0`` can be any expression, including oo and -oo.\n\n    For ``dir=\"+\"`` (default) it calculates the limit from the right\n    (z->z0+) and for ``dir=\"-\"`` the limit from the left (z->z0-). For infinite z0\n    (oo or -oo), the dir argument does not matter.\n\n    This algorithm is fully described in the module docstring in the gruntz.py\n    file. It relies heavily on the series expansion. Most frequently, gruntz()\n    is only used if the faster limit() function (which uses heuristics) fails.\n    \"\"\"\n    if not z.is_symbol:\n        raise NotImplementedError(\"Second argument must be a Symbol\")\n\n    from sympy.functions.elementary.miscellaneous import Min, Max\n    if e.has(Min, Max):\n        from sympy.functions.elementary.complexes import Abs\n        e = e.rewrite((Min, Max), Abs)\n\n    # convert all limits to the limit z->oo; sign of z is handled in limitinf\n    r = None\n    if z0 in (oo, I*oo):\n        e0 = e\n    elif z0 in (-oo, -I*oo):\n        e0 = e.subs(z, -z)\n    else:\n        if str(dir) == \"-\":\n            e0 = e.subs(z, z0 - 1/z)\n        elif str(dir) == \"+\":\n            e0 = e.subs(z, z0 + 1/z)\n        else:\n            raise NotImplementedError(\"dir must be '+' or '-'\")\n\n    r = limitinf(e0, z)\n\n    # This is a bit of a heuristic for nice results... we always rewrite\n    # tractable functions in terms of familiar intractable ones.\n    # It might be nicer to rewrite the exactly to what they were initially,\n    # but that would take some work to implement.\n    return r.rewrite('intractable', deep=True)\n",
+    "before": "def gruntz(e, z, z0, dir=\"+\"):\n    \"\"\"\n    Compute the limit of e(z) at the point z0 using the Gruntz algorithm.\n\n    Explanation\n    ===========\n\n    ``z0`` can be any expression, including oo and -oo.\n\n    For ``dir=\"+\"`` (default) it calculates the limit from the right\n    (z->z0+) and for ``dir=\"-\"`` the limit from the left (z->z0-). For infinite z0\n    (oo or -oo), the dir argument does not matter.\n\n    This algorithm is fully described in the module docstring in the gruntz.py\n    file. It relies heavily on the series expansion. Most frequently, gruntz()\n    is only used if the faster limit() function (which uses heuristics) fails.\n    \"\"\"\n    if not z.is_symbol:\n        raise NotImplementedError(\"Second argument must be a Symbol\")\n\n    # convert all limits to the limit z->oo; sign of z is handled in limitinf\n    r = None\n    if z0 in (oo, I*oo):\n        e0 = e\n    elif z0 in (-oo, -I*oo):\n        e0 = e.subs(z, -z)\n    else:\n        if str(dir) == \"-\":\n            e0 = e.subs(z, z0 - 1/z)\n        elif str(dir) == \"+\":\n            e0 = e.subs(z, z0 + 1/z)\n        else:\n            raise NotImplementedError(\"dir must be '+' or '-'\")\n\n    r = limitinf(e0, z)\n\n    # This is a bit of a heuristic for nice results... we always rewrite\n    # tractable functions in terms of familiar intractable ones.\n    # It might be nicer to rewrite the exactly to what they were initially,\n    # but that would take some work to implement.\n    return r.rewrite('intractable', deep=True)\n",
+    "file": "sympy/series/gruntz.py",
+    "id": "sympy/series/gruntz.py#gruntz",
+    "name": "gruntz",
+    "qual": "gruntz",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "return",
+      "list",
+      "['oo', 'raised PoleError']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['raised NotImplementedError', 'raised NotImplementedError']"
+     ],
+     "call": "[outcome(lambda: gruntz(Min(exp(x), exp(2*x)), x, oo)), outcome(lambda: gruntz(Max(x, sin(x)), x, oo))]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import Max, Min, exp, oo, sin, symbols\nfrom sympy.series.gruntz import gruntz, mrv\nx = symbols('x')\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\n",
+     "target": "sympy/series/gruntz.py#gruntz",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import Max, Min, exp, oo, sin, symbols\n    from sympy.series.gruntz import gruntz, mrv\n    x = symbols('x')\n\n    def outcome(f):\n        try:\n            return str(f())\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__\n    assert repr([outcome(lambda: gruntz(Min(exp(x), exp(2*x)), x, oo)), outcome(lambda: gruntz(Max(x, sin(x)), x, oo))]) == \"['oo', 'raised PoleError']\"\n",
+     "why": "Min and Max of x-dependent arguments, the issue examples"
+    },
+    {
+     "after": [
+      "return",
+      "str",
+      "'_Dummy_118/2 + _Dummy_132/2 - Abs(_Dummy_118 - _Dummy_132)/2'"
+     ],
+     "before": [
+      "return",
+      "str",
+      "'raised NotImplementedError'"
+     ],
+     "call": "outcome(lambda: mrv(Min(exp(x), exp(2*x)), x)[1])",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import Max, Min, exp, oo, sin, symbols\nfrom sympy.series.gruntz import gruntz, mrv\nx = symbols('x')\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\n",
+     "target": "sympy/series/gruntz.py#mrv",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import Max, Min, exp, oo, sin, symbols\n    from sympy.series.gruntz import gruntz, mrv\n    x = symbols('x')\n\n    def outcome(f):\n        try:\n            return str(f())\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__\n    assert repr(outcome(lambda: mrv(Min(exp(x), exp(2*x)), x)[1])) == \"'_Dummy_118/2 + _Dummy_132/2 - Abs(_Dummy_118 - _Dummy_132)/2'\"\n",
+     "why": "mrv of a Min of two exponentials"
+    }
+   ],
+   "dollars_cap": 0.1,
+   "filter_seconds": 15.3,
+   "gaps": [],
+   "info": {
+    "accepted": 2,
+    "compiled": 2,
+    "cost": 0.0,
+    "differed": 2,
+    "dollars_cap": 0.1,
+    "functions": 2,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 2,
+    "ran": 2,
+    "reached": 2,
+    "requests": 1,
+    "seconds": 15.1,
+    "stable": 2
+   },
+   "probes": [
+    {
+     "call": "[outcome(lambda: gruntz(Min(exp(x), exp(2*x)), x, oo)), outcome(lambda: gruntz(Max(x, sin(x)), x, oo))]",
+     "function": "sympy/series/gruntz.py#gruntz",
+     "setup": "from sympy import Max, Min, exp, oo, sin, symbols\nfrom sympy.series.gruntz import gruntz, mrv\nx = symbols('x')\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\n",
+     "why": "Min and Max of x-dependent arguments, the issue examples"
+    },
+    {
+     "call": "outcome(lambda: mrv(Min(exp(x), exp(2*x)), x)[1])",
+     "function": "sympy/series/gruntz.py#mrv",
+     "setup": "from sympy import Max, Min, exp, oo, sin, symbols\nfrom sympy.series.gruntz import gruntz, mrv\nx = symbols('x')\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\n",
+     "why": "mrv of a Min of two exponentials"
+    }
+   ],
+   "targets": [
+    "sympy/series/gruntz.py#mrv",
+    "sympy/series/gruntz.py#gruntz"
+   ],
+   "waited_seconds": 160.8
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/series/tests/test_limits.py::test_issue_30568",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/series/gruntz.py",
+    "lines": "308-311",
+    "symbol": "mrv"
+   },
+   {
+    "file": "sympy/series/gruntz.py",
+    "lines": "686-690",
+    "symbol": "gruntz"
+   },
+   {
+    "file": "sympy/series/tests/test_limits.py",
+    "lines": "1492-1497",
+    "symbol": "test_issue_30568"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/series/gruntz.py#gruntz",
+   "sympy/series/gruntz.py#mrv",
+   "sympy/series/tests/test_limits.py#test_issue_30568",
+   "sympy/series/tests/test_limits.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "mrv return changed",
+    "path": [
+     "sympy/series/gruntz.py:311 return",
+     "sympy/core/expr.py:3290 Expr.aseries uses the result",
+     "sympy/series/gruntz.py:499 mrv_leadterm uses the result",
+     "sympy/series/tests/test_gruntz.py:247 mmrv uses the result"
+    ],
+    "to": "3 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 1,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 768,
+   "ran": 768,
+   "replayed": 1,
+   "runner": "pytest",
+   "seconds": 390.2,
+   "selection": {
+    "candidates": 12895,
+    "closure_files": 1321,
+    "closure_tests": 12888,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 7
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "12127 lower-ranked candidate(s) not run: about 3 tests/s per process fit 768 in the 300 s allowed",
+   "78484 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "graph reused from the previous state; 7 changed file(s) relinked",
+   "side-by-side: none of the 2 changed function(s) was called by the tests run on the code before the change"
+  ],
+  "impacted": {
+   "count": 3637,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1607,
+   "parsed_files": 2
+  },
+  "original_tests": {
+   "sympy/series/tests/test_limits.py::test_heuristic": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/series/tests/test_limits.py::test_issue_30568",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "75c9aa87bf0e",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 0,
+   "differences": 0,
+   "functions_called": 0,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "sympy/series/tests/test_limits.py#test_issue_30568": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 90.2,
+   "targets": 2,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 768 of 768 candidate tests after the change with pytest in 390.2 s, failures confirmed before it: 0 now fail. 3958 tests reach the change. 1 test(s) from edited test files also run as they were before the edit. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_issue_7391_8166",
+    "line": 480,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_issue_7391_8166",
+    "score": 3.525,
+    "why": "calls gruntz (name: gruntz)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_rewrite1",
+    "line": 310,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_rewrite1",
+    "score": 2.276,
+    "why": "calls mrv (name: gruntz)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_aseries_trig",
+    "line": 426,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_aseries_trig",
+    "score": 2.079,
+    "why": "calls gruntz (name: gruntz)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_exp_log_series",
+    "line": 432,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_exp_log_series",
+    "score": 1.54,
+    "why": "calls gruntz (name: gruntz)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_rewrite2",
+    "line": 321,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_rewrite2",
+    "score": 1.298,
+    "why": "calls mrv (name: gruntz)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_grunts_eval_special_slow_sometimes_fail",
+    "line": 136,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_grunts_eval_special_slow_sometimes_fail",
+    "score": 1.189,
+    "why": "calls gruntz (name: gruntz)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_gruntz_Ei",
+    "line": 143,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_gruntz_Ei",
+    "score": 1.049,
+    "why": "calls gruntz (name: gruntz)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_gruntz_I",
+    "line": 403,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_gruntz_I",
+    "score": 0.975,
+    "why": "calls gruntz (name: gruntz)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_gruntz_eval_special",
+    "line": 109,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_gruntz_eval_special",
+    "score": 0.935,
+    "why": "calls gruntz (name: gruntz)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_gruntz_eval_special_fail",
+    "line": 147,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_gruntz_eval_special_fail",
+    "score": 0.913,
+    "why": "calls gruntz (name: gruntz)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_gruntz_eval_special_slow",
+    "line": 129,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_gruntz_eval_special_slow",
+    "score": 0.9,
+    "why": "calls gruntz (name: gruntz)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_gruntz_evaluation",
+    "line": 41,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_gruntz_evaluation",
+    "score": 0.892,
+    "why": "calls gruntz (name: gruntz)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_gruntz_evaluation_slow",
+    "line": 98,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_gruntz_evaluation_slow",
+    "score": 0.886,
+    "why": "calls gruntz (name: gruntz)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_gruntz_hyperbolic",
+    "line": 156,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_gruntz_hyperbolic",
+    "score": 0.882,
+    "why": "calls gruntz (name: gruntz)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_intractable",
+    "line": 415,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_intractable",
+    "score": 0.879,
+    "why": "calls gruntz (name: gruntz)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_issue_24210_25885",
+    "line": 487,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_issue_24210_25885",
+    "score": 0.877,
+    "why": "calls gruntz (name: gruntz)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_issue_3644",
+    "line": 436,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_issue_3644",
+    "score": 0.874,
+    "why": "calls gruntz (name: gruntz)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_issue_4109",
+    "line": 466,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_issue_4109",
+    "score": 0.873,
+    "why": "calls gruntz (name: gruntz)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_issue_4190",
+    "line": 446,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_issue_4190",
+    "score": 0.871,
+    "why": "calls gruntz (name: gruntz)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_issue_4814",
+    "line": 411,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_issue_4814",
+    "score": 0.869,
+    "why": "calls gruntz (name: gruntz)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_issue_5172",
+    "line": 450,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_issue_5172",
+    "score": 0.868,
+    "why": "calls gruntz (name: gruntz)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_issue_6682",
+    "line": 471,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_issue_6682",
+    "score": 0.867,
+    "why": "calls gruntz (name: gruntz)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_issue_6843",
+    "line": 440,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_issue_6843",
+    "score": 0.865,
+    "why": "calls gruntz (name: gruntz)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_issue_7096",
+    "line": 475,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_issue_7096",
+    "score": 0.864,
+    "why": "calls gruntz (name: gruntz)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_limit1",
+    "line": 355,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_limit1",
+    "score": 0.863,
+    "why": "calls gruntz (name: gruntz)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_limit2",
+    "line": 370,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_limit2",
+    "score": 0.862,
+    "why": "calls gruntz (name: gruntz)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_limit3",
+    "line": 381,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_limit3",
+    "score": 0.862,
+    "why": "calls gruntz (name: gruntz)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_limit4",
+    "line": 389,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_limit4",
+    "score": 0.861,
+    "why": "calls gruntz (name: gruntz)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_rewrite3",
+    "line": 329,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_rewrite3",
+    "score": 0.667,
+    "why": "calls mrv (name: gruntz)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_mrv_leadterm1",
+    "line": 336,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_mrv_leadterm1",
+    "score": 0.558,
+    "why": "via mrv_leadterm > mrv (name: gruntz,mrv)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_mrv_leadterm2",
+    "line": 343,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_mrv_leadterm2",
+    "score": 0.552,
+    "why": "via mrv_leadterm > mrv (name: gruntz,mrv)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_mrv_leadterm3",
+    "line": 349,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_mrv_leadterm3",
+    "score": 0.548,
+    "why": "via mmrv > mrv (name: gruntz,mrv)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_MrvTestCase_page47_ex3_21",
+    "line": 396,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_MrvTestCase_page47_ex3_21",
+    "score": 0.493,
+    "why": "via mmrv > mrv (name: gruntz,mrv)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_mrv1",
+    "line": 250,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_mrv1",
+    "score": 0.491,
+    "why": "via mmrv > mrv (name: gruntz,mrv)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_mrv2a",
+    "line": 262,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_mrv2a",
+    "score": 0.491,
+    "why": "via mmrv > mrv (name: gruntz,mrv)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_mrv2b",
+    "line": 270,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_mrv2b",
+    "score": 0.49,
+    "why": "via mmrv > mrv (name: gruntz,mrv)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_mrv2c",
+    "line": 276,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_mrv2c",
+    "score": 0.49,
+    "why": "via mmrv > mrv (name: gruntz,mrv)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_mrv3",
+    "line": 283,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_mrv3",
+    "score": 0.49,
+    "why": "via mmrv > mrv (name: gruntz,mrv)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_gruntz.py::test_mrv4",
+    "line": 298,
+    "run": "python -m pytest sympy/series/tests/test_gruntz.py::test_mrv4",
+    "score": 0.49,
+    "why": "via mmrv > mrv (name: gruntz,mrv)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/functions/special/tests/test_error_functions.py::test_li",
+    "line": 555,
+    "run": "python -m pytest sympy/functions/special/tests/test_error_functions.py::test_li",
+    "score": 0.441,
+    "why": "calls gruntz"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/series/tests/test_limits.py",
+    "lines": "1492-1497",
+    "symbol": "test_issue_30568"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792332081.825793,
+  "job_seconds": 397.2,
+  "number": 30569,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 397.4,
+  "started": 1792331682.4479082
+ },
+ "verify": null
+}

@@ -1,0 +1,898 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "4fab678a0739d54401ccee7eb587553657c9f76e",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "31475b59922c7375fec9de5f87cd3280f259411b",
+  "install_ok": true,
+  "merge_base": "4fab678a0739d54401ccee7eb587553657c9f76e",
+  "pr": 22025,
+  "recording": true,
+  "runner": null,
+  "seconds": 22.0,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "4fab678a0739d54401ccee7eb587553657c9f76e",
+  "head_sha": "31475b59922c7375fec9de5f87cd3280f259411b",
+  "merge_base": "4fab678a0739d54401ccee7eb587553657c9f76e",
+  "merged_at": "2026-09-27T14:39:15Z",
+  "number": 22025,
+  "repo": "django",
+  "title": "Fixed #37066 -- Wrapped async iteration sites in (maybe_)aclosing."
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 2,
+  "called": 2,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/async/tests.py::MaybeAClosingTest::test_calls_aclose_on_iterator_with_aclose",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/async/tests.py::MaybeAClosingTest::test_no_aclose_on_iterator_without_aclose",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/httpwrappers/tests.py::StreamingHttpResponseTests::test_streaming_response_closes_user_generator_promptly",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/pagination/tests.py::ModelPaginationTests::test_async_page_aiteration_closes_object_list_promptly",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/test_client/tests.py::AsyncClientTest::test_aclosing_iterator_wrapper_closes_inner_iterable_promptly",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/utils_tests/test_text.py::TestUtilsText::test_acompress_sequence_closes_inner_sequence_promptly",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "django/contrib/auth/backends.py",
+    "lines": "144-149",
+    "symbol": "ModelBackend._aget_permissions"
+   },
+   {
+    "file": "django/core/paginator.py",
+    "lines": "374-376",
+    "symbol": "AsyncPage.__aiter__"
+   },
+   {
+    "file": "django/core/paginator.py",
+    "lines": "419-420",
+    "symbol": "AsyncPage.aget_object_list"
+   },
+   {
+    "file": "django/db/models/query.py",
+    "lines": "659-681",
+    "symbol": "QuerySet.aiterator"
+   },
+   {
+    "file": "django/http/response.py",
+    "lines": "497-499",
+    "symbol": "StreamingHttpResponse.streaming_content"
+   },
+   {
+    "file": "django/http/response.py",
+    "lines": "497-499",
+    "symbol": "StreamingHttpResponse.streaming_content.awrapper"
+   },
+   {
+    "file": "django/http/response.py",
+    "lines": "534-536",
+    "symbol": "StreamingHttpResponse.__iter__.to_list"
+   },
+   {
+    "file": "django/http/response.py",
+    "lines": "534-536",
+    "symbol": "StreamingHttpResponse.__iter__"
+   },
+   {
+    "file": "django/http/response.py",
+    "lines": "543-545",
+    "symbol": "StreamingHttpResponse.__aiter__"
+   },
+   {
+    "file": "django/shortcuts.py",
+    "lines": "167-168",
+    "symbol": "aget_list_or_404"
+   },
+   {
+    "file": "django/test/client.py",
+    "lines": "132-134",
+    "symbol": "aclosing_iterator_wrapper"
+   },
+   {
+    "file": "django/utils/asyncio.py",
+    "lines": "9-24",
+    "symbol": "maybe_aclosing"
+   },
+   {
+    "file": "django/utils/text.py",
+    "lines": "401-407",
+    "symbol": "acompress_sequence"
+   },
+   {
+    "file": "tests/async/tests.py",
+    "lines": "69-84",
+    "symbol": "MaybeAClosingTest.test_calls_aclose_on_iterator_with_aclose"
+   },
+   {
+    "file": "tests/async/tests.py",
+    "lines": "72-78",
+    "symbol": "MaybeAClosingTest.test_calls_aclose_on_iterator_with_aclose.gen"
+   },
+   {
+    "file": "tests/async/tests.py",
+    "lines": "86-103",
+    "symbol": "MaybeAClosingTest.test_no_aclose_on_iterator_without_aclose"
+   },
+   {
+    "file": "tests/async/tests.py",
+    "lines": "88-89",
+    "symbol": "MaybeAClosingTest.test_no_aclose_on_iterator_without_aclose.PlainAsyncIterator.__init__"
+   },
+   {
+    "file": "tests/async/tests.py",
+    "lines": "91-92",
+    "symbol": "MaybeAClosingTest.test_no_aclose_on_iterator_without_aclose.PlainAsyncIterator.__aiter__"
+   },
+   {
+    "file": "tests/async/tests.py",
+    "lines": "94-98",
+    "symbol": "MaybeAClosingTest.test_no_aclose_on_iterator_without_aclose.PlainAsyncIterator.__anext__"
+   },
+   {
+    "file": "tests/httpwrappers/tests.py",
+    "lines": "861-875",
+    "symbol": "StreamingHttpResponseTests.test_streaming_response_closes_user_generator_promptly"
+   },
+   {
+    "file": "tests/httpwrappers/tests.py",
+    "lines": "864-869",
+    "symbol": "StreamingHttpResponseTests.test_streaming_response_closes_user_generator_promptly.body"
+   },
+   {
+    "file": "tests/pagination/tests.py",
+    "lines": "996-1011",
+    "symbol": "ModelPaginationTests.test_async_page_aiteration_closes_object_list_promptly"
+   },
+   {
+    "file": "tests/pagination/tests.py",
+    "lines": "999-1005",
+    "symbol": "ModelPaginationTests.test_async_page_aiteration_closes_object_list_promptly.object_list"
+   },
+   {
+    "file": "tests/test_client/tests.py",
+    "lines": "1269-1284",
+    "symbol": "AsyncClientTest.test_aclosing_iterator_wrapper_closes_inner_iterable_promptly"
+   },
+   {
+    "file": "tests/test_client/tests.py",
+    "lines": "1272-1277",
+    "symbol": "AsyncClientTest.test_aclosing_iterator_wrapper_closes_inner_iterable_promptly.iterable"
+   },
+   {
+    "file": "tests/utils_tests/test_text.py",
+    "lines": "422-436",
+    "symbol": "TestUtilsText.test_acompress_sequence_closes_inner_sequence_promptly"
+   },
+   {
+    "file": "tests/utils_tests/test_text.py",
+    "lines": "425-431",
+    "symbol": "TestUtilsText.test_acompress_sequence_closes_inner_sequence_promptly.sequence"
+   }
+  ],
+  "changed_symbols": [
+   "django/contrib/auth/backends.py#ModelBackend._aget_permissions",
+   "django/core/paginator.py#AsyncPage.__aiter__",
+   "django/core/paginator.py#AsyncPage.aget_object_list",
+   "django/db/models/query.py#QuerySet.aiterator",
+   "django/http/response.py#StreamingHttpResponse.__aiter__",
+   "django/http/response.py#StreamingHttpResponse.__iter__",
+   "django/http/response.py#StreamingHttpResponse.__iter__.to_list",
+   "django/http/response.py#StreamingHttpResponse.streaming_content",
+   "django/http/response.py#StreamingHttpResponse.streaming_content.awrapper",
+   "django/shortcuts.py#aget_list_or_404",
+   "django/test/client.py#aclosing_iterator_wrapper",
+   "django/utils/asyncio.py#maybe_aclosing",
+   "django/utils/text.py#acompress_sequence",
+   "tests/async/tests.py#MaybeAClosingTest.test_calls_aclose_on_iterator_with_aclose",
+   "tests/async/tests.py#MaybeAClosingTest.test_calls_aclose_on_iterator_with_aclose.gen",
+   "tests/async/tests.py#MaybeAClosingTest.test_no_aclose_on_iterator_without_aclose",
+   "tests/async/tests.py#MaybeAClosingTest.test_no_aclose_on_iterator_without_aclose.PlainAsyncIterator.__aiter__",
+   "tests/async/tests.py#MaybeAClosingTest.test_no_aclose_on_iterator_without_aclose.PlainAsyncIterator.__anext__",
+   "tests/async/tests.py#MaybeAClosingTest.test_no_aclose_on_iterator_without_aclose.PlainAsyncIterator.__init__",
+   "tests/httpwrappers/tests.py#StreamingHttpResponseTests.test_streaming_response_closes_user_generator_promptly",
+   "tests/httpwrappers/tests.py#StreamingHttpResponseTests.test_streaming_response_closes_user_generator_promptly.body",
+   "tests/pagination/tests.py#ModelPaginationTests.test_async_page_aiteration_closes_object_list_promptly",
+   "tests/pagination/tests.py#ModelPaginationTests.test_async_page_aiteration_closes_object_list_promptly.object_list",
+   "tests/test_client/tests.py#AsyncClientTest.test_aclosing_iterator_wrapper_closes_inner_iterable_promptly",
+   "tests/test_client/tests.py#AsyncClientTest.test_aclosing_iterator_wrapper_closes_inner_iterable_promptly.iterable",
+   "tests/utils_tests/test_text.py#TestUtilsText.test_acompress_sequence_closes_inner_sequence_promptly",
+   "tests/utils_tests/test_text.py#TestUtilsText.test_acompress_sequence_closes_inner_sequence_promptly.sequence",
+   "tests/async/tests.py#MaybeAClosingTest",
+   "tests/async/tests.py#MaybeAClosingTest.test_no_aclose_on_iterator_without_aclose.PlainAsyncIterator",
+   "tests/pagination/tests.py#ModelPaginationTests",
+   "tests/test_client/tests.py#AsyncClientTest",
+   "tests/utils_tests/test_text.py#TestUtilsText",
+   "django/contrib/auth/backends.py",
+   "django/core/paginator.py",
+   "django/db/models/query.py",
+   "django/http/response.py",
+   "django/shortcuts.py",
+   "django/test/client.py",
+   "django/utils/asyncio.py",
+   "django/utils/text.py",
+   "tests/async/tests.py",
+   "tests/httpwrappers/tests.py",
+   "tests/pagination/tests.py",
+   "tests/test_client/tests.py",
+   "tests/utils_tests/test_text.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "AsyncPage.aget_object_list writes self.object_list",
+    "path": [
+     "django/core/paginator.py:420 self.object_list assigned",
+     "django/core/paginator.py:373 AsyncPage.__aiter__ reads self.object_list",
+     "django/core/paginator.py:382 AsyncPage.__len__ reads self.object_list",
+     "django/core/paginator.py:389 AsyncPage.__reversed__ reads self.object_list"
+    ],
+    "to": "4 reader(s) in AsyncPage"
+   },
+   {
+    "evidence": "static source path",
+    "from": "MaybeAClosingTest.test_no_aclose_on_iterator_without_aclose.PlainAsyncIterator.__init__ writes self.values",
+    "path": [
+     "tests/async/tests.py:89 self.values assigned",
+     "tests/async/tests.py:96 MaybeAClosingTest.test_no_aclose_on_iterator_without_aclose.PlainAsyncIterator.__anext__ reads self.values"
+    ],
+    "to": "1 reader(s) in MaybeAClosingTest.test_no_aclose_on_iterator_without_aclose.PlainAsyncIterator"
+   },
+   {
+    "evidence": "static source path",
+    "from": "maybe_aclosing return changed",
+    "path": [
+     "django/utils/asyncio.py:20 return",
+     "django/core/paginator.py:374 AsyncPage.__aiter__ uses the result",
+     "django/core/paginator.py:419 AsyncPage.aget_object_list uses the result",
+     "django/http/response.py:534 StreamingHttpResponse.__iter__.to_list uses the result"
+    ],
+    "to": "6 caller(s) use the result"
+   },
+   {
+    "evidence": "static source path",
+    "from": "aclosing_iterator_wrapper return changed",
+    "path": [
+     "django/test/client.py:134 return",
+     "django/test/client.py:252 AsyncClientHandler.__call__ uses the result",
+     "django/test/client.py:200 ClientHandler.__call__ uses the result"
+    ],
+    "to": "2 caller(s) use the result"
+   },
+   {
+    "evidence": "static source path",
+    "from": "StreamingHttpResponse.streaming_content.awrapper return changed",
+    "path": [
+     "django/http/response.py:499 return",
+     "django/http/response.py:501 StreamingHttpResponse.streaming_content uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   },
+   {
+    "evidence": "static source path",
+    "from": "acompress_sequence return changed",
+    "path": [
+     "django/utils/text.py:407 return",
+     "django/middleware/gzip.py:36 GZipMiddleware.process_response uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 6,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 13920,
+   "ran": 319,
+   "replayed": 6,
+   "runner": "django-runtests",
+   "seconds": 17.0,
+   "selection": {
+    "candidates": 17393,
+    "closure_files": 836,
+    "closure_tests": 12086,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/contrib/admin/__init__.py",
+     "django/contrib/auth/models.py",
+     "django/core/management/base.py",
+     "django/db/migrations/__init__.py",
+     "django/db/models/__init__.py",
+     "django/db/models/expressions.py",
+     "django/db/models/functions/__init__.py",
+     "django/forms/__init__.py",
+     "django/http/__init__.py",
+     "django/template/__init__.py",
+     "django/template/defaultfilters.py",
+     "django/test/__init__.py",
+     "django/test/utils.py",
+     "django/utils/translation/__init__.py",
+     "tests/template_tests/utils.py"
+    ],
+    "observed": 246,
+    "static_only": 4135
+   },
+   "unrunnable": 161
+  },
+  "flips": 0,
+  "gaps": [
+   "106977 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "161 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "3473 lower-ranked candidate(s) not run: about 14 tests/s per process fit 13920 in the 300 s allowed",
+   "Skipped 2 non-Python file(s)",
+   "graph reused from the previous state; 13 changed file(s) relinked",
+   "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run stopped at its 300 s budget: 320 of 13920 candidates run"
+  ],
+  "impacted": {
+   "count": 370,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2930,
+   "parsed_files": 13
+  },
+  "original_tests": {
+   "tests/httpwrappers/tests.py::FileCloseTests::test_streaming_response": "passed",
+   "tests/httpwrappers/tests.py::HttpResponseSubclassesTests::test_invalid_redirect_repr": "passed",
+   "tests/httpwrappers/tests.py::HttpResponseSubclassesTests::test_not_allowed": "passed",
+   "tests/httpwrappers/tests.py::HttpResponseSubclassesTests::test_redirect": "passed",
+   "tests/httpwrappers/tests.py::StreamingHttpResponseTests::test_async_streaming_response": "passed",
+   "tests/httpwrappers/tests.py::StreamingHttpResponseTests::test_async_streaming_response_warning": "passed",
+   "tests/httpwrappers/tests.py::StreamingHttpResponseTests::test_repr": "passed",
+   "tests/httpwrappers/tests.py::StreamingHttpResponseTests::test_streaming_response": "passed",
+   "tests/httpwrappers/tests.py::StreamingHttpResponseTests::test_sync_streaming_response_warning": "passed",
+   "tests/httpwrappers/tests.py::StreamingHttpResponseTests::test_text_attribute_error": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_aget_object_list": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_async_page_aiteration": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_async_page_object_list_raises_type_error_before_await": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_first_page": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_first_page_async": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_last_page": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_last_page_async": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_page_getitem": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_page_getitem_async": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_paginating_empty_queryset_does_not_warn": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_paginating_empty_queryset_does_not_warn_async": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_paginating_unordered_object_list_raises_warning": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_paginating_unordered_object_list_raises_warning_async": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_paginating_unordered_queryset_raises_warning": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_paginating_unordered_queryset_raises_warning_async": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_page_sequence_async": "passed",
+   "tests/test_client/tests.py::AsyncClientTest::test_body_read_on_get_data": "passed",
+   "tests/test_client/tests.py::AsyncClientTest::test_follow_double_redirect": "passed",
+   "tests/test_client/tests.py::AsyncClientTest::test_follow_redirect": "passed",
+   "tests/test_client/tests.py::AsyncClientTest::test_get_data": "passed",
+   "tests/test_client/tests.py::AsyncClientTest::test_post_data": "passed",
+   "tests/test_client/tests.py::AsyncClientTest::test_query_params": "passed",
+   "tests/test_client/tests.py::AsyncClientTest::test_redirect": "passed",
+   "tests/test_client/tests.py::AsyncClientTest::test_response_resolver_match": "passed",
+   "tests/test_client/tests.py::AsyncClientTest::test_response_resolver_match_middleware_urlconf": "passed",
+   "tests/utils_tests/test_text.py::TestUtilsText::test_compress_sequence": "passed",
+   "tests/utils_tests/test_text.py::TestUtilsText::test_format_lazy": "passed",
+   "tests/utils_tests/test_text.py::TestUtilsText::test_get_text_list": "passed",
+   "tests/utils_tests/test_text.py::TestUtilsText::test_get_valid_filename": "passed",
+   "tests/utils_tests/test_text.py::TestUtilsText::test_normalize_newlines": "passed",
+   "tests/utils_tests/test_text.py::TestUtilsText::test_phone2numeric": "passed",
+   "tests/utils_tests/test_text.py::TestUtilsText::test_slugify": "passed",
+   "tests/utils_tests/test_text.py::TestUtilsText::test_smart_split": "passed",
+   "tests/utils_tests/test_text.py::TestUtilsText::test_truncate_chars": "passed",
+   "tests/utils_tests/test_text.py::TestUtilsText::test_truncate_chars_html": "passed",
+   "tests/utils_tests/test_text.py::TestUtilsText::test_truncate_chars_html_with_html_entities": "passed",
+   "tests/utils_tests/test_text.py::TestUtilsText::test_truncate_chars_html_with_misnested_tags": "passed",
+   "tests/utils_tests/test_text.py::TestUtilsText::test_truncate_chars_html_with_newline_inside_tag": "passed",
+   "tests/utils_tests/test_text.py::TestUtilsText::test_truncate_chars_html_with_void_elements": "passed",
+   "tests/utils_tests/test_text.py::TestUtilsText::test_truncate_html_words": "passed",
+   "tests/utils_tests/test_text.py::TestUtilsText::test_truncate_words": "passed",
+   "tests/utils_tests/test_text.py::TestUtilsText::test_unescape_string_literal": "passed",
+   "tests/utils_tests/test_text.py::TestUtilsText::test_unescape_string_literal_invalid_value": "passed",
+   "tests/utils_tests/test_text.py::TestUtilsText::test_wrap": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/async/tests.py::MaybeAClosingTest::test_calls_aclose_on_iterator_with_aclose",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/async/tests.py::MaybeAClosingTest::test_no_aclose_on_iterator_without_aclose",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/httpwrappers/tests.py::StreamingHttpResponseTests::test_streaming_response_closes_user_generator_promptly",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/pagination/tests.py::ModelPaginationTests::test_async_page_aiteration_closes_object_list_promptly",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/test_client/tests.py::AsyncClientTest::test_aclosing_iterator_wrapper_closes_inner_iterable_promptly",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/utils_tests/test_text.py::TestUtilsText::test_acompress_sequence_closes_inner_sequence_promptly",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "29aac00d14d4",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [
+    "django/http/response.py#StreamingHttpResponse.__iter__",
+    "django/http/response.py#StreamingHttpResponse.streaming_content"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 10,
+   "differences": 0,
+   "functions_called": 2,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "django/contrib/auth/backends.py#ModelBackend._aget_permissions": "coroutine",
+    "django/core/paginator.py#AsyncPage.__aiter__": "coroutine",
+    "django/core/paginator.py#AsyncPage.aget_object_list": "coroutine",
+    "django/db/models/query.py#QuerySet.aiterator": "coroutine",
+    "django/http/response.py#StreamingHttpResponse.__aiter__": "coroutine",
+    "django/http/response.py#StreamingHttpResponse.__iter__.to_list": "not a module or class function on both sides (new, removed or nested)",
+    "django/http/response.py#StreamingHttpResponse.streaming_content.awrapper": "not a module or class function on both sides (new, removed or nested)",
+    "django/shortcuts.py#aget_list_or_404": "coroutine",
+    "django/test/client.py#aclosing_iterator_wrapper": "coroutine",
+    "django/utils/asyncio.py#maybe_aclosing": "not a module or class function on both sides (new, removed or nested)",
+    "django/utils/text.py#acompress_sequence": "coroutine",
+    "tests/async/tests.py#MaybeAClosingTest.test_calls_aclose_on_iterator_with_aclose": "not a module or class function on both sides (new, removed or nested)",
+    "tests/async/tests.py#MaybeAClosingTest.test_calls_aclose_on_iterator_with_aclose.gen": "not a module or class function on both sides (new, removed or nested)",
+    "tests/async/tests.py#MaybeAClosingTest.test_no_aclose_on_iterator_without_aclose": "not a module or class function on both sides (new, removed or nested)",
+    "tests/async/tests.py#MaybeAClosingTest.test_no_aclose_on_iterator_without_aclose.PlainAsyncIterator.__aiter__": "not a module or class function on both sides (new, removed or nested)",
+    "tests/async/tests.py#MaybeAClosingTest.test_no_aclose_on_iterator_without_aclose.PlainAsyncIterator.__anext__": "not a module or class function on both sides (new, removed or nested)",
+    "tests/async/tests.py#MaybeAClosingTest.test_no_aclose_on_iterator_without_aclose.PlainAsyncIterator.__init__": "not a module or class function on both sides (new, removed or nested)",
+    "tests/httpwrappers/tests.py#StreamingHttpResponseTests.test_streaming_response_closes_user_generator_promptly": "not a module or class function on both sides (new, removed or nested)",
+    "tests/httpwrappers/tests.py#StreamingHttpResponseTests.test_streaming_response_closes_user_generator_promptly.body": "not a module or class function on both sides (new, removed or nested)",
+    "tests/pagination/tests.py#ModelPaginationTests.test_async_page_aiteration_closes_object_list_promptly": "not a module or class function on both sides (new, removed or nested)",
+    "tests/pagination/tests.py#ModelPaginationTests.test_async_page_aiteration_closes_object_list_promptly.object_list": "not a module or class function on both sides (new, removed or nested)",
+    "tests/test_client/tests.py#AsyncClientTest.test_aclosing_iterator_wrapper_closes_inner_iterable_promptly": "not a module or class function on both sides (new, removed or nested)",
+    "tests/test_client/tests.py#AsyncClientTest.test_aclosing_iterator_wrapper_closes_inner_iterable_promptly.iterable": "not a module or class function on both sides (new, removed or nested)",
+    "tests/utils_tests/test_text.py#TestUtilsText.test_acompress_sequence_closes_inner_sequence_promptly": "not a module or class function on both sides (new, removed or nested)",
+    "tests/utils_tests/test_text.py#TestUtilsText.test_acompress_sequence_closes_inner_sequence_promptly.sequence": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 4.1,
+   "targets": 2,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 319 of 13920 candidate tests after the change with django-runtests in 17.0 s, failures confirmed before it: 0 now fail. 14039 tests reach the change. 54 test(s) from edited test files also run as they were before the edit. 6 test(s) the change adds or edits replayed on the code before it: 6 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/async/tests.py::MaybeAClosingTest::test_no_aclose_on_iterator_without_aclose",
+    "line": 86,
+    "run": "cd tests && python runtests.py async.tests.MaybeAClosingTest.test_no_aclose_on_iterator_without_aclose",
+    "score": 12.93,
+    "why": "via MaybeAClosingTest.test_no_aclose_on_iterator_without_aclose.PlainAsyncIterator (name: aclose,iterator,no,on,without)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/test_client/tests.py::AsyncClientTest::test_aclosing_iterator_wrapper_closes_inner_iterable_promptly",
+    "line": 1269,
+    "run": "cd tests && python runtests.py test_client.tests.AsyncClientTest.test_aclosing_iterator_wrapper_closes_inner_iterable_promptly",
+    "score": 11.695,
+    "why": "via AsyncClientTest.test_aclosing_iterator_wrapper_closes_inner_iterable_promptly.iterable (name: aclosing,close,inner,iterable,iterator,promptly,wrapper)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_text.py::TestUtilsText::test_acompress_sequence_closes_inner_sequence_promptly",
+    "line": 422,
+    "run": "cd tests && python runtests.py utils_tests.test_text.TestUtilsText.test_acompress_sequence_closes_inner_sequence_promptly",
+    "score": 10.83,
+    "why": "via TestUtilsText.test_acompress_sequence_closes_inner_sequence_promptly.sequence (name: acompres,close,inner,promptly,sequence,text)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::ModelPaginationTests::test_async_page_aiteration_closes_object_list_promptly",
+    "line": 996,
+    "run": "cd tests && python runtests.py pagination.tests.ModelPaginationTests.test_async_page_aiteration_closes_object_list_promptly",
+    "score": 7.727,
+    "why": "via ModelPaginationTests.test_async_page_aiteration_closes_object_list_promptly.object_list (name: aiteration,async,close,list,object,page,promptly)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/httpwrappers/tests.py::StreamingHttpResponseTests::test_streaming_response_closes_user_generator_promptly",
+    "line": 861,
+    "run": "cd tests && python runtests.py httpwrappers.tests.StreamingHttpResponseTests.test_streaming_response_closes_user_generator_promptly",
+    "score": 7.018,
+    "why": "via StreamingHttpResponseTests.test_streaming_response_closes_user_generator_promptly.body (name: close,generator,promptly,response,streaming,user)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/async/tests.py::MaybeAClosingTest::test_calls_aclose_on_iterator_with_aclose",
+    "line": 69,
+    "run": "cd tests && python runtests.py async.tests.MaybeAClosingTest.test_calls_aclose_on_iterator_with_aclose",
+    "score": 6.306,
+    "why": "via MaybeAClosingTest.test_calls_aclose_on_iterator_with_aclose.gen (name: aclose,call,iterator,on)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::ModelPaginationTests::test_aget_object_list",
+    "line": 985,
+    "run": "cd tests && python runtests.py pagination.tests.ModelPaginationTests.test_aget_object_list",
+    "score": 4.02,
+    "why": "via ModelPaginationTests (name: model,pagination)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/httpwrappers/tests.py::StreamingHttpResponseTests::test_streaming_response",
+    "line": 749,
+    "run": "cd tests && python runtests.py httpwrappers.tests.StreamingHttpResponseTests.test_streaming_response",
+    "score": 3.466,
+    "why": "via StreamingHttpResponse.streaming_content (name: http,response,streaming)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/async/test_async_shortcuts.py::GetListObjectOr404Test::test_get_list_or_404",
+    "line": 30,
+    "run": "cd tests && python runtests.py async.test_async_shortcuts.GetListObjectOr404Test.test_get_list_or_404",
+    "score": 2.663,
+    "why": "calls aget_list_or_404 (name: 404,list,shortcut)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::ModelPaginationTests::test_first_page_async",
+    "line": 800,
+    "run": "cd tests && python runtests.py pagination.tests.ModelPaginationTests.test_first_page_async",
+    "score": 2.65,
+    "why": "via ModelPaginationTests (name: model,pagination)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_text.py::TestUtilsText::test_compress_sequence",
+    "line": 408,
+    "run": "cd tests && python runtests.py utils_tests.test_text.TestUtilsText.test_compress_sequence",
+    "score": 2.188,
+    "why": "via TestUtilsText (name: text,util)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::ModelPaginationTests::test_last_page_async",
+    "line": 829,
+    "run": "cd tests && python runtests.py pagination.tests.ModelPaginationTests.test_last_page_async",
+    "score": 2.129,
+    "why": "via ModelPaginationTests (name: model,pagination)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::ModelPaginationTests::test_page_getitem_async",
+    "line": 869,
+    "run": "cd tests && python runtests.py pagination.tests.ModelPaginationTests.test_page_getitem_async",
+    "score": 1.81,
+    "why": "via ModelPaginationTests (name: model,pagination)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/async/test_async_queryset.py::AsyncQuerySetTest::test_aiterator_prefetch_related_chunk_size_none",
+    "line": 62,
+    "run": "cd tests && python runtests.py async.test_async_queryset.AsyncQuerySetTest.test_aiterator_prefetch_related_chunk_size_none",
+    "score": 1.769,
+    "why": "via QuerySet.aiterator (name: aiterator,query,set)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/async/test_async_shortcuts.py::GetListObjectOr404Test::test_get_list_or_404_bad_class",
+    "line": 52,
+    "run": "cd tests && python runtests.py async.test_async_shortcuts.GetListObjectOr404Test.test_get_list_or_404_bad_class",
+    "score": 1.663,
+    "why": "calls aget_list_or_404 (name: 404,list,shortcut)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_client/tests.py::AsyncClientTest::test_body_read_on_get_data",
+    "line": 1330,
+    "run": "cd tests && python runtests.py test_client.tests.AsyncClientTest.test_body_read_on_get_data",
+    "score": 1.608,
+    "why": "via AsyncClientTest (name: async,client)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/auth_tests/test_auth_backends.py::BaseModelBackendTest::test_aanonymous_has_no_permissions",
+    "line": 351,
+    "run": "cd tests && python runtests.py auth_tests.test_auth_backends.BaseModelBackendTest.test_aanonymous_has_no_permissions",
+    "score": 1.585,
+    "why": "via ModelBackend.aget_user_permissions > ModelBackend._aget_permissions (name: backend,model,permission)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/httpwrappers/tests.py::StreamingHttpResponseTests::test_sync_streaming_response_warning",
+    "line": 844,
+    "run": "cd tests && python runtests.py httpwrappers.tests.StreamingHttpResponseTests.test_sync_streaming_response_warning",
+    "score": 1.448,
+    "why": "via StreamingHttpResponse.__init__ > StreamingHttpResponse.streaming_content (name: http,response,streaming)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_text.py::TestUtilsText::test_truncate_html_words",
+    "line": 214,
+    "run": "cd tests && python runtests.py utils_tests.test_text.TestUtilsText.test_truncate_html_words",
+    "score": 1.39,
+    "why": "via TestUtilsText (name: text,util)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_client/tests.py::AsyncClientTest::test_get_data",
+    "line": 1322,
+    "run": "cd tests && python runtests.py test_client.tests.AsyncClientTest.test_get_data",
+    "score": 1.28,
+    "why": "via AsyncClientTest (name: async,client)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/httpwrappers/tests.py::StreamingHttpResponseTests::test_async_streaming_response",
+    "line": 818,
+    "run": "cd tests && python runtests.py httpwrappers.tests.StreamingHttpResponseTests.test_async_streaming_response",
+    "score": 1.242,
+    "why": "via StreamingHttpResponse.__init__ > StreamingHttpResponse.streaming_content (name: http,response,streaming)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_text.py::TestUtilsText::test_phone2numeric",
+    "line": 346,
+    "run": "cd tests && python runtests.py utils_tests.test_text.TestUtilsText.test_phone2numeric",
+    "score": 1.108,
+    "why": "via TestUtilsText (name: text,util)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/httpwrappers/tests.py::StreamingHttpResponseTests::test_async_streaming_response_warning",
+    "line": 830,
+    "run": "cd tests && python runtests.py httpwrappers.tests.StreamingHttpResponseTests.test_async_streaming_response_warning",
+    "score": 1.1,
+    "why": "via StreamingHttpResponse.__init__ > StreamingHttpResponse.streaming_content (name: http,response,streaming)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_client/tests.py::AsyncClientTest::test_post_data",
+    "line": 1326,
+    "run": "cd tests && python runtests.py test_client.tests.AsyncClientTest.test_post_data",
+    "score": 1.062,
+    "why": "via AsyncClientTest (name: async,client)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/async/test_async_queryset.py::AsyncQuerySetTest::test_aiterator_prefetch_related",
+    "line": 54,
+    "run": "cd tests && python runtests.py async.test_async_queryset.AsyncQuerySetTest.test_aiterator_prefetch_related",
+    "score": 1.04,
+    "why": "via QuerySet.aiterator (name: aiterator,query,set)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "tests/auth_tests/test_auth_backends.py::BaseModelBackendTest::test_ainactive_has_no_permissions",
+    "line": 417,
+    "run": "cd tests && python runtests.py auth_tests.test_auth_backends.BaseModelBackendTest.test_ainactive_has_no_permissions",
+    "score": 0.991,
+    "why": "via ModelBackend.aget_user_permissions > ModelBackend._aget_permissions (name: backend,model,permission)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_text.py::TestUtilsText::test_truncate_chars",
+    "line": 61,
+    "run": "cd tests && python runtests.py utils_tests.test_text.TestUtilsText.test_truncate_chars",
+    "score": 0.949,
+    "why": "via TestUtilsText (name: text,util)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/httpwrappers/tests.py::StreamingHttpResponseTests::test_text_attribute_error",
+    "line": 854,
+    "run": "cd tests && python runtests.py httpwrappers.tests.StreamingHttpResponseTests.test_text_attribute_error",
+    "score": 0.928,
+    "why": "via StreamingHttpResponse.__init__ > StreamingHttpResponse.streaming_content (name: http,response,streaming)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::ModelPaginationTests::test_async_page_aiteration",
+    "line": 979,
+    "run": "cd tests && python runtests.py pagination.tests.ModelPaginationTests.test_async_page_aiteration",
+    "score": 0.888,
+    "why": "via ModelPaginationTests (name: model,pagination)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/httpwrappers/tests.py::StreamingHttpResponseTests::test_repr",
+    "line": 811,
+    "run": "cd tests && python runtests.py httpwrappers.tests.StreamingHttpResponseTests.test_repr",
+    "score": 0.869,
+    "why": "via StreamingHttpResponse.__init__ > StreamingHttpResponse.streaming_content (name: http,response,streaming)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_text.py::TestUtilsText::test_truncate_chars_html",
+    "line": 99,
+    "run": "cd tests && python runtests.py utils_tests.test_text.TestUtilsText.test_truncate_chars_html",
+    "score": 0.855,
+    "why": "via TestUtilsText (name: text,util)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/middleware/tests.py::CommonMiddlewareTest::test_content_length_header_not_added_for_streaming_response",
+    "line": 337,
+    "run": "cd tests && python runtests.py middleware.tests.CommonMiddlewareTest.test_content_length_header_not_added_for_streaming_response",
+    "score": 0.827,
+    "why": "via CommonMiddlewareTest.test_content_length_header_not_added_for_streaming_response.get_response > StreamingHttpResponse.__init__ > StreamingHttpResponse.streaming_content > StreamingHttpResponse.streaming_content.awrapper (name: content,response,streaming)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_client/tests.py::AsyncClientTest::test_follow_double_redirect",
+    "line": 1315,
+    "run": "cd tests && python runtests.py test_client.tests.AsyncClientTest.test_follow_double_redirect",
+    "score": 0.822,
+    "why": "via AsyncClientTest (name: async,client)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_text.py::TestUtilsText::test_truncate_chars_html_with_newline_inside_tag",
+    "line": 140,
+    "run": "cd tests && python runtests.py utils_tests.test_text.TestUtilsText.test_truncate_chars_html_with_newline_inside_tag",
+    "score": 0.8,
+    "why": "via TestUtilsText (name: text,util)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::PaginationTests::test_page_sequence_async",
+    "line": 414,
+    "run": "cd tests && python runtests.py pagination.tests.PaginationTests.test_page_sequence_async",
+    "score": 0.798,
+    "why": "calls AsyncPage.aget_object_list (name: async,page)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::ModelPaginationTests::test_async_page_object_list_raises_type_error_before_await",
+    "line": 957,
+    "run": "cd tests && python runtests.py pagination.tests.ModelPaginationTests.test_async_page_object_list_raises_type_error_before_await",
+    "score": 0.784,
+    "why": "via ModelPaginationTests (name: model,pagination)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_text.py::TestUtilsText::test_truncate_chars_html_with_void_elements",
+    "line": 154,
+    "run": "cd tests && python runtests.py utils_tests.test_text.TestUtilsText.test_truncate_chars_html_with_void_elements",
+    "score": 0.768,
+    "why": "via TestUtilsText (name: text,util)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/decorators/test_gzip.py::GzipPageTests::test_async_streaming_response_yields_chunks_incrementally",
+    "line": 61,
+    "run": "cd tests && python runtests.py decorators.test_gzip.GzipPageTests.test_async_streaming_response_yields_chunks_incrementally",
+    "score": 0.754,
+    "why": "via GzipPageTests.test_async_streaming_response_yields_chunks_incrementally.stream_view > StreamingHttpResponse.__init__ > StreamingHttpResponse.streaming_content > StreamingHttpResponse.streaming_content.awrapper (name: response,streaming)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/utils_tests/test_text.py::TestUtilsText::test_truncate_words",
+    "line": 199,
+    "run": "cd tests && python runtests.py utils_tests.test_text.TestUtilsText.test_truncate_words",
+    "score": 0.748,
+    "why": "via TestUtilsText (name: text,util)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_client/tests.py::AsyncClientTest::test_follow_redirect",
+    "line": 1297,
+    "run": "cd tests && python runtests.py test_client.tests.AsyncClientTest.test_follow_redirect",
+    "score": 0.742,
+    "why": "via AsyncClientTest (name: async,client)"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792323698.601873,
+  "job_seconds": 22.0,
+  "number": 22025,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 22.1,
+  "started": 1792323675.798479
+ },
+ "verify": null
+}

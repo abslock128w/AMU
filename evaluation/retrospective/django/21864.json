@@ -1,0 +1,647 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "6126f5d2fe0f22c0d2d4888de8c94b91a9795bb6",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "b2684fd2bba3d2229bfaa0f3e7ecc997d5985762",
+  "install_ok": true,
+  "merge_base": "6126f5d2fe0f22c0d2d4888de8c94b91a9795bb6",
+  "pr": 21864,
+  "recording": true,
+  "runner": null,
+  "seconds": 202.7,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "6126f5d2fe0f22c0d2d4888de8c94b91a9795bb6",
+  "head_sha": "b2684fd2bba3d2229bfaa0f3e7ecc997d5985762",
+  "merge_base": "6126f5d2fe0f22c0d2d4888de8c94b91a9795bb6",
+  "merged_at": "2026-09-02T12:15:44Z",
+  "number": 21864,
+  "repo": "django",
+  "title": "Fixed #37311 -- Prevented consumption of rhs iterators in annotation lookups."
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 1,
+  "called": 1,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/lookup/tests.py::LookupTests::test_in_iterator_rhs",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/lookup/tests.py::LookupTests::test_range_iterator_rhs",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "django/db/models/lookups.py",
+    "lines": "296-312",
+    "symbol": "FieldGetDbPrepValueIterableMixin.get_prep_lookup"
+   },
+   {
+    "file": "tests/lookup/tests.py",
+    "lines": "1090-1102",
+    "symbol": "LookupTests.test_in_iterator_rhs"
+   },
+   {
+    "file": "tests/lookup/tests.py",
+    "lines": "1104-1110",
+    "symbol": "LookupTests.test_range_iterator_rhs"
+   }
+  ],
+  "changed_symbols": [
+   "django/db/models/lookups.py#FieldGetDbPrepValueIterableMixin.get_prep_lookup",
+   "tests/lookup/tests.py#LookupTests.test_in_iterator_rhs",
+   "tests/lookup/tests.py#LookupTests.test_range_iterator_rhs",
+   "tests/lookup/tests.py#LookupTests",
+   "django/db/models/lookups.py"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 2,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 10559,
+   "ran": 4960,
+   "replayed": 2,
+   "runner": "django-runtests",
+   "seconds": 198.8,
+   "selection": {
+    "candidates": 10559,
+    "closure_files": 602,
+    "closure_tests": 9642,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/contrib/admin/__init__.py",
+     "django/contrib/auth/models.py",
+     "django/core/management/base.py",
+     "django/db/migrations/__init__.py",
+     "django/db/models/__init__.py",
+     "django/db/models/expressions.py",
+     "django/db/models/functions/__init__.py",
+     "django/test/__init__.py",
+     "django/test/utils.py"
+    ],
+    "observed": 463,
+    "static_only": 2
+   },
+   "unrunnable": 160
+  },
+  "flips": 0,
+  "gaps": [
+   "100575 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "160 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "Skipped 1 non-Python file(s)",
+   "graph reused from the previous state; 2 changed file(s) relinked",
+   "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run stopped at its 300 s budget: 4960 of 10559 candidates run",
+   "side-by-side run stopped at its time limit; calls captured until then are compared"
+  ],
+  "impacted": {
+   "count": 79,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2928,
+   "parsed_files": 2
+  },
+  "original_tests": {
+   "tests/lookup/tests.py::LookupTests::test_chain_date_time_lookups": "passed",
+   "tests/lookup/tests.py::LookupTests::test_count": "passed",
+   "tests/lookup/tests.py::LookupTests::test_custom_field_none_rhs": "passed",
+   "tests/lookup/tests.py::LookupTests::test_custom_lookup_none_rhs": "passed",
+   "tests/lookup/tests.py::LookupTests::test_error_messages": "passed",
+   "tests/lookup/tests.py::LookupTests::test_escaping": "passed",
+   "tests/lookup/tests.py::LookupTests::test_exact_booleanfield": "passed",
+   "tests/lookup/tests.py::LookupTests::test_exact_booleanfield_annotation": "passed",
+   "tests/lookup/tests.py::LookupTests::test_exact_exists": "passed",
+   "tests/lookup/tests.py::LookupTests::test_exact_none_transform": "passed",
+   "tests/lookup/tests.py::LookupTests::test_exact_query_rhs_with_selected_columns": "passed",
+   "tests/lookup/tests.py::LookupTests::test_exact_query_rhs_with_selected_columns_mismatch": "passed",
+   "tests/lookup/tests.py::LookupTests::test_exact_sliced_queryset_limit_one": "passed",
+   "tests/lookup/tests.py::LookupTests::test_exact_sliced_queryset_limit_one_offset": "passed",
+   "tests/lookup/tests.py::LookupTests::test_exact_sliced_queryset_not_limited_to_one": "passed",
+   "tests/lookup/tests.py::LookupTests::test_exclude": "passed",
+   "tests/lookup/tests.py::LookupTests::test_exists": "passed",
+   "tests/lookup/tests.py::LookupTests::test_filter_by_reverse_related_field_transform": "passed",
+   "tests/lookup/tests.py::LookupTests::test_get_next_previous_by": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_distinct_field": "skipped",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_lots_of_ids": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_meta_constraint": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_multiple_distinct_field": "skipped",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_non_unique_field": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_non_unique_meta_constaint": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_preserve_ordering": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_preserve_ordering_with_batch_size": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_sliced_queryset": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_values_all": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_values_alternative_field_name": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_values_empty": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_values_fields": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_values_fields_id": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_values_fields_including_pk": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_values_fields_pk": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_values_list_all": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_values_list_empty": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_values_list_fields": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_values_list_fields_id": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_values_list_fields_including_pk": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_values_list_fields_pk": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_values_list_flat_all": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_values_list_flat_empty": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_values_list_flat_field": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_values_list_flat_field_id": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_values_list_flat_field_pk": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_values_list_flat_pks": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_values_list_named": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_values_list_named_fields": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_values_list_named_fields_alternative_field": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_values_pks": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_bulk_with_field": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_different_database": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_empty_list": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_ignore_none": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_ignore_none_with_unhashable_items": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_ignore_solo_none": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_keeps_value_ordering": "passed",
+   "tests/lookup/tests.py::LookupTests::test_in_select_mismatch": "passed",
+   "tests/lookup/tests.py::LookupTests::test_isnull_non_boolean_value": "passed",
+   "tests/lookup/tests.py::LookupTests::test_isnull_textfield": "passed",
+   "tests/lookup/tests.py::LookupTests::test_iterator": "passed",
+   "tests/lookup/tests.py::LookupTests::test_lookup_collision": "passed",
+   "tests/lookup/tests.py::LookupTests::test_lookup_date_as_str": "passed",
+   "tests/lookup/tests.py::LookupTests::test_lookup_direct_value_rhs_unwrapped": "passed",
+   "tests/lookup/tests.py::LookupTests::test_lookup_int_as_str": "passed",
+   "tests/lookup/tests.py::LookupTests::test_lookup_rhs": "passed",
+   "tests/lookup/tests.py::LookupTests::test_nested_outerref_lhs": "passed",
+   "tests/lookup/tests.py::LookupTests::test_none": "passed",
+   "tests/lookup/tests.py::LookupTests::test_nonfield_lookups": "passed",
+   "tests/lookup/tests.py::LookupTests::test_pattern_lookups_with_substr": "passed",
+   "tests/lookup/tests.py::LookupTests::test_regex": "passed",
+   "tests/lookup/tests.py::LookupTests::test_regex_backreferencing": "passed",
+   "tests/lookup/tests.py::LookupTests::test_regex_non_string": "passed",
+   "tests/lookup/tests.py::LookupTests::test_regex_null": "passed",
+   "tests/lookup/tests.py::LookupTests::test_relation_nested_lookup_error": "passed",
+   "tests/lookup/tests.py::LookupTests::test_textfield_exact_null": "passed",
+   "tests/lookup/tests.py::LookupTests::test_unsupported_lookup_reverse_foreign_key": "passed",
+   "tests/lookup/tests.py::LookupTests::test_unsupported_lookup_reverse_foreign_key_custom_lookups": "passed",
+   "tests/lookup/tests.py::LookupTests::test_unsupported_lookups": "passed",
+   "tests/lookup/tests.py::LookupTests::test_unsupported_lookups_custom_lookups": "passed",
+   "tests/lookup/tests.py::LookupTests::test_values_extra": "passed",
+   "tests/lookup/tests.py::LookupTests::test_values_filter_and_no_fields": "passed",
+   "tests/lookup/tests.py::LookupTests::test_values_filter_and_single_field": "passed",
+   "tests/lookup/tests.py::LookupTests::test_values_iterator": "passed",
+   "tests/lookup/tests.py::LookupTests::test_values_list_extra": "passed",
+   "tests/lookup/tests.py::LookupTests::test_values_list_filter_and_no_fields": "passed",
+   "tests/lookup/tests.py::LookupTests::test_values_list_flat_empty_warning": "passed",
+   "tests/lookup/tests.py::LookupTests::test_values_list_flat_more_than_one_field": "passed",
+   "tests/lookup/tests.py::LookupTests::test_values_list_flat_no_fields": "passed",
+   "tests/lookup/tests.py::LookupTests::test_values_list_flat_order_by": "passed",
+   "tests/lookup/tests.py::LookupTests::test_values_list_relations": "passed",
+   "tests/lookup/tests.py::LookupTests::test_values_list_single_field": "passed",
+   "tests/lookup/tests.py::LookupTests::test_values_list_single_field_order_by": "passed",
+   "tests/lookup/tests.py::LookupTests::test_values_no_field_names": "passed",
+   "tests/lookup/tests.py::LookupTests::test_values_nonexistent_field": "passed",
+   "tests/lookup/tests.py::LookupTests::test_values_relations": "passed",
+   "tests/lookup/tests.py::LookupTests::test_values_single_field": "passed",
+   "tests/lookup/tests.py::LookupTests::test_values_two_fields": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/lookup/tests.py::LookupTests::test_in_iterator_rhs",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/lookup/tests.py::LookupTests::test_range_iterator_rhs",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "0284a3053335",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [
+    "django/db/models/lookups.py#FieldGetDbPrepValueIterableMixin.get_prep_lookup"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 5,
+   "differences": 0,
+   "functions_called": 1,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "tests/lookup/tests.py#LookupTests.test_in_iterator_rhs": "not a module or class function on both sides (new, removed or nested)",
+    "tests/lookup/tests.py#LookupTests.test_range_iterator_rhs": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 120.0,
+   "targets": 1,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 4960 of 10559 candidate tests after the change with django-runtests in 198.8 s, failures confirmed before it: 0 now fail. 107 tests reach the change. 101 test(s) from edited test files also run as they were before the edit. 2 test(s) the change adds or edits replayed on the code before it: 2 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_in_iterator_rhs",
+    "line": 1090,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_in_iterator_rhs",
+    "score": 3.646,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_range_iterator_rhs",
+    "line": 1104,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_range_iterator_rhs",
+    "score": 2.058,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_lookup_direct_value_rhs_unwrapped",
+    "line": 1815,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_lookup_direct_value_rhs_unwrapped",
+    "score": 1.228,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_lookup_rhs",
+    "line": 1796,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_lookup_rhs",
+    "score": 1.011,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_exact_booleanfield_annotation",
+    "line": 1631,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_exact_booleanfield_annotation",
+    "score": 0.881,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_values_iterator",
+    "line": 631,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_values_iterator",
+    "score": 0.794,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_exact_query_rhs_with_selected_columns",
+    "line": 1748,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_exact_query_rhs_with_selected_columns",
+    "score": 0.74,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_none",
+    "line": 1066,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_none",
+    "score": 0.709,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_exact_query_rhs_with_selected_columns_mismatch",
+    "line": 1765,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_exact_query_rhs_with_selected_columns_mismatch",
+    "score": 0.683,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_iterator",
+    "line": 131,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_iterator",
+    "score": 0.667,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_pattern_lookups_with_substr",
+    "line": 1697,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_pattern_lookups_with_substr",
+    "score": 0.657,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_in_bulk",
+    "line": 178,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_in_bulk",
+    "score": 0.647,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_in_keeps_value_ordering",
+    "line": 1120,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_in_keeps_value_ordering",
+    "score": 0.637,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_custom_field_none_rhs",
+    "line": 1686,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_custom_field_none_rhs",
+    "score": 0.635,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_custom_lookup_none_rhs",
+    "line": 1715,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_custom_lookup_none_rhs",
+    "score": 0.633,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_values_extra",
+    "line": 647,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_values_extra",
+    "score": 0.63,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_values_filter_and_no_fields",
+    "line": 574,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_values_filter_and_no_fields",
+    "score": 0.629,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_values_filter_and_single_field",
+    "line": 611,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_values_filter_and_single_field",
+    "score": 0.629,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_values_list_filter_and_no_fields",
+    "line": 802,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_values_list_filter_and_no_fields",
+    "score": 0.629,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_values_no_field_names",
+    "line": 787,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_values_no_field_names",
+    "score": 0.628,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_nested_outerref_lhs",
+    "line": 1734,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_nested_outerref_lhs",
+    "score": 0.628,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_error_messages",
+    "line": 1161,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_error_messages",
+    "score": 0.627,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_isnull_non_boolean_value",
+    "line": 1773,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_isnull_non_boolean_value",
+    "score": 0.624,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_in_select_mismatch",
+    "line": 1153,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_in_select_mismatch",
+    "score": 0.622,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_lookup_collision",
+    "line": 1480,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_lookup_collision",
+    "score": 0.62,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_chain_date_time_lookups",
+    "line": 1569,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_chain_date_time_lookups",
+    "score": 0.617,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_count",
+    "line": 156,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_count",
+    "score": 0.617,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_exact_exists",
+    "line": 1727,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_exact_exists",
+    "score": 0.617,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_exact_sliced_queryset_limit_one",
+    "line": 1595,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_exact_sliced_queryset_limit_one",
+    "score": 0.617,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_exact_sliced_queryset_limit_one_offset",
+    "line": 1601,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_exact_sliced_queryset_limit_one_offset",
+    "score": 0.617,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_in_ignore_none",
+    "line": 1128,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_in_ignore_none",
+    "score": 0.615,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_in_ignore_none_with_unhashable_items",
+    "line": 1141,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_in_ignore_none_with_unhashable_items",
+    "score": 0.615,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_lookup_int_as_str",
+    "line": 116,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_lookup_int_as_str",
+    "score": 0.615,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_in_bulk_values_all",
+    "line": 326,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_in_bulk_values_all",
+    "score": 0.612,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_in_bulk_values_fields_id",
+    "line": 385,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_in_bulk_values_fields_id",
+    "score": 0.612,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_in_bulk_values_list_fields_id",
+    "line": 460,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_in_bulk_values_list_fields_id",
+    "score": 0.612,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_in_bulk_values_list_flat_field_id",
+    "line": 562,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_in_bulk_values_list_flat_field_id",
+    "score": 0.612,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_in_bulk_values_list_named",
+    "line": 470,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_in_bulk_values_list_named",
+    "score": 0.612,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_in_bulk_values_pks",
+    "line": 349,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_in_bulk_values_pks",
+    "score": 0.612,
+    "why": "via LookupTests (name: lookup)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_values_list_extra",
+    "line": 886,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_values_list_extra",
+    "score": 0.612,
+    "why": "via LookupTests (name: lookup)"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792322573.160785,
+  "job_seconds": 202.7,
+  "number": 21864,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 202.8,
+  "started": 1792322369.442797
+ },
+ "verify": null
+}

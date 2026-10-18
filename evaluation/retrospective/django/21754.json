@@ -1,0 +1,752 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "73cc09f14f13fedddc14d6ba5b287cb33c24e4a4",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "1a180c837c27206932cd6abc14d3ef654390d9a9",
+  "install_ok": true,
+  "merge_base": "73cc09f14f13fedddc14d6ba5b287cb33c24e4a4",
+  "pr": 21754,
+  "recording": true,
+  "runner": null,
+  "seconds": 39.5,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "73cc09f14f13fedddc14d6ba5b287cb33c24e4a4",
+  "head_sha": "1a180c837c27206932cd6abc14d3ef654390d9a9",
+  "merge_base": "73cc09f14f13fedddc14d6ba5b287cb33c24e4a4",
+  "merged_at": "2026-08-31T15:58:00Z",
+  "number": 21754,
+  "repo": "django",
+  "title": "Fixed #37263 -- Fixed changelist __exact search crashes and over-matching."
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 1,
+  "called": 1,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_exact_boolean_lookup_is_case_insensitive",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_exact_boolean_lookup_explicit_none",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_exact_lookup_for_choices_field",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_exact_lookup_for_choices_field_changelist_view",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_exact_lookup_for_boolean_field",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_exact_lookup_for_null_boolean_field",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "django/contrib/admin/formfields.py",
+    "lines": "11-21",
+    "symbol": "StrictBooleanField.to_python"
+   },
+   {
+    "file": "django/contrib/admin/formfields.py",
+    "lines": "30-42",
+    "symbol": "StrictNullBooleanField.to_python"
+   },
+   {
+    "file": "django/contrib/admin/options.py",
+    "lines": "1359-1388",
+    "symbol": "ModelAdmin.get_search_results"
+   },
+   {
+    "file": "tests/admin_changelist/tests.py",
+    "lines": "914-938",
+    "symbol": "ChangeListTests.test_exact_boolean_lookup_is_case_insensitive"
+   },
+   {
+    "file": "tests/admin_changelist/tests.py",
+    "lines": "940-958",
+    "symbol": "ChangeListTests.test_exact_boolean_lookup_explicit_none"
+   },
+   {
+    "file": "tests/admin_changelist/tests.py",
+    "lines": "991-1012",
+    "symbol": "ChangeListTests.test_exact_lookup_for_choices_field"
+   },
+   {
+    "file": "tests/admin_changelist/tests.py",
+    "lines": "1014-1027",
+    "symbol": "ChangeListTests.test_exact_lookup_for_choices_field_changelist_view"
+   },
+   {
+    "file": "tests/admin_changelist/tests.py",
+    "lines": "1029-1055",
+    "symbol": "ChangeListTests.test_exact_lookup_for_boolean_field"
+   },
+   {
+    "file": "tests/admin_changelist/tests.py",
+    "lines": "1057-1069",
+    "symbol": "ChangeListTests.test_exact_lookup_for_null_boolean_field"
+   }
+  ],
+  "changed_symbols": [
+   "django/contrib/admin/formfields.py#StrictBooleanField.to_python",
+   "django/contrib/admin/formfields.py#StrictNullBooleanField.to_python",
+   "django/contrib/admin/options.py#ModelAdmin.get_search_results",
+   "tests/admin_changelist/admin.py#MixedFieldsAdmin.search_fields",
+   "tests/admin_changelist/models.py#MixedFieldsModel.choice_field",
+   "tests/admin_changelist/models.py#MixedFieldsModel.name",
+   "tests/admin_changelist/models.py#Quartet.plays_weddings",
+   "tests/admin_changelist/tests.py#ChangeListTests.test_exact_boolean_lookup_explicit_none",
+   "tests/admin_changelist/tests.py#ChangeListTests.test_exact_boolean_lookup_is_case_insensitive",
+   "tests/admin_changelist/tests.py#ChangeListTests.test_exact_lookup_for_boolean_field",
+   "tests/admin_changelist/tests.py#ChangeListTests.test_exact_lookup_for_choices_field",
+   "tests/admin_changelist/tests.py#ChangeListTests.test_exact_lookup_for_choices_field_changelist_view",
+   "tests/admin_changelist/tests.py#ChangeListTests.test_exact_lookup_for_null_boolean_field",
+   "django/contrib/admin/formfields.py#StrictBooleanField",
+   "django/contrib/admin/formfields.py#StrictNullBooleanField",
+   "tests/admin_changelist/admin.py#MixedFieldsAdmin",
+   "tests/admin_changelist/tests.py#ChangeListTests",
+   "django/contrib/admin/formfields.py",
+   "django/contrib/admin/options.py",
+   "tests/admin_changelist/admin.py",
+   "tests/admin_changelist/tests.py#ChangeListTests.test_exact_lookup_with_more_lenient_formfield (renamed or removed)"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "StrictBooleanField.to_python raises ValidationError",
+    "path": [
+     "django/contrib/admin/formfields.py:20 raise ValidationError",
+     "django/contrib/admin/options.py:1387 ModelAdmin.get_search_results catches ValidationError, handles it"
+    ],
+    "to": "ModelAdmin.get_search_results handles it"
+   },
+   {
+    "evidence": "static source path",
+    "from": "StrictNullBooleanField.to_python raises ValidationError",
+    "path": [
+     "django/contrib/admin/formfields.py:41 raise ValidationError",
+     "django/contrib/admin/options.py:1387 ModelAdmin.get_search_results catches ValidationError, handles it"
+    ],
+    "to": "ModelAdmin.get_search_results handles it"
+   },
+   {
+    "evidence": "static source path",
+    "from": "StrictBooleanField.to_python return changed",
+    "path": [
+     "django/contrib/admin/formfields.py:21 return",
+     "django/contrib/admin/options.py:1375 ModelAdmin.get_search_results uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   },
+   {
+    "evidence": "static source path",
+    "from": "StrictNullBooleanField.to_python return changed",
+    "path": [
+     "django/contrib/admin/formfields.py:37 return",
+     "django/contrib/admin/options.py:1372 ModelAdmin.get_search_results uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 6,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 3592,
+   "ran": 596,
+   "replayed": 6,
+   "runner": "django-runtests",
+   "seconds": 32.5,
+   "selection": {
+    "candidates": 3592,
+    "closure_files": 60,
+    "closure_tests": 1568,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/contrib/admin/__init__.py"
+    ],
+    "observed": 10,
+    "static_only": 2007
+   },
+   "unrunnable": 44
+  },
+  "flips": 0,
+  "gaps": [
+   "101718 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "44 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "Skipped 1 non-Python file(s)",
+   "graph reused from the previous state; 5 changed file(s) relinked",
+   "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run stopped at its 300 s budget: 480 of 3592 candidates run"
+  ],
+  "impacted": {
+   "count": 49,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2928,
+   "parsed_files": 5
+  },
+  "original_tests": {
+   "tests/admin_changelist/tests.py::ChangeListTests::test_action_checkbox_for_model_with_dunder_html": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_builtin_lookup_in_search_fields": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_changelist_search_form_validation": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_changelist_view_list_editable_changed_objects_uses_filter": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_clear_all_filters_link": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_clear_all_filters_link_callable_filter": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_computed_list_display_localization": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_custom_lookup_in_search_fields": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_custom_lookup_with_pk_shortcut": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_custom_paginator": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_default_str_column_is_not_sortable": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_deterministic_order_for_model_ordered_by_its_manager": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_deterministic_order_for_unordered_model": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_distinct_for_inherited_m2m_in_list_filter": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_distinct_for_m2m_in_list_filter": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_distinct_for_m2m_to_inherited_in_list_filter": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_distinct_for_many_to_many_at_second_level_in_search_fields": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_distinct_for_non_unique_related_object_in_list_filter": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_distinct_for_non_unique_related_object_in_search_fields": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_distinct_for_through_m2m_at_second_level_in_list_filter": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_distinct_for_through_m2m_in_list_filter": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_dynamic_list_display": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_dynamic_list_display_links": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_dynamic_list_filter": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_dynamic_search_fields": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_exact_lookup_mixed_terms": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_exact_lookup_validates_each_field_independently": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_exact_lookup_with_invalid_value": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_get_edited_object_ids": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_get_list_editable_queryset": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_get_list_editable_queryset_with_regex_chars_in_prefix": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_get_select_related_custom_method": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_link_field_display_links": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_list_display_first_degree_relation": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_list_display_related_field": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_list_display_related_field_boolean_display": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_list_display_related_field_null": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_list_display_related_field_ordering": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_list_display_related_field_ordering_fields": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_list_display_related_field_uses_display_for_field": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_list_display_second_degree_relation": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_list_editable_atomicity": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_list_editable_error_title": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_many_search_terms": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_multiple_search_fields": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_multiuser_edit": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_no_clear_all_filters_link": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_no_distinct_for_m2m_in_list_filter_without_params": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_no_list_display_links": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_object_tools_displayed_no_add_permission": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_ordering_from_model_meta": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_pagination": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_pagination_page_range": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_pagination_render": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_pk_in_search_fields": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_related_field_multiple_search_terms": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_repr": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_result_list_editable": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_result_list_editable_html": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_result_list_empty_changelist_value": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_result_list_empty_changelist_value_blank_string": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_result_list_html": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_result_list_set_empty_value_display_in_model_admin": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_result_list_set_empty_value_display_on_admin_site": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_search_bar_total_link_preserves_options": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_search_help_text": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_search_role": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_search_with_exact_lookup_for_non_string_field": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_search_with_exact_lookup_relationship_field": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_select_related_as_empty_tuple": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_select_related_as_tuple": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_select_related_preserved": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_select_related_preserved_when_multi_valued_in_search_fields": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_show_all": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_spanning_relations_with_custom_lookup_in_search_fields": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_specified_ordering_by_f_expression": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_specified_ordering_by_f_expression_without_asc_desc": "passed",
+   "tests/admin_changelist/tests.py::ChangeListTests::test_tuple_list_display": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_exact_boolean_lookup_is_case_insensitive",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_exact_boolean_lookup_explicit_none",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_exact_lookup_for_choices_field",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_exact_lookup_for_choices_field_changelist_view",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_exact_lookup_for_boolean_field",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_exact_lookup_for_null_boolean_field",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "7ca827605662",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [
+    "django/contrib/admin/options.py#ModelAdmin.get_search_results"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 5,
+   "differences": 0,
+   "functions_called": 1,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "django/contrib/admin/formfields.py#StrictBooleanField.to_python": "not a module or class function on both sides (new, removed or nested)",
+    "django/contrib/admin/formfields.py#StrictNullBooleanField.to_python": "not a module or class function on both sides (new, removed or nested)",
+    "tests/admin_changelist/tests.py#ChangeListTests.test_exact_boolean_lookup_explicit_none": "not a module or class function on both sides (new, removed or nested)",
+    "tests/admin_changelist/tests.py#ChangeListTests.test_exact_boolean_lookup_is_case_insensitive": "not a module or class function on both sides (new, removed or nested)",
+    "tests/admin_changelist/tests.py#ChangeListTests.test_exact_lookup_for_boolean_field": "not a module or class function on both sides (new, removed or nested)",
+    "tests/admin_changelist/tests.py#ChangeListTests.test_exact_lookup_for_choices_field": "not a module or class function on both sides (new, removed or nested)",
+    "tests/admin_changelist/tests.py#ChangeListTests.test_exact_lookup_for_choices_field_changelist_view": "not a module or class function on both sides (new, removed or nested)",
+    "tests/admin_changelist/tests.py#ChangeListTests.test_exact_lookup_for_null_boolean_field": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 8.8,
+   "targets": 1,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 596 of 3592 candidate tests after the change with django-runtests in 32.5 s, failures confirmed before it: 0 now fail. 2602 tests reach the change. 78 test(s) from edited test files also run as they were before the edit. 6 test(s) the change adds or edits replayed on the code before it: 6 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_exact_boolean_lookup_is_case_insensitive",
+    "line": 914,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_exact_boolean_lookup_is_case_insensitive",
+    "score": 4.251,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_exact_lookup_for_choices_field",
+    "line": 991,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_exact_lookup_for_choices_field",
+    "score": 2.8,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_exact_lookup_for_null_boolean_field",
+    "line": 1057,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_exact_lookup_for_null_boolean_field",
+    "score": 2.108,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_exact_lookup_for_boolean_field",
+    "line": 1029,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_exact_lookup_for_boolean_field",
+    "score": 1.615,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_exact_lookup_validates_each_field_independently",
+    "line": 964,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_exact_lookup_validates_each_field_independently",
+    "score": 1.355,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_ordering_from_model_meta",
+    "line": 1643,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_ordering_from_model_meta",
+    "score": 1.235,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_exact_boolean_lookup_explicit_none",
+    "line": 940,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_exact_boolean_lookup_explicit_none",
+    "score": 1.141,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_exact_lookup_for_choices_field_changelist_view",
+    "line": 1014,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_exact_lookup_for_choices_field_changelist_view",
+    "score": 1.008,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_search_with_exact_lookup_for_non_string_field",
+    "line": 1071,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_search_with_exact_lookup_for_non_string_field",
+    "score": 0.981,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_search_with_exact_lookup_relationship_field",
+    "line": 1091,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_search_with_exact_lookup_relationship_field",
+    "score": 0.961,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_list_display_related_field_boolean_display",
+    "line": 1956,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_list_display_related_field_boolean_display",
+    "score": 0.936,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_exact_lookup_mixed_terms",
+    "line": 887,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_exact_lookup_mixed_terms",
+    "score": 0.911,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_exact_lookup_with_invalid_value",
+    "line": 875,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_exact_lookup_with_invalid_value",
+    "score": 0.88,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_dynamic_search_fields",
+    "line": 1730,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_dynamic_search_fields",
+    "score": 0.867,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_deterministic_order_for_unordered_model",
+    "line": 1596,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_deterministic_order_for_unordered_model",
+    "score": 0.853,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_deterministic_order_for_model_ordered_by_its_manager",
+    "line": 1657,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_deterministic_order_for_model_ordered_by_its_manager",
+    "score": 0.844,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_search_help_text",
+    "line": 1788,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_search_help_text",
+    "score": 0.834,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_list_display_related_field_null",
+    "line": 1864,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_list_display_related_field_null",
+    "score": 0.827,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_search_role",
+    "line": 1813,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_search_role",
+    "score": 0.812,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_list_display_related_field_uses_display_for_field",
+    "line": 1937,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_list_display_related_field_uses_display_for_field",
+    "score": 0.803,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_related_field_multiple_search_terms",
+    "line": 228,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_related_field_multiple_search_terms",
+    "score": 0.802,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_list_display_related_field_ordering",
+    "line": 1873,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_list_display_related_field_ordering",
+    "score": 0.797,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_list_display_related_field",
+    "line": 1846,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_list_display_related_field",
+    "score": 0.795,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_multiple_search_fields",
+    "line": 729,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_multiple_search_fields",
+    "score": 0.792,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_distinct_for_many_to_many_at_second_level_in_search_fields",
+    "line": 706,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_distinct_for_many_to_many_at_second_level_in_search_fields",
+    "score": 0.79,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_distinct_for_inherited_m2m_in_list_filter",
+    "line": 604,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_distinct_for_inherited_m2m_in_list_filter",
+    "score": 0.789,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_spanning_relations_with_custom_lookup_in_search_fields",
+    "line": 835,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_spanning_relations_with_custom_lookup_in_search_fields",
+    "score": 0.787,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_dynamic_list_filter",
+    "line": 1705,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_dynamic_list_filter",
+    "score": 0.787,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_builtin_lookup_in_search_fields",
+    "line": 801,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_builtin_lookup_in_search_fields",
+    "score": 0.784,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_custom_lookup_in_search_fields",
+    "line": 818,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_custom_lookup_in_search_fields",
+    "score": 0.784,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_default_str_column_is_not_sortable",
+    "line": 119,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_default_str_column_is_not_sortable",
+    "score": 0.783,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_dynamic_list_display",
+    "line": 1204,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_dynamic_list_display",
+    "score": 0.778,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_tuple_list_display",
+    "line": 1390,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_tuple_list_display",
+    "score": 0.777,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_result_list_set_empty_value_display_in_model_admin",
+    "line": 318,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_result_list_set_empty_value_display_in_model_admin",
+    "score": 0.776,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_no_list_display_links",
+    "line": 1298,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_no_list_display_links",
+    "score": 0.776,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_object_tools_displayed_no_add_permission",
+    "line": 1774,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_object_tools_displayed_no_add_permission",
+    "score": 0.774,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_distinct_for_non_unique_related_object_in_search_fields",
+    "line": 686,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_distinct_for_non_unique_related_object_in_search_fields",
+    "score": 0.774,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_dynamic_list_display_links",
+    "line": 1273,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_dynamic_list_display_links",
+    "score": 0.774,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_result_list_html",
+    "line": 346,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_result_list_html",
+    "score": 0.773,
+    "why": "via ChangeListTests (name: change,list)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/admin_changelist/tests.py::ChangeListTests::test_select_related_preserved_when_multi_valued_in_search_fields",
+    "line": 171,
+    "run": "cd tests && python runtests.py admin_changelist.tests.ChangeListTests.test_select_related_preserved_when_multi_valued_in_search_fields",
+    "score": 0.773,
+    "why": "via ChangeListTests (name: change,list)"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792322230.1508129,
+  "job_seconds": 39.5,
+  "number": 21754,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 39.5,
+  "started": 1792322189.757261
+ },
+ "verify": null
+}

@@ -1,0 +1,712 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "5babd2e21ac0877d66c5452da17b97608b337fba",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "57a2cf40e9fa196a81c2d5ecaf936cc6eb26348c",
+  "install_ok": true,
+  "merge_base": "5babd2e21ac0877d66c5452da17b97608b337fba",
+  "pr": 21861,
+  "recording": true,
+  "runner": null,
+  "seconds": 24.3,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "5babd2e21ac0877d66c5452da17b97608b337fba",
+  "head_sha": "57a2cf40e9fa196a81c2d5ecaf936cc6eb26348c",
+  "merge_base": "5babd2e21ac0877d66c5452da17b97608b337fba",
+  "merged_at": "2026-09-01T20:15:42Z",
+  "number": 21861,
+  "repo": "django",
+  "title": "Fixed #37309 -- Used _is_pk_set() in Model.__eq__ and the XML serializer."
+ },
+ "probe_minutes": {
+  "end": 1792322640.3758159,
+  "minutes": 0.5,
+  "start": 1792322589.082189,
+  "waited": 20.021584875008557
+ },
+ "probe_targets": {
+  "all": 3,
+  "called": 2,
+  "targets": [
+   {
+    "after": "def test_eq(self):\n    self.assertEqual(Article(id=1), Article(id=1))\n    self.assertNotEqual(Article(id=1), object())\n    self.assertNotEqual(object(), Article(id=1))\n    a = Article()\n    self.assertEqual(a, a)\n    self.assertEqual(a, mock.ANY)\n    self.assertNotEqual(Article(), a)\n    # DatabaseDefault is not None, but the pk is unset.\n    db_default = PrimaryKeyWithDbDefault()\n    self.assertEqual(db_default, db_default)\n    self.assertNotEqual(PrimaryKeyWithDbDefault(), db_default)\n",
+    "before": "def test_eq(self):\n    self.assertEqual(Article(id=1), Article(id=1))\n    self.assertNotEqual(Article(id=1), object())\n    self.assertNotEqual(object(), Article(id=1))\n    a = Article()\n    self.assertEqual(a, a)\n    self.assertEqual(a, mock.ANY)\n    self.assertNotEqual(Article(), a)\n",
+    "file": "tests/basic/tests.py",
+    "id": "tests/basic/tests.py#ModelTest.test_eq",
+    "name": "test_eq",
+    "qual": "ModelTest.test_eq",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "return",
+      "bool",
+      "False"
+     ],
+     "before": [
+      "return",
+      "bool",
+      "True"
+     ],
+     "call": "AmuDbDefaultPk() == AmuDbDefaultPk()",
+     "label": "generated test shows a difference",
+     "setup": "from django.db import models\n\nclass AmuDbDefaultPk(models.Model):\n    code = models.IntegerField(primary_key=True, db_default=1)\n\n    class Meta:\n        app_label = 'amu_generated'",
+     "target": "tests/basic/tests.py#ModelTest.test_eq",
+     "test": "import pytest\n\n\ndef test_generated():\n    from django.db import models\n\n    class AmuDbDefaultPk(models.Model):\n        code = models.IntegerField(primary_key=True, db_default=1)\n\n        class Meta:\n            app_label = 'amu_generated'\n    assert repr(AmuDbDefaultPk() == AmuDbDefaultPk()) == 'False'\n",
+     "why": "the edited test's new assertion: two unsaved instances whose pk has a db_default; reaches the changed Model.__eq__ line"
+    }
+   ],
+   "filter_seconds": 7.7,
+   "gaps": [],
+   "info": {
+    "accepted": 1,
+    "compiled": 1,
+    "cost": 0.0,
+    "differed": 1,
+    "dollars_cap": 0.1,
+    "functions": 1,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 1,
+    "ran": 1,
+    "reached": 1,
+    "requests": 1,
+    "seconds": 6.9,
+    "stable": 1
+   },
+   "probes": [
+    {
+     "call": "AmuDbDefaultPk() == AmuDbDefaultPk()",
+     "function": "tests/basic/tests.py#ModelTest.test_eq",
+     "setup": "from django.db import models\n\nclass AmuDbDefaultPk(models.Model):\n    code = models.IntegerField(primary_key=True, db_default=1)\n\n    class Meta:\n        app_label = 'amu_generated'",
+     "why": "the edited test's new assertion: two unsaved instances whose pk has a db_default; reaches the changed Model.__eq__ line"
+    }
+   ],
+   "targets": [
+    "tests/basic/tests.py#ModelTest.test_eq"
+   ],
+   "waited_seconds": 20.0
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/basic/tests.py::ModelTest::test_eq",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_eq",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/composite_pk/tests.py::CompositePKFixturesTests::test_serialize_unsaved_user_xml_omits_pk",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "django/core/serializers/xml_serializer.py",
+    "lines": "62",
+    "symbol": "Serializer.start_object"
+   },
+   {
+    "file": "django/db/models/base.py",
+    "lines": "650-652",
+    "symbol": "Model.__eq__"
+   },
+   {
+    "file": "tests/basic/tests.py",
+    "lines": "494-497",
+    "symbol": "ModelTest.test_eq"
+   },
+   {
+    "file": "tests/composite_pk/tests.py",
+    "lines": "73-83",
+    "symbol": "CompositePKTests.test_eq"
+   },
+   {
+    "file": "tests/composite_pk/tests.py",
+    "lines": "440-443",
+    "symbol": "CompositePKFixturesTests.test_serialize_unsaved_user_xml_omits_pk"
+   }
+  ],
+  "changed_symbols": [
+   "django/core/serializers/xml_serializer.py#Serializer.start_object",
+   "django/db/models/base.py#Model.__eq__",
+   "tests/basic/tests.py#ModelTest.test_eq",
+   "tests/composite_pk/tests.py#CompositePKFixturesTests.test_serialize_unsaved_user_xml_omits_pk",
+   "tests/composite_pk/tests.py#CompositePKTests.test_eq",
+   "tests/composite_pk/tests.py#CompositePKFixturesTests",
+   "tests/composite_pk/tests.py#CompositePKTests"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 3,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 7069,
+   "ran": 280,
+   "replayed": 3,
+   "runner": "django-runtests",
+   "seconds": 12.1,
+   "selection": {
+    "candidates": 7069,
+    "closure_files": 243,
+    "closure_tests": 4489,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/contrib/admin/__init__.py",
+     "django/core/management/base.py",
+     "django/db/migrations/__init__.py",
+     "django/db/models/__init__.py"
+    ],
+    "observed": 857,
+    "static_only": 1516
+   },
+   "unrunnable": 40
+  },
+  "flips": 0,
+  "gaps": [
+   "40 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "99936 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "Skipped 2 non-Python file(s)",
+   "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run stopped at its 300 s budget: 160 of 7069 candidates run",
+   "tests/test_runner_apps/tagged/tests_syntax_error.py: SyntaxError"
+  ],
+  "impacted": {
+   "count": 13,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2928,
+   "parsed_files": 5
+  },
+  "original_tests": {
+   "tests/basic/tests.py::ModelInstanceCreationTests::test_leaving_off_a_field_with_default_set_the_default_will_be_saved": "passed",
+   "tests/basic/tests.py::ModelInstanceCreationTests::test_positional_and_keyword_args_for_the_same_field": "passed",
+   "tests/basic/tests.py::ModelInstanceCreationTests::test_save_primary_with_default_force_update": "passed",
+   "tests/basic/tests.py::ModelRefreshTests::test_prefetched_cache_cleared": "passed",
+   "tests/basic/tests.py::ModelRefreshTests::test_refresh": "passed",
+   "tests/basic/tests.py::ModelRefreshTests::test_refresh_clears_one_to_one_field": "passed",
+   "tests/basic/tests.py::ModelRefreshTests::test_refresh_clears_reverse_related": "passed",
+   "tests/basic/tests.py::ModelRefreshTests::test_refresh_clears_reverse_related_explicit_fields": "passed",
+   "tests/basic/tests.py::ModelRefreshTests::test_refresh_fk": "passed",
+   "tests/basic/tests.py::ModelRefreshTests::test_refresh_fk_on_delete_set_null": "passed",
+   "tests/basic/tests.py::ModelRefreshTests::test_refresh_overwrites_queryset_fields": "passed",
+   "tests/basic/tests.py::ModelRefreshTests::test_refresh_unsaved": "passed",
+   "tests/basic/tests.py::ModelTest::test_create_method": "passed",
+   "tests/basic/tests.py::ModelTest::test_create_method_propagates_fetch_mode": "passed",
+   "tests/basic/tests.py::ModelTest::test_create_relation_with_gettext_lazy": "passed",
+   "tests/basic/tests.py::ModelTest::test_delete_and_access_field": "passed",
+   "tests/basic/tests.py::ModelTest::test_emptyqs": "passed",
+   "tests/basic/tests.py::ModelTest::test_emptyqs_customqs": "passed",
+   "tests/basic/tests.py::ModelTest::test_emptyqs_distinct": "skipped",
+   "tests/basic/tests.py::ModelTest::test_emptyqs_values": "passed",
+   "tests/basic/tests.py::ModelTest::test_emptyqs_values_order": "passed",
+   "tests/basic/tests.py::ModelTest::test_eq": "passed",
+   "tests/basic/tests.py::ModelTest::test_extra_method_select_argument_with_dashes": "passed",
+   "tests/basic/tests.py::ModelTest::test_extra_method_select_argument_with_dashes_and_values": "passed",
+   "tests/basic/tests.py::ModelTest::test_hash": "passed",
+   "tests/basic/tests.py::ModelTest::test_hash_function": "passed",
+   "tests/basic/tests.py::ModelTest::test_is_pk_set": "passed",
+   "tests/basic/tests.py::ModelTest::test_is_pk_unset": "passed",
+   "tests/basic/tests.py::ModelTest::test_manually_specify_primary_key": "passed",
+   "tests/basic/tests.py::ModelTest::test_microsecond_precision": "passed",
+   "tests/basic/tests.py::ModelTest::test_missing_hash_not_inherited": "passed",
+   "tests/basic/tests.py::ModelTest::test_multiple_objects_max_num_fetched": "passed",
+   "tests/basic/tests.py::ModelTest::test_not_equal_and_equal_operators_behave_as_expected_on_instances": "passed",
+   "tests/basic/tests.py::ModelTest::test_objects_attribute_is_only_available_on_the_class_itself": "passed",
+   "tests/basic/tests.py::ModelTest::test_queryset_delete_removes_all_items_in_that_queryset": "passed",
+   "tests/basic/tests.py::ModelTest::test_save_expressions": "passed",
+   "tests/basic/tests.py::ModelTest::test_specified_parent_hash_inherited": "passed",
+   "tests/basic/tests.py::ModelTest::test_ticket_20278": "passed",
+   "tests/basic/tests.py::ModelTest::test_unicode_data": "passed",
+   "tests/basic/tests.py::ModelTest::test_year_lookup_edge_case": "passed",
+   "tests/composite_pk/tests.py::CompositePKFixturesTests::test_invalid_pk_extra_field": "passed",
+   "tests/composite_pk/tests.py::CompositePKFixturesTests::test_objects": "passed",
+   "tests/composite_pk/tests.py::CompositePKFixturesTests::test_serialize_datetime": "passed",
+   "tests/composite_pk/tests.py::CompositePKFixturesTests::test_serialize_post_uuid": "passed",
+   "tests/composite_pk/tests.py::CompositePKFixturesTests::test_serialize_user_json": "passed",
+   "tests/composite_pk/tests.py::CompositePKFixturesTests::test_serialize_user_jsonl": "passed",
+   "tests/composite_pk/tests.py::CompositePKFixturesTests::test_serialize_user_python": "passed",
+   "tests/composite_pk/tests.py::CompositePKFixturesTests::test_serialize_user_xml": "passed",
+   "tests/composite_pk/tests.py::CompositePKFixturesTests::test_serialize_user_yaml": "skipped",
+   "tests/composite_pk/tests.py::CompositePKTests::test_composite_pk_in_fields": "passed",
+   "tests/composite_pk/tests.py::CompositePKTests::test_error_on_comment_pk_conflict": "passed",
+   "tests/composite_pk/tests.py::CompositePKTests::test_error_on_user_pk_conflict": "passed",
+   "tests/composite_pk/tests.py::CompositePKTests::test_get_primary_key_columns": "passed",
+   "tests/composite_pk/tests.py::CompositePKTests::test_hash": "passed",
+   "tests/composite_pk/tests.py::CompositePKTests::test_in_bulk": "passed",
+   "tests/composite_pk/tests.py::CompositePKTests::test_in_bulk_batching": "passed",
+   "tests/composite_pk/tests.py::CompositePKTests::test_in_bulk_values": "passed",
+   "tests/composite_pk/tests.py::CompositePKTests::test_in_bulk_values_field": "passed",
+   "tests/composite_pk/tests.py::CompositePKTests::test_in_bulk_values_fields": "passed",
+   "tests/composite_pk/tests.py::CompositePKTests::test_in_bulk_values_list": "passed",
+   "tests/composite_pk/tests.py::CompositePKTests::test_in_bulk_values_list_fields_are_pk": "passed",
+   "tests/composite_pk/tests.py::CompositePKTests::test_in_bulk_values_list_flat": "passed",
+   "tests/composite_pk/tests.py::CompositePKTests::test_in_bulk_values_list_flat_pk": "passed",
+   "tests/composite_pk/tests.py::CompositePKTests::test_in_bulk_values_list_flat_tenant": "passed",
+   "tests/composite_pk/tests.py::CompositePKTests::test_in_bulk_values_list_multiple_fields": "passed",
+   "tests/composite_pk/tests.py::CompositePKTests::test_iterator": "passed",
+   "tests/composite_pk/tests.py::CompositePKTests::test_model_forms": "passed",
+   "tests/composite_pk/tests.py::CompositePKTests::test_only": "passed",
+   "tests/composite_pk/tests.py::CompositePKTests::test_pk_field": "passed",
+   "tests/composite_pk/tests.py::CompositePKTests::test_pk_must_be_list_or_tuple": "passed",
+   "tests/composite_pk/tests.py::CompositePKTests::test_pk_must_have_2_elements": "passed",
+   "tests/composite_pk/tests.py::CompositePKTests::test_pk_not_set_db_default": "passed",
+   "tests/composite_pk/tests.py::CompositePKTests::test_pk_updated_if_field_updated": "passed",
+   "tests/composite_pk/tests.py::CompositePKTests::test_query": "passed",
+   "tests/composite_pk/tests.py::CompositePKTests::test_raw": "passed",
+   "tests/composite_pk/tests.py::CompositePKTests::test_raw_missing_PK_fields": "passed",
+   "tests/composite_pk/tests.py::CompositePKTests::test_select_related": "passed",
+   "tests/composite_pk/tests.py::CompositePKTests::test_totally_ordered": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/basic/tests.py::ModelTest::test_eq",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_eq",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/composite_pk/tests.py::CompositePKFixturesTests::test_serialize_unsaved_user_xml_omits_pk",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "ad852dbfd876",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [
+    "django/core/serializers/xml_serializer.py#Serializer.start_object",
+    "django/db/models/base.py#Model.__eq__"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 6,
+   "differences": 0,
+   "functions_called": 2,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "tests/composite_pk/tests.py#CompositePKFixturesTests.test_serialize_unsaved_user_xml_omits_pk": "not a module or class function on both sides (new, removed or nested)",
+    "tests/composite_pk/tests.py#CompositePKTests.test_eq": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 3.9,
+   "targets": 3,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 280 of 7069 candidate tests after the change with django-runtests in 12.1 s, failures confirmed before it: 0 now fail. 3090 tests reach the change. 78 test(s) from edited test files also run as they were before the edit. 3 test(s) the change adds or edits replayed on the code before it: 3 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKFixturesTests::test_serialize_unsaved_user_xml_omits_pk",
+    "line": 440,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKFixturesTests.test_serialize_unsaved_user_xml_omits_pk",
+    "score": 3.268,
+    "why": "via CompositePKFixturesTests (name: composite,fixture,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_eq",
+    "line": 73,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKTests.test_eq",
+    "score": 2.772,
+    "why": "via CompositePKTests (name: composite,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKFixturesTests::test_serialize_user_json",
+    "line": 359,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKFixturesTests.test_serialize_user_json",
+    "score": 1.863,
+    "why": "via CompositePKFixturesTests (name: composite,fixture,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_in_bulk_values",
+    "line": 185,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKTests.test_in_bulk_values",
+    "score": 1.681,
+    "why": "via CompositePKTests (name: composite,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKFixturesTests::test_serialize_user_jsonl",
+    "line": 378,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKFixturesTests.test_serialize_user_jsonl",
+    "score": 1.351,
+    "why": "via CompositePKFixturesTests (name: composite,fixture,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_pk_updated_if_field_updated",
+    "line": 47,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKTests.test_pk_updated_if_field_updated",
+    "score": 1.164,
+    "why": "via CompositePKTests (name: composite,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKFixturesTests::test_serialize_user_python",
+    "line": 415,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKFixturesTests.test_serialize_user_python",
+    "score": 1.074,
+    "why": "via CompositePKFixturesTests (name: composite,fixture,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKFixturesTests::test_serialize_user_yaml",
+    "line": 395,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKFixturesTests.test_serialize_user_yaml",
+    "score": 0.924,
+    "why": "via CompositePKFixturesTests (name: composite,fixture,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_in_bulk_batching",
+    "line": 168,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKTests.test_in_bulk_batching",
+    "score": 0.922,
+    "why": "via CompositePKTests (name: composite,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKFixturesTests::test_serialize_user_xml",
+    "line": 434,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKFixturesTests.test_serialize_user_xml",
+    "score": 0.823,
+    "why": "via CompositePKFixturesTests (name: composite,fixture,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_in_bulk_values_list_fields_are_pk",
+    "line": 224,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKTests.test_in_bulk_values_list_fields_are_pk",
+    "score": 0.796,
+    "why": "via CompositePKTests (name: composite,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKFixturesTests::test_serialize_post_uuid",
+    "line": 445,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKFixturesTests.test_serialize_post_uuid",
+    "score": 0.779,
+    "why": "via CompositePKFixturesTests (name: composite,fixture,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_in_bulk_values_list_flat_tenant",
+    "line": 240,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKTests.test_in_bulk_values_list_flat_tenant",
+    "score": 0.73,
+    "why": "via CompositePKTests (name: composite,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKFixturesTests::test_serialize_datetime",
+    "line": 462,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKFixturesTests.test_serialize_datetime",
+    "score": 0.723,
+    "why": "via CompositePKFixturesTests (name: composite,fixture,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKFixturesTests::test_invalid_pk_extra_field",
+    "line": 479,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKFixturesTests.test_invalid_pk_extra_field",
+    "score": 0.696,
+    "why": "via CompositePKFixturesTests (name: composite,fixture,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_model_forms",
+    "line": 291,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKTests.test_model_forms",
+    "score": 0.693,
+    "why": "via CompositePKTests (name: composite,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_only",
+    "line": 271,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKTests.test_only",
+    "score": 0.674,
+    "why": "via CompositePKTests (name: composite,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKFixturesTests::test_objects",
+    "line": 317,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKFixturesTests.test_objects",
+    "score": 0.666,
+    "why": "via CompositePKFixturesTests (name: composite,fixture,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_raw",
+    "line": 257,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKTests.test_raw",
+    "score": 0.664,
+    "why": "via CompositePKTests (name: composite,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_error_on_user_pk_conflict",
+    "line": 140,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKTests.test_error_on_user_pk_conflict",
+    "score": 0.654,
+    "why": "via CompositePKTests (name: composite,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_raw_missing_PK_fields",
+    "line": 265,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKTests.test_raw_missing_PK_fields",
+    "score": 0.652,
+    "why": "via CompositePKTests (name: composite,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_get_primary_key_columns",
+    "line": 148,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKTests.test_get_primary_key_columns",
+    "score": 0.648,
+    "why": "via CompositePKTests (name: composite,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/serializers/tests.py::SerializerAPITests::test_stream_class",
+    "line": 477,
+    "run": "cd tests && python runtests.py serializers.tests.SerializerAPITests.test_stream_class",
+    "score": 0.642,
+    "why": "via Serializer.serialize > Serializer.start_object (name: serializer)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_composite_pk_in_fields",
+    "line": 128,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKTests.test_composite_pk_in_fields",
+    "score": 0.642,
+    "why": "via CompositePKTests (name: composite,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_select_related",
+    "line": 283,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKTests.test_select_related",
+    "score": 0.641,
+    "why": "via CompositePKTests (name: composite,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_pk_not_set_db_default",
+    "line": 67,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKTests.test_pk_not_set_db_default",
+    "score": 0.638,
+    "why": "via CompositePKTests (name: composite,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_error_on_comment_pk_conflict",
+    "line": 144,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKTests.test_error_on_comment_pk_conflict",
+    "score": 0.634,
+    "why": "via CompositePKTests (name: composite,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_totally_ordered",
+    "line": 303,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKTests.test_totally_ordered",
+    "score": 0.633,
+    "why": "via CompositePKTests (name: composite,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_in_bulk",
+    "line": 158,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKTests.test_in_bulk",
+    "score": 0.622,
+    "why": "via CompositePKTests (name: composite,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_iterator",
+    "line": 246,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKTests.test_iterator",
+    "score": 0.622,
+    "why": "via CompositePKTests (name: composite,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_hash",
+    "line": 85,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKTests.test_hash",
+    "score": 0.616,
+    "why": "via CompositePKTests (name: composite,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_in_bulk_values_field",
+    "line": 200,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKTests.test_in_bulk_values_field",
+    "score": 0.613,
+    "why": "via CompositePKTests (name: composite,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_in_bulk_values_fields",
+    "line": 207,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKTests.test_in_bulk_values_fields",
+    "score": 0.613,
+    "why": "via CompositePKTests (name: composite,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_in_bulk_values_list",
+    "line": 214,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKTests.test_in_bulk_values_list",
+    "score": 0.613,
+    "why": "via CompositePKTests (name: composite,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_in_bulk_values_list_flat",
+    "line": 230,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKTests.test_in_bulk_values_list_flat",
+    "score": 0.613,
+    "why": "via CompositePKTests (name: composite,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_in_bulk_values_list_flat_pk",
+    "line": 236,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKTests.test_in_bulk_values_list_flat_pk",
+    "score": 0.613,
+    "why": "via CompositePKTests (name: composite,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_in_bulk_values_list_multiple_fields",
+    "line": 218,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKTests.test_in_bulk_values_list_multiple_fields",
+    "score": 0.613,
+    "why": "via CompositePKTests (name: composite,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_pk_must_be_list_or_tuple",
+    "line": 97,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKTests.test_pk_must_be_list_or_tuple",
+    "score": 0.605,
+    "why": "via CompositePKTests (name: composite,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_pk_must_have_2_elements",
+    "line": 113,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKTests.test_pk_must_have_2_elements",
+    "score": 0.605,
+    "why": "via CompositePKTests (name: composite,pk)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/composite_pk/tests.py::CompositePKTests::test_query",
+    "line": 253,
+    "run": "cd tests && python runtests.py composite_pk.tests.CompositePKTests.test_query",
+    "score": 0.605,
+    "why": "via CompositePKTests (name: composite,pk)"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792322365.093524,
+  "job_seconds": 24.3,
+  "number": 21861,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 24.3,
+  "started": 1792322339.8903549
+ },
+ "verify": null
+}

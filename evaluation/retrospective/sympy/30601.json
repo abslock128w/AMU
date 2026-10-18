@@ -1,0 +1,1089 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "5199eff1ff7e07ae38d81db6fcae6b0541d66124",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "09a4396d36bd8a2fe6741d5bd7e81339fdd744ea",
+  "install_ok": true,
+  "merge_base": "43c4ae7fd5777b48762642c07cb3b49fb41d52a7",
+  "pr": 30601,
+  "recording": false,
+  "runner": null,
+  "seconds": 430.9,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "5199eff1ff7e07ae38d81db6fcae6b0541d66124",
+  "head_sha": "09a4396d36bd8a2fe6741d5bd7e81339fdd744ea",
+  "merge_base": "43c4ae7fd5777b48762642c07cb3b49fb41d52a7",
+  "merged_at": "2026-09-27T15:28:51Z",
+  "number": 30601,
+  "repo": "sympy",
+  "title": "Remove _CodegenArrayAbstract"
+ },
+ "probe_minutes": {
+  "end": 1792334166.110453,
+  "minutes": 1.6,
+  "start": 1792334007.610091,
+  "waited": 60.0502513750107
+ },
+ "probe_targets": {
+  "all": 21,
+  "called": 10,
+  "targets": [
+   {
+    "after": "def _compare_torch_matrix(variables, expr):\n    f = lambdify(variables, expr, 'torch')\n\n    random_matrices = [randMatrix(i.shape[0], i.shape[1]) for i in variables]\n    random_variables = [torch.tensor(i.tolist(), dtype=torch.float64) for i in random_matrices]\n    r = f(*random_variables)\n    e = expr.subs(dict(zip(variables, random_matrices))).doit()\n\n    if isinstance(e, _ArrayExpr):\n        e = e.doit()\n\n    if hasattr(e, 'is_number') and e.is_number:\n        if isinstance(r, torch.Tensor) and r.dim() == 0:\n            r = r.item()\n            e = float(e)\n            assert abs(r - e) < 1e-6\n            return\n\n    if e.is_Matrix or isinstance(e, NDimArray):\n        e = torch.tensor(e.tolist(), dtype=torch.float64)\n        assert torch.allclose(r, e, atol=1e-6)\n    else:\n        raise TypeError(f\"Cannot compare {type(r)} with {type(e)}\")\n",
+    "before": "def _compare_torch_matrix(variables, expr):\n    f = lambdify(variables, expr, 'torch')\n\n    random_matrices = [randMatrix(i.shape[0], i.shape[1]) for i in variables]\n    random_variables = [torch.tensor(i.tolist(), dtype=torch.float64) for i in random_matrices]\n    r = f(*random_variables)\n    e = expr.subs(dict(zip(variables, random_matrices))).doit()\n\n    if isinstance(e, _CodegenArrayAbstract):\n        e = e.doit()\n\n    if hasattr(e, 'is_number') and e.is_number:\n        if isinstance(r, torch.Tensor) and r.dim() == 0:\n            r = r.item()\n            e = float(e)\n            assert abs(r - e) < 1e-6\n            return\n\n    if e.is_Matrix or isinstance(e, NDimArray):\n        e = torch.tensor(e.tolist(), dtype=torch.float64)\n        assert torch.allclose(r, e, atol=1e-6)\n    else:\n        raise TypeError(f\"Cannot compare {type(r)} with {type(e)}\")\n",
+    "file": "sympy/printing/tests/test_torch.py",
+    "id": "sympy/printing/tests/test_torch.py#_compare_torch_matrix",
+    "name": "_compare_torch_matrix",
+    "qual": "_compare_torch_matrix",
+    "signature_changed": false
+   },
+   {
+    "after": "def tensordiagonal(array, *diagonal_axes):\n    \"\"\"\n    Diagonalization of an array-like object on the specified axes.\n\n    This is equivalent to multiplying the expression by Kronecker deltas\n    uniting the axes.\n\n    The diagonal indices are put at the end of the axes.\n\n    The equivalent operator for array expressions is ``ArrayDiagonal``, which\n    can be used to keep the expression unevaluated.\n\n    Examples\n    ========\n\n    ``tensordiagonal`` acting on a 2-dimensional array by axes 0 and 1 is\n    equivalent to the diagonal of the matrix:\n\n    >>> from sympy import Array, tensordiagonal\n    >>> from sympy import Matrix, eye\n    >>> tensordiagonal(eye(3), (0, 1))\n    [1, 1, 1]\n\n    >>> from sympy.abc import a,b,c,d\n    >>> m1 = Matrix([[a, b], [c, d]])\n    >>> tensordiagonal(m1, [0, 1])\n    [a, d]\n\n    In case of higher dimensional arrays, the diagonalized out dimensions\n    are appended removed and appended as a single dimension at the end:\n\n    >>> A = Array(range(18), (3, 2, 3))\n    >>> A\n    [[[0, 1, 2], [3, 4, 5]], [[6, 7, 8], [9, 10, 11]], [[12, 13, 14], [15, 16, 17]]]\n    >>> tensordiagonal(A, (0, 2))\n    [[0, 7, 14], [3, 10, 17]]\n    >>> from sympy import permutedims\n    >>> tensordiagonal(A, (0, 2)) == permutedims(Array([A[0, :, 0], A[1, :, 1], A[2, :, 2]]), [1, 0])\n    True\n\n    See Also\n    ========\n\n    sympy.tensor.array.expressions.array_expressions.ArrayDiagonal\n\n    \"\"\"\n    if any(len(i) <= 1 for i in diagonal_axes):\n        raise ValueError(\"need at least two axes to diagonalize\")\n\n    from sympy.tensor.array.expressions.array_expressions import _ArrayExpr\n    from sympy.tensor.array.expressions.array_expressions import ArrayDiagonal, _array_diagonal\n    from sympy.matrices.expressions.matexpr import MatrixSymbol\n    if isinstance(array, (_ArrayExpr, MatrixSymbol)):\n        return _array_diagonal(array, *diagonal_axes)\n\n    ArrayDiagonal._validate(array, *diagonal_axes)\n\n    array, remaining_indices, remaining_shape, diagonal_deltas = _util_contraction_diagonal(array, *diagonal_axes)\n\n    # Compute the diagonalized array:\n    #\n    # 1. external for loops on all undiagonalized indices.\n    #    Undiagonalized indices are determined by the combinatorial product of\n    #    the absolute positions of the remaining indices.\n    # 2. internal loop on all diagonal indices.\n    #    It appends the values of the absolute diagonalized index and the absolute\n    #    undiagonalized index for the external loop.\n    diagonalized_array = []\n    diagonal_shape = [len(i) for i in diagonal_deltas]\n    for icontrib in itertools.product(*remaining_indices):\n        index_base_position = sum(icontrib)\n        isum = []\n        for sum_to_index in itertools.product(*diagonal_deltas):\n            idx = array._get_tuple_index(index_base_position + sum(sum_to_index))\n            isum.append(array[idx])\n\n        isum = type(array)(isum).reshape(*diagonal_shape)\n        diagonalized_array.append(isum)\n\n    return type(array)(diagonalized_array, remaining_shape + diagonal_shape)\n",
+    "before": "def tensordiagonal(array, *diagonal_axes):\n    \"\"\"\n    Diagonalization of an array-like object on the specified axes.\n\n    This is equivalent to multiplying the expression by Kronecker deltas\n    uniting the axes.\n\n    The diagonal indices are put at the end of the axes.\n\n    The equivalent operator for array expressions is ``ArrayDiagonal``, which\n    can be used to keep the expression unevaluated.\n\n    Examples\n    ========\n\n    ``tensordiagonal`` acting on a 2-dimensional array by axes 0 and 1 is\n    equivalent to the diagonal of the matrix:\n\n    >>> from sympy import Array, tensordiagonal\n    >>> from sympy import Matrix, eye\n    >>> tensordiagonal(eye(3), (0, 1))\n    [1, 1, 1]\n\n    >>> from sympy.abc import a,b,c,d\n    >>> m1 = Matrix([[a, b], [c, d]])\n    >>> tensordiagonal(m1, [0, 1])\n    [a, d]\n\n    In case of higher dimensional arrays, the diagonalized out dimensions\n    are appended removed and appended as a single dimension at the end:\n\n    >>> A = Array(range(18), (3, 2, 3))\n    >>> A\n    [[[0, 1, 2], [3, 4, 5]], [[6, 7, 8], [9, 10, 11]], [[12, 13, 14], [15, 16, 17]]]\n    >>> tensordiagonal(A, (0, 2))\n    [[0, 7, 14], [3, 10, 17]]\n    >>> from sympy import permutedims\n    >>> tensordiagonal(A, (0, 2)) == permutedims(Array([A[0, :, 0], A[1, :, 1], A[2, :, 2]]), [1, 0])\n    True\n\n    See Also\n    ========\n\n    sympy.tensor.array.expressions.array_expressions.ArrayDiagonal\n\n    \"\"\"\n    if any(len(i) <= 1 for i in diagonal_axes):\n        raise ValueError(\"need at least two axes to diagonalize\")\n\n    from sympy.tensor.array.expressions.array_expressions import _ArrayExpr\n    from sympy.tensor.array.expressions.array_expressions import _CodegenArrayAbstract\n    from sympy.tensor.array.expressions.array_expressions import ArrayDiagonal, _array_diagonal\n    from sympy.matrices.expressions.matexpr import MatrixSymbol\n    if isinstance(array, (_ArrayExpr, _CodegenArrayAbstract, MatrixSymbol)):\n        return _array_diagonal(array, *diagonal_axes)\n\n    ArrayDiagonal._validate(array, *diagonal_axes)\n\n    array, remaining_indices, remaining_shape, diagonal_deltas = _util_contraction_diagonal(array, *diagonal_axes)\n\n    # Compute the diagonalized array:\n    #\n    # 1. external for loops on all undiagonalized indices.\n    #    Undiagonalized indices are determined by the combinatorial product of\n    #    the absolute positions of the remaining indices.\n    # 2. internal loop on all diagonal indices.\n    #    It appends the values of the absolute diagonalized index and the absolute\n    #    undiagonalized index for the external loop.\n    diagonalized_array = []\n    diagonal_shape = [len(i) for i in diagonal_deltas]\n    for icontrib in itertools.product(*remaining_indices):\n        index_base_position = sum(icontrib)\n        isum = []\n        for sum_to_index in itertools.product(*diagonal_deltas):\n            idx = array._get_tuple_index(index_base_position + sum(sum_to_index))\n            isum.append(array[idx])\n\n        isum = type(array)(isum).reshape(*diagonal_shape)\n        diagonalized_array.append(isum)\n\n    return type(array)(diagonalized_array, remaining_shape + diagonal_shape)\n",
+    "file": "sympy/tensor/array/arrayop.py",
+    "id": "sympy/tensor/array/arrayop.py#tensordiagonal",
+    "name": "tensordiagonal",
+    "qual": "tensordiagonal",
+    "signature_changed": false
+   },
+   {
+    "after": "def permutedims(expr, perm=None, index_order_old=None, index_order_new=None):\n    \"\"\"\n    Permutes the indices of an array.\n\n    Parameter specifies the permutation of the indices.\n\n    The equivalent operator for array expressions is ``PermuteDims``, which can\n    be used to keep the expression unevaluated.\n\n    Examples\n    ========\n\n    >>> from sympy.abc import x, y, z, t\n    >>> from sympy import sin\n    >>> from sympy import Array, permutedims\n    >>> a = Array([[x, y, z], [t, sin(x), 0]])\n    >>> a\n    [[x, y, z], [t, sin(x), 0]]\n    >>> permutedims(a, (1, 0))\n    [[x, t], [y, sin(x)], [z, 0]]\n\n    If the array is of second order, ``transpose`` can be used:\n\n    >>> from sympy import transpose\n    >>> transpose(a)\n    [[x, t], [y, sin(x)], [z, 0]]\n\n    Examples on higher dimensions:\n\n    >>> b = Array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]])\n    >>> permutedims(b, (2, 1, 0))\n    [[[1, 5], [3, 7]], [[2, 6], [4, 8]]]\n    >>> permutedims(b, (1, 2, 0))\n    [[[1, 5], [2, 6]], [[3, 7], [4, 8]]]\n\n    An alternative way to specify the same permutations as in the previous\n    lines involves passing the *old* and *new* indices, either as a list or as\n    a string:\n\n    >>> permutedims(b, index_order_old=\"cba\", index_order_new=\"abc\")\n    [[[1, 5], [3, 7]], [[2, 6], [4, 8]]]\n    >>> permutedims(b, index_order_old=\"cab\", index_order_new=\"abc\")\n    [[[1, 5], [2, 6]], [[3, 7], [4, 8]]]\n\n    ``Permutation`` objects are also allowed:\n\n    >>> from sympy.combinatorics import Permutation\n    >>> permutedims(b, Permutation([1, 2, 0]))\n    [[[1, 5], [2, 6]], [[3, 7], [4, 8]]]\n\n    See Also\n    ========\n\n    sympy.tensor.array.expressions.array_expressions.PermuteDims\n\n    \"\"\"\n    from sympy.tensor.array import SparseNDimArray\n\n    from sympy.tensor.array.expressions.array_expressions import _ArrayExpr\n    from sympy.tensor.array.expressions.array_expressions import _permute_dims\n    from sympy.matrices.expressions.matexpr import MatrixSymbol\n    from sympy.tensor.array.expressions import PermuteDims\n    from sympy.tensor.array.expressions.array_expressions import get_ndim\n    perm = PermuteDims._get_permutation_from_arguments(perm, index_order_old, index_order_new, get_ndim(expr))\n    if isinstance(expr, (_ArrayExpr, MatrixSymbol)):\n        return _permute_dims(expr, perm)\n\n    if not isinstance(expr, NDimArray):\n        expr = ImmutableDenseNDimArray(expr)\n\n    from sympy.combinatorics import Permutation\n    if not isinstance(perm, Permutation):\n        perm = Permutation(list(perm))\n\n    if perm.size != expr.ndim:\n        raise ValueError(\"wrong permutation size\")\n\n    # Get the inverse permutation:\n    iperm = ~perm\n    new_shape = perm(expr.shape)\n\n    if isinstance(expr, SparseNDimArray):\n        return type(expr)({tuple(perm(expr._get_tuple_index(k))): v\n                           for k, v in expr._sparse_array.items()}, new_shape)\n\n    indices_span = perm([range(i) for i in expr.shape])\n\n    new_array = [None]*len(expr)\n    for i, idx in enumerate(itertools.product(*indices_span)):\n        t = iperm(idx)\n        new_array[i] = expr[t]\n\n    return type(expr)(new_array, new_shape)\n",
+    "before": "def permutedims(expr, perm=None, index_order_old=None, index_order_new=None):\n    \"\"\"\n    Permutes the indices of an array.\n\n    Parameter specifies the permutation of the indices.\n\n    The equivalent operator for array expressions is ``PermuteDims``, which can\n    be used to keep the expression unevaluated.\n\n    Examples\n    ========\n\n    >>> from sympy.abc import x, y, z, t\n    >>> from sympy import sin\n    >>> from sympy import Array, permutedims\n    >>> a = Array([[x, y, z], [t, sin(x), 0]])\n    >>> a\n    [[x, y, z], [t, sin(x), 0]]\n    >>> permutedims(a, (1, 0))\n    [[x, t], [y, sin(x)], [z, 0]]\n\n    If the array is of second order, ``transpose`` can be used:\n\n    >>> from sympy import transpose\n    >>> transpose(a)\n    [[x, t], [y, sin(x)], [z, 0]]\n\n    Examples on higher dimensions:\n\n    >>> b = Array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]])\n    >>> permutedims(b, (2, 1, 0))\n    [[[1, 5], [3, 7]], [[2, 6], [4, 8]]]\n    >>> permutedims(b, (1, 2, 0))\n    [[[1, 5], [2, 6]], [[3, 7], [4, 8]]]\n\n    An alternative way to specify the same permutations as in the previous\n    lines involves passing the *old* and *new* indices, either as a list or as\n    a string:\n\n    >>> permutedims(b, index_order_old=\"cba\", index_order_new=\"abc\")\n    [[[1, 5], [3, 7]], [[2, 6], [4, 8]]]\n    >>> permutedims(b, index_order_old=\"cab\", index_order_new=\"abc\")\n    [[[1, 5], [2, 6]], [[3, 7], [4, 8]]]\n\n    ``Permutation`` objects are also allowed:\n\n    >>> from sympy.combinatorics import Permutation\n    >>> permutedims(b, Permutation([1, 2, 0]))\n    [[[1, 5], [2, 6]], [[3, 7], [4, 8]]]\n\n    See Also\n    ========\n\n    sympy.tensor.array.expressions.array_expressions.PermuteDims\n\n    \"\"\"\n    from sympy.tensor.array import SparseNDimArray\n\n    from sympy.tensor.array.expressions.array_expressions import _ArrayExpr\n    from sympy.tensor.array.expressions.array_expressions import _CodegenArrayAbstract\n    from sympy.tensor.array.expressions.array_expressions import _permute_dims\n    from sympy.matrices.expressions.matexpr import MatrixSymbol\n    from sympy.tensor.array.expressions import PermuteDims\n    from sympy.tensor.array.expressions.array_expressions import get_ndim\n    perm = PermuteDims._get_permutation_from_arguments(perm, index_order_old, index_order_new, get_ndim(expr))\n    if isinstance(expr, (_ArrayExpr, _CodegenArrayAbstract, MatrixSymbol)):\n        return _permute_dims(expr, perm)\n\n    if not isinstance(expr, NDimArray):\n        expr = ImmutableDenseNDimArray(expr)\n\n    from sympy.combinatorics import Permutation\n    if not isinstance(perm, Permutation):\n        perm = Permutation(list(perm))\n\n    if perm.size != expr.ndim:\n        raise ValueError(\"wrong permutation size\")\n\n    # Get the inverse permutation:\n    iperm = ~perm\n    new_shape = perm(expr.shape)\n\n    if isinstance(expr, SparseNDimArray):\n        return type(expr)({tuple(perm(expr._get_tuple_index(k))): v\n                           for k, v in expr._sparse_array.items()}, new_shape)\n\n    indices_span = perm([range(i) for i in expr.shape])\n\n    new_array = [None]*len(expr)\n    for i, idx in enumerate(itertools.product(*indices_span)):\n        t = iperm(idx)\n        new_array[i] = expr[t]\n\n    return type(expr)(new_array, new_shape)\n",
+    "file": "sympy/tensor/array/arrayop.py",
+    "id": "sympy/tensor/array/arrayop.py#permutedims",
+    "name": "permutedims",
+    "qual": "permutedims",
+    "signature_changed": false
+   },
+   {
+    "after": "def do_convert(self, expr, indices):\n    if isinstance(expr, ArrayTensorProduct):\n        cumul = list(accumulate([0] + [get_ndim(arg) for arg in expr.args]))\n        indices_grp = [indices[cumul[i]:cumul[i+1]] for i in range(len(expr.args))]\n        return Mul.fromiter(self.do_convert(arg, ind) for arg, ind in zip(expr.args, indices_grp))\n    if isinstance(expr, ArrayContraction):\n        new_indices = [None for i in range(get_ndim(expr.expr))]\n        limits = []\n        bottom_shape = get_shape(expr.expr)\n        for contraction_index_grp in expr.contraction_indices:\n            d = Dummy(f\"d{self.count_dummies}\")\n            self.count_dummies += 1\n            dim = bottom_shape[contraction_index_grp[0]]\n            limits.append((d, 0, dim-1))\n            for i in contraction_index_grp:\n                new_indices[i] = d\n        j = 0\n        for i in range(len(new_indices)):\n            if new_indices[i] is None:\n                new_indices[i] = indices[j]\n                j += 1\n        newexpr = self.do_convert(expr.expr, new_indices)\n        return Sum(newexpr, *limits)\n    if isinstance(expr, ArrayDiagonal):\n        new_indices = [None for i in range(get_ndim(expr.expr))]\n        ind_pos = expr._push_indices_down(expr.diagonal_indices, list(range(len(indices))), get_ndim(expr.expr))\n        for i, index in zip(ind_pos, indices):\n            if isinstance(i, collections.abc.Iterable):\n                for j in i:\n                    new_indices[j] = index\n            else:\n                new_indices[i] = index\n        newexpr = self.do_convert(expr.expr, new_indices)\n        return newexpr\n    if isinstance(expr, PermuteDims):\n        permuted_indices = _apply_permutation_to_list(expr.permutation, indices)\n        return self.do_convert(expr.expr, permuted_indices)\n    if isinstance(expr, ArrayAdd):\n        return Add.fromiter(self.do_convert(arg, indices) for arg in expr.args)\n    if isinstance(expr, ArrayElementwiseApplyFunc):\n        return expr.function(self.do_convert(expr.expr, indices))\n    if isinstance(expr, Reshape):\n        shape_up = expr.shape\n        shape_down = get_shape(expr.expr)\n        cumul = list(accumulate([1] + list(reversed(shape_up)), operator.mul))\n        one_index = Add.fromiter(i*s for i, s in zip(reversed(indices), cumul))\n        dest_indices = [None for _ in shape_down]\n        c = 1\n        for i, e in enumerate(reversed(shape_down)):\n            if c == 1:\n                if i == len(shape_down) - 1:\n                    dest_indices[i] = one_index\n                else:\n                    dest_indices[i] = one_index % e\n            elif i == len(shape_down) - 1:\n                dest_indices[i] = one_index // c\n            else:\n                dest_indices[i] = one_index // c % e\n            c *= e\n        dest_indices.reverse()\n        return self.do_convert(expr.expr, dest_indices)\n    if isinstance(expr, _ArrayExpr):\n        return expr.__getitem__(tuple(indices))\n    return _get_array_element_or_slice(expr, indices)\n",
+    "before": "def do_convert(self, expr, indices):\n    if isinstance(expr, ArrayTensorProduct):\n        cumul = list(accumulate([0] + [get_ndim(arg) for arg in expr.args]))\n        indices_grp = [indices[cumul[i]:cumul[i+1]] for i in range(len(expr.args))]\n        return Mul.fromiter(self.do_convert(arg, ind) for arg, ind in zip(expr.args, indices_grp))\n    if isinstance(expr, ArrayContraction):\n        new_indices = [None for i in range(get_ndim(expr.expr))]\n        limits = []\n        bottom_shape = get_shape(expr.expr)\n        for contraction_index_grp in expr.contraction_indices:\n            d = Dummy(f\"d{self.count_dummies}\")\n            self.count_dummies += 1\n            dim = bottom_shape[contraction_index_grp[0]]\n            limits.append((d, 0, dim-1))\n            for i in contraction_index_grp:\n                new_indices[i] = d\n        j = 0\n        for i in range(len(new_indices)):\n            if new_indices[i] is None:\n                new_indices[i] = indices[j]\n                j += 1\n        newexpr = self.do_convert(expr.expr, new_indices)\n        return Sum(newexpr, *limits)\n    if isinstance(expr, ArrayDiagonal):\n        new_indices = [None for i in range(get_ndim(expr.expr))]\n        ind_pos = expr._push_indices_down(expr.diagonal_indices, list(range(len(indices))), get_ndim(expr.expr))\n        for i, index in zip(ind_pos, indices):\n            if isinstance(i, collections.abc.Iterable):\n                for j in i:\n                    new_indices[j] = index\n            else:\n                new_indices[i] = index\n        newexpr = self.do_convert(expr.expr, new_indices)\n        return newexpr\n    if isinstance(expr, PermuteDims):\n        permuted_indices = _apply_permutation_to_list(expr.permutation, indices)\n        return self.do_convert(expr.expr, permuted_indices)\n    if isinstance(expr, ArrayAdd):\n        return Add.fromiter(self.do_convert(arg, indices) for arg in expr.args)\n    if isinstance(expr, _ArrayExpr):\n        return expr.__getitem__(tuple(indices))\n    if isinstance(expr, ArrayElementwiseApplyFunc):\n        return expr.function(self.do_convert(expr.expr, indices))\n    if isinstance(expr, Reshape):\n        shape_up = expr.shape\n        shape_down = get_shape(expr.expr)\n        cumul = list(accumulate([1] + list(reversed(shape_up)), operator.mul))\n        one_index = Add.fromiter(i*s for i, s in zip(reversed(indices), cumul))\n        dest_indices = [None for _ in shape_down]\n        c = 1\n        for i, e in enumerate(reversed(shape_down)):\n            if c == 1:\n                if i == len(shape_down) - 1:\n                    dest_indices[i] = one_index\n                else:\n                    dest_indices[i] = one_index % e\n            elif i == len(shape_down) - 1:\n                dest_indices[i] = one_index // c\n            else:\n                dest_indices[i] = one_index // c % e\n            c *= e\n        dest_indices.reverse()\n        return self.do_convert(expr.expr, dest_indices)\n    return _get_array_element_or_slice(expr, indices)\n",
+    "file": "sympy/tensor/array/expressions/from_array_to_indexed.py",
+    "id": "sympy/tensor/array/expressions/from_array_to_indexed.py#_ConvertArrayToIndexed.do_convert",
+    "name": "do_convert",
+    "qual": "_ConvertArrayToIndexed.do_convert",
+    "signature_changed": false
+   },
+   {
+    "after": "def _a2m_mul(*args):\n    if not any(isinstance(i, _ArrayExpr) for i in args):\n        from sympy.matrices.expressions.matmul import MatMul\n        return MatMul(*args).doit()\n    else:\n        return _array_contraction(\n            _array_tensor_product(*args),\n            *[(2*i-1, 2*i) for i in range(1, len(args))]\n        )\n",
+    "before": "def _a2m_mul(*args):\n    if not any(isinstance(i, _CodegenArrayAbstract) for i in args):\n        from sympy.matrices.expressions.matmul import MatMul\n        return MatMul(*args).doit()\n    else:\n        return _array_contraction(\n            _array_tensor_product(*args),\n            *[(2*i-1, 2*i) for i in range(1, len(args))]\n        )\n",
+    "file": "sympy/tensor/array/expressions/from_array_to_matrix.py",
+    "id": "sympy/tensor/array/expressions/from_array_to_matrix.py#_a2m_mul",
+    "name": "_a2m_mul",
+    "qual": "_a2m_mul",
+    "signature_changed": false
+   },
+   {
+    "after": "def _a2m_tensor_product(*args):\n    scalars = []\n    arrays = []\n    for arg in args:\n        if isinstance(arg, ArrayElementwiseApplyFunc) and get_ndim(arg) == 0:\n            # A rank-0 elementwise function application is a plain scalar\n            # (e.g. the derivative of ``1/Trace(X)``): convert it, it must\n            # not be treated as a noncommutative scalar factor:\n            arg = _array2matrix(arg)\n        if isinstance(arg, (MatrixExpr, _ArrayExpr)):\n            arrays.append(arg)\n        elif isinstance(arg, (NDimArray, MatrixBase)):\n            # This fixes issue 15651\n            arrays.append(arg)\n        else:\n            scalars.append(arg)\n    scalar = Mul.fromiter(scalars)\n    if len(arrays) == 0:\n        return scalar\n    if scalar != 1:\n        if isinstance(arrays[0], _ArrayExpr) or \\\n                scalar.is_commutative is False:\n            # An in-place multiplication would create a shapeless ``Mul``\n            # object (or a ``MatMul`` with a structurally noncommutative\n            # scalar, e.g. a rank-0 ArrayElementwiseApplyFunc), let\n            # ``_array_tensor_product`` absorb the scalar instead:\n            # ``_array_tensor_product`` absorb the scalar instead:\n            arrays = [scalar] + arrays\n        else:\n            arrays[0] *= scalar\n    if len(arrays) == 1:\n        # Return the (possibly coefficient-carrying) matrix expression as\n        # is: canonicalizing it as a tensor product would extract the\n        # coefficient again into a leading rank-0 argument.\n        return arrays[0]\n    return _array_tensor_product(*arrays)\n",
+    "before": "def _a2m_tensor_product(*args):\n    scalars = []\n    arrays = []\n    for arg in args:\n        if isinstance(arg, ArrayElementwiseApplyFunc) and get_ndim(arg) == 0:\n            # A rank-0 elementwise function application is a plain scalar\n            # (e.g. the derivative of ``1/Trace(X)``): convert it, it must\n            # not be treated as a noncommutative scalar factor:\n            arg = _array2matrix(arg)\n        if isinstance(arg, (MatrixExpr, _ArrayExpr, _CodegenArrayAbstract)):\n            arrays.append(arg)\n        elif isinstance(arg, (NDimArray, MatrixBase)):\n            # This fixes issue 15651\n            arrays.append(arg)\n        else:\n            scalars.append(arg)\n    scalar = Mul.fromiter(scalars)\n    if len(arrays) == 0:\n        return scalar\n    if scalar != 1:\n        if isinstance(arrays[0], (_CodegenArrayAbstract, _ArrayExpr)) or \\\n                scalar.is_commutative is False:\n            # An in-place multiplication would create a shapeless ``Mul``\n            # object (or a ``MatMul`` with a structurally noncommutative\n            # scalar, e.g. a rank-0 ArrayElementwiseApplyFunc), let\n            # ``_array_tensor_product`` absorb the scalar instead:\n            # ``_array_tensor_product`` absorb the scalar instead:\n            arrays = [scalar] + arrays\n        else:\n            arrays[0] *= scalar\n    if len(arrays) == 1:\n        # Return the (possibly coefficient-carrying) matrix expression as\n        # is: canonicalizing it as a tensor product would extract the\n        # coefficient again into a leading rank-0 argument.\n        return arrays[0]\n    return _array_tensor_product(*arrays)\n",
+    "file": "sympy/tensor/array/expressions/from_array_to_matrix.py",
+    "id": "sympy/tensor/array/expressions/from_array_to_matrix.py#_a2m_tensor_product",
+    "name": "_a2m_tensor_product",
+    "qual": "_a2m_tensor_product",
+    "signature_changed": false
+   },
+   {
+    "after": "def _a2m_add(*args):\n    if not any(isinstance(i, _ArrayExpr) for i in args):\n        if not any(isinstance(i, MatrixExpr) for i in args):\n            # All addends are scalars (e.g. traces):\n            from sympy.core.add import Add\n            return Add(*args)\n        from sympy.matrices.expressions.matadd import MatAdd\n        return MatAdd(*args).doit()\n    else:\n        return _array_add(*args)\n",
+    "before": "def _a2m_add(*args):\n    if not any(isinstance(i, _CodegenArrayAbstract) for i in args):\n        if not any(isinstance(i, MatrixExpr) for i in args):\n            # All addends are scalars (e.g. traces):\n            from sympy.core.add import Add\n            return Add(*args)\n        from sympy.matrices.expressions.matadd import MatAdd\n        return MatAdd(*args).doit()\n    else:\n        return _array_add(*args)\n",
+    "file": "sympy/tensor/array/expressions/from_array_to_matrix.py",
+    "id": "sympy/tensor/array/expressions/from_array_to_matrix.py#_a2m_add",
+    "name": "_a2m_add",
+    "qual": "_a2m_add",
+    "signature_changed": false
+   },
+   {
+    "after": "def _a2m_trace(arg):\n    if isinstance(arg, _ArrayExpr):\n        return _array_contraction(arg, (0, 1))\n    else:\n        from sympy.matrices.expressions.trace import Trace\n        return Trace(arg)\n",
+    "before": "def _a2m_trace(arg):\n    if isinstance(arg, _CodegenArrayAbstract):\n        return _array_contraction(arg, (0, 1))\n    else:\n        from sympy.matrices.expressions.trace import Trace\n        return Trace(arg)\n",
+    "file": "sympy/tensor/array/expressions/from_array_to_matrix.py",
+    "id": "sympy/tensor/array/expressions/from_array_to_matrix.py#_a2m_trace",
+    "name": "_a2m_trace",
+    "qual": "_a2m_trace",
+    "signature_changed": false
+   },
+   {
+    "after": "def _a2m_transpose(arg):\n    if isinstance(arg, _ArrayExpr):\n        return _permute_dims(arg, [1, 0])\n    else:\n        from sympy.matrices.expressions.transpose import Transpose\n        return Transpose(arg).doit()\n",
+    "before": "def _a2m_transpose(arg):\n    if isinstance(arg, _CodegenArrayAbstract):\n        return _permute_dims(arg, [1, 0])\n    else:\n        from sympy.matrices.expressions.transpose import Transpose\n        return Transpose(arg).doit()\n",
+    "file": "sympy/tensor/array/expressions/from_array_to_matrix.py",
+    "id": "sympy/tensor/array/expressions/from_array_to_matrix.py#_a2m_transpose",
+    "name": "_a2m_transpose",
+    "qual": "_a2m_transpose",
+    "signature_changed": false
+   },
+   {
+    "after": "def _array_elementwise_apply_func(function, element):\n    if not isinstance(element, (MatrixExpr, _ArrayExpr)):\n        return function(element)\n    return ArrayElementwiseApplyFunc(function, element)\n",
+    "before": "def _array_elementwise_apply_func(function, element):\n    if not isinstance(element, (MatrixExpr, _ArrayExpr, _CodegenArrayAbstract)):\n        return function(element)\n    return ArrayElementwiseApplyFunc(function, element)\n",
+    "file": "sympy/tensor/array/expressions/from_matrix_to_array.py",
+    "id": "sympy/tensor/array/expressions/from_matrix_to_array.py#_array_elementwise_apply_func",
+    "name": "_array_elementwise_apply_func",
+    "qual": "_array_elementwise_apply_func",
+    "signature_changed": false
+   },
+   {
+    "after": "def convert_matrix_to_array(expr: Basic) -> Basic:\n    if isinstance(expr, MatMul):\n        args_nonmat = []\n        args = []\n        for arg in expr.args:\n            if isinstance(arg, MatrixExpr):\n                args.append(arg)\n            else:\n                args_nonmat.append(convert_matrix_to_array(arg))\n        contractions = [(2*i+1, 2*i+2) for i in range(len(args)-1)]\n        scalar = _array_tensor_product(*args_nonmat) if args_nonmat else S.One\n        if scalar == 1:\n            tprod = _array_tensor_product(\n                *[convert_matrix_to_array(arg) for arg in args])\n        else:\n            tprod = _array_tensor_product(\n                scalar,\n                *[convert_matrix_to_array(arg) for arg in args])\n        return _array_contraction(\n                tprod,\n                *contractions\n        )\n    elif isinstance(expr, (Add, MatAdd)):\n        return _array_add(\n                *[convert_matrix_to_array(arg) for arg in expr.args]\n        )\n    elif isinstance(expr, Transpose):\n        return _permute_dims(\n                convert_matrix_to_array(expr.args[0]), [1, 0]\n        )\n    elif isinstance(expr, Trace):\n        inner_expr: MatrixExpr = convert_matrix_to_array(expr.arg) # type: ignore\n        return _array_contraction(inner_expr, (0, len(inner_expr.shape) - 1))\n    elif isinstance(expr, Mul):\n        return _array_tensor_product(*[convert_matrix_to_array(i) for i in expr.args])\n    elif isinstance(expr, Pow):\n        base = convert_matrix_to_array(expr.base)\n        if get_shape(base) == ():\n            if not isinstance(base, (MatrixExpr, _ArrayExpr)):\n                # Plain scalar base: return a plain scalar power.\n                return base**expr.exp\n            if isinstance(expr.exp, (int, Integer)) and expr.exp > 0:\n                # Positive integer power of a rank-0 array expression (e.g. a\n                # power of a trace): expand it into a rank-0 tensor product,\n                # which supports both explicit evaluation and derivation. An\n                # elementwise application of the power function over a\n                # zero-dimensional array would fail to evaluate explicitly.\n                return _array_tensor_product(*[base for i in range(expr.exp)])\n            d = Dummy(\"d\")\n            return _array_elementwise_apply_func(Lambda(d, d**expr.exp), base)\n        if (expr.exp > 0) == True:\n            return _array_tensor_product(*[base for i in range(expr.exp)])\n        else:\n            return expr\n    elif isinstance(expr, MatPow):\n        base = convert_matrix_to_array(expr.base)\n        if expr.exp.is_Integer != True:\n            if get_shape(expr) == (1, 1):\n                b = symbols(\"b\", cls=Dummy)\n                return _array_elementwise_apply_func(Lambda(b, b ** expr.exp), base)\n            return expr\n        elif (expr.exp > 0) == True:\n            # Use the unconverted base: converting the base first and\n            # multiplying the converted copies with MatMul would lose the\n            # matrix-multiplication contraction for composite bases such as\n            # Transpose or HadamardProduct.\n            return convert_matrix_to_array(MatMul.fromiter(expr.base for i in range(expr.exp)))\n        else:\n            return expr\n    elif isinstance(expr, HadamardProduct):\n        tp = _array_tensor_product(*[convert_matrix_to_array(arg) for arg in expr.args])\n        diag = [[2*i for i in range(len(expr.args))], [2*i+1 for i in range(len(expr.args))]]\n        return _array_diagonal(tp, *diag)\n    elif isinstance(expr, HadamardPower):\n        base, exp = expr.args\n        if isinstance(exp, Integer) and exp > 0:\n            return convert_matrix_to_array(HadamardProduct.fromiter(base for i in range(exp)))\n        else:\n            d = Dummy(\"d\")\n            return _array_elementwise_apply_func(Lambda(d, d**exp), base)\n    elif isinstance(expr, KroneckerProduct):\n        kp_args = [convert_matrix_to_array(arg) for arg in expr.args]\n        permutation = [2*i for i in range(len(kp_args))] + [2*i + 1 for i in range(len(kp_args))]\n        return Reshape(_permute_dims(_array_tensor_product(*kp_args), permutation), expr.shape)\n    else:\n        return expr\n",
+    "before": "def convert_matrix_to_array(expr: Basic) -> Basic:\n    if isinstance(expr, MatMul):\n        args_nonmat = []\n        args = []\n        for arg in expr.args:\n            if isinstance(arg, MatrixExpr):\n                args.append(arg)\n            else:\n                args_nonmat.append(convert_matrix_to_array(arg))\n        contractions = [(2*i+1, 2*i+2) for i in range(len(args)-1)]\n        scalar = _array_tensor_product(*args_nonmat) if args_nonmat else S.One\n        if scalar == 1:\n            tprod = _array_tensor_product(\n                *[convert_matrix_to_array(arg) for arg in args])\n        else:\n            tprod = _array_tensor_product(\n                scalar,\n                *[convert_matrix_to_array(arg) for arg in args])\n        return _array_contraction(\n                tprod,\n                *contractions\n        )\n    elif isinstance(expr, (Add, MatAdd)):\n        return _array_add(\n                *[convert_matrix_to_array(arg) for arg in expr.args]\n        )\n    elif isinstance(expr, Transpose):\n        return _permute_dims(\n                convert_matrix_to_array(expr.args[0]), [1, 0]\n        )\n    elif isinstance(expr, Trace):\n        inner_expr: MatrixExpr = convert_matrix_to_array(expr.arg) # type: ignore\n        return _array_contraction(inner_expr, (0, len(inner_expr.shape) - 1))\n    elif isinstance(expr, Mul):\n        return _array_tensor_product(*[convert_matrix_to_array(i) for i in expr.args])\n    elif isinstance(expr, Pow):\n        base = convert_matrix_to_array(expr.base)\n        if get_shape(base) == ():\n            if not isinstance(base, (MatrixExpr, _ArrayExpr, _CodegenArrayAbstract)):\n                # Plain scalar base: return a plain scalar power.\n                return base**expr.exp\n            if isinstance(expr.exp, (int, Integer)) and expr.exp > 0:\n                # Positive integer power of a rank-0 array expression (e.g. a\n                # power of a trace): expand it into a rank-0 tensor product,\n                # which supports both explicit evaluation and derivation. An\n                # elementwise application of the power function over a\n                # zero-dimensional array would fail to evaluate explicitly.\n                return _array_tensor_product(*[base for i in range(expr.exp)])\n            d = Dummy(\"d\")\n            return _array_elementwise_apply_func(Lambda(d, d**expr.exp), base)\n        if (expr.exp > 0) == True:\n            return _array_tensor_product(*[base for i in range(expr.exp)])\n        else:\n            return expr\n    elif isinstance(expr, MatPow):\n        base = convert_matrix_to_array(expr.base)\n        if expr.exp.is_Integer != True:\n            if get_shape(expr) == (1, 1):\n                b = symbols(\"b\", cls=Dummy)\n                return _array_elementwise_apply_func(Lambda(b, b ** expr.exp), base)\n            return expr\n        elif (expr.exp > 0) == True:\n            # Use the unconverted base: converting the base first and\n            # multiplying the converted copies with MatMul would lose the\n            # matrix-multiplication contraction for composite bases such as\n            # Transpose or HadamardProduct.\n            return convert_matrix_to_array(MatMul.fromiter(expr.base for i in range(expr.exp)))\n        else:\n            return expr\n    elif isinstance(expr, HadamardProduct):\n        tp = _array_tensor_product(*[convert_matrix_to_array(arg) for arg in expr.args])\n        diag = [[2*i for i in range(len(expr.args))], [2*i+1 for i in range(len(expr.args))]]\n        return _array_diagonal(tp, *diag)\n    elif isinstance(expr, HadamardPower):\n        base, exp = expr.args\n        if isinstance(exp, Integer) and exp > 0:\n            return convert_matrix_to_array(HadamardProduct.fromiter(base for i in range(exp)))\n        else:\n            d = Dummy(\"d\")\n            return _array_elementwise_apply_func(Lambda(d, d**exp), base)\n    elif isinstance(expr, KroneckerProduct):\n        kp_args = [convert_matrix_to_array(arg) for arg in expr.args]\n        permutation = [2*i for i in range(len(kp_args))] + [2*i + 1 for i in range(len(kp_args))]\n        return Reshape(_permute_dims(_array_tensor_product(*kp_args), permutation), expr.shape)\n    else:\n        return expr\n",
+    "file": "sympy/tensor/array/expressions/from_matrix_to_array.py",
+    "id": "sympy/tensor/array/expressions/from_matrix_to_array.py#convert_matrix_to_array",
+    "name": "convert_matrix_to_array",
+    "qual": "convert_matrix_to_array",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "return",
+      "list",
+      "['ArrayAdd: ArrayAdd(A, M)', 'MatrixSymbol: M']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['raised TypeError', 'MatrixSymbol: M']"
+     ],
+     "call": "[outcome(lambda: convert_array_to_matrix(ArrayAdd(A, M))), outcome(lambda: convert_array_to_matrix(ArrayAdd(Z, M)))]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import Dummy, Lambda, MatrixSymbol, sin, symbols, permutedims, tensordiagonal\nfrom sympy.tensor.array.expressions import ArraySymbol, ZeroArray, OneArray\nfrom sympy.tensor.array.expressions.array_expressions import (ArrayAdd, ArrayContraction, ArrayTensorProduct,\n    PermuteDims, ArrayDiagonal, ArrayElementwiseApplyFunc)\nfrom sympy.tensor.array.expressions.from_array_to_matrix import convert_array_to_matrix\nfrom sympy.tensor.array.expressions.from_array_to_indexed import convert_array_to_indexed\nfrom sympy.tensor.array.expressions.from_matrix_to_array import convert_matrix_to_array\n\ndef outcome(f):\n    try:\n        value = f()\n        return type(value).__name__ + ': ' + str(value)\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nA = ArraySymbol('A', (3, 3))\nB = ArraySymbol('B', (3, 3))\nM = MatrixSymbol('M', 3, 3)\nZ = ZeroArray(3, 3)\ni, j = symbols('i j')\n",
+     "target": "sympy/tensor/array/expressions/from_array_to_matrix.py#_a2m_add",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import Dummy, Lambda, MatrixSymbol, sin, symbols, permutedims, tensordiagonal\n    from sympy.tensor.array.expressions import ArraySymbol, ZeroArray, OneArray\n    from sympy.tensor.array.expressions.array_expressions import (ArrayAdd, ArrayContraction, ArrayTensorProduct,\n        PermuteDims, ArrayDiagonal, ArrayElementwiseApplyFunc)\n    from sympy.tensor.array.expressions.from_array_to_matrix import convert_array_to_matrix\n    from sympy.tensor.array.expressions.from_array_to_indexed import convert_array_to_indexed\n    from sympy.tensor.array.expressions.from_matrix_to_array import convert_matrix_to_array\n\n    def outcome(f):\n        try:\n            value = f()\n            return type(value).__name__ + ': ' + str(value)\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__\n    A = ArraySymbol('A', (3, 3))\n    B = ArraySymbol('B', (3, 3))\n    M = MatrixSymbol('M', 3, 3)\n    Z = ZeroArray(3, 3)\n    i, j = symbols('i j')\n    assert repr([outcome(lambda: convert_array_to_matrix(ArrayAdd(A, M))), outcome(lambda: convert_array_to_matrix(ArrayAdd(Z, M)))]) == \"['ArrayAdd: ArrayAdd(A, M)', 'MatrixSymbol: M']\"\n",
+     "why": "array expressions with ArraySymbol and ZeroArray, which no longer mix into matrix operators"
+    },
+    {
+     "after": [
+      "return",
+      "str",
+      "'PermuteDims: PermuteDims(A, (0 1))'"
+     ],
+     "before": [
+      "return",
+      "str",
+      "'Transpose: A.T'"
+     ],
+     "call": "outcome(lambda: convert_array_to_matrix(PermuteDims(A, [1, 0])))",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import Dummy, Lambda, MatrixSymbol, sin, symbols, permutedims, tensordiagonal\nfrom sympy.tensor.array.expressions import ArraySymbol, ZeroArray, OneArray\nfrom sympy.tensor.array.expressions.array_expressions import (ArrayAdd, ArrayContraction, ArrayTensorProduct,\n    PermuteDims, ArrayDiagonal, ArrayElementwiseApplyFunc)\nfrom sympy.tensor.array.expressions.from_array_to_matrix import convert_array_to_matrix\nfrom sympy.tensor.array.expressions.from_array_to_indexed import convert_array_to_indexed\nfrom sympy.tensor.array.expressions.from_matrix_to_array import convert_matrix_to_array\n\ndef outcome(f):\n    try:\n        value = f()\n        return type(value).__name__ + ': ' + str(value)\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nA = ArraySymbol('A', (3, 3))\nB = ArraySymbol('B', (3, 3))\nM = MatrixSymbol('M', 3, 3)\nZ = ZeroArray(3, 3)\ni, j = symbols('i j')\n",
+     "target": "sympy/tensor/array/expressions/from_array_to_matrix.py#_a2m_transpose",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import Dummy, Lambda, MatrixSymbol, sin, symbols, permutedims, tensordiagonal\n    from sympy.tensor.array.expressions import ArraySymbol, ZeroArray, OneArray\n    from sympy.tensor.array.expressions.array_expressions import (ArrayAdd, ArrayContraction, ArrayTensorProduct,\n        PermuteDims, ArrayDiagonal, ArrayElementwiseApplyFunc)\n    from sympy.tensor.array.expressions.from_array_to_matrix import convert_array_to_matrix\n    from sympy.tensor.array.expressions.from_array_to_indexed import convert_array_to_indexed\n    from sympy.tensor.array.expressions.from_matrix_to_array import convert_matrix_to_array\n\n    def outcome(f):\n        try:\n            value = f()\n            return type(value).__name__ + ': ' + str(value)\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__\n    A = ArraySymbol('A', (3, 3))\n    B = ArraySymbol('B', (3, 3))\n    M = MatrixSymbol('M', 3, 3)\n    Z = ZeroArray(3, 3)\n    i, j = symbols('i j')\n    assert repr(outcome(lambda: convert_array_to_matrix(PermuteDims(A, [1, 0])))) == \"'PermuteDims: PermuteDims(A, (0 1))'\"\n",
+     "why": "array expressions with ArraySymbol and ZeroArray, which no longer mix into matrix operators"
+    }
+   ],
+   "dollars_cap": 0.1,
+   "filter_seconds": 76.9,
+   "gaps": [],
+   "info": {
+    "accepted": 2,
+    "compiled": 11,
+    "cost": 0.0,
+    "differed": 2,
+    "dollars_cap": 0.1,
+    "functions": 11,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 11,
+    "ran": 11,
+    "reached": 11,
+    "requests": 3,
+    "seconds": 76.8,
+    "stable": 11
+   },
+   "probes": [
+    {
+     "call": "[outcome(lambda: tensordiagonal(A, (0, 1))), outcome(lambda: tensordiagonal(PermuteDims(A, [1, 0]), (0, 1)))]",
+     "function": "sympy/tensor/array/arrayop.py#tensordiagonal",
+     "setup": "from sympy import Dummy, Lambda, MatrixSymbol, sin, symbols, permutedims, tensordiagonal\nfrom sympy.tensor.array.expressions import ArraySymbol, ZeroArray, OneArray\nfrom sympy.tensor.array.expressions.array_expressions import (ArrayAdd, ArrayContraction, ArrayTensorProduct,\n    PermuteDims, ArrayDiagonal, ArrayElementwiseApplyFunc)\nfrom sympy.tensor.array.expressions.from_array_to_matrix import convert_array_to_matrix\nfrom sympy.tensor.array.expressions.from_array_to_indexed import convert_array_to_indexed\nfrom sympy.tensor.array.expressions.from_matrix_to_array import convert_matrix_to_array\n\ndef outcome(f):\n    try:\n        value = f()\n        return type(value).__name__ + ': ' + str(value)\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nA = ArraySymbol('A', (3, 3))\nB = ArraySymbol('B', (3, 3))\nM = MatrixSymbol('M', 3, 3)\nZ = ZeroArray(3, 3)\ni, j = symbols('i j')\n",
+     "why": "array expressions with ArraySymbol and ZeroArray, which no longer mix into matrix operators"
+    },
+    {
+     "call": "[outcome(lambda: permutedims(A, [1, 0])), outcome(lambda: permutedims(ArrayAdd(A, B), [1, 0]))]",
+     "function": "sympy/tensor/array/arrayop.py#permutedims",
+     "setup": "from sympy import Dummy, Lambda, MatrixSymbol, sin, symbols, permutedims, tensordiagonal\nfrom sympy.tensor.array.expressions import ArraySymbol, ZeroArray, OneArray\nfrom sympy.tensor.array.expressions.array_expressions import (ArrayAdd, ArrayContraction, ArrayTensorProduct,\n    PermuteDims, ArrayDiagonal, ArrayElementwiseApplyFunc)\nfrom sympy.tensor.array.expressions.from_array_to_matrix import convert_array_to_matrix\nfrom sympy.tensor.array.expressions.from_array_to_indexed import convert_array_to_indexed\nfrom sympy.tensor.array.expressions.from_matrix_to_array import convert_matrix_to_array\n\ndef outcome(f):\n    try:\n        value = f()\n        return type(value).__name__ + ': ' + str(value)\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nA = ArraySymbol('A', (3, 3))\nB = ArraySymbol('B', (3, 3))\nM = MatrixSymbol('M', 3, 3)\nZ = ZeroArray(3, 3)\ni, j = symbols('i j')\n",
+     "why": "array expressions with ArraySymbol and ZeroArray, which no longer mix into matrix operators"
+    },
+    {
+     "call": "[outcome(lambda: convert_array_to_indexed(ArrayAdd(A, B), [i, j])), outcome(lambda: convert_array_to_indexed(PermuteDims(A, [1, 0]), [i, j]))]",
+     "function": "sympy/tensor/array/expressions/from_array_to_indexed.py#_ConvertArrayToIndexed.do_convert",
+     "setup": "from sympy import Dummy, Lambda, MatrixSymbol, sin, symbols, permutedims, tensordiagonal\nfrom sympy.tensor.array.expressions import ArraySymbol, ZeroArray, OneArray\nfrom sympy.tensor.array.expressions.array_expressions import (ArrayAdd, ArrayContraction, ArrayTensorProduct,\n    PermuteDims, ArrayDiagonal, ArrayElementwiseApplyFunc)\nfrom sympy.tensor.array.expressions.from_array_to_matrix import convert_array_to_matrix\nfrom sympy.tensor.array.expressions.from_array_to_indexed import convert_array_to_indexed\nfrom sympy.tensor.array.expressions.from_matrix_to_array import convert_matrix_to_array\n\ndef outcome(f):\n    try:\n        value = f()\n        return type(value).__name__ + ': ' + str(value)\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nA = ArraySymbol('A', (3, 3))\nB = ArraySymbol('B', (3, 3))\nM = MatrixSymbol('M', 3, 3)\nZ = ZeroArray(3, 3)\ni, j = symbols('i j')\n",
+     "why": "array expressions with ArraySymbol and ZeroArray, which no longer mix into matrix operators"
+    },
+    {
+     "call": "outcome(lambda: convert_array_to_matrix(ArrayContraction(ArrayTensorProduct(A, M), (1, 2))))",
+     "function": "sympy/tensor/array/expressions/from_array_to_matrix.py#_a2m_mul",
+     "setup": "from sympy import Dummy, Lambda, MatrixSymbol, sin, symbols, permutedims, tensordiagonal\nfrom sympy.tensor.array.expressions import ArraySymbol, ZeroArray, OneArray\nfrom sympy.tensor.array.expressions.array_expressions import (ArrayAdd, ArrayContraction, ArrayTensorProduct,\n    PermuteDims, ArrayDiagonal, ArrayElementwiseApplyFunc)\nfrom sympy.tensor.array.expressions.from_array_to_matrix import convert_array_to_matrix\nfrom sympy.tensor.array.expressions.from_array_to_indexed import convert_array_to_indexed\nfrom sympy.tensor.array.expressions.from_matrix_to_array import convert_matrix_to_array\n\ndef outcome(f):\n    try:\n        value = f()\n        return type(value).__name__ + ': ' + str(value)\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nA = ArraySymbol('A', (3, 3))\nB = ArraySymbol('B', (3, 3))\nM = MatrixSymbol('M', 3, 3)\nZ = ZeroArray(3, 3)\ni, j = symbols('i j')\n",
+     "why": "array expressions with ArraySymbol and ZeroArray, which no longer mix into matrix operators"
+    },
+    {
+     "call": "outcome(lambda: convert_array_to_matrix(ArrayTensorProduct(A, M)))",
+     "function": "sympy/tensor/array/expressions/from_array_to_matrix.py#_a2m_tensor_product",
+     "setup": "from sympy import Dummy, Lambda, MatrixSymbol, sin, symbols, permutedims, tensordiagonal\nfrom sympy.tensor.array.expressions import ArraySymbol, ZeroArray, OneArray\nfrom sympy.tensor.array.expressions.array_expressions import (ArrayAdd, ArrayContraction, ArrayTensorProduct,\n    PermuteDims, ArrayDiagonal, ArrayElementwiseApplyFunc)\nfrom sympy.tensor.array.expressions.from_array_to_matrix import convert_array_to_matrix\nfrom sympy.tensor.array.expressions.from_array_to_indexed import convert_array_to_indexed\nfrom sympy.tensor.array.expressions.from_matrix_to_array import convert_matrix_to_array\n\ndef outcome(f):\n    try:\n        value = f()\n        return type(value).__name__ + ': ' + str(value)\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nA = ArraySymbol('A', (3, 3))\nB = ArraySymbol('B', (3, 3))\nM = MatrixSymbol('M', 3, 3)\nZ = ZeroArray(3, 3)\ni, j = symbols('i j')\n",
+     "why": "array expressions with ArraySymbol and ZeroArray, which no longer mix into matrix operators"
+    },
+    {
+     "call": "[outcome(lambda: convert_array_to_matrix(ArrayAdd(A, M))), outcome(lambda: convert_array_to_matrix(ArrayAdd(Z, M)))]",
+     "function": "sympy/tensor/array/expressions/from_array_to_matrix.py#_a2m_add",
+     "setup": "from sympy import Dummy, Lambda, MatrixSymbol, sin, symbols, permutedims, tensordiagonal\nfrom sympy.tensor.array.expressions import ArraySymbol, ZeroArray, OneArray\nfrom sympy.tensor.array.expressions.array_expressions import (ArrayAdd, ArrayContraction, ArrayTensorProduct,\n    PermuteDims, ArrayDiagonal, ArrayElementwiseApplyFunc)\nfrom sympy.tensor.array.expressions.from_array_to_matrix import convert_array_to_matrix\nfrom sympy.tensor.array.expressions.from_array_to_indexed import convert_array_to_indexed\nfrom sympy.tensor.array.expressions.from_matrix_to_array import convert_matrix_to_array\n\ndef outcome(f):\n    try:\n        value = f()\n        return type(value).__name__ + ': ' + str(value)\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nA = ArraySymbol('A', (3, 3))\nB = ArraySymbol('B', (3, 3))\nM = MatrixSymbol('M', 3, 3)\nZ = ZeroArray(3, 3)\ni, j = symbols('i j')\n",
+     "why": "array expressions with ArraySymbol and ZeroArray, which no longer mix into matrix operators"
+    },
+    {
+     "call": "outcome(lambda: convert_array_to_matrix(ArrayContraction(A, (0, 1))))",
+     "function": "sympy/tensor/array/expressions/from_array_to_matrix.py#_a2m_trace",
+     "setup": "from sympy import Dummy, Lambda, MatrixSymbol, sin, symbols, permutedims, tensordiagonal\nfrom sympy.tensor.array.expressions import ArraySymbol, ZeroArray, OneArray\nfrom sympy.tensor.array.expressions.array_expressions import (ArrayAdd, ArrayContraction, ArrayTensorProduct,\n    PermuteDims, ArrayDiagonal, ArrayElementwiseApplyFunc)\nfrom sympy.tensor.array.expressions.from_array_to_matrix import convert_array_to_matrix\nfrom sympy.tensor.array.expressions.from_array_to_indexed import convert_array_to_indexed\nfrom sympy.tensor.array.expressions.from_matrix_to_array import convert_matrix_to_array\n\ndef outcome(f):\n    try:\n        value = f()\n        return type(value).__name__ + ': ' + str(value)\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nA = ArraySymbol('A', (3, 3))\nB = ArraySymbol('B', (3, 3))\nM = MatrixSymbol('M', 3, 3)\nZ = ZeroArray(3, 3)\ni, j = symbols('i j')\n",
+     "why": "array expressions with ArraySymbol and ZeroArray, which no longer mix into matrix operators"
+    },
+    {
+     "call": "outcome(lambda: convert_array_to_matrix(PermuteDims(A, [1, 0])))",
+     "function": "sympy/tensor/array/expressions/from_array_to_matrix.py#_a2m_transpose",
+     "setup": "from sympy import Dummy, Lambda, MatrixSymbol, sin, symbols, permutedims, tensordiagonal\nfrom sympy.tensor.array.expressions import ArraySymbol, ZeroArray, OneArray\nfrom sympy.tensor.array.expressions.array_expressions import (ArrayAdd, ArrayContraction, ArrayTensorProduct,\n    PermuteDims, ArrayDiagonal, ArrayElementwiseApplyFunc)\nfrom sympy.tensor.array.expressions.from_array_to_matrix import convert_array_to_matrix\nfrom sympy.tensor.array.expressions.from_array_to_indexed import convert_array_to_indexed\nfrom sympy.tensor.array.expressions.from_matrix_to_array import convert_matrix_to_array\n\ndef outcome(f):\n    try:\n        value = f()\n        return type(value).__name__ + ': ' + str(value)\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nA = ArraySymbol('A', (3, 3))\nB = ArraySymbol('B', (3, 3))\nM = MatrixSymbol('M', 3, 3)\nZ = ZeroArray(3, 3)\ni, j = symbols('i j')\n",
+     "why": "array expressions with ArraySymbol and ZeroArray, which no longer mix into matrix operators"
+    },
+    {
+     "call": "outcome(lambda: convert_matrix_to_array(M.applyfunc(sin)))",
+     "function": "sympy/tensor/array/expressions/from_matrix_to_array.py#_array_elementwise_apply_func",
+     "setup": "from sympy import Dummy, Lambda, MatrixSymbol, sin, symbols, permutedims, tensordiagonal\nfrom sympy.tensor.array.expressions import ArraySymbol, ZeroArray, OneArray\nfrom sympy.tensor.array.expressions.array_expressions import (ArrayAdd, ArrayContraction, ArrayTensorProduct,\n    PermuteDims, ArrayDiagonal, ArrayElementwiseApplyFunc)\nfrom sympy.tensor.array.expressions.from_array_to_matrix import convert_array_to_matrix\nfrom sympy.tensor.array.expressions.from_array_to_indexed import convert_array_to_indexed\nfrom sympy.tensor.array.expressions.from_matrix_to_array import convert_matrix_to_array\n\ndef outcome(f):\n    try:\n        value = f()\n        return type(value).__name__ + ': ' + str(value)\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nA = ArraySymbol('A', (3, 3))\nB = ArraySymbol('B', (3, 3))\nM = MatrixSymbol('M', 3, 3)\nZ = ZeroArray(3, 3)\ni, j = symbols('i j')\n",
+     "why": "array expressions with ArraySymbol and ZeroArray, which no longer mix into matrix operators"
+    },
+    {
+     "call": "[outcome(lambda: convert_matrix_to_array(M*M.T)), outcome(lambda: convert_matrix_to_array(M + M.T))]",
+     "function": "sympy/tensor/array/expressions/from_matrix_to_array.py#convert_matrix_to_array",
+     "setup": "from sympy import Dummy, Lambda, MatrixSymbol, sin, symbols, permutedims, tensordiagonal\nfrom sympy.tensor.array.expressions import ArraySymbol, ZeroArray, OneArray\nfrom sympy.tensor.array.expressions.array_expressions import (ArrayAdd, ArrayContraction, ArrayTensorProduct,\n    PermuteDims, ArrayDiagonal, ArrayElementwiseApplyFunc)\nfrom sympy.tensor.array.expressions.from_array_to_matrix import convert_array_to_matrix\nfrom sympy.tensor.array.expressions.from_array_to_indexed import convert_array_to_indexed\nfrom sympy.tensor.array.expressions.from_matrix_to_array import convert_matrix_to_array\n\ndef outcome(f):\n    try:\n        value = f()\n        return type(value).__name__ + ': ' + str(value)\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nA = ArraySymbol('A', (3, 3))\nB = ArraySymbol('B', (3, 3))\nM = MatrixSymbol('M', 3, 3)\nZ = ZeroArray(3, 3)\ni, j = symbols('i j')\n",
+     "why": "array expressions with ArraySymbol and ZeroArray, which no longer mix into matrix operators"
+    },
+    {
+     "call": "__import__('sympy.printing.tests.test_torch', fromlist=['x'])._compare_torch_matrix",
+     "function": "sympy/printing/tests/test_torch.py#_compare_torch_matrix",
+     "setup": "from sympy import Dummy, Lambda, MatrixSymbol, sin, symbols, permutedims, tensordiagonal\nfrom sympy.tensor.array.expressions import ArraySymbol, ZeroArray, OneArray\nfrom sympy.tensor.array.expressions.array_expressions import (ArrayAdd, ArrayContraction, ArrayTensorProduct,\n    PermuteDims, ArrayDiagonal, ArrayElementwiseApplyFunc)\nfrom sympy.tensor.array.expressions.from_array_to_matrix import convert_array_to_matrix\nfrom sympy.tensor.array.expressions.from_array_to_indexed import convert_array_to_indexed\nfrom sympy.tensor.array.expressions.from_matrix_to_array import convert_matrix_to_array\n\ndef outcome(f):\n    try:\n        value = f()\n        return type(value).__name__ + ': ' + str(value)\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nA = ArraySymbol('A', (3, 3))\nB = ArraySymbol('B', (3, 3))\nM = MatrixSymbol('M', 3, 3)\nZ = ZeroArray(3, 3)\ni, j = symbols('i j')\n",
+     "why": "array expressions with ArraySymbol and ZeroArray, which no longer mix into matrix operators"
+    }
+   ],
+   "targets": [
+    "sympy/printing/tests/test_torch.py#_compare_torch_matrix",
+    "sympy/tensor/array/arrayop.py#tensordiagonal",
+    "sympy/tensor/array/arrayop.py#permutedims",
+    "sympy/tensor/array/expressions/from_array_to_indexed.py#_ConvertArrayToIndexed.do_convert",
+    "sympy/tensor/array/expressions/from_array_to_matrix.py#_a2m_mul",
+    "sympy/tensor/array/expressions/from_array_to_matrix.py#_a2m_tensor_product",
+    "sympy/tensor/array/expressions/from_array_to_matrix.py#_a2m_add",
+    "sympy/tensor/array/expressions/from_array_to_matrix.py#_a2m_trace",
+    "sympy/tensor/array/expressions/from_array_to_matrix.py#_a2m_transpose",
+    "sympy/tensor/array/expressions/from_matrix_to_array.py#_array_elementwise_apply_func",
+    "sympy/tensor/array/expressions/from_matrix_to_array.py#convert_matrix_to_array"
+   ],
+   "waited_seconds": 60.1
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_expressions_base_class",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_convert_array_to_matrix_contraction_of_applyfunc",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/printing/tests/test_torch.py",
+    "lines": "52",
+    "symbol": "_compare_torch_matrix"
+   },
+   {
+    "file": "sympy/tensor/array/arrayop.py",
+    "lines": "67-70",
+    "symbol": "tensorproduct"
+   },
+   {
+    "file": "sympy/tensor/array/arrayop.py",
+    "lines": "182-184",
+    "symbol": "tensorcontraction"
+   },
+   {
+    "file": "sympy/tensor/array/arrayop.py",
+    "lines": "264-266",
+    "symbol": "tensordiagonal"
+   },
+   {
+    "file": "sympy/tensor/array/arrayop.py",
+    "lines": "419-424",
+    "symbol": "permutedims"
+   },
+   {
+    "file": "sympy/tensor/array/expressions/array_expressions.py",
+    "lines": "48-52",
+    "symbol": "_ArrayExpr.subranks"
+   },
+   {
+    "file": "sympy/tensor/array/expressions/array_expressions.py",
+    "lines": "54-56",
+    "symbol": "_ArrayExpr.subrank"
+   },
+   {
+    "file": "sympy/tensor/array/expressions/array_expressions.py",
+    "lines": "58-60",
+    "symbol": "_ArrayExpr.shape"
+   },
+   {
+    "file": "sympy/tensor/array/expressions/array_expressions.py",
+    "lines": "62-63",
+    "symbol": "_ArrayExpr._canonicalize"
+   },
+   {
+    "file": "sympy/tensor/array/expressions/array_expressions.py",
+    "lines": "65-70",
+    "symbol": "_ArrayExpr.doit"
+   },
+   {
+    "file": "sympy/tensor/array/expressions/array_expressions.py",
+    "lines": "87",
+    "symbol": "ArraySymbol.__new__"
+   },
+   {
+    "file": "sympy/tensor/array/expressions/array_expressions.py",
+    "lines": "274-282",
+    "symbol": "_split_scalar_coefficient"
+   },
+   {
+    "file": "sympy/tensor/array/expressions/array_expressions.py",
+    "lines": "364",
+    "symbol": "ArrayTensorProduct._canonicalize._is_plain_scalar"
+   },
+   {
+    "file": "sympy/tensor/array/expressions/array_expressions.py",
+    "lines": "364",
+    "symbol": "ArrayTensorProduct._canonicalize"
+   },
+   {
+    "file": "sympy/tensor/array/expressions/array_expressions.py",
+    "lines": "1163",
+    "symbol": "ArrayElementwiseApplyFunc.__new__"
+   },
+   {
+    "file": "sympy/tensor/array/expressions/array_expressions.py",
+    "lines": "2213",
+    "symbol": "get_ndim"
+   },
+   {
+    "file": "sympy/tensor/array/expressions/array_expressions.py",
+    "lines": "2234",
+    "symbol": "_get_sub_ndim"
+   },
+   {
+    "file": "sympy/tensor/array/expressions/array_expressions.py",
+    "lines": "2263-2266",
+    "symbol": "_get_sub_ndim_list"
+   },
+   {
+    "file": "sympy/tensor/array/expressions/array_expressions.py",
+    "lines": "2283",
+    "symbol": "_array_tensor_product"
+   },
+   {
+    "file": "sympy/tensor/array/expressions/from_array_to_indexed.py",
+    "lines": "61-84",
+    "symbol": "_ConvertArrayToIndexed.do_convert"
+   },
+   {
+    "file": "sympy/tensor/array/expressions/from_array_to_matrix.py",
+    "lines": "307",
+    "symbol": "_"
+   },
+   {
+    "file": "sympy/tensor/array/expressions/from_array_to_matrix.py",
+    "lines": "843",
+    "symbol": "_a2m_mul"
+   },
+   {
+    "file": "sympy/tensor/array/expressions/from_array_to_matrix.py",
+    "lines": "862-873",
+    "symbol": "_a2m_tensor_product"
+   },
+   {
+    "file": "sympy/tensor/array/expressions/from_array_to_matrix.py",
+    "lines": "892",
+    "symbol": "_a2m_add"
+   },
+   {
+    "file": "sympy/tensor/array/expressions/from_array_to_matrix.py",
+    "lines": "904",
+    "symbol": "_a2m_trace"
+   },
+   {
+    "file": "sympy/tensor/array/expressions/from_array_to_matrix.py",
+    "lines": "912",
+    "symbol": "_a2m_transpose"
+   },
+   {
+    "file": "sympy/tensor/array/expressions/from_indexed_to_array.py",
+    "lines": "115",
+    "symbol": "_is_array_expression"
+   },
+   {
+    "file": "sympy/tensor/array/expressions/from_matrix_to_array.py",
+    "lines": "26",
+    "symbol": "_array_elementwise_apply_func"
+   },
+   {
+    "file": "sympy/tensor/array/expressions/from_matrix_to_array.py",
+    "lines": "69",
+    "symbol": "convert_matrix_to_array"
+   },
+   {
+    "file": "sympy/tensor/array/expressions/tests/test_array_expressions.py",
+    "lines": "1155-1179",
+    "symbol": "test_array_expressions_base_class"
+   },
+   {
+    "file": "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py",
+    "lines": "1121-1124",
+    "symbol": "test_convert_array_to_matrix_contraction_of_applyfunc"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/printing/tests/test_torch.py#_compare_torch_matrix",
+   "sympy/tensor/array/arrayop.py#permutedims",
+   "sympy/tensor/array/arrayop.py#tensorcontraction",
+   "sympy/tensor/array/arrayop.py#tensordiagonal",
+   "sympy/tensor/array/arrayop.py#tensorproduct",
+   "sympy/tensor/array/expressions/array_expressions.py#ArrayElementwiseApplyFunc.__new__",
+   "sympy/tensor/array/expressions/array_expressions.py#ArraySymbol.__new__",
+   "sympy/tensor/array/expressions/array_expressions.py#ArrayTensorProduct._canonicalize",
+   "sympy/tensor/array/expressions/array_expressions.py#ArrayTensorProduct._canonicalize._is_plain_scalar",
+   "sympy/tensor/array/expressions/array_expressions.py#_ArrayExpr._canonicalize",
+   "sympy/tensor/array/expressions/array_expressions.py#_ArrayExpr._iterable",
+   "sympy/tensor/array/expressions/array_expressions.py#_ArrayExpr.doit",
+   "sympy/tensor/array/expressions/array_expressions.py#_ArrayExpr.is_Atom",
+   "sympy/tensor/array/expressions/array_expressions.py#_ArrayExpr.shape",
+   "sympy/tensor/array/expressions/array_expressions.py#_ArrayExpr.subrank",
+   "sympy/tensor/array/expressions/array_expressions.py#_ArrayExpr.subranks",
+   "sympy/tensor/array/expressions/array_expressions.py#_array_tensor_product",
+   "sympy/tensor/array/expressions/array_expressions.py#_get_sub_ndim",
+   "sympy/tensor/array/expressions/array_expressions.py#_get_sub_ndim_list",
+   "sympy/tensor/array/expressions/array_expressions.py#_split_scalar_coefficient",
+   "sympy/tensor/array/expressions/array_expressions.py#get_ndim",
+   "sympy/tensor/array/expressions/from_array_to_indexed.py#_ConvertArrayToIndexed.do_convert",
+   "sympy/tensor/array/expressions/from_array_to_matrix.py#_",
+   "sympy/tensor/array/expressions/from_array_to_matrix.py#_a2m_add",
+   "sympy/tensor/array/expressions/from_array_to_matrix.py#_a2m_mul",
+   "sympy/tensor/array/expressions/from_array_to_matrix.py#_a2m_tensor_product",
+   "sympy/tensor/array/expressions/from_array_to_matrix.py#_a2m_trace",
+   "sympy/tensor/array/expressions/from_array_to_matrix.py#_a2m_transpose",
+   "sympy/tensor/array/expressions/from_indexed_to_array.py#_is_array_expression",
+   "sympy/tensor/array/expressions/from_matrix_to_array.py#_array_elementwise_apply_func",
+   "sympy/tensor/array/expressions/from_matrix_to_array.py#convert_matrix_to_array",
+   "sympy/tensor/array/expressions/tests/test_array_expressions.py#test_array_expressions_base_class",
+   "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py#test_convert_array_to_matrix_contraction_of_applyfunc",
+   "sympy/tensor/array/expressions/array_expressions.py#ArrayAdd",
+   "sympy/tensor/array/expressions/array_expressions.py#ArrayContraction",
+   "sympy/tensor/array/expressions/array_expressions.py#ArrayDiagonal",
+   "sympy/tensor/array/expressions/array_expressions.py#ArrayElementwiseApplyFunc",
+   "sympy/tensor/array/expressions/array_expressions.py#ArrayTensorProduct",
+   "sympy/tensor/array/expressions/array_expressions.py#PermuteDims",
+   "sympy/tensor/array/expressions/array_expressions.py#Reshape",
+   "sympy/tensor/array/expressions/array_expressions.py#_ArrayExpr",
+   "sympy/printing/tests/test_torch.py",
+   "sympy/tensor/array/expressions/from_array_to_matrix.py",
+   "sympy/tensor/array/expressions/from_indexed_to_array.py",
+   "sympy/tensor/array/expressions/from_matrix_to_array.py",
+   "sympy/tensor/array/expressions/tests/test_array_expressions.py",
+   "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py",
+   "sympy/tensor/array/expressions/array_expressions.py#_CodegenArrayAbstract (renamed or removed)"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "_get_sub_ndim return changed",
+    "path": [
+     "sympy/tensor/array/expressions/array_expressions.py:2234 return",
+     "sympy/tensor/array/expressions/array_expressions.py:1559 ArrayContraction._get_index_shifts uses the result",
+     "sympy/tensor/array/expressions/array_expressions.py:452 ArrayTensorProduct._canonicalize uses the result",
+     "sympy/tensor/array/expressions/from_array_to_matrix.py:734 _array_diag2contr_diagmatrix uses the result"
+    ],
+    "to": "3 caller(s) use the result"
+   },
+   {
+    "evidence": "static source path",
+    "from": "_get_sub_ndim_list return changed",
+    "path": [
+     "sympy/tensor/array/expressions/array_expressions.py:2266 return",
+     "sympy/printing/pycode.py:534 ArrayPrinter._print_ArrayContraction uses the result",
+     "sympy/printing/pycode.py:559 ArrayPrinter._print_ArrayDiagonal uses the result",
+     "sympy/printing/pycode.py:519 ArrayPrinter._print_ArrayTensorProduct uses the result"
+    ],
+    "to": "17 caller(s) use the result"
+   },
+   {
+    "evidence": "static source path",
+    "from": "_ArrayExpr._canonicalize return changed",
+    "path": [
+     "sympy/tensor/array/expressions/array_expressions.py:63 return",
+     "sympy/tensor/array/expressions/array_expressions.py:1145 ArrayDiagonal.as_explicit uses the result",
+     "sympy/tensor/array/expressions/array_expressions.py:70 _ArrayExpr.doit uses the result"
+    ],
+    "to": "2 caller(s) use the result"
+   },
+   {
+    "evidence": "static source path",
+    "from": "_ConvertArrayToIndexed.do_convert return changed",
+    "path": [
+     "sympy/tensor/array/expressions/from_array_to_indexed.py:84 return",
+     "sympy/tensor/array/expressions/from_array_to_indexed.py:14 convert_array_to_indexed uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   },
+   {
+    "evidence": "static source path",
+    "from": "_is_array_expression return changed",
+    "path": [
+     "sympy/tensor/array/expressions/from_indexed_to_array.py:115 return",
+     "sympy/tensor/array/expressions/from_indexed_to_array.py:268 _convert_indexed_to_array uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 2,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 600,
+   "ran": 600,
+   "replayed": 2,
+   "runner": "pytest",
+   "seconds": 366.0,
+   "selection": {
+    "candidates": 12925,
+    "closure_files": 1321,
+    "closure_tests": 12915,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 10
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "12325 lower-ranked candidate(s) not run: about 2 tests/s per process fit 600 in the 300 s allowed",
+   "65332 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "graph reused from the previous state; 17 changed file(s) relinked"
+  ],
+  "impacted": {
+   "count": 4929,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1607,
+   "parsed_files": 9
+  },
+  "original_tests": {
+   "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_expr_reshape": "passed",
+   "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_expressions_no_canonicalization": "passed",
+   "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_contraction_single_index_size_one_axis": "passed",
+   "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_tensor_product_scalar_coefficients": "passed",
+   "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_flattening_issue_28823": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_expressions_base_class",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_convert_array_to_matrix_contraction_of_applyfunc",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "b3cb75f604f0",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [
+    "sympy/tensor/array/arrayop.py#tensorcontraction",
+    "sympy/tensor/array/arrayop.py#tensorproduct",
+    "sympy/tensor/array/expressions/array_expressions.py#ArrayElementwiseApplyFunc.__new__",
+    "sympy/tensor/array/expressions/array_expressions.py#ArrayTensorProduct._canonicalize",
+    "sympy/tensor/array/expressions/array_expressions.py#_array_tensor_product",
+    "sympy/tensor/array/expressions/array_expressions.py#_get_sub_ndim",
+    "sympy/tensor/array/expressions/array_expressions.py#_get_sub_ndim_list",
+    "sympy/tensor/array/expressions/array_expressions.py#_split_scalar_coefficient",
+    "sympy/tensor/array/expressions/array_expressions.py#get_ndim",
+    "sympy/tensor/array/expressions/from_indexed_to_array.py#_is_array_expression"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 45,
+   "differences": 0,
+   "functions_called": 10,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "sympy/tensor/array/expressions/array_expressions.py#ArrayTensorProduct._canonicalize._is_plain_scalar": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/tensor/array/expressions/array_expressions.py#_ArrayExpr._canonicalize": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/tensor/array/expressions/array_expressions.py#_ArrayExpr.doit": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/tensor/array/expressions/array_expressions.py#_ArrayExpr.shape": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/tensor/array/expressions/array_expressions.py#_ArrayExpr.subrank": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/tensor/array/expressions/array_expressions.py#_ArrayExpr.subranks": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/tensor/array/expressions/tests/test_array_expressions.py#test_array_expressions_base_class": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py#test_convert_array_to_matrix_contraction_of_applyfunc": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 54.7,
+   "targets": 21,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 600 of 600 candidate tests after the change with pytest in 366.0 s, failures confirmed before it: 0 now fail. 5500 tests reach the change. 5 test(s) from edited test files also run as they were before the edit. 2 test(s) the change adds or edits replayed on the code before it: 2 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_expressions_no_canonicalization",
+    "line": 670,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_expressions_no_canonicalization",
+    "score": 32.773,
+    "why": "calls _array_tensor_product (name: array,expression)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_convert_matrix_to_array_pow_of_scalar_array_expression",
+    "line": 184,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_convert_matrix_to_array_pow_of_scalar_array_expression",
+    "score": 23.058,
+    "why": "calls convert_matrix_to_array (name: array,convert,matrix,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_expr_as_explicit_with_explicit_component_arrays",
+    "line": 859,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_expr_as_explicit_with_explicit_component_arrays",
+    "score": 18.333,
+    "why": "via ArrayAdd (name: array,expression)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_convert_matrix_to_array_matpow_composite_base",
+    "line": 159,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_convert_matrix_to_array_matpow_composite_base",
+    "score": 13.643,
+    "why": "calls convert_matrix_to_array (name: array,convert,matrix,to)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_expressions_base_class",
+    "line": 1155,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_expressions_base_class",
+    "score": 12.225,
+    "why": "calls _ArrayExpr.doit (name: array,expression)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_expr_construction_with_functions",
+    "line": 766,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_expr_construction_with_functions",
+    "score": 10.597,
+    "why": "via ArrayContraction (name: array,expression)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_tensor_product_scalar_coefficients",
+    "line": 239,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_tensor_product_scalar_coefficients",
+    "score": 9.333,
+    "why": "calls _array_tensor_product (name: array,expression,product,tensor)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_as_explicit.py::test_array_as_explicit_matrix_symbol",
+    "line": 42,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_as_explicit.py::test_array_as_explicit_matrix_symbol",
+    "score": 8.434,
+    "why": "calls tensorproduct"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array",
+    "line": 40,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_matrix_to_array.py::test_arrayexpr_convert_matrix_to_array",
+    "score": 7.755,
+    "why": "calls convert_matrix_to_array (name: array,convert,matrix,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_sum_over_subset_of_diagonals",
+    "line": 227,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_sum_over_subset_of_diagonals",
+    "score": 7.503,
+    "why": "via ArrayDiagonal (name: array,diagonal)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_pow",
+    "line": 254,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_pow",
+    "score": 6.813,
+    "why": "via _convert_indexed_to_array > _is_array_expression (name: array,indexed,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_contraction_single_index_size_one_axis",
+    "line": 1022,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_contraction_single_index_size_one_axis",
+    "score": 6.317,
+    "why": "via ArrayContraction (name: array,contraction,expression)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_as_explicit.py::test_array_as_explicit_call",
+    "line": 11,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_as_explicit.py::test_array_as_explicit_call",
+    "score": 6.113,
+    "why": "calls tensorproduct"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_convert_array_to_hadamard_products",
+    "line": 556,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_convert_array_to_hadamard_products",
+    "score": 5.963,
+    "why": "calls convert_matrix_to_array (name: array,convert,matrix,to)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_array_to_indexed.py::test_convert_array_to_indexed_main",
+    "line": 10,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_array_to_indexed.py::test_convert_array_to_indexed_main",
+    "score": 5.728,
+    "why": "via convert_array_to_indexed > _ConvertArrayToIndexed.do_convert (name: array,convert,indexed,to)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_diagonal_trivial_diags_doit_as_explicit",
+    "line": 1046,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_diagonal_trivial_diags_doit_as_explicit",
+    "score": 5.596,
+    "why": "calls _ArrayExpr.doit (name: array,doit,expression)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_arrayexpr_convert_array_to_matrix",
+    "line": 55,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_arrayexpr_convert_array_to_matrix",
+    "score": 5.143,
+    "why": "calls convert_matrix_to_array (name: array,convert,matrix,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_split_multiple_contractions_boundary_vectors",
+    "line": 971,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_split_multiple_contractions_boundary_vectors",
+    "score": 5.052,
+    "why": "via ArrayContraction (name: array,contraction,expression)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_split_multiple_contractions_repeated_argument",
+    "line": 1009,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_split_multiple_contractions_repeated_argument",
+    "score": 4.921,
+    "why": "via ArrayContraction (name: array,contraction,expression)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_sum_doit_and_as_explicit",
+    "line": 1079,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_sum_doit_and_as_explicit",
+    "score": 4.794,
+    "why": "calls _ArrayExpr.doit (name: array,doit,expression)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_array_to_indexed.py::test_convert_array_to_indexed_diagonal_rectangular",
+    "line": 65,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_array_to_indexed.py::test_convert_array_to_indexed_diagonal_rectangular",
+    "score": 4.669,
+    "why": "via ArrayDiagonal (name: array,diagonal)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_expr_reshape",
+    "line": 828,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_expr_reshape",
+    "score": 4.398,
+    "why": "calls _ArrayExpr.doit (name: array,expr,expression)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_arrayexpr_convert_array_to_matrix_scalar_coefficients",
+    "line": 1088,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_arrayexpr_convert_array_to_matrix_scalar_coefficients",
+    "score": 4.304,
+    "why": "calls _array_tensor_product (name: array)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_contraction_permutation_mix",
+    "line": 445,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_contraction_permutation_mix",
+    "score": 4.207,
+    "why": "via ArrayContraction (name: array,contraction,expression)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_sum",
+    "line": 873,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_sum",
+    "score": 4.122,
+    "why": "calls _ArrayExpr.doit (name: array,expression)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_arrayexpr_convert_indexed_to_array_expression",
+    "line": 79,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_arrayexpr_convert_indexed_to_array_expression",
+    "score": 3.998,
+    "why": "calls _array_tensor_product (name: array,expression)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_edit_array_contraction_merge_scalars_rank_zero_applyfunc",
+    "line": 1127,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_array_expressions.py::test_edit_array_contraction_merge_scalars_rank_zero_applyfunc",
+    "score": 3.968,
+    "why": "calls _array_tensor_product (name: array,expression)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_array_shape",
+    "line": 305,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_array_shape",
+    "score": 3.898,
+    "why": "calls _array_tensor_product (name: array,expression)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_convert_array_to_matrix_diag2contraction_surviving_group_permutation",
+    "line": 995,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_convert_array_to_matrix_diag2contraction_surviving_group_permutation",
+    "score": 3.815,
+    "why": "calls _array_tensor_product (name: array)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_array_flatten",
+    "line": 148,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_array_flatten",
+    "score": 3.695,
+    "why": "calls _array_tensor_product (name: array,expression)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_arrayexpr_convert_array_to_diagonalized_vector",
+    "line": 158,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_arrayexpr_convert_array_to_diagonalized_vector",
+    "score": 3.511,
+    "why": "calls _array_tensor_product (name: array)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_deprecated_conv_modules.py::test_deprecated_conv_module_results",
+    "line": 10,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_deprecated_conv_modules.py::test_deprecated_conv_module_results",
+    "score": 3.503,
+    "why": "calls convert_matrix_to_array"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_flattening_issue_28823",
+    "line": 228,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_array_expressions.py::test_flattening_issue_28823",
+    "score": 3.459,
+    "why": "calls _ArrayExpr.doit (name: array,expression)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_arrayexpr_convert_array_element_to_array_expression",
+    "line": 108,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_arrayexpr_convert_array_element_to_array_expression",
+    "score": 3.426,
+    "why": "via ArrayAdd (name: array,expression)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_edit_array_contraction",
+    "line": 639,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_array_expressions.py::test_edit_array_contraction",
+    "score": 3.369,
+    "why": "via ArrayContraction (name: array,contraction,expression)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_contraction_construction",
+    "line": 115,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_contraction_construction",
+    "score": 3.215,
+    "why": "via ArrayContraction (name: array,contraction,expression)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_arrayexpr_convert_indexed_to_array_and_back_to_matrix",
+    "line": 131,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_arrayexpr_convert_indexed_to_array_and_back_to_matrix",
+    "score": 3.13,
+    "why": "via _convert_indexed_to_array > _is_array_expression (name: array,indexed,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_symbol_and_element",
+    "line": 42,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_symbol_and_element",
+    "score": 3.106,
+    "why": "via ArrayContraction (name: array,expression)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_array_contraction_to_diagonal_multiple_identities",
+    "line": 676,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py::test_array_contraction_to_diagonal_multiple_identities",
+    "score": 3.076,
+    "why": "via ArrayContraction (name: array,contraction)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_arrayexpr_convert_index_to_array_support_function",
+    "line": 38,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_arrayexpr_convert_index_to_array_support_function",
+    "score": 3.032,
+    "why": "via _convert_indexed_to_array > _is_array_expression (name: array,indexed,to)"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/tensor/array/expressions/from_array_to_matrix.py",
+    "lines": "307",
+    "symbol": "_"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/tensor/array/expressions/from_array_to_matrix.py",
+    "lines": "843",
+    "symbol": "_a2m_mul"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/tensor/array/expressions/from_array_to_matrix.py",
+    "lines": "892",
+    "symbol": "_a2m_add"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/tensor/array/expressions/from_array_to_matrix.py",
+    "lines": "904",
+    "symbol": "_a2m_trace"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/tensor/array/expressions/from_array_to_matrix.py",
+    "lines": "912",
+    "symbol": "_a2m_transpose"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/tensor/array/expressions/tests/test_array_expressions.py",
+    "lines": "1155-1179",
+    "symbol": "test_array_expressions_base_class"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/tensor/array/expressions/tests/test_convert_array_to_matrix.py",
+    "lines": "1121-1124",
+    "symbol": "test_convert_array_to_matrix_contraction_of_applyfunc"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792333961.930175,
+  "job_seconds": 430.9,
+  "number": 30601,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 431.2,
+  "started": 1792333529.9490519
+ },
+ "verify": null
+}

@@ -1,0 +1,946 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "319ea7a6186edf88bc23d502917242b10314ae51",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "0fd4c64c2121c838f46d5ef048b0450e014aeb89",
+  "install_ok": true,
+  "merge_base": "319ea7a6186edf88bc23d502917242b10314ae51",
+  "pr": 30680,
+  "recording": false,
+  "runner": null,
+  "seconds": 265.3,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "319ea7a6186edf88bc23d502917242b10314ae51",
+  "head_sha": "0fd4c64c2121c838f46d5ef048b0450e014aeb89",
+  "merge_base": "319ea7a6186edf88bc23d502917242b10314ae51",
+  "merged_at": "2026-10-08T06:26:07Z",
+  "number": 30680,
+  "repo": "sympy",
+  "title": "polys: return zero polynomial for lcm(0, 0) in the pure-Python backend"
+ },
+ "probe_minutes": {
+  "end": 1792341033.6244,
+  "minutes": 0.6,
+  "start": 1792340640.151812,
+  "waited": 355.3159927499946
+ },
+ "probe_targets": {
+  "all": 8,
+  "called": 0,
+  "targets": [
+   {
+    "after": "def dup_ff_lcm(f, g, K):\n    \"\"\"\n    Computes polynomial LCM over a field in `K[x]`.\n\n    Examples\n    ========\n\n    >>> from sympy.polys import ring, QQ\n    >>> R, x = ring(\"x\", QQ)\n\n    >>> f = QQ(1,2)*x**2 + QQ(7,4)*x + QQ(3,2)\n    >>> g = QQ(1,2)*x**2 + x\n\n    >>> R.dup_ff_lcm(f, g)\n    x**3 + 7/2*x**2 + 3*x\n\n    \"\"\"\n    if not f or not g:\n        return dmp_zero(0, K)\n\n    h = dup_quo(dup_mul(f, g, K),\n                dup_gcd(f, g, K), K)\n\n    return dup_monic(h, K)\n",
+    "before": "def dup_ff_lcm(f, g, K):\n    \"\"\"\n    Computes polynomial LCM over a field in `K[x]`.\n\n    Examples\n    ========\n\n    >>> from sympy.polys import ring, QQ\n    >>> R, x = ring(\"x\", QQ)\n\n    >>> f = QQ(1,2)*x**2 + QQ(7,4)*x + QQ(3,2)\n    >>> g = QQ(1,2)*x**2 + x\n\n    >>> R.dup_ff_lcm(f, g)\n    x**3 + 7/2*x**2 + 3*x\n\n    \"\"\"\n    h = dup_quo(dup_mul(f, g, K),\n                dup_gcd(f, g, K), K)\n\n    return dup_monic(h, K)\n",
+    "file": "sympy/polys/euclidtools.py",
+    "id": "sympy/polys/euclidtools.py#dup_ff_lcm",
+    "name": "dup_ff_lcm",
+    "qual": "dup_ff_lcm",
+    "signature_changed": false
+   },
+   {
+    "after": "def dmp_rr_lcm(f, g, u, K):\n    \"\"\"\n    Computes polynomial LCM over a ring in `K[X]`.\n\n    Examples\n    ========\n\n    >>> from sympy.polys import ring, ZZ\n    >>> R, x,y, = ring(\"x,y\", ZZ)\n\n    >>> f = x**2 + 2*x*y + y**2\n    >>> g = x**2 + x*y\n\n    >>> R.dmp_rr_lcm(f, g)\n    x**3 + 2*x**2*y + x*y**2\n\n    \"\"\"\n    if dmp_zero_p(f, u) or dmp_zero_p(g, u):\n        return dmp_zero(u, K)\n\n    fc, f = dmp_ground_primitive(f, u, K)\n    gc, g = dmp_ground_primitive(g, u, K)\n\n    c = K.lcm(fc, gc)\n\n    h = dmp_quo(dmp_mul(f, g, u, K),\n                dmp_gcd(f, g, u, K), u, K)\n\n    return dmp_mul_ground(h, c, u, K)\n",
+    "before": "def dmp_rr_lcm(f, g, u, K):\n    \"\"\"\n    Computes polynomial LCM over a ring in `K[X]`.\n\n    Examples\n    ========\n\n    >>> from sympy.polys import ring, ZZ\n    >>> R, x,y, = ring(\"x,y\", ZZ)\n\n    >>> f = x**2 + 2*x*y + y**2\n    >>> g = x**2 + x*y\n\n    >>> R.dmp_rr_lcm(f, g)\n    x**3 + 2*x**2*y + x*y**2\n\n    \"\"\"\n    fc, f = dmp_ground_primitive(f, u, K)\n    gc, g = dmp_ground_primitive(g, u, K)\n\n    c = K.lcm(fc, gc)\n\n    h = dmp_quo(dmp_mul(f, g, u, K),\n                dmp_gcd(f, g, u, K), u, K)\n\n    return dmp_mul_ground(h, c, u, K)\n",
+    "file": "sympy/polys/euclidtools.py",
+    "id": "sympy/polys/euclidtools.py#dmp_rr_lcm",
+    "name": "dmp_rr_lcm",
+    "qual": "dmp_rr_lcm",
+    "signature_changed": false
+   },
+   {
+    "after": "def dmp_ff_lcm(f, g, u, K):\n    \"\"\"\n    Computes polynomial LCM over a field in `K[X]`.\n\n    Examples\n    ========\n\n    >>> from sympy.polys import ring, QQ\n    >>> R, x,y, = ring(\"x,y\", QQ)\n\n    >>> f = QQ(1,4)*x**2 + x*y + y**2\n    >>> g = QQ(1,2)*x**2 + x*y\n\n    >>> R.dmp_ff_lcm(f, g)\n    x**3 + 4*x**2*y + 4*x*y**2\n\n    \"\"\"\n    if dmp_zero_p(f, u) or dmp_zero_p(g, u):\n        return dmp_zero(u, K)\n\n    h = dmp_quo(dmp_mul(f, g, u, K),\n                dmp_gcd(f, g, u, K), u, K)\n\n    return dmp_ground_monic(h, u, K)\n",
+    "before": "def dmp_ff_lcm(f, g, u, K):\n    \"\"\"\n    Computes polynomial LCM over a field in `K[X]`.\n\n    Examples\n    ========\n\n    >>> from sympy.polys import ring, QQ\n    >>> R, x,y, = ring(\"x,y\", QQ)\n\n    >>> f = QQ(1,4)*x**2 + x*y + y**2\n    >>> g = QQ(1,2)*x**2 + x*y\n\n    >>> R.dmp_ff_lcm(f, g)\n    x**3 + 4*x**2*y + 4*x*y**2\n\n    \"\"\"\n    h = dmp_quo(dmp_mul(f, g, u, K),\n                dmp_gcd(f, g, u, K), u, K)\n\n    return dmp_ground_monic(h, u, K)\n",
+    "file": "sympy/polys/euclidtools.py",
+    "id": "sympy/polys/euclidtools.py#dmp_ff_lcm",
+    "name": "dmp_ff_lcm",
+    "qual": "dmp_ff_lcm",
+    "signature_changed": false
+   },
+   {
+    "after": "def lcm(self, g: PolyElement[Er]) -> PolyElement[Er]:\n    f = self\n    domain = f.ring.domain\n\n    if (not f or not g) and f.ring == g.ring:\n        return f.ring.zero\n\n    if not f or not g:\n        raise ValueError(\"self and f must have the same ring\")\n\n    if not domain.is_Field:\n        fc, f = f.primitive()\n        gc, g = g.primitive()\n        c = domain.lcm(fc, gc)\n        h = (f * g).quo(f.gcd(g))\n        return h.mul_ground(c)\n    else:\n        h = (f * g).quo(f.gcd(g))\n        return h.monic()\n",
+    "before": "def lcm(self, g: PolyElement[Er]) -> PolyElement[Er]:\n    f = self\n    domain = f.ring.domain\n\n    if not domain.is_Field:\n        fc, f = f.primitive()\n        gc, g = g.primitive()\n        c = domain.lcm(fc, gc)\n        h = (f * g).quo(f.gcd(g))\n        return h.mul_ground(c)\n    else:\n        h = (f * g).quo(f.gcd(g))\n        return h.monic()\n",
+    "file": "sympy/polys/rings.py",
+    "id": "sympy/polys/rings.py#PolyElement.lcm",
+    "name": "lcm",
+    "qual": "PolyElement.lcm",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_dup_lcm():\n    R, x = ring(\"x\", ZZ)\n\n    assert R.dup_lcm(2, 6) == 6\n\n    assert R.dup_lcm(2*x**3, 6*x) == 6*x**3\n    assert R.dup_lcm(2*x**3, 3*x) == 6*x**3\n\n    assert R.dup_lcm(x**2 + x, x) == x**2 + x\n    assert R.dup_lcm(x**2 + x, 2*x) == 2*x**2 + 2*x\n    assert R.dup_lcm(x**2 + 2*x, x) == x**2 + 2*x\n    assert R.dup_lcm(2*x**2 + x, x) == 2*x**2 + x\n    assert R.dup_lcm(2*x**2 + x, 2*x) == 4*x**2 + 2*x\n\n    assert R.dup_lcm(0, 0) == 0\n    assert R.dup_lcm(0, x) == 0\n    assert R.dup_lcm(x, 0) == 0\n\n    assert R.dup_rr_lcm(0, 0) == 0\n    assert R.dup_rr_lcm(0, x) == 0\n    assert R.dup_rr_lcm(x, 0) == 0\n\n    R, x = ring(\"x\", QQ)\n\n    assert R.dup_lcm(0, 0) == 0\n    assert R.dup_lcm(0, x) == 0\n    assert R.dup_lcm(x, 0) == 0\n\n    assert R.dup_ff_lcm(0, 0) == 0\n    assert R.dup_ff_lcm(0, x) == 0\n    assert R.dup_ff_lcm(x, 0) == 0\n",
+    "before": "def test_dup_lcm():\n    R, x = ring(\"x\", ZZ)\n\n    assert R.dup_lcm(2, 6) == 6\n\n    assert R.dup_lcm(2*x**3, 6*x) == 6*x**3\n    assert R.dup_lcm(2*x**3, 3*x) == 6*x**3\n\n    assert R.dup_lcm(x**2 + x, x) == x**2 + x\n    assert R.dup_lcm(x**2 + x, 2*x) == 2*x**2 + 2*x\n    assert R.dup_lcm(x**2 + 2*x, x) == x**2 + 2*x\n    assert R.dup_lcm(2*x**2 + x, x) == 2*x**2 + x\n    assert R.dup_lcm(2*x**2 + x, 2*x) == 4*x**2 + 2*x\n",
+    "file": "sympy/polys/tests/test_euclidtools.py",
+    "id": "sympy/polys/tests/test_euclidtools.py#test_dup_lcm",
+    "name": "test_dup_lcm",
+    "qual": "test_dup_lcm",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_dmp_lcm():\n    R, x, y = ring(\"x,y\", ZZ)\n\n    assert R.dmp_lcm(2, 6) == 6\n    assert R.dmp_lcm(x, y) == x*y\n\n    assert R.dmp_lcm(2*x**3, 6*x*y**2) == 6*x**3*y**2\n    assert R.dmp_lcm(2*x**3, 3*x*y**2) == 6*x**3*y**2\n\n    assert R.dmp_lcm(x**2*y, x*y**2) == x**2*y**2\n\n    f = 2*x*y**5 - 3*x*y**4 - 2*x*y**3 + 3*x*y**2\n    g = y**5 - 2*y**3 + y\n    h = 2*x*y**7 - 3*x*y**6 - 4*x*y**5 + 6*x*y**4 + 2*x*y**3 - 3*x*y**2\n\n    assert R.dmp_lcm(f, g) == h\n\n    f = x**3 - 3*x**2*y - 9*x*y**2 - 5*y**3\n    g = x**4 + 6*x**3*y + 12*x**2*y**2 + 10*x*y**3 + 3*y**4\n    h = x**5 + x**4*y - 18*x**3*y**2 - 50*x**2*y**3 - 47*x*y**4 - 15*y**5\n\n    assert R.dmp_lcm(f, g) == h\n\n    assert R.dmp_lcm(0, 0) == 0\n    assert R.dmp_lcm(0, x*y) == 0\n\n    assert R.dmp_rr_lcm(0, 0) == 0\n    assert R.dmp_rr_lcm(0, x*y) == 0\n    assert R.dmp_rr_lcm(x*y, 0) == 0\n\n    R, x, y = ring(\"x,y\", QQ)\n\n    assert R.dmp_lcm(0, 0) == 0\n    assert R.dmp_lcm(0, x*y) == 0\n\n    assert R.dmp_ff_lcm(0, 0) == 0\n    assert R.dmp_ff_lcm(0, x*y) == 0\n    assert R.dmp_ff_lcm(x*y, 0) == 0\n",
+    "before": "def test_dmp_lcm():\n    R, x, y = ring(\"x,y\", ZZ)\n\n    assert R.dmp_lcm(2, 6) == 6\n    assert R.dmp_lcm(x, y) == x*y\n\n    assert R.dmp_lcm(2*x**3, 6*x*y**2) == 6*x**3*y**2\n    assert R.dmp_lcm(2*x**3, 3*x*y**2) == 6*x**3*y**2\n\n    assert R.dmp_lcm(x**2*y, x*y**2) == x**2*y**2\n\n    f = 2*x*y**5 - 3*x*y**4 - 2*x*y**3 + 3*x*y**2\n    g = y**5 - 2*y**3 + y\n    h = 2*x*y**7 - 3*x*y**6 - 4*x*y**5 + 6*x*y**4 + 2*x*y**3 - 3*x*y**2\n\n    assert R.dmp_lcm(f, g) == h\n\n    f = x**3 - 3*x**2*y - 9*x*y**2 - 5*y**3\n    g = x**4 + 6*x**3*y + 12*x**2*y**2 + 10*x*y**3 + 3*y**4\n    h = x**5 + x**4*y - 18*x**3*y**2 - 50*x**2*y**3 - 47*x*y**4 - 15*y**5\n\n    assert R.dmp_lcm(f, g) == h\n",
+    "file": "sympy/polys/tests/test_euclidtools.py",
+    "id": "sympy/polys/tests/test_euclidtools.py#test_dmp_lcm",
+    "name": "test_dmp_lcm",
+    "qual": "test_dmp_lcm",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_gcd():\n    f, g = x**3 - 1, x**2 - 1\n    s, t = x**2 + x + 1, x + 1\n    h, r = x - 1, x**4 + x**3 - x - 1\n\n    F, G, S, T, H, R = [ Poly(u) for u in (f, g, s, t, h, r) ]\n\n    assert F.cofactors(G) == (H, S, T)\n    assert F.gcd(G) == H\n    assert F.lcm(G) == R\n\n    assert cofactors(f, g) == (h, s, t)\n    assert gcd(f, g) == h\n    assert lcm(f, g) == r\n\n    assert cofactors(f, g, x) == (h, s, t)\n    assert gcd(f, g, x) == h\n    assert lcm(f, g, x) == r\n\n    assert cofactors(f, g, (x,)) == (h, s, t)\n    assert gcd(f, g, (x,)) == h\n    assert lcm(f, g, (x,)) == r\n\n    assert cofactors(F, G) == (H, S, T)\n    assert gcd(F, G) == H\n    assert lcm(F, G) == R\n\n    assert cofactors(f, g, polys=True) == (H, S, T)\n    assert gcd(f, g, polys=True) == H\n    assert lcm(f, g, polys=True) == R\n\n    assert cofactors(F, G, polys=False) == (h, s, t)\n    assert gcd(F, G, polys=False) == h\n    assert lcm(F, G, polys=False) == r\n\n    f, g = 1.0*x**2 - 1.0, 1.0*x - 1.0\n    h, s, t = g, 1.0*x + 1.0, 1.0\n\n    assert cofactors(f, g) == (h, s, t)\n    assert gcd(f, g) == h\n    assert lcm(f, g) == f\n\n    f, g = 1.0*x**2 - 1.0, 1.0*x - 1.0\n    h, s, t = g, 1.0*x + 1.0, 1.0\n\n    assert cofactors(f, g) == (h, s, t)\n    assert gcd(f, g) == h\n    assert lcm(f, g) == f\n\n    assert cofactors(8, 6) == (2, 4, 3)\n    assert gcd(8, 6) == 2\n    assert lcm(8, 6) == 24\n\n    f, g = x**2 - 3*x - 4, x**3 - 4*x**2 + x - 4\n    l = x**4 - 3*x**3 - 3*x**2 - 3*x - 4\n    h, s, t = x - 4, x + 1, x**2 + 1\n\n    assert cofactors(f, g, modulus=11) == (h, s, t)\n    assert gcd(f, g, modulus=11) == h\n    assert lcm(f, g, modulus=11) == l\n\n    f, g = x**2 + 8*x + 7, x**3 + 7*x**2 + x + 7\n    l = x**4 + 8*x**3 + 8*x**2 + 8*x + 7\n    h, s, t = x + 7, x + 1, x**2 + 1\n\n    assert cofactors(f, g, modulus=11, symmetric=False) == (h, s, t)\n    assert gcd(f, g, modulus=11, symmetric=False) == h\n    assert lcm(f, g, modulus=11, symmetric=False) == l\n\n    a, b = sqrt(2), -sqrt(2)\n    assert gcd(a, b) == gcd(b, a) == sqrt(2)\n\n    a, b = sqrt(-2), -sqrt(-2)\n    assert gcd(a, b) == gcd(b, a) == sqrt(2)\n\n    assert gcd(Poly(x - 2, x), Poly(I*x, x)) == Poly(1, x, domain=ZZ_I)\n\n    raises(TypeError, lambda: gcd(x))\n    raises(TypeError, lambda: lcm(x))\n\n    f = Poly(-1, x)\n    g = Poly(1, x)\n    assert lcm(f, g) == Poly(1, x)\n\n    f = Poly(0, x)\n    g = Poly([1, 1], x)\n    for i in (f, g):\n        assert lcm(i, 0) == 0\n        assert lcm(0, i) == 0\n        assert lcm(i, f) == 0\n        assert lcm(f, i) == 0\n\n    f = 4*x**2 + x + 2\n    pfz = Poly(f, domain=ZZ)\n    pfq = Poly(f, domain=QQ)\n\n    assert pfz.gcd(pfz) == pfz\n    assert pfz.lcm(pfz) == pfz\n    assert pfq.gcd(pfq) == pfq.monic()\n    assert pfq.lcm(pfq) == pfq.monic()\n\n    pzz = Poly(0, x, domain=ZZ)\n    pqz = Poly(0, x, domain=QQ)\n    assert pzz.lcm(pzz) == pzz\n    assert pqz.lcm(pqz) == pqz\n    assert pzz.lcm(pfz) == pzz\n    assert pfq.lcm(pqz) == pqz\n    assert gcd(f, f) == f\n    assert lcm(f, f) == f\n    assert gcd(f, f, domain=QQ) == monic(f)\n    assert lcm(f, f, domain=QQ) == monic(f)\n",
+    "before": "def test_gcd():\n    f, g = x**3 - 1, x**2 - 1\n    s, t = x**2 + x + 1, x + 1\n    h, r = x - 1, x**4 + x**3 - x - 1\n\n    F, G, S, T, H, R = [ Poly(u) for u in (f, g, s, t, h, r) ]\n\n    assert F.cofactors(G) == (H, S, T)\n    assert F.gcd(G) == H\n    assert F.lcm(G) == R\n\n    assert cofactors(f, g) == (h, s, t)\n    assert gcd(f, g) == h\n    assert lcm(f, g) == r\n\n    assert cofactors(f, g, x) == (h, s, t)\n    assert gcd(f, g, x) == h\n    assert lcm(f, g, x) == r\n\n    assert cofactors(f, g, (x,)) == (h, s, t)\n    assert gcd(f, g, (x,)) == h\n    assert lcm(f, g, (x,)) == r\n\n    assert cofactors(F, G) == (H, S, T)\n    assert gcd(F, G) == H\n    assert lcm(F, G) == R\n\n    assert cofactors(f, g, polys=True) == (H, S, T)\n    assert gcd(f, g, polys=True) == H\n    assert lcm(f, g, polys=True) == R\n\n    assert cofactors(F, G, polys=False) == (h, s, t)\n    assert gcd(F, G, polys=False) == h\n    assert lcm(F, G, polys=False) == r\n\n    f, g = 1.0*x**2 - 1.0, 1.0*x - 1.0\n    h, s, t = g, 1.0*x + 1.0, 1.0\n\n    assert cofactors(f, g) == (h, s, t)\n    assert gcd(f, g) == h\n    assert lcm(f, g) == f\n\n    f, g = 1.0*x**2 - 1.0, 1.0*x - 1.0\n    h, s, t = g, 1.0*x + 1.0, 1.0\n\n    assert cofactors(f, g) == (h, s, t)\n    assert gcd(f, g) == h\n    assert lcm(f, g) == f\n\n    assert cofactors(8, 6) == (2, 4, 3)\n    assert gcd(8, 6) == 2\n    assert lcm(8, 6) == 24\n\n    f, g = x**2 - 3*x - 4, x**3 - 4*x**2 + x - 4\n    l = x**4 - 3*x**3 - 3*x**2 - 3*x - 4\n    h, s, t = x - 4, x + 1, x**2 + 1\n\n    assert cofactors(f, g, modulus=11) == (h, s, t)\n    assert gcd(f, g, modulus=11) == h\n    assert lcm(f, g, modulus=11) == l\n\n    f, g = x**2 + 8*x + 7, x**3 + 7*x**2 + x + 7\n    l = x**4 + 8*x**3 + 8*x**2 + 8*x + 7\n    h, s, t = x + 7, x + 1, x**2 + 1\n\n    assert cofactors(f, g, modulus=11, symmetric=False) == (h, s, t)\n    assert gcd(f, g, modulus=11, symmetric=False) == h\n    assert lcm(f, g, modulus=11, symmetric=False) == l\n\n    a, b = sqrt(2), -sqrt(2)\n    assert gcd(a, b) == gcd(b, a) == sqrt(2)\n\n    a, b = sqrt(-2), -sqrt(-2)\n    assert gcd(a, b) == gcd(b, a) == sqrt(2)\n\n    assert gcd(Poly(x - 2, x), Poly(I*x, x)) == Poly(1, x, domain=ZZ_I)\n\n    raises(TypeError, lambda: gcd(x))\n    raises(TypeError, lambda: lcm(x))\n\n    f = Poly(-1, x)\n    g = Poly(1, x)\n    assert lcm(f, g) == Poly(1, x)\n\n    f = Poly(0, x)\n    g = Poly([1, 1], x)\n    for i in (f, g):\n        assert lcm(i, 0) == 0\n        assert lcm(0, i) == 0\n        assert lcm(i, f) == 0\n        assert lcm(f, i) == 0\n\n    f = 4*x**2 + x + 2\n    pfz = Poly(f, domain=ZZ)\n    pfq = Poly(f, domain=QQ)\n\n    assert pfz.gcd(pfz) == pfz\n    assert pfz.lcm(pfz) == pfz\n    assert pfq.gcd(pfq) == pfq.monic()\n    assert pfq.lcm(pfq) == pfq.monic()\n    assert gcd(f, f) == f\n    assert lcm(f, f) == f\n    assert gcd(f, f, domain=QQ) == monic(f)\n    assert lcm(f, f, domain=QQ) == monic(f)\n",
+    "file": "sympy/polys/tests/test_polytools.py",
+    "id": "sympy/polys/tests/test_polytools.py#test_gcd",
+    "name": "test_gcd",
+    "qual": "test_gcd",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_PolyElement_lcm():\n    R, x = ring(\"x\", QQ)\n    assert (x + 1).lcm(x**2 - 1) == x**2 - 1\n    assert R.zero.lcm(x + 1) == 0\n    assert (x + 1).lcm(R.zero) == 0\n    assert R.zero.lcm(R.zero) == 0\n    assert (x + 2).lcm(x + 2) == x + 2\n    assert (x + 1).lcm(x - 1) == (x - 1).lcm(x + 1)  # symmetry\n\n    S, x = ring(\"x\", ZZ)\n    assert S.zero.lcm(S.zero) == 0\n    assert (2*x + 2).lcm(3*x + 3) == 6*x + 6\n    assert (4*x**2 + 8*x+ 4).lcm(2*x + 2) == 4*x**2 + 8*x + 4\n\n    raises(ValueError, lambda: R.zero.lcm(S.zero))\n",
+    "before": "def test_PolyElement_lcm():\n    R, x = ring(\"x\", QQ)\n    assert (x + 1).lcm(x**2 - 1) == x**2 - 1\n    assert R.zero.lcm(x + 1) == 0\n    assert (x + 2).lcm(x + 2) == x + 2\n    assert (x + 1).lcm(x - 1) == (x - 1).lcm(x + 1)  # symmetry\n\n    R, x = ring(\"x\", ZZ)\n    assert (2*x + 2).lcm(3*x + 3) == 6*x + 6\n    assert (4*x**2 + 8*x + 4).lcm(2*x + 2) == 4*x**2 + 8*x + 4\n",
+    "file": "sympy/polys/tests/test_rings.py",
+    "id": "sympy/polys/tests/test_rings.py#test_PolyElement_lcm",
+    "name": "test_PolyElement_lcm",
+    "qual": "test_PolyElement_lcm",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "return",
+      "list",
+      "['0', '0']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['raised ZeroDivisionError', '0']"
+     ],
+     "call": "[outcome(lambda: Rq.dup_ff_lcm(Rq(0), Rq(0))), outcome(lambda: Rq.dup_ff_lcm(xq, Rq(0)))]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import Poly, QQ, ZZ, lcm, ring, symbols\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nRz, x = ring('x', ZZ)\nRq, xq = ring('x', QQ)\nRzz, a, b = ring('a,b', ZZ)\nRqq, aq, bq = ring('a,b', QQ)\nt = symbols('t')\n",
+     "target": "sympy/polys/euclidtools.py#dup_ff_lcm",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import Poly, QQ, ZZ, lcm, ring, symbols\n\n    def outcome(f):\n        try:\n            return str(f())\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__\n    Rz, x = ring('x', ZZ)\n    Rq, xq = ring('x', QQ)\n    Rzz, a, b = ring('a,b', ZZ)\n    Rqq, aq, bq = ring('a,b', QQ)\n    t = symbols('t')\n    assert repr([outcome(lambda: Rq.dup_ff_lcm(Rq(0), Rq(0))), outcome(lambda: Rq.dup_ff_lcm(xq, Rq(0)))]) == \"['0', '0']\"\n",
+     "why": "lcm with zero polynomials, which divided by gcd(0, 0)"
+    },
+    {
+     "after": [
+      "return",
+      "list",
+      "['0', '0']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['raised ZeroDivisionError', '0']"
+     ],
+     "call": "[outcome(lambda: Rzz.dmp_rr_lcm(Rzz(0), Rzz(0))), outcome(lambda: Rzz.dmp_rr_lcm(a, Rzz(0)))]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import Poly, QQ, ZZ, lcm, ring, symbols\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nRz, x = ring('x', ZZ)\nRq, xq = ring('x', QQ)\nRzz, a, b = ring('a,b', ZZ)\nRqq, aq, bq = ring('a,b', QQ)\nt = symbols('t')\n",
+     "target": "sympy/polys/euclidtools.py#dmp_rr_lcm",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import Poly, QQ, ZZ, lcm, ring, symbols\n\n    def outcome(f):\n        try:\n            return str(f())\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__\n    Rz, x = ring('x', ZZ)\n    Rq, xq = ring('x', QQ)\n    Rzz, a, b = ring('a,b', ZZ)\n    Rqq, aq, bq = ring('a,b', QQ)\n    t = symbols('t')\n    assert repr([outcome(lambda: Rzz.dmp_rr_lcm(Rzz(0), Rzz(0))), outcome(lambda: Rzz.dmp_rr_lcm(a, Rzz(0)))]) == \"['0', '0']\"\n",
+     "why": "lcm with zero polynomials, which divided by gcd(0, 0)"
+    },
+    {
+     "after": [
+      "return",
+      "list",
+      "['0', '0']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['raised ZeroDivisionError', '0']"
+     ],
+     "call": "[outcome(lambda: Rqq.dmp_ff_lcm(Rqq(0), Rqq(0))), outcome(lambda: Rqq.dmp_ff_lcm(aq, Rqq(0)))]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import Poly, QQ, ZZ, lcm, ring, symbols\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nRz, x = ring('x', ZZ)\nRq, xq = ring('x', QQ)\nRzz, a, b = ring('a,b', ZZ)\nRqq, aq, bq = ring('a,b', QQ)\nt = symbols('t')\n",
+     "target": "sympy/polys/euclidtools.py#dmp_ff_lcm",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import Poly, QQ, ZZ, lcm, ring, symbols\n\n    def outcome(f):\n        try:\n            return str(f())\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__\n    Rz, x = ring('x', ZZ)\n    Rq, xq = ring('x', QQ)\n    Rzz, a, b = ring('a,b', ZZ)\n    Rqq, aq, bq = ring('a,b', QQ)\n    t = symbols('t')\n    assert repr([outcome(lambda: Rqq.dmp_ff_lcm(Rqq(0), Rqq(0))), outcome(lambda: Rqq.dmp_ff_lcm(aq, Rqq(0)))]) == \"['0', '0']\"\n",
+     "why": "lcm with zero polynomials, which divided by gcd(0, 0)"
+    },
+    {
+     "after": [
+      "return",
+      "list",
+      "['0', '0', 'raised ValueError']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['raised ZeroDivisionError', '0', 'raised ValueError']"
+     ],
+     "call": "[outcome(lambda: Rz(0).lcm(Rz(0))), outcome(lambda: Rq(0).lcm(xq)), outcome(lambda: Rz(0).lcm(Rq(1)))]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import Poly, QQ, ZZ, lcm, ring, symbols\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nRz, x = ring('x', ZZ)\nRq, xq = ring('x', QQ)\nRzz, a, b = ring('a,b', ZZ)\nRqq, aq, bq = ring('a,b', QQ)\nt = symbols('t')\n",
+     "target": "sympy/polys/rings.py#PolyElement.lcm",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import Poly, QQ, ZZ, lcm, ring, symbols\n\n    def outcome(f):\n        try:\n            return str(f())\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__\n    Rz, x = ring('x', ZZ)\n    Rq, xq = ring('x', QQ)\n    Rzz, a, b = ring('a,b', ZZ)\n    Rqq, aq, bq = ring('a,b', QQ)\n    t = symbols('t')\n    assert repr([outcome(lambda: Rz(0).lcm(Rz(0))), outcome(lambda: Rq(0).lcm(xq)), outcome(lambda: Rz(0).lcm(Rq(1)))]) == \"['0', '0', 'raised ValueError']\"\n",
+     "why": "lcm with zero polynomials, which divided by gcd(0, 0)"
+    },
+    {
+     "after": [
+      "return",
+      "list",
+      "['0', '0']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['0', 'raised ZeroDivisionError']"
+     ],
+     "call": "[outcome(lambda: Rz.dup_lcm(Rz(0), Rz(0))), outcome(lambda: Rq.dup_lcm(Rq(0), Rq(0)))]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import Poly, QQ, ZZ, lcm, ring, symbols\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nRz, x = ring('x', ZZ)\nRq, xq = ring('x', QQ)\nRzz, a, b = ring('a,b', ZZ)\nRqq, aq, bq = ring('a,b', QQ)\nt = symbols('t')\n",
+     "target": "sympy/polys/tests/test_euclidtools.py#test_dup_lcm",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import Poly, QQ, ZZ, lcm, ring, symbols\n\n    def outcome(f):\n        try:\n            return str(f())\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__\n    Rz, x = ring('x', ZZ)\n    Rq, xq = ring('x', QQ)\n    Rzz, a, b = ring('a,b', ZZ)\n    Rqq, aq, bq = ring('a,b', QQ)\n    t = symbols('t')\n    assert repr([outcome(lambda: Rz.dup_lcm(Rz(0), Rz(0))), outcome(lambda: Rq.dup_lcm(Rq(0), Rq(0)))]) == \"['0', '0']\"\n",
+     "why": "lcm with zero polynomials, which divided by gcd(0, 0)"
+    },
+    {
+     "after": [
+      "return",
+      "list",
+      "['0', '0']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['raised ZeroDivisionError', 'raised ZeroDivisionError']"
+     ],
+     "call": "[outcome(lambda: Rzz.dmp_lcm(Rzz(0), Rzz(0))), outcome(lambda: Rqq.dmp_lcm(Rqq(0), Rqq(0)))]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import Poly, QQ, ZZ, lcm, ring, symbols\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nRz, x = ring('x', ZZ)\nRq, xq = ring('x', QQ)\nRzz, a, b = ring('a,b', ZZ)\nRqq, aq, bq = ring('a,b', QQ)\nt = symbols('t')\n",
+     "target": "sympy/polys/tests/test_euclidtools.py#test_dmp_lcm",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import Poly, QQ, ZZ, lcm, ring, symbols\n\n    def outcome(f):\n        try:\n            return str(f())\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__\n    Rz, x = ring('x', ZZ)\n    Rq, xq = ring('x', QQ)\n    Rzz, a, b = ring('a,b', ZZ)\n    Rqq, aq, bq = ring('a,b', QQ)\n    t = symbols('t')\n    assert repr([outcome(lambda: Rzz.dmp_lcm(Rzz(0), Rzz(0))), outcome(lambda: Rqq.dmp_lcm(Rqq(0), Rqq(0)))]) == \"['0', '0']\"\n",
+     "why": "lcm with zero polynomials, which divided by gcd(0, 0)"
+    },
+    {
+     "after": [
+      "return",
+      "list",
+      "['0', '0']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['raised ZeroDivisionError', 'raised ZeroDivisionError']"
+     ],
+     "call": "[outcome(lambda: Rzz(0).lcm(Rzz(0))), outcome(lambda: Rqq(0).lcm(Rqq(0)))]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import Poly, QQ, ZZ, lcm, ring, symbols\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nRz, x = ring('x', ZZ)\nRq, xq = ring('x', QQ)\nRzz, a, b = ring('a,b', ZZ)\nRqq, aq, bq = ring('a,b', QQ)\nt = symbols('t')\n",
+     "target": "sympy/polys/tests/test_rings.py#test_PolyElement_lcm",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import Poly, QQ, ZZ, lcm, ring, symbols\n\n    def outcome(f):\n        try:\n            return str(f())\n        except Exception as exc:\n            return 'raised ' + type(exc).__name__\n    Rz, x = ring('x', ZZ)\n    Rq, xq = ring('x', QQ)\n    Rzz, a, b = ring('a,b', ZZ)\n    Rqq, aq, bq = ring('a,b', QQ)\n    t = symbols('t')\n    assert repr([outcome(lambda: Rzz(0).lcm(Rzz(0))), outcome(lambda: Rqq(0).lcm(Rqq(0)))]) == \"['0', '0']\"\n",
+     "why": "lcm with zero polynomials, which divided by gcd(0, 0)"
+    }
+   ],
+   "dollars_cap": 0.1,
+   "filter_seconds": 21.8,
+   "gaps": [],
+   "info": {
+    "accepted": 7,
+    "compiled": 8,
+    "cost": 0.0,
+    "differed": 7,
+    "dollars_cap": 0.1,
+    "functions": 8,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 8,
+    "ran": 8,
+    "reached": 7,
+    "requests": 2,
+    "seconds": 21.6,
+    "stable": 8
+   },
+   "probes": [
+    {
+     "call": "[outcome(lambda: Rq.dup_ff_lcm(Rq(0), Rq(0))), outcome(lambda: Rq.dup_ff_lcm(xq, Rq(0)))]",
+     "function": "sympy/polys/euclidtools.py#dup_ff_lcm",
+     "setup": "from sympy import Poly, QQ, ZZ, lcm, ring, symbols\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nRz, x = ring('x', ZZ)\nRq, xq = ring('x', QQ)\nRzz, a, b = ring('a,b', ZZ)\nRqq, aq, bq = ring('a,b', QQ)\nt = symbols('t')\n",
+     "why": "lcm with zero polynomials, which divided by gcd(0, 0)"
+    },
+    {
+     "call": "[outcome(lambda: Rzz.dmp_rr_lcm(Rzz(0), Rzz(0))), outcome(lambda: Rzz.dmp_rr_lcm(a, Rzz(0)))]",
+     "function": "sympy/polys/euclidtools.py#dmp_rr_lcm",
+     "setup": "from sympy import Poly, QQ, ZZ, lcm, ring, symbols\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nRz, x = ring('x', ZZ)\nRq, xq = ring('x', QQ)\nRzz, a, b = ring('a,b', ZZ)\nRqq, aq, bq = ring('a,b', QQ)\nt = symbols('t')\n",
+     "why": "lcm with zero polynomials, which divided by gcd(0, 0)"
+    },
+    {
+     "call": "[outcome(lambda: Rqq.dmp_ff_lcm(Rqq(0), Rqq(0))), outcome(lambda: Rqq.dmp_ff_lcm(aq, Rqq(0)))]",
+     "function": "sympy/polys/euclidtools.py#dmp_ff_lcm",
+     "setup": "from sympy import Poly, QQ, ZZ, lcm, ring, symbols\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nRz, x = ring('x', ZZ)\nRq, xq = ring('x', QQ)\nRzz, a, b = ring('a,b', ZZ)\nRqq, aq, bq = ring('a,b', QQ)\nt = symbols('t')\n",
+     "why": "lcm with zero polynomials, which divided by gcd(0, 0)"
+    },
+    {
+     "call": "[outcome(lambda: Rz(0).lcm(Rz(0))), outcome(lambda: Rq(0).lcm(xq)), outcome(lambda: Rz(0).lcm(Rq(1)))]",
+     "function": "sympy/polys/rings.py#PolyElement.lcm",
+     "setup": "from sympy import Poly, QQ, ZZ, lcm, ring, symbols\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nRz, x = ring('x', ZZ)\nRq, xq = ring('x', QQ)\nRzz, a, b = ring('a,b', ZZ)\nRqq, aq, bq = ring('a,b', QQ)\nt = symbols('t')\n",
+     "why": "lcm with zero polynomials, which divided by gcd(0, 0)"
+    },
+    {
+     "call": "[outcome(lambda: Rz.dup_lcm(Rz(0), Rz(0))), outcome(lambda: Rq.dup_lcm(Rq(0), Rq(0)))]",
+     "function": "sympy/polys/tests/test_euclidtools.py#test_dup_lcm",
+     "setup": "from sympy import Poly, QQ, ZZ, lcm, ring, symbols\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nRz, x = ring('x', ZZ)\nRq, xq = ring('x', QQ)\nRzz, a, b = ring('a,b', ZZ)\nRqq, aq, bq = ring('a,b', QQ)\nt = symbols('t')\n",
+     "why": "lcm with zero polynomials, which divided by gcd(0, 0)"
+    },
+    {
+     "call": "[outcome(lambda: Rzz.dmp_lcm(Rzz(0), Rzz(0))), outcome(lambda: Rqq.dmp_lcm(Rqq(0), Rqq(0)))]",
+     "function": "sympy/polys/tests/test_euclidtools.py#test_dmp_lcm",
+     "setup": "from sympy import Poly, QQ, ZZ, lcm, ring, symbols\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nRz, x = ring('x', ZZ)\nRq, xq = ring('x', QQ)\nRzz, a, b = ring('a,b', ZZ)\nRqq, aq, bq = ring('a,b', QQ)\nt = symbols('t')\n",
+     "why": "lcm with zero polynomials, which divided by gcd(0, 0)"
+    },
+    {
+     "call": "[outcome(lambda: lcm(Poly(0, t), Poly(0, t))), outcome(lambda: lcm(0, 0))]",
+     "function": "sympy/polys/tests/test_polytools.py#test_gcd",
+     "setup": "from sympy import Poly, QQ, ZZ, lcm, ring, symbols\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nRz, x = ring('x', ZZ)\nRq, xq = ring('x', QQ)\nRzz, a, b = ring('a,b', ZZ)\nRqq, aq, bq = ring('a,b', QQ)\nt = symbols('t')\n",
+     "why": "lcm with zero polynomials, which divided by gcd(0, 0)"
+    },
+    {
+     "call": "[outcome(lambda: Rzz(0).lcm(Rzz(0))), outcome(lambda: Rqq(0).lcm(Rqq(0)))]",
+     "function": "sympy/polys/tests/test_rings.py#test_PolyElement_lcm",
+     "setup": "from sympy import Poly, QQ, ZZ, lcm, ring, symbols\n\ndef outcome(f):\n    try:\n        return str(f())\n    except Exception as exc:\n        return 'raised ' + type(exc).__name__\nRz, x = ring('x', ZZ)\nRq, xq = ring('x', QQ)\nRzz, a, b = ring('a,b', ZZ)\nRqq, aq, bq = ring('a,b', QQ)\nt = symbols('t')\n",
+     "why": "lcm with zero polynomials, which divided by gcd(0, 0)"
+    }
+   ],
+   "targets": [
+    "sympy/polys/euclidtools.py#dup_ff_lcm",
+    "sympy/polys/euclidtools.py#dmp_rr_lcm",
+    "sympy/polys/euclidtools.py#dmp_ff_lcm",
+    "sympy/polys/rings.py#PolyElement.lcm",
+    "sympy/polys/tests/test_euclidtools.py#test_dup_lcm",
+    "sympy/polys/tests/test_euclidtools.py#test_dmp_lcm",
+    "sympy/polys/tests/test_polytools.py#test_gcd",
+    "sympy/polys/tests/test_rings.py#test_PolyElement_lcm"
+   ],
+   "waited_seconds": 355.3
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/polys/tests/test_euclidtools.py::test_dup_lcm",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/polys/tests/test_euclidtools.py::test_dmp_lcm",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/polys/tests/test_polytools.py::test_gcd",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement_lcm",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/polys/euclidtools.py",
+    "lines": "1720-1722",
+    "symbol": "dup_ff_lcm"
+   },
+   {
+    "file": "sympy/polys/euclidtools.py",
+    "lines": "1766-1768",
+    "symbol": "dmp_rr_lcm"
+   },
+   {
+    "file": "sympy/polys/euclidtools.py",
+    "lines": "1797-1799",
+    "symbol": "dmp_ff_lcm"
+   },
+   {
+    "file": "sympy/polys/rings.py",
+    "lines": "1703-1708",
+    "symbol": "PolyElement.lcm"
+   },
+   {
+    "file": "sympy/polys/tests/test_euclidtools.py",
+    "lines": "583-599",
+    "symbol": "test_dup_lcm"
+   },
+   {
+    "file": "sympy/polys/tests/test_euclidtools.py",
+    "lines": "625-639",
+    "symbol": "test_dmp_lcm"
+   },
+   {
+    "file": "sympy/polys/tests/test_polytools.py",
+    "lines": "2349-2355",
+    "symbol": "test_gcd"
+   },
+   {
+    "file": "sympy/polys/tests/test_rings.py",
+    "lines": "2257-2267",
+    "symbol": "test_PolyElement_lcm"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/polys/euclidtools.py#dmp_ff_lcm",
+   "sympy/polys/euclidtools.py#dmp_rr_lcm",
+   "sympy/polys/euclidtools.py#dup_ff_lcm",
+   "sympy/polys/rings.py#PolyElement.lcm",
+   "sympy/polys/tests/test_euclidtools.py#test_dmp_lcm",
+   "sympy/polys/tests/test_euclidtools.py#test_dup_lcm",
+   "sympy/polys/tests/test_polytools.py#test_gcd",
+   "sympy/polys/tests/test_rings.py#test_PolyElement_lcm",
+   "sympy/polys/tests/test_euclidtools.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "dmp_ff_lcm return changed",
+    "path": [
+     "sympy/polys/euclidtools.py:1798 return",
+     "sympy/polys/euclidtools.py:1827 dmp_lcm uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   },
+   {
+    "evidence": "static source path",
+    "from": "dmp_rr_lcm return changed",
+    "path": [
+     "sympy/polys/euclidtools.py:1767 return",
+     "sympy/polys/euclidtools.py:1829 dmp_lcm uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   },
+   {
+    "evidence": "static source path",
+    "from": "dup_ff_lcm return changed",
+    "path": [
+     "sympy/polys/euclidtools.py:1721 return",
+     "sympy/polys/euclidtools.py:1744 dup_lcm uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 4,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 3000,
+   "ran": 3000,
+   "replayed": 4,
+   "runner": "pytest",
+   "seconds": 212.5,
+   "selection": {
+    "candidates": 13009,
+    "closure_files": 1321,
+    "closure_tests": 12934,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 75
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "10009 lower-ranked candidate(s) not run: about 12 tests/s per process fit 3000 in the 300 s allowed",
+   "63977 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "Skipped 1 non-Python file(s)",
+   "side-by-side: none of the 8 changed function(s) was called by the tests run on the code before the change"
+  ],
+  "impacted": {
+   "count": 4,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1607,
+   "parsed_files": 5
+  },
+  "original_tests": {
+   "sympy/polys/tests/test_euclidtools.py::test_dmp_lcm": "passed",
+   "sympy/polys/tests/test_euclidtools.py::test_dup_lcm": "passed",
+   "sympy/polys/tests/test_polytools.py::test_Poly_exclude": "passed",
+   "sympy/polys/tests/test_polytools.py::test_Poly_one": "passed",
+   "sympy/polys/tests/test_polytools.py::test_Poly_precision": "passed",
+   "sympy/polys/tests/test_polytools.py::test_Poly_zero": "passed",
+   "sympy/polys/tests/test_polytools.py::test_gcd": "passed",
+   "sympy/polys/tests/test_polytools.py::test_issue_19113": "passed",
+   "sympy/polys/tests/test_polytools.py::test_issue_9585": "passed",
+   "sympy/polys/tests/test_rings.py::test_PolyElement_lcm": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/polys/tests/test_euclidtools.py::test_dup_lcm",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/polys/tests/test_euclidtools.py::test_dmp_lcm",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/polys/tests/test_polytools.py::test_gcd",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement_lcm",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "23af7b7489e7",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 0,
+   "differences": 0,
+   "functions_called": 0,
+   "input_built_before_the_change": 0,
+   "not_compared": {},
+   "seconds": 25.3,
+   "targets": 8,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 3000 of 3000 candidate tests after the change with pytest in 212.5 s, failures confirmed before it: 0 now fail. 8589 tests reach the change. 10 test(s) from edited test files also run as they were before the edit. 4 test(s) the change adds or edits replayed on the code before it: 4 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_polyclasses.py::test_DMP_functionality",
+    "line": 192,
+    "run": "python -m pytest sympy/polys/tests/test_polyclasses.py::test_DMP_functionality",
+    "score": 0.723,
+    "why": "via DMP.lcm > DMP_Python._lcm > dmp_lcm > dmp_rr_lcm (name: dmp)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement_evaluate",
+    "line": 1623,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement_evaluate",
+    "score": 0.035,
+    "why": "via PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement___sub__",
+    "line": 769,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement___sub__",
+    "score": 0.021,
+    "why": "via PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement__check",
+    "line": 2224,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement__check",
+    "score": 0.014,
+    "why": "via PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement_lcm",
+    "line": 2253,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement_lcm",
+    "score": 0.01,
+    "why": "via IPolys.gens > PolyElement (name: element,lcm,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyRing_from_dict",
+    "line": 228,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyRing_from_dict",
+    "score": 0.009,
+    "why": "via PolyElement (name: poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyRing_ring_new",
+    "line": 83,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyRing_ring_new",
+    "score": 0.008,
+    "why": "via PolyElement (name: poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement___pow__",
+    "line": 1071,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement___pow__",
+    "score": 0.007,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement___divmod__",
+    "line": 1115,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement___divmod__",
+    "score": 0.006,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement___floordiv__",
+    "line": 1213,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement___floordiv__",
+    "score": 0.006,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement___mod__",
+    "line": 1178,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement___mod__",
+    "score": 0.006,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement___truediv__",
+    "line": 877,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement___truediv__",
+    "score": 0.006,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement_is_",
+    "line": 1754,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement_is_",
+    "score": 0.006,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement_pdiv",
+    "line": 1915,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement_pdiv",
+    "score": 0.006,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement_prem",
+    "line": 1895,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement_prem",
+    "score": 0.006,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement_quo_ground",
+    "line": 2270,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement_quo_ground",
+    "score": 0.006,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement_quo_term",
+    "line": 2169,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement_quo_term",
+    "score": 0.006,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement___call__",
+    "line": 1592,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement___call__",
+    "score": 0.006,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement_as_expr",
+    "line": 463,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement_as_expr",
+    "score": 0.006,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement_coeff",
+    "line": 607,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement_coeff",
+    "score": 0.006,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement_compose",
+    "line": 1724,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement_compose",
+    "score": 0.006,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement_div",
+    "line": 1240,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement_div",
+    "score": 0.006,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement_drop",
+    "line": 1844,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement_drop",
+    "score": 0.006,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement_drop_to_ground",
+    "line": 1855,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement_drop_to_ground",
+    "score": 0.006,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement_from_expr",
+    "line": 485,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement_from_expr",
+    "score": 0.006,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement_subs",
+    "line": 1657,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement_subs",
+    "score": 0.006,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement__str__",
+    "line": 430,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement__str__",
+    "score": 0.005,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement_mul_monom",
+    "line": 2158,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement_mul_monom",
+    "score": 0.005,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement___add__",
+    "line": 726,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement___add__",
+    "score": 0.005,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement___mul__",
+    "line": 819,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement___mul__",
+    "score": 0.005,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement__lt_le_gt_ge__",
+    "line": 417,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement__lt_le_gt_ge__",
+    "score": 0.005,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement_decompose",
+    "line": 2020,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement_decompose",
+    "score": 0.005,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement_shift",
+    "line": 2036,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement_shift",
+    "score": 0.005,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement_sturm",
+    "line": 2047,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement_sturm",
+    "score": 0.005,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement_LC",
+    "line": 630,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement_LC",
+    "score": 0.005,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement_LM",
+    "line": 637,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement_LM",
+    "score": 0.005,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement_LT",
+    "line": 644,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement_LT",
+    "score": 0.005,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement___eq__",
+    "line": 376,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement___eq__",
+    "score": 0.005,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement___hash__",
+    "line": 360,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement___hash__",
+    "score": 0.005,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement_almosteq",
+    "line": 2186,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement_almosteq",
+    "score": 0.005,
+    "why": "via IPolys.gens > PolyElement (name: element,poly,ring)"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/polys/tests/test_euclidtools.py",
+    "lines": "583-599",
+    "symbol": "test_dup_lcm"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/polys/tests/test_euclidtools.py",
+    "lines": "625-639",
+    "symbol": "test_dmp_lcm"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/polys/tests/test_polytools.py",
+    "lines": "2349-2355",
+    "symbol": "test_gcd"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/polys/tests/test_rings.py",
+    "lines": "2257-2267",
+    "symbol": "test_PolyElement_lcm"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792340600.310278,
+  "job_seconds": 265.3,
+  "number": 30680,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 265.4,
+  "started": 1792340334.186089
+ },
+ "verify": null
+}

@@ -1,0 +1,357 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "d9232e0d2eac5c5b1112cc7d10d441f798e4eab8",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "6b896d4fbe7c9e8ac037fe93449bd5d6bb0cecf6",
+  "install_ok": true,
+  "merge_base": "a23073ee516bbf60863dc8b82a8446b15e6348f4",
+  "pr": 30469,
+  "recording": false,
+  "runner": null,
+  "seconds": 271.4,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "d9232e0d2eac5c5b1112cc7d10d441f798e4eab8",
+  "head_sha": "6b896d4fbe7c9e8ac037fe93449bd5d6bb0cecf6",
+  "merge_base": "a23073ee516bbf60863dc8b82a8446b15e6348f4",
+  "merged_at": "2026-09-30T04:18:57Z",
+  "number": 30469,
+  "repo": "sympy",
+  "title": "Add an introduction with a worked example to the diffgeom documentation"
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 1,
+  "called": 1,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [
+   {
+    "after": {
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        []
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "calls": [],
+     "result": [
+      "return",
+      [
+       "list",
+       [
+        "'doc/src/modules/plotting.rst'",
+        "'doc/src/modules/physics/mechanics/autolev_parser.rst'",
+        "'sympy/codegen/array_utils.py'",
+        "'sympy/core/compatibility.py'",
+        "'sympy/core/trace.py'",
+        "'sympy/galgebra.py'",
+        "'sympy/parsing/autolev/_antlr/autolevlexer.py'",
+        "'sympy/parsing/autolev/_antlr/autolevlistener.py'",
+        "'sympy/parsing/autolev/_antlr/autolevparser.py'",
+        "'sympy/parsing/latex/_antlr/latexlexer.py'",
+        "'sympy/parsing/latex/_antlr/latexparser.py'",
+        "'sympy/plotting/pygletplot/__init__.py'",
+        "'sympy/plotting/pygletplot/plot.py'",
+        "'sympy/printing/ccode.py'",
+        "'sympy/printing/cxxcode.py'",
+        "'sympy/printing/fcode.py'",
+        "'sympy/testing/randtest.py'",
+        "'sympy/this.py'",
+        "'sympy/parsing/autolev/test-examples/ruletest1.py'",
+        "'sympy/parsing/autolev/test-examples/ruletest2.py'",
+        "'sympy/parsing/autolev/test-examples/ruletest3.py'",
+        "'sympy/parsing/autolev/test-examples/ruletest4.py'",
+        "'sympy/parsing/autolev/test-examples/ruletest5.py'",
+        "'sympy/parsing/autolev/test-examples/ruletest6.py'",
+        "'sympy/parsing/autolev/test-examples/ruletest7.py'",
+        "'sympy/parsing/autolev/test-examples/ruletest8.py'",
+        "'sympy/parsing/autolev/test-examples/ruletest9.py'",
+        "'sympy/parsing/autolev/test-examples/ruletest10.py'",
+        "'sympy/parsing/autolev/test-examples/ruletest11.py'",
+        "'sympy/parsing/autolev/test-examples/ruletest12.py'",
+        "'sympy/parsing/autolev/test-examples/pydy-example-repo/mass_spring_damper.py'",
+        "'sympy/parsing/autolev/test-examples/pydy-example-repo/chaos_pendulum.py'",
+        "'sympy/parsing/autolev/test-examples/pydy-example-repo/double_pendulum.py'",
+        "'sympy/parsing/autolev/test-examples/pydy-example-repo/non_min_pendulum.py'",
+        "'sympy/plotting/experimental_lambdify.py'",
+        "'sympy/plotting/plot_implicit.py'",
+        "'examples/advanced/autowrap_integrators.py'",
+        "'examples/advanced/autowrap_ufuncify.py'",
+        "'examples/intermediate/sample.py'",
+        "'examples/intermediate/mplot2d.py'",
+        "'examples/intermediate/mplot3d.py'",
+        "'doc/src/modules/diffgeom.rst'",
+        "'doc/src/modules/numeric-computation.rst'",
+        "'doc/src/explanation/best-practices.md'",
+        "'doc/src/tutorials/physics/biomechanics/biomechanical-model-example.rst'",
+        "'doc/src/tutorials/physics/biomechanics/biomechanics.rst'",
+        "'sympy/plotting/pygletplot'",
+        "'sympy/printing/aesaracode.py'",
+        "'doc/src/modules/numeric-computation.rst'",
+        "'doc/src/modules/numeric-computation.rst'",
+        "'doc/src/modules/numeric-computation.rst'",
+        "'sympy/parsing/autolev/__init__.py'",
+        "'sympy/parsing/latex/_parse_latex_antlr.py'",
+        "'sympy/parsing/sym_expr.py'",
+        "'doc/src/guides/solving/solve-numerically.md'",
+        "'doc/src/guides/solving/solve-ode.md'",
+        "'doc/src/guides/solving/solve-ode.md'",
+        "'doc/src/guides/solving/solve-numerically.md'",
+        "'sympy/utilities/autowrap.py'",
+        "'examples/advanced/autowrap_integrators.py'",
+        "'examples/advanced/autowrap_ufuncify.py'",
+        "'sympy/conftest.py'",
+        "'sympy/utilities/tmpfiles.py'",
+        "'sympy/utilities/pytest.py'",
+        "'sympy/utilities/runtests.py'",
+        "'sympy/utilities/quality_unicode.py'",
+        "'sympy/utilities/randtest.py'"
+       ]
+      ]
+     ],
+     "stdout": ""
+    },
+    "before": {
+     "args_after": [
+      "list",
+      [
+       [
+        "list",
+        []
+       ],
+       [
+        "dict",
+        []
+       ]
+      ]
+     ],
+     "calls": [],
+     "result": [
+      "return",
+      [
+       "list",
+       [
+        "'doc/src/modules/plotting.rst'",
+        "'doc/src/modules/physics/mechanics/autolev_parser.rst'",
+        "'sympy/codegen/array_utils.py'",
+        "'sympy/core/compatibility.py'",
+        "'sympy/core/trace.py'",
+        "'sympy/galgebra.py'",
+        "'sympy/parsing/autolev/_antlr/autolevlexer.py'",
+        "'sympy/parsing/autolev/_antlr/autolevlistener.py'",
+        "'sympy/parsing/autolev/_antlr/autolevparser.py'",
+        "'sympy/parsing/latex/_antlr/latexlexer.py'",
+        "'sympy/parsing/latex/_antlr/latexparser.py'",
+        "'sympy/plotting/pygletplot/__init__.py'",
+        "'sympy/plotting/pygletplot/plot.py'",
+        "'sympy/printing/ccode.py'",
+        "'sympy/printing/cxxcode.py'",
+        "'sympy/printing/fcode.py'",
+        "'sympy/testing/randtest.py'",
+        "'sympy/this.py'",
+        "'sympy/parsing/autolev/test-examples/ruletest1.py'",
+        "'sympy/parsing/autolev/test-examples/ruletest2.py'",
+        "'sympy/parsing/autolev/test-examples/ruletest3.py'",
+        "'sympy/parsing/autolev/test-examples/ruletest4.py'",
+        "'sympy/parsing/autolev/test-examples/ruletest5.py'",
+        "'sympy/parsing/autolev/test-examples/ruletest6.py'",
+        "'sympy/parsing/autolev/test-examples/ruletest7.py'",
+        "'sympy/parsing/autolev/test-examples/ruletest8.py'",
+        "'sympy/parsing/autolev/test-examples/ruletest9.py'",
+        "'sympy/parsing/autolev/test-examples/ruletest10.py'",
+        "'sympy/parsing/autolev/test-examples/ruletest11.py'",
+        "'sympy/parsing/autolev/test-examples/ruletest12.py'",
+        "'sympy/parsing/autolev/test-examples/pydy-example-repo/mass_spring_damper.py'",
+        "'sympy/parsing/autolev/test-examples/pydy-example-repo/chaos_pendulum.py'",
+        "'sympy/parsing/autolev/test-examples/pydy-example-repo/double_pendulum.py'",
+        "'sympy/parsing/autolev/test-examples/pydy-example-repo/non_min_pendulum.py'",
+        "'sympy/plotting/experimental_lambdify.py'",
+        "'sympy/plotting/plot_implicit.py'",
+        "'examples/advanced/autowrap_integrators.py'",
+        "'examples/advanced/autowrap_ufuncify.py'",
+        "'examples/intermediate/sample.py'",
+        "'examples/intermediate/mplot2d.py'",
+        "'examples/intermediate/mplot3d.py'",
+        "'doc/src/modules/numeric-computation.rst'",
+        "'doc/src/explanation/best-practices.md'",
+        "'doc/src/tutorials/physics/biomechanics/biomechanical-model-example.rst'",
+        "'doc/src/tutorials/physics/biomechanics/biomechanics.rst'",
+        "'sympy/plotting/pygletplot'",
+        "'sympy/printing/aesaracode.py'",
+        "'doc/src/modules/numeric-computation.rst'",
+        "'doc/src/modules/numeric-computation.rst'",
+        "'doc/src/modules/numeric-computation.rst'",
+        "'sympy/parsing/autolev/__init__.py'",
+        "'sympy/parsing/latex/_parse_latex_antlr.py'",
+        "'sympy/parsing/sym_expr.py'",
+        "'doc/src/guides/solving/solve-numerically.md'",
+        "'doc/src/guides/solving/solve-ode.md'",
+        "'doc/src/guides/solving/solve-ode.md'",
+        "'doc/src/guides/solving/solve-numerically.md'",
+        "'sympy/utilities/autowrap.py'",
+        "'examples/advanced/autowrap_integrators.py'",
+        "'examples/advanced/autowrap_ufuncify.py'",
+        "'sympy/conftest.py'",
+        "'sympy/utilities/tmpfiles.py'",
+        "'sympy/utilities/pytest.py'",
+        "'sympy/utilities/runtests.py'",
+        "'sympy/utilities/quality_unicode.py'",
+        "'sympy/utilities/randtest.py'"
+       ]
+      ]
+     ],
+     "stdout": ""
+    },
+    "differs": [
+     "result"
+    ],
+    "input": "([], {})",
+    "label": "behaviour differs on captured input",
+    "target": "sympy/testing/runtests.py#_get_doctest_blacklist",
+    "test": ""
+   }
+  ],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "changed_functions": [
+   {
+    "file": "sympy/testing/runtests.py",
+    "lines": "693",
+    "symbol": "_get_doctest_blacklist"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/testing/runtests.py#_get_doctest_blacklist"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 0,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 552,
+   "ran": 552,
+   "replayed": 0,
+   "runner": "pytest",
+   "seconds": 86.0,
+   "selection": {
+    "candidates": 12874,
+    "closure_files": 1320,
+    "closure_tests": 12874,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 0
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "12322 lower-ranked candidate(s) not run: about 2 tests/s per process fit 552 in the 300 s allowed",
+   "63848 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "Skipped 2 non-Python file(s)"
+  ],
+  "impacted": {
+   "count": 15,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1606,
+   "parsed_files": 1
+  },
+  "predicted_failures": [],
+  "report_hash": "eddbdbbf8b70",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [
+    "sympy/testing/runtests.py#_get_doctest_blacklist"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 1,
+   "differences": 1,
+   "functions_called": 1,
+   "input_built_before_the_change": 0,
+   "not_compared": {},
+   "seconds": 18.5,
+   "targets": 1,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 552 of 552 candidate tests after the change with pytest in 86.0 s, failures confirmed before it: 0 now fail. 3 tests reach the change.",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_tensorflow.py::test_codegen_einsum",
+    "line": 358,
+    "run": "python -m pytest sympy/printing/tests/test_tensorflow.py::test_codegen_einsum",
+    "score": 0.065,
+    "why": "via test_sympy.run > run_all_tests > doctest > _doctest > _get_doctest_blacklist"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_tensorflow.py::test_codegen_extra",
+    "line": 379,
+    "run": "python -m pytest sympy/printing/tests/test_tensorflow.py::test_codegen_extra",
+    "score": 0.041,
+    "why": "via test_sympy.run > run_all_tests > doctest > _doctest > _get_doctest_blacklist"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/utilities/tests/test_lambdify.py::test_tensorflow_variables",
+    "line": 934,
+    "run": "python -m pytest sympy/utilities/tests/test_lambdify.py::test_tensorflow_variables",
+    "score": 0.028,
+    "why": "via test_sympy.run > run_all_tests > doctest > _doctest > _get_doctest_blacklist"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792336644.98473,
+  "job_seconds": 271.4,
+  "number": 30469,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 271.6,
+  "started": 1792336372.699643
+ },
+ "verify": null
+}

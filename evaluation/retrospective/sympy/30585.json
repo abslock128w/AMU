@@ -1,0 +1,655 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "d701e5949291fcff55903d13dd2b711d75d4ee42",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "10eb21a7abead8e7b182e56a117824e46107f444",
+  "install_ok": true,
+  "merge_base": "06fcaef06d1e72684a46659b055eeee6169567ad",
+  "pr": 30585,
+  "recording": false,
+  "runner": null,
+  "seconds": 176.7,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "d701e5949291fcff55903d13dd2b711d75d4ee42",
+  "head_sha": "10eb21a7abead8e7b182e56a117824e46107f444",
+  "merge_base": "06fcaef06d1e72684a46659b055eeee6169567ad",
+  "merged_at": "2026-09-26T20:53:06Z",
+  "number": 30585,
+  "repo": "sympy",
+  "title": "polys: remove redundant expansion in dict_from_expr"
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 6,
+  "called": 6,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "unloadable",
+    "id": "sympy/core/tests/test_exprtools.py::test__decompose_exprs",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/polys/tests/test_polyutils.py::test_private_dict_from_expr_noncommutative",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/core/exprtools.py",
+    "lines": "286-358",
+    "symbol": "_decompose_exprs"
+   },
+   {
+    "file": "sympy/core/tests/test_exprtools.py",
+    "lines": "32-44",
+    "symbol": "test__decompose_exprs"
+   },
+   {
+    "file": "sympy/polys/polyutils.py",
+    "lines": "224-228",
+    "symbol": "_parallel_dict_from_expr_if_gens"
+   },
+   {
+    "file": "sympy/polys/polyutils.py",
+    "lines": "279-355",
+    "symbol": "_parallel_dict_from_expr_no_gens"
+   },
+   {
+    "file": "sympy/polys/polyutils.py",
+    "lines": "285-295",
+    "symbol": "_parallel_dict_from_expr_no_gens._is_coeff"
+   },
+   {
+    "file": "sympy/polys/polyutils.py",
+    "lines": "359-363",
+    "symbol": "_dict_from_expr_if_gens"
+   },
+   {
+    "file": "sympy/polys/polyutils.py",
+    "lines": "369-372",
+    "symbol": "_dict_from_expr_no_gens"
+   },
+   {
+    "file": "sympy/polys/polyutils.py",
+    "lines": "388-390",
+    "symbol": "_parallel_dict_from_expr"
+   },
+   {
+    "file": "sympy/polys/polyutils.py",
+    "lines": "409-413",
+    "symbol": "_dict_from_expr"
+   },
+   {
+    "file": "sympy/polys/tests/test_polyutils.py",
+    "lines": "301-318",
+    "symbol": "test_private_dict_from_expr_noncommutative"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/core/exprtools.py#_decompose_exprs",
+   "sympy/core/tests/test_exprtools.py#test__decompose_exprs",
+   "sympy/polys/polyutils.py#_dict_from_expr",
+   "sympy/polys/polyutils.py#_dict_from_expr_if_gens",
+   "sympy/polys/polyutils.py#_dict_from_expr_no_gens",
+   "sympy/polys/polyutils.py#_parallel_dict_from_expr",
+   "sympy/polys/polyutils.py#_parallel_dict_from_expr_if_gens",
+   "sympy/polys/polyutils.py#_parallel_dict_from_expr_no_gens",
+   "sympy/polys/polyutils.py#_parallel_dict_from_expr_no_gens._is_coeff",
+   "sympy/polys/tests/test_polyutils.py#test_private_dict_from_expr_noncommutative",
+   "sympy/core/exprtools.py",
+   "sympy/core/tests/test_exprtools.py",
+   "sympy/polys/polyutils.py",
+   "sympy/polys/tests/test_polyutils.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "_decompose_exprs raises NonCommutativeExpression",
+    "path": [
+     "sympy/core/exprtools.py:323 raise NonCommutativeExpression",
+     "sympy/polys/polyutils.py:300 _parallel_dict_from_expr_no_gens catches NonCommutativeExpression, raises PolynomialError",
+     "sympy/polys/polytools.py:7740 cancel catches PolynomialError, raises PolynomialError",
+     "sympy/integrals/integrals.py:1100 Integral._eval_integral catches PolynomialError, handles it"
+    ],
+    "to": "2 handlers catch PolynomialError; first is Integral._eval_integral"
+   },
+   {
+    "evidence": "static source path",
+    "from": "_parallel_dict_from_expr raises PolynomialError",
+    "path": [
+     "sympy/polys/polyutils.py:390 raise PolynomialError",
+     "sympy/concrete/summations.py:1519 eval_sum_residue.match_rational catches PolynomialError, handles it"
+    ],
+    "to": "6 handlers catch PolynomialError; first is eval_sum_residue.match_rational"
+   },
+   {
+    "evidence": "static source path",
+    "from": "_parallel_dict_from_expr_no_gens raises PolynomialError",
+    "path": [
+     "sympy/polys/polyutils.py:301 raise PolynomialError",
+     "sympy/concrete/summations.py:1519 eval_sum_residue.match_rational catches PolynomialError, handles it"
+    ],
+    "to": "5 handlers catch PolynomialError; first is eval_sum_residue.match_rational"
+   },
+   {
+    "evidence": "static source path",
+    "from": "_parallel_dict_from_expr_no_gens return changed",
+    "path": [
+     "sympy/polys/polyutils.py:355 return",
+     "sympy/polys/polyutils.py:373 _dict_from_expr_no_gens uses the result",
+     "sympy/polys/polyutils.py:393 _parallel_dict_from_expr uses the result"
+    ],
+    "to": "2 caller(s) use the result"
+   },
+   {
+    "evidence": "static source path",
+    "from": "_decompose_exprs return changed",
+    "path": [
+     "sympy/core/exprtools.py:358 return",
+     "sympy/polys/polyutils.py:299 _parallel_dict_from_expr_no_gens uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 2,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 672,
+   "ran": 672,
+   "replayed": 2,
+   "runner": "pytest",
+   "seconds": 150.7,
+   "selection": {
+    "candidates": 12908,
+    "closure_files": 1321,
+    "closure_tests": 12905,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 3
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "12236 lower-ranked candidate(s) not run: about 3 tests/s per process fit 672 in the 300 s allowed",
+   "80827 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "graph reused from the previous state; 21 changed file(s) relinked"
+  ],
+  "impacted": {
+   "count": 2864,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1607,
+   "parsed_files": 5
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "unloadable",
+    "head": "passed",
+    "id": "sympy/core/tests/test_exprtools.py::test__decompose_exprs",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/polys/tests/test_polyutils.py::test_private_dict_from_expr_noncommutative",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "8c11785454ff",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [
+    "sympy/polys/polyutils.py#_dict_from_expr",
+    "sympy/polys/polyutils.py#_dict_from_expr_if_gens",
+    "sympy/polys/polyutils.py#_dict_from_expr_no_gens",
+    "sympy/polys/polyutils.py#_parallel_dict_from_expr",
+    "sympy/polys/polyutils.py#_parallel_dict_from_expr_if_gens",
+    "sympy/polys/polyutils.py#_parallel_dict_from_expr_no_gens"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 30,
+   "differences": 0,
+   "functions_called": 6,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "sympy/core/exprtools.py#_decompose_exprs": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/core/tests/test_exprtools.py#test__decompose_exprs": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/polys/polyutils.py#_parallel_dict_from_expr_no_gens._is_coeff": "not a module or class function on both sides (new, removed or nested)",
+    "sympy/polys/tests/test_polyutils.py#test_private_dict_from_expr_noncommutative": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 27.9,
+   "targets": 6,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 672 of 672 candidate tests after the change with pytest in 150.7 s, failures confirmed before it: 0 now fail. 3118 tests reach the change. 2 test(s) the change adds or edits replayed on the code before it: 2 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/polys/tests/test_polyutils.py::test_private_dict_from_expr_noncommutative",
+    "line": 301,
+    "run": "python -m pytest sympy/polys/tests/test_polyutils.py::test_private_dict_from_expr_noncommutative",
+    "score": 16.147,
+    "why": "calls _dict_from_expr (name: dict,expr,polyutil)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_polyutils.py::test__dict_from_expr_no_gens",
+    "line": 249,
+    "run": "python -m pytest sympy/polys/tests/test_polyutils.py::test__dict_from_expr_no_gens",
+    "score": 3.786,
+    "why": "via dict_from_expr > _dict_from_expr (name: dict,expr,polyutil)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_polyutils.py::test__parallel_dict_from_expr_no_gens",
+    "line": 284,
+    "run": "python -m pytest sympy/polys/tests/test_polyutils.py::test__parallel_dict_from_expr_no_gens",
+    "score": 3.301,
+    "why": "via parallel_dict_from_expr > _parallel_dict_from_expr (name: dict,expr,parallel,polyutil)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_polyutils.py::test__dict_from_expr_if_gens",
+    "line": 198,
+    "run": "python -m pytest sympy/polys/tests/test_polyutils.py::test__dict_from_expr_if_gens",
+    "score": 2.955,
+    "why": "via dict_from_expr > _dict_from_expr (name: dict,expr,polyutil)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_exprtools.py::test__decompose_exprs",
+    "line": 32,
+    "run": "python -m pytest sympy/core/tests/test_exprtools.py::test__decompose_exprs",
+    "score": 2.657,
+    "why": "calls _decompose_exprs (name: decompose,expr,exprtool)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_polyutils.py::test__parallel_dict_from_expr_if_gens",
+    "line": 279,
+    "run": "python -m pytest sympy/polys/tests/test_polyutils.py::test__parallel_dict_from_expr_if_gens",
+    "score": 2.406,
+    "why": "via parallel_dict_from_expr > _parallel_dict_from_expr (name: dict,expr,parallel,polyutil)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_polyutils.py::test_dict_from_expr",
+    "line": 321,
+    "run": "python -m pytest sympy/polys/tests/test_polyutils.py::test_dict_from_expr",
+    "score": 2.204,
+    "why": "via dict_from_expr > _dict_from_expr (name: dict,expr,polyutil)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_polyutils.py::test_parallel_dict_from_expr",
+    "line": 294,
+    "run": "python -m pytest sympy/polys/tests/test_polyutils.py::test_parallel_dict_from_expr",
+    "score": 1.908,
+    "why": "via parallel_dict_from_expr > _parallel_dict_from_expr (name: dict,expr,parallel,polyutil)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_issue_18894",
+    "line": 2110,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_issue_18894",
+    "score": 0.959,
+    "why": "via sring > _parallel_dict_from_expr"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement_from_expr",
+    "line": 485,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement_from_expr",
+    "score": 0.918,
+    "why": "via sring > _parallel_dict_from_expr (name: expr)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_sring",
+    "line": 321,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_sring",
+    "score": 0.866,
+    "why": "via sring > _parallel_dict_from_expr"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_polytools.py::test_parallel_poly_from_expr",
+    "line": 1750,
+    "run": "python -m pytest sympy/polys/tests/test_polytools.py::test_parallel_poly_from_expr",
+    "score": 0.693,
+    "why": "via parallel_poly_from_expr > _parallel_poly_from_expr > _parallel_dict_from_expr (name: expr,parallel)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_rings.py::test_PolyElement_symmetrize",
+    "line": 1684,
+    "run": "python -m pytest sympy/polys/tests/test_rings.py::test_PolyElement_symmetrize",
+    "score": 0.645,
+    "why": "via sring > _parallel_dict_from_expr"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_fields.py::test_sfield",
+    "line": 38,
+    "run": "python -m pytest sympy/polys/tests/test_fields.py::test_sfield",
+    "score": 0.626,
+    "why": "via sfield > _parallel_dict_from_expr"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_polytools.py::test_Poly_from_expr",
+    "line": 276,
+    "run": "python -m pytest sympy/polys/tests/test_polytools.py::test_Poly_from_expr",
+    "score": 0.594,
+    "why": "via Poly.from_expr > Poly._from_expr > _dict_from_expr (name: expr)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_expr.py::test_action_verbs",
+    "line": 1562,
+    "run": "python -m pytest sympy/core/tests/test_expr.py::test_action_verbs",
+    "score": 0.524,
+    "why": "via cancel > sring > _parallel_dict_from_expr (name: expr)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_polytools.py::test_reduced",
+    "line": 3673,
+    "run": "python -m pytest sympy/polys/tests/test_polytools.py::test_reduced",
+    "score": 0.509,
+    "why": "via GroebnerBasis.reduce > Poly._from_expr > _dict_from_expr"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/numberfields/tests/test_minpoly.py::test_minpoly_op_algebraic_element_not_impl",
+    "line": 479,
+    "run": "python -m pytest sympy/polys/numberfields/tests/test_minpoly.py::test_minpoly_op_algebraic_element_not_impl",
+    "score": 0.501,
+    "why": "via _minpoly_op_algebraic_element > dict_from_expr > _dict_from_expr"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test_rs_series_ConstantInExpr",
+    "line": 811,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_rs_series_ConstantInExpr",
+    "score": 0.47,
+    "why": "via rs_series > sring > _parallel_dict_from_expr (name: expr)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/functions/combinatorial/tests/test_comb_numbers.py::test_harmonic_rational",
+    "line": 254,
+    "run": "python -m pytest sympy/functions/combinatorial/tests/test_comb_numbers.py::test_harmonic_rational",
+    "score": 0.45,
+    "why": "via cancel > sring > _parallel_dict_from_expr"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_polytools.py::test_poly",
+    "line": 3889,
+    "run": "python -m pytest sympy/polys/tests/test_polytools.py::test_poly",
+    "score": 0.423,
+    "why": "via poly > poly._poly > Poly._from_expr > _dict_from_expr"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/tests/test_polysys.py::test_solve_biquadratic",
+    "line": 105,
+    "run": "python -m pytest sympy/solvers/tests/test_polysys.py::test_solve_biquadratic",
+    "score": 0.417,
+    "why": "via parallel_poly_from_expr > _parallel_poly_from_expr > _parallel_dict_from_expr"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_monomials.py::test_Monomial",
+    "line": 206,
+    "run": "python -m pytest sympy/polys/tests/test_monomials.py::test_Monomial",
+    "score": 0.405,
+    "why": "via Monomial.__init__ > dict_from_expr > _dict_from_expr"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/stats/tests/test_finite_rv.py::test_binomial_symbolic",
+    "line": 289,
+    "run": "python -m pytest sympy/stats/tests/test_finite_rv.py::test_binomial_symbolic",
+    "score": 0.394,
+    "why": "via cancel > sring > _parallel_dict_from_expr"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_dispersion.py::test_dispersion",
+    "line": 8,
+    "run": "python -m pytest sympy/polys/tests/test_dispersion.py::test_dispersion",
+    "score": 0.393,
+    "why": "via poly > poly._poly > Poly._from_expr > _dict_from_expr"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_polytools.py::test_issue_17988",
+    "line": 4053,
+    "run": "python -m pytest sympy/polys/tests/test_polytools.py::test_issue_17988",
+    "score": 0.388,
+    "why": "via poly > poly._poly > Poly._from_expr > _dict_from_expr"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_polytools.py::test_groebner_reduce_scalar",
+    "line": 4317,
+    "run": "python -m pytest sympy/polys/tests/test_polytools.py::test_groebner_reduce_scalar",
+    "score": 0.379,
+    "why": "via GroebnerBasis.reduce > Poly._from_expr > _dict_from_expr"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_risch.py::test_bound_degree_limited_integrate",
+    "line": 804,
+    "run": "python -m pytest sympy/integrals/tests/test_risch.py::test_bound_degree_limited_integrate",
+    "score": 0.375,
+    "why": "via cancel > sring > _parallel_dict_from_expr"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_polytools.py::test_dispersion",
+    "line": 2187,
+    "run": "python -m pytest sympy/polys/tests/test_polytools.py::test_dispersion",
+    "score": 0.374,
+    "why": "via poly > poly._poly > Poly._from_expr > _dict_from_expr"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_polytools.py::test_cancel",
+    "line": 3446,
+    "run": "python -m pytest sympy/polys/tests/test_polytools.py::test_cancel",
+    "score": 0.37,
+    "why": "via cancel > sring > _parallel_dict_from_expr"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_polytools.py::test_issue_12400",
+    "line": 4023,
+    "run": "python -m pytest sympy/polys/tests/test_polytools.py::test_issue_12400",
+    "score": 0.37,
+    "why": "via poly > poly._poly > Poly._from_expr > _dict_from_expr"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/utilities/tests/test_pickling.py::test_pickling_polys_monomials",
+    "line": 551,
+    "run": "python -m pytest sympy/utilities/tests/test_pickling.py::test_pickling_polys_monomials",
+    "score": 0.366,
+    "why": "via Monomial.__init__ > dict_from_expr > _dict_from_expr"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/physics/mechanics/tests/test_wrapping_geometry.py::TestWrappingCone::test_geodesic_end_vectors",
+    "line": 417,
+    "run": "python -m pytest sympy/physics/mechanics/tests/test_wrapping_geometry.py::TestWrappingCone::test_geodesic_end_vectors",
+    "score": 0.365,
+    "why": "via cancel > sring > _parallel_dict_from_expr"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_risch.py::test_risch_integrate",
+    "line": 728,
+    "run": "python -m pytest sympy/integrals/tests/test_risch.py::test_risch_integrate",
+    "score": 0.355,
+    "why": "via cancel > sring > _parallel_dict_from_expr"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_meijerint.py::test_issue_22126",
+    "line": 782,
+    "run": "python -m pytest sympy/integrals/tests/test_meijerint.py::test_issue_22126",
+    "score": 0.352,
+    "why": "via cancel > sring > _parallel_dict_from_expr"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_polytools.py::test_noncommutative",
+    "line": 3977,
+    "run": "python -m pytest sympy/polys/tests/test_polytools.py::test_noncommutative",
+    "score": 0.346,
+    "why": "via cancel > sring > _parallel_dict_from_expr"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test_rs_series",
+    "line": 754,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_rs_series",
+    "score": 0.342,
+    "why": "via rs_series > sring > _parallel_dict_from_expr"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_polytools.py::test_transform",
+    "line": 2533,
+    "run": "python -m pytest sympy/polys/tests/test_polytools.py::test_transform",
+    "score": 0.336,
+    "why": "via cancel > sring > _parallel_dict_from_expr"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/polys/tests/test_ring_series.py::test_issue",
+    "line": 846,
+    "run": "python -m pytest sympy/polys/tests/test_ring_series.py::test_issue",
+    "score": 0.334,
+    "why": "via rs_series > sring > _parallel_dict_from_expr"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/integrals/tests/test_risch.py::test_integrate_primitive_nonelementary_residual",
+    "line": 792,
+    "run": "python -m pytest sympy/integrals/tests/test_risch.py::test_integrate_primitive_nonelementary_residual",
+    "score": 0.332,
+    "why": "via cancel > sring > _parallel_dict_from_expr"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/core/tests/test_exprtools.py",
+    "lines": "32-44",
+    "symbol": "test__decompose_exprs"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/polys/tests/test_polyutils.py",
+    "lines": "301-318",
+    "symbol": "test_private_dict_from_expr_noncommutative"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792332263.244837,
+  "job_seconds": 176.7,
+  "number": 30585,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 177.0,
+  "started": 1792332085.5805519
+ },
+ "verify": null
+}

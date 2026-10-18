@@ -1,0 +1,557 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "319ea7a6186edf88bc23d502917242b10314ae51",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "99edad2c3bd7130bf4c9ece009eec81c2d71dccb",
+  "install_ok": true,
+  "merge_base": "319ea7a6186edf88bc23d502917242b10314ae51",
+  "pr": 30687,
+  "recording": false,
+  "runner": null,
+  "seconds": 519.1,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "319ea7a6186edf88bc23d502917242b10314ae51",
+  "head_sha": "99edad2c3bd7130bf4c9ece009eec81c2d71dccb",
+  "merge_base": "319ea7a6186edf88bc23d502917242b10314ae51",
+  "merged_at": "2026-10-10T23:12:53Z",
+  "number": 30687,
+  "repo": "sympy",
+  "title": "use the D-finite recurrence for Stirling subset numbers in Touchard polynomials"
+ },
+ "probe_minutes": {
+  "end": 1792345174.7042089,
+  "minutes": 0.8,
+  "start": 1792344419.414745,
+  "waited": 704.9090970409889
+ },
+ "probe_targets": {
+  "all": 1,
+  "called": 0,
+  "targets": [
+   {
+    "after": "def _bell_poly_coeffs(n, prev):\n    i=n\n    return [1]+[a*(i:=i-1)+b for a,b in pairwise(prev[-1])]+[0]\n",
+    "before": "def _bell_poly_coeffs(n, prev):\n    s = [0]*(n-1) + [1,0]\n    a = 1\n    for k in range(1, n):\n        a = a * (n - k) // k\n        for i in range(k):\n            s[n-k-1+i] += a * prev[k][i]\n    return s\n",
+    "file": "sympy/functions/combinatorial/numbers.py",
+    "id": "sympy/functions/combinatorial/numbers.py#bell._bell_poly_coeffs",
+    "name": "_bell_poly_coeffs",
+    "qual": "bell._bell_poly_coeffs",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [],
+   "dollars_cap": 0.1,
+   "filter_seconds": 43.2,
+   "gaps": [],
+   "info": {
+    "accepted": 0,
+    "compiled": 1,
+    "cost": 0.0,
+    "differed": 0,
+    "dollars_cap": 0.1,
+    "functions": 1,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 1,
+    "ran": 1,
+    "reached": 1,
+    "requests": 1,
+    "seconds": 42.7,
+    "stable": 1
+   },
+   "probes": [
+    {
+     "call": "[str(bell(n, x)) for n in range(1, 10)]",
+     "function": "sympy/functions/combinatorial/numbers.py#bell._bell_poly_coeffs",
+     "setup": "from sympy import bell, symbols\nx = symbols('x')",
+     "why": "Touchard polynomials from the new recurrence; the refactor should keep them"
+    }
+   ],
+   "targets": [
+    "sympy/functions/combinatorial/numbers.py#bell._bell_poly_coeffs"
+   ],
+   "waited_seconds": 704.9
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "changed_functions": [
+   {
+    "file": "sympy/functions/combinatorial/numbers.py",
+    "lines": "721-722",
+    "symbol": "bell._bell_poly_coeffs"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/functions/combinatorial/numbers.py#bell._bell_poly_coeffs",
+   "sympy/functions/combinatorial/numbers.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "bell._bell_poly_coeffs return changed",
+    "path": [
+     "sympy/functions/combinatorial/numbers.py:722 return",
+     "sympy/functions/combinatorial/numbers.py:726 bell._bell_poly uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 0,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 1632,
+   "ran": 1632,
+   "replayed": 0,
+   "runner": "pytest",
+   "seconds": 324.3,
+   "selection": {
+    "candidates": 12936,
+    "closure_files": 1321,
+    "closure_tests": 12934,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 2
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "11304 lower-ranked candidate(s) not run: about 7 tests/s per process fit 1632 in the 300 s allowed",
+   "63967 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "side-by-side: none of the 1 changed function(s) was called by the tests run on the code before the change"
+  ],
+  "impacted": {
+   "count": 664,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1607,
+   "parsed_files": 1
+  },
+  "predicted_failures": [],
+  "report_hash": "d6a2bb9693f4",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 0,
+   "differences": 0,
+   "functions_called": 0,
+   "input_built_before_the_change": 0,
+   "not_compared": {},
+   "seconds": 71.9,
+   "targets": 1,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 1632 of 1632 candidate tests after the change with pytest in 324.3 s, failures confirmed before it: 0 now fail. 1797 tests reach the change.",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/combinatorial/tests/test_comb_numbers.py::test_motzkin",
+    "line": 1174,
+    "run": "python -m pytest sympy/functions/combinatorial/tests/test_comb_numbers.py::test_motzkin",
+    "score": 0.304,
+    "why": "via bell.eval > bell._bell_poly > bell._bell_poly_coeffs (name: number)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/tests/test_secondquant.py::test_commutation",
+    "line": 236,
+    "run": "python -m pytest sympy/physics/tests/test_secondquant.py::test_commutation",
+    "score": 0.112,
+    "why": "via bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/strategies/tests/test_rl.py::test_rebuild",
+    "line": 77,
+    "run": "python -m pytest sympy/strategies/tests/test_rl.py::test_rebuild",
+    "score": 0.057,
+    "why": "via Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/strategies/tests/test_traverse.py::test_expr_fns",
+    "line": 80,
+    "run": "python -m pytest sympy/strategies/tests/test_traverse.py::test_expr_fns",
+    "score": 0.051,
+    "why": "via Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/quantum/tests/test_sho1d.py::test_NumberOp",
+    "line": 102,
+    "run": "python -m pytest sympy/physics/quantum/tests/test_sho1d.py::test_NumberOp",
+    "score": 0.047,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs (name: number)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/sets/tests/test_fancysets.py::test_Range_set",
+    "line": 200,
+    "run": "python -m pytest sympy/sets/tests/test_fancysets.py::test_Range_set",
+    "score": 0.038,
+    "why": "via Relational.reversed > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_numbers.py::test_Rational_new",
+    "line": 330,
+    "run": "python -m pytest sympy/core/tests/test_numbers.py::test_Rational_new",
+    "score": 0.033,
+    "why": "via Rational.from_coprime_ints > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs (name: number)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_numbers.py::test_mpf_norm",
+    "line": 1930,
+    "run": "python -m pytest sympy/core/tests/test_numbers.py::test_mpf_norm",
+    "score": 0.031,
+    "why": "via Float._new > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs (name: number)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/combinatorial/tests/test_comb_numbers.py::test_catalan",
+    "line": 441,
+    "run": "python -m pytest sympy/functions/combinatorial/tests/test_comb_numbers.py::test_catalan",
+    "score": 0.03,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs (name: number)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/combinatorial/tests/test_comb_numbers.py::test_euler_polynomial_rewrite",
+    "line": 435,
+    "run": "python -m pytest sympy/functions/combinatorial/tests/test_comb_numbers.py::test_euler_polynomial_rewrite",
+    "score": 0.029,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs (name: number)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/combinatorial/tests/test_comb_numbers.py::test_harmonic_rational",
+    "line": 254,
+    "run": "python -m pytest sympy/functions/combinatorial/tests/test_comb_numbers.py::test_harmonic_rational",
+    "score": 0.028,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs (name: number)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_sums_products.py::test_arithmetic_sums",
+    "line": 235,
+    "run": "python -m pytest sympy/concrete/tests/test_sums_products.py::test_arithmetic_sums",
+    "score": 0.026,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_sums_products.py::test_indexed_idx_sum",
+    "line": 1053,
+    "run": "python -m pytest sympy/concrete/tests/test_sums_products.py::test_indexed_idx_sum",
+    "score": 0.026,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_arit.py::test_Mod",
+    "line": 1835,
+    "run": "python -m pytest sympy/core/tests/test_arit.py::test_Mod",
+    "score": 0.025,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_diff.py::test_diff_nth_derivative",
+    "line": 116,
+    "run": "python -m pytest sympy/core/tests/test_diff.py::test_diff_nth_derivative",
+    "score": 0.024,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_exprtools.py::test_issue_17256",
+    "line": 519,
+    "run": "python -m pytest sympy/core/tests/test_exprtools.py::test_issue_17256",
+    "score": 0.024,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/functions/elementary/tests/test_piecewise.py::test_issue_8919",
+    "line": 1262,
+    "run": "python -m pytest sympy/functions/elementary/tests/test_piecewise.py::test_issue_8919",
+    "score": 0.024,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/quantum/tests/test_boson.py::test_boson_states",
+    "line": 34,
+    "run": "python -m pytest sympy/physics/quantum/tests/test_boson.py::test_boson_states",
+    "score": 0.023,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/quantum/tests/test_sho1d.py::test_Hamiltonian",
+    "line": 115,
+    "run": "python -m pytest sympy/physics/quantum/tests/test_sho1d.py::test_Hamiltonian",
+    "score": 0.023,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/quantum/tests/test_sho1d.py::test_LoweringOp",
+    "line": 90,
+    "run": "python -m pytest sympy/physics/quantum/tests/test_sho1d.py::test_LoweringOp",
+    "score": 0.023,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/quantum/tests/test_sho1d.py::test_RaisingOp",
+    "line": 58,
+    "run": "python -m pytest sympy/physics/quantum/tests/test_sho1d.py::test_RaisingOp",
+    "score": 0.023,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/tests/test_secondquant.py::test_sho",
+    "line": 221,
+    "run": "python -m pytest sympy/physics/tests/test_secondquant.py::test_sho",
+    "score": 0.023,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/tests/test_sho.py::test_sho_R_nl",
+    "line": 7,
+    "run": "python -m pytest sympy/physics/tests/test_sho.py::test_sho_R_nl",
+    "score": 0.022,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_lambdarepr.py::test_multiple_sums",
+    "line": 181,
+    "run": "python -m pytest sympy/printing/tests/test_lambdarepr.py::test_multiple_sums",
+    "score": 0.022,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_lambdarepr.py::test_sum__1",
+    "line": 158,
+    "run": "python -m pytest sympy/printing/tests/test_lambdarepr.py::test_sum__1",
+    "score": 0.022,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_lambdarepr.py::test_sum__2",
+    "line": 170,
+    "run": "python -m pytest sympy/printing/tests/test_lambdarepr.py::test_sum__2",
+    "score": 0.022,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/series/tests/test_series.py::test_issue_5223",
+    "line": 43,
+    "run": "python -m pytest sympy/series/tests/test_series.py::test_issue_5223",
+    "score": 0.022,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/sets/tests/test_fancysets.py::test_ImageSet",
+    "line": 97,
+    "run": "python -m pytest sympy/sets/tests/test_fancysets.py::test_ImageSet",
+    "score": 0.022,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_simplify.py::test_nc_simplify",
+    "line": 844,
+    "run": "python -m pytest sympy/simplify/tests/test_simplify.py::test_nc_simplify",
+    "score": 0.022,
+    "why": "via test_nc_simplify._check > NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/stats/tests/test_continuous_rv.py::test_long_precomputed_cdf",
+    "line": 1512,
+    "run": "python -m pytest sympy/stats/tests/test_continuous_rv.py::test_long_precomputed_cdf",
+    "score": 0.022,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/stats/tests/test_stochastic_process.py::test_DiscreteMarkovChain",
+    "line": 40,
+    "run": "python -m pytest sympy/stats/tests/test_stochastic_process.py::test_DiscreteMarkovChain",
+    "score": 0.022,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_contraction_single_index_size_one_axis",
+    "line": 1043,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_contraction_single_index_size_one_axis",
+    "score": 0.022,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_diagonal_trivial_diags_doit_as_explicit",
+    "line": 1067,
+    "run": "python -m pytest sympy/tensor/array/expressions/tests/test_array_expressions.py::test_arrayexpr_diagonal_trivial_diags_doit_as_explicit",
+    "score": 0.022,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/vector/tests/test_operators.py::test_christoffel_symbol_2nd_kind_cylindrical_system",
+    "line": 50,
+    "run": "python -m pytest sympy/vector/tests/test_operators.py::test_christoffel_symbol_2nd_kind_cylindrical_system",
+    "score": 0.022,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/vector/tests/test_operators.py::test_christoffel_symbol_2nd_kind_spherical_system",
+    "line": 69,
+    "run": "python -m pytest sympy/vector/tests/test_operators.py::test_christoffel_symbol_2nd_kind_spherical_system",
+    "score": 0.022,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_products.py::test_KroneckerDelta_Product",
+    "line": 399,
+    "run": "python -m pytest sympy/concrete/tests/test_products.py::test_KroneckerDelta_Product",
+    "score": 0.016,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_products.py::test_conjugate_transpose",
+    "line": 262,
+    "run": "python -m pytest sympy/concrete/tests/test_products.py::test_conjugate_transpose",
+    "score": 0.016,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_products.py::test_issue_13546",
+    "line": 382,
+    "run": "python -m pytest sympy/concrete/tests/test_products.py::test_issue_13546",
+    "score": 0.016,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_products.py::test_issue_20848",
+    "line": 404,
+    "run": "python -m pytest sympy/concrete/tests/test_products.py::test_issue_20848",
+    "score": 0.016,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/concrete/tests/test_products.py::test_issue_9983",
+    "line": 375,
+    "run": "python -m pytest sympy/concrete/tests/test_products.py::test_issue_9983",
+    "score": 0.016,
+    "why": "via NO.doit > Application.__new__ > bell.eval > bell._bell_poly > bell._bell_poly_coeffs"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792344360.5761862,
+  "job_seconds": 519.1,
+  "number": 30687,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 519.3,
+  "started": 1792343839.04529
+ },
+ "verify": null
+}

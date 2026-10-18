@@ -1,0 +1,711 @@
+{
+ "side_by_side": {
+  "django/21357": [
+   {
+    "target": "now",
+    "label": "real, intended",
+    "why": "the {% now %} tag keeps a FilterExpression (format_expr) so variables work, as the PR adds"
+   },
+   {
+    "target": "NowNode.__init__",
+    "label": "real, intended",
+    "why": "NowNode stores format_expr instead of format_string"
+   },
+   {
+    "target": "now",
+    "label": "real, intended",
+    "why": "same, second quoting style"
+   },
+   {
+    "target": "NowNode.__init__",
+    "label": "real, intended",
+    "why": "same, second quoting style"
+   }
+  ],
+  "django/21736": [
+   {
+    "target": "EmailValidator.validate_domain_part",
+    "label": "real, intended",
+    "why": "validate_domain_part is deprecated by the PR; under Django's runner the RemovedInDjango2029Warning is raised"
+   }
+  ],
+  "django/21975": [
+   {
+    "target": "RelatedPopulator.__init__",
+    "label": "real, intended",
+    "why": "starts a peers list for FETCH_PEERS batching, as the PR says"
+   },
+   {
+    "target": "RelatedPopulator.__init__",
+    "label": "real, intended",
+    "why": "same, second relation"
+   }
+  ],
+  "django/22039": [
+   {
+    "target": "DebugLexer.tokenize",
+    "label": "artifact",
+    "why": "the PR deletes DebugLexer._tag_re_split and adds Lexer._tag_re_split; the as-changed run keeps the deleted subclass method, so the new tokenize calls the old splitter and verbatim content comes out as Block tokens"
+   },
+   {
+    "target": "DebugLexer.tokenize",
+    "label": "artifact",
+    "why": "same cause"
+   },
+   {
+    "target": "Lexer.__repr__",
+    "label": "real, intended",
+    "why": "repr no longer shows verbatim=, the PR's edited test asserts it"
+   },
+   {
+    "target": "Lexer.__repr__",
+    "label": "real, intended",
+    "why": "same, DebugLexer instance"
+   }
+  ],
+  "sympy/30469": [
+   {
+    "target": "_get_doctest_blacklist",
+    "label": "real, intended",
+    "why": "the docs PR adds doc/src/modules/diffgeom.rst to the doctest blacklist"
+   }
+  ],
+  "sympy/30715": [
+   {
+    "target": "dpll_satisfiable",
+    "label": "artifact",
+    "why": "the outcomes differ only in a generator's qualified name: the as-changed copy is defined inside side-by-side's __amu_outer__ wrapper, so its nested _all_models shows as __amu_outer__.<locals>._all_models"
+   },
+   {
+    "target": "dpll_satisfiable",
+    "label": "artifact",
+    "why": "the as-changed run raises TypeError 'NoneType' object is not callable; the real head does not (the PR's own replayed test_issue_30714 calls satisfiable(..., algorithm='dpll2') and passes on the head). Cause inside side-by-side not isolated"
+   },
+   {
+    "target": "to_NNF",
+    "label": "real, intended",
+    "why": "S.true becomes an empty AND() instead of Literal(True), the PR's fix"
+   },
+   {
+    "target": "dpll_satisfiable",
+    "label": "artifact",
+    "why": "same TypeError as above"
+   },
+   {
+    "target": "dpll_satisfiable",
+    "label": "artifact",
+    "why": "same TypeError as above"
+   },
+   {
+    "target": "dpll_satisfiable",
+    "label": "artifact",
+    "why": "same TypeError as above"
+   }
+  ]
+ },
+ "probes": {
+  "django/20817": [
+   {
+    "target": "django/db/backends/base/schema.py#BaseDatabaseSchemaEditor._alter_field",
+    "label": "intended",
+    "why": "both sides raise TypeError in a mocked SQLite setup; which path runs (column type vs comment only) is what the PR changes"
+   }
+  ],
+  "django/21610": [
+   {
+    "target": "tests/mail/tests.py#MailAdminsAndManagersTests.test_wrong_admins_managers",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "django/21801": [
+   {
+    "target": "django/db/backends/base/schema.py#BaseDatabaseSchemaEditor._alter_field",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "django/21805": [
+   {
+    "target": "django/conf/__init__.py#UserSettingsHolder.__setattr__",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/core/mail/__init__.py#get_connection",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/core/mail/__init__.py#send_mail",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/core/mail/__init__.py#send_mass_mail",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/core/mail/backends/base.py#BaseEmailBackend.__init__",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/core/mail/message.py#EmailMessage.__init__",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/core/paginator.py#BasePaginator.__init__",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/core/mail/message.py#EmailMessage.send",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/core/signing.py#base64_hmac",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/db/models/query.py#QuerySet.values_list",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/db/models/query.py#QuerySet.select_related",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/http/response.py#JsonResponse.__init__",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/db/models/sql/compiler.py#SQLCompiler.quote_name_unless_alias",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/utils/crypto.py#salted_hmac",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/utils/html.py#Urlizer.handle_word",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/conf/__init__.py#LazySettings.configure",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/conf/__init__.py#Settings.__init__",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/core/mail/__init__.py#_send_server_message",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/core/mail/__init__.py#__getattr__",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/core/mail/backends/base.py#BaseEmailBackend.__getattr__",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/core/mail/backends/smtp.py#EmailBackend.__init__",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/core/mail/deprecation.py#warn_about_default_mailers_if_needed",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/core/mail/handler.py#MailersHandler.create_connection",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/core/mail/message.py#forbid_multi_line_headers",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/core/mail/message.py#sanitize_address",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/core/mail/message.py#EmailMessage.connection",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/core/mail/message.py#EmailMessage.attach",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/db/models/sql/query.py#Query.check_alias",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/db/transaction.py#savepoint",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/template/base.py#Parser.parse",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/utils/log.py#AdminEmailHandler.send_mail",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "tests/mail/test_backends.py#SMTPBackendTests.test_port_default_adapts_to_security",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "django/21861": [
+   {
+    "target": "tests/basic/tests.py#ModelTest.test_eq",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "django/21872": [
+   {
+    "target": "django/utils/inspect.py#func_supports_parameter",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "tests/utils_tests/test_inspect.py#TestInspectMethods.test_func_supports_parameter",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "django/21971": [
+   {
+    "target": "django/db/models/functions/json.py#JSONArray.as_postgresql",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "django/db/models/functions/json.py#JSONObject.as_postgresql",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "django/22039": [
+   {
+    "target": "tests/template_tests/test_parser.py#ParserTests.test_repr",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "django/22057": [
+   {
+    "target": "django/db/models/functions/uuid.py#UUID4.as_oracle",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "django/22094": [
+   {
+    "target": "tests/model_fields/test_jsonfield.py#TestQuerying.test_in_value_explicit_output_field",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "django/22112": [
+   {
+    "target": "django/db/backends/oracle/base.py#OracleParam.__init__",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "django/22144": [
+   {
+    "target": "tests/cache/tests.py#CacheUtils.test_get_max_age_strips_whitespace",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "sympy/26912": [
+   {
+    "target": "sympy/core/tests/test_expr.py#test_as_base_exp",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/core/tests/test_power.py#test_pow_as_base_exp",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/simplify/tests/test_simplify.py#test_as_content_primitive",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/stats/drv_types.py#Logarithmic",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "sympy/28853": [
+   {
+    "target": "sympy/printing/pretty/tests/test_pretty.py#test_issue_15560",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "sympy/30396": [
+   {
+    "target": "sympy/printing/tests/test_pycode.py#test_array_printer",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/tensor/array/expressions/from_indexed_to_array.py#_convert_indexed_to_array",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "sympy/30428": [
+   {
+    "target": "sympy/physics/biomechanics/tests/test_curve.py#TestFiberForceLengthActiveDeGroote2016.test_derivative_print_code",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/printing/jscode.py#JavascriptCodePrinter._print_Mod",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/printing/mathematica.py#mathematica_code",
+    "label": "not intended (cosmetic)",
+    "why": "redundant parentheses around Mod[x, y] in a negated product: correct output, a side effect of the _print_Mul change that the PR neither describes nor tests"
+   },
+   {
+    "target": "sympy/printing/pycode.py#AbstractPythonCodePrinter._print_Mod",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/printing/tests/test_c.py#test_ccode_functions2",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/printing/tests/test_cxx.py#test_CXX17CodePrinter",
+    "label": "not intended (cosmetic)",
+    "why": "redundant parentheses around std::fmod(x, y) in a negated product: correct code, same side effect"
+   },
+   {
+    "target": "sympy/printing/tests/test_jscode.py#test_Mod",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/printing/tests/test_pycode.py#test_PythonCodePrinter",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "sympy/30471": [
+   {
+    "target": "sympy/interactive/printing.py#_init_ipython_printing",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "sympy/30511": [
+   {
+    "target": "sympy/assumptions/tests/test_refine.py#test_Abs",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "sympy/30540": [
+   {
+    "target": "sympy/solvers/solveset.py#nonlinsolve",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/solvers/solveset.py#_return_conditionset",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "sympy/30558": [
+   {
+    "target": "sympy/integrals/integrals.py#Integral.doit",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/integrals/tests/test_integrals.py#test_issue_8623",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/integrals/tests/test_integrals.py#test_issue_9569",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "sympy/30569": [
+   {
+    "target": "sympy/series/gruntz.py#gruntz",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/series/gruntz.py#mrv",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "sympy/30572": [
+   {
+    "target": "sympy/printing/latex.py#LatexPrinter._print_ElementwiseApplyFunction",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/printing/pretty/pretty.py#PrettyPrinter._print_ElementwiseApplyFunction",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "sympy/30589": [
+   {
+    "target": "sympy/core/relational.py#Relational._eval_simplify",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/core/relational.py#is_eq",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "sympy/30590": [
+   {
+    "target": "sympy/functions/elementary/hyperbolic.py#acoth.eval",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/functions/elementary/tests/test_hyperbolic.py#test_acoth",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/functions/elementary/tests/test_trigonometric.py#test_acot",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/functions/elementary/tests/test_trigonometric.py#test_evenodd_rewrite",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "sympy/30591": [
+   {
+    "target": "sympy/core/evalf.py#hypsum",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "sympy/30600": [
+   {
+    "target": "sympy/tensor/array/expressions/array_expressions.py#ArrayAdd.__new__",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/tensor/array/expressions/array_expressions.py#_array_add",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/tensor/array/expressions/from_array_to_indexed.py#_ConvertArrayToIndexed.do_convert",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/tensor/array/expressions/tests/test_array_expressions.py#test_array_expressions_no_canonicalization",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "sympy/30601": [
+   {
+    "target": "sympy/tensor/array/expressions/from_array_to_matrix.py#_a2m_add",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/tensor/array/expressions/from_array_to_matrix.py#_a2m_transpose",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "sympy/30605": [
+   {
+    "target": "sympy/simplify/tests/test_trigsimp.py#test_hyperbolic_simp",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/series/tests/test_series.py#test_issue_12791",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "sympy/30636": [
+   {
+    "target": "sympy/core/tests/test_exprtools.py#test_monotonic_sign",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "sympy/30642": [
+   {
+    "target": "sympy/core/tests/test_relational.py#test_is_eq",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "sympy/30667": [
+   {
+    "target": "sympy/core/tests/test_assumptions.py#test_Pow_is_algebraic",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "sympy/30673": [
+   {
+    "target": "sympy/polys/tests/test_polytools.py#test_Poly_nth",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "sympy/30680": [
+   {
+    "target": "sympy/polys/euclidtools.py#dup_ff_lcm",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/polys/euclidtools.py#dmp_rr_lcm",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/polys/euclidtools.py#dmp_ff_lcm",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/polys/rings.py#PolyElement.lcm",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/polys/tests/test_euclidtools.py#test_dup_lcm",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/polys/tests/test_euclidtools.py#test_dmp_lcm",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/polys/tests/test_rings.py#test_PolyElement_lcm",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "sympy/30684": [
+   {
+    "target": "sympy/interactive/session.py#int_to_Integer",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/interactive/session.py#enable_automatic_int_sympification",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "sympy/30699": [
+   {
+    "target": "sympy/polys/ring_series.py#rs_nth_root",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   },
+   {
+    "target": "sympy/polys/tests/test_ring_series.py#test_nth_root",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "sympy/30701": [
+   {
+    "target": "sympy/testing/runtests_pytest.py#update_args_with_paths",
+    "label": "artifact",
+    "why": "the outcome is the tree's own absolute path (c1-base vs c1-head): it differs only by where the copy lives, which the filter's step 5 cannot tell from a behaviour change"
+   }
+  ],
+  "sympy/30702": [
+   {
+    "target": "sympy/solvers/ode/ode.py#_helper_simplify",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "sympy/30748": [
+   {
+    "target": "sympy/polys/specialpolys.py#swinnerton_dyer_poly",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ],
+  "sympy/30752": [
+   {
+    "target": "sympy/functions/elementary/tests/test_exponential.py#test_log_assumptions",
+    "label": "intended",
+    "why": "the difference is the change the pull request describes or its edited tests assert"
+   }
+  ]
+ }
+}

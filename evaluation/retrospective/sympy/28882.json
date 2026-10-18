@@ -1,0 +1,500 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "c169dc6c618c091c38283abc7d20fcc3033ad70c",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "3c00ff7d631cab00ae234f9530336528b6e5bde5",
+  "install_ok": true,
+  "merge_base": "c169dc6c618c091c38283abc7d20fcc3033ad70c",
+  "pr": 28882,
+  "recording": false,
+  "runner": null,
+  "seconds": 427.9,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "c169dc6c618c091c38283abc7d20fcc3033ad70c",
+  "head_sha": "3c00ff7d631cab00ae234f9530336528b6e5bde5",
+  "merge_base": "c169dc6c618c091c38283abc7d20fcc3033ad70c",
+  "merged_at": "2026-09-25T07:27:09Z",
+  "number": 28882,
+  "repo": "sympy",
+  "title": "docs: Clarify trigsimp behavior and suggest fu module for targeted simplification"
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 1,
+  "called": 1,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "changed_functions": [
+   {
+    "file": "sympy/simplify/trigsimp.py",
+    "lines": "467-552",
+    "symbol": "trigsimp"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/simplify/trigsimp.py#trigsimp"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 0,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 3168,
+   "ran": 1240,
+   "replayed": 0,
+   "runner": "pytest",
+   "seconds": 420.0,
+   "selection": {
+    "candidates": 12904,
+    "closure_files": 1321,
+    "closure_tests": 12902,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 2
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "73984 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "9736 lower-ranked candidate(s) not run: about 13 tests/s per process fit 3168 in the 300 s allowed",
+   "Skipped 1 non-Python file(s)",
+   "graph reused from the previous state; 22 changed file(s) relinked",
+   "shadow run stopped at its 300 s budget: 1240 of 3168 candidates run",
+   "side-by-side run stopped at its time limit; calls captured until then are compared"
+  ],
+  "impacted": {
+   "count": 2818,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1607,
+   "parsed_files": 1
+  },
+  "predicted_failures": [],
+  "report_hash": "764b25a2b5c0",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [
+    "sympy/simplify/trigsimp.py#trigsimp"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 5,
+   "differences": 0,
+   "functions_called": 1,
+   "input_built_before_the_change": 0,
+   "not_compared": {},
+   "seconds": 120.0,
+   "targets": 1,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 1240 of 3168 candidate tests after the change with pytest in 420.0 s, failures confirmed before it: 0 now fail. 3599 tests reach the change.",
+  "tests": [
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_issue_2827_trigsimp_methods",
+    "line": 365,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_issue_2827_trigsimp_methods",
+    "score": 3.15,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_old",
+    "line": 474,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_trigsimp_old",
+    "score": 1.95,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_groebner",
+    "line": 335,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_trigsimp_groebner",
+    "score": 1.351,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_issue_4661",
+    "line": 111,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_issue_4661",
+    "score": 1.065,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp1",
+    "line": 26,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_trigsimp1",
+    "score": 0.919,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_hyperbolic_simp",
+    "line": 276,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_hyperbolic_simp",
+    "score": 0.845,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_Piecewise",
+    "line": 457,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_Piecewise",
+    "score": 0.806,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_issue_4280",
+    "line": 141,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_issue_4280",
+    "score": 0.784,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_issue_4373",
+    "line": 92,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_issue_4373",
+    "score": 0.774,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_issue_4494",
+    "line": 123,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_issue_4494",
+    "score": 0.769,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_issue_4775",
+    "line": 135,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_issue_4775",
+    "score": 0.766,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_issue_5948",
+    "line": 129,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_issue_5948",
+    "score": 0.765,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_issue_6811_fail",
+    "line": 446,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_issue_6811_fail",
+    "score": 0.764,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp2",
+    "line": 82,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_trigsimp2",
+    "score": 0.764,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp3",
+    "line": 97,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_trigsimp3",
+    "score": 0.764,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_inverse",
+    "line": 513,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_trigsimp_inverse",
+    "score": 0.764,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issue_2515",
+    "line": 221,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issue_2515",
+    "score": 0.764,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issues",
+    "line": 168,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issues",
+    "score": 0.764,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_noncommutative",
+    "line": 241,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_trigsimp_noncommutative",
+    "score": 0.764,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_noncommutative.py::test_trigsimp",
+    "line": 134,
+    "run": "python -m pytest sympy/core/tests/test_noncommutative.py::test_trigsimp",
+    "score": 0.762,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/core/tests/test_relational.py::test_trigsimp",
+    "line": 1126,
+    "run": "python -m pytest sympy/core/tests/test_relational.py::test_trigsimp",
+    "score": 0.762,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_issue_15129_trigsimp_methods",
+    "line": 383,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_issue_15129_trigsimp_methods",
+    "score": 0.762,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_issue_3210",
+    "line": 148,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_issue_3210",
+    "score": 0.762,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp1a",
+    "line": 67,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_trigsimp1a",
+    "score": 0.762,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issue_4032",
+    "line": 231,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issue_4032",
+    "score": 0.761,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issue_3826",
+    "line": 227,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issue_3826",
+    "score": 0.756,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issue_7761",
+    "line": 237,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issue_7761",
+    "score": 0.756,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_exptrigsimp",
+    "line": 392,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_exptrigsimp",
+    "score": 0.459,
+    "why": "via simplify > trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_issue_21594",
+    "line": 470,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_issue_21594",
+    "score": 0.456,
+    "why": "via simplify > trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/algebras/tests/test_quaternion.py::test_quaternion_rotation_iss1593",
+    "line": 325,
+    "run": "python -m pytest sympy/algebras/tests/test_quaternion.py::test_quaternion_rotation_iss1593",
+    "score": 0.289,
+    "why": "calls trigsimp"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/vector/tests/test_coordsysrect.py::test_change_of_basis_matrix_from_trigsimp",
+    "line": 663,
+    "run": "python -m pytest sympy/vector/tests/test_coordsysrect.py::test_change_of_basis_matrix_from_trigsimp",
+    "score": 0.276,
+    "why": "via CoordSys3D.orient_new_axis > CoordSys3D.orient_new > trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/physics/mechanics/tests/test_lagrange.py::test_rolling_disc",
+    "line": 207,
+    "run": "python -m pytest sympy/physics/mechanics/tests/test_lagrange.py::test_rolling_disc",
+    "score": 0.274,
+    "why": "calls trigsimp"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/physics/mechanics/tests/test_jointsmethod.py::test_complete_simple_double_pendulum",
+    "line": 80,
+    "run": "python -m pytest sympy/physics/mechanics/tests/test_jointsmethod.py::test_complete_simple_double_pendulum",
+    "score": 0.273,
+    "why": "calls trigsimp"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/physics/mechanics/tests/test_kane2.py::test_non_central_inertia",
+    "line": 227,
+    "run": "python -m pytest sympy/physics/mechanics/tests/test_kane2.py::test_non_central_inertia",
+    "score": 0.268,
+    "why": "calls trigsimp"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/matrices/tests/test_matrices.py::test_matrix_norm",
+    "line": 2129,
+    "run": "python -m pytest sympy/matrices/tests/test_matrices.py::test_matrix_norm",
+    "score": 0.267,
+    "why": "calls trigsimp"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/algebras/tests/test_quaternion.py::test_quaternion_conversions",
+    "line": 280,
+    "run": "python -m pytest sympy/algebras/tests/test_quaternion.py::test_quaternion_conversions",
+    "score": 0.267,
+    "why": "calls trigsimp"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/algebras/tests/test_quaternion.py::test_to_euler_iss24504",
+    "line": 390,
+    "run": "python -m pytest sympy/algebras/tests/test_quaternion.py::test_to_euler_iss24504",
+    "score": 0.267,
+    "why": "calls trigsimp"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/physics/mechanics/tests/test_kane2.py::test_sub_qdot2",
+    "line": 414,
+    "run": "python -m pytest sympy/physics/mechanics/tests/test_kane2.py::test_sub_qdot2",
+    "score": 0.266,
+    "why": "calls trigsimp"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_expr.py::test_action_verbs",
+    "line": 1562,
+    "run": "python -m pytest sympy/core/tests/test_expr.py::test_action_verbs",
+    "score": 0.266,
+    "why": "calls trigsimp"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/integrals/tests/test_integrals.py::test_issue_4892b",
+    "line": 1189,
+    "run": "python -m pytest sympy/integrals/tests/test_integrals.py::test_issue_4892b",
+    "score": 0.265,
+    "why": "calls trigsimp"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792331101.9219232,
+  "job_seconds": 427.9,
+  "number": 28882,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 427.9,
+  "started": 1792330673.264364
+ },
+ "verify": null
+}

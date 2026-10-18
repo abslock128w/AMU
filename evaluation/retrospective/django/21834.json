@@ -1,0 +1,558 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "189136c2a3e166c59a49cca2444aa6a1d77aa136",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "5674cf0500c2559cd746091098923ad40de306a5",
+  "install_ok": true,
+  "merge_base": "189136c2a3e166c59a49cca2444aa6a1d77aa136",
+  "pr": 21834,
+  "recording": true,
+  "runner": null,
+  "seconds": 15.2,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "189136c2a3e166c59a49cca2444aa6a1d77aa136",
+  "head_sha": "5674cf0500c2559cd746091098923ad40de306a5",
+  "merge_base": "189136c2a3e166c59a49cca2444aa6a1d77aa136",
+  "merged_at": "2026-08-31T20:34:49Z",
+  "number": 21834,
+  "repo": "django",
+  "title": "Fixed #37300 -- Fixed database routing for custom forward prefetch querysets."
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 2,
+  "called": 2,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/prefetch_related/tests.py::MultiDbTests::test_forward_fk_prefetch_custom_queryset_uses_parent_database",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/prefetch_related/tests.py::MultiDbTests::test_reverse_o2o_prefetch_custom_queryset_uses_parent_database",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "django/db/models/fields/related_descriptors.py",
+    "lines": "183",
+    "symbol": "ForwardManyToOneDescriptor.get_prefetch_querysets"
+   },
+   {
+    "file": "django/db/models/fields/related_descriptors.py",
+    "lines": "484",
+    "symbol": "ReverseOneToOneDescriptor.get_prefetch_querysets"
+   },
+   {
+    "file": "tests/prefetch_related/tests.py",
+    "lines": "1750-1764",
+    "symbol": "MultiDbTests.test_forward_fk_prefetch_custom_queryset_uses_parent_database"
+   },
+   {
+    "file": "tests/prefetch_related/tests.py",
+    "lines": "1766-1780",
+    "symbol": "MultiDbTests.test_reverse_o2o_prefetch_custom_queryset_uses_parent_database"
+   }
+  ],
+  "changed_symbols": [
+   "django/db/models/fields/related_descriptors.py#ForwardManyToOneDescriptor.get_prefetch_querysets",
+   "django/db/models/fields/related_descriptors.py#ReverseOneToOneDescriptor.get_prefetch_querysets",
+   "tests/prefetch_related/tests.py#MultiDbTests.test_forward_fk_prefetch_custom_queryset_uses_parent_database",
+   "tests/prefetch_related/tests.py#MultiDbTests.test_reverse_o2o_prefetch_custom_queryset_uses_parent_database",
+   "tests/prefetch_related/tests.py#MultiDbTests",
+   "tests/prefetch_related/tests.py"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 2,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 4843,
+   "ran": 160,
+   "replayed": 2,
+   "runner": "django-runtests",
+   "seconds": 11.4,
+   "selection": {
+    "candidates": 4843,
+    "closure_files": 239,
+    "closure_tests": 4354,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/contrib/admin/__init__.py",
+     "django/core/management/base.py",
+     "django/db/migrations/__init__.py",
+     "django/db/models/__init__.py"
+    ],
+    "observed": 16,
+    "static_only": 411
+   },
+   "unrunnable": 160
+  },
+  "flips": 0,
+  "gaps": [
+   "102680 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "160 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "Skipped 1 non-Python file(s)",
+   "graph reused from the previous state; 2 changed file(s) relinked",
+   "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run stopped at its 300 s budget: 160 of 4843 candidates run"
+  ],
+  "impacted": {
+   "count": 54,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2928,
+   "parsed_files": 2
+  },
+  "original_tests": {
+   "tests/prefetch_related/tests.py::DirectPrefetchedObjectCacheReuseTests::test_add_clears_prefetched_objects": "passed",
+   "tests/prefetch_related/tests.py::DirectPrefetchedObjectCacheReuseTests::test_prefetch_reverse_foreign_key": "passed",
+   "tests/prefetch_related/tests.py::DirectPrefetchedObjectCacheReuseTests::test_remove_clears_prefetched_objects": "passed",
+   "tests/prefetch_related/tests.py::MultiDbTests::test_using_is_honored_custom_qs": "passed",
+   "tests/prefetch_related/tests.py::MultiDbTests::test_using_is_honored_fkey": "passed",
+   "tests/prefetch_related/tests.py::MultiDbTests::test_using_is_honored_inheritance": "passed",
+   "tests/prefetch_related/tests.py::MultiDbTests::test_using_is_honored_m2m": "passed",
+   "tests/prefetch_related/tests.py::PrefetchRelatedTests::test_m2m_prefetching_iterator_with_chunks": "passed",
+   "tests/prefetch_related/tests.py::PrefetchRelatedTests::test_m2m_prefetching_iterator_without_chunks_error": "passed",
+   "tests/prefetch_related/tests.py::PrefetchRelatedTests::test_onetoone_reverse_with_to_field_pk": "passed",
+   "tests/prefetch_related/tests.py::Ticket21760Tests::test_bug": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/prefetch_related/tests.py::MultiDbTests::test_forward_fk_prefetch_custom_queryset_uses_parent_database",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/prefetch_related/tests.py::MultiDbTests::test_reverse_o2o_prefetch_custom_queryset_uses_parent_database",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "775479a9a4cf",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [
+    "django/db/models/fields/related_descriptors.py#ForwardManyToOneDescriptor.get_prefetch_querysets",
+    "django/db/models/fields/related_descriptors.py#ReverseOneToOneDescriptor.get_prefetch_querysets"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 7,
+   "differences": 0,
+   "functions_called": 2,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "tests/prefetch_related/tests.py#MultiDbTests.test_forward_fk_prefetch_custom_queryset_uses_parent_database": "not a module or class function on both sides (new, removed or nested)",
+    "tests/prefetch_related/tests.py#MultiDbTests.test_reverse_o2o_prefetch_custom_queryset_uses_parent_database": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 4.0,
+   "targets": 2,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 160 of 4843 candidate tests after the change with django-runtests in 11.4 s, failures confirmed before it: 0 now fail. 631 tests reach the change. 11 test(s) from edited test files also run as they were before the edit. 2 test(s) the change adds or edits replayed on the code before it: 2 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/prefetch_related/tests.py::MultiDbTests::test_forward_fk_prefetch_custom_queryset_uses_parent_database",
+    "line": 1750,
+    "run": "cd tests && python runtests.py prefetch_related.tests.MultiDbTests.test_forward_fk_prefetch_custom_queryset_uses_parent_database",
+    "score": 3.584,
+    "why": "via MultiDbTests (name: db,multi)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/many_to_one/tests.py::ManyToOneTests::test_get_prefetch_querysets_reverse_invalid_querysets_length",
+    "line": 924,
+    "run": "cd tests && python runtests.py many_to_one.tests.ManyToOneTests.test_get_prefetch_querysets_reverse_invalid_querysets_length",
+    "score": 2.783,
+    "why": "via ReverseOneToOneDescriptor.get_prefetch_querysets (name: get,one,prefetch,queryset,reverse,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/prefetch_related/tests.py::MultiDbTests::test_reverse_o2o_prefetch_custom_queryset_uses_parent_database",
+    "line": 1766,
+    "run": "cd tests && python runtests.py prefetch_related.tests.MultiDbTests.test_reverse_o2o_prefetch_custom_queryset_uses_parent_database",
+    "score": 2.086,
+    "why": "via MultiDbTests (name: db,multi)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/many_to_one/tests.py::ManyToOneTests::test_get_prefetch_querysets_invalid_querysets_length",
+    "line": 912,
+    "run": "cd tests && python runtests.py many_to_one.tests.ManyToOneTests.test_get_prefetch_querysets_invalid_querysets_length",
+    "score": 1.665,
+    "why": "via ForwardManyToOneDescriptor.get_prefetch_querysets (name: get,many,one,prefetch,queryset,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/prefetch_related/tests.py::MultiDbTests::test_using_is_honored_custom_qs",
+    "line": 1699,
+    "run": "cd tests && python runtests.py prefetch_related.tests.MultiDbTests.test_using_is_honored_custom_qs",
+    "score": 1.288,
+    "why": "via MultiDbTests (name: db,multi)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/one_to_one/tests.py::OneToOneTests::test_get_prefetch_querysets_invalid_querysets_length",
+    "line": 614,
+    "run": "cd tests && python runtests.py one_to_one.tests.OneToOneTests.test_get_prefetch_querysets_invalid_querysets_length",
+    "score": 1.14,
+    "why": "via ReverseOneToOneDescriptor.get_prefetch_querysets (name: get,one,prefetch,queryset,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/prefetch_related/tests.py::MultiDbTests::test_using_is_honored_fkey",
+    "line": 1649,
+    "run": "cd tests && python runtests.py prefetch_related.tests.MultiDbTests.test_using_is_honored_fkey",
+    "score": 1.024,
+    "why": "via MultiDbTests (name: db,multi)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/prefetch_related/tests.py::MultiDbTests::test_using_is_honored_m2m",
+    "line": 1599,
+    "run": "cd tests && python runtests.py prefetch_related.tests.MultiDbTests.test_using_is_honored_m2m",
+    "score": 0.883,
+    "why": "via MultiDbTests (name: db,multi)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/many_to_many/tests.py::ManyToManyTests::test_get_prefetch_querysets_invalid_querysets_length",
+    "line": 582,
+    "run": "cd tests && python runtests.py many_to_many.tests.ManyToManyTests.test_get_prefetch_querysets_invalid_querysets_length",
+    "score": 0.863,
+    "why": "via ForwardManyToOneDescriptor.get_prefetch_querysets (name: get,many,prefetch,queryset,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/prefetch_related/tests.py::MultiDbTests::test_using_is_honored_inheritance",
+    "line": 1677,
+    "run": "cd tests && python runtests.py prefetch_related.tests.MultiDbTests.test_using_is_honored_inheritance",
+    "score": 0.8,
+    "why": "via MultiDbTests (name: db,multi)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/contenttypes_tests/test_fields.py::GetPrefetchQuerySetsTests::test_generic_relation_invalid_length",
+    "line": 123,
+    "run": "cd tests && python runtests.py contenttypes_tests.test_fields.GetPrefetchQuerySetsTests.test_generic_relation_invalid_length",
+    "score": 0.594,
+    "why": "via ReverseOneToOneDescriptor.get_prefetch_querysets (name: get,prefetch)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/prefetch_related/tests.py::Ticket21760Tests::test_bug",
+    "line": 1846,
+    "run": "cd tests && python runtests.py prefetch_related.tests.Ticket21760Tests.test_bug",
+    "score": 0.433,
+    "why": "via ForwardManyToOneDescriptor.get_prefetch_querysets"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/prefetch_related/test_prefetch_related_objects.py::PrefetchRelatedObjectsTests::test_prefetch_queryset",
+    "line": 211,
+    "run": "cd tests && python runtests.py prefetch_related.test_prefetch_related_objects.PrefetchRelatedObjectsTests.test_prefetch_queryset",
+    "score": 0.218,
+    "why": "via prefetch_related_objects > prefetch_one_level > ReverseOneToOneDescriptor.get_prefetch_querysets (name: prefetch,queryset,related)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/contenttypes_tests/test_fields.py::GetPrefetchQuerySetsTests::test_duplicate_querysets",
+    "line": 106,
+    "run": "cd tests && python runtests.py contenttypes_tests.test_fields.GetPrefetchQuerySetsTests.test_duplicate_querysets",
+    "score": 0.213,
+    "why": "via prefetch_related_objects > prefetch_one_level > ReverseOneToOneDescriptor.get_prefetch_querysets (name: get,prefetch,queryset)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/prefetch_related/test_prefetch_related_objects.py::PrefetchRelatedObjectsTests::test_one_to_one_forward",
+    "line": 109,
+    "run": "cd tests && python runtests.py prefetch_related.test_prefetch_related_objects.PrefetchRelatedObjectsTests.test_one_to_one_forward",
+    "score": 0.193,
+    "why": "via prefetch_related_objects > prefetch_one_level > ForwardManyToOneDescriptor.get_prefetch_querysets (name: forward,one,prefetch,related,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/prefetch_related/test_prefetch_related_objects.py::PrefetchRelatedObjectsTests::test_one_to_one_reverse",
+    "line": 126,
+    "run": "cd tests && python runtests.py prefetch_related.test_prefetch_related_objects.PrefetchRelatedObjectsTests.test_one_to_one_reverse",
+    "score": 0.189,
+    "why": "via prefetch_related_objects > prefetch_one_level > ReverseOneToOneDescriptor.get_prefetch_querysets (name: one,prefetch,related,reverse,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/prefetch_related/test_prefetch_related_objects.py::PrefetchRelatedObjectsTests::test_prefetch_object_to_attr",
+    "line": 183,
+    "run": "cd tests && python runtests.py prefetch_related.test_prefetch_related_objects.PrefetchRelatedObjectsTests.test_prefetch_object_to_attr",
+    "score": 0.154,
+    "why": "via prefetch_related_objects > prefetch_one_level > ReverseOneToOneDescriptor.get_prefetch_querysets (name: prefetch,related,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/prefetch_related/test_prefetch_related_objects.py::PrefetchRelatedObjectsTests::test_prefetch_object_to_attr_twice",
+    "line": 195,
+    "run": "cd tests && python runtests.py prefetch_related.test_prefetch_related_objects.PrefetchRelatedObjectsTests.test_prefetch_object_to_attr_twice",
+    "score": 0.153,
+    "why": "via prefetch_related_objects > prefetch_one_level > ReverseOneToOneDescriptor.get_prefetch_querysets (name: prefetch,related,to)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/prefetch_related/test_prefetch_related_objects.py::PrefetchRelatedObjectsTests::test_foreignkey_forward",
+    "line": 72,
+    "run": "cd tests && python runtests.py prefetch_related.test_prefetch_related_objects.PrefetchRelatedObjectsTests.test_foreignkey_forward",
+    "score": 0.149,
+    "why": "via prefetch_related_objects > prefetch_one_level > ForwardManyToOneDescriptor.get_prefetch_querysets (name: forward,prefetch,related)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/prefetch_related/test_prefetch_related_objects.py::PrefetchRelatedObjectsTests::test_m2m_forward",
+    "line": 54,
+    "run": "cd tests && python runtests.py prefetch_related.test_prefetch_related_objects.PrefetchRelatedObjectsTests.test_m2m_forward",
+    "score": 0.148,
+    "why": "via prefetch_related_objects > prefetch_one_level > ForwardManyToOneDescriptor.get_prefetch_querysets (name: forward,prefetch,related)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/prefetch_related/test_prefetch_related_objects.py::PrefetchRelatedObjectsTests::test_foreignkey_reverse",
+    "line": 89,
+    "run": "cd tests && python runtests.py prefetch_related.test_prefetch_related_objects.PrefetchRelatedObjectsTests.test_foreignkey_reverse",
+    "score": 0.146,
+    "why": "via prefetch_related_objects > prefetch_one_level > ReverseOneToOneDescriptor.get_prefetch_querysets (name: prefetch,related,reverse)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/prefetch_related/test_prefetch_related_objects.py::PrefetchRelatedObjectsTests::test_m2m_reverse",
+    "line": 64,
+    "run": "cd tests && python runtests.py prefetch_related.test_prefetch_related_objects.PrefetchRelatedObjectsTests.test_m2m_reverse",
+    "score": 0.145,
+    "why": "via prefetch_related_objects > prefetch_one_level > ReverseOneToOneDescriptor.get_prefetch_querysets (name: prefetch,related,reverse)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/prefetch_related/test_prefetch_related_objects.py::PrefetchRelatedObjectsTests::test_m2m_then_m2m",
+    "line": 143,
+    "run": "cd tests && python runtests.py prefetch_related.test_prefetch_related_objects.PrefetchRelatedObjectsTests.test_m2m_then_m2m",
+    "score": 0.134,
+    "why": "via prefetch_related_objects > prefetch_one_level > ReverseOneToOneDescriptor.get_prefetch_querysets (name: prefetch,related)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/prefetch_related/test_prefetch_related_objects.py::PrefetchRelatedObjectsTests::test_prefetch_object",
+    "line": 163,
+    "run": "cd tests && python runtests.py prefetch_related.test_prefetch_related_objects.PrefetchRelatedObjectsTests.test_prefetch_object",
+    "score": 0.133,
+    "why": "via prefetch_related_objects > prefetch_one_level > ReverseOneToOneDescriptor.get_prefetch_querysets (name: prefetch,related)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/prefetch_related/test_prefetch_related_objects.py::PrefetchRelatedObjectsTests::test_prefetch_object_twice",
+    "line": 173,
+    "run": "cd tests && python runtests.py prefetch_related.test_prefetch_related_objects.PrefetchRelatedObjectsTests.test_prefetch_object_twice",
+    "score": 0.133,
+    "why": "via prefetch_related_objects > prefetch_one_level > ReverseOneToOneDescriptor.get_prefetch_querysets (name: prefetch,related)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/prefetch_related/test_prefetch_related_objects.py::PrefetchRelatedObjectsTests::test_prefetch_related_objects_empty",
+    "line": 253,
+    "run": "cd tests && python runtests.py prefetch_related.test_prefetch_related_objects.PrefetchRelatedObjectsTests.test_prefetch_related_objects_empty",
+    "score": 0.133,
+    "why": "via prefetch_related_objects > prefetch_one_level > ReverseOneToOneDescriptor.get_prefetch_querysets (name: prefetch,related)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/prefetch_related/test_prefetch_related_objects.py::PrefetchRelatedObjectsTests::test_prefetch_related_objects_with_various_iterables",
+    "line": 227,
+    "run": "cd tests && python runtests.py prefetch_related.test_prefetch_related_objects.PrefetchRelatedObjectsTests.test_prefetch_related_objects_with_various_iterables",
+    "score": 0.132,
+    "why": "via prefetch_related_objects > prefetch_one_level > ReverseOneToOneDescriptor.get_prefetch_querysets (name: prefetch,related)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/prefetch_related/test_prefetch_related_objects.py::PrefetchRelatedObjectsTests::test_unknown",
+    "line": 49,
+    "run": "cd tests && python runtests.py prefetch_related.test_prefetch_related_objects.PrefetchRelatedObjectsTests.test_unknown",
+    "score": 0.132,
+    "why": "via prefetch_related_objects > prefetch_one_level > ReverseOneToOneDescriptor.get_prefetch_querysets (name: prefetch,related)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/prefetch_related/tests.py::DirectPrefetchedObjectCacheReuseTests::test_prefetch_reverse_foreign_key",
+    "line": 1975,
+    "run": "cd tests && python runtests.py prefetch_related.tests.DirectPrefetchedObjectCacheReuseTests.test_prefetch_reverse_foreign_key",
+    "score": 0.125,
+    "why": "via prefetch_related_objects > prefetch_one_level > ReverseOneToOneDescriptor.get_prefetch_querysets (name: prefetch,reverse)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/prefetch_related/tests.py::DirectPrefetchedObjectCacheReuseTests::test_add_clears_prefetched_objects",
+    "line": 1985,
+    "run": "cd tests && python runtests.py prefetch_related.tests.DirectPrefetchedObjectCacheReuseTests.test_add_clears_prefetched_objects",
+    "score": 0.124,
+    "why": "via prefetch_related_objects > prefetch_one_level > ForwardManyToOneDescriptor.get_prefetch_querysets"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/generic_relations/tests.py::GenericRelationsTests::test_generic_prefetch",
+    "line": 752,
+    "run": "cd tests && python runtests.py generic_relations.tests.GenericRelationsTests.test_generic_prefetch",
+    "score": 0.114,
+    "why": "via prefetch_related_objects > prefetch_one_level > ReverseOneToOneDescriptor.get_prefetch_querysets (name: prefetch)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/prefetch_related/tests.py::DirectPrefetchedObjectCacheReuseTests::test_remove_clears_prefetched_objects",
+    "line": 1995,
+    "run": "cd tests && python runtests.py prefetch_related.tests.DirectPrefetchedObjectCacheReuseTests.test_remove_clears_prefetched_objects",
+    "score": 0.091,
+    "why": "via prefetch_related_objects > prefetch_one_level > ForwardManyToOneDescriptor.get_prefetch_querysets"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/async/test_async_queryset.py::AsyncQuerySetTest::test_aiterator_prefetch_related",
+    "line": 54,
+    "run": "cd tests && python runtests.py async.test_async_queryset.AsyncQuerySetTest.test_aiterator_prefetch_related",
+    "score": 0.05,
+    "why": "via QuerySet.aiterator > aprefetch_related_objects > prefetch_related_objects > prefetch_one_level > ReverseOneToOneDescriptor.get_prefetch_querysets (name: prefetch,queryset,related)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/async/test_async_queryset.py::AsyncQuerySetTest::test_aiterator_prefetch_related_chunk_size_none",
+    "line": 62,
+    "run": "cd tests && python runtests.py async.test_async_queryset.AsyncQuerySetTest.test_aiterator_prefetch_related_chunk_size_none",
+    "score": 0.05,
+    "why": "via QuerySet.aiterator > aprefetch_related_objects > prefetch_related_objects > prefetch_one_level > ReverseOneToOneDescriptor.get_prefetch_querysets (name: prefetch,queryset,related)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/prefetch_related/tests.py::PrefetchRelatedTests::test_m2m_prefetching_iterator_with_chunks",
+    "line": 414,
+    "run": "cd tests && python runtests.py prefetch_related.tests.PrefetchRelatedTests.test_m2m_prefetching_iterator_with_chunks",
+    "score": 0.047,
+    "why": "via QuerySet.iterator > QuerySet._iterator > prefetch_related_objects > prefetch_one_level > ReverseOneToOneDescriptor.get_prefetch_querysets (name: prefetch,related)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/prefetch_related/tests.py::PrefetchRelatedTests::test_m2m_prefetching_iterator_without_chunks_error",
+    "line": 425,
+    "run": "cd tests && python runtests.py prefetch_related.tests.PrefetchRelatedTests.test_m2m_prefetching_iterator_without_chunks_error",
+    "score": 0.047,
+    "why": "via QuerySet.iterator > QuerySet._iterator > prefetch_related_objects > prefetch_one_level > ReverseOneToOneDescriptor.get_prefetch_querysets (name: prefetch,related)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/lookup/tests.py::LookupTests::test_iterator",
+    "line": 131,
+    "run": "cd tests && python runtests.py lookup.tests.LookupTests.test_iterator",
+    "score": 0.045,
+    "why": "via QuerySet.iterator > QuerySet._iterator > prefetch_related_objects > prefetch_one_level > ForwardManyToOneDescriptor.get_prefetch_querysets"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/test_utils/tests.py::DisallowedDatabaseQueriesTests::test_disallowed_database_chunked_cursor_queries",
+    "line": 2282,
+    "run": "cd tests && python runtests.py test_utils.tests.DisallowedDatabaseQueriesTests.test_disallowed_database_chunked_cursor_queries",
+    "score": 0.045,
+    "why": "via QuerySet.iterator > QuerySet._iterator > prefetch_related_objects > prefetch_one_level > ForwardManyToOneDescriptor.get_prefetch_querysets"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/async/test_async_queryset.py::AsyncQuerySetTest::test_aiterator",
+    "line": 47,
+    "run": "cd tests && python runtests.py async.test_async_queryset.AsyncQuerySetTest.test_aiterator",
+    "score": 0.04,
+    "why": "via QuerySet.aiterator > aprefetch_related_objects > prefetch_related_objects > prefetch_one_level > ReverseOneToOneDescriptor.get_prefetch_querysets (name: queryset)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/async/test_async_queryset.py::AsyncQuerySetTest::test_aiterator_invalid_chunk_size",
+    "line": 83,
+    "run": "cd tests && python runtests.py async.test_async_queryset.AsyncQuerySetTest.test_aiterator_invalid_chunk_size",
+    "score": 0.04,
+    "why": "via QuerySet.aiterator > aprefetch_related_objects > prefetch_related_objects > prefetch_one_level > ReverseOneToOneDescriptor.get_prefetch_querysets (name: queryset)"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792322248.25952,
+  "job_seconds": 15.2,
+  "number": 21834,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 15.3,
+  "started": 1792322232.359349
+ },
+ "verify": null
+}

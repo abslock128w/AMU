@@ -1,0 +1,1095 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "f6d8906c03eec71d4cbbe0275722a7915d965a97",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "c35050ef9fc003201c1b88d0eb2809ec33e37132",
+  "install_ok": true,
+  "merge_base": "f6d8906c03eec71d4cbbe0275722a7915d965a97",
+  "pr": 30428,
+  "recording": false,
+  "runner": null,
+  "seconds": 722.5,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "f6d8906c03eec71d4cbbe0275722a7915d965a97",
+  "head_sha": "c35050ef9fc003201c1b88d0eb2809ec33e37132",
+  "merge_base": "f6d8906c03eec71d4cbbe0275722a7915d965a97",
+  "merged_at": "2026-10-11T12:26:16Z",
+  "number": 30428,
+  "repo": "sympy",
+  "title": "Parenthesize Mod in code printers for negated products and reciprocal divisors"
+ },
+ "probe_minutes": {
+  "end": 1792345530.165998,
+  "minutes": 0.7,
+  "start": 1792345191.346949,
+  "waited": 298.3962121250079
+ },
+ "probe_targets": {
+  "all": 9,
+  "called": 1,
+  "targets": [
+   {
+    "after": "def test_derivative_print_code(self):\n    fl_M_act = FiberForceLengthActiveDeGroote2016.with_defaults(self.l_M_tilde)\n    fl_M_act_dl_M_tilde = fl_M_act.diff(self.l_M_tilde)\n    expected = (\n        '(0.79798269973507 - 0.79798269973507*l_M_tilde)*math.exp(-3.98991349867535*(l_M_tilde - 1.0)**2) + (0.433*(0.717 - l_M_tilde)/(0.2*l_M_tilde - 0.0299)**2 + 0.0866*(l_M_tilde - 0.717)**2/(0.2*l_M_tilde - 0.0299)**3)*math.exp(-(1/2)*(l_M_tilde - 0.717)**2/(0.2*l_M_tilde - 0.0299)**2) + (0.814*(1.06 - l_M_tilde)/(0.0633*l_M_tilde + 0.162)**2 + 0.0515262*(l_M_tilde - 1.06)**2/(0.0633*l_M_tilde + 0.162)**3)*math.exp(-(1/2)*(l_M_tilde - 1.06)**2/(0.0633*l_M_tilde + 0.162)**2)'\n    )\n    assert PythonCodePrinter().doprint(fl_M_act_dl_M_tilde) == expected\n",
+    "before": "def test_derivative_print_code(self):\n    fl_M_act = FiberForceLengthActiveDeGroote2016.with_defaults(self.l_M_tilde)\n    fl_M_act_dl_M_tilde = fl_M_act.diff(self.l_M_tilde)\n    expected = (\n        '(0.79798269973507 - 0.79798269973507*l_M_tilde)*math.exp(-3.98991349867535*(l_M_tilde - 1.0)**2) + (0.433*(0.717 - l_M_tilde)/(0.2*l_M_tilde - 0.0299)**2 + 0.0866*(l_M_tilde - 0.717)**2/(0.2*l_M_tilde - 0.0299)**3)*math.exp(-1/2*(l_M_tilde - 0.717)**2/(0.2*l_M_tilde - 0.0299)**2) + (0.814*(1.06 - l_M_tilde)/(0.0633*l_M_tilde + 0.162)**2 + 0.0515262*(l_M_tilde - 1.06)**2/(0.0633*l_M_tilde + 0.162)**3)*math.exp(-1/2*(l_M_tilde - 1.06)**2/(0.0633*l_M_tilde + 0.162)**2)'\n    )\n    assert PythonCodePrinter().doprint(fl_M_act_dl_M_tilde) == expected\n",
+    "file": "sympy/physics/biomechanics/tests/test_curve.py",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py#TestFiberForceLengthActiveDeGroote2016.test_derivative_print_code",
+    "name": "test_derivative_print_code",
+    "qual": "TestFiberForceLengthActiveDeGroote2016.test_derivative_print_code",
+    "signature_changed": false
+   },
+   {
+    "after": "def _print_Mod(self, expr):\n    num, den = expr.args\n    PREC = precedence(expr)\n    if den.is_Pow and den.exp.is_negative:\n        den_prec = PRECEDENCE[\"Pow\"]\n    else:\n        den_prec = PREC\n    snum = self.parenthesize(num, PREC)\n    sden = self.parenthesize(den, den_prec)\n    # % is remainder (same sign as numerator), not modulo (same sign as\n    # denominator), in js. Hence, % only works as modulo if both numbers\n    # have the same sign\n    if (num.is_nonnegative and den.is_nonnegative or\n        num.is_nonpositive and den.is_nonpositive):\n        return f\"{snum} % {sden}\"\n    return f\"(({snum} % {sden}) + {sden}) % {sden}\"\n",
+    "before": "def _print_Mod(self, expr):\n    num, den = expr.args\n    PREC = precedence(expr)\n    snum, sden = [self.parenthesize(arg, PREC) for arg in expr.args]\n    # % is remainder (same sign as numerator), not modulo (same sign as\n    # denominator), in js. Hence, % only works as modulo if both numbers\n    # have the same sign\n    if (num.is_nonnegative and den.is_nonnegative or\n        num.is_nonpositive and den.is_nonpositive):\n        return f\"{snum} % {sden}\"\n    return f\"(({snum} % {sden}) + {sden}) % {sden}\"\n",
+    "file": "sympy/printing/jscode.py",
+    "id": "sympy/printing/jscode.py#JavascriptCodePrinter._print_Mod",
+    "name": "_print_Mod",
+    "qual": "JavascriptCodePrinter._print_Mod",
+    "signature_changed": false
+   },
+   {
+    "after": "def mathematica_code(expr, **settings):\n    r\"\"\"Converts an expr to a string of the Wolfram Mathematica code\n\n    Examples\n    ========\n\n    >>> from sympy import mathematica_code as mcode, symbols, sin\n    >>> x = symbols('x')\n    >>> mcode(sin(x).series(x).removeO())\n    '(1/120)*x^5 - (1/6)*x^3 + x'\n    \"\"\"\n    return MCodePrinter(settings).doprint(expr)\n",
+    "before": "def mathematica_code(expr, **settings):\n    r\"\"\"Converts an expr to a string of the Wolfram Mathematica code\n\n    Examples\n    ========\n\n    >>> from sympy import mathematica_code as mcode, symbols, sin\n    >>> x = symbols('x')\n    >>> mcode(sin(x).series(x).removeO())\n    '(1/120)*x^5 - 1/6*x^3 + x'\n    \"\"\"\n    return MCodePrinter(settings).doprint(expr)\n",
+    "file": "sympy/printing/mathematica.py",
+    "id": "sympy/printing/mathematica.py#mathematica_code",
+    "name": "mathematica_code",
+    "qual": "mathematica_code",
+    "signature_changed": false
+   },
+   {
+    "after": "def _print_Mod(self, expr):\n    PREC = precedence(expr)\n    num, den = expr.args\n    if den.is_Pow and den.exp.is_negative:\n        den_prec = PRECEDENCE[\"Pow\"]\n    else:\n        den_prec = PREC\n    return '{} % {}'.format(self.parenthesize(num, PREC),\n                            self.parenthesize(den, den_prec))\n",
+    "before": "def _print_Mod(self, expr):\n    PREC = precedence(expr)\n    return ('{} % {}'.format(*(self.parenthesize(x, PREC) for x in expr.args)))\n",
+    "file": "sympy/printing/pycode.py",
+    "id": "sympy/printing/pycode.py#AbstractPythonCodePrinter._print_Mod",
+    "name": "_print_Mod",
+    "qual": "AbstractPythonCodePrinter._print_Mod",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_ccode_functions2():\n    assert ccode(ceiling(x)) == \"ceil(x)\"\n    assert ccode(Abs(x)) == \"fabs(x)\"\n    assert ccode(gamma(x)) == \"tgamma(x)\"\n    r, s = symbols('r,s', real=True)\n    assert ccode(Mod(ceiling(r), ceiling(s))) == '((ceil(r) % ceil(s)) + '\\\n                                                 'ceil(s)) % ceil(s)'\n    assert ccode(Mod(r, s)) == \"fmod(r, s)\"\n    p1, p2 = symbols('p1 p2', integer=True, positive=True)\n    assert ccode(Mod(p1, p2)) == 'p1 % p2'\n    assert ccode(Mod(p1, p2 + 3)) == 'p1 % (p2 + 3)'\n    assert ccode(Mod(-3, -7, evaluate=False)) == '(-3) % (-7)'\n    assert ccode(-Mod(3, 7, evaluate=False)) == '-(3 % 7)'\n    assert ccode(r*Mod(p1, p2)) == 'r*(p1 % p2)'\n    assert ccode(-r*Mod(p1, p2)) == '-r*(p1 % p2)'\n    assert ccode(-2*Mod(p1, p2)) == '-2*(p1 % p2)'\n    assert ccode(-p1/Mod(p1, p2)) == '-p1/(p1 % p2)'\n    assert ccode(Mod(p1, p2)**s) == 'pow(p1 % p2, s)'\n    n = symbols('n', integer=True, negative=True)\n    assert ccode(Mod(-n, p2)) == '(-n) % p2'\n    assert ccode(fibonacci(n)) == '((1.0/5.0)*pow(2, -n)*sqrt(5)*(-pow(1 - sqrt(5), n) + pow(1 + sqrt(5), n)))'\n    assert ccode(lucas(n)) == '(pow(2, -n)*(pow(1 - sqrt(5), n) + pow(1 + sqrt(5), n)))'\n",
+    "before": "def test_ccode_functions2():\n    assert ccode(ceiling(x)) == \"ceil(x)\"\n    assert ccode(Abs(x)) == \"fabs(x)\"\n    assert ccode(gamma(x)) == \"tgamma(x)\"\n    r, s = symbols('r,s', real=True)\n    assert ccode(Mod(ceiling(r), ceiling(s))) == '((ceil(r) % ceil(s)) + '\\\n                                                 'ceil(s)) % ceil(s)'\n    assert ccode(Mod(r, s)) == \"fmod(r, s)\"\n    p1, p2 = symbols('p1 p2', integer=True, positive=True)\n    assert ccode(Mod(p1, p2)) == 'p1 % p2'\n    assert ccode(Mod(p1, p2 + 3)) == 'p1 % (p2 + 3)'\n    assert ccode(Mod(-3, -7, evaluate=False)) == '(-3) % (-7)'\n    assert ccode(-Mod(3, 7, evaluate=False)) == '-(3 % 7)'\n    assert ccode(r*Mod(p1, p2)) == 'r*(p1 % p2)'\n    assert ccode(Mod(p1, p2)**s) == 'pow(p1 % p2, s)'\n    n = symbols('n', integer=True, negative=True)\n    assert ccode(Mod(-n, p2)) == '(-n) % p2'\n    assert ccode(fibonacci(n)) == '((1.0/5.0)*pow(2, -n)*sqrt(5)*(-pow(1 - sqrt(5), n) + pow(1 + sqrt(5), n)))'\n    assert ccode(lucas(n)) == '(pow(2, -n)*(pow(1 - sqrt(5), n) + pow(1 + sqrt(5), n)))'\n",
+    "file": "sympy/printing/tests/test_c.py",
+    "id": "sympy/printing/tests/test_c.py#test_ccode_functions2",
+    "name": "test_ccode_functions2",
+    "qual": "test_ccode_functions2",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_CXX17CodePrinter():\n    assert CXX17CodePrinter().doprint(beta(x, y)) == 'std::beta(x, y)'\n    assert CXX17CodePrinter().doprint(Ei(x)) == 'std::expint(x)'\n    assert CXX17CodePrinter().doprint(zeta(x)) == 'std::riemann_zeta(x)'\n\n    # Automatic rewrite\n    assert CXX17CodePrinter().doprint(frac(x)) == '(x - std::floor(x))'\n    assert CXX17CodePrinter().doprint(riemann_xi(x)) == '((1.0/2.0)*std::pow(M_PI, -(1.0/2.0)*x)*x*(x - 1)*std::tgamma((1.0/2.0)*x)*std::riemann_zeta(x))'\n",
+    "before": "def test_CXX17CodePrinter():\n    assert CXX17CodePrinter().doprint(beta(x, y)) == 'std::beta(x, y)'\n    assert CXX17CodePrinter().doprint(Ei(x)) == 'std::expint(x)'\n    assert CXX17CodePrinter().doprint(zeta(x)) == 'std::riemann_zeta(x)'\n\n    # Automatic rewrite\n    assert CXX17CodePrinter().doprint(frac(x)) == '(x - std::floor(x))'\n    assert CXX17CodePrinter().doprint(riemann_xi(x)) == '((1.0/2.0)*std::pow(M_PI, -1.0/2.0*x)*x*(x - 1)*std::tgamma((1.0/2.0)*x)*std::riemann_zeta(x))'\n",
+    "file": "sympy/printing/tests/test_cxx.py",
+    "id": "sympy/printing/tests/test_cxx.py#test_CXX17CodePrinter",
+    "name": "test_CXX17CodePrinter",
+    "qual": "test_CXX17CodePrinter",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_Mod():\n    assert jscode(Mod(x, y)) == '((x % y) + y) % y'\n    assert jscode(Mod(x, x + y)) == '((x % (x + y)) + (x + y)) % (x + y)'\n    p1, p2 = symbols('p1 p2', positive=True)\n    assert jscode(Mod(p1, p2)) == 'p1 % p2'\n    assert jscode(Mod(p1, p2 + 3)) == 'p1 % (p2 + 3)'\n    assert jscode(Mod(-3, -7, evaluate=False)) == '(-3) % (-7)'\n    assert jscode(-Mod(p1, p2)) == '-(p1 % p2)'\n    assert jscode(x*Mod(p1, p2)) == 'x*(p1 % p2)'\n    assert jscode(-x*Mod(p1, p2)) == '-x*(p1 % p2)'\n    assert jscode(-2*Mod(p1, p2)) == '-2*(p1 % p2)'\n    assert jscode(-x/Mod(p1, p2)) == '-x/(p1 % p2)'\n    assert jscode(Mod(p1, 1/p2)) == 'p1 % (1/p2)'\n",
+    "before": "def test_Mod():\n    assert jscode(Mod(x, y)) == '((x % y) + y) % y'\n    assert jscode(Mod(x, x + y)) == '((x % (x + y)) + (x + y)) % (x + y)'\n    p1, p2 = symbols('p1 p2', positive=True)\n    assert jscode(Mod(p1, p2)) == 'p1 % p2'\n    assert jscode(Mod(p1, p2 + 3)) == 'p1 % (p2 + 3)'\n    assert jscode(Mod(-3, -7, evaluate=False)) == '(-3) % (-7)'\n    assert jscode(-Mod(p1, p2)) == '-(p1 % p2)'\n    assert jscode(x*Mod(p1, p2)) == 'x*(p1 % p2)'\n",
+    "file": "sympy/printing/tests/test_jscode.py",
+    "id": "sympy/printing/tests/test_jscode.py#test_Mod",
+    "name": "test_Mod",
+    "qual": "test_Mod",
+    "signature_changed": false
+   },
+   {
+    "after": "def test_PythonCodePrinter():\n    prntr = PythonCodePrinter()\n\n    assert not prntr.module_imports\n\n    assert prntr.doprint(x**y) == 'x**y'\n    assert prntr.doprint(Mod(x, 2)) == 'x % 2'\n    assert prntr.doprint(-Mod(x, y)) == '-(x % y)'\n    assert prntr.doprint(Mod(-x, y)) == '(-x) % y'\n    assert prntr.doprint(-2*Mod(x, 3)) == '-2*(x % 3)'\n    assert prntr.doprint(-x*Mod(x, y)) == '-x*(x % y)'\n    assert prntr.doprint(-x/Mod(x, 3)) == '-x/(x % 3)'\n    assert prntr.doprint(Mod(x, 1/y)) == 'x % (1/y)'\n    assert prntr.doprint(Mod(1, 1/x)) == '1 % (1/x)'\n    assert prntr.doprint(And(x, y)) == 'x and y'\n    assert prntr.doprint(Or(x, y)) == 'x or y'\n    assert prntr.doprint(1/(x+y)) == '1/(x + y)'\n    assert prntr.doprint(Not(x)) == 'not x'\n    assert not prntr.module_imports\n\n    assert prntr.doprint(pi) == 'math.pi'\n    assert prntr.module_imports == {'math': {'pi'}}\n\n    assert prntr.doprint(x**Rational(1, 2)) == 'math.sqrt(x)'\n    assert prntr.doprint(sqrt(x)) == 'math.sqrt(x)'\n    assert prntr.module_imports == {'math': {'pi', 'sqrt'}}\n\n    assert prntr.doprint(acos(x)) == 'math.acos(x)'\n    assert prntr.doprint(cot(x)) == '(1/math.tan(x))'\n    assert prntr.doprint(coth(x)) == '((math.exp(x) + math.exp(-x))/(math.exp(x) - math.exp(-x)))'\n    assert prntr.doprint(asec(x)) == '(math.acos(1/x))'\n    assert prntr.doprint(acsch(x)) == '(math.log(math.sqrt(1 + x**(-2)) + 1/x))'\n\n    assert prntr.doprint(Assignment(x, 2)) == 'x = 2'\n    assert prntr.doprint(Piecewise((1, Eq(x, 0)),\n                        (2, x>6))) == '((1) if (x == 0) else (2) if (x > 6) else None)'\n    assert prntr.doprint(Piecewise((2, Le(x, 0)),\n                        (3, Gt(x, 0)), evaluate=False)) == '((2) if (x <= 0) else'\\\n                                                        ' (3) if (x > 0) else None)'\n    assert prntr.doprint(sign(x)) == '(0.0 if x == 0 else math.copysign(1, x))'\n    assert prntr.doprint(p[0, 1]) == 'p[0, 1]'\n    assert prntr.doprint(KroneckerDelta(x,y)) == '(1 if x == y else 0)'\n\n    assert prntr.doprint((2,3)) == \"(2, 3)\"\n    assert prntr.doprint([2,3]) == \"[2, 3]\"\n\n    assert prntr.doprint(Min(x, y)) == \"min(x, y)\"\n    assert prntr.doprint(Max(x, y)) == \"max(x, y)\"\n",
+    "before": "def test_PythonCodePrinter():\n    prntr = PythonCodePrinter()\n\n    assert not prntr.module_imports\n\n    assert prntr.doprint(x**y) == 'x**y'\n    assert prntr.doprint(Mod(x, 2)) == 'x % 2'\n    assert prntr.doprint(-Mod(x, y)) == '-(x % y)'\n    assert prntr.doprint(Mod(-x, y)) == '(-x) % y'\n    assert prntr.doprint(And(x, y)) == 'x and y'\n    assert prntr.doprint(Or(x, y)) == 'x or y'\n    assert prntr.doprint(1/(x+y)) == '1/(x + y)'\n    assert prntr.doprint(Not(x)) == 'not x'\n    assert not prntr.module_imports\n\n    assert prntr.doprint(pi) == 'math.pi'\n    assert prntr.module_imports == {'math': {'pi'}}\n\n    assert prntr.doprint(x**Rational(1, 2)) == 'math.sqrt(x)'\n    assert prntr.doprint(sqrt(x)) == 'math.sqrt(x)'\n    assert prntr.module_imports == {'math': {'pi', 'sqrt'}}\n\n    assert prntr.doprint(acos(x)) == 'math.acos(x)'\n    assert prntr.doprint(cot(x)) == '(1/math.tan(x))'\n    assert prntr.doprint(coth(x)) == '((math.exp(x) + math.exp(-x))/(math.exp(x) - math.exp(-x)))'\n    assert prntr.doprint(asec(x)) == '(math.acos(1/x))'\n    assert prntr.doprint(acsch(x)) == '(math.log(math.sqrt(1 + x**(-2)) + 1/x))'\n\n    assert prntr.doprint(Assignment(x, 2)) == 'x = 2'\n    assert prntr.doprint(Piecewise((1, Eq(x, 0)),\n                        (2, x>6))) == '((1) if (x == 0) else (2) if (x > 6) else None)'\n    assert prntr.doprint(Piecewise((2, Le(x, 0)),\n                        (3, Gt(x, 0)), evaluate=False)) == '((2) if (x <= 0) else'\\\n                                                        ' (3) if (x > 0) else None)'\n    assert prntr.doprint(sign(x)) == '(0.0 if x == 0 else math.copysign(1, x))'\n    assert prntr.doprint(p[0, 1]) == 'p[0, 1]'\n    assert prntr.doprint(KroneckerDelta(x,y)) == '(1 if x == y else 0)'\n\n    assert prntr.doprint((2,3)) == \"(2, 3)\"\n    assert prntr.doprint([2,3]) == \"[2, 3]\"\n\n    assert prntr.doprint(Min(x, y)) == \"min(x, y)\"\n    assert prntr.doprint(Max(x, y)) == \"max(x, y)\"\n",
+    "file": "sympy/printing/tests/test_pycode.py",
+    "id": "sympy/printing/tests/test_pycode.py#test_PythonCodePrinter",
+    "name": "test_PythonCodePrinter",
+    "qual": "test_PythonCodePrinter",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "return",
+      "list",
+      "['-(1/2)*Z*x', '-2*x/y**2']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['-1/2*Z*x', '-2*x/y**2']"
+     ],
+     "call": "[PythonCodePrinter().doprint(-Rational(1, 2)*Z*x), PythonCodePrinter().doprint(-2*x/(y*y))]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import Mod, Rational, S, Symbol, ccode, cxxcode, jscode, pycode, sqrt, symbols\nfrom sympy.printing.mathematica import mathematica_code\nfrom sympy.printing.pycode import PythonCodePrinter\np1, p2 = symbols('p1 p2', integer=True, positive=True)\nx, y, Z = symbols('x y Z')\n",
+     "target": "sympy/physics/biomechanics/tests/test_curve.py#TestFiberForceLengthActiveDeGroote2016.test_derivative_print_code",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import Mod, Rational, S, Symbol, ccode, cxxcode, jscode, pycode, sqrt, symbols\n    from sympy.printing.mathematica import mathematica_code\n    from sympy.printing.pycode import PythonCodePrinter\n    p1, p2 = symbols('p1 p2', integer=True, positive=True)\n    x, y, Z = symbols('x y Z')\n    assert repr([PythonCodePrinter().doprint(-Rational(1, 2)*Z*x), PythonCodePrinter().doprint(-2*x/(y*y))]) == \"['-(1/2)*Z*x', '-2*x/y**2']\"\n",
+     "why": "Mod in negated products and with reciprocal divisors, issue 30389"
+    },
+    {
+     "after": [
+      "return",
+      "list",
+      "['0', '-2*(p1 % p2)']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['0', '-2*p1 % p2']"
+     ],
+     "call": "[jscode(Mod(p1, 1/p2)), jscode(-2*Mod(p1, p2))]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import Mod, Rational, S, Symbol, ccode, cxxcode, jscode, pycode, sqrt, symbols\nfrom sympy.printing.mathematica import mathematica_code\nfrom sympy.printing.pycode import PythonCodePrinter\np1, p2 = symbols('p1 p2', integer=True, positive=True)\nx, y, Z = symbols('x y Z')\n",
+     "target": "sympy/printing/jscode.py#JavascriptCodePrinter._print_Mod",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import Mod, Rational, S, Symbol, ccode, cxxcode, jscode, pycode, sqrt, symbols\n    from sympy.printing.mathematica import mathematica_code\n    from sympy.printing.pycode import PythonCodePrinter\n    p1, p2 = symbols('p1 p2', integer=True, positive=True)\n    x, y, Z = symbols('x y Z')\n    assert repr([jscode(Mod(p1, 1/p2)), jscode(-2*Mod(p1, p2))]) == \"['0', '-2*(p1 % p2)']\"\n",
+     "why": "Mod in negated products and with reciprocal divisors, issue 30389"
+    },
+    {
+     "after": [
+      "return",
+      "list",
+      "['-2*(Mod[x, y])', 'Mod[1, x^(-1)]']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['-2*Mod[x, y]', 'Mod[1, x^(-1)]']"
+     ],
+     "call": "[mathematica_code(-2*Mod(x, y)), mathematica_code(Mod(1, 1/x))]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import Mod, Rational, S, Symbol, ccode, cxxcode, jscode, pycode, sqrt, symbols\nfrom sympy.printing.mathematica import mathematica_code\nfrom sympy.printing.pycode import PythonCodePrinter\np1, p2 = symbols('p1 p2', integer=True, positive=True)\nx, y, Z = symbols('x y Z')\n",
+     "target": "sympy/printing/mathematica.py#mathematica_code",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import Mod, Rational, S, Symbol, ccode, cxxcode, jscode, pycode, sqrt, symbols\n    from sympy.printing.mathematica import mathematica_code\n    from sympy.printing.pycode import PythonCodePrinter\n    p1, p2 = symbols('p1 p2', integer=True, positive=True)\n    x, y, Z = symbols('x y Z')\n    assert repr([mathematica_code(-2*Mod(x, y)), mathematica_code(Mod(1, 1/x))]) == \"['-2*(Mod[x, y])', 'Mod[1, x^(-1)]']\"\n",
+     "why": "Mod in negated products and with reciprocal divisors, issue 30389"
+    },
+    {
+     "after": [
+      "return",
+      "list",
+      "['1 % (1/x)', 'x % (1/math.sqrt(y))', '-2*(x % y)']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['1 % 1/x', 'x % 1/math.sqrt(y)', '-2*x % y']"
+     ],
+     "call": "[pycode(Mod(1, 1/x)), pycode(Mod(x, 1/sqrt(y))), pycode(-2*Mod(x, y))]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import Mod, Rational, S, Symbol, ccode, cxxcode, jscode, pycode, sqrt, symbols\nfrom sympy.printing.mathematica import mathematica_code\nfrom sympy.printing.pycode import PythonCodePrinter\np1, p2 = symbols('p1 p2', integer=True, positive=True)\nx, y, Z = symbols('x y Z')\n",
+     "target": "sympy/printing/pycode.py#AbstractPythonCodePrinter._print_Mod",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import Mod, Rational, S, Symbol, ccode, cxxcode, jscode, pycode, sqrt, symbols\n    from sympy.printing.mathematica import mathematica_code\n    from sympy.printing.pycode import PythonCodePrinter\n    p1, p2 = symbols('p1 p2', integer=True, positive=True)\n    x, y, Z = symbols('x y Z')\n    assert repr([pycode(Mod(1, 1/x)), pycode(Mod(x, 1/sqrt(y))), pycode(-2*Mod(x, y))]) == \"['1 % (1/x)', 'x % (1/math.sqrt(y))', '-2*(x % y)']\"\n",
+     "why": "Mod in negated products and with reciprocal divisors, issue 30389"
+    },
+    {
+     "after": [
+      "return",
+      "list",
+      "['-2*(p1 % p2)', '-p1/(p1 % p2)']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['-2*p1 % p2', '-p1/p1 % p2']"
+     ],
+     "call": "[ccode(-2*Mod(p1, p2)), ccode(-p1/Mod(p1, p2))]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import Mod, Rational, S, Symbol, ccode, cxxcode, jscode, pycode, sqrt, symbols\nfrom sympy.printing.mathematica import mathematica_code\nfrom sympy.printing.pycode import PythonCodePrinter\np1, p2 = symbols('p1 p2', integer=True, positive=True)\nx, y, Z = symbols('x y Z')\n",
+     "target": "sympy/printing/tests/test_c.py#test_ccode_functions2",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import Mod, Rational, S, Symbol, ccode, cxxcode, jscode, pycode, sqrt, symbols\n    from sympy.printing.mathematica import mathematica_code\n    from sympy.printing.pycode import PythonCodePrinter\n    p1, p2 = symbols('p1 p2', integer=True, positive=True)\n    x, y, Z = symbols('x y Z')\n    assert repr([ccode(-2*Mod(p1, p2)), ccode(-p1/Mod(p1, p2))]) == \"['-2*(p1 % p2)', '-p1/(p1 % p2)']\"\n",
+     "why": "Mod in negated products and with reciprocal divisors, issue 30389"
+    },
+    {
+     "after": [
+      "return",
+      "list",
+      "['-2*(std::fmod(x, y))', '-0.5*Z']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['-2*std::fmod(x, y)', '-0.5*Z']"
+     ],
+     "call": "[cxxcode(-2*Mod(x, y), standard='C++17'), cxxcode(-1.0*Z/2, standard='C++17')]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import Mod, Rational, S, Symbol, ccode, cxxcode, jscode, pycode, sqrt, symbols\nfrom sympy.printing.mathematica import mathematica_code\nfrom sympy.printing.pycode import PythonCodePrinter\np1, p2 = symbols('p1 p2', integer=True, positive=True)\nx, y, Z = symbols('x y Z')\n",
+     "target": "sympy/printing/tests/test_cxx.py#test_CXX17CodePrinter",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import Mod, Rational, S, Symbol, ccode, cxxcode, jscode, pycode, sqrt, symbols\n    from sympy.printing.mathematica import mathematica_code\n    from sympy.printing.pycode import PythonCodePrinter\n    p1, p2 = symbols('p1 p2', integer=True, positive=True)\n    x, y, Z = symbols('x y Z')\n    assert repr([cxxcode(-2*Mod(x, y), standard='C++17'), cxxcode(-1.0*Z/2, standard='C++17')]) == \"['-2*(std::fmod(x, y))', '-0.5*Z']\"\n",
+     "why": "Mod in negated products and with reciprocal divisors, issue 30389"
+    },
+    {
+     "after": [
+      "return",
+      "list",
+      "['((x % (1/y)) + (1/y)) % (1/y)', '-x/(((x % y) + y) % y)']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['((x % 1/y) + 1/y) % 1/y', '-x/((x % y) + y) % y']"
+     ],
+     "call": "[jscode(Mod(x, 1/y)), jscode(-x/Mod(x, y))]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import Mod, Rational, S, Symbol, ccode, cxxcode, jscode, pycode, sqrt, symbols\nfrom sympy.printing.mathematica import mathematica_code\nfrom sympy.printing.pycode import PythonCodePrinter\np1, p2 = symbols('p1 p2', integer=True, positive=True)\nx, y, Z = symbols('x y Z')\n",
+     "target": "sympy/printing/tests/test_jscode.py#test_Mod",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import Mod, Rational, S, Symbol, ccode, cxxcode, jscode, pycode, sqrt, symbols\n    from sympy.printing.mathematica import mathematica_code\n    from sympy.printing.pycode import PythonCodePrinter\n    p1, p2 = symbols('p1 p2', integer=True, positive=True)\n    x, y, Z = symbols('x y Z')\n    assert repr([jscode(Mod(x, 1/y)), jscode(-x/Mod(x, y))]) == \"['((x % (1/y)) + (1/y)) % (1/y)', '-x/(((x % y) + y) % y)']\"\n",
+     "why": "Mod in negated products and with reciprocal divisors, issue 30389"
+    },
+    {
+     "after": [
+      "return",
+      "list",
+      "['-x/(x % y)', '-(1/2)*Z']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['-x/x % y', '-1/2*Z']"
+     ],
+     "call": "[pycode(-x/Mod(x, y)), pycode(-S(1)/2*Z)]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import Mod, Rational, S, Symbol, ccode, cxxcode, jscode, pycode, sqrt, symbols\nfrom sympy.printing.mathematica import mathematica_code\nfrom sympy.printing.pycode import PythonCodePrinter\np1, p2 = symbols('p1 p2', integer=True, positive=True)\nx, y, Z = symbols('x y Z')\n",
+     "target": "sympy/printing/tests/test_pycode.py#test_PythonCodePrinter",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import Mod, Rational, S, Symbol, ccode, cxxcode, jscode, pycode, sqrt, symbols\n    from sympy.printing.mathematica import mathematica_code\n    from sympy.printing.pycode import PythonCodePrinter\n    p1, p2 = symbols('p1 p2', integer=True, positive=True)\n    x, y, Z = symbols('x y Z')\n    assert repr([pycode(-x/Mod(x, y)), pycode(-S(1)/2*Z)]) == \"['-x/(x % y)', '-(1/2)*Z']\"\n",
+     "why": "Mod in negated products and with reciprocal divisors, issue 30389"
+    }
+   ],
+   "dollars_cap": 0.1,
+   "filter_seconds": 19.1,
+   "gaps": [],
+   "info": {
+    "accepted": 8,
+    "compiled": 8,
+    "cost": 0.0,
+    "differed": 8,
+    "dollars_cap": 0.1,
+    "functions": 8,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 8,
+    "ran": 8,
+    "reached": 8,
+    "requests": 2,
+    "seconds": 19.0,
+    "stable": 8
+   },
+   "probes": [
+    {
+     "call": "[PythonCodePrinter().doprint(-Rational(1, 2)*Z*x), PythonCodePrinter().doprint(-2*x/(y*y))]",
+     "function": "sympy/physics/biomechanics/tests/test_curve.py#TestFiberForceLengthActiveDeGroote2016.test_derivative_print_code",
+     "setup": "from sympy import Mod, Rational, S, Symbol, ccode, cxxcode, jscode, pycode, sqrt, symbols\nfrom sympy.printing.mathematica import mathematica_code\nfrom sympy.printing.pycode import PythonCodePrinter\np1, p2 = symbols('p1 p2', integer=True, positive=True)\nx, y, Z = symbols('x y Z')\n",
+     "why": "Mod in negated products and with reciprocal divisors, issue 30389"
+    },
+    {
+     "call": "[jscode(Mod(p1, 1/p2)), jscode(-2*Mod(p1, p2))]",
+     "function": "sympy/printing/jscode.py#JavascriptCodePrinter._print_Mod",
+     "setup": "from sympy import Mod, Rational, S, Symbol, ccode, cxxcode, jscode, pycode, sqrt, symbols\nfrom sympy.printing.mathematica import mathematica_code\nfrom sympy.printing.pycode import PythonCodePrinter\np1, p2 = symbols('p1 p2', integer=True, positive=True)\nx, y, Z = symbols('x y Z')\n",
+     "why": "Mod in negated products and with reciprocal divisors, issue 30389"
+    },
+    {
+     "call": "[mathematica_code(-2*Mod(x, y)), mathematica_code(Mod(1, 1/x))]",
+     "function": "sympy/printing/mathematica.py#mathematica_code",
+     "setup": "from sympy import Mod, Rational, S, Symbol, ccode, cxxcode, jscode, pycode, sqrt, symbols\nfrom sympy.printing.mathematica import mathematica_code\nfrom sympy.printing.pycode import PythonCodePrinter\np1, p2 = symbols('p1 p2', integer=True, positive=True)\nx, y, Z = symbols('x y Z')\n",
+     "why": "Mod in negated products and with reciprocal divisors, issue 30389"
+    },
+    {
+     "call": "[pycode(Mod(1, 1/x)), pycode(Mod(x, 1/sqrt(y))), pycode(-2*Mod(x, y))]",
+     "function": "sympy/printing/pycode.py#AbstractPythonCodePrinter._print_Mod",
+     "setup": "from sympy import Mod, Rational, S, Symbol, ccode, cxxcode, jscode, pycode, sqrt, symbols\nfrom sympy.printing.mathematica import mathematica_code\nfrom sympy.printing.pycode import PythonCodePrinter\np1, p2 = symbols('p1 p2', integer=True, positive=True)\nx, y, Z = symbols('x y Z')\n",
+     "why": "Mod in negated products and with reciprocal divisors, issue 30389"
+    },
+    {
+     "call": "[ccode(-2*Mod(p1, p2)), ccode(-p1/Mod(p1, p2))]",
+     "function": "sympy/printing/tests/test_c.py#test_ccode_functions2",
+     "setup": "from sympy import Mod, Rational, S, Symbol, ccode, cxxcode, jscode, pycode, sqrt, symbols\nfrom sympy.printing.mathematica import mathematica_code\nfrom sympy.printing.pycode import PythonCodePrinter\np1, p2 = symbols('p1 p2', integer=True, positive=True)\nx, y, Z = symbols('x y Z')\n",
+     "why": "Mod in negated products and with reciprocal divisors, issue 30389"
+    },
+    {
+     "call": "[cxxcode(-2*Mod(x, y), standard='C++17'), cxxcode(-1.0*Z/2, standard='C++17')]",
+     "function": "sympy/printing/tests/test_cxx.py#test_CXX17CodePrinter",
+     "setup": "from sympy import Mod, Rational, S, Symbol, ccode, cxxcode, jscode, pycode, sqrt, symbols\nfrom sympy.printing.mathematica import mathematica_code\nfrom sympy.printing.pycode import PythonCodePrinter\np1, p2 = symbols('p1 p2', integer=True, positive=True)\nx, y, Z = symbols('x y Z')\n",
+     "why": "Mod in negated products and with reciprocal divisors, issue 30389"
+    },
+    {
+     "call": "[jscode(Mod(x, 1/y)), jscode(-x/Mod(x, y))]",
+     "function": "sympy/printing/tests/test_jscode.py#test_Mod",
+     "setup": "from sympy import Mod, Rational, S, Symbol, ccode, cxxcode, jscode, pycode, sqrt, symbols\nfrom sympy.printing.mathematica import mathematica_code\nfrom sympy.printing.pycode import PythonCodePrinter\np1, p2 = symbols('p1 p2', integer=True, positive=True)\nx, y, Z = symbols('x y Z')\n",
+     "why": "Mod in negated products and with reciprocal divisors, issue 30389"
+    },
+    {
+     "call": "[pycode(-x/Mod(x, y)), pycode(-S(1)/2*Z)]",
+     "function": "sympy/printing/tests/test_pycode.py#test_PythonCodePrinter",
+     "setup": "from sympy import Mod, Rational, S, Symbol, ccode, cxxcode, jscode, pycode, sqrt, symbols\nfrom sympy.printing.mathematica import mathematica_code\nfrom sympy.printing.pycode import PythonCodePrinter\np1, p2 = symbols('p1 p2', integer=True, positive=True)\nx, y, Z = symbols('x y Z')\n",
+     "why": "Mod in negated products and with reciprocal divisors, issue 30389"
+    }
+   ],
+   "targets": [
+    "sympy/physics/biomechanics/tests/test_curve.py#TestFiberForceLengthActiveDeGroote2016.test_derivative_print_code",
+    "sympy/printing/jscode.py#JavascriptCodePrinter._print_Mod",
+    "sympy/printing/mathematica.py#mathematica_code",
+    "sympy/printing/pycode.py#AbstractPythonCodePrinter._print_Mod",
+    "sympy/printing/tests/test_c.py#test_ccode_functions2",
+    "sympy/printing/tests/test_cxx.py#test_CXX17CodePrinter",
+    "sympy/printing/tests/test_jscode.py#test_Mod",
+    "sympy/printing/tests/test_pycode.py#test_PythonCodePrinter"
+   ],
+   "waited_seconds": 298.4
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_print_code",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_derivative_print_code",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/printing/tests/test_c.py::test_ccode_functions2",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/printing/tests/test_cxx.py::test_CXX17CodePrinter",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/printing/tests/test_jscode.py::test_Mod",
+    "label": "change evidence: the PR's own test"
+   },
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/printing/tests/test_pycode.py::test_PythonCodePrinter",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/physics/biomechanics/tests/test_curve.py",
+    "lines": "1039-1127",
+    "symbol": "TestFiberForceLengthActiveDeGroote2016.test_print_code"
+   },
+   {
+    "file": "sympy/physics/biomechanics/tests/test_curve.py",
+    "lines": "1140",
+    "symbol": "TestFiberForceLengthActiveDeGroote2016.test_derivative_print_code"
+   },
+   {
+    "file": "sympy/printing/codeprinter.py",
+    "lines": "552-592",
+    "symbol": "CodePrinter._print_Mul"
+   },
+   {
+    "file": "sympy/printing/jscode.py",
+    "lines": "115-120",
+    "symbol": "JavascriptCodePrinter._print_Mod"
+   },
+   {
+    "file": "sympy/printing/mathematica.py",
+    "lines": "353",
+    "symbol": "mathematica_code"
+   },
+   {
+    "file": "sympy/printing/pycode.py",
+    "lines": "217-223",
+    "symbol": "AbstractPythonCodePrinter._print_Mod"
+   },
+   {
+    "file": "sympy/printing/tests/test_c.py",
+    "lines": "167-169",
+    "symbol": "test_ccode_functions2"
+   },
+   {
+    "file": "sympy/printing/tests/test_cxx.py",
+    "lines": "59",
+    "symbol": "test_CXX17CodePrinter"
+   },
+   {
+    "file": "sympy/printing/tests/test_jscode.py",
+    "lines": "77-80",
+    "symbol": "test_Mod"
+   },
+   {
+    "file": "sympy/printing/tests/test_pycode.py",
+    "lines": "43-47",
+    "symbol": "test_PythonCodePrinter"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/physics/biomechanics/tests/test_curve.py#TestFiberForceLengthActiveDeGroote2016.test_derivative_print_code",
+   "sympy/physics/biomechanics/tests/test_curve.py#TestFiberForceLengthActiveDeGroote2016.test_print_code",
+   "sympy/printing/codeprinter.py#CodePrinter._print_Mul",
+   "sympy/printing/jscode.py#JavascriptCodePrinter._print_Mod",
+   "sympy/printing/mathematica.py#mathematica_code",
+   "sympy/printing/pycode.py#AbstractPythonCodePrinter._print_Mod",
+   "sympy/printing/tests/test_c.py#test_ccode_functions2",
+   "sympy/printing/tests/test_cxx.py#test_CXX17CodePrinter",
+   "sympy/printing/tests/test_jscode.py#test_Mod",
+   "sympy/printing/tests/test_pycode.py#test_PythonCodePrinter"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "AbstractPythonCodePrinter._print_Mod return changed",
+    "path": [
+     "sympy/printing/pycode.py:222 return",
+     "sympy/printing/pycode.py:664 PythonCodePrinter._print_frac uses the result"
+    ],
+    "to": "1 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 9,
+    "stored": 3
+   },
+   "budget": 300,
+   "candidates": 1560,
+   "ran": 1320,
+   "replayed": 6,
+   "runner": "pytest",
+   "seconds": 456.8,
+   "selection": {
+    "candidates": 12925,
+    "closure_files": 1321,
+    "closure_tests": 12923,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 2
+   },
+   "unrunnable": 0
+  },
+  "flip_trust": [
+   {
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_print_code",
+    "label": "fails",
+    "reach": 3,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "why": "as the test was before the edit: failed again in every rerun; ran 3 changed line(s)"
+   },
+   {
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_derivative_print_code",
+    "label": "fails",
+    "reach": 3,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "why": "as the test was before the edit: failed again in every rerun; ran 3 changed line(s)"
+   },
+   {
+    "id": "sympy/printing/tests/test_cxx.py::test_CXX17CodePrinter",
+    "label": "fails",
+    "reach": 3,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "why": "as the test was before the edit: failed again in every rerun; ran 3 changed line(s)"
+   }
+  ],
+  "flips": 3,
+  "gaps": [
+   "11365 lower-ranked candidate(s) not run: about 6 tests/s per process fit 1560 in the 300 s allowed",
+   "63963 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "Skipped 3 non-Python file(s)",
+   "shadow run stopped at its 300 s budget: 1320 of 1560 candidates run"
+  ],
+  "impacted": {
+   "count": 3,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1607,
+   "parsed_files": 9
+  },
+  "order": "the same explicit order on both sides (fixed hash seed; pytest-randomly not installed)",
+  "original_tests": {
+   "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_derivative_print_code": "failed",
+   "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_print_code": "failed",
+   "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthPassiveDeGroote2016::test_doit_evaluate_false": "passed",
+   "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthPassiveInverseDeGroote2016::test_doit_evaluate_false": "passed",
+   "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthPassiveInverseDeGroote2016::test_expression_print_latex": "passed",
+   "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceVelocityDeGroote2016::test_differentiate_wrt_c1": "passed",
+   "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceVelocityDeGroote2016::test_differentiate_wrt_c2": "passed",
+   "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceVelocityDeGroote2016::test_doit": "passed",
+   "sympy/physics/biomechanics/tests/test_curve.py::TestTendonForceLengthDeGroote2016::test_doit_evaluate_false": "passed",
+   "sympy/printing/tests/test_c.py::test_ccode_functions2": "passed",
+   "sympy/printing/tests/test_c.py::test_get_math_macros": "passed",
+   "sympy/printing/tests/test_cxx.py::test_CXX17CodePrinter": "failed",
+   "sympy/printing/tests/test_jscode.py::test_Mod": "passed",
+   "sympy/printing/tests/test_jscode.py::test_jscode_inline_function": "passed",
+   "sympy/printing/tests/test_pycode.py::test_NumPyPrinter": "passed",
+   "sympy/printing/tests/test_pycode.py::test_PythonCodePrinter": "passed",
+   "sympy/printing/tests/test_pycode.py::test_array_printer": "passed"
+  },
+  "predicted_failures": [
+   {
+    "after": "failed",
+    "before": "passed",
+    "edited_form": "passed",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_print_code",
+    "label": "test edited, not fixed",
+    "reach": 3,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 3 changed line(s)"
+   },
+   {
+    "after": "failed",
+    "before": "passed",
+    "edited_form": "passed",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_derivative_print_code",
+    "label": "test edited, not fixed",
+    "reach": 3,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 3 changed line(s)"
+   },
+   {
+    "after": "failed",
+    "before": "passed",
+    "edited_form": "passed",
+    "id": "sympy/printing/tests/test_cxx.py::test_CXX17CodePrinter",
+    "label": "test edited, not fixed",
+    "reach": 3,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": "failed"
+    },
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 3 changed line(s)"
+   }
+  ],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_print_code",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_derivative_print_code",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/printing/tests/test_c.py::test_ccode_functions2",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/printing/tests/test_cxx.py::test_CXX17CodePrinter",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/printing/tests/test_jscode.py::test_Mod",
+    "verdict": "evidence"
+   },
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/printing/tests/test_pycode.py::test_PythonCodePrinter",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "d824950eac8b",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [
+    "sympy/printing/codeprinter.py#CodePrinter._print_Mul"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 5,
+   "differences": 0,
+   "functions_called": 1,
+   "input_built_before_the_change": 0,
+   "not_compared": {},
+   "seconds": 74.5,
+   "targets": 9,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 1320 of 1560 candidate tests after the change with pytest in 456.8 s, failures confirmed before it: 3 now fail. 3283 tests reach the change. 17 test(s) from edited test files also run as they were before the edit. 3 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 6 test(s) the change adds or edits replayed on the code before it: 6 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "executed",
+    "expect": "fails",
+    "id": "sympy/printing/tests/test_cxx.py::test_CXX17CodePrinter",
+    "line": 0,
+    "run": "python -m pytest sympy/printing/tests/test_cxx.py::test_CXX17CodePrinter",
+    "score": 0.0,
+    "why": "failed when executed after the change"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "fails",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_print_code",
+    "line": 1033,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_print_code",
+    "score": 0.235,
+    "why": "via TestFiberForceLengthActiveDeGroote2016 (name: 2016,active,code,curve,de,fiber,force,groote,length,print)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "fails",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_derivative_print_code",
+    "line": 1136,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_derivative_print_code",
+    "score": 0.13,
+    "why": "via TestFiberForceLengthActiveDeGroote2016 (name: 2016,active,code,curve,de,fiber,force,groote,length,print)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_mathematica.py::test_constants",
+    "line": 118,
+    "run": "python -m pytest sympy/printing/tests/test_mathematica.py::test_constants",
+    "score": 2.105,
+    "why": "calls mathematica_code (name: mathematica)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_mathematica.py::test_Mul",
+    "line": 109,
+    "run": "python -m pytest sympy/printing/tests/test_mathematica.py::test_Mul",
+    "score": 1.32,
+    "why": "calls mathematica_code (name: mathematica)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_mathematica.py::test_Pow",
+    "line": 100,
+    "run": "python -m pytest sympy/printing/tests/test_mathematica.py::test_Pow",
+    "score": 0.927,
+    "why": "calls mathematica_code (name: mathematica)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_mathematica.py::test_Function",
+    "line": 45,
+    "run": "python -m pytest sympy/printing/tests/test_mathematica.py::test_Function",
+    "score": 0.73,
+    "why": "calls mathematica_code (name: mathematica)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_mathematica.py::test_Integral",
+    "line": 238,
+    "run": "python -m pytest sympy/printing/tests/test_mathematica.py::test_Integral",
+    "score": 0.631,
+    "why": "calls mathematica_code (name: mathematica)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_mathematica.py::test_Sum",
+    "line": 255,
+    "run": "python -m pytest sympy/printing/tests/test_mathematica.py::test_Sum",
+    "score": 0.581,
+    "why": "calls mathematica_code (name: mathematica)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_mathematica.py::test_userfuncs",
+    "line": 270,
+    "run": "python -m pytest sympy/printing/tests/test_mathematica.py::test_userfuncs",
+    "score": 0.556,
+    "why": "calls mathematica_code (name: mathematica)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_mathematica.py::test_Derivative",
+    "line": 247,
+    "run": "python -m pytest sympy/printing/tests/test_mathematica.py::test_Derivative",
+    "score": 0.543,
+    "why": "calls mathematica_code (name: mathematica)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_mathematica.py::test_Integer",
+    "line": 22,
+    "run": "python -m pytest sympy/printing/tests/test_mathematica.py::test_Integer",
+    "score": 0.536,
+    "why": "calls mathematica_code (name: mathematica)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_mathematica.py::test_NDArray",
+    "line": 185,
+    "run": "python -m pytest sympy/printing/tests/test_mathematica.py::test_NDArray",
+    "score": 0.533,
+    "why": "calls mathematica_code (name: mathematica)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_mathematica.py::test_Rational",
+    "line": 27,
+    "run": "python -m pytest sympy/printing/tests/test_mathematica.py::test_Rational",
+    "score": 0.531,
+    "why": "calls mathematica_code (name: mathematica)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_mathematica.py::test_Relational",
+    "line": 36,
+    "run": "python -m pytest sympy/printing/tests/test_mathematica.py::test_Relational",
+    "score": 0.53,
+    "why": "calls mathematica_code (name: mathematica)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_mathematica.py::test_containers",
+    "line": 143,
+    "run": "python -m pytest sympy/printing/tests/test_mathematica.py::test_containers",
+    "score": 0.529,
+    "why": "calls mathematica_code (name: mathematica)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_mathematica.py::test_matrices",
+    "line": 152,
+    "run": "python -m pytest sympy/printing/tests/test_mathematica.py::test_matrices",
+    "score": 0.529,
+    "why": "calls mathematica_code (name: mathematica)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/printing/tests/test_mathematica.py::test_special_polynomials",
+    "line": 88,
+    "run": "python -m pytest sympy/printing/tests/test_mathematica.py::test_special_polynomials",
+    "score": 0.529,
+    "why": "calls mathematica_code (name: mathematica)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_expression_print_latex",
+    "line": 1024,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_expression_print_latex",
+    "score": 0.076,
+    "why": "via TestFiberForceLengthActiveDeGroote2016 (name: 2016,active,curve,de,fiber,force,groote,length,print)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_function_print_latex",
+    "line": 1019,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_function_print_latex",
+    "score": 0.066,
+    "why": "via TestFiberForceLengthActiveDeGroote2016 (name: 2016,active,curve,de,fiber,force,groote,length,print)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_with_defaults",
+    "line": 895,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_with_defaults",
+    "score": 0.052,
+    "why": "via TestFiberForceLengthActiveDeGroote2016 (name: 2016,active,curve,de,fiber,force,groote,length)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_lambdify_numpy",
+    "line": 1149,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_lambdify_numpy",
+    "score": 0.048,
+    "why": "via TestFiberForceLengthActiveDeGroote2016 (name: 2016,active,curve,de,fiber,force,groote,length)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_lambdify_jax",
+    "line": 1163,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_lambdify_jax",
+    "score": 0.045,
+    "why": "via TestFiberForceLengthActiveDeGroote2016 (name: 2016,active,curve,de,fiber,force,groote,length)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_lambdify",
+    "line": 1144,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_lambdify",
+    "score": 0.042,
+    "why": "via TestFiberForceLengthActiveDeGroote2016 (name: 2016,active,curve,de,fiber,force,groote,length)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_doit_evaluate_false",
+    "line": 887,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_doit_evaluate_false",
+    "score": 0.038,
+    "why": "via TestFiberForceLengthActiveDeGroote2016 (name: 2016,active,curve,de,fiber,force,groote,length)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthPassiveDeGroote2016::test_derivative_print_code",
+    "line": 618,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthPassiveDeGroote2016::test_derivative_print_code",
+    "score": 0.036,
+    "why": "via TestFiberForceLengthActiveDeGroote2016._fiber_force_length_active_arguments_fixture > TestFiberForceLengthActiveDeGroote2016 (name: 2016,code,curve,de,derivative,fiber,force,groote,length,print)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_differentiate_wrt_c0",
+    "line": 932,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_differentiate_wrt_c0",
+    "score": 0.036,
+    "why": "via TestFiberForceLengthActiveDeGroote2016 (name: 2016,active,curve,de,fiber,force,groote,length)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_doit",
+    "line": 879,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_doit",
+    "score": 0.035,
+    "why": "via TestFiberForceLengthActiveDeGroote2016 (name: 2016,active,curve,de,fiber,force,groote,length)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthPassiveInverseDeGroote2016::test_derivative_print_code",
+    "line": 801,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthPassiveInverseDeGroote2016::test_derivative_print_code",
+    "score": 0.033,
+    "why": "via TestFiberForceLengthActiveDeGroote2016._fiber_force_length_active_arguments_fixture > TestFiberForceLengthActiveDeGroote2016 (name: 2016,code,curve,de,derivative,fiber,force,groote,length,print)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_differentiate_wrt_c1",
+    "line": 937,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_differentiate_wrt_c1",
+    "score": 0.033,
+    "why": "via TestFiberForceLengthActiveDeGroote2016 (name: 2016,active,curve,de,fiber,force,groote,length)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_differentiate_wrt_c10",
+    "line": 1003,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_differentiate_wrt_c10",
+    "score": 0.032,
+    "why": "via TestFiberForceLengthActiveDeGroote2016 (name: 2016,active,curve,de,fiber,force,groote,length)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_differentiate_wrt_c11",
+    "line": 1011,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_differentiate_wrt_c11",
+    "score": 0.032,
+    "why": "via TestFiberForceLengthActiveDeGroote2016 (name: 2016,active,curve,de,fiber,force,groote,length)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_differentiate_wrt_c2",
+    "line": 945,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_differentiate_wrt_c2",
+    "score": 0.032,
+    "why": "via TestFiberForceLengthActiveDeGroote2016 (name: 2016,active,curve,de,fiber,force,groote,length)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_differentiate_wrt_c3",
+    "line": 953,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_differentiate_wrt_c3",
+    "score": 0.032,
+    "why": "via TestFiberForceLengthActiveDeGroote2016 (name: 2016,active,curve,de,fiber,force,groote,length)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_differentiate_wrt_c4",
+    "line": 961,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_differentiate_wrt_c4",
+    "score": 0.032,
+    "why": "via TestFiberForceLengthActiveDeGroote2016 (name: 2016,active,curve,de,fiber,force,groote,length)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_differentiate_wrt_c5",
+    "line": 966,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_differentiate_wrt_c5",
+    "score": 0.032,
+    "why": "via TestFiberForceLengthActiveDeGroote2016 (name: 2016,active,curve,de,fiber,force,groote,length)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_differentiate_wrt_c6",
+    "line": 974,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_differentiate_wrt_c6",
+    "score": 0.032,
+    "why": "via TestFiberForceLengthActiveDeGroote2016 (name: 2016,active,curve,de,fiber,force,groote,length)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_differentiate_wrt_c7",
+    "line": 982,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_differentiate_wrt_c7",
+    "score": 0.032,
+    "why": "via TestFiberForceLengthActiveDeGroote2016 (name: 2016,active,curve,de,fiber,force,groote,length)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_differentiate_wrt_c8",
+    "line": 990,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_differentiate_wrt_c8",
+    "score": 0.032,
+    "why": "via TestFiberForceLengthActiveDeGroote2016 (name: 2016,active,curve,de,fiber,force,groote,length)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_differentiate_wrt_c9",
+    "line": 995,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_differentiate_wrt_c9",
+    "score": 0.032,
+    "why": "via TestFiberForceLengthActiveDeGroote2016 (name: 2016,active,curve,de,fiber,force,groote,length)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "reaches",
+    "id": "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_differentiate_wrt_l_M_tilde",
+    "line": 914,
+    "run": "python -m pytest sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_differentiate_wrt_l_M_tilde",
+    "score": 0.032,
+    "why": "via TestFiberForceLengthActiveDeGroote2016 (name: 2016,active,curve,de,fiber,force,groote,length)"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/printing/tests/test_c.py",
+    "lines": "167-169",
+    "symbol": "test_ccode_functions2"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/printing/tests/test_cxx.py",
+    "lines": "59",
+    "symbol": "test_CXX17CodePrinter"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/printing/tests/test_jscode.py",
+    "lines": "77-80",
+    "symbol": "test_Mod"
+   },
+   {
+    "basis": "static_only",
+    "file": "sympy/printing/tests/test_pycode.py",
+    "lines": "43-47",
+    "symbol": "test_PythonCodePrinter"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792345129.784329,
+  "job_seconds": 722.5,
+  "number": 30428,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 722.8,
+  "started": 1792344399.775618,
+  "verify_seconds": 5.3
+ },
+ "verify": {
+  "checked": 3,
+  "false": 0,
+  "held": 3,
+  "merge_base": "f6d8906c03eec71d4cbbe0275722a7915d965a97",
+  "other": 0,
+  "problem": null,
+  "states": {
+   "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_derivative_print_code": "passed",
+   "sympy/physics/biomechanics/tests/test_curve.py::TestFiberForceLengthActiveDeGroote2016::test_print_code": "passed",
+   "sympy/printing/tests/test_cxx.py::test_CXX17CodePrinter": "passed"
+  },
+  "v": 1
+ }
+}

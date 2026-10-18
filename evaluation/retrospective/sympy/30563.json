@@ -1,0 +1,561 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "fe6ffa53d1464e4ac139088b178e61cb645eb30a",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "4673b0b6c544b99837bd3e09922bac5d03b3b791",
+  "install_ok": true,
+  "merge_base": "fe6ffa53d1464e4ac139088b178e61cb645eb30a",
+  "pr": 30563,
+  "recording": false,
+  "runner": null,
+  "seconds": 58.4,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "fe6ffa53d1464e4ac139088b178e61cb645eb30a",
+  "head_sha": "4673b0b6c544b99837bd3e09922bac5d03b3b791",
+  "merge_base": "fe6ffa53d1464e4ac139088b178e61cb645eb30a",
+  "merged_at": "2026-09-25T06:03:15Z",
+  "number": 30563,
+  "repo": "sympy",
+  "title": "Fixed complex expressions in Quaternion.norm"
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 2,
+  "called": 2,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/algebras/tests/test_quaternion.py::test_issue_30560",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/algebras/quaternion.py",
+    "lines": "927-928",
+    "symbol": "Quaternion.norm"
+   },
+   {
+    "file": "sympy/algebras/tests/test_quaternion.py",
+    "lines": "462-480",
+    "symbol": "test_issue_30560"
+   },
+   {
+    "file": "sympy/simplify/trigsimp.py",
+    "lines": "564-565",
+    "symbol": "trigsimp"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/algebras/quaternion.py#Quaternion.norm",
+   "sympy/algebras/tests/test_quaternion.py#test_issue_30560",
+   "sympy/simplify/trigsimp.py#trigsimp",
+   "sympy/algebras/tests/test_quaternion.py"
+  ],
+  "consequences": [
+   {
+    "evidence": "static source path",
+    "from": "Quaternion.norm return changed",
+    "path": [
+     "sympy/algebras/quaternion.py:928 return",
+     "sympy/algebras/quaternion.py:1476 Quaternion.angle uses the result",
+     "sympy/algebras/quaternion.py:1700 Quaternion.index_vector uses the result",
+     "sympy/algebras/quaternion.py:940 Quaternion.inverse uses the result"
+    ],
+    "to": "10 caller(s) use the result"
+   }
+  ],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 1,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 504,
+   "ran": 504,
+   "replayed": 1,
+   "runner": "pytest",
+   "seconds": 54.0,
+   "selection": {
+    "candidates": 12896,
+    "closure_files": 1321,
+    "closure_tests": 12887,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 9
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "12392 lower-ranked candidate(s) not run: about 2 tests/s per process fit 504 in the 300 s allowed",
+   "71359 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "graph reused from the previous state; 12 changed file(s) relinked"
+  ],
+  "impacted": {
+   "count": 3762,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1607,
+   "parsed_files": 3
+  },
+  "original_tests": {
+   "sympy/algebras/tests/test_quaternion.py::test_issue_16318": "passed",
+   "sympy/algebras/tests/test_quaternion.py::test_issue_25254": "passed",
+   "sympy/algebras/tests/test_quaternion.py::test_issue_28556": "passed",
+   "sympy/algebras/tests/test_quaternion.py::test_quaternion_axis_angle": "passed",
+   "sympy/algebras/tests/test_quaternion.py::test_quaternion_axis_angle_simplification": "passed",
+   "sympy/algebras/tests/test_quaternion.py::test_quaternion_complex_real_addition": "passed",
+   "sympy/algebras/tests/test_quaternion.py::test_quaternion_construction_norm": "passed",
+   "sympy/algebras/tests/test_quaternion.py::test_quaternion_multiplication": "passed",
+   "sympy/algebras/tests/test_quaternion.py::test_quaternion_subs": "passed",
+   "sympy/algebras/tests/test_quaternion.py::test_to_and_from_Matrix": "passed",
+   "sympy/algebras/tests/test_quaternion.py::test_to_euler_numerical_singilarities": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/algebras/tests/test_quaternion.py::test_issue_30560",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "d8302dc5f852",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [
+    "sympy/algebras/quaternion.py#Quaternion.norm",
+    "sympy/simplify/trigsimp.py#trigsimp"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 10,
+   "differences": 0,
+   "functions_called": 2,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "sympy/algebras/tests/test_quaternion.py#test_issue_30560": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 11.3,
+   "targets": 2,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 504 of 504 candidate tests after the change with pytest in 54.0 s, failures confirmed before it: 0 now fail. 5162 tests reach the change. 11 test(s) from edited test files also run as they were before the edit. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/algebras/tests/test_quaternion.py::test_quaternion_construction_norm",
+    "line": 42,
+    "run": "python -m pytest sympy/algebras/tests/test_quaternion.py::test_quaternion_construction_norm",
+    "score": 3.6,
+    "why": "calls Quaternion.norm (name: norm,quaternion)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_issue_2827_trigsimp_methods",
+    "line": 365,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_issue_2827_trigsimp_methods",
+    "score": 2.916,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issues",
+    "line": 168,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issues",
+    "score": 1.855,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/algebras/tests/test_quaternion.py::test_quaternion_functions",
+    "line": 151,
+    "run": "python -m pytest sympy/algebras/tests/test_quaternion.py::test_quaternion_functions",
+    "score": 1.695,
+    "why": "calls Quaternion.norm (name: quaternion)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/algebras/tests/test_quaternion.py::test_issue_25254",
+    "line": 52,
+    "run": "python -m pytest sympy/algebras/tests/test_quaternion.py::test_issue_25254",
+    "score": 1.294,
+    "why": "calls Quaternion.norm (name: quaternion)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_issue_5948",
+    "line": 129,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_issue_5948",
+    "score": 1.226,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/algebras/tests/test_quaternion.py::test_product_matrices",
+    "line": 70,
+    "run": "python -m pytest sympy/algebras/tests/test_quaternion.py::test_product_matrices",
+    "score": 1.028,
+    "why": "calls Quaternion.norm (name: quaternion)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_issue_4661",
+    "line": 111,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_issue_4661",
+    "score": 0.977,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/algebras/tests/test_quaternion.py::test_rotation_matrix_homogeneous",
+    "line": 318,
+    "run": "python -m pytest sympy/algebras/tests/test_quaternion.py::test_rotation_matrix_homogeneous",
+    "score": 0.898,
+    "why": "calls Quaternion.norm (name: quaternion)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_Piecewise",
+    "line": 457,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_Piecewise",
+    "score": 0.868,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issue_3826",
+    "line": 227,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issue_3826",
+    "score": 0.824,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_groebner",
+    "line": 335,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_trigsimp_groebner",
+    "score": 0.79,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "unchanged",
+    "id": "sympy/algebras/tests/test_quaternion.py::test_issue_30560",
+    "line": 462,
+    "run": "python -m pytest sympy/algebras/tests/test_quaternion.py::test_issue_30560",
+    "score": 0.781,
+    "why": "calls Quaternion.norm (name: quaternion)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_issue_15129_trigsimp_methods",
+    "line": 383,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_issue_15129_trigsimp_methods",
+    "score": 0.774,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_issue_3210",
+    "line": 148,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_issue_3210",
+    "score": 0.769,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_issue_4280",
+    "line": 141,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_issue_4280",
+    "score": 0.766,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_issue_4373",
+    "line": 92,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_issue_4373",
+    "score": 0.764,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_issue_4494",
+    "line": 123,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_issue_4494",
+    "score": 0.764,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_issue_4775",
+    "line": 135,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_issue_4775",
+    "score": 0.763,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_issue_6811_fail",
+    "line": 446,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_issue_6811_fail",
+    "score": 0.763,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issue_2515",
+    "line": 221,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issue_2515",
+    "score": 0.763,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issue_4032",
+    "line": 231,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issue_4032",
+    "score": 0.763,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issue_7761",
+    "line": 237,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_trigsimp_issue_7761",
+    "score": 0.763,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_inverse",
+    "line": 513,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_trigsimp_inverse",
+    "score": 0.751,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_relational.py::test_trigsimp",
+    "line": 1126,
+    "run": "python -m pytest sympy/core/tests/test_relational.py::test_trigsimp",
+    "score": 0.751,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_hyperbolic_simp",
+    "line": 276,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_hyperbolic_simp",
+    "score": 0.751,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/core/tests/test_noncommutative.py::test_trigsimp",
+    "line": 134,
+    "run": "python -m pytest sympy/core/tests/test_noncommutative.py::test_trigsimp",
+    "score": 0.751,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp1",
+    "line": 26,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_trigsimp1",
+    "score": 0.751,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp1a",
+    "line": 67,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_trigsimp1a",
+    "score": 0.751,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp2",
+    "line": 82,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_trigsimp2",
+    "score": 0.751,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp3",
+    "line": 97,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_trigsimp3",
+    "score": 0.751,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_noncommutative",
+    "line": 241,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_trigsimp_noncommutative",
+    "score": 0.751,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_trigsimp_old",
+    "line": 474,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_trigsimp_old",
+    "score": 0.751,
+    "why": "calls trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/algebras/tests/test_quaternion.py::test_quaternion_rotation_iss1593",
+    "line": 325,
+    "run": "python -m pytest sympy/algebras/tests/test_quaternion.py::test_quaternion_rotation_iss1593",
+    "score": 0.715,
+    "why": "via Quaternion.to_rotation_matrix > Quaternion.norm (name: quaternion)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/algebras/tests/test_quaternion.py::test_quaternion_conversions",
+    "line": 280,
+    "run": "python -m pytest sympy/algebras/tests/test_quaternion.py::test_quaternion_conversions",
+    "score": 0.686,
+    "why": "via Quaternion.to_rotation_matrix > Quaternion.norm (name: quaternion)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/algebras/tests/test_quaternion.py::test_to_euler",
+    "line": 376,
+    "run": "python -m pytest sympy/algebras/tests/test_quaternion.py::test_to_euler",
+    "score": 0.504,
+    "why": "via Quaternion.to_euler > Quaternion.norm (name: quaternion)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_issue_21594",
+    "line": 470,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_issue_21594",
+    "score": 0.472,
+    "why": "via simplify > trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/simplify/tests/test_trigsimp.py::test_exptrigsimp",
+    "line": 392,
+    "run": "python -m pytest sympy/simplify/tests/test_trigsimp.py::test_exptrigsimp",
+    "score": 0.465,
+    "why": "via simplify > trigsimp (name: trigsimp)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/algebras/tests/test_quaternion.py::test_to_euler_options",
+    "line": 418,
+    "run": "python -m pytest sympy/algebras/tests/test_quaternion.py::test_to_euler_options",
+    "score": 0.452,
+    "why": "via test_to_euler_options.test_one_case > Quaternion.to_euler > Quaternion.norm (name: quaternion)"
+   },
+   {
+    "confidence": "direct",
+    "expect": "reaches",
+    "id": "sympy/algebras/tests/test_quaternion.py::test_to_euler_iss24504",
+    "line": 390,
+    "run": "python -m pytest sympy/algebras/tests/test_quaternion.py::test_to_euler_iss24504",
+    "score": 0.449,
+    "why": "calls trigsimp"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/algebras/tests/test_quaternion.py",
+    "lines": "462-480",
+    "symbol": "test_issue_30560"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792330671.068235,
+  "job_seconds": 58.4,
+  "number": 30563,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 58.4,
+  "started": 1792330612.0031471
+ },
+ "verify": null
+}

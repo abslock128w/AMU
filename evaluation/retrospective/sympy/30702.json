@@ -1,0 +1,601 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "a0be64b90beabfaa8f76fcb31f2983b2476adfb4",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "167a6a97e343b633006085c548bd02966e9422bb",
+  "install_ok": true,
+  "merge_base": "a0be64b90beabfaa8f76fcb31f2983b2476adfb4",
+  "pr": 30702,
+  "recording": false,
+  "runner": null,
+  "seconds": 488.9,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "a0be64b90beabfaa8f76fcb31f2983b2476adfb4",
+  "head_sha": "167a6a97e343b633006085c548bd02966e9422bb",
+  "merge_base": "a0be64b90beabfaa8f76fcb31f2983b2476adfb4",
+  "merged_at": "2026-10-09T08:24:37Z",
+  "number": 30702,
+  "repo": "sympy",
+  "title": "ode: drop redundant const sol's after applying ic"
+ },
+ "probe_minutes": {
+  "end": 1792342612.633187,
+  "minutes": 1.0,
+  "start": 1792341990.457516,
+  "waited": 562.5606127920037
+ },
+ "probe_targets": {
+  "all": 1,
+  "called": 0,
+  "targets": [
+   {
+    "after": "def _helper_simplify(eq, hint, match, simplify=True, ics=None, **kwargs):\n    r\"\"\"\n    Helper function of dsolve that calls the respective\n    :py:mod:`~sympy.solvers.ode` functions to solve for the ordinary\n    differential equations. This minimizes the computation in calling\n    :py:meth:`~sympy.solvers.deutils._desolve` multiple times.\n    \"\"\"\n    r = match\n    func = r['func']\n    order = r['order']\n    match = r[hint]\n\n    if isinstance(match, SingleODESolver):\n        solvefunc = match\n    else:\n        solvefunc = globals()['ode_' + hint.removesuffix('_Integral')]\n\n    free = eq.free_symbols\n    cons = lambda s: s.free_symbols.difference(free)\n\n    if simplify:\n        # odesimp() will attempt to integrate, if necessary, apply constantsimp(),\n        # attempt to solve for func, and apply any other hint specific\n        # simplifications\n        if isinstance(solvefunc, SingleODESolver):\n            sols = solvefunc.get_general_solution()\n        else:\n            sols = solvefunc(eq, func, order, match)\n        if iterable(sols):\n            rv = []\n            for s in sols:\n                simp = odesimp(eq, s, func, hint)\n                if iterable(simp):\n                    rv.extend(simp)\n                else:\n                    rv.append(simp)\n        else:\n            rv = odesimp(eq, sols, func, hint)\n    else:\n        # We still want to integrate (you can disable it separately with the hint)\n        if isinstance(solvefunc, SingleODESolver):\n            exprs = solvefunc.get_general_solution(simplify=False)\n        else:\n            match['simplify'] = False  # Some hints can take advantage of this option\n            exprs = solvefunc(eq, func, order, match)\n        if isinstance(exprs, list):\n            rv = [_handle_Integral(expr, func, hint) for expr in exprs]\n        else:\n            rv = _handle_Integral(exprs, func, hint)\n\n    if isinstance(rv, list):\n        assert all(isinstance(i, Eq) for i in rv), rv  # if not => internal error\n        if simplify:\n            rv = _remove_redundant_solutions(eq, rv, order, func.args[0])\n        if len(rv) == 1:\n            rv = rv[0]\n    if ics and 'power_series' not in hint:\n        rv1 = []\n        if not isinstance(rv, list):\n            rv = [rv]\n        for s in rv:\n            try:\n                solved_constants = solve_ics([s], [func], cons(s), ics)\n            except ValueError:\n                continue\n            rv1.append(s.subs(solved_constants))\n\n        if rv_c := _get_constant_solutions(eq, func, ics):\n            rv1 = [s for s in rv1 if s != False]\n            for s in rv_c:\n                if s not in rv1:\n                    rv1.append(s)\n        if simplify and len(rv1) > 1:\n            rv1 = _remove_redundant_solutions(eq, rv1, order, func.args[0])\n        if len(rv1) == 1:\n            return rv1[0]\n        rv = rv1\n    return rv\n",
+    "before": "def _helper_simplify(eq, hint, match, simplify=True, ics=None, **kwargs):\n    r\"\"\"\n    Helper function of dsolve that calls the respective\n    :py:mod:`~sympy.solvers.ode` functions to solve for the ordinary\n    differential equations. This minimizes the computation in calling\n    :py:meth:`~sympy.solvers.deutils._desolve` multiple times.\n    \"\"\"\n    r = match\n    func = r['func']\n    order = r['order']\n    match = r[hint]\n\n    if isinstance(match, SingleODESolver):\n        solvefunc = match\n    else:\n        solvefunc = globals()['ode_' + hint.removesuffix('_Integral')]\n\n    free = eq.free_symbols\n    cons = lambda s: s.free_symbols.difference(free)\n\n    if simplify:\n        # odesimp() will attempt to integrate, if necessary, apply constantsimp(),\n        # attempt to solve for func, and apply any other hint specific\n        # simplifications\n        if isinstance(solvefunc, SingleODESolver):\n            sols = solvefunc.get_general_solution()\n        else:\n            sols = solvefunc(eq, func, order, match)\n        if iterable(sols):\n            rv = []\n            for s in sols:\n                simp = odesimp(eq, s, func, hint)\n                if iterable(simp):\n                    rv.extend(simp)\n                else:\n                    rv.append(simp)\n        else:\n            rv = odesimp(eq, sols, func, hint)\n    else:\n        # We still want to integrate (you can disable it separately with the hint)\n        if isinstance(solvefunc, SingleODESolver):\n            exprs = solvefunc.get_general_solution(simplify=False)\n        else:\n            match['simplify'] = False  # Some hints can take advantage of this option\n            exprs = solvefunc(eq, func, order, match)\n        if isinstance(exprs, list):\n            rv = [_handle_Integral(expr, func, hint) for expr in exprs]\n        else:\n            rv = _handle_Integral(exprs, func, hint)\n\n    if isinstance(rv, list):\n        assert all(isinstance(i, Eq) for i in rv), rv  # if not => internal error\n        if simplify:\n            rv = _remove_redundant_solutions(eq, rv, order, func.args[0])\n        if len(rv) == 1:\n            rv = rv[0]\n    if ics and 'power_series' not in hint:\n        rv1 = []\n        if not isinstance(rv, list):\n            rv = [rv]\n        for s in rv:\n            try:\n                solved_constants = solve_ics([s], [func], cons(s), ics)\n            except ValueError:\n                continue\n            rv1.append(s.subs(solved_constants))\n\n        if rv_c := _get_constant_solutions(eq, func, ics):\n            rv1 = [s for s in rv1 if s != False]\n            for s in rv_c:\n                if s not in rv1:\n                    rv1.append(s)\n        if len(rv1) == 1:\n            return rv1[0]\n        rv = rv1\n    return rv\n",
+    "file": "sympy/solvers/ode/ode.py",
+    "id": "sympy/solvers/ode/ode.py#_helper_simplify",
+    "name": "_helper_simplify",
+    "qual": "_helper_simplify",
+    "signature_changed": false
+   }
+  ]
+ },
+ "probes": [
+  {
+   "attempt": 1,
+   "differences": [
+    {
+     "after": [
+      "return",
+      "list",
+      "['Eq(y(t), C2*t*exp(-t))', 'Eq(y(t), (C1 + C2*t)*exp(-t))']"
+     ],
+     "before": [
+      "return",
+      "list",
+      "['[Eq(y(t), C2*t*exp(-t)), Eq(y(t), 0)]', 'Eq(y(t), (C1 + C2*t)*exp(-t))']"
+     ],
+     "call": "[str(dsolve(eq, y, ics={y.subs(t, 0): 0})), str(dsolve(eq, y))]",
+     "label": "generated test shows a difference",
+     "setup": "from sympy import Function, dsolve, symbols\nt = symbols('t')\ny = Function('y')(t)\neq = y.diff(t, 2) + 2*y.diff(t) + y",
+     "target": "sympy/solvers/ode/ode.py#_helper_simplify",
+     "test": "import pytest\n\n\ndef test_generated():\n    from sympy import Function, dsolve, symbols\n    t = symbols('t')\n    y = Function('y')(t)\n    eq = y.diff(t, 2) + 2*y.diff(t) + y\n    assert repr([str(dsolve(eq, y, ics={y.subs(t, 0): 0})), str(dsolve(eq, y))]) == \"['Eq(y(t), C2*t*exp(-t))', 'Eq(y(t), (C1 + C2*t)*exp(-t))']\"\n",
+     "why": "the docs example: initial conditions that make a constant solution redundant"
+    }
+   ],
+   "dollars_cap": 0.1,
+   "filter_seconds": 52.4,
+   "gaps": [],
+   "info": {
+    "accepted": 1,
+    "compiled": 1,
+    "cost": 0.0,
+    "differed": 1,
+    "dollars_cap": 0.1,
+    "functions": 1,
+    "minutes_cap": 20,
+    "model": "claude-opus-5-5",
+    "proposed": 1,
+    "ran": 1,
+    "reached": 1,
+    "requests": 1,
+    "seconds": 51.8,
+    "stable": 1
+   },
+   "probes": [
+    {
+     "call": "[str(dsolve(eq, y, ics={y.subs(t, 0): 0})), str(dsolve(eq, y))]",
+     "function": "sympy/solvers/ode/ode.py#_helper_simplify",
+     "setup": "from sympy import Function, dsolve, symbols\nt = symbols('t')\ny = Function('y')(t)\neq = y.diff(t, 2) + 2*y.diff(t) + y",
+     "why": "the docs example: initial conditions that make a constant solution redundant"
+    }
+   ],
+   "targets": [
+    "sympy/solvers/ode/ode.py#_helper_simplify"
+   ],
+   "waited_seconds": 562.6
+  }
+ ],
+ "report": {
+  "behaviour_differences": [],
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "sympy/solvers/ode/tests/test_ode.py::test_dsolve_ics_redundant_constant_solution",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "sympy/solvers/ode/ode.py",
+    "lines": "716-717",
+    "symbol": "_helper_simplify"
+   },
+   {
+    "file": "sympy/solvers/ode/tests/test_ode.py",
+    "lines": "1055-1063",
+    "symbol": "test_dsolve_ics_redundant_constant_solution"
+   }
+  ],
+  "changed_symbols": [
+   "sympy/solvers/ode/ode.py#_helper_simplify",
+   "sympy/solvers/ode/tests/test_ode.py#test_dsolve_ics_redundant_constant_solution",
+   "sympy/solvers/ode/tests/test_ode.py"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 1,
+    "stored": 0
+   },
+   "budget": 300,
+   "candidates": 2328,
+   "ran": 2200,
+   "replayed": 1,
+   "runner": "pytest",
+   "seconds": 374.6,
+   "selection": {
+    "candidates": 12943,
+    "closure_files": 1322,
+    "closure_tests": 12943,
+    "depth_cap": 10,
+    "hubs": 16,
+    "hubs_reached": [
+     "sympy/__init__.py",
+     "sympy/abc.py",
+     "sympy/core/__init__.py",
+     "sympy/core/expr.py",
+     "sympy/core/function.py",
+     "sympy/core/numbers.py",
+     "sympy/core/relational.py",
+     "sympy/core/singleton.py",
+     "sympy/core/symbol.py",
+     "sympy/core/sympify.py",
+     "sympy/functions/elementary/complexes.py",
+     "sympy/functions/elementary/exponential.py",
+     "sympy/functions/elementary/miscellaneous.py",
+     "sympy/functions/elementary/trigonometric.py",
+     "sympy/utilities/iterables.py"
+    ],
+    "observed": 0,
+    "static_only": 0
+   },
+   "unrunnable": 0
+  },
+  "flips": 0,
+  "gaps": [
+   "10615 lower-ranked candidate(s) not run: about 10 tests/s per process fit 2328 in the 300 s allowed",
+   "63991 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "shadow run stopped at its 300 s budget: 2200 of 2328 candidates run",
+   "side-by-side: none of the 1 changed function(s) was called by the tests run on the code before the change"
+  ],
+  "impacted": {
+   "count": 31,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 1608,
+   "parsed_files": 4
+  },
+  "original_tests": {
+   "sympy/solvers/ode/tests/test_ode.py::test_issue_25820": "skipped"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "sympy/solvers/ode/tests/test_ode.py::test_dsolve_ics_redundant_constant_solution",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "15218f3717c8",
+  "runner": "pytest",
+  "side_by_side": {
+   "called": [],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 0,
+   "differences": 0,
+   "functions_called": 0,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "sympy/solvers/ode/tests/test_ode.py#test_dsolve_ics_redundant_constant_solution": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 60.5,
+   "targets": 1,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 2200 of 2328 candidate tests after the change with pytest in 374.6 s, failures confirmed before it: 0 now fail. 99 tests reach the change. 1 test(s) from edited test files also run as they were before the edit. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_ode.py::test_dsolve_remove_redundant_solutions",
+    "line": 1040,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_ode.py::test_dsolve_remove_redundant_solutions",
+    "score": 1.566,
+    "why": "via dsolve > _helper_simplify (name: ode)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/ode/tests/test_ode.py::test_dsolve_ics_redundant_constant_solution",
+    "line": 1055,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_ode.py::test_dsolve_ics_redundant_constant_solution",
+    "score": 0.881,
+    "why": "via dsolve > _helper_simplify (name: ode)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_ode.py::test_dsolve_all_hint",
+    "line": 56,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_ode.py::test_dsolve_all_hint",
+    "score": 0.547,
+    "why": "via dsolve > _helper_simplify (name: ode)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_ode.py::test_solve_ics",
+    "line": 486,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_ode.py::test_solve_ics",
+    "score": 0.429,
+    "why": "via dsolve > _helper_simplify (name: ode)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_ode.py::test_dsolve_options",
+    "line": 100,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_ode.py::test_dsolve_options",
+    "score": 0.376,
+    "why": "via dsolve > _helper_simplify (name: ode)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_ode.py::test_issue_4825",
+    "line": 798,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_ode.py::test_issue_4825",
+    "score": 0.319,
+    "why": "via dsolve > _helper_simplify (name: ode)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_ode.py::test_issue_5770",
+    "line": 830,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_ode.py::test_issue_5770",
+    "score": 0.299,
+    "why": "via dsolve > _helper_simplify (name: ode)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_ode.py::test_2nd_power_series_ordinary",
+    "line": 930,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_ode.py::test_2nd_power_series_ordinary",
+    "score": 0.28,
+    "why": "via dsolve > _helper_simplify (name: ode)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_ode.py::test_2nd_power_series_regular",
+    "line": 981,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_ode.py::test_2nd_power_series_regular",
+    "score": 0.273,
+    "why": "via dsolve > _helper_simplify (name: ode)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_ode.py::test_issue_13060",
+    "line": 1066,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_ode.py::test_issue_13060",
+    "score": 0.268,
+    "why": "via dsolve > _helper_simplify (name: ode)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_ode.py::test_issue_22523",
+    "line": 1074,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_ode.py::test_issue_22523",
+    "score": 0.264,
+    "why": "via dsolve > _helper_simplify (name: ode)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_ode.py::test_issue_22604",
+    "line": 1096,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_ode.py::test_issue_22604",
+    "score": 0.262,
+    "why": "via dsolve > _helper_simplify (name: ode)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "sympy/solvers/ode/tests/test_ode.py::test_issue_25820",
+    "line": 1130,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_ode.py::test_issue_25820",
+    "score": 0.26,
+    "why": "via dsolve > _helper_simplify (name: ode)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_ode.py::test_issue_27683",
+    "line": 1138,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_ode.py::test_issue_27683",
+    "score": 0.259,
+    "why": "via dsolve > _helper_simplify (name: ode)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_ode.py::test_issue_28438",
+    "line": 1151,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_ode.py::test_issue_28438",
+    "score": 0.259,
+    "why": "via dsolve > _helper_simplify (name: ode)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_ode.py::test_issue_29827",
+    "line": 1178,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_ode.py::test_issue_29827",
+    "score": 0.258,
+    "why": "via dsolve > _helper_simplify (name: ode)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_ode.py::test_series",
+    "line": 910,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_ode.py::test_series",
+    "score": 0.258,
+    "why": "via dsolve > _helper_simplify (name: ode)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_ode.py::test_dsolve_ics",
+    "line": 94,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_ode.py::test_dsolve_ics",
+    "score": 0.238,
+    "why": "via dsolve > _helper_simplify (name: ode)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_ode.py::test_issue_16146",
+    "line": 1035,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_ode.py::test_issue_16146",
+    "score": 0.238,
+    "why": "via dsolve > _helper_simplify (name: ode)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_ode.py::test_issue_5095",
+    "line": 850,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_ode.py::test_issue_5095",
+    "score": 0.238,
+    "why": "via dsolve > _helper_simplify (name: ode)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_systems.py::test_component_division",
+    "line": 1783,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_systems.py::test_component_division",
+    "score": 0.197,
+    "why": "via dsolve > _helper_simplify"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_systems.py::test_higher_order_to_first_order",
+    "line": 1548,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_systems.py::test_higher_order_to_first_order",
+    "score": 0.196,
+    "why": "via dsolve > _helper_simplify"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_systems.py::test_higher_order_to_first_order_12",
+    "line": 1685,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_systems.py::test_higher_order_to_first_order_12",
+    "score": 0.196,
+    "why": "via dsolve > _helper_simplify"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_systems.py::test_higher_order_to_first_order_9",
+    "line": 1668,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_systems.py::test_higher_order_to_first_order_9",
+    "score": 0.196,
+    "why": "via dsolve > _helper_simplify"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_systems.py::test_linear_2eq_order1",
+    "line": 2431,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_systems.py::test_linear_2eq_order1",
+    "score": 0.196,
+    "why": "via dsolve > _helper_simplify"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_systems.py::test_linear_3eq_order1_type4_long_dsolve_dotprodsimp",
+    "line": 2284,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_systems.py::test_linear_3eq_order1_type4_long_dsolve_dotprodsimp",
+    "score": 0.196,
+    "why": "via dsolve > _helper_simplify"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_systems.py::test_linear_3eq_order1_type4_long_dsolve_slow_xfail",
+    "line": 2273,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_systems.py::test_linear_3eq_order1_type4_long_dsolve_slow_xfail",
+    "score": 0.196,
+    "why": "via dsolve > _helper_simplify"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_systems.py::test_linear_3eq_order1_type4_slow",
+    "line": 2101,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_systems.py::test_linear_3eq_order1_type4_slow",
+    "score": 0.196,
+    "why": "via dsolve > _helper_simplify"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_systems.py::test_neq_order1_type4_slow_check1",
+    "line": 2197,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_systems.py::test_neq_order1_type4_slow_check1",
+    "score": 0.196,
+    "why": "via dsolve > _helper_simplify"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_systems.py::test_neq_order1_type4_slow_check2",
+    "line": 2208,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_systems.py::test_neq_order1_type4_slow_check2",
+    "score": 0.196,
+    "why": "via dsolve > _helper_simplify"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_systems.py::test_nonlinear_2eq_order1",
+    "line": 2473,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_systems.py::test_nonlinear_2eq_order1",
+    "score": 0.196,
+    "why": "via dsolve > _helper_simplify"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_systems.py::test_nonlinear_3eq_order1",
+    "line": 2537,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_systems.py::test_nonlinear_3eq_order1",
+    "score": 0.196,
+    "why": "via dsolve > _helper_simplify"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_systems.py::test_nonlinear_3eq_order1_type1",
+    "line": 2377,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_systems.py::test_nonlinear_3eq_order1_type1",
+    "score": 0.196,
+    "why": "via dsolve > _helper_simplify"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_systems.py::test_nonlinear_3eq_order1_type3",
+    "line": 2404,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_systems.py::test_nonlinear_3eq_order1_type3",
+    "score": 0.196,
+    "why": "via dsolve > _helper_simplify"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_systems.py::test_nonlinear_3eq_order1_type4",
+    "line": 2391,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_systems.py::test_nonlinear_3eq_order1_type4",
+    "score": 0.196,
+    "why": "via dsolve > _helper_simplify"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_systems.py::test_nonlinear_3eq_order1_type5",
+    "line": 2418,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_systems.py::test_nonlinear_3eq_order1_type5",
+    "score": 0.196,
+    "why": "via dsolve > _helper_simplify"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_systems.py::test_second_order_to_first_order_2",
+    "line": 1704,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_systems.py::test_second_order_to_first_order_2",
+    "score": 0.196,
+    "why": "via dsolve > _helper_simplify"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_systems.py::test_second_order_to_first_order_slow1",
+    "line": 1750,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_systems.py::test_second_order_to_first_order_slow1",
+    "score": 0.196,
+    "why": "via dsolve > _helper_simplify"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_systems.py::test_second_order_type2_slow1",
+    "line": 2363,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_systems.py::test_second_order_type2_slow1",
+    "score": 0.196,
+    "why": "via dsolve > _helper_simplify"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "reaches",
+    "id": "sympy/solvers/ode/tests/test_systems.py::test_sysode_linear_neq_order1_type1",
+    "line": 520,
+    "run": "python -m pytest sympy/solvers/ode/tests/test_systems.py::test_sysode_linear_neq_order1_type1",
+    "score": 0.196,
+    "why": "via dsolve > _helper_simplify"
+   }
+  ],
+  "untested": [
+   {
+    "basis": "static_only",
+    "file": "sympy/solvers/ode/tests/test_ode.py",
+    "lines": "1055-1063",
+    "symbol": "test_dsolve_ics_redundant_constant_solution"
+   }
+  ]
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792341915.3908632,
+  "job_seconds": 488.9,
+  "number": 30702,
+  "observe": false,
+  "render_status": 0,
+  "repo": "sympy",
+  "run_seconds": 489.0,
+  "started": 1792341424.608601
+ },
+ "verify": null
+}

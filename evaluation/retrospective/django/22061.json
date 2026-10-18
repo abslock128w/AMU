@@ -1,0 +1,603 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "b33bab33709bbd74f4dfc376786ba0b3912c3f53",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "71cbd9ad6ba4b41d318aa7bee45762ed227f875f",
+  "install_ok": true,
+  "merge_base": "b33bab33709bbd74f4dfc376786ba0b3912c3f53",
+  "pr": 22061,
+  "recording": true,
+  "runner": null,
+  "seconds": 153.2,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "b33bab33709bbd74f4dfc376786ba0b3912c3f53",
+  "head_sha": "71cbd9ad6ba4b41d318aa7bee45762ed227f875f",
+  "merge_base": "b33bab33709bbd74f4dfc376786ba0b3912c3f53",
+  "merged_at": "2026-10-12T15:23:20Z",
+  "number": 22061,
+  "repo": "django",
+  "title": "Fixed #28219 -- Made UnorderedObjectListWarning skip Django frames."
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 1,
+  "called": 1,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/pagination/tests.py::ModelPaginationTests::test_paginating_unordered_queryset_raises_warning_async",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "django/core/paginator.py",
+    "lines": "91",
+    "symbol": "BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "file": "tests/pagination/tests.py",
+    "lines": "902-903",
+    "symbol": "ModelPaginationTests.test_paginating_unordered_queryset_raises_warning_async"
+   }
+  ],
+  "changed_symbols": [
+   "django/core/paginator.py#BasePaginator._check_object_list_is_ordered",
+   "tests/pagination/tests.py#ModelPaginationTests.test_paginating_unordered_queryset_raises_warning_async",
+   "django/core/paginator.py",
+   "tests/pagination/tests.py"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 2,
+    "stored": 1
+   },
+   "budget": 300,
+   "candidates": 2569,
+   "ran": 2568,
+   "replayed": 1,
+   "runner": "django-runtests",
+   "seconds": 149.9,
+   "selection": {
+    "candidates": 2569,
+    "closure_files": 143,
+    "closure_tests": 2361,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/contrib/admin/__init__.py"
+    ],
+    "observed": 190,
+    "static_only": 23
+   },
+   "unrunnable": 0
+  },
+  "flip_trust": [
+   {
+    "id": "tests/pagination/tests.py::ModelPaginationTests::test_paginating_unordered_queryset_raises_warning_async",
+    "label": "fails",
+    "reach": 2,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": null
+    },
+    "why": "as the test was before the edit: failed again in every rerun; ran 2 changed line(s); not rerun: the rerun in the same process"
+   }
+  ],
+  "flips": 1,
+  "gaps": [
+   "102854 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "graph reused from the previous state; 3 changed file(s) relinked"
+  ],
+  "impacted": {
+   "count": 24,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2931,
+   "parsed_files": 2
+  },
+  "order": "the same explicit order on both sides (fixed hash seed)",
+  "original_tests": {
+   "tests/pagination/tests.py::ModelPaginationTests::test_aget_object_list": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_async_page_aiteration": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_async_page_aiteration_closes_object_list_promptly": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_async_page_object_list_raises_type_error_before_await": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_first_page": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_first_page_async": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_last_page": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_last_page_async": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_page_getitem": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_page_getitem_async": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_paginating_empty_queryset_does_not_warn": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_paginating_empty_queryset_does_not_warn_async": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_paginating_unordered_object_list_raises_warning": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_paginating_unordered_object_list_raises_warning_async": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_paginating_unordered_queryset_raises_warning": "passed",
+   "tests/pagination/tests.py::ModelPaginationTests::test_paginating_unordered_queryset_raises_warning_async": "failed",
+   "tests/pagination/tests.py::PaginationTests::test_acount_does_not_silence_attribute_error_async": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_acount_does_not_silence_type_error_async": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_aget_elided_page_range_async": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_aget_page_async": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_aget_page_empty_obj_list_and_allow_empty_first_page_false_async": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_aget_page_empty_object_list_async": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_count_does_not_silence_attribute_error": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_count_does_not_silence_type_error": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_error_messages": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_float_integer_page": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_get_elided_page_range": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_get_page": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_get_page_empty_object_list": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_get_page_empty_object_list_and_allow_empty_first_page_false": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_get_page_hook": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_get_page_hook_async": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_invalid_apage_number_async": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_invalid_page_number": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_no_content_allow_empty_first_page": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_orphans_value_larger_than_per_page_value": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_page_indexes": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_page_indexes_async": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_page_range_iterator": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_page_sequence": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_page_sequence_async": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_paginate_misc_classes": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_paginate_misc_classes_async": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_paginator": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_paginator_async": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_paginator_iteration": "passed",
+   "tests/pagination/tests.py::PaginationTests::test_paginator_iteration_async": "passed"
+  },
+  "predicted_failures": [
+   {
+    "after": "failed",
+    "before": "passed",
+    "edited_form": "passed",
+    "id": "tests/pagination/tests.py::ModelPaginationTests::test_paginating_unordered_queryset_raises_warning_async",
+    "label": "test edited, not fixed",
+    "reach": 2,
+    "reruns": {
+     "after_set": "failed",
+     "fresh_process": "failed",
+     "in_process": null
+    },
+    "trust": "fails",
+    "why": "as the test was before the edit: failed again in every rerun; ran 2 changed line(s); not rerun: the rerun in the same process"
+   }
+  ],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/pagination/tests.py::ModelPaginationTests::test_paginating_unordered_queryset_raises_warning_async",
+    "verdict": "evidence"
+   }
+  ],
+  "report_hash": "74c1a44cd569",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [
+    "django/core/paginator.py#BasePaginator._check_object_list_is_ordered"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 5,
+   "differences": 0,
+   "functions_called": 1,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "tests/pagination/tests.py#ModelPaginationTests.test_paginating_unordered_queryset_raises_warning_async": "coroutine"
+   },
+   "seconds": 79.8,
+   "targets": 1,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 2568 of 2569 candidate tests after the change with django-runtests in 149.9 s, failures confirmed before it: 1 now fail. 173 tests reach the change. 47 test(s) from edited test files also run as they were before the edit. 1 of the failures pass, are skipped or are gone only because the test was edited; as it was, it still fails on the changed code: test edited, not fixed. 1 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "transitive",
+    "expect": "fails",
+    "id": "tests/pagination/tests.py::ModelPaginationTests::test_paginating_unordered_queryset_raises_warning_async",
+    "line": 895,
+    "run": "cd tests && python runtests.py pagination.tests.ModelPaginationTests.test_paginating_unordered_queryset_raises_warning_async",
+    "score": 0.493,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::ModelPaginationTests::test_paginating_unordered_object_list_raises_warning_async",
+    "line": 932,
+    "run": "cd tests && python runtests.py pagination.tests.ModelPaginationTests.test_paginating_unordered_object_list_raises_warning_async",
+    "score": 1.25,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered (name: list,object)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::ModelPaginationTests::test_paginating_unordered_object_list_raises_warning",
+    "line": 915,
+    "run": "cd tests && python runtests.py pagination.tests.ModelPaginationTests.test_paginating_unordered_object_list_raises_warning",
+    "score": 0.782,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered (name: list,object)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::ModelPaginationTests::test_paginating_unordered_queryset_raises_warning",
+    "line": 884,
+    "run": "cd tests && python runtests.py pagination.tests.ModelPaginationTests.test_paginating_unordered_queryset_raises_warning",
+    "score": 0.393,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::ModelPaginationTests::test_async_page_object_list_raises_type_error_before_await",
+    "line": 948,
+    "run": "cd tests && python runtests.py pagination.tests.ModelPaginationTests.test_async_page_object_list_raises_type_error_before_await",
+    "score": 0.315,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered (name: list,object)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::ModelPaginationTests::test_aget_object_list",
+    "line": 976,
+    "run": "cd tests && python runtests.py pagination.tests.ModelPaginationTests.test_aget_object_list",
+    "score": 0.285,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered (name: list,object)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::PaginationTests::test_paginator_iteration",
+    "line": 521,
+    "run": "cd tests && python runtests.py pagination.tests.PaginationTests.test_paginator_iteration",
+    "score": 0.253,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered (name: paginator)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::PaginationTests::test_paginator_iteration_async",
+    "line": 533,
+    "run": "cd tests && python runtests.py pagination.tests.PaginationTests.test_paginator_iteration_async",
+    "score": 0.245,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered (name: paginator)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::PaginationTests::test_aget_page_empty_object_list_async",
+    "line": 492,
+    "run": "cd tests && python runtests.py pagination.tests.PaginationTests.test_aget_page_empty_object_list_async",
+    "score": 0.237,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered (name: list,object)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::PaginationTests::test_get_page_empty_object_list",
+    "line": 483,
+    "run": "cd tests && python runtests.py pagination.tests.PaginationTests.test_get_page_empty_object_list",
+    "score": 0.234,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered (name: list,object)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::PaginationTests::test_get_page_empty_object_list_and_allow_empty_first_page_false",
+    "line": 501,
+    "run": "cd tests && python runtests.py pagination.tests.PaginationTests.test_get_page_empty_object_list_and_allow_empty_first_page_false",
+    "score": 0.233,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered (name: list,object)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::ModelPaginationTests::test_paginating_empty_queryset_does_not_warn_async",
+    "line": 910,
+    "run": "cd tests && python runtests.py pagination.tests.ModelPaginationTests.test_paginating_empty_queryset_does_not_warn_async",
+    "score": 0.229,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::ModelPaginationTests::test_paginating_empty_queryset_does_not_warn",
+    "line": 905,
+    "run": "cd tests && python runtests.py pagination.tests.ModelPaginationTests.test_paginating_empty_queryset_does_not_warn",
+    "score": 0.225,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::PaginationTests::test_aget_page_empty_obj_list_and_allow_empty_first_page_false_async",
+    "line": 510,
+    "run": "cd tests && python runtests.py pagination.tests.PaginationTests.test_aget_page_empty_obj_list_and_allow_empty_first_page_false_async",
+    "score": 0.189,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered (name: list)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::ModelPaginationTests::test_async_page_aiteration",
+    "line": 970,
+    "run": "cd tests && python runtests.py pagination.tests.ModelPaginationTests.test_async_page_aiteration",
+    "score": 0.171,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::ModelPaginationTests::test_first_page_async",
+    "line": 797,
+    "run": "cd tests && python runtests.py pagination.tests.ModelPaginationTests.test_first_page_async",
+    "score": 0.171,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::ModelPaginationTests::test_last_page_async",
+    "line": 826,
+    "run": "cd tests && python runtests.py pagination.tests.ModelPaginationTests.test_last_page_async",
+    "score": 0.17,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::ModelPaginationTests::test_page_getitem_async",
+    "line": 866,
+    "run": "cd tests && python runtests.py pagination.tests.ModelPaginationTests.test_page_getitem_async",
+    "score": 0.17,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::ModelPaginationTests::test_first_page",
+    "line": 783,
+    "run": "cd tests && python runtests.py pagination.tests.ModelPaginationTests.test_first_page",
+    "score": 0.167,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::ModelPaginationTests::test_last_page",
+    "line": 812,
+    "run": "cd tests && python runtests.py pagination.tests.ModelPaginationTests.test_last_page",
+    "score": 0.167,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::ModelPaginationTests::test_page_getitem",
+    "line": 841,
+    "run": "cd tests && python runtests.py pagination.tests.ModelPaginationTests.test_page_getitem",
+    "score": 0.167,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::PaginationTests::test_acount_does_not_silence_attribute_error_async",
+    "line": 265,
+    "run": "cd tests && python runtests.py pagination.tests.PaginationTests.test_acount_does_not_silence_attribute_error_async",
+    "score": 0.15,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::PaginationTests::test_acount_does_not_silence_type_error_async",
+    "line": 281,
+    "run": "cd tests && python runtests.py pagination.tests.PaginationTests.test_acount_does_not_silence_type_error_async",
+    "score": 0.15,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::PaginationTests::test_aget_elided_page_range_async",
+    "line": 680,
+    "run": "cd tests && python runtests.py pagination.tests.PaginationTests.test_aget_elided_page_range_async",
+    "score": 0.15,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::PaginationTests::test_aget_page_async",
+    "line": 469,
+    "run": "cd tests && python runtests.py pagination.tests.PaginationTests.test_aget_page_async",
+    "score": 0.15,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::PaginationTests::test_count_does_not_silence_attribute_error",
+    "line": 257,
+    "run": "cd tests && python runtests.py pagination.tests.PaginationTests.test_count_does_not_silence_attribute_error",
+    "score": 0.15,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::PaginationTests::test_count_does_not_silence_type_error",
+    "line": 273,
+    "run": "cd tests && python runtests.py pagination.tests.PaginationTests.test_count_does_not_silence_type_error",
+    "score": 0.15,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::PaginationTests::test_error_messages",
+    "line": 178,
+    "run": "cd tests && python runtests.py pagination.tests.PaginationTests.test_error_messages",
+    "score": 0.15,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::PaginationTests::test_float_integer_page",
+    "line": 206,
+    "run": "cd tests && python runtests.py pagination.tests.PaginationTests.test_float_integer_page",
+    "score": 0.15,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::PaginationTests::test_get_elided_page_range",
+    "line": 593,
+    "run": "cd tests && python runtests.py pagination.tests.PaginationTests.test_get_elided_page_range",
+    "score": 0.15,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::PaginationTests::test_get_page",
+    "line": 455,
+    "run": "cd tests && python runtests.py pagination.tests.PaginationTests.test_get_page",
+    "score": 0.15,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::PaginationTests::test_get_page_hook",
+    "line": 421,
+    "run": "cd tests && python runtests.py pagination.tests.PaginationTests.test_get_page_hook",
+    "score": 0.15,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::PaginationTests::test_get_page_hook_async",
+    "line": 435,
+    "run": "cd tests && python runtests.py pagination.tests.PaginationTests.test_get_page_hook_async",
+    "score": 0.15,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::PaginationTests::test_invalid_apage_number_async",
+    "line": 152,
+    "run": "cd tests && python runtests.py pagination.tests.PaginationTests.test_invalid_apage_number_async",
+    "score": 0.15,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::PaginationTests::test_invalid_page_number",
+    "line": 138,
+    "run": "cd tests && python runtests.py pagination.tests.PaginationTests.test_invalid_page_number",
+    "score": 0.15,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::PaginationTests::test_no_content_allow_empty_first_page",
+    "line": 210,
+    "run": "cd tests && python runtests.py pagination.tests.PaginationTests.test_no_content_allow_empty_first_page",
+    "score": 0.15,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::PaginationTests::test_page_range_iterator",
+    "line": 449,
+    "run": "cd tests && python runtests.py pagination.tests.PaginationTests.test_page_range_iterator",
+    "score": 0.15,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::PaginationTests::test_page_sequence",
+    "line": 399,
+    "run": "cd tests && python runtests.py pagination.tests.PaginationTests.test_page_sequence",
+    "score": 0.15,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::PaginationTests::test_page_sequence_async",
+    "line": 411,
+    "run": "cd tests && python runtests.py pagination.tests.PaginationTests.test_page_sequence_async",
+    "score": 0.15,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/pagination/tests.py::PaginationTests::test_paginate_misc_classes",
+    "line": 215,
+    "run": "cd tests && python runtests.py pagination.tests.PaginationTests.test_paginate_misc_classes",
+    "score": 0.15,
+    "why": "via BasePaginator.__init__ > BasePaginator._check_object_list_is_ordered"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792325773.029535,
+  "job_seconds": 153.2,
+  "number": 22061,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 153.2,
+  "started": 1792324674.379773,
+  "verify_seconds": 0.8
+ },
+ "verify": {
+  "checked": 1,
+  "false": 0,
+  "held": 1,
+  "merge_base": "b33bab33709bbd74f4dfc376786ba0b3912c3f53",
+  "other": 0,
+  "problem": null,
+  "states": {
+   "tests/pagination/tests.py::ModelPaginationTests::test_paginating_unordered_queryset_raises_warning_async": "passed"
+  },
+  "v": 1
+ }
+}

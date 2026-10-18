@@ -1,0 +1,620 @@
+{
+ "meta": {
+  "amu_ref": "v0.2.6",
+  "amu_version": "0.2.6",
+  "base": "dc2c0b5a44d4fb531bb00d299c2c428f6ac87474",
+  "budget": 300,
+  "cached_index": true,
+  "counters": false,
+  "head": "1ce3f82b115224a0b6de03436df32abc19708a7d",
+  "install_ok": true,
+  "merge_base": "dc2c0b5a44d4fb531bb00d299c2c428f6ac87474",
+  "pr": 21482,
+  "recording": true,
+  "runner": null,
+  "seconds": 20.7,
+  "status": "ran",
+  "wall_cap": 1200
+ },
+ "pr": {
+  "base_sha": "dc2c0b5a44d4fb531bb00d299c2c428f6ac87474",
+  "head_sha": "1ce3f82b115224a0b6de03436df32abc19708a7d",
+  "merge_base": "dc2c0b5a44d4fb531bb00d299c2c428f6ac87474",
+  "merged_at": "2026-09-07T15:02:23Z",
+  "number": 21482,
+  "repo": "django",
+  "title": "Fixed #37145 -- Made ModelFormSet respect custom Form.add_prefix()."
+ },
+ "probe_minutes": null,
+ "probe_targets": {
+  "all": 1,
+  "called": 1,
+  "targets": []
+ },
+ "probes": null,
+ "report": {
+  "behaviour_differences": [],
+  "call_recording": {
+   "recorded_at": 1792322051.415311,
+   "seconds": 356.6,
+   "tests": 18082
+  },
+  "caveats": "Static unless a row says observed. Not proof.",
+  "change_evidence": [
+   {
+    "after": "passed",
+    "before": "failed",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_overridden_add_prefix",
+    "label": "change evidence: the PR's own test"
+   }
+  ],
+  "changed_functions": [
+   {
+    "file": "django/forms/models.py",
+    "lines": "739-746",
+    "symbol": "BaseModelFormSet._construct_form"
+   },
+   {
+    "file": "tests/model_formsets/tests.py",
+    "lines": "1992-2016",
+    "symbol": "ModelFormsetTest.test_overridden_add_prefix"
+   },
+   {
+    "file": "tests/model_formsets/tests.py",
+    "lines": "1998-1999",
+    "symbol": "ModelFormsetTest.test_overridden_add_prefix.AuthorForm.add_prefix"
+   },
+   {
+    "file": "tests/model_formsets/tests.py",
+    "lines": "2018-2042",
+    "symbol": "ModelFormsetTest.test_form_initialized_once_with_default_add_prefix"
+   },
+   {
+    "file": "tests/model_formsets/tests.py",
+    "lines": "2026-2028",
+    "symbol": "ModelFormsetTest.test_form_initialized_once_with_default_add_prefix.AuthorForm.__init__"
+   }
+  ],
+  "changed_symbols": [
+   "django/forms/models.py#BaseModelFormSet._construct_form",
+   "tests/model_formsets/tests.py#ModelFormsetTest.test_form_initialized_once_with_default_add_prefix",
+   "tests/model_formsets/tests.py#ModelFormsetTest.test_form_initialized_once_with_default_add_prefix.AuthorForm.Meta.fields",
+   "tests/model_formsets/tests.py#ModelFormsetTest.test_form_initialized_once_with_default_add_prefix.AuthorForm.Meta.model",
+   "tests/model_formsets/tests.py#ModelFormsetTest.test_form_initialized_once_with_default_add_prefix.AuthorForm.__init__",
+   "tests/model_formsets/tests.py#ModelFormsetTest.test_overridden_add_prefix",
+   "tests/model_formsets/tests.py#ModelFormsetTest.test_overridden_add_prefix.AuthorForm.Meta.fields",
+   "tests/model_formsets/tests.py#ModelFormsetTest.test_overridden_add_prefix.AuthorForm.Meta.model",
+   "tests/model_formsets/tests.py#ModelFormsetTest.test_overridden_add_prefix.AuthorForm.add_prefix",
+   "tests/model_formsets/tests.py#ModelFormsetTest",
+   "tests/model_formsets/tests.py#ModelFormsetTest.test_form_initialized_once_with_default_add_prefix.AuthorForm",
+   "tests/model_formsets/tests.py#ModelFormsetTest.test_form_initialized_once_with_default_add_prefix.AuthorForm.Meta",
+   "tests/model_formsets/tests.py#ModelFormsetTest.test_overridden_add_prefix.AuthorForm",
+   "tests/model_formsets/tests.py#ModelFormsetTest.test_overridden_add_prefix.AuthorForm.Meta",
+   "tests/model_formsets/tests.py"
+  ],
+  "consequences": [],
+  "executed": {
+   "base_cache": {
+    "answered": 0,
+    "ran": 2,
+    "stored": 1
+   },
+   "budget": 300,
+   "candidates": 2304,
+   "ran": 358,
+   "replayed": 2,
+   "runner": "django-runtests",
+   "seconds": 16.4,
+   "selection": {
+    "candidates": 4790,
+    "closure_files": 210,
+    "closure_tests": 4126,
+    "depth_cap": 10,
+    "hubs": 29,
+    "hubs_reached": [
+     "django/contrib/admin/__init__.py",
+     "django/test/__init__.py",
+     "django/test/utils.py"
+    ],
+    "observed": 0,
+    "static_only": 357
+   },
+   "unrunnable": 122
+  },
+  "flips": 0,
+  "gaps": [
+   "102198 call sites unresolved repo-wide; dynamic dispatch may reach more",
+   "122 candidate(s) could not be run by django-runtests and are not covered by this result",
+   "2486 lower-ranked candidate(s) not run: about 2 tests/s per process fit 2304 in the 300 s allowed",
+   "graph reused from the previous state; 22 changed file(s) relinked",
+   "shadow run (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.",
+   "shadow run stopped at its 300 s budget: 320 of 2304 candidates run"
+  ],
+  "impacted": {
+   "count": 207,
+   "omitted": "static reach list; the full report is in raw-reports.tar.xz"
+  },
+  "index": {
+   "files": 2930,
+   "parsed_files": 14
+  },
+  "original_tests": {
+   "tests/model_formsets/tests.py::DeletionTests::test_add_form_deletion_when_invalid": "passed",
+   "tests/model_formsets/tests.py::DeletionTests::test_change_form_deletion_when_invalid": "passed",
+   "tests/model_formsets/tests.py::DeletionTests::test_deletion": "passed",
+   "tests/model_formsets/tests.py::DeletionTests::test_outdated_deletion": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_callable_defaults": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_commit_false": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_custom_form": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_custom_pk": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_custom_queryset_init": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_custom_save_method": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_edit_only": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_edit_only_formset_factory_with_basemodelformset": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_edit_only_inlineformset_factory": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_edit_only_object_outside_of_queryset": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_foreign_keys_in_parents": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_get_queryset_appends_pk_to_explicit_queryset_ordering": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_get_queryset_appends_pk_to_meta_ordering": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_get_queryset_falls_back_to_pk_when_no_ordering_defined": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_get_queryset_unchanged_when_already_totally_ordered": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_initial_form_count_empty_data": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_inline_formsets": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_inline_formsets_save_as_new": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_inline_formsets_with_custom_pk": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_inline_formsets_with_custom_save_method": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_inline_formsets_with_custom_save_method_related_instance": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_inline_formsets_with_multi_table_inheritance": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_inline_formsets_with_nullable_unique_together": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_inline_formsets_with_wrong_fk_name": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_inlineformset_factory_with_null_fk": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_inlineformset_with_arrayfield": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_inlineformset_with_jsonfield": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_max_num": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_min_num": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_min_num_with_existing": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_model_formset_with_custom_pk": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_model_formset_with_initial_model_instance": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_model_formset_with_initial_queryset": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_model_inheritance": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_modelformset_factory_without_fields": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_modelformset_min_num_equals_max_num_less_than": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_modelformset_min_num_equals_max_num_more_than": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_modelformset_validate_max_flag": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_prevent_change_outer_model_and_create_invalid_data": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_prevent_duplicates_from_with_the_same_formset": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_simple_save": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_unique_together_validation": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_unique_together_with_inlineformset_factory": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_unique_true_enforces_max_num_one": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_unique_validation": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_validation_with_child_model_without_id": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_validation_with_invalid_id": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_validation_with_nonexistent_id": "passed",
+   "tests/model_formsets/tests.py::ModelFormsetTest::test_validation_without_id": "passed",
+   "tests/model_formsets/tests.py::TestModelFormsetOverridesTroughFormMeta::test_inlineformset_factory_absolute_max": "passed",
+   "tests/model_formsets/tests.py::TestModelFormsetOverridesTroughFormMeta::test_inlineformset_factory_absolute_max_with_max_num": "passed",
+   "tests/model_formsets/tests.py::TestModelFormsetOverridesTroughFormMeta::test_inlineformset_factory_can_delete_extra": "passed",
+   "tests/model_formsets/tests.py::TestModelFormsetOverridesTroughFormMeta::test_inlineformset_factory_can_not_delete_extra": "passed",
+   "tests/model_formsets/tests.py::TestModelFormsetOverridesTroughFormMeta::test_inlineformset_factory_default_renderer": "passed",
+   "tests/model_formsets/tests.py::TestModelFormsetOverridesTroughFormMeta::test_inlineformset_factory_error_messages_overrides": "passed",
+   "tests/model_formsets/tests.py::TestModelFormsetOverridesTroughFormMeta::test_modelformset_factory_absolute_max": "passed",
+   "tests/model_formsets/tests.py::TestModelFormsetOverridesTroughFormMeta::test_modelformset_factory_absolute_max_with_max_num": "passed",
+   "tests/model_formsets/tests.py::TestModelFormsetOverridesTroughFormMeta::test_modelformset_factory_can_delete_extra": "passed",
+   "tests/model_formsets/tests.py::TestModelFormsetOverridesTroughFormMeta::test_modelformset_factory_default_renderer": "passed",
+   "tests/model_formsets/tests.py::TestModelFormsetOverridesTroughFormMeta::test_modelformset_factory_disable_delete_extra": "passed",
+   "tests/model_formsets/tests.py::TestModelFormsetOverridesTroughFormMeta::test_modelformset_factory_error_messages_overrides": "passed"
+  },
+  "predicted_failures": [],
+  "replayed": [
+   {
+    "base": "failed",
+    "head": "passed",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_overridden_add_prefix",
+    "verdict": "evidence"
+   },
+   {
+    "base": "passed",
+    "head": "passed",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_form_initialized_once_with_default_add_prefix",
+    "verdict": "none"
+   }
+  ],
+  "report_hash": "b9592b5451ae",
+  "runner": "django-runtests",
+  "side_by_side": {
+   "called": [
+    "django/forms/models.py#BaseModelFormSet._construct_form"
+   ],
+   "calls_not_fitting_a_changed_signature": 0,
+   "compared_calls": 5,
+   "differences": 0,
+   "functions_called": 1,
+   "input_built_before_the_change": 0,
+   "not_compared": {
+    "tests/model_formsets/tests.py#ModelFormsetTest.test_form_initialized_once_with_default_add_prefix": "not a module or class function on both sides (new, removed or nested)",
+    "tests/model_formsets/tests.py#ModelFormsetTest.test_form_initialized_once_with_default_add_prefix.AuthorForm.__init__": "not a module or class function on both sides (new, removed or nested)",
+    "tests/model_formsets/tests.py#ModelFormsetTest.test_overridden_add_prefix": "not a module or class function on both sides (new, removed or nested)",
+    "tests/model_formsets/tests.py#ModelFormsetTest.test_overridden_add_prefix.AuthorForm.add_prefix": "not a module or class function on both sides (new, removed or nested)"
+   },
+   "seconds": 2.8,
+   "targets": 1,
+   "unstable": 0
+  },
+  "summary": "EXECUTED 358 of 2304 candidate tests after the change with django-runtests in 16.4 s, failures confirmed before it: 0 now fail. 827 tests reach the change. 65 test(s) from edited test files also run as they were before the edit. 2 test(s) the change adds or edits replayed on the code before it: 1 fail there and pass after (change evidence: the PR's own test).",
+  "tests": [
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_form_initialized_once_with_default_add_prefix",
+    "line": 2018,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_form_initialized_once_with_default_add_prefix",
+    "score": 8.928,
+    "why": "via ModelFormsetTest.test_form_initialized_once_with_default_add_prefix.AuthorForm (name: add,default,form,initialized,once,prefix)"
+   },
+   {
+    "confidence": "transitive",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_overridden_add_prefix",
+    "line": 1992,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_overridden_add_prefix",
+    "score": 5.926,
+    "why": "via ModelFormsetTest.test_overridden_add_prefix.AuthorForm (name: add,overridden,prefix)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_inline_formsets_with_custom_save_method",
+    "line": 951,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_inline_formsets_with_custom_save_method",
+    "score": 1.627,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_simple_save",
+    "line": 175,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_simple_save",
+    "score": 1.346,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_inline_formsets_with_custom_pk",
+    "line": 823,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_inline_formsets_with_custom_pk",
+    "score": 1.182,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_inline_formsets_with_multi_table_inheritance",
+    "line": 869,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_inline_formsets_with_multi_table_inheritance",
+    "score": 1.086,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_inline_formsets",
+    "line": 637,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_inline_formsets",
+    "score": 1.015,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_inline_formsets_save_as_new",
+    "line": 765,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_inline_formsets_save_as_new",
+    "score": 0.981,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_edit_only_formset_factory_with_basemodelformset",
+    "line": 2193,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_edit_only_formset_factory_with_basemodelformset",
+    "score": 0.955,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_custom_pk",
+    "line": 1146,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_custom_pk",
+    "score": 0.935,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_callable_defaults",
+    "line": 1559,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_callable_defaults",
+    "score": 0.923,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_model_inheritance",
+    "line": 567,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_model_inheritance",
+    "score": 0.914,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_edit_only",
+    "line": 2122,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_edit_only",
+    "score": 0.898,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_max_num",
+    "line": 418,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_max_num",
+    "score": 0.89,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_edit_only_inlineformset_factory",
+    "line": 2151,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_edit_only_inlineformset_factory",
+    "score": 0.869,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_commit_false",
+    "line": 377,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_commit_false",
+    "score": 0.866,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_edit_only_object_outside_of_queryset",
+    "line": 2178,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_edit_only_object_outside_of_queryset",
+    "score": 0.861,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_custom_save_method",
+    "line": 494,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_custom_save_method",
+    "score": 0.855,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_min_num_with_existing",
+    "line": 483,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_min_num_with_existing",
+    "score": 0.85,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_inline_formsets_with_nullable_unique_together",
+    "line": 914,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_inline_formsets_with_nullable_unique_together",
+    "score": 0.847,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_model_formset_with_initial_queryset",
+    "line": 1761,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_model_formset_with_initial_queryset",
+    "score": 0.842,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_prevent_duplicates_from_with_the_same_formset",
+    "line": 1817,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_prevent_duplicates_from_with_the_same_formset",
+    "score": 0.836,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_prevent_change_outer_model_and_create_invalid_data",
+    "line": 1968,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_prevent_change_outer_model_and_create_invalid_data",
+    "score": 0.832,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_unique_true_enforces_max_num_one",
+    "line": 1338,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_unique_true_enforces_max_num_one",
+    "score": 0.813,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_inline_formsets_with_custom_save_method_related_instance",
+    "line": 1105,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_inline_formsets_with_custom_save_method_related_instance",
+    "score": 0.799,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_custom_form",
+    "line": 525,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_custom_form",
+    "score": 0.798,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_min_num",
+    "line": 462,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_min_num",
+    "score": 0.794,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_model_formset_with_initial_model_instance",
+    "line": 1745,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_model_formset_with_initial_model_instance",
+    "score": 0.788,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_unique_together_with_inlineformset_factory",
+    "line": 1499,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_unique_together_with_inlineformset_factory",
+    "score": 0.788,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_unique_together_validation",
+    "line": 1468,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_unique_together_validation",
+    "score": 0.778,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_unique_validation",
+    "line": 1370,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_unique_validation",
+    "score": 0.778,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_model_formset_with_custom_pk",
+    "line": 1735,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_model_formset_with_custom_pk",
+    "score": 0.776,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_modelformset_min_num_equals_max_num_less_than",
+    "line": 1426,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_modelformset_min_num_equals_max_num_less_than",
+    "score": 0.767,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_modelformset_min_num_equals_max_num_more_than",
+    "line": 1448,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_modelformset_min_num_equals_max_num_more_than",
+    "score": 0.767,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_modelformset_validate_max_flag",
+    "line": 1397,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_modelformset_validate_max_flag",
+    "score": 0.767,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_validation_with_invalid_id",
+    "line": 2073,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_validation_with_invalid_id",
+    "score": 0.74,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_validation_with_nonexistent_id",
+    "line": 2095,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_validation_with_nonexistent_id",
+    "score": 0.74,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_validation_with_child_model_without_id",
+    "line": 2058,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_validation_with_child_model_without_id",
+    "score": 0.736,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_validation_without_id",
+    "line": 2044,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_validation_without_id",
+    "score": 0.736,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   },
+   {
+    "confidence": "heuristic",
+    "expect": "unchanged",
+    "id": "tests/model_formsets/tests.py::ModelFormsetTest::test_inlineformset_with_arrayfield",
+    "line": 1678,
+    "run": "cd tests && python runtests.py model_formsets.tests.ModelFormsetTest.test_inlineformset_with_arrayfield",
+    "score": 0.722,
+    "why": "via ModelFormsetTest (name: formset,model)"
+   }
+  ],
+  "untested": []
+ },
+ "timing": {
+  "cache_restored": true,
+  "finished": 1792322840.964673,
+  "job_seconds": 20.7,
+  "number": 21482,
+  "render_status": 0,
+  "repo": "django",
+  "run_seconds": 20.7,
+  "started": 1792322819.29976
+ },
+ "verify": null
+}
