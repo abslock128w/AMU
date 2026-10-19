@@ -35,7 +35,8 @@ def test_a_behaviour_change_no_test_catches_is_reported_with_its_input(tmp_path)
     assert row['before']['result'] == ['return', '10'] and row['after']['result'] == ['return', '9'], row
     from amu.ci.render import render
     body = render(report, dict(head='a' * 40, merge_base='b' * 40))
-    assert '### Behaviour differs on captured input (1)' in body and '`lib.py#clamp`' in body, body
+    assert '<summary>Behaviour differs on captured input (1)</summary>' in body and '`lib.py#clamp`' in body, body
+    assert body.splitlines()[0].endswith('; 1 behaviour difference on captured input, collapsed at the end'), body
 
 
 def test_mutation_printing_and_exceptions_count_and_noise_does_not(tmp_path):
