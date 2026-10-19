@@ -84,6 +84,25 @@ def test_a_function_reaching_its_own_name_finds_the_module_function(tmp_path):
     assert all(row['before']['result'] == ['return', '3'] and row['after']['result'] == ['return', '2'] for row in rows.values()), rows
 
 
+def test_a_decorated_function_reaching_its_own_name_reaches_itself_undecorated(tmp_path):
+    # Found on sympy's _inverse_mellin_transform: @_noconds_ takes a keyword the function does not, and it recurses
+    # passing it. Through the module's wrapper before the change and the bare copy swapped in as changed, a neutral edit
+    # raised as changed only; through an lru_cache the as-changed copy recursed into the original.
+    lib0 = ('import functools\n\n\ndef noconds(func):\n    @functools.wraps(func)\n    def wrapper(*args, noconds=True, **kwargs):\n'
+            '        res = func(*args, **kwargs)\n        return res[0] if noconds else res\n    return wrapper\n\n\n'
+            '@noconds\ndef total(xs):\n    if not isinstance(xs, list):\n        return xs, True\n'
+            '    return sum(total(x, noconds=False)[0] for x in xs), True\n\n\n'
+            '@functools.lru_cache(maxsize=None)\ndef depth(t):\n    if not isinstance(t, tuple):\n        return 0\n'
+            '    return 1 + max([depth(x) for x in t] or [0])\n')
+    lib1 = lib0.replace('        return xs, True\n', '        # a leaf\n        return xs, True\n').replace('return 1 + max(', 'return 2 + max(')
+    tests = 'from lib import depth, total\n\n\ndef test_lib():\n    assert total([1, [2, 3]]) == 6\n    assert depth(((1, (2,)), 3)) > 0\n'
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1, 'tests/test_lib.py': tests})
+    found = {(row['target'].split('#')[1], row['input']): row for row in report['behaviour_differences']}
+    assert {name for name, _ in found} == {'depth'}, found
+    outer = found.get(('depth', '([((1, (2,)), 3)], {})'))
+    assert outer and outer['before']['result'] == ['return', '3'] and outer['after']['result'] == ['return', '6'], found
+
+
 def test_changed_functions_that_call_each_other_run_as_changed_together(tmp_path):
     # Found on Django 7b8504eaab: the changed caller needs state the changed callee now sets. Mixing versions raised.
     lib0 = ('class Detector:\n    def prepare(self):\n        self.keys = [1]\n\n    def detect(self):\n        self.prepare()\n'
