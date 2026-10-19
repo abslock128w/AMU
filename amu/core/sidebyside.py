@@ -10,10 +10,11 @@ difference is kept only when both versions repeat themselves exactly; one that d
 Both versions are compiled from source the same way (decorators left off, so a wrapper's own behaviour is not compared),
 in the module's globals, with ``__class__`` bound for ``super()`` and their own name looked up in those globals, as in the
 module (recursion reaches the version swapped in for the run); a decorated module function's own name is the copy itself,
-so its recursion is undecorated too. Then the test's own call goes on as usual. A function
-that is nested, a generator or coroutine, or uses a private name that a class body would mangle is not compared, and is
-counted as such; so is a function in a test file (the tests, not the code they test), and one whose code is the same
-once its docstring is set aside (only the docstring, comments or layout changed).
+so its recursion is undecorated too. Each is named as the source names it, as is everything defined in it. Then the
+test's own call goes on as usual. A function that is nested, a generator or coroutine, or uses a private name that a
+class body would mangle is not compared, and is counted as such; so is a function in a test file (the tests, not the code
+they test), and one whose code is the same once its docstring is set aside (only the docstring, comments or layout
+changed).
 
 This runs the project's code on inputs it was really called with; it is a run of its own on the code before the change,
 separate from the comparison of test outcomes, whose results it does not touch.
@@ -98,6 +99,17 @@ if _spec_path and _sys.version_info >= (3, 12):
                 text = "<repr failed: " + type(exc).__name__ + ">"
             return kind.__qualname__ + ":" + _ADDRESS.sub(" at 0x?", text)[:2000]
 
+        def _requalified(code, wrapper, owner):
+            """``code`` with each qualified name in it (functions, generators, coroutines, classes) that starts with
+            ``wrapper`` starting with ``owner`` instead: what is built inside a wrapper is named as in the source
+            (sympy #30715: a generator's outcomes differed only in "__amu_outer__.<locals>.")."""
+            consts = tuple(_requalified(c, wrapper, owner) if type(c) is types.CodeType
+                           else owner + c[len(wrapper):] if type(c) is str and c.startswith(wrapper) else c
+                           for c in code.co_consts)  # a class body stores its __qualname__ as a constant
+            name = code.co_qualname
+            name = owner + name[len(wrapper):] if name.startswith(wrapper) else name
+            return code.replace(co_consts=consts, co_qualname=name)
+
         def _build(target, which, globs):
             source = target.get(which)
             if source is None:
@@ -116,14 +128,18 @@ if _spec_path and _sys.version_info >= (3, 12):
                         + "    __class__ = None\n" + textwrap.indent(source, "    ") + "\n    return " + target["name"] + "\n")
             space = dict(globs)
             try:
-                exec(compile(template, target["file"], "exec"), space)
+                code = _requalified(compile(template, target["file"], "exec"), "__amu_outer__.<locals>.",
+                                    target["qual"][:-len(target["name"])])
+                if not itself:
+                    # The global declaration names the copy, and what it defines, as a module function's.
+                    code = _requalified(code, target["name"] + ".", target["qual"] + ".")
+                exec(code, space)
             finally:
                 if which == "after":
                     _swapped(False)
             made = space["__amu_outer__"]()
-            # The global declaration also takes the wrapper out of its qualified name, which the signature check in run()
-            # reads from messages: kept as it was.
-            code = made.__code__.replace(co_qualname="__amu_outer__.<locals>." + target["name"])
+            code = made.__code__.replace(co_qualname=target["qual"])
+            _keys[code] = False  # named as the function it copies, and never taken for it
             owner = None
             if len(parts) > 1:
                 owner = globs.get(parts[0])
@@ -270,7 +286,8 @@ if _spec_path and _sys.version_info >= (3, 12):
                             owner = _owner(module, addition["owner"].split("."))
                             if not isinstance(owner, type):
                                 continue
-                            exec(compile("class __amu_members__:\n" + textwrap.indent(addition["source"], "    "), addition["file"], "exec"), space)
+                            body = compile("class __amu_members__:\n" + textwrap.indent(addition["source"], "    "), addition["file"], "exec")
+                            exec(_requalified(body, "__amu_members__.", addition["owner"] + "."), space)
                             members = {k: v for k, v in vars(space.pop("__amu_members__")).items()
                                        if k not in ("__module__", "__qualname__", "__dict__", "__weakref__", "__doc__", "__firstlineno__", "__static_attributes__")}
                             for name, value in members.items():
@@ -674,7 +691,7 @@ def run(runner, python, before_tree, ids, spec_targets, skipped, scratch, timeou
     for row in results:
         after = row['after']['result']
         if (row['target'] in reshaped and after[0] == 'raise' and after[1] == 'TypeError'
-                and after[2].startswith('__amu_outer__.<locals>.') and 'argument' in after[2]):
+                and after[2].startswith(row['target'].split('#', 1)[1] + '()') and 'argument' in after[2]):
             misfit += 1
             continue
         if (row['stable'] and row['differs'] and row['target'].rsplit('.', 1)[0] in stateful and 'args_after' not in row['differs']

@@ -265,6 +265,63 @@ def test_a_changed_signature_and_names_imported_by_value(tmp_path):
     assert found['load']['after']['result'] == ['return', "'A.B'"], found
 
 
+def test_a_generator_from_an_as_changed_helper_differs_only_in_what_it_yields(tmp_path):
+    # Found on sympy #30715: dpll_satisfiable returns _all_models(...), a generator from a helper the change also edits.
+    # The as-changed helper was built inside side-by-side's wrapper, so the two results differed only in the generator's
+    # name, "<generator object __amu_outer__.<locals>._all_models at 0x?>" against "_all_models".
+    lib0 = ('def models(cnf):\n    for clause in cnf:\n        yield clause\n\n\n'
+            'def satisfiable(cnf, all_models=False):\n    if all_models:\n        return models(cnf)\n    return bool(cnf)\n\n\n'
+            'class Tree:\n    def __init__(self, items):\n        self.items = items\n\n'
+            '    def nodes(self):\n        for item in self.items:\n            yield item\n\n'
+            '    def walk(self):\n        return self.nodes()\n')
+    lib1 = (lib0.replace('    for clause in cnf:\n        yield clause\n', '    yield from cnf\n')
+            .replace('    if all_models:\n        return models(cnf)\n    return bool(cnf)\n',
+                     '    if not all_models:\n        return bool(cnf)\n    return models(cnf)\n')
+            .replace('        for item in self.items:\n            yield item\n', '        yield from self.items\n')
+            .replace('        return self.nodes()\n', '        found = self.nodes()\n        return found\n'))
+    tests = ('from lib import Tree, satisfiable\n\n\n'
+             'def test_models():\n    assert list(satisfiable([1, 2], True)) == [1, 2]\n    assert list(Tree([3]).walk()) == [3]\n')
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1, 'tests/test_lib.py': tests})
+    assert report['side_by_side']['compared_calls'] == 4, report['side_by_side']
+    assert report['behaviour_differences'] == [], report['behaviour_differences']
+    # A change in what the helper yields still shows, on the helper; the generator its caller returns is the same one.
+    lib2 = lib1.replace('    yield from cnf\n', '    for clause in cnf:\n        yield clause * 2\n')
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib2, 'tests/test_lib.py': tests})
+    [row] = report['behaviour_differences']
+    assert row['target'] == 'lib.py#models' and row['differs'] == ['result'], row
+    assert row['before']['result'] == ['return', ['list', ['1', '2']]], row
+    assert row['after']['result'] == ['return', ['list', ['2', '4']]], row
+
+
+def test_what_the_copies_define_is_named_as_in_the_source(tmp_path):
+    # A class, function or generator defined in a compared copy, or in a member the change adds to a class, is shown
+    # with the name it has where the source lives, not side-by-side's own wrappers.
+    lib0 = ('def box(v):\n    class Box:\n        pass\n    made = Box()\n    made.v = v\n    return made\n\n\n'
+            'class Tree:\n    def __init__(self, items):\n        self.items = items\n\n'
+            '    def walk(self):\n        return iter(self.items)\n')
+    lib1 = (lib0.replace('made.v = v\n', 'made.v = v + 1\n')
+            .replace('    def walk(self):\n        return iter(self.items)\n',
+                     '    def leaves(self):\n        yield from self.items\n\n    def walk(self):\n        return self.leaves()\n'))
+    tests = 'from lib import Tree, box\n\n\ndef test_all():\n    assert box(1).v\n    assert list(Tree([3]).walk()) == [3]\n'
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1, 'tests/test_lib.py': tests})
+    found = {row['target'].split('#')[1]: row for row in report['behaviour_differences']}
+    assert found['box']['before']['result'] == ['return', ['lib.box.<locals>.Box', ['dict', [["'v'", '1']]]]], found['box']
+    assert found['box']['after']['result'] == ['return', ['lib.box.<locals>.Box', ['dict', [["'v'", '2']]]]], found['box']
+    assert found['Tree.walk']['after']['result'] == ['return', 'generator:<generator object Tree.leaves at 0x?>'], found
+
+
+def test_a_copy_that_outlives_its_comparison_is_not_taken_for_the_function_it_copies(tmp_path):
+    # The as-changed copy carries the changed function's own name. Here an unchanged helper keeps whatever the module
+    # holds under that name, the copy during the as-changed runs, and the test calls it later: those calls run the copy,
+    # not the code before the change, and are not captured as calls of it.
+    lib0 = 'seen = []\n\n\ndef keep():\n    seen.append(note)\n\n\ndef note(x):\n    keep()\n    return x\n'
+    lib1 = lib0.replace('return x\n', 'return x + 1\n')
+    tests = 'import lib\n\n\ndef test_note():\n    lib.note(1)\n    for fn in list(lib.seen):\n        fn(2)\n'
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1, 'tests/test_lib.py': tests})
+    # seen: note three times (its two runs before the change, the test's call), each captured again; the copy twice
+    assert report['side_by_side']['compared_calls'] == 4, report['side_by_side']
+
+
 def test_the_hooks_load_where_the_interpreter_has_no_sitecustomize_of_its_own(tmp_path):
     # Found on GitHub's setup-python (PR #11): handing over to the environment's sitecustomize left none in sys.modules
     # when there was none, and the import that loaded the hook raised KeyError. Homebrew's Python ships one, which hid it.
