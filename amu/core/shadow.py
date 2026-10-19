@@ -55,7 +55,7 @@ def load_memo(memo, key):
     except (OSError, ValueError, TypeError):
         return dict(key=key, before={}, rate=None, rates=[], durations={}, flips={})
     # A memo written before rates were kept holds one rate.
-    rates = data.get('rates') if isinstance(data.get('rates'), list) else [data.get('rate')]
+    rates = data.get('rates') if isinstance(data.get('rates'), list) and data.get('rates') else [data.get('rate')]
     rates = [rate for rate in rates if isinstance(rate, (int, float)) and rate > 0][-RATES:]
     kept = dict(rate=_median(rates), rates=rates, durations=data.get('durations') or {}, flips=data.get('flips') or {})
     return dict(data, **kept) if data.get('key') == key else dict(key=key, before={}, **kept)
@@ -140,13 +140,14 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
         # Most promising candidates first, in chunks. Each chunk runs on the changed code; only the tests
         # that fail there are run on the code as it was, to confirm they passed before. A test that passes
         # after the change cannot be a new failure, so the unchanged side is never paid for it.
-        left, done, aborted, measured, measured_seconds = float(budget), 0, None, 0, 0.0
+        left, done, aborted, measured, measured_seconds, pace = float(budget), 0, None, 0, 0.0, rate
         while left > 1:
             if done == len(ids):
-                # The planned candidates finished with time to spare: the next ones run, as many as this run's own rate
-                # fits in what is left above the share kept for the checks after them.
+                # The planned candidates finished with time to spare: the next ones run a chunk at a time, as many as the
+                # last chunk's pace fits in what is left above the share kept for the checks after them. Candidates come
+                # shortest first (select.order), so the pace of the whole run would fit too many.
                 rate = measured / measured_seconds / parts if measured and measured_seconds else rate
-                ids = pool[:len(ids) + max(0, int(rate * parts * (left - budget * (1 - FILL))))]
+                ids = pool[:done + min(CHUNK * parts, max(0, int(pace * parts * (left - budget * (1 - FILL)))))]
                 if done == len(ids):
                     break
             start = done
@@ -180,8 +181,9 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
             # The rate counts only chunks that finished: a chunk stopped at the budget took its time and left few
             # outcomes or none.
             if 'timed out' not in problems:
-                measured += sum(found.get(ident) in OUTCOMES for ident in chunk)
-                measured_seconds += took
+                counted = sum(found.get(ident) in OUTCOMES for ident in chunk)
+                measured, measured_seconds = measured + counted, measured_seconds + took
+                pace = counted / took / parts if counted and took > 0 else pace
             failing = [ident for ident in chunk if found.get(ident) == 'failed']
             # The code before the change is the same on every run until the commit moves: what it did then, it does now.
             remembered_now = {ident: remembered['before'][ident] for ident in failing if ident in remembered['before']}
