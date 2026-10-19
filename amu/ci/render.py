@@ -5,6 +5,10 @@ Usage: python -m amu.ci.render DIR    (DIR holds report.json and meta.json; prin
 The first line is the flip count and the head SHA. Then flips, then a runner abort, then gaps, then what ran. The
 comment says only what ran: a count of 0 is a count among the tests that ran, never a pass for the suite.
 
+Side-by-side's behaviour differences come last, collapsed, with their count on the first line. On the 18 rows
+hand-labelled in the brief 5 retrospective 11 were real (61%, under its 70% bar), so they stay collapsed until the
+false rows are fixed.
+
 Everything in the report can come from the pull request's own code (test names, error text), so every such string
 goes into an inline code span with backticks and line breaks removed and its length cut. That leaves no Markdown,
 HTML or @mention in it. The whole comment is cut to fit GitHub's limit.
@@ -84,7 +88,11 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
     evidence = [row for row in report.get('change_evidence') or [] if isinstance(row, dict) and row.get('id')]
     if evidence and not report.get('error'):
         first += f"; {plural(len(evidence), 'test')} of the pull request's own fail on the merge base and pass on the head"
-    out = [first, '']
+    behaviour = [row for row in report.get('behaviour_differences') or [] if isinstance(row, dict)]
+    side = report.get('side_by_side') if isinstance(report.get('side_by_side'), dict) else None
+    if behaviour and side is not None and not report.get('error'):
+        first += f"; {plural(len(behaviour), 'behaviour difference')} on captured input, collapsed at the end"
+    out, collapsed = [first, ''], []
     if failures and not report.get('error'):
         out += [f'### Flips ({len(failures)})', '',
                 f'Pass on the merge base {short(base)}, fail on the head. Each was rerun on the merge base to confirm '
@@ -130,13 +138,11 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
             out += [f"Rerun on the merge base in a fresh job: {verify.get('held', 0)} passed again, "
                     f"{verify.get('false', 0)} failed there too, so not the change, "
                     f"{verify.get('other', 0)} could not be rerun.", '']
-    behaviour = [row for row in report.get('behaviour_differences') or [] if isinstance(row, dict)]
-    side = report.get('side_by_side') if isinstance(report.get('side_by_side'), dict) else None
     if side is not None and not report.get('error'):
-        out += [f"### Behaviour differs on captured input ({len(behaviour)})", '']
-        out += [f"Each changed function the tests called on the merge base ran there twice as it was and twice as changed, on "
-                f"copies of the same arguments: {side.get('compared_calls', 0)} call(s) of {side.get('functions_called', 0)} of "
-                f"{side.get('targets', 0)} comparable changed function(s). Only differences both versions repeat are listed.", '']
+        section = [f"Each changed function the tests called on the merge base ran there twice as it was and twice as changed, "
+                   f"on copies of the same arguments: {side.get('compared_calls', 0)} call(s) of "
+                   f"{side.get('functions_called', 0)} of {side.get('targets', 0)} comparable changed function(s). Only "
+                   'differences both versions repeat are listed.', '']
 
         def flat(side_result, field):
             value = side_result.get(field) if isinstance(side_result, dict) else None
@@ -157,7 +163,14 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
             where = f", from character {at + 1}" if start else ''
             return (f"{code(row.get('target', '?'), 120)} on {code(row.get('input', ''), 160)}: as it was {code(window(was), 170)}, "
                     f"as changed {code(window(now), 170)} (differs in: {code(', '.join(differs), 60)}; shown: {field}{where})")
-        out += rows(behaviour, difference, listed) + ['']
+        section += rows(behaviour, difference, listed) + ['']
+        if behaviour:
+            collapsed = [f'<details><summary>Behaviour differs on captured input ({len(behaviour)})</summary>', '',
+                         "Collapsed until side-by-side's false rows are fixed: of 18 such rows hand-labelled on Django and "
+                         'sympy pull requests, 11 were real differences and 7 came from how side-by-side runs the changed code.',
+                         '', *section, '</details>', '']
+        else:
+            out += ['### Behaviour differs on captured input (0)', '', *section]
     made = report.get('generated') if isinstance(report.get('generated'), dict) else None
     produced = [row for row in report.get('generated_differences') or [] if isinstance(row, dict)]
     if made is not None and not report.get('error') and made.get('proposed'):
@@ -233,7 +246,8 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
         else:
             out.append('No test ran, so nothing here says whether the change breaks one.')
         out.append('')
-    footer = (f"<sub>AMU {code(meta.get('amu_version') or '?', 40)} from {code(meta.get('amu_ref') or '?', 60)}, "
+    out += collapsed
+    footer =(f"<sub>AMU {code(meta.get('amu_version') or '?', 40)} from {code(meta.get('amu_ref') or '?', 60)}, "
               f"report {code(report.get('report_hash') or '-', 20)}. Full JSON is in the workflow run's artifact.</sub>")
     body = '\n'.join(out + [footer, extra, MARKER]).replace('\n\n\n', '\n\n')
     if len(body) > limit and listed > 1:

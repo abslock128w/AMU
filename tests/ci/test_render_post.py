@@ -165,3 +165,26 @@ def test_behaviour_row_shows_where_the_two_outcomes_diverge_past_a_long_shared_p
     assert 'old footer' in row and 'new footer' in row
     assert row.index('old footer') < row.index('as changed') < row.index('new footer')
     assert '…' in row and len(row) < 700
+
+
+def test_behaviour_rows_are_collapsed_at_the_end_with_their_count_on_the_first_line():
+    # Side-by-side precision was 61% on the brief 5 retrospective's hand-labelled rows, under the 70% bar
+    outcome = dict(result=['return', '1'], stdout='', calls=[], args_after='')
+    rows = [dict(target=f'lib.py#f{i}', input='(1,)', differs=['result'], before=outcome, after=dict(outcome, result=['return', '2']))
+            for i in range(3)]
+    report = dict(flips=1, predicted_failures=[flip('tests/t.py::test_a')], gaps=['g'], executed=EXECUTED,
+                  side_by_side=dict(compared_calls=3, functions_called=3, targets=3), behaviour_differences=rows)
+    body = render(report, META)
+    first, rest = body.split('\n', 1)
+    assert first == ('**AMU: 1 flip** at `abcdef1`, among 40 tests run; '
+                     '3 behaviour differences on captured input, collapsed at the end'), first
+    assert '### Behaviour differs' not in body
+    opened = rest.index('<details><summary>Behaviour differs on captured input (3)</summary>')
+    assert rest.index('### Flips (1)') < rest.index('### Gaps (1)') < rest.index('### What ran') < opened
+    assert opened < rest.index('- `lib.py#f0`') < rest.index('- `lib.py#f2`') < rest.index('</details>') < rest.index('<sub>AMU')
+    assert render(report, META, quiet=True) == body
+    none = dict(report, behaviour_differences=[])
+    body = render(none, META)
+    assert 'behaviour difference' not in body.splitlines()[0] and '<details>' not in body
+    assert body.index('### Behaviour differs on captured input (0)') < body.index('### What ran')
+    assert 'behaviour difference' not in render(dict(report, error='no merge base'), META)
