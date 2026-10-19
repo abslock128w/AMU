@@ -11,6 +11,7 @@ import json
 import os
 import re
 import shutil
+import statistics
 import sys
 import tempfile
 import time
@@ -28,6 +29,8 @@ ISOLATE_SECONDS = 120  # per flip
 CONFIRM = 20  # seconds always allowed for confirming a failure on the unchanged code
 PARTS = max(1, min(4, (os.cpu_count() or 2) // 2))  # processes side by side, for runners that allow it
 RATE = 15.0  # tests per second per process, until a run in this tree has measured it
+RATES = 9  # measured rates kept; the estimate is their median, so one slow run does not set it
+FILL = 0.8  # share of the budget the candidates are planned to fill; the rest is kept for the checks after them
 IGNORED = ('.git', '.amu', '.amu-index', '.venv', 'venv', 'node_modules', '__pycache__', '.tox', '.nox',
            '.mypy_cache', '.pytest_cache', '.ruff_cache', 'dist', 'build', '*.egg-info', '.coverage', 'coverage.json')
 
@@ -45,13 +48,21 @@ def parent_key(root):
 
 def load_memo(memo, key):
     """The memo for the code before the change ``key``. Outcomes before the change hold only for the same key; the
-    measured rate, per-test durations and when each test last flipped carry over to any key."""
+    measured rates, per-test durations and when each test last flipped carry over to any key. ``rate`` is the median of
+    the last measured rates."""
     try:
         data = json.loads(Path(memo).read_text())
     except (OSError, ValueError, TypeError):
-        return dict(key=key, before={}, rate=None, durations={}, flips={})
-    kept = dict(rate=data.get('rate'), durations=data.get('durations') or {}, flips=data.get('flips') or {})
+        return dict(key=key, before={}, rate=None, rates=[], durations={}, flips={})
+    # A memo written before rates were kept holds one rate.
+    rates = data.get('rates') if isinstance(data.get('rates'), list) else [data.get('rate')]
+    rates = [rate for rate in rates if isinstance(rate, (int, float)) and rate > 0][-RATES:]
+    kept = dict(rate=_median(rates), rates=rates, durations=data.get('durations') or {}, flips=data.get('flips') or {})
     return dict(data, **kept) if data.get('key') == key else dict(key=key, before={}, **kept)
+
+
+def _median(rates):
+    return round(statistics.median(rates), 2) if rates else None
 
 
 def history(memo):
@@ -95,7 +106,8 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
     only what it cannot answer runs there.
 
     ``memo`` is a file kept between runs on the same tree: outcomes already seen on the code before the change
-    (valid while that code is the same) and the measured test rate, which caps how many candidates are tried."""
+    (valid while that code is the same) and the measured test rates, whose median plans how many candidates are tried
+    first. Time the plan leaves over goes to the next candidates."""
     python, gaps, started = python or sys.executable, [], time.perf_counter()
     runner = runners.get(root, runner)
     if not ids:
@@ -104,12 +116,9 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
     seeded, order = trust.ordering(runner, python)
     runner.extra = (*runners.plugin_args(runner, python), *seeded)
     key = parent_key(root) if memo else None
-    remembered = load_memo(memo, key) if key else dict(before={}, rate=None, durations={}, flips={})
+    remembered = load_memo(memo, key) if key else dict(before={}, rate=None, rates=[], durations={}, flips={})
     rate = remembered.get('rate') or RATE
-    cap = max(CHUNK, int(rate * parts * budget * 0.8))
-    if len(ids) > cap:
-        gaps.append(f'{len(ids) - cap} lower-ranked candidate(s) not run: about {rate:.0f} tests/s per process fit {cap} in the {budget} s allowed')
-        ids = ids[:cap]
+    pool, ids = ids, ids[:max(CHUNK, int(rate * parts * budget * FILL))]
     with tempfile.TemporaryDirectory(prefix='amu-shadow-') as scratch:
         other = Path(scratch)/'tree'
         shutil.copytree(root, other, ignore=shutil.ignore_patterns(*IGNORED), symlinks=True)
@@ -131,15 +140,21 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
         # Most promising candidates first, in chunks. Each chunk runs on the changed code; only the tests
         # that fail there are run on the code as it was, to confirm they passed before. A test that passes
         # after the change cannot be a new failure, so the unchanged side is never paid for it.
-        left, done, aborted, after_seconds = float(budget), 0, None, 0.0
-        for start in range(0, len(ids), CHUNK * parts):
+        left, done, aborted, measured, measured_seconds = float(budget), 0, None, 0, 0.0
+        while left > 1:
+            if done == len(ids):
+                # The planned candidates finished with time to spare: the next ones run, as many as this run's own rate
+                # fits in what is left above the share kept for the checks after them.
+                rate = measured / measured_seconds / parts if measured and measured_seconds else rate
+                ids = pool[:len(ids) + max(0, int(rate * parts * (left - budget * (1 - FILL))))]
+                if done == len(ids):
+                    break
+            start = done
             chunk = ids[start:start + CHUNK * parts]
-            if left <= 1:
-                break
             began = time.perf_counter()
             found, problems = execute(runner, python, trees['after'], chunk, scratch, 'after', max(left, 1), parts)
-            after_seconds += time.perf_counter() - began
-            left -= time.perf_counter() - began
+            took = time.perf_counter() - began
+            left -= took
             states['after'].update(found)
             for part in _slices(chunk, parts):
                 context.update({ident: part for ident in part})
@@ -162,6 +177,11 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
                     break
             if problem == 'timed out':
                 break
+            # The rate counts only chunks that finished: a chunk stopped at the budget took its time and left few
+            # outcomes or none.
+            if 'timed out' not in problems:
+                measured += sum(found.get(ident) in OUTCOMES for ident in chunk)
+                measured_seconds += took
             failing = [ident for ident in chunk if found.get(ident) == 'failed']
             # The code before the change is the same on every run until the commit moves: what it did then, it does now.
             remembered_now = {ident: remembered['before'][ident] for ident in failing if ident in remembered['before']}
@@ -177,6 +197,8 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
                 if problem:
                     gaps.append(f'shadow run (before the change, {runner.name}): {problem}')
             done = start + len(chunk)
+        if len(ids) < len(pool):
+            gaps.insert(0, f'{len(pool) - len(ids)} lower-ranked candidate(s) not run: about {rate:.0f} tests/s per process fit {len(ids)} in the {budget} s allowed')
         if done < len(ids) and not aborted:
             gaps.append(f'shadow run stopped at its {budget} s budget: {done} of {len(ids)} candidates run')
         # A test that an edited test file no longer defines (renamed or deleted) did not fail because of the change: it
@@ -307,8 +329,9 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
     now = round(time.time())
     remembered.setdefault('flips', {}).update({i: now for i, v in verdicts.items() if trust.counted(v['label'])})
     if key and memo:
-        if ran_after >= CHUNK and after_seconds > 0:
-            remembered['rate'] = round(ran_after / after_seconds / max(1, parts if runner.parallel else 1), 1)
+        if measured >= CHUNK and measured_seconds > 0:
+            remembered['rates'] = [*remembered.get('rates', []), round(measured / measured_seconds / parts, 2)][-RATES:]
+            remembered['rate'] = _median(remembered['rates'])
         try:
             Path(memo).parent.mkdir(parents=True, exist_ok=True)
             Path(memo).write_text(json.dumps(remembered))

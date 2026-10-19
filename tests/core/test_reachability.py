@@ -680,7 +680,9 @@ def test_remembered_outcomes_before_the_change_expire_with_the_commit(tmp_path):
     memo = tmp_path/'memo.json'
     memo.write_text(json.dumps(dict(key='a', before={'t': 'passed'}, rate=12.0)))
     assert load_memo(memo, 'a')['before'] == {'t': 'passed'}
-    assert load_memo(memo, 'b') == dict(key='b', before={}, rate=12.0, durations={}, flips={})
+    assert load_memo(memo, 'b') == dict(key='b', before={}, rate=12.0, rates=[12.0], durations={}, flips={})
+    memo.write_text(json.dumps(dict(key='a', before={}, rate=0.2, rates=[0.2, 6.0, 14.0])))
+    assert load_memo(memo, 'b')['rate'] == 6.0
 
 
 def test_a_failing_test_made_to_pass_by_editing_it_stays_listed(tmp_path):
