@@ -20,7 +20,7 @@ import time
 import zlib
 from pathlib import Path
 
-from . import runners
+from . import runners, sitehooks
 from .index import build
 
 FORMAT = 'amu-observed-2'
@@ -128,16 +128,11 @@ def record(root, python=None, runner=None, index_dir=None, timeout=7200, labels=
         rc = scratch/'coveragerc'
         rc.write_text(f'[run]\nparallel = True\ndynamic_context = test_function\nsource = {root}\n'
                       f'data_file = {scratch}/data/.coverage\n')
-        installed = []
         try:
             # The hook must load in every interpreter the tests start, whatever they do to PYTHONPATH.
-            for name, text in zip(HOOK_FILES, (HOOK, 'import amu_observe_hook\n')):
-                (purelib/name).write_text(text)
-                installed.append(purelib/name)
+            remove = sitehooks.install(purelib, dict(zip(HOOK_FILES, (HOOK, 'import amu_observe_hook\n'))))
         except OSError:
             info['gaps'].append('could not install the recording hook in the interpreter; nothing recorded')
-            for path in installed:
-                path.unlink(missing_ok=True)
             return info
         env = dict({k: v for k, v in os.environ.items() if not k.startswith('ANTHROPIC_')}, AMU_OBSERVE_RC=str(rc), PYTHONDONTWRITEBYTECODE='1',
                    PYTHONPATH=os.pathsep.join(filter(None, [str(root/'src'), str(root), os.environ.get('PYTHONPATH')])))
@@ -150,8 +145,7 @@ def record(root, python=None, runner=None, index_dir=None, timeout=7200, labels=
         except subprocess.TimeoutExpired:
             info['gaps'].append(f'the suite did not finish in {timeout} s; what ran is recorded')
         finally:
-            for path in installed:
-                path.unlink(missing_ok=True)
+            remove()
         info.update(command=' '.join(command), seconds=round(time.perf_counter() - started, 1))
         children = len(list((scratch/'data').glob('.coverage.*'))) - 1
         exported = subprocess.run([python, '-c', EXPORT, str(rc), str(scratch/'export')], capture_output=True, timeout=3600)

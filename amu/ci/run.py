@@ -13,7 +13,8 @@ Under GitHub Actions, ``merge-base`` and ``flips`` are also written to ``$GITHUB
 The index and any per-test recording live in ``.amu/index/`` (the action caches that folder on the merge base). ``--observe`` records
 one on the merge base, in a temporary worktree, when the cache has none. ``--wall-cap`` bounds everything: past it the
 run is stopped and the report says so. The recording gets only what the wall cap leaves after amu's own share, and is
-skipped when it would not fit there, so amu still runs and reports.
+skipped when it would not fit there, so amu still runs and reports. A recording's hook files that an earlier, killed run
+left in the interpreter are removed first, and the report says so.
 """
 from __future__ import annotations
 
@@ -30,7 +31,7 @@ from pathlib import Path
 
 from .. import __version__
 from ..core import edges as core_edges
-from ..core import observe as core_observe
+from ..core import sitehooks
 from ..core.index import cache_dir
 from ..core.shadow import SIDE_BY_SIDE
 
@@ -99,17 +100,9 @@ def amu_share(budget):
 
 def remove_hooks(python):
     """Take the recorders' hook files out of the interpreter's site-packages. A recording stopped at its limit is
-    killed before it can remove them itself, and every test process the interpreter starts afterwards would load them."""
-    try:
-        purelib = Path(subprocess.check_output([python, '-c', 'import sysconfig; print(sysconfig.get_paths()["purelib"])'],
-                                               stderr=subprocess.DEVNULL, timeout=60).decode().strip())
-    except (OSError, subprocess.SubprocessError):
-        return
-    for name in (*core_edges.HOOK_FILES, *core_observe.HOOK_FILES):
-        try:
-            (purelib/name).unlink(missing_ok=True)
-        except OSError:
-            pass
+    killed before it can remove them itself, and every test process the interpreter starts afterwards would load them.
+    Returns the sweep's gaps."""
+    return sitehooks.sweep(python)
 
 
 def earlier_attempt(repo, calls):
@@ -169,8 +162,9 @@ def run(repo, base, head, out, python=None, runner=None, pr=None, budget=None, i
     meta = dict(pr=pr, base=base, head=head, merge_base=None, amu_version=__version__, amu_ref=amu_ref,
                 runner=runner or None, budget=budget, wall_cap=wall_cap, install_ok=install_ok, status=None, seconds=None,
                 cached_index=cache_dir(repo).is_dir(), recording=None, counters=bool(counters))
-    report, notes = None, []
     started = time.monotonic()
+    # Before anything: a hook an earlier recording could not remove (killed) would load in every test process.
+    report, notes = None, sitehooks.sweep(python or sys.executable)
     deadline = started + wall_cap if wall_cap else None
 
     def left():

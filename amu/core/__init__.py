@@ -12,6 +12,7 @@ from .git import working_diff
 from .index import cache_dir, parse_or_none
 from .index import state as load_state
 from .patch import align, applied, candidate, changes, original, renumber
+from .sitehooks import sweep
 
 LIMIT = 2000
 MAX_TESTS = 40
@@ -110,9 +111,11 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         # A supplied patch may describe someone else's tree, so that stays static unless asked.
         run = own_tree and bool(patch.strip()) and runners.evident(root)
     python = python or (runners.interpreter(root) if run else None)
+    # A recording killed before it could take its hook out of this interpreter would have every test run load it.
+    swept = sweep(python) if run and python else []
     facts, hashes, gaps, parsed, graph = load_state(root, index_dir)
     edits, patch_gaps = changes(root, patch)
-    gaps.extend([*early, *patch_gaps])
+    gaps.extend([*early, *patch_gaps, *swept])
     symbols, where = changed_symbols(root, facts, edits, gaps)
     order = {'function': 0, 'variable': 0, 'class': 1, 'module': 2}
     narrow = sorted(symbols, key=lambda s: (order[graph.records[s]['kind']], s))
