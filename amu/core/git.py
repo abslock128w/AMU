@@ -1,16 +1,34 @@
-"""Read the uncommitted change of a working tree. Git output is data; nothing here writes."""
+"""Read the uncommitted change of a working tree, and files as a commit holds them. Git output is data; nothing here
+writes."""
 from __future__ import annotations
 
 import os
 import subprocess
 
 
-def _git(root, *args):
+def _git(root, *args, raw=False):
     env = dict(os.environ, GIT_OPTIONAL_LOCKS='0', GIT_TERMINAL_PROMPT='0')
     done = subprocess.run(['git', '-C', str(root), *args], capture_output=True, timeout=30, env=env)
     if done.returncode:
         raise OSError(done.stderr.decode(errors='replace').strip()[:200] or 'git failed')
-    return done.stdout.decode(errors='replace')
+    return done.stdout if raw else done.stdout.decode(errors='replace')
+
+
+def file_at(root, commit, path):
+    """``path`` as ``commit`` holds it, newlines as read_text gives them: '' when the commit has no such file, None
+    when the commit or the text cannot be read. The blob as stored: no textconv, no filters."""
+    try:
+        data = _git(root, 'cat-file', 'blob', f'{commit}:{path}', raw=True)
+    except (OSError, subprocess.TimeoutExpired):
+        try:
+            _git(root, 'rev-parse', '--verify', '--quiet', f'{commit}^{{commit}}')
+        except (OSError, subprocess.TimeoutExpired):
+            return None
+        return ''
+    try:
+        return data.decode().replace('\r\n', '\n').replace('\r', '\n')
+    except UnicodeDecodeError:
+        return None
 
 
 def working_diff(root):

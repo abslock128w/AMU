@@ -12,7 +12,7 @@ def changes(root, patch):
     if len(patch.encode()) > MAX_BYTES:
         gaps.append('Patch exceeds 2 MiB; only the first 2 MiB inspected')
         patch = patch.encode()[:MAX_BYTES].decode(errors='ignore')
-    lines = patch.splitlines(keepends=True)
+    lines = _lines(patch, True)
     current = None
     before_line = after_line = 0
     removed_in_hunk = False
@@ -72,7 +72,7 @@ def changes(root, patch):
 def applied(root, path, edit):
     """Whether the tree already contains this file's change (an agent's edited worktree)."""
     try:
-        lines = (Path(root)/path).read_text(errors='replace').splitlines()
+        lines = _lines((Path(root)/path).read_text(errors='replace'))
     except OSError:
         return False
 
@@ -82,16 +82,17 @@ def applied(root, path, edit):
 
     new, old = share(edit['added']), share(edit['removed'])
     if new is None:
-        if not edit['removed']:
+        if not edit['hunks']:
             return False
         if old == 0:
             return True
-        # A removal whose lines repeat in what shifts into place (`return self`, `pass`): each hunk's surviving lines
-        # sit together at the patched-side start, and the hunk as it was does not sit at the parent-side start.
+        # Only blank lines added, or a removal whose lines repeat in what shifts into place (`return self`, `pass`):
+        # each hunk as the change leaves it sits at the patched-side start, and the hunk as it was does not sit at the
+        # parent-side start.
         def at(start, rows):
             rows = [row[1:].rstrip('\r\n') for row in rows]
             return start >= 1 and lines[start - 1:start - 1 + len(rows)] == rows
-        return all(len(hunk) > 2 and at(hunk[2], [row for row in hunk[1] if row[:1] == ' '])
+        return all(len(hunk) > 2 and at(hunk[2], [row for row in hunk[1] if row[:1] in ' +'])
                    and not at(hunk[0], [row for row in hunk[1] if row[:1] in ' -']) for hunk in edit['hunks'])
     return new == 1 and (old is None or old < 1)
 
@@ -104,7 +105,7 @@ def candidate(root, path, edit):
         source = ''
     if applied(root, path, edit):
         return source
-    lines, out, position = source.splitlines(keepends=True), [], 0
+    lines, out, position = _lines(source, True), [], 0
     for start, body, *_ in edit['hunks']:
         start = max(start - 1, 0)
         if start < position or start > len(lines):
@@ -175,7 +176,7 @@ def original(root, path, edit):
     for start, body, *patched in edit['hunks']:
         flipped = [('+' if row[:1] == '-' else '-' if row[:1] == '+' else ' ') + row[1:] for row in body]
         moved.append([patched[0] if patched else (place(start) if start else 0), flipped])
-    lines, out, position = source.splitlines(keepends=True), [], 0
+    lines, out, position = _lines(source, True), [], 0
     for start, body in moved:
         start = max(start - 1, 0)
         if start < position or start > len(lines):
@@ -194,6 +195,15 @@ def original(root, path, edit):
                 position += 1
     out.extend(lines[position:])
     return ''.join(out)
+
+
+def _lines(text, keepends=False):
+    """``text`` split at newlines only, as git and Python's tokenizer number lines. str.splitlines also splits at form
+    feeds and Unicode line separators, which moves every line after them off the patch's numbering."""
+    parts = text.split('\n')
+    last = parts.pop()
+    lines = [part + '\n' for part in parts] if keepends else parts
+    return lines + [last] if last else lines
 
 
 def align(old_text, new_text):

@@ -58,9 +58,12 @@ def merge_base(repo, base, head):
     return found
 
 
-def amu_command(patch, python, runner, budget, generate=None):
+def amu_command(patch, python, runner, budget, generate=None, merge_base=None):
     command = [sys.executable, *SAFE, '-m', 'amu.core', '--repo', '.', '--patch-file', str(patch), '--run', '--full-evidence',
                '--python', python]
+    if merge_base:
+        # A file the patch cannot be undone in is taken from the merge base, not lost with the whole run.
+        command += ['--merge-base', merge_base]
     if generate and generate[0] > 0:
         dollars, minutes, model = generate
         command += ['--generate-dollars', str(dollars), '--generate-minutes', str(minutes), '--generate-model', model]
@@ -196,7 +199,7 @@ def run(repo, base, head, out, python=None, runner=None, pr=None, budget=None, i
                 if seconds is not None and seconds < 1:
                     report = dict(error=f'stopped at the wall cap of {wall_cap} s before amu ran')
                 else:
-                    done, problem = bounded(amu_command(patch, python or sys.executable, runner, budget, generate), repo,
+                    done, problem = bounded(amu_command(patch, python or sys.executable, runner, budget, generate, found), repo,
                                             seconds if seconds is not None else 24 * 3600)
                     if problem:
                         report = dict(error=f'stopped at the wall cap of {wall_cap} s; amu reported nothing')
