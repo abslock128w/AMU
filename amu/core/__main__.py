@@ -27,14 +27,16 @@ def main(argv=None):
     p.add_argument('--generate-model', default='claude-opus-5-5', help='Claude model that writes the probes')
     p.add_argument('--observe-calls', action='store_true',
                    help='run the whole suite once with the sys.monitoring call tracer (Python 3.12+) and store per-test call edges')
+    p.add_argument('--observe-seconds', type=int, default=7200,
+                   help='seconds the suite may run for --observe or --observe-calls; past them what ran is recorded')
     a = p.parse_args(argv)
     if a.observe_calls:
         from . import edges
-        sys.stdout.write(encoded(edges.record(a.repo, a.python, a.runner)).decode() + '\n')
+        sys.stdout.write(encoded(edges.record(a.repo, a.python, a.runner, timeout=a.observe_seconds)).decode() + '\n')
         return
     if a.observe:
         from . import observe
-        sys.stdout.write(encoded(observe.record(a.repo, a.python, a.runner)).decode() + '\n')
+        sys.stdout.write(encoded(observe.record(a.repo, a.python, a.runner, timeout=a.observe_seconds)).decode() + '\n')
         return
     patch = None if a.patch_file is None else sys.stdin.read() if a.patch_file == '-' else Path(a.patch_file).read_text(errors='replace')
     sys.stdout.write(encoded(analyze(a.repo, patch, full_evidence=a.full_evidence, coverage_evidence=a.coverage, run=False if a.static else True if a.run else None, python=a.python, budget=a.budget, include_tests=a.tests, runner=a.runner, only=a.only, also=a.also, generate=(a.generate_dollars, a.generate_minutes, a.generate_model) if a.generate_dollars > 0 else None)).decode() + '\n')

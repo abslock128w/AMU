@@ -109,3 +109,76 @@ def test_a_checkout_with_its_own_amu_package_does_not_shadow_the_installed_one(p
     head = git(repo, 'rev-parse', 'HEAD')
     report, _ = ci_run.run(repo, base, head, tmp_path/'out', python=sys.executable)
     assert report.get('flips') == 1, report
+
+
+def purelib(python=sys.executable):
+    return Path(subprocess.check_output([python, '-c', 'import sysconfig; print(sysconfig.get_paths()["purelib"])'], text=True).strip())
+
+
+def hook_files():
+    from amu.core import edges, observe
+    return [purelib()/name for name in (*edges.HOOK_FILES, *observe.HOOK_FILES) if (purelib()/name).exists()]
+
+
+@pytest.fixture
+def slow_to_record(pull_request):
+    """The pull request on a merge base whose suite hangs under a recorder only, as sympy's whole suite outlasts any
+    share the wall cap can give the tracer (#30476 in the retrospective)."""
+    repo, _, _ = pull_request
+    git(repo, 'checkout', '-q', 'main')
+    (repo/'tests'/'conftest.py').write_text("import os, time\n\nif os.environ.get('AMU_EDGES_OUT') or os.environ.get('AMU_OBSERVE_RC'):\n"
+                                            "    time.sleep(120)\n")
+    git(repo, 'add', '.')
+    git(repo, 'commit', '-qm', 'a suite too slow to record')
+    base = git(repo, 'rev-parse', 'HEAD')
+    git(repo, 'checkout', '-q', 'feature')
+    git(repo, 'merge', '-q', '--no-edit', 'main')
+    return repo, base, git(repo, 'rev-parse', 'HEAD')
+
+
+@pytest.fixture
+def small_shares(monkeypatch):
+    monkeypatch.setattr(ci_run, 'RESERVE', 0)
+    monkeypatch.setattr(ci_run, 'RECORDING_MIN', 5)
+    monkeypatch.setattr(ci_run, 'RECORDING_STORE', 4)
+    monkeypatch.setattr(ci_run, 'amu_share', lambda budget: 30)
+
+
+def test_a_recording_that_does_not_fit_its_share_leaves_amu_its_own(slow_to_record, small_shares, tmp_path):
+    repo, base, head = slow_to_record
+    report, meta = ci_run.run(repo, base, head, tmp_path/'one', python=sys.executable, wall_cap=45, record=True, budget=20)
+    assert report.get('flips') == 1, report
+    assert meta['status'] == 'ran' and meta['recording'] is False and meta['seconds'] < 45
+    share = [int(gap.split('its share of ')[1].split()[0]) for gap in report['gaps'] if 'did not finish in its share' in gap]
+    assert share and 10 <= share[0] <= 15  # 45 s less amu's 30, less what reaching the recording took
+    assert hook_files() == []
+    # The next run, with no more time for it, does not try again.
+    report, meta = ci_run.run(repo, base, head, tmp_path/'two', python=sys.executable, wall_cap=45, record=True, budget=20)
+    assert report.get('flips') == 1 and meta['seconds'] < 45
+    assert any(f'earlier one did not finish in {share[0]} s' in gap for gap in report['gaps'])
+
+
+def test_a_recording_killed_at_its_share_leaves_no_hook_behind(slow_to_record, small_shares, monkeypatch, tmp_path):
+    repo, base, head = slow_to_record
+    # The suite's own limit lies past the share, so the kill at the share is what stops it, before the recorder's
+    # cleanup can run.
+    monkeypatch.setattr(ci_run, 'RECORDING_STORE', -60)
+    sweep = ci_run.remove_hooks
+    monkeypatch.setattr(ci_run, 'remove_hooks', lambda python: None)
+    try:
+        ci_run.observe(repo.resolve(), base, sys.executable, None, 8)
+        assert hook_files(), 'the kill did not leave the hook behind; this test no longer shows the defect'
+    finally:
+        sweep(sys.executable)
+    monkeypatch.setattr(ci_run, 'remove_hooks', sweep)
+    (ci_run.cache_dir(repo.resolve())/ci_run.ATTEMPT).unlink()  # or the second recording would not be tried
+    note = ci_run.observe(repo.resolve(), base, sys.executable, None, 8)
+    assert hook_files() == []
+    assert note == 'recording on the merge base did not finish in its share of 8 s; static ranking only'
+
+
+def test_no_recording_when_the_wall_cap_leaves_it_no_share(pull_request, tmp_path):
+    repo, base, head = pull_request
+    report, meta = ci_run.run(repo, base, head, tmp_path/'out', python=sys.executable, wall_cap=600, record=True, budget=300)
+    assert report.get('flips') == 1 and meta['recording'] is False
+    assert "recording skipped: the wall cap leaves 0 s for it after amu's share" in report['gaps']

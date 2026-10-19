@@ -32,6 +32,7 @@ from . import runners
 from .index import build
 
 FORMAT = 'amu-edges-1'  # edges are [caller, callee, direct]; caller -1 when no first-party frame called
+HOOK_FILES = ('amu_edges_hook.py', 'zzz_amu_edges.pth')  # what ``record`` puts in the interpreter's site-packages
 
 HOOK = r'''"""AMU's edge hook, loaded through a .pth file and named to pytest with -p. PYTEST_DONT_REWRITE: it is imported before
 pytest starts, and asking pytest to rewrite it would raise a warning that -W error turns into an abort."""
@@ -221,11 +222,12 @@ def record(root, python=None, runner=None, index_dir=None, timeout=7200, labels=
         installed = []
         try:
             # The hook is needed by pytest (-p amu_edges_hook) even in a plain run, where it records nothing.
-            (purelib/'amu_edges_hook.py').write_text(HOOK)
-            installed.append(purelib/'amu_edges_hook.py')
+            module, pth = HOOK_FILES
+            (purelib/module).write_text(HOOK)
+            installed.append(purelib/module)
             if not plain:
-                (purelib/'zzz_amu_edges.pth').write_text('import amu_edges_hook\n')
-                installed.append(purelib/'zzz_amu_edges.pth')
+                (purelib/pth).write_text('import amu_edges_hook\n')
+                installed.append(purelib/pth)
         except OSError:
             for path in installed:
                 path.unlink(missing_ok=True)
