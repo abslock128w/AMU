@@ -62,6 +62,28 @@ def test_a_method_using_super_is_compared_with_its_class(tmp_path):
     assert row['target'] == 'lib.py#Box.size' and row['before']['result'] == ['return', '3'] and row['after']['result'] == ['return', '2'], row
 
 
+def test_a_function_reaching_its_own_name_finds_the_module_function(tmp_path):
+    # Found on sympy #30715: the copy's own name (to_NNF recursing) was a cell of the wrapper it is compiled in, filled
+    # with the class owning it, None for a module function. Callers of the changed to_NNF raised "'NoneType' object is not
+    # callable" as changed only, and to_NNF itself raised on both sides. A method named like the module function it calls
+    # reached its class.
+    lib0 = ('def flatten(items):\n    out = []\n    for item in items:\n        out += flatten(item) if isinstance(item, list) else [item]\n'
+            '    return out\n\n\ndef size(items):\n    return len(flatten(items))\n\n\n'
+            'class Bag:\n    def __init__(self, items):\n        self.items = items\n\n    def size(self):\n        return size(self.items)\n')
+    lib1 = (lib0.replace('else [item]\n', 'else [item] if item is not None else []\n')
+            .replace('return len(flatten(items))', 'return len(flatten(items if isinstance(items, list) else [items]))')
+            .replace('return size(self.items)', 'return size(self.items) * 1'))
+    tests = 'from lib import Bag, size\n\n\ndef test_size():\n    assert size([1, [2, None]]) >= 2\n    assert Bag([1, [2, None]]).size() >= 2\n'
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1, 'tests/test_lib.py': tests})
+    found = {(row['target'].split('#')[1], row['input']): row for row in report['behaviour_differences']}
+    outer = found.get(('flatten', '([[1, [2, None]]], {})'))
+    assert outer and outer['before']['result'] == ['return', ['list', ['1', '2', 'None']]], found
+    assert outer['after']['result'] == ['return', ['list', ['1', '2']]], outer
+    rows = {name: row for (name, _), row in found.items() if name in ('size', 'Bag.size')}
+    assert set(rows) == {'size', 'Bag.size'}, found
+    assert all(row['before']['result'] == ['return', '3'] and row['after']['result'] == ['return', '2'] for row in rows.values()), rows
+
+
 def test_changed_functions_that_call_each_other_run_as_changed_together(tmp_path):
     # Found on Django 7b8504eaab: the changed caller needs state the changed callee now sets. Mixing versions raised.
     lib0 = ('class Detector:\n    def prepare(self):\n        self.keys = [1]\n\n    def detect(self):\n        self.prepare()\n'

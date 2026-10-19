@@ -8,7 +8,8 @@ afterwards (mutation), what was printed, and the sequence of calls made from fir
 difference is kept only when both versions repeat themselves exactly; one that does not is nondeterministic and dropped.
 
 Both versions are compiled from source the same way (decorators left off, so a wrapper's own behaviour is not compared),
-in the module's globals, with ``__class__`` bound for ``super()``. Then the test's own call goes on as usual. A function
+in the module's globals, with ``__class__`` bound for ``super()`` and their own name looked up in those globals, as in the
+module (recursion reaches the version swapped in for the run). Then the test's own call goes on as usual. A function
 that is nested, a generator or coroutine, or uses a private name that a class body would mangle is not compared, and is
 counted as such; so is a function in a test file (the tests, not the code they test), and one whose code is the same
 once its docstring is set aside (only the docstring, comments or layout changed).
@@ -103,8 +104,10 @@ if _spec_path and _sys.version_info >= (3, 12):
             if which == "after":
                 _prepare_swaps()
                 _swapped(True)
-            template = ("def __amu_outer__():\n    __class__ = None\n" + textwrap.indent(source, "    ")
-                        + "\n    return " + target["name"] + "\n")
+            # Its own name is a global, as in its module (a function recursing, a method calling the module function it
+            # is named after): a local of the wrapper would make it a cell, filled below with the owner.
+            template = ("def __amu_outer__():\n    global " + target["name"] + "\n    __class__ = None\n"
+                        + textwrap.indent(source, "    ") + "\n    return " + target["name"] + "\n")
             space = dict(globs)
             try:
                 exec(compile(template, target["file"], "exec"), space)
@@ -112,14 +115,17 @@ if _spec_path and _sys.version_info >= (3, 12):
                 if which == "after":
                     _swapped(False)
             made = space["__amu_outer__"]()
+            # The global declaration also takes the wrapper out of its qualified name, which the signature check in run()
+            # reads from messages: kept as it was.
+            code = made.__code__.replace(co_qualname="__amu_outer__.<locals>." + target["name"])
             parts = target["qual"].split(".")
             owner = None
             if len(parts) > 1:
                 owner = globs.get(parts[0])
                 for part in parts[1:-1]:
                     owner = vars(owner).get(part) if isinstance(owner, type) else None
-            cells = tuple(types.CellType(owner) for name in made.__code__.co_freevars)
-            fn = types.FunctionType(made.__code__, globs, made.__name__, made.__defaults__, cells or None)
+            cells = tuple(types.CellType(owner) for name in code.co_freevars)
+            fn = types.FunctionType(code, globs, made.__name__, made.__defaults__, cells or None)
             fn.__kwdefaults__ = made.__kwdefaults__
             return fn
 
