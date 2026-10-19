@@ -210,3 +210,21 @@ def test_tests_the_change_adds_are_not_run_on_the_code_before_it(tmp_path, monke
                     {'lib.py': lib1, 'tests/test_lib.py': old, 'tests/test_new.py': new})
     assert sent == ['tests/test_lib.py::test_a'], sent
     assert [row['target'] for row in report['behaviour_differences']] == ['lib.py#clamp'], report['behaviour_differences']
+
+
+def test_functions_in_test_files_and_docstring_only_changes_are_not_compared_and_are_listed(tmp_path):
+    # Found in the retrospective (defect 8): 167 of 447 comparable changed functions were in test files (Django #21820
+    # test_invalid_view, #21861 ModelTest.test_eq), and docstring-only changes were compared (sympy #30530, #30697).
+    lib0 = 'def clamp(v):\n    return min(v, 10)\n\n\ndef describe(v):\n    """The value."""\n    return str(v)\n'
+    lib1 = lib0.replace('min(v, 10)', 'min(v, 9)').replace('"""The value."""', '"""The value, as text."""')
+    helpers0 = 'def big():\n    return 50\n'
+    helpers1 = 'def big():\n    return 49 + 1\n'
+    tests = ('from helpers import big\nfrom lib import clamp, describe\n\n\n'
+             'def test_clamp():\n    assert clamp(big()) and describe(1)\n')
+    report = change(tmp_path, {'lib.py': lib0, 'tests/helpers.py': helpers0, 'tests/test_lib.py': tests},
+                    {'lib.py': lib1, 'tests/helpers.py': helpers1, 'tests/test_lib.py': tests})
+    side = report['side_by_side']
+    assert (side['targets'], side['called']) == (1, ['lib.py#clamp']), side
+    assert side['not_compared'] == {'lib.py#describe': 'only its docstring, comments or layout changed',
+                                    'tests/helpers.py#big': 'in a test file'}, side['not_compared']
+    assert [row['target'] for row in report['behaviour_differences']] == ['lib.py#clamp'], report['behaviour_differences']

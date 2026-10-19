@@ -282,7 +282,7 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
             side['seconds'] = round(time.perf_counter() - began, 1)
             gaps += more
         if functions and not aborted and generate_with and generate_with[0] > 0:
-            spec_targets, _ = sidebyside.targets(functions, before_src, after_src)
+            spec_targets, left_out = sidebyside.targets(functions, before_src, after_src)
             called = set((side or {}).get('called') or ())
             uncalled = [t for t in spec_targets if t['id'] not in called]
             example = next((_read(Path(trees['after'])/_path(i)) for i in ids if _path(i).endswith('.py')), '')
@@ -293,6 +293,10 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
             # never written to.
             made, generated, more = generate.run(runner, python, trees['after'], trees['before'], uncalled, changed, example,
                                                  scratch, dollars, minutes, model, copy_before=not live_is_after)
+            if side is None:
+                # Side-by-side did not run (Python before 3.12), so its list of the changed functions left out, and why,
+                # is not in the report: it goes with the generated tests, which got the same targets.
+                made['not_compared'] = left_out
             gaps += more
         if own and not aborted:
             replayed, more = _replay(runner, python, trees['after'], other, edits, before_src, after_src, live_is_after,
