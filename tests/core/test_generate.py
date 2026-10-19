@@ -1,8 +1,12 @@
 """C1: model-written probes for changed functions no test calls, kept only on execution evidence. The model is faked."""
 import difflib
 import json
+import os
 import sys
+from pathlib import Path
 from types import SimpleNamespace
+
+import pytest
 
 from amu.core import analyze, generate
 
@@ -27,8 +31,8 @@ LIB1 = 'def tested(x):\n    return x + 0\n\n\ndef scale(x):\n    return x * 3 if
 TESTS = 'from lib import tested\n\n\ndef test_tested():\n    assert tested(1) == 1\n'
 
 
-def run(tmp_path, probes, monkeypatch, dollars=0.10, **fake):
-    for name, text in {'lib.py': LIB1, 'tests/test_lib.py': TESTS}.items():
+def run(tmp_path, probes, monkeypatch, dollars=0.10, on_disk=True, **fake):
+    for name, text in {'lib.py': LIB1 if on_disk else LIB0, 'tests/test_lib.py': TESTS}.items():
         (tmp_path/name).parent.mkdir(parents=True, exist_ok=True)
         (tmp_path/name).write_text(text)
     api = FakeAPI(probes, **fake)
@@ -62,6 +66,36 @@ def test_only_probes_that_pass_every_filter_are_kept_and_their_outcomes_come_fro
     from amu.ci.render import render
     body = render(report, dict(head='a' * 40, merge_base='b' * 40))
     assert '### Generated tests showing a difference (1)' in body and '`scale(50)`' in body and '<details>' in body, body
+
+
+@pytest.mark.parametrize('on_disk', [True, False], ids=['change-on-disk', 'code-before-on-disk'])
+def test_an_outcome_that_depends_on_where_the_tree_lives_is_not_a_difference(tmp_path, monkeypatch, on_disk):
+    # sympy #30701: update_args_with_paths returned absolute paths, so its outcome held each tree's own folder and
+    # differed between the two copies with no change in behaviour.
+    setup = 'import os\nimport lib\nfrom lib import scale'
+    probes = [dict(function='lib.py#scale', setup=setup, call='(scale(50), lib.__file__)', why='a real difference'),
+              dict(function='lib.py#scale', setup=setup, call='(scale(1), lib.__file__)', why='the tree as imported'),
+              dict(function='lib.py#scale', setup=setup, call='(scale(1), os.path.abspath(__file__))', why='this file'),
+              dict(function='lib.py#scale', setup=setup, call='(scale(1), os.getcwd())', why='the tree, resolved'),
+              dict(function='lib.py#scale', setup=setup, call='(scale(1), os.path.basename(os.getcwd()))', why='its name')]
+    report, _ = run(tmp_path, probes, monkeypatch, on_disk=on_disk)
+    made, rows = report['generated'], report['generated_differences']
+    assert [row['call'] for row in rows] == ['(scale(50), lib.__file__)'], rows
+    # The folder's name is not a spelling of the tree: the run from a second folder is what drops that one.
+    assert (made['ran'], made['stable'], made['reached'], made['accepted']) == (5, 4, 4, 1), made
+    [row] = rows
+    assert row['before'][2] == "(100, '<tree>/lib.py')" and row['after'][2] == "(150, '<tree>/lib.py')", row
+
+
+def test_every_spelling_of_the_tree_is_taken_out_of_an_outcome(tmp_path):
+    real = tmp_path/'real'
+    real.mkdir()
+    (tmp_path/'link').symlink_to(real, target_is_directory=True)
+    names = generate._spellings(tmp_path/'link')
+    assert str(tmp_path/'link') in names and os.path.realpath(real) in names
+    assert names == sorted(names, key=len, reverse=True)
+    if os.path.realpath('/var') == '/private/var':  # macOS: /var is a link into /private
+        assert '/var/folders/x' in generate._spellings(Path('/private/var/folders/x'))
 
 
 def test_no_request_crosses_the_dollar_cap_and_nothing_runs_without_a_client(tmp_path, monkeypatch):

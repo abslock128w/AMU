@@ -8,9 +8,13 @@ records what the call returned or raised, and the probe is kept only if it passe
 
 1. it compiles;
 2. it runs on the changed code (the probe's own setup does not fail);
-3. it gives the same outcome five times on the changed code, each in a fresh process;
+3. it gives the same outcome five times on the changed code, each in a fresh process, the last from a second folder;
 4. it runs a changed line (the reach tracer);
 5. on the code before the change it gives one outcome twice, and that outcome differs.
+
+An outcome is recorded with the tree's own folder, however the process spells it, written as ``<tree>``: the two
+sides run in different folders, so a path into the tree is no difference by itself (sympy #30701). An outcome that
+depends on the folder some other way (its name, its depth) changes in the run from the second folder.
 
 A kept probe is reported as ``generated test shows a difference``, with both outcomes; the test written into the
 comment asserts what executing the changed code produced. Spending is capped in dollars and minutes; the model's
@@ -20,6 +24,7 @@ from __future__ import annotations
 
 import ast
 import json
+import os
 import shutil
 import textwrap
 import time
@@ -129,6 +134,7 @@ def ask(api, model, targets, examples, dollars_left):
 RECORDER = '''
 import json as _amu_json, os as _amu_os, re as _amu_re
 _AMU_ADDRESS = _amu_re.compile(r" at 0x[0-9a-fA-F]+")
+_AMU_TREE = _amu_json.loads(_amu_os.environ.get("AMU_C1_TREE") or "[]")
 
 
 def _amu_record(probe, kind, value):
@@ -136,8 +142,10 @@ def _amu_record(probe, kind, value):
         shown = repr(value)
     except Exception as exc:
         shown = "<repr failed: %s>" % type(exc).__name__
-    shown = _AMU_ADDRESS.sub(" at 0x?", shown)[:2000]
-    outcome = [kind, type(value).__qualname__, shown]
+    shown = _AMU_ADDRESS.sub(" at 0x?", shown)
+    for spelling in _AMU_TREE:  # longest first, and before the cut, so both sides are cut at the same place
+        shown = shown.replace(spelling, "<tree>")
+    outcome = [kind, type(value).__qualname__, shown[:2000]]
     with open(_amu_os.environ["AMU_C1_OUT"], "a") as handle:
         handle.write(_amu_json.dumps(dict(probe=probe, outcome=outcome)) + "\\n")
 '''
@@ -214,11 +222,22 @@ def _remove(paths):
             pass
 
 
+def _spellings(tree):
+    """The tree's folder as a process may spell it, longest first: as given, resolved, and on macOS without the
+    /private that /var and /tmp are links into."""
+    real = os.path.realpath(tree)
+    names = {os.path.abspath(tree), real}
+    for name in list(names):
+        if name.startswith('/private/') and os.path.realpath(name[len('/private'):]) == real:
+            names.add(name[len('/private'):])
+    return sorted((name for name in names if name.strip(os.sep)), key=len, reverse=True)
+
+
 def _run(runner, python, tree, ids, scratch, name, timeout, extra=None):
     out = Path(scratch)/f'c1-{name}.jsonl'
     out.unlink(missing_ok=True)
     runners.execute(runner, python, tree, ids, Path(scratch)/f'c1-{name}.xml', timeout,
-                    extra_env=dict(extra or {}, AMU_C1_OUT=str(out)))
+                    extra_env=dict(extra or {}, AMU_C1_OUT=str(out), AMU_C1_TREE=json.dumps(_spellings(tree))))
     return _outcomes(out)
 
 
@@ -262,12 +281,18 @@ def run(runner, python, after_tree, before_tree, targets, changed, examples, scr
     if not numbered or left() < 10:
         return info, differences, gaps
     rel, source, ids = test_file(runner.name, numbered)
-    head = Path(scratch)/'c1-head'
+    head, elsewhere = Path(scratch)/'c1-head', Path(scratch)/'c1-elsewhere'/'head'
     shutil.rmtree(head, ignore_errors=True)
+    shutil.rmtree(elsewhere.parent, ignore_errors=True)
     shutil.copytree(after_tree, head, symlinks=True, ignore=shutil.ignore_patterns('.git', '.amu', '__pycache__'))
     _install(head, rel, source)
     timeout = max(10, min(left(), 120))
-    runs = [_run(runner, python, head, list(ids.values()), scratch, f'head-{n}', timeout) for n in range(REPEATS)]
+    runs = [_run(runner, python, head, list(ids.values()), scratch, f'head-{n}', timeout) for n in range(REPEATS - 1)]
+    # The last run is from a folder of another name and depth: an outcome that changes with where the tree lives is
+    # not stable. The tree stays there for the reach runs.
+    elsewhere.parent.mkdir(parents=True)
+    head = head.rename(elsewhere)
+    runs.append(_run(runner, python, head, list(ids.values()), scratch, f'head-{REPEATS - 1}', timeout))
     first = runs[0]
     ran = [i for i, _ in numbered if len(first.get(i, [])) == 1]
     info['ran'] = len(ran)
@@ -305,7 +330,7 @@ def run(runner, python, after_tree, before_tree, targets, changed, examples, scr
         info['differed'] = len(differences)
     info['accepted'] = len(differences)
     info['seconds'] = round(time.monotonic() - started, 1)
-    shutil.rmtree(head, ignore_errors=True)
+    shutil.rmtree(elsewhere.parent, ignore_errors=True)
     shutil.rmtree(Path(scratch)/'c1-base', ignore_errors=True)
     return info, differences, gaps
 
