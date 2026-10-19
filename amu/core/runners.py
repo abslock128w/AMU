@@ -39,6 +39,20 @@ def abort_reason(output, tree):
     return (exception[:300] + (f' (at {where})' if where else ''))
 
 
+def refusal(runner, said, labels):
+    """The one label group of ``labels`` that what the runner ``said`` on aborting names as a word of its own, not
+    inside a dotted name or a path: the runner refuses that group as a whole before any test runs (Django's runtests
+    refuses any gis_tests label without a spatial backend). None when it names no group, or more than one."""
+    named = {group for group in {runner.group(i) for i in labels}
+             if group and re.search(r'(?<![\w./\\-])' + re.escape(group) + r'(?![\w/\\-]|\.\w)', said)}
+    return named.pop() if len(named) == 1 else None
+
+
+def refusals(runner, tree):
+    """{group: what the runner said} for the label groups ``runner`` refused in ``tree``."""
+    return {group: said for (where, group), said in runner.refused.copy().items() if where == str(tree)}
+
+
 def dotted(ident, strip=''):
     path, *rest = ident.split('::')
     path = path[len(strip):] if strip and path.startswith(strip) else path
@@ -50,8 +64,16 @@ class Runner:
     needs_class = False
     parallel = False  # whether several processes may run tests in the same tree at once
 
+    def __init__(self):
+        self.refused = {}  # {(tree, group): what the runner said} for label groups it refused in that tree (refusal)
+
     def label(self, ident):
         return ident
+
+    def group(self, ident):
+        """The group a label belongs to that a runner can refuse as a whole, such as a Django test app. None for
+        pytest: its labels are files, and a file it cannot collect is not a group."""
+        return None
 
     def cwd(self, tree):
         return tree
@@ -113,6 +135,9 @@ class Unittest(Runner):
 
     def label(self, ident):
         return dotted(ident, self.strip)
+
+    def group(self, ident):
+        return self.label(ident).split('.')[0]
 
     def command(self, python, labels, report):
         return [python, '-m', 'unittest', '-v', *labels]
@@ -280,14 +305,18 @@ def execute(runner, python, tree, ids, report, timeout, extra_env=None, extra_ar
     if not usable:
         return {}, None
     env = environment(tree, extra_env, autoload=not getattr(runner, 'autoload_off', False))
-    found, problem = {}, None
+    # A label group the runner refused in this tree is not offered again: its labels are unrunnable up front.
+    where = str(tree)
+    found, problem, first_error = {i: 'unrunnable' for i in usable if (where, runner.group(i)) in runner.refused}, None, None
     # One batch first. A single label the runner cannot load can abort the whole batch and leave it with
     # no outcomes, so a batch that comes back short is split in two and retried until the labels that
     # cannot be run stand alone. Those are returned as 'unrunnable': never silently as "did not fail".
     # ``timeout`` bounds the whole call, splits included: each retry gets what is left, not the full limit again.
-    batches, splits, deadline = [usable], 0, time.monotonic() + timeout
+    batches, splits, deadline = [[i for i in usable if i not in found]], 0, time.monotonic() + timeout
     while batches:
         batch = batches.pop(0)
+        if not batch:
+            continue
         left = deadline - time.monotonic()
         if left <= 0:
             return found, 'timed out'
@@ -313,10 +342,25 @@ def execute(runner, python, tree, ids, report, timeout, extra_env=None, extra_ar
                 missing = [ident for ident in missing if ident in kept]
         if not missing:
             continue
-        if batch is usable and not got:
-            first_error = abort_reason(output, tree)
+        reason = None if got else abort_reason(output, tree)
+        if not got:
+            said, last = reason.split(' (at ')[0], (output.strip().splitlines() or [''])[-1]
+            # A refusal that comes back for a batch without its group was not about the group.
+            for key, before in runner.refused.copy().items():
+                if key[0] == where and before == said and all(runner.group(i) != key[1] for i in batch):
+                    runner.refused.pop(key, None)
+            group = refusal(runner, f'{said}\n{last}', batch)
+            if group is not None:
+                # The runner refuses a whole label group before any test runs: its labels are unrunnable, here and in
+                # later batches, and the rest runs without them. Splitting would find them one restart at a time.
+                runner.refused[where, group] = said
+                found.update({i: 'unrunnable' for i in usable if runner.group(i) == group and i not in found})
+                batches = [[i for i in rest if runner.group(i) != group] for rest in [missing, *batches]]
+                continue
+        if not got and not splits and first_error is None:
+            first_error = reason
         elif (not got and splits and len(batch) > 1 and not any(state != 'unrunnable' for state in found.values())
-              and abort_reason(output, tree) == locals().get('first_error')):
+              and reason == first_error):
             # Half a batch failing exactly as the whole batch did: the runner aborts before any test, whatever
             # the labels. Splitting further only restarts it; every remaining candidate is unrunnable.
             for ident in [*missing, *(i for rest in batches for i in rest)]:
@@ -330,8 +374,9 @@ def execute(runner, python, tree, ids, report, timeout, extra_env=None, extra_ar
         splits += 1
         half = len(missing) // 2
         batches.extend([missing[:half], missing[half:]])
-    if usable and all(found.get(i) == 'unrunnable' for i in usable):
-        problem = 'no outcomes read: ' + locals().get('first_error', 'the runner produced no result for any candidate')
+    if all(found.get(i) == 'unrunnable' for i in usable):
+        said = first_error or next(filter(None, (runner.refused.get((where, runner.group(i))) for i in usable)), None)
+        problem = 'no outcomes read: ' + (said or 'the runner produced no result for any candidate')
     return found, problem
 
 
