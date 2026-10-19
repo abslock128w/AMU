@@ -1,12 +1,14 @@
 """python -m amu.core --repo . [--patch-file diff|-] [--coverage FILE] [--full-evidence]"""
 import argparse
 import sys
+import time
 from pathlib import Path
 
 from . import analyze, encoded
 
 
 def main(argv=None):
+    started = time.monotonic()
     p = argparse.ArgumentParser(prog='amu before-tests', description=__doc__)
     p.add_argument('--repo', default='.')
     p.add_argument('--patch-file', help="unified diff, or - for stdin; default: uncommitted changes")
@@ -20,6 +22,8 @@ def main(argv=None):
     p.add_argument('--budget', type=int, default=60, help='seconds allowed per side for --run')
     p.add_argument('--merge-base', metavar='SHA',
                    help='with the tree at the change\'s head: the commit before it, where --run takes a file the patch cannot be undone in')
+    p.add_argument('--deadline', type=float, help='seconds this run may take in all (a CI wall cap): steps that do not fit are '
+                                                  'not started, and the report lists them')
     p.add_argument('--only', nargs='+', metavar='TEST', help='run exactly these tests (path::Class::test) instead of the ranked candidates')
     p.add_argument('--also', nargs='+', metavar='TEST', help='run these tests (path::Class::test) as well as the ranked candidates, first')
     p.add_argument('--observe', action='store_true', help='run the whole suite once under coverage and store a per-test recording beside the index')
@@ -41,7 +45,7 @@ def main(argv=None):
         sys.stdout.write(encoded(observe.record(a.repo, a.python, a.runner, timeout=a.observe_seconds)).decode() + '\n')
         return
     patch = None if a.patch_file is None else sys.stdin.read() if a.patch_file == '-' else Path(a.patch_file).read_text(errors='replace')
-    sys.stdout.write(encoded(analyze(a.repo, patch, full_evidence=a.full_evidence, coverage_evidence=a.coverage, run=False if a.static else True if a.run else None, python=a.python, budget=a.budget, include_tests=a.tests, runner=a.runner, only=a.only, also=a.also, generate=(a.generate_dollars, a.generate_minutes, a.generate_model) if a.generate_dollars > 0 else None, merge_base=a.merge_base)).decode() + '\n')
+    sys.stdout.write(encoded(analyze(a.repo, patch, full_evidence=a.full_evidence, coverage_evidence=a.coverage, run=False if a.static else True if a.run else None, python=a.python, budget=a.budget, include_tests=a.tests, runner=a.runner, only=a.only, also=a.also, generate=(a.generate_dollars, a.generate_minutes, a.generate_model) if a.generate_dollars > 0 else None, merge_base=a.merge_base, deadline=None if a.deadline is None else started + a.deadline)).decode() + '\n')
 
 
 if __name__ == '__main__':

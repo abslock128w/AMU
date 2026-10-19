@@ -188,3 +188,22 @@ def test_behaviour_rows_are_collapsed_at_the_end_with_their_count_on_the_first_l
     assert 'behaviour difference' not in body.splitlines()[0] and '<details>' not in body
     assert body.index('### Behaviour differs on captured input (0)') < body.index('### What ran')
     assert 'behaviour difference' not in render(dict(report, error='no merge base'), META)
+
+
+def test_a_run_the_wall_cap_stopped_shows_what_it_found_and_what_it_did_not_do():
+    # Brief 5 retrospective, sympy #30476: the whole comment of a run stopped at the wall cap was one line and a footer.
+    cut = ['reruns of flips', 'flip isolation', 'side-by-side']
+    report = dict(flips=1, predicted_failures=[flip('tests/test_a.py::test_one')], cut=cut,
+                  gaps=['not done before the wall cap: ' + ', '.join(cut), 'g'], executed=EXECUTED, report_hash='h1')
+    body = render(report, dict(META, wall_cap=1200), quiet=True)
+    lines = body.splitlines()
+    assert lines[0] == '**AMU: 1 flip** at `abcdef1`, among 40 tests run; stopped at the wall cap of 1200 s before it finished'
+    assert body.index('### Flips (1)') < body.index('### Gaps (2)') < body.index('### What ran')
+    assert '- `not done before the wall cap: reruns of flips, flip isolation, side-by-side`' in lines
+    # Nothing found among what ran is still not folded away when the cap stopped the run.
+    none = dict(report, flips=0, predicted_failures=[])
+    body = render(none, dict(META, wall_cap=1200), quiet=True)
+    assert body.startswith('**AMU: 0 flips** at `abcdef1`, among 40 tests run; stopped at the wall cap of 1200 s')
+    assert '<details><summary>What ran' not in body and '### Gaps (2)' in body
+    # A wall cap the artifact gives as anything but a count of seconds is not shown.
+    assert render(report, dict(META, wall_cap='1200`')).splitlines()[0].endswith('; stopped at the wall cap before it finished')

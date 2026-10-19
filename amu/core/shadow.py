@@ -89,8 +89,18 @@ def execute(runner, python, tree, ids, scratch, name, timeout, parts):
     return found, problems
 
 
+def within(seconds, deadline):
+    """``seconds``, cut to what is left before ``deadline`` (a time.monotonic() value); unchanged without one."""
+    return seconds if deadline is None else min(seconds, deadline - time.monotonic())
+
+
+def late(deadline):
+    """Whether ``deadline`` (a time.monotonic() value) has passed."""
+    return deadline is not None and time.monotonic() >= deadline
+
+
 def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=(), base_cache=None, functions=(), generate_with=None,
-        merge_base=None):
+        merge_base=None, deadline=None):
     """Outcomes of ``ids`` before and after the change. Returns (rows, info, gaps).
 
     ``own`` are the tests the change adds or edits (replay.touched); they are also run on the code before the change
@@ -112,11 +122,19 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
 
     ``merge_base`` is the commit before the change when the tree is its head (a pull request): a file the patch cannot
     be undone in is taken as that commit holds it. A file neither the patch nor the merge base gives stays as the tree
-    holds it on both sides, and a gap names it; the rest of the change is still compared."""
-    python, gaps, started = python or sys.executable, [], time.perf_counter()
+    holds it on both sides, and a gap names it; the rest of the change is still compared.
+
+    ``deadline`` (a time.monotonic() value: CI's wall cap, less time to report) cuts every run at it, and no step starts
+    past it. The steps run in order of what they find: flips, the change's own tests, then isolation, side-by-side and
+    generated probes. What the deadline left undone or cut short goes to ``info['cut']``."""
+    python, gaps, started, cut = python or sys.executable, [], time.perf_counter(), []
     runner = runners.get(root, runner)
     if not ids:
         return [], dict(ran=0, seconds=0.0, runner=runner.name), gaps
+    if late(deadline):
+        # Not even the copy of the tree: on a large project it takes seconds the report needs.
+        cut.append(f'{len(ids)} of {len(ids)} candidate tests')
+        return [], dict(ran=0, seconds=0.0, runner=runner.name, candidates=len(ids), cut=cut), gaps
     parts = PARTS if runner.parallel else 1
     seeded, order = trust.ordering(runner, python)
     runner.extra = (*runners.plugin_args(runner, python), *seeded)
@@ -175,8 +193,10 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
                     break
             start = done
             chunk = ids[start:start + CHUNK * parts]
+            if late(deadline):
+                break
             began = time.perf_counter()
-            found, problems = execute(runner, python, trees['after'], chunk, scratch, 'after', max(left, 1), parts)
+            found, problems = execute(runner, python, trees['after'], chunk, scratch, 'after', within(max(left, 1), deadline), parts)
             took = time.perf_counter() - began
             left -= took
             states['after'].update(found)
@@ -206,7 +226,8 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
                     # Nothing ran on the changed code. If the same candidates run on the code before the change,
                     # the change is what stops the runner: that is a failure of the change, not a gap.
                     began = time.perf_counter()
-                    probe, again = runners.execute(runner, python, trees['before'], present, Path(scratch)/'probe.xml', max(left, CONFIRM))
+                    probe, again = runners.execute(runner, python, trees['before'], present, Path(scratch)/'probe.xml',
+                                                   within(max(left, CONFIRM), deadline))
                     left -= time.perf_counter() - began
                     ran_before = sum(state != 'unrunnable' for state in probe.values())
                     if ran_before:
@@ -231,17 +252,22 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
             unknown = [ident for ident in failing if ident not in remembered['before']]
             if unknown:
                 began = time.perf_counter()
-                confirmed, problem = _base(base_cache, runner, python, trees['before'], unknown, Path(scratch)/'before.xml', max(left, CONFIRM))
+                confirmed, problem = _base(base_cache, runner, python, trees['before'], unknown, Path(scratch)/'before.xml',
+                                           within(max(left, CONFIRM), deadline))
                 left -= time.perf_counter() - began
                 states['before'].update(confirmed)
                 remembered['before'].update({ident: state for ident, state in confirmed.items() if state != 'unrunnable'})
                 if problem:
                     gaps.append(f'shadow run (before the change, {runner.name}): {problem}')
+                if late(deadline) and any(ident not in confirmed for ident in unknown):
+                    cut.append(f'confirming {sum(ident not in confirmed for ident in unknown)} failure(s) on the code before the change')
             done = start + len(chunk)
         if len(ids) < len(pool):
             gaps.insert(0, f'{len(pool) - len(ids)} lower-ranked candidate(s) not run: about {rate:.0f} tests/s per process fit {len(ids)} in the {budget} s allowed')
         if stopped:
             gaps.append(stopped)
+        elif done < len(ids) and not aborted and late(deadline):
+            cut.append(f'{len(ids) - done} of {len(ids)} candidate tests')
         elif done < len(ids) and not aborted:
             gaps.append(f'shadow run stopped at its {budget} s budget: {done} of {len(ids)} candidates run')
         # A test that an edited test file no longer defines (renamed or deleted) did not fail because of the change: it
@@ -261,15 +287,18 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
                 changed = trust.changed_lines(trees['after'], edits, _after_lines)
                 began = time.perf_counter()
                 verdicts, more = trust.triad(runner, python, trees['after'], flipped, ran, scratch, max(left, CONFIRM), changed,
-                                             before_tree=trees['before'], context=context)
+                                             before_tree=trees['before'], context=context, deadline=deadline)
                 # Verifying a flip is not charged to the budget for finding flips: otherwise the reruns could leave no time
                 # for the edited-test check below, and flips it would find would go unreported.
                 trust_seconds += time.perf_counter() - began
                 gaps += more
+                if late(deadline) and any(None in verdict['reruns'].values() for verdict in verdicts.values()):
+                    cut.append('reruns of flips')
                 remembered_flips = [i for i in flipped if i in from_memo and verdicts[i]['label'] != trust.UNSTABLE]
                 if remembered_flips:
                     began = time.perf_counter()
-                    fresh, _ = _base(base_cache, runner, python, trees['before'], remembered_flips, Path(scratch)/'before-fresh.xml', max(left, CONFIRM))
+                    fresh, _ = _base(base_cache, runner, python, trees['before'], remembered_flips, Path(scratch)/'before-fresh.xml',
+                                     within(max(left, CONFIRM), deadline))
                     left -= time.perf_counter() - began
                     for i in remembered_flips:
                         if fresh.get(i) in OUTCOMES and fresh[i] != states['before'][i]:
@@ -284,24 +313,32 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
                        and _existed(i, before_src, trees['after'])]
             # These are tests the change touches, and every test the change touches runs (select): the check gets at least
             # the confirmation allowance even when the candidates used up the budget.
-            if checked:
+            if checked and late(deadline):
+                cut.append('tests of edited files as they were before the edit')
+            elif checked:
                 # The copy holds one side of every changed file; overwrite it into "changed code, tests as they were".
                 for path in edits:
                     _write(other/path, before_src[path] if path in edited else after_src[path])
                 failing = []
                 try:
                     began = time.perf_counter()
-                    originals, problems = execute(runner, python, other, checked, scratch, 'original', max(left, CONFIRM), parts)
+                    originals, problems = execute(runner, python, other, checked, scratch, 'original',
+                                                  within(max(left, CONFIRM), deadline), parts)
                     left -= time.perf_counter() - began
+                    if 'timed out' in problems and late(deadline):
+                        cut.append('tests of edited files as they were before the edit, cut short')
                     failing = [i for i in checked if originals.get(i) == 'failed']
                     if failing:
                         # The same trust checks as any flip, on the changed code with the tests as they were. Reach
                         # counts production lines only: the edited test files are in their earlier form here.
                         changed = trust.changed_lines(other, {p: e for p, e in edits.items() if p not in edited}, _after_lines)
                         began = time.perf_counter()
-                        edited_verdicts, more = trust.triad(runner, python, other, failing, checked, scratch, max(left, CONFIRM), changed)
+                        edited_verdicts, more = trust.triad(runner, python, other, failing, checked, scratch, max(left, CONFIRM), changed,
+                                                            deadline=deadline)
                         trust_seconds += time.perf_counter() - began
                         gaps += more
+                        if late(deadline) and any(None in verdict['reruns'].values() for verdict in edited_verdicts.values()):
+                            cut.append('reruns of flips')
                     for problem in problems:
                         gaps.append(f'shadow run (original tests on the changed code, {runner.name}): {problem}')
                 finally:
@@ -312,24 +349,44 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
                 unknown = list(failing)
                 if unknown:
                     began = time.perf_counter()
-                    confirmed, problem = _base(base_cache, runner, python, trees['before'], unknown, Path(scratch)/'before-original.xml', max(left, CONFIRM))
+                    confirmed, problem = _base(base_cache, runner, python, trees['before'], unknown, Path(scratch)/'before-original.xml',
+                                               within(max(left, CONFIRM), deadline))
                     left -= time.perf_counter() - began
                     known.update(confirmed)
                     remembered['before'].update({i: state for i, state in confirmed.items() if state != 'unrunnable'})
                     if problem:
                         gaps.append(f'shadow run (before the change, original tests, {runner.name}): {problem}')
+                    if late(deadline) and any(i not in confirmed for i in unknown):
+                        cut.append(f'confirming {sum(i not in confirmed for i in unknown)} failure(s) of edited tests as they were '
+                                   'on the code before the change')
                 edited_flips = [i for i in failing if known.get(i) == 'passed']
                 unstable += [i for i in edited_flips if edited_verdicts.get(i, {}).get('label') == trust.UNSTABLE]
+        # The change's own tests go before the steps that only add to what was found, so a deadline cuts those first.
+        if own and not aborted and late(deadline):
+            cut.append("the change's own tests on the code before it")
+        elif own and not aborted:
+            replayed, more, unfinished = _replay(runner, python, trees['after'], other, edits, before_src, after_src, live_is_after,
+                                                 own, states['after'], scratch, left, base_cache, deadline)
+            gaps += more
+            if unfinished:
+                cut.append(f"the change's own tests on the code before it, {len(unfinished)} of {len(set(own))} left without a result")
         if not aborted:
             # Which hunk makes each counted flip fail (isolate): delta debugging on a copy of the code before the change.
             counted = [i for i in ids if i in verdicts and trust.counted(verdicts[i]['label'])][:ISOLATED]
             for ident in counted:
+                if late(deadline):
+                    cut.append('flip isolation')
+                    break
                 began = time.perf_counter()
-                found = isolate.run(runner, python, trees['before'], edits, before_src, ident, scratch, ISOLATE_SECONDS)
+                found = isolate.run(runner, python, trees['before'], edits, before_src, ident, scratch,
+                                    within(ISOLATE_SECONDS, deadline))
                 trust_seconds += time.perf_counter() - began
                 if found:
                     verdicts[ident]['isolated'] = found
-        if functions and not aborted and _monitoring(python):
+        if functions and not aborted and _monitoring(python) and late(deadline):
+            if any(states['after'].get(i) in OUTCOMES for i in ids if i not in set(own)):
+                cut.append('side-by-side')
+        elif functions and not aborted and _monitoring(python):
             spec_targets, skipped = sidebyside.targets(functions, before_src, after_src)
             # Not the change's own tests: this run uses the tests as they were, where an added test does not exist and
             # an unknown label makes the runner reject the whole batch.
@@ -343,10 +400,14 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
             modules = [dict(name=module_name(path), file=path, source=after_src[path]) for path in edits
                        if path.endswith('.py') and not replay.is_test_file(path) and not before_src.get(path) and after_src.get(path)]
             side, behaviour, more = sidebyside.run(runner, python, trees['before'], ran_ids, spec_targets, skipped, scratch,
-                                                   max(min(budget, SIDE_BY_SIDE), CONFIRM), added, modules)
+                                                   within(max(min(budget, SIDE_BY_SIDE), CONFIRM), deadline), added, modules)
             side['seconds'] = round(time.perf_counter() - began, 1)
             gaps += more
-        if functions and not aborted and generate_with and generate_with[0] > 0:
+            if late(deadline):
+                cut.append('side-by-side, cut short')
+        if functions and not aborted and generate_with and generate_with[0] > 0 and late(deadline):
+            cut.append('generated probes')
+        elif functions and not aborted and generate_with and generate_with[0] > 0:
             spec_targets, left_out = sidebyside.targets(functions, before_src, after_src)
             called = set((side or {}).get('called') or ())
             uncalled = [t for t in spec_targets if t['id'] not in called]
@@ -357,15 +418,12 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
             # The code before the change is the working tree itself when the change is not on disk; it is copied then,
             # never written to.
             made, generated, more = generate.run(runner, python, trees['after'], trees['before'], uncalled, changed, example,
-                                                 scratch, dollars, minutes, model, copy_before=not live_is_after)
+                                                 scratch, dollars, within(minutes * 60, deadline) / 60, model,
+                                                 copy_before=not live_is_after)
             if side is None:
                 # Side-by-side did not run (Python before 3.12), so its list of the changed functions left out, and why,
                 # is not in the report: it goes with the generated tests, which got the same targets.
                 made['not_compared'] = left_out
-            gaps += more
-        if own and not aborted:
-            replayed, more = _replay(runner, python, trees['after'], other, edits, before_src, after_src, live_is_after,
-                                     own, states['after'], scratch, left, base_cache)
             gaps += more
     ran_after = sum(state in OUTCOMES for state in states['after'].values())
     remembered.setdefault('durations', {}).update(runner.durations or {})
@@ -434,6 +492,8 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
     if originals:
         info['original_tests'] = {i: state for i, state in originals.items() if state != 'unrunnable'}
         info['ran_original'] = len(info['original_tests'])
+    if cut:
+        info['cut'] = list(dict.fromkeys(cut))
     return rows, info, gaps
 
 
@@ -457,34 +517,46 @@ def _after_lines(path, edit):
     return set(edit['new']) | {place(line) for line in edit['old']}
 
 
-def _replay(runner, python, after_tree, other, edits, before_src, after_src, live_is_after, own, after_states, scratch, left, base_cache=None):
+def _replay(runner, python, after_tree, other, edits, before_src, after_src, live_is_after, own, after_states, scratch, left, base_cache=None,
+            deadline=None):
     """The change's own tests on the code before it, with the tests as the change leaves them (replay module).
-    Returns ([{id, head, base, verdict}], gaps). The copy ``other`` is put back as it was."""
-    gaps = []
+    Returns ([{id, head, base, verdict}], gaps, [ids the deadline left without a verdict]). The copy ``other`` is put
+    back as it was."""
+    gaps, unfinished = [], []
     own = list(dict.fromkeys(own))
     missing = [i for i in own if after_states.get(i) not in OUTCOMES]
     if missing:
-        found, problem = runners.execute(runner, python, after_tree, missing, Path(scratch)/'own-head.xml', max(left, CONFIRM))
+        found, problem = runners.execute(runner, python, after_tree, missing, Path(scratch)/'own-head.xml',
+                                         within(max(left, CONFIRM), deadline))
         after_states.update({i: s for i, s in found.items() if i in missing})
         if problem:
             gaps.append(f"replaying the change's own tests (after the change, {runner.name}): {problem}")
+        unfinished = [i for i in missing if i not in found] if late(deadline) else []
     runnable = [i for i in own if after_states.get(i) in OUTCOMES]
     if not runnable:
-        return [], gaps
+        return [], gaps, unfinished
     for path in edits:
         _write(other/path, after_src[path] if replay.is_test_file(path) else before_src[path])
     try:
-        base, problem = _base(base_cache, runner, python, other, runnable, Path(scratch)/'own-base.xml', max(left, CONFIRM))
+        base, problem = _base(base_cache, runner, python, other, runnable, Path(scratch)/'own-base.xml',
+                              within(max(left, CONFIRM), deadline))
         # A failure on the code before the change is the evidence; it must repeat in a fresh process to count.
         failing = [i for i in runnable if base.get(i) in ('failed', 'unrunnable') and after_states[i] == 'passed']
-        again = runners.execute(runner, python, other, failing, Path(scratch)/'own-base-again.xml', max(left, CONFIRM))[0] if failing else {}
+        again = runners.execute(runner, python, other, failing, Path(scratch)/'own-base-again.xml',
+                                within(max(left, CONFIRM), deadline))[0] if failing else {}
     finally:
         for path in edits:
             _write(other/path, before_src[path] if live_is_after else after_src[path])
     if problem and not any(base.get(i) in OUTCOMES for i in runnable):
         gaps.append(f"replaying the change's own tests (before the change, {runner.name}): {problem}")
+    # The deadline can stop the run on the code before the change part way (the cache answers the rest), or the rerun a
+    # failure there needs to be evidence: those tests have no verdict, and are named rather than dropped.
+    if late(deadline):
+        unfinished += [i for i in runnable if i not in base or (i in failing and i not in again)]
     rows = []
     for ident in runnable:
+        if ident in unfinished:
+            continue
         head, was = after_states[ident], base.get(ident)
         if was == 'unrunnable' and head == 'passed':
             # Runs after the change and does not even load before it (an import of what the change adds).
@@ -496,7 +568,7 @@ def _replay(runner, python, after_tree, other, edits, before_src, after_src, liv
         if verdict is None:
             continue
         rows.append(dict(id=ident, head=head, base=was, verdict=verdict))
-    return rows, gaps
+    return rows, gaps, unfinished
 OUTCOMES = ('passed', 'failed', 'skipped')
 
 
