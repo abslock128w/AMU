@@ -82,3 +82,41 @@ def test_a_declined_request_is_a_gap_and_the_project_tests_never_see_the_key(tmp
     assert 'ANTHROPIC_API_KEY' not in runners.environment(tmp_path)
     report, _ = run(tmp_path, [], monkeypatch, stop_reason='refusal')
     assert any('declined' in g for g in report['gaps']) and report['generated']['accepted'] == 0
+
+
+def test_test_file_functions_and_docstring_only_changes_get_no_probes_and_the_report_lists_them(tmp_path, monkeypatch):
+    # Found in the retrospective (defect 8): the tier was asked for probes of an edited test method (Django #21820
+    # test_invalid_view) and of functions whose only change is the docstring (sympy #30530, #30697, #30734).
+    from amu.core import shadow
+    lib0 = 'def scale(x):\n    return x * 2\n\n\ndef doc(x):\n    """Twice x."""\n    return x * 2\n'
+    lib1 = 'def scale(x):\n    return x * 3 if x > 10 else x * 2\n\n\ndef doc(x):\n    """Twice ``x``; never a float."""\n    return x * 2\n'
+    own0 = 'from lib import doc\n\n\ndef test_doc():\n    assert doc(1) == 2\n'
+    own1 = own0.replace('doc(1) == 2', 'doc(2) == 4')
+    other = 'from lib import doc\n\n\ndef test_other():\n    assert doc(3) == 6\n'
+    before = {'lib.py': lib0, 'tests/test_lib.py': own0, 'tests/test_other.py': other}
+    after = {'lib.py': lib1, 'tests/test_lib.py': own1, 'tests/test_other.py': other}
+    diff = ''.join(''.join(difflib.unified_diff(before[n].splitlines(True), after[n].splitlines(True), 'a/' + n, 'b/' + n))
+                   for n in after if before[n] != after[n])
+    probes = [dict(function='lib.py#scale', setup='from lib import scale', call='scale(50)', why='reaches the new branch')]
+    unchanged, ran_side = 'only its docstring, comments or layout changed', []
+    # With side-by-side execution (Python 3.12+) and without it (below 3.12, simulated here).
+    for monitoring in (shadow._monitoring, lambda python: False):
+        monkeypatch.setattr(shadow, '_monitoring', monitoring)
+        for name, text in after.items():
+            (tmp_path/name).parent.mkdir(parents=True, exist_ok=True)
+            (tmp_path/name).write_text(text)
+        api = FakeAPI(probes)
+        monkeypatch.setattr(generate, 'client', lambda: api)
+        report = analyze(tmp_path, diff, full_evidence=True, index_dir=tmp_path/'.index', run=True, python=sys.executable,
+                         generate=(0.10, 5, 'claude-opus-5-5'))
+        [params] = api.calls
+        asked = [line[3:] for line in params['messages'][0]['content'].splitlines() if line.startswith('## ')]
+        assert asked == ['lib.py#scale'] and report['generated']['functions'] == 1, (asked, report['generated'])
+        assert [row['call'] for row in report['generated_differences']] == ['scale(50)'], report['generated_differences']
+        # What was left out, and why, is in the report once: with side-by-side's list when it ran, else with the tier.
+        side = report.get('side_by_side')
+        left_out = side['not_compared'] if side is not None else report['generated']['not_compared']
+        assert left_out == {'lib.py#doc': unchanged, 'tests/test_lib.py#test_doc': 'in a test file'}, left_out
+        assert ('not_compared' in report['generated']) == (side is None), report['generated']
+        ran_side.append(side is not None)
+    assert ran_side == [sys.version_info >= (3, 12), False]

@@ -10,7 +10,8 @@ difference is kept only when both versions repeat themselves exactly; one that d
 Both versions are compiled from source the same way (decorators left off, so a wrapper's own behaviour is not compared),
 in the module's globals, with ``__class__`` bound for ``super()``. Then the test's own call goes on as usual. A function
 that is nested, a generator or coroutine, or uses a private name that a class body would mangle is not compared, and is
-counted as such.
+counted as such; so is a function in a test file (the tests, not the code they test), and one whose code is the same
+once its docstring is set aside (only the docstring, comments or layout changed).
 
 This runs the project's code on inputs it was really called with; it is a run of its own on the code before the change,
 separate from the comparison of test outcomes, whose results it does not touch.
@@ -18,12 +19,13 @@ separate from the comparison of test outcomes, whose results it does not touch.
 from __future__ import annotations
 
 import ast
+import copy
 import json
 import re
 import textwrap
 from pathlib import Path
 
-from . import runners
+from . import replay, runners
 
 KIND = 'behaviour differs on captured input'
 CALLS = 5          # calls captured per changed function, per process
@@ -477,13 +479,27 @@ def _source(text, node):
     return textwrap.dedent('\n'.join(lines[node.lineno - 1:node.end_lineno])) + '\n'
 
 
+def _code(node):
+    """The def statement as it runs: its syntax tree without decorators (never compared) and without the docstring."""
+    node = copy.copy(node)
+    node.decorator_list = []
+    if ast.get_docstring(node, clean=False) is not None:
+        node.body = node.body[1:]
+    return ast.dump(node)
+
+
 def targets(functions, before_src, after_src):
     """The spec entries for changed functions that exist on both sides and can be compared, and {id: reason} for those
-    that cannot. ``functions`` are analyze's changed_functions rows (file, symbol)."""
+    that cannot. ``functions`` are analyze's changed_functions rows (file, symbol). A function in a test file, or one
+    whose code is the same once its docstring is set aside, is not a target either; the generated tier gets these
+    entries too."""
     found, skipped = [], {}
     for row in functions:
         path, qual = row['file'], row['symbol']
         ident = f'{path}#{qual}'
+        if replay.is_test_file(path):
+            skipped[ident] = 'in a test file'
+            continue
         before, after = before_src.get(path), after_src.get(path)
         old = _node(before, qual) if before else None
         new = _node(after, qual) if after else None
@@ -496,6 +512,9 @@ def targets(functions, before_src, after_src):
         old_text, new_text = _source(before, old), _source(after, new)
         if old_text == new_text:
             continue  # only its decorators or surroundings changed
+        if _code(old) == _code(new):
+            skipped[ident] = 'only its docstring, comments or layout changed'
+            continue
         if '.' in qual and (PRIVATE.search(old_text) or PRIVATE.search(new_text)):
             skipped[ident] = 'uses a name a class body would mangle'
             continue
@@ -616,5 +635,5 @@ def run(runner, python, before_tree, ids, spec_targets, skipped, scratch, timeou
                 unstable=sum(not r['stable'] for r in results), differences=len(differences), skipped=skipped,
                 input_built_before_the_change=built_before, calls_not_fitting_a_changed_signature=misfit)
     if not results:
-        gaps.append(f'side-by-side: none of the {len(spec_targets)} changed function(s) was called by the tests run on the code before the change')
+        gaps.append(f'side-by-side: none of the {len(spec_targets)} comparable changed function(s) was called by the tests run on the code before the change')
     return info, differences, gaps
