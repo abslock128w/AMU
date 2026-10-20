@@ -196,9 +196,10 @@ if _spec_path and _sys.version_info >= (3, 12):
             return value
 
         def _prepare_swaps():
-            """What the as-changed runs swap in, as (owner, name, as changed, as it was or _MISSING): the top-level
-            statements and class members the change adds, and every changed function that can be found in its module or
-            class. A changed function must see the rest of the change, or the comparison mixes versions."""
+            """What the as-changed runs swap in, as (owner, name, as changed or _MISSING, as it was or _MISSING): the
+            top-level statements and class members the change adds, the class members it removes, and every changed
+            function that can be found in its module or class. A changed function must see the rest of the change, or
+            the comparison mixes versions."""
             if _swaps:
                 return _swaps
             # Modules the change adds as new files: loaded from their changed source and put in sys.modules and on their
@@ -235,6 +236,18 @@ if _spec_path and _sys.version_info >= (3, 12):
                 for addition in pending:
                     module = _module_for(_os.path.realpath(addition["file"]))
                     if not module:
+                        continue
+                    if "removed" in addition:
+                        # Members the change deletes from a class come off it, so what it inherits shows through.
+                        owner = _owner(module, addition["owner"].split("."))
+                        for name in addition["removed"] if isinstance(owner, type) else ():
+                            original = vars(owner).get(name, _MISSING)
+                            if original is not _MISSING:
+                                try:
+                                    delattr(owner, name)
+                                except Exception:
+                                    continue
+                                _swaps.append((owner, name, _MISSING, original))
                         continue
                     space = vars(module)
                     before = dict(space)
@@ -313,6 +326,8 @@ if _spec_path and _sys.version_info >= (3, 12):
                             owner.pop(name, None)
                         else:
                             owner[name] = original
+                    elif on and changed is _MISSING:
+                        delattr(owner, name)
                     elif on:
                         setattr(owner, name, changed)
                     elif original is _MISSING:
@@ -538,10 +553,24 @@ def _defined(statement):
     return names
 
 
+def _binds(body):
+    """Names a class body binds, counting those bound anywhere inside its if, try, with and for blocks."""
+    names = set()
+    for statement in body:
+        nodes = [statement] if isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) else ast.walk(statement)
+        for node in nodes:
+            if isinstance(node, ast.stmt):
+                names |= _defined(node)
+            elif isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store):
+                names.add(node.id)
+    return names
+
+
 def additions(before, after, path=''):
     """What the change adds next to its changed functions, for the as-changed runs: top-level statements of ``after`` that
     define a name ``before`` does not (owner ''), and members of a class on both sides that only ``after`` defines (owner
-    the class's qualified name), in file order, as {file, owner, source}."""
+    the class's qualified name), in file order, as {file, owner, source}. Then, per class on both sides, the members only
+    ``before`` defines, as {file, owner, removed}: left on the class, one would shadow what it now inherits."""
     try:
         old, new = ast.parse(before), ast.parse(after)
     except (SyntaxError, ValueError):
@@ -552,15 +581,27 @@ def additions(before, after, path=''):
         start = min([statement.lineno, *(d.lineno for d in getattr(statement, 'decorator_list', []))])
         return textwrap.dedent('\n'.join(lines[start - 1:statement.end_lineno])) + '\n'
 
-    def walk(old_body, new_body, owner):
+    def walk(old_body, new_body, owner, decorated=False, rebased=False):
         known = set().union(*(_defined(s) for s in old_body)) if old_body else set()
         classes = {s.name: s for s in old_body if isinstance(s, ast.ClassDef)}
         for statement in new_body:
             names = _defined(statement)
             if isinstance(statement, ast.ClassDef) and statement.name in classes:
-                walk(classes[statement.name].body, statement.body, (owner + '.' if owner else '') + statement.name)
+                was = classes[statement.name]
+                # A class whose bases change cannot be given the head's MRO: deleting a member would expose the old bases.
+                bases = [ast.dump(e) for e in was.bases + was.keywords] != [ast.dump(e) for e in statement.bases + statement.keywords]
+                walk(was.body, statement.body, (owner + '.' if owner else '') + statement.name, bool(statement.decorator_list),
+                     bases)
             elif names and not names <= known:
                 found.append(dict(file=path, owner=owner, source=segment(statement)))
+        # A class decorator (dataclass, total_ordering) may make again a dunder the change deletes: those stay.
+        # A class attribute the change moves onto the instance stays: objects built before the change lack the new one.
+        selfs = {n.attr for s in new_body for n in ast.walk(s) if isinstance(n, ast.Attribute) and isinstance(n.ctx, ast.Store)
+                 and isinstance(n.value, ast.Name) and n.value.id == 'self'}
+        gone = ({n for n in known - _binds(new_body) - selfs if not (decorated and n[:2] == n[-2:] == '__')}
+                if owner and not rebased else ())
+        if gone:
+            found.append(dict(file=path, owner=owner, removed=sorted(gone)))
     walk(old.body, new.body, '')
     return found
 

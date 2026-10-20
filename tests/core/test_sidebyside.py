@@ -114,6 +114,71 @@ def test_the_as_changed_run_sees_new_class_members_and_names_added_to_other_modu
     assert row['before']['result'] == ['return', ['list', ['1']]]
 
 
+# Found on Django #22039: DebugLexer._tag_re_split moved to Lexer. The as-changed run kept the subclass's deleted method,
+# so the new tokenize called the old splitter. Here a method and a class attribute move from the subclass to the base.
+MOVED0 = ('class Lexer:\n    def __init__(self, text):\n        self.text = text\n\n    def tokenize(self):\n'
+          '        return [part.strip() for part in self.text.split(",")]\n\n\n'
+          'class DebugLexer(Lexer):\n    sep = ","\n\n    def pieces(self):\n        return self.text.split(self.sep)\n\n'
+          '    def tokenize(self):\n        return [(part.strip(), len(part.strip())) for part in self.pieces()]\n')
+MOVED1 = ('import re\n\n\nclass Lexer:\n    sep = re.compile(r"\\s*,\\s*")\n\n    def __init__(self, text):\n        self.text = text\n\n'
+          '    def pieces(self):\n        return self.sep.split(self.text.strip())\n\n    def tokenize(self):\n'
+          '        return self.pieces()\n\n\nclass DebugLexer(Lexer):\n    def tokenize(self):\n'
+          '        return [(part, len(part)) for part in self.pieces()]\n')
+MOVED_TESTS = ('from lib import DebugLexer, Lexer\n\n\ndef test_lex():\n    assert Lexer("A , b").tokenize()\n'
+               '    assert DebugLexer("A , b").tokenize()\n')
+
+
+def test_members_the_change_moves_from_a_subclass_to_its_base_are_gone_from_the_subclass_as_changed(tmp_path):
+    report = change(tmp_path, {'lib.py': MOVED0, 'tests/test_lib.py': MOVED_TESTS}, {'lib.py': MOVED1, 'tests/test_lib.py': MOVED_TESTS})
+    assert set(report['side_by_side']['called']) == {'lib.py#Lexer.tokenize', 'lib.py#DebugLexer.tokenize'}, report['side_by_side']
+    assert report['behaviour_differences'] == [], report['behaviour_differences']
+
+
+def test_a_behaviour_change_in_a_member_moved_to_the_base_still_shows(tmp_path):
+    moved1 = MOVED1.replace('return self.sep.split(self.text.strip())', 'return self.sep.split(self.text.strip().lower())')
+    report = change(tmp_path, {'lib.py': MOVED0, 'tests/test_lib.py': MOVED_TESTS}, {'lib.py': moved1, 'tests/test_lib.py': MOVED_TESTS})
+    found = {row['target'].split('#')[1]: row for row in report['behaviour_differences']}
+    assert set(found) == {'Lexer.tokenize', 'DebugLexer.tokenize'}, found
+    pairs = ['list', [['tuple', ["'A'", '1']], ['tuple', ["'b'", '1']]]]
+    assert found['DebugLexer.tokenize']['before']['result'] == ['return', pairs], found
+    assert found['DebugLexer.tokenize']['after']['result'] == ['return', ['list', [['tuple', ["'a'", '1']], ['tuple', ["'b'", '1']]]]], found
+
+
+# Found in review: a method moved into a new mixin the class now inherits (its bases change), and a mutable class
+# attribute moved into a new __init__. Deleting the member as changed exposed the old bases, or broke objects built
+# before the change: false rows where the head behaves as before.
+MIX0 = ('class Base:\n    def name(self):\n        return "base"\n\n\n'
+        'class A(Base):\n    def helper(self):\n        return "helper"\n\n    def run(self):\n        return self.helper()\n')
+MIX1 = ('class Mixin:\n    def helper(self):\n        return "helper"\n\n\nclass Base:\n    def name(self):\n        return "base"\n\n\n'
+        'class A(Mixin, Base):\n    def run(self):\n        result = self.helper()\n        return result\n')
+REG0 = 'class Registry:\n    entries = {"a": 1}\n\n    def find(self, key):\n        return self.entries.get(key)\n'
+REG1 = ('class Registry:\n    def __init__(self):\n        self.entries = {"a": 1}\n\n'
+        '    def find(self, key):\n        return self.entries.get(key, None)\n')
+
+
+def test_a_member_moved_to_a_new_base_or_onto_the_instance_is_not_deleted_as_changed(tmp_path):
+    for name, before, after, test in (
+            ('mixin', MIX0, MIX1, 'from lib import A\n\n\ndef test_a():\n    assert A().run() == "helper"\n'),
+            ('registry', REG0, REG1, 'from lib import Registry\n\n\ndef test_r():\n    assert Registry().find("a") == 1\n')):
+        root = tmp_path/name
+        report = change(root, {'lib.py': before, 'tests/test_lib.py': test}, {'lib.py': after, 'tests/test_lib.py': test})
+        assert report['side_by_side']['called'], (name, report['side_by_side'])
+        assert report['behaviour_differences'] == [], (name, report['behaviour_differences'])
+
+def test_additions_name_the_members_a_change_removes_from_a_class():
+    from amu.core.sidebyside import additions
+    before = ('class A:\n    x = 1\n    y = 2\n\n    def f(self):\n        return 1\n\n    class Inner:\n        z = 3\n\n\n'
+              'class B(A):\n    def g(self):\n        return 2\n\n    def h(self):\n        return 3\n\n\ndef top():\n    return 4\n\n\n'
+              '@total_ordering\nclass C:\n    def __lt__(self, other):\n        return True\n\n    def __le__(self, other):\n'
+              '        return True\n\n    def keep(self):\n        return 5\n')
+    after = ('class A:\n    if True:\n        y = 2\n\n    def f(self):\n        return 1\n\n    class Inner:\n        pass\n\n\n'
+             'class B(A):\n    def h(self):\n        return 3\n\n\n@total_ordering\nclass C:\n    def __lt__(self, other):\n'
+             '        return True\n')
+    removed = {row['owner']: row['removed'] for row in additions(before, after, 'lib.py') if 'removed' in row}
+    # top() is a module's name, not a member; y is still bound, in an if block; total_ordering makes C.__le__ again.
+    assert removed == {'A': ['x'], 'A.Inner': ['z'], 'B': ['g'], 'C': ['keep']}, removed
+
+
 def test_an_import_of_a_helper_added_elsewhere_and_objects_built_by_the_old_code(tmp_path):
     # Found on Django 0398417c (a changed import of a helper added to another module) and d992705f (populate() on an
     # object the old __init__ built).
