@@ -1,6 +1,7 @@
 """AMU's compact, static before-tests contract."""
 from __future__ import annotations
 
+import fnmatch
 import hashlib
 import json
 import math
@@ -17,6 +18,7 @@ from .sitehooks import sweep
 LIMIT = 2000
 MAX_TESTS = 40
 MIXIN_COPIES = 6  # concrete subclasses run for a test method that lives on a mixin
+PLAIN_BASES = {'object', 'ABC', 'Generic', 'Protocol'}  # bases that add no test a runner collects
 RUN_CANDIDATES = 150  # inheriting copies of failing base-class tests run at most
 
 
@@ -256,11 +258,17 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         for ident, reason in lexical.expecting(tests, near, categories).items():
             likely.setdefault(ident, reason)
     collects, heirs_of, supers = {}, {}, {}
+    class_patterns = runners.pytest_classes(root) if chosen.name == 'pytest' else ()
+
+    def pytest_collects(name):
+        """Whether pytest collects a class by its name: the project's ``python_classes``, prefixes or globs, else Test."""
+        return any(fnmatch.fnmatchcase(name, p) if any(c in p for c in '*?[') else name.startswith(p) for p in class_patterns)
+
     for parent, subs in graph.subclasses.items():
         for sub in subs:
             supers.setdefault(sub, set()).add(parent)
 
-    def record(ident):
+    def declared(ident):
         """A declaration as the change leaves it: from the changed file when that parsed, else from the graph."""
         return after.get(ident) if ident.split('#')[0] in settled else graph.records.get(ident)
 
@@ -269,20 +277,20 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         graph loaded from its snapshot has slim records and resolves no name. A bare name the same changed file declares
         is read from that file: with the change not yet written, the graph has not seen it."""
         name = base[-1] if base and base[0] in ('name', 'attr') and isinstance(base[-1], str) else ''
-        if base and base[0] == 'name' and rec['path'] in settled and (record(rec['path'] + '#' + name) or {}).get('kind') == 'class':
+        if base and base[0] == 'name' and rec['path'] in settled and (declared(rec['path'] + '#' + name) or {}).get('kind') == 'class':
             return {rec['path'] + '#' + name}
-        linked = {parent for parent in supers.get(rec['id'], ()) if (record(parent) or {}).get('qual', '').rsplit('.', 1)[-1] == name}
-        return linked | {parent for parent in graph.resolve(base, rec['owner']) if (record(parent) or {}).get('kind') == 'class'}
+        linked = {parent for parent in supers.get(rec['id'], ()) if (declared(parent) or {}).get('qual', '').rsplit('.', 1)[-1] == name}
+        return linked | {parent for parent in graph.resolve(base, rec['owner']) if (declared(parent) or {}).get('kind') == 'class'}
 
     def collected(cls, seen=()):
         """Whether a runner collects tests from this class: True for a TestCase descendant (or Test* under pytest), False
         for a mixin (every base followed and none leads to one), None when a base could not be followed."""
         if cls in collects:
             return collects[cls]
-        rec = record(cls) or {}
+        rec = declared(cls) or {}
         if rec.get('kind') != 'class':
             return None
-        runs, unknown = chosen.name == 'pytest' and rec['qual'].rsplit('.', 1)[-1].startswith('Test'), False
+        runs, unknown = chosen.name == 'pytest' and pytest_collects(rec['qual'].rsplit('.', 1)[-1]), False
         for base in rec['bases']:
             name = base[-1] if base and base[0] in ('name', 'attr') and isinstance(base[-1], str) else ''
             found = parents(base, rec) - {*seen, cls}
@@ -290,7 +298,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
             runs = runs or name.endswith('TestCase') or True in states
             # A base named outside the tree may be a TestCase, and so may one that names the class itself (a redefinition
             # that extends the first); object and a *Mixin add no test a runner collects.
-            unknown = unknown or None in states or not found and name != 'object' and not name.endswith('Mixin')
+            unknown = unknown or None in states or not found and name not in PLAIN_BASES and not name.endswith('Mixin')
         collects[cls] = True if runs else None if unknown else False
         return collects[cls]
 
@@ -300,7 +308,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
             found, pending = set(), [cls]
             while pending:
                 parent = pending.pop()
-                direct = {sub for sub in graph.subclasses.get(parent, ()) if record(sub)} | {
+                direct = {sub for sub in graph.subclasses.get(parent, ()) if declared(sub)} | {
                     ident for ident, r in after.items() if r['kind'] == 'class' and any(parent in parents(b, r) for b in r['bases'])}
                 pending += sorted(direct - found)
                 found |= direct
@@ -314,9 +322,9 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         if len(quals) < 2:
             return []
         name = quals[-1]
-        return [sub.split('#')[0] + '::' + record(sub)['qual'].replace('.', '::') + '::' + name
+        return [sub.split('#')[0] + '::' + declared(sub)['qual'].replace('.', '::') + '::' + name
                 for sub in sorted(heirs(path + '#' + '.'.join(quals[:-1])), key=lambda sub: (collected(sub) is not True, sub))
-                if record(sub + '.' + name) is None and collected(sub) is not False and sub.split('/')[0] == path.split('/')[0]]
+                if declared(sub + '.' + name) is None and collected(sub) is not False and sub.split('#')[0].split('/')[0] == path.split('/')[0]]
 
     def run_ids(test):
         """The ids a runner can execute for a test (path::Class::test), whatever named it: itself, or, for a method on a
