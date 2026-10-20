@@ -391,3 +391,17 @@ def test_functions_in_test_files_and_docstring_only_changes_are_not_compared_and
     assert side['not_compared'] == {'lib.py#describe': 'only its docstring, comments or layout changed',
                                     'tests/helpers.py#big': 'in a test file'}, side['not_compared']
     assert [row['target'] for row in report['behaviour_differences']] == ['lib.py#clamp'], report['behaviour_differences']
+
+
+
+def test_a_private_name_in_a_member_the_change_adds_is_mangled_as_in_its_class(tmp_path):
+    # The change moves Counter's private-attribute logic into a member it adds; the behaviour is the same. Compiled inside
+    # side-by-side's own class, the added member's self.__n was mangled with that class's name and missed the attribute.
+    lib0 = ('class Counter:\n    def __init__(self):\n        self.__n = 0\n\n    def bump(self):\n        self.__n += 1\n'
+            '        return self.__n\n\n    def tick(self):\n        return self.bump()\n')
+    lib1 = lib0.replace('    def tick(self):\n        return self.bump()\n',
+                        '    def bump2(self):\n        self.__n += 1\n        return self.__n\n\n    def tick(self):\n        return self.bump2()\n')
+    tests = 'from lib import Counter\n\n\ndef test_c():\n    assert Counter().tick() == 1\n'
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1, 'tests/test_lib.py': tests})
+    assert report['side_by_side']['compared_calls'] == 1, report['side_by_side']
+    assert report['behaviour_differences'] == [], report['behaviour_differences']
