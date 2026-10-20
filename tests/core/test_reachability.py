@@ -979,6 +979,76 @@ def test_a_pure_deletion_whose_lines_repeat_below_is_applied(tmp_path):
     assert not applied(tmp_path, 'lib.py', edits['lib.py'])
 
 
+def test_a_change_that_only_adds_blank_lines_is_built_from_either_side(tmp_path):
+    """sympy #30589: one blank line added between two tests. The added line cannot say which side the tree holds; where
+    the hunk sits can. Taken for the side before the change, the patch was applied again and nothing executed."""
+    from amu.core.patch import applied, candidate, changes, original
+    before = ("def test_a():\n    x = symbols('x')\n    assert solve(2**x + 4**x) == [I*pi/log(2)]\n\n"
+              "def test_b():\n\n    assert solve(x) == []\n")
+    after = before.replace('\ndef test_b', '\n\ndef test_b')
+    edits, _ = changes(tmp_path, patch('t.py', before, after))
+    for tree, on_disk in ((after, True), (before, False)):
+        (tmp_path/'t.py').write_text(tree)
+        assert applied(tmp_path, 't.py', edits['t.py']) is on_disk
+        assert original(tmp_path, 't.py', edits['t.py']) == before
+        assert candidate(tmp_path, 't.py', edits['t.py']) == after
+
+
+def test_lines_after_a_form_feed_or_a_line_separator_keep_the_numbers_git_gives_them(tmp_path):
+    """str.splitlines also breaks at form feeds and Unicode line separators; git and Python's tokenizer do not, so every
+    hunk after one landed on the wrong line and neither side could be built."""
+    from amu.core.patch import applied, candidate, changes, original
+    before = 'import os\n\x0c\n\ndef work():\n    return "\u2028"\n\n\ndef other():\n    return 1\n'
+    after = before.replace('return 1', 'return 2')
+    edits, _ = changes(tmp_path, '--- a/m.py\n+++ b/m.py\n@@ -6,4 +6,4 @@ def work():\n \n \n def other():\n-    return 1\n+    return 2\n')
+    for tree, on_disk in ((after, True), (before, False)):
+        (tmp_path/'m.py').write_text(tree)
+        assert applied(tmp_path, 'm.py', edits['m.py']) is on_disk
+        assert original(tmp_path, 'm.py', edits['m.py']) == before
+        assert candidate(tmp_path, 'm.py', edits['m.py']) == after
+
+
+def test_a_blank_line_added_to_an_edited_test_file_does_not_stop_the_run(tmp_path):
+    """sympy #30589: the change's only edit to a test file was a blank line, and no test ran at all."""
+    import sys
+
+    lib0, lib1 = 'def work():\n    return 1\n', 'def work():\n    return 2\n'
+    tests0 = 'from lib import work\n\ndef test_work():\n    assert work() == 1\n\ndef test_other():\n    assert True\n'
+    tests1 = tests0.replace('\ndef test_other', '\n\ndef test_other')
+    repository(tmp_path, {'lib.py': lib1, 'tests/test_lib.py': tests1})
+    result = analyze(tmp_path, patch('lib.py', lib0, lib1) + patch('tests/test_lib.py', tests0, tests1), index_dir=tmp_path/'.index',
+                     run=True, python=sys.executable, full_evidence=True)
+    assert [f['id'] for f in result['predicted_failures']] == ['tests/test_lib.py::test_work'], result['summary']
+    assert not [gap for gap in result['gaps'] if 'could not be built' in gap or 'did not apply' in gap], result['gaps']
+
+
+def test_a_file_the_patch_cannot_be_undone_in_comes_from_the_merge_base_or_stays_out_of_the_comparison(tmp_path, monkeypatch):
+    """A patch cut mid-line at its size cap cannot be undone in the file it cuts. One such file stopped the whole run
+    (sympy #30589). With the merge base the file is taken from git; without it, the rest of the change is still
+    compared and a gap names the file."""
+    import sys
+
+    from amu.core import patch as patching
+    from amu.core import shadow
+    calc0, calc1 = 'def add(a, b):\n    return a + b\n', 'def add(a, b):\n    return a - b\n'
+    work0, work1 = 'def work():\n    return 1\n', 'def work():\n    return 2  # ' + 'x' * 60 + '\n'
+    _git_tree(tmp_path, {'calc.py': calc0, 'work.py': work0,
+                         'tests/test_calc.py': 'from calc import add\n\n\ndef test_add():\n    assert add(1, 2) == 3\n',
+                         'tests/test_work.py': 'from work import work\n\n\ndef test_work():\n    assert work() == 1\n'})
+    base = subprocess.run(['git', '-C', str(tmp_path), 'rev-parse', 'HEAD'], capture_output=True, text=True, check=True).stdout.strip()
+    repository(tmp_path, {'calc.py': calc1, 'work.py': work1})
+    diff = patch('calc.py', calc0, calc1) + patch('work.py', work0, work1)
+    monkeypatch.setattr(patching, 'MAX_BYTES', diff.index('x' * 30))
+    edits, _ = patching.changes(tmp_path, diff)
+    ids = ['tests/test_calc.py::test_add', 'tests/test_work.py::test_work']
+    rows, info, gaps = shadow.run(tmp_path, edits, ids, python=sys.executable, runner='pytest')
+    assert info['ran'] == 2 and [r['id'] for r in rows] == ['tests/test_calc.py::test_add'], (rows, gaps)
+    assert [g for g in gaps if 'could not be built' in g] == [
+        'work.py: other side of the change could not be built; both sides run it as the tree holds it, so its change is not compared'], gaps
+    rows, info, gaps = shadow.run(tmp_path, edits, ids, python=sys.executable, runner='pytest', merge_base=base)
+    assert [r['id'] for r in rows] == ids and not [g for g in gaps if 'could not be built' in g], (rows, gaps)
+
+
 def test_closures_common_method_names_and_names_defined_elsewhere_do_not_pull_in_unrelated_tests(tmp_path):
     files = {'lib.py': ('import functools\n\n\ndef logged(fn):\n    @functools.wraps(fn)\n    def inner(*a):\n        return fn(*a)\n    return inner\n\n\n'
                         'class Store:\n    def put(self, k, v):\n        self.d = {k: v}\n\n    def get(self, k):\n        return self.d[k]\n\n\n'
@@ -1087,3 +1157,42 @@ def test_a_test_named_with_the_bare_prefix_is_a_candidate(tmp_path):
     assert 'tests/test_roots.py::test1' in seen and 'tests/test_roots.py::TestRoots::testSquare' in seen, seen
     # A function named test inside a test is a local helper; pytest never collects it.
     assert 'tests/test_roots.py::test_cli' in seen and not any(i.endswith('::test_cli::test') for i in seen), seen
+
+
+def test_with_the_merge_base_a_file_misjudged_as_not_yet_changed_is_taken_from_git(tmp_path):
+    """A pull request appends to a module whose last line had no newline. The file reads as not yet changed, and the
+    patch applied forward onto the head doubled the line: no flip and no gap. In CI the tree is the head."""
+    import sys
+
+    from amu.core import patch as patching
+    from amu.core import shadow
+    _git_tree(tmp_path, {'config.py': 'LIMIT = 1', 'tests/test_config.py': 'from config import LIMIT\n\n\ndef test_limit():\n    assert LIMIT == 1\n'})
+    base = subprocess.run(['git', '-C', str(tmp_path), 'rev-parse', 'HEAD'], capture_output=True, text=True, check=True).stdout.strip()
+    repository(tmp_path, {'config.py': 'LIMIT = 1\nLIMIT = 2\n'})
+    diff = subprocess.run(['git', '-C', str(tmp_path), 'diff', '--no-color', base], capture_output=True, text=True, check=True).stdout
+    edits, _ = patching.changes(tmp_path, diff)
+    rows, _, gaps = shadow.run(tmp_path, edits, ['tests/test_config.py::test_limit'], python=sys.executable, runner='pytest', merge_base=base)
+    assert [r['id'] for r in rows] == ['tests/test_config.py::test_limit'], (rows, gaps)
+
+
+def test_a_run_with_a_file_left_out_of_the_comparison_remembers_nothing_for_the_code_before(tmp_path, monkeypatch):
+    """Its copy is not the code before the change: outcomes there, kept for that code, hid the flip on the next run."""
+    import sys
+
+    from amu.core import patch as patching
+    from amu.core import shadow
+    lib0, lib1 = 'def work():\n    return 1\n', 'def work():\n    return 2  # ' + 'z' * 60 + '\n'
+    oth0, oth1 = 'def other():\n    return 1\n', 'def other():\n    return 3\n'
+    root = tmp_path/'repo'
+    _git_tree(root, {'lib.py': lib0, 'other.py': oth0, 'tests/test_lib.py': 'from lib import work\n\n\ndef test_work():\n    assert work() == 1\n'})
+    repository(root, {'lib.py': lib1, 'other.py': oth1})
+    diff = patch('other.py', oth0, oth1) + patch('lib.py', lib0, lib1)
+    memo, ids = tmp_path/'memo.json', ['tests/test_lib.py::test_work']
+    monkeypatch.setattr(patching, 'MAX_BYTES', diff.index('z' * 30))
+    edits, _ = patching.changes(root, diff)
+    rows, _, gaps = shadow.run(root, edits, ids, python=sys.executable, runner='pytest', memo=memo)
+    assert rows == [] and any('could not be built' in g for g in gaps), (rows, gaps)
+    monkeypatch.setattr(patching, 'MAX_BYTES', 2 * 1024 * 1024)
+    edits, _ = patching.changes(root, diff)
+    rows, _, gaps = shadow.run(root, edits, ids, python=sys.executable, runner='pytest', memo=memo)
+    assert [r['id'] for r in rows] == ids, (rows, gaps)

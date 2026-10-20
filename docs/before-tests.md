@@ -40,6 +40,9 @@ amu before-tests --run --python .venv/bin/python --budget 120
 on both sides with the project's own runner. The runner is detected from the tree (`pytest`, `unittest`,
 `django-runtests`, `django-manage`) and `--runner` overrides it. Outside pytest, each listed test has a `run`
 field with the exact command to paste. It is exact for what it runs and silent about tests outside the candidate set.
+A file whose other side cannot be built from the patch stays as the tree holds it on both sides, a gap names it, and
+the rest of the change is still compared. The CI action passes the merge base (`python -m amu.core --merge-base SHA`
+with the tree at the pull request's head), and such a file is taken from it instead.
 
 `confidence` on a test is `direct` (calls the changed symbol), `transitive` (reaches it through resolved
 calls), `heuristic` (a receiver was guessed, or only the class or names match) or `observed` (a recording

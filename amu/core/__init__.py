@@ -97,11 +97,12 @@ def after_facts(root, facts, edits, gaps):
 
 
 def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, index_dir=None, run=None, python=None,
-            budget=60, include_tests=False, runner=None, only=None, also=None, generate=None):
+            budget=60, include_tests=False, runner=None, only=None, also=None, generate=None, merge_base=None):
     """What a change reaches, which existing tests to run first, and what could not be seen.
 
     ``patch`` is unified-diff text, applied or not yet applied to ``root``. Without one,
     the uncommitted change of the working tree is used. Nothing is imported or executed.
+    ``merge_base``, with ``root`` at the change's head, is where execution takes a file the patch cannot be undone in.
     """
     root = Path(root).resolve()
     early = []
@@ -419,7 +420,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         cache = basecache.BaseCache(cache_dir(root, index_dir)/'base-passes', forward, root, python,
                                     [chosen.name, *runners.plugin_args(runners.get(root, runner), python), trust.SEED])
         flips, executed, run_gaps = shadow.run(root, edits, wide, python, budget, runner, memo=memo, own=own, base_cache=cache,
-                                               functions=functions, generate_with=generate)
+                                               functions=functions, generate_with=generate, merge_base=merge_base)
         executed['selection'] = dict(selection, candidates=len(wide))
         gaps.extend(run_gaps)
         # A failing test defined on a base class is run again in every subclass that inherits it.
@@ -428,7 +429,8 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
                          and trust.counted(flip.get('trust', trust.CONFIRMED))
                          for copy in inheritors(flip['id'])} - set(wide))[:RUN_CANDIDATES]
         if copies:
-            more, again, more_gaps = shadow.run(root, edits, copies, python, budget, runner, memo=memo, base_cache=cache)
+            more, again, more_gaps = shadow.run(root, edits, copies, python, budget, runner, memo=memo, base_cache=cache,
+                                                merge_base=merge_base)
             flips.extend(more)
             gaps.extend(more_gaps)
             executed.update(ran=executed['ran'] + again['ran'], seconds=round(executed['seconds'] + again['seconds'], 1),

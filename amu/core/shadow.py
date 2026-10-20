@@ -19,7 +19,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from . import basecache, generate, isolate, replay, runners, sidebyside, trust
-from .git import _git
+from .git import _git, file_at
 from .patch import applied, candidate, original, renumber
 
 CHUNK = 40
@@ -89,7 +89,8 @@ def execute(runner, python, tree, ids, scratch, name, timeout, parts):
     return found, problems
 
 
-def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=(), base_cache=None, functions=(), generate_with=None):
+def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=(), base_cache=None, functions=(), generate_with=None,
+        merge_base=None):
     """Outcomes of ``ids`` before and after the change. Returns (rows, info, gaps).
 
     ``own`` are the tests the change adds or edits (replay.touched); they are also run on the code before the change
@@ -107,7 +108,11 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
 
     ``memo`` is a file kept between runs on the same tree: outcomes already seen on the code before the change
     (valid while that code is the same) and the measured test rates, whose median plans how many candidates are tried
-    first. Time the plan leaves over goes to the next candidates."""
+    first. Time the plan leaves over goes to the next candidates.
+
+    ``merge_base`` is the commit before the change when the tree is its head (a pull request): a file the patch cannot
+    be undone in is taken as that commit holds it. A file neither the patch nor the merge base gives stays as the tree
+    holds it on both sides, and a gap names it; the rest of the change is still compared."""
     python, gaps, started = python or sys.executable, [], time.perf_counter()
     runner = runners.get(root, runner)
     if not ids:
@@ -122,16 +127,33 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
     with tempfile.TemporaryDirectory(prefix='amu-shadow-') as scratch:
         other = Path(scratch)/'tree'
         shutil.copytree(root, other, ignore=shutil.ignore_patterns(*IGNORED), symlinks=True)
-        on_disk, before_src, after_src = {}, {}, {}
+        on_disk, before_src, after_src, unbuilt = {}, {}, {}, []
         for path, edit in edits.items():
             on_disk[path] = applied(root, path, edit)
-            source = original(root, path, edit) if on_disk[path] else candidate(root, path, edit)
+            # With the merge base the tree is the change's head: a file not taken for the head was misjudged, and the
+            # patch is not applied forward onto it.
+            source = original(root, path, edit) if on_disk[path] else None if merge_base else candidate(root, path, edit)
+            if source is None and merge_base:
+                # The tree is the change's head: the file before the change is the one the merge base holds.
+                source, on_disk[path] = file_at(root, merge_base, path), True
             if source is None:
-                return [], dict(ran=0, seconds=0.0, runner=runner.name), [f'{path}: other side of the change could not be built; nothing executed']
+                unbuilt.append(path)
+                del on_disk[path]
+                continue
             (other/path).parent.mkdir(parents=True, exist_ok=True)
             (other/path).write_text(source)
             live = _read(root/path)
             before_src[path], after_src[path] = (source, live) if on_disk[path] else (live, source)
+        if unbuilt:
+            # The copy keeps such a file as the tree holds it, so both sides run the same file: its change is left out
+            # of the comparison, and the rest of the change is not.
+            gaps += [f'{path}: other side of the change could not be built; both sides run it as the tree holds it, so its '
+                     'change is not compared' for path in unbuilt]
+            edits = {path: edit for path, edit in edits.items() if path not in unbuilt}
+            key = None  # the copy is not the code before the change: what runs on it is not remembered for that code
+            functions = [row for row in functions if row['file'] not in unbuilt]
+            if not edits:
+                return [], dict(ran=0, seconds=0.0, runner=runner.name), [*gaps, 'no changed file could be built on both sides; nothing executed']
         # Whichever side the working tree holds, the copy holds the other one.
         live_is_after = any(on_disk.values())
         trees = dict(after=root if live_is_after else other, before=other if live_is_after else root)

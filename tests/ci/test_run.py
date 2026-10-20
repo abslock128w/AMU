@@ -53,6 +53,21 @@ def test_flip_against_merge_base_is_saved(pull_request, tmp_path):
     assert saved['flips'] == 1
 
 
+def test_a_pull_request_that_only_adds_a_blank_line_to_a_test_file_still_runs(pull_request, tmp_path):
+    """sympy #30589: a blank line was the pull request's only edit to a test file; its other side could not be built and
+    no test ran."""
+    repo, base, _ = pull_request
+    tests = repo/'tests'/'test_calc.py'
+    tests.write_text(tests.read_text().replace('\ndef test_other', '\n\ndef test_other'))
+    git(repo, 'commit', '-qam', 'spacing')
+    report, meta = ci_run.run(repo, base, git(repo, 'rev-parse', 'HEAD'), tmp_path/'out', python=sys.executable)
+    assert report.get('flips') == 1, (report.get('summary'), report.get('gaps'))
+    assert not [gap for gap in report['gaps'] if 'could not be built' in gap], report['gaps']
+    # A file the patch still cannot be undone in is taken from the merge base.
+    command = ci_run.amu_command(tmp_path/'out'/'patch.diff', sys.executable, None, None, None, meta['merge_base'])
+    assert command[command.index('--merge-base') + 1] == base
+
+
 def test_checkout_not_at_head_runs_nothing(pull_request, tmp_path):
     repo, base, head = pull_request
     git(repo, 'checkout', '-q', 'main')
