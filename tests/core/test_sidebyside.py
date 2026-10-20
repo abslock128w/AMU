@@ -144,6 +144,27 @@ def test_a_behaviour_change_in_a_member_moved_to_the_base_still_shows(tmp_path):
     assert found['DebugLexer.tokenize']['after']['result'] == ['return', ['list', [['tuple', ["'a'", '1']], ['tuple', ["'b'", '1']]]]], found
 
 
+# Found in review: a method moved into a new mixin the class now inherits (its bases change), and a mutable class
+# attribute moved into a new __init__. Deleting the member as changed exposed the old bases, or broke objects built
+# before the change: false rows where the head behaves as before.
+MIX0 = ('class Base:\n    def name(self):\n        return "base"\n\n\n'
+        'class A(Base):\n    def helper(self):\n        return "helper"\n\n    def run(self):\n        return self.helper()\n')
+MIX1 = ('class Mixin:\n    def helper(self):\n        return "helper"\n\n\nclass Base:\n    def name(self):\n        return "base"\n\n\n'
+        'class A(Mixin, Base):\n    def run(self):\n        result = self.helper()\n        return result\n')
+REG0 = 'class Registry:\n    entries = {"a": 1}\n\n    def find(self, key):\n        return self.entries.get(key)\n'
+REG1 = ('class Registry:\n    def __init__(self):\n        self.entries = {"a": 1}\n\n'
+        '    def find(self, key):\n        return self.entries.get(key, None)\n')
+
+
+def test_a_member_moved_to_a_new_base_or_onto_the_instance_is_not_deleted_as_changed(tmp_path):
+    for name, before, after, test in (
+            ('mixin', MIX0, MIX1, 'from lib import A\n\n\ndef test_a():\n    assert A().run() == "helper"\n'),
+            ('registry', REG0, REG1, 'from lib import Registry\n\n\ndef test_r():\n    assert Registry().find("a") == 1\n')):
+        root = tmp_path/name
+        report = change(root, {'lib.py': before, 'tests/test_lib.py': test}, {'lib.py': after, 'tests/test_lib.py': test})
+        assert report['side_by_side']['called'], (name, report['side_by_side'])
+        assert report['behaviour_differences'] == [], (name, report['behaviour_differences'])
+
 def test_additions_name_the_members_a_change_removes_from_a_class():
     from amu.core.sidebyside import additions
     before = ('class A:\n    x = 1\n    y = 2\n\n    def f(self):\n        return 1\n\n    class Inner:\n        z = 3\n\n\n'
