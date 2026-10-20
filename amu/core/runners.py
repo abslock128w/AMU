@@ -196,6 +196,28 @@ def detect(root):
     return 'unittest'
 
 
+PYTEST_CONFIGS = (('pytest.ini', '[pytest]'), ('pyproject.toml', '[tool.pytest.ini_options]'), ('tox.ini', '[pytest]'),
+                  ('setup.cfg', '[tool:pytest]'))
+
+
+def pytest_classes(root):
+    """The class-name patterns pytest collects in this tree: ``python_classes`` from the first configuration file that
+    has a pytest section (pytest reads only that one), else ``Test``."""
+    for name, section in PYTEST_CONFIGS:
+        try:
+            text = (Path(root)/name).read_text(errors='replace')
+        except OSError:
+            continue
+        if section not in text and not (name == 'pytest.ini' and text.strip()):
+            continue
+        body = text.split(section, 1)[-1].split('\n[', 1)[0]
+        found = re.search(r'^\s*python_classes\s*=\s*(.+(?:\n[ \t]+.+)*)', body, re.M)
+        if found:
+            return tuple(p for p in re.split(r'[\s,]+', re.sub(r'[\[\]"\']', ' ', found.group(1))) if p) or ('Test',)
+        return ('Test',)
+    return ('Test',)
+
+
 def get(root, name=None):
     return RUNNERS.get(name or detect(root), Runner)()
 

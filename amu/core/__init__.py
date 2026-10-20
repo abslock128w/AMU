@@ -1,6 +1,7 @@
 """AMU's compact, static before-tests contract."""
 from __future__ import annotations
 
+import fnmatch
 import hashlib
 import json
 import math
@@ -17,6 +18,7 @@ from .sitehooks import sweep
 LIMIT = 2000
 MAX_TESTS = 40
 MIXIN_COPIES = 6  # concrete subclasses run for a test method that lives on a mixin
+PLAIN_BASES = {'object', 'ABC', 'Generic', 'Protocol'}  # bases that add no test a runner collects
 RUN_CANDIDATES = 150  # inheriting copies of failing base-class tests run at most
 
 
@@ -255,45 +257,89 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         near = [ident for ident, (position, _, _) in graph.reach([symbol], max_depth=2).items() if not position[2]]
         for ident, reason in lexical.expecting(tests, near, categories).items():
             likely.setdefault(ident, reason)
-    runnable_class = {}
+    collects, heirs_of, supers = {}, {}, {}
+    class_patterns = runners.pytest_classes(root) if chosen.name == 'pytest' else ()
 
-    def runnable(cls, seen=()):
-        """Whether a runner will collect tests from this class: a TestCase descendant, or Test* under pytest."""
-        if cls in runnable_class:
-            return runnable_class[cls]
-        record = graph.records.get(cls) or {}
-        found = record.get('kind') == 'class' and chosen.name == 'pytest' and record['qual'].rsplit('.', 1)[-1].startswith('Test')
-        for base in record.get('bases', []) if record.get('kind') == 'class' else []:
-            name = base[-1] if base and base[0] in ('name', 'attr') else ''
-            if isinstance(name, str) and name.endswith('TestCase'):
-                found = True
-            for parent in graph.resolve(base, record['owner']):
-                if parent not in seen and runnable(parent, (*seen, cls)):
-                    found = True
-        runnable_class[cls] = found
-        return found
+    def pytest_collects(name):
+        """Whether pytest collects a class by its name: the project's ``python_classes``, prefixes or globs, else Test."""
+        return any(fnmatch.fnmatchcase(name, p) if any(c in p for c in '*?[') else name.startswith(p) for p in class_patterns)
 
-    def run_ids(ident):
-        """The ids a runner can actually execute for a test: itself, or, for a method defined on a mixin,
-        the concrete test classes that inherit it."""
-        own = tests[ident]['path'] + '::' + tests[ident]['qual'].replace('.', '::')
-        owner = tests[ident].get('owner')
-        if graph.records.get(owner, {}).get('kind') != 'class' or runnable(owner):
-            return [own]
-        return [copy for copy in inheritors(ident)
-                if runnable(copy.rsplit('::', 1)[0].replace('::', '#', 1).replace('::', '.'))][:MIXIN_COPIES]
+    for parent, subs in graph.subclasses.items():
+        for sub in subs:
+            supers.setdefault(sub, set()).add(parent)
 
-    def inheritors(ident):
-        """Ids of the same test method in subclasses that inherit it: it runs, and fails, there too."""
-        owner = tests[ident].get('owner')
-        if graph.records.get(owner, {}).get('kind') != 'class':
+    def declared(ident):
+        """A declaration as the change leaves it: from the changed file when that parsed, else from the graph."""
+        return after.get(ident) if ident.split('#')[0] in settled else graph.records.get(ident)
+
+    def parents(base, rec):
+        """The classes a base expression names. The graph's class links, made when it was built, answer by name too: a
+        graph loaded from its snapshot has slim records and resolves no name. A bare name the same changed file declares
+        is read from that file: with the change not yet written, the graph has not seen it."""
+        name = base[-1] if base and base[0] in ('name', 'attr') and isinstance(base[-1], str) else ''
+        if base and base[0] == 'name' and rec['path'] in settled and (declared(rec['path'] + '#' + name) or {}).get('kind') == 'class':
+            return {rec['path'] + '#' + name}
+        linked = {parent for parent in supers.get(rec['id'], ()) if (declared(parent) or {}).get('qual', '').rsplit('.', 1)[-1] == name}
+        return linked | {parent for parent in graph.resolve(base, rec['owner']) if (declared(parent) or {}).get('kind') == 'class'}
+
+    def collected(cls, seen=()):
+        """Whether a runner collects tests from this class: True for a TestCase descendant (or Test* under pytest), False
+        for a mixin (every base followed and none leads to one), None when a base could not be followed."""
+        if cls in collects:
+            return collects[cls]
+        rec = declared(cls) or {}
+        if rec.get('kind') != 'class':
+            return None
+        runs, unknown = chosen.name == 'pytest' and pytest_collects(rec['qual'].rsplit('.', 1)[-1]), False
+        for base in rec['bases']:
+            name = base[-1] if base and base[0] in ('name', 'attr') and isinstance(base[-1], str) else ''
+            found = parents(base, rec) - {*seen, cls}
+            states = [collected(parent, (*seen, cls)) for parent in found]
+            runs = runs or name.endswith('TestCase') or True in states
+            # A base named outside the tree may be a TestCase, and so may one that names the class itself (a redefinition
+            # that extends the first); object and a *Mixin add no test a runner collects.
+            unknown = unknown or None in states or not found and name not in PLAIN_BASES and not name.endswith('Mixin')
+        collects[cls] = True if runs else None if unknown else False
+        return collects[cls]
+
+    def heirs(cls):
+        """Subclasses of ``cls``: the graph's, and those a changed file declares as the change leaves it."""
+        if cls not in heirs_of:
+            found, pending = set(), [cls]
+            while pending:
+                parent = pending.pop()
+                direct = {sub for sub in graph.subclasses.get(parent, ()) if declared(sub)} | {
+                    ident for ident, r in after.items() if r['kind'] == 'class' and any(parent in parents(b, r) for b in r['bases'])}
+                pending += sorted(direct - found)
+                found |= direct
+            heirs_of[cls] = found
+        return heirs_of[cls]
+
+    def inheritors(test):
+        """Ids of the same test method (path::Class::test) in subclasses that inherit it and that a runner may collect: it
+        runs, and fails, there too. Those seen to be collected come first."""
+        path, *quals = test.split('::')
+        if len(quals) < 2:
             return []
-        name = tests[ident]['qual'].rsplit('.', 1)[-1]
-        return [graph.records[sub]['path'] + '::' + graph.records[sub]['qual'].replace('.', '::') + '::' + name
-                for sub in sorted(graph.descendants(owner))
-                if not graph.members.get((sub, name)) and graph.records[sub]['path'].split('/')[0] == tests[ident]['path'].split('/')[0]]
+        name = quals[-1]
+        return [sub.split('#')[0] + '::' + declared(sub)['qual'].replace('.', '::') + '::' + name
+                for sub in sorted(heirs(path + '#' + '.'.join(quals[:-1])), key=lambda sub: (collected(sub) is not True, sub))
+                if declared(sub + '.' + name) is None and collected(sub) is not False and sub.split('#')[0].split('/')[0] == path.split('/')[0]]
 
-    inherited = {ident: copies for ident in likely if (copies := inheritors(ident))}
+    def run_ids(test):
+        """The ids a runner can execute for a test (path::Class::test), whatever named it: itself, or, for a method on a
+        class no runner collects (a mixin), the subclasses that inherit it, up to MIXIN_COPIES. Nothing for a mixin's
+        method that no subclass inherits: its own label would stop the runner, and no class runs it."""
+        path, *quals = test.split('::')
+        state = collected(path + '#' + '.'.join(quals[:-1])) if len(quals) > 1 else True
+        if state:
+            return [test]
+        return inheritors(test)[:MIXIN_COPIES] or ([test] if state is None else [])
+
+    def label_of(ident):
+        return tests[ident]['path'] + '::' + tests[ident]['qual'].replace('.', '::')
+
+    inherited = {ident: copies for ident in likely if (copies := inheritors(label_of(ident)))}
     for ident in likely:
         # A test found only by what it says still belongs in the list.
         scores.setdefault(ident, {}).setdefault('', 0.5)
@@ -346,18 +392,26 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         position.update({ident: len(position) + n for n, ident in enumerate(tail)})
         memo = cache_dir(root, index_dir)/'shadow-memo.json'
         flipped_at, durations = shadow.history(memo)
-        expanded = list(dict.fromkeys(run_id for ident in sorted(picked, key=position.get) for run_id in run_ids(ident)))
+        expanded = list(dict.fromkeys(run_id for ident in sorted(picked, key=position.get) for run_id in run_ids(label_of(ident))))
         tiebreak = {run_id: n for n, run_id in enumerate(expanded)}
         wide = select.order(expanded, flips=flipped_at, durations=durations, tiebreak=tiebreak)
         if only:
             # A caller that already knows which tests matter (a hook re-checking earlier failures) names them.
-            wide = list(dict.fromkeys(only))
+            wide = list(dict.fromkeys(run_id for test in only for run_id in run_ids(test)))
         elif also:
             # Tests a caller wants run in any case (earlier failures), ahead of the ranked candidates.
-            wide = list(dict.fromkeys([*also, *wide]))
-        # Every test the change adds or edits runs, first, and is replayed on the code before the change.
-        own = [] if only else replay.touched(root, edits, chosen.name)
+            wide = list(dict.fromkeys([*(run_id for test in also for run_id in run_ids(test)), *wide]))
+        # Every test the change adds or edits runs, first, and is replayed on the code before the change. One on a mixin
+        # runs, and is replayed, in the subclasses that inherit it.
+        touched = [] if only else replay.touched(root, edits, chosen.name)
+        own = list(dict.fromkeys(run_id for test in touched for run_id in run_ids(test)))
         wide = list(dict.fromkeys([*own, *wide]))
+        # A ranked mixin method no class inherits is dropped quietly, as before: the project's own suite never runs it, and
+        # most are test-named methods of helper classes. One the change or the caller names is said.
+        unrun = sorted({test for test in [*touched, *(only or also or ())] if not run_ids(test)})
+        if unrun:
+            gaps.append(f'{len(unrun)} test(s) defined on a mixin, a class {chosen.name} does not collect, that no test class inherits: '
+                        'not run: ' + ', '.join(unrun[:3]) + (f' and {len(unrun) - 3} more' if len(unrun) > 3 else ''))
         # Passing outcomes on the code before the change, by content: a second run against the same base runs nothing
         # there that the first saw pass.
         forward = {path: sorted({t for name in select.deps(fact) if (t := select.resolve(name, graph.modules)) and t != path})
@@ -369,10 +423,10 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         executed['selection'] = dict(selection, candidates=len(wide))
         gaps.extend(run_gaps)
         # A failing test defined on a base class is run again in every subclass that inherits it.
-        by_id = {tests[ident]['path'] + '::' + tests[ident]['qual'].replace('.', '::'): ident for ident in picked}
-        copies = sorted({copy for flip in flips if flip['after'] == 'failed' and flip['id'] in by_id
+        ranked = {label_of(ident) for ident in picked}
+        copies = sorted({copy for flip in flips if flip['after'] == 'failed' and flip['id'] in ranked
                          and trust.counted(flip.get('trust', trust.CONFIRMED))
-                         for copy in inheritors(by_id[flip['id']])} - set(wide))[:RUN_CANDIDATES]
+                         for copy in inheritors(flip['id'])} - set(wide))[:RUN_CANDIDATES]
         if copies:
             more, again, more_gaps = shadow.run(root, edits, copies, python, budget, runner, memo=memo, base_cache=cache)
             flips.extend(more)
