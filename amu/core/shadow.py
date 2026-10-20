@@ -163,6 +163,7 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
         # that fail there are run on the code as it was, to confirm they passed before. A test that passes
         # after the change cannot be a new failure, so the unchanged side is never paid for it.
         left, done, aborted, measured, measured_seconds, pace = float(budget), 0, None, 0, 0.0, rate
+        stopped, struck = None, {}
         while left > 1:
             if done == len(ids):
                 # The planned candidates finished with time to spare: the next ones run a chunk at a time, as many as the
@@ -182,23 +183,39 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
             for part in _slices(chunk, parts):
                 context.update({ident: part for ident in part})
             problem = next((p for p in problems if p != 'timed out'), problems[0] if problems else None)
+            # A chunk the runner aborts on does not end the run: the next chunk holds other candidates.
             if problem and problem != 'timed out':
                 # Candidates the change removed (a test renamed or deleted in an edited file) cannot run after it; that
-                # is not the runner aborting. Only candidates that may still exist on the changed side count.
+                # is not the runner aborting. Only candidates that may still exist on the changed side count. Labels of
+                # a group the runner refuses as a whole (runners.refusal) are not lost either: they have their own gap.
                 present = [i for i in chunk if not _removed(i, edits, before_src, trees['after'])]
-                if present:
-                    gaps.append(f'shadow run (after the change, {runner.name}): {problem}')
-                    if not any(state != 'unrunnable' for state in states['after'].values()):
-                        # Nothing ran on the changed code. If the same candidates run on the code before the change,
-                        # the change is what stops the runner: that is a failure of the change, not a gap.
-                        began = time.perf_counter()
-                        probe, again = runners.execute(runner, python, trees['before'], present, Path(scratch)/'probe.xml', max(left, CONFIRM))
-                        left -= time.perf_counter() - began
-                        ran_before = sum(state != 'unrunnable' for state in probe.values())
-                        if ran_before:
-                            aborted = dict(error=problem.removeprefix('no outcomes read: '), ran_before=ran_before, probed=len(present))
-                    break
-            if problem == 'timed out':
+                refused = runners.refusals(runner, trees['after'])
+                lost = [i for i in present if found.get(i) in (None, 'unrunnable') and runner.group(i) not in refused]
+                if lost:
+                    for text in problems:
+                        gap = f'shadow run (after the change, {runner.name}): {text}'
+                        if text != 'timed out' and text.removeprefix('no outcomes read: ') not in refused.values() and gap not in gaps:
+                            gaps.append(gap)
+                if present and not any(state != 'unrunnable' for state in states['after'].values()):
+                    if lost and problem in struck:
+                        # Nothing has run on either side, and another chunk fails as the first did: the runner runs
+                        # nothing here, whatever the candidates. Restarting it for every chunk would only use the budget.
+                        stopped = (f'shadow run stopped after {start + len(chunk)} of {len(ids)} candidates: {runner.name} ran none of them, '
+                                   f'nor the first {struck[problem]} on the code before the change ({problem})')
+                        break
+                    # Nothing ran on the changed code. If the same candidates run on the code before the change,
+                    # the change is what stops the runner: that is a failure of the change, not a gap.
+                    began = time.perf_counter()
+                    probe, again = runners.execute(runner, python, trees['before'], present, Path(scratch)/'probe.xml', max(left, CONFIRM))
+                    left -= time.perf_counter() - began
+                    ran_before = sum(state != 'unrunnable' for state in probe.values())
+                    if ran_before:
+                        aborted = dict(error=problem.removeprefix('no outcomes read: '), ran_before=ran_before, probed=len(present))
+                        break
+                    if lost:
+                        struck[problem] = len(present)
+            if 'timed out' in problems:
+                # A slice cut short ends the run, whatever another slice of the chunk met.
                 break
             # The rate counts only chunks that finished: a chunk stopped at the budget took its time and left few
             # outcomes or none.
@@ -223,7 +240,9 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
             done = start + len(chunk)
         if len(ids) < len(pool):
             gaps.insert(0, f'{len(pool) - len(ids)} lower-ranked candidate(s) not run: about {rate:.0f} tests/s per process fit {len(ids)} in the {budget} s allowed')
-        if done < len(ids) and not aborted:
+        if stopped:
+            gaps.append(stopped)
+        elif done < len(ids) and not aborted:
             gaps.append(f'shadow run stopped at its {budget} s budget: {done} of {len(ids)} candidates run')
         # A test that an edited test file no longer defines (renamed or deleted) did not fail because of the change: it
         # is gone. Its original form is checked below like any other edited test.
@@ -385,8 +404,15 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
     if removed:
         gaps.append(f'{len(removed)} candidate(s) no longer defined after the change (renamed or deleted in an edited test file)')
     unrunnable = sorted(ident for ident, state in states['after'].items() if state == 'unrunnable')
-    if unrunnable:
-        gaps.append(f'{len(unrunnable)} candidate(s) could not be run by {runner.name} and are not covered by this result')
+    # A label group the runner refuses as a whole (runners.refusal): dropped, and named with what the runner said.
+    refused, groups = runners.refusals(runner, trees['after']), {}
+    for ident in unrunnable:
+        groups.setdefault(runner.group(ident), []).append(ident)
+    for group in sorted(set(groups) & set(refused)):
+        gaps.append(f'{len(groups[group])} candidate(s) in {group} not run: {runner.name} refuses them before any test runs: {refused[group]}')
+    other = [ident for ident in unrunnable if runner.group(ident) not in refused]
+    if other:
+        gaps.append(f'{len(other)} candidate(s) could not be run by {runner.name} and are not covered by this result')
     info = dict(ran=ran_after, candidates=len(ids), unrunnable=len(unrunnable), outcomes=states['after'], seconds=round(time.perf_counter() - started, 1), runner=runner.name)
     if aborted:
         info['aborted'] = aborted
