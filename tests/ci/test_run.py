@@ -137,7 +137,9 @@ def test_a_run_stopped_at_the_wall_cap_still_reports_the_flip_it_found(hangs_aft
     assert [row['id'] for row in report['predicted_failures']] == ['tests/test_calc.py::test_add']
     assert meta['status'] == 'ran' and meta['seconds'] < 20
     # The reruns of the flip waited on the hang until amu's deadline; what came after them was not started.
-    assert report['gaps'][0].startswith('not done before the wall cap: reruns of flips') and 'side-by-side' in report['gaps'][0]
+    assert report['gaps'][0].startswith('not done before the wall cap: reruns of flips'), report['gaps']
+    # Side-by-side runs on Python 3.12 and later only.
+    assert ('side-by-side' in report['gaps'][0]) == (sys.version_info >= (3, 12)), report['gaps']
     body = render(report, meta)
     assert body.splitlines()[0] == ('**AMU: 1 flip** at ' + f'`{head[:7]}`' + ', among 2 tests run; stopped at the wall cap '
                                     'of 20 s before it finished')
