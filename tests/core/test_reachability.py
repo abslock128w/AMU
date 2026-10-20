@@ -998,7 +998,7 @@ def test_lines_after_a_form_feed_or_a_line_separator_keep_the_numbers_git_gives_
     """str.splitlines also breaks at form feeds and Unicode line separators; git and Python's tokenizer do not, so every
     hunk after one landed on the wrong line and neither side could be built."""
     from amu.core.patch import applied, candidate, changes, original
-    before = 'import os\n\x0c\n\ndef work():\n    return " "\n\n\ndef other():\n    return 1\n'
+    before = 'import os\n\x0c\n\ndef work():\n    return "\u2028"\n\n\ndef other():\n    return 1\n'
     after = before.replace('return 1', 'return 2')
     edits, _ = changes(tmp_path, '--- a/m.py\n+++ b/m.py\n@@ -6,4 +6,4 @@ def work():\n \n \n def other():\n-    return 1\n+    return 2\n')
     for tree, on_disk in ((after, True), (before, False)):
@@ -1157,3 +1157,42 @@ def test_a_test_named_with_the_bare_prefix_is_a_candidate(tmp_path):
     assert 'tests/test_roots.py::test1' in seen and 'tests/test_roots.py::TestRoots::testSquare' in seen, seen
     # A function named test inside a test is a local helper; pytest never collects it.
     assert 'tests/test_roots.py::test_cli' in seen and not any(i.endswith('::test_cli::test') for i in seen), seen
+
+
+def test_with_the_merge_base_a_file_misjudged_as_not_yet_changed_is_taken_from_git(tmp_path):
+    """A pull request appends to a module whose last line had no newline. The file reads as not yet changed, and the
+    patch applied forward onto the head doubled the line: no flip and no gap. In CI the tree is the head."""
+    import sys
+
+    from amu.core import patch as patching
+    from amu.core import shadow
+    _git_tree(tmp_path, {'config.py': 'LIMIT = 1', 'tests/test_config.py': 'from config import LIMIT\n\n\ndef test_limit():\n    assert LIMIT == 1\n'})
+    base = subprocess.run(['git', '-C', str(tmp_path), 'rev-parse', 'HEAD'], capture_output=True, text=True, check=True).stdout.strip()
+    repository(tmp_path, {'config.py': 'LIMIT = 1\nLIMIT = 2\n'})
+    diff = subprocess.run(['git', '-C', str(tmp_path), 'diff', '--no-color', base], capture_output=True, text=True, check=True).stdout
+    edits, _ = patching.changes(tmp_path, diff)
+    rows, _, gaps = shadow.run(tmp_path, edits, ['tests/test_config.py::test_limit'], python=sys.executable, runner='pytest', merge_base=base)
+    assert [r['id'] for r in rows] == ['tests/test_config.py::test_limit'], (rows, gaps)
+
+
+def test_a_run_with_a_file_left_out_of_the_comparison_remembers_nothing_for_the_code_before(tmp_path, monkeypatch):
+    """Its copy is not the code before the change: outcomes there, kept for that code, hid the flip on the next run."""
+    import sys
+
+    from amu.core import patch as patching
+    from amu.core import shadow
+    lib0, lib1 = 'def work():\n    return 1\n', 'def work():\n    return 2  # ' + 'z' * 60 + '\n'
+    oth0, oth1 = 'def other():\n    return 1\n', 'def other():\n    return 3\n'
+    root = tmp_path/'repo'
+    _git_tree(root, {'lib.py': lib0, 'other.py': oth0, 'tests/test_lib.py': 'from lib import work\n\n\ndef test_work():\n    assert work() == 1\n'})
+    repository(root, {'lib.py': lib1, 'other.py': oth1})
+    diff = patch('other.py', oth0, oth1) + patch('lib.py', lib0, lib1)
+    memo, ids = tmp_path/'memo.json', ['tests/test_lib.py::test_work']
+    monkeypatch.setattr(patching, 'MAX_BYTES', diff.index('z' * 30))
+    edits, _ = patching.changes(root, diff)
+    rows, _, gaps = shadow.run(root, edits, ids, python=sys.executable, runner='pytest', memo=memo)
+    assert rows == [] and any('could not be built' in g for g in gaps), (rows, gaps)
+    monkeypatch.setattr(patching, 'MAX_BYTES', 2 * 1024 * 1024)
+    edits, _ = patching.changes(root, diff)
+    rows, _, gaps = shadow.run(root, edits, ids, python=sys.executable, runner='pytest', memo=memo)
+    assert [r['id'] for r in rows] == ids, (rows, gaps)

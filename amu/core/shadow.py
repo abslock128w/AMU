@@ -130,7 +130,9 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
         on_disk, before_src, after_src, unbuilt = {}, {}, {}, []
         for path, edit in edits.items():
             on_disk[path] = applied(root, path, edit)
-            source = original(root, path, edit) if on_disk[path] else candidate(root, path, edit)
+            # With the merge base the tree is the change's head: a file not taken for the head was misjudged, and the
+            # patch is not applied forward onto it.
+            source = original(root, path, edit) if on_disk[path] else None if merge_base else candidate(root, path, edit)
             if source is None and merge_base:
                 # The tree is the change's head: the file before the change is the one the merge base holds.
                 source, on_disk[path] = file_at(root, merge_base, path), True
@@ -148,6 +150,7 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
             gaps += [f'{path}: other side of the change could not be built; both sides run it as the tree holds it, so its '
                      'change is not compared' for path in unbuilt]
             edits = {path: edit for path, edit in edits.items() if path not in unbuilt}
+            key = None  # the copy is not the code before the change: what runs on it is not remembered for that code
             functions = [row for row in functions if row['file'] not in unbuilt]
             if not edits:
                 return [], dict(ran=0, seconds=0.0, runner=runner.name), [*gaps, 'no changed file could be built on both sides; nothing executed']
