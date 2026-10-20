@@ -66,9 +66,10 @@ def amu_command(patch, python, runner, budget, generate=None, merge_base=None, d
     if merge_base:
         # A file the patch cannot be undone in is taken from the merge base, not lost with the whole run.
         command += ['--merge-base', merge_base]
-    if generate and generate[0] > 0:
-        dollars, minutes, model = generate
+    if generate and (generate[0] > 0 or generate[3:4] == (True,)):
+        dollars, minutes, model, *cli = generate
         command += ['--generate-dollars', str(dollars), '--generate-minutes', str(minutes), '--generate-model', model]
+        command += ['--generate-cli'] if cli and cli[0] else []
     if runner:
         command += ['--runner', runner]
     if budget:
@@ -249,6 +250,7 @@ def main(argv=None):
     p.add_argument('--generate-dollars', type=float, default=0.0, help='dollar cap for generated tests per run (needs ANTHROPIC_API_KEY)')
     p.add_argument('--generate-minutes', type=float, default=20.0, help='minute cap for generated tests per run')
     p.add_argument('--generate-model', default='claude-opus-5-5')
+    p.add_argument('--generate-cli', action='store_true', help="with no ANTHROPIC_API_KEY, generate with Claude Code's claude -p")
     p.add_argument('--pr', type=int)
     p.add_argument('--install-ok', choices=['true', 'false'])
     p.add_argument('--amu-ref')
@@ -256,7 +258,7 @@ def main(argv=None):
     try:
         report, meta = run(a.repo, a.base, a.head or None, a.out, a.python, a.runner, a.pr, a.budget,
                            None if a.install_ok is None else a.install_ok == 'true', a.amu_ref, a.wall_cap, a.observe, a.counters,
-                           (a.generate_dollars, a.generate_minutes, a.generate_model) if a.generate_dollars > 0 else None)
+                           (a.generate_dollars, a.generate_minutes, a.generate_model, a.generate_cli) if a.generate_dollars > 0 or a.generate_cli else None)
         print(f"amu: {meta['status']}; flips: {report.get('flips')}; {report.get('error') or report.get('summary', '')}"[:500])
     except Exception as exc:  # the job never fails because of AMU
         print(f'amu ci run failed: {type(exc).__name__}: {exc}')

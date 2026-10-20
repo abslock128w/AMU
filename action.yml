@@ -77,6 +77,17 @@ inputs:
       so a same-repository pull request could read it; forks never receive secrets."
     required: false
     default: ''
+  claude-code:
+    description: "'true' installs Claude Code on the runner and, when anthropic-api-key is empty, has `claude -p` write the
+      probes, billed to the Claude plan as usage (generate-minutes still caps them). Off by default."
+    required: false
+    default: 'false'
+  claude-code-oauth-token:
+    description: "Token from `claude setup-token`, for claude-code. Passed to AMU and Claude Code only, never to the test
+      processes. The job runs the pull request's install command first, so, like anthropic-api-key, a same-repository
+      pull request could reach it; forks never receive secrets."
+    required: false
+    default: ''
   mode:
     description: "'run' compares the head with the merge base. 'verify' runs in a fresh job checked out at the merge base
       and reruns each flip there, to measure false flips."
@@ -143,12 +154,17 @@ runs:
       env:
         AMU_REF: ${{ inputs.amu-ref }}
         AMU_HAS_KEY: ${{ inputs.anthropic-api-key != '' && 'yes' || '' }}
+        AMU_CLAUDE_CODE: ${{ inputs.claude-code }}
       run: |
         python -m venv "$RUNNER_TEMP/amu-venv"
         if ! "$RUNNER_TEMP/amu-venv/bin/python" -m pip install --quiet --disable-pip-version-check \
             "anti-messup @ git+https://github.com/abslock128w/AMU@${AMU_REF}" > "$RUNNER_TEMP/amu-out/amu-install.log" 2>&1; then
           echo "::warning::AMU could not be installed from ${AMU_REF}."
           tail -n 20 "$RUNNER_TEMP/amu-out/amu-install.log"
+        fi
+        if [ "$AMU_CLAUDE_CODE" = true ] && [ -z "$AMU_HAS_KEY" ]; then
+          npm install --global --silent @anthropic-ai/claude-code >> "$RUNNER_TEMP/amu-out/amu-install.log" 2>&1 \
+            || echo "::warning::Claude Code could not be installed; no probes will be generated."
         fi
         if [ -n "$AMU_HAS_KEY" ]; then
           "$RUNNER_TEMP/amu-venv/bin/python" -m pip install --quiet --disable-pip-version-check anthropic \
@@ -175,6 +191,8 @@ runs:
         AMU_GENERATE_MINUTES: ${{ inputs.generate-minutes }}
         AMU_GENERATE_MODEL: ${{ inputs.generate-model }}
         ANTHROPIC_API_KEY: ${{ inputs.anthropic-api-key }}
+        AMU_CLAUDE_CODE: ${{ inputs.claude-code }}
+        CLAUDE_CODE_OAUTH_TOKEN: ${{ inputs.claude-code == 'true' && inputs.claude-code-oauth-token || '' }}
       run: |
         out="$RUNNER_TEMP/amu-out"
         if "$RUNNER_TEMP/amu-venv/bin/python" -P -c 'import amu.ci.run' 2> /dev/null; then
@@ -184,7 +202,7 @@ runs:
             ${AMU_BUDGET:+--budget "$AMU_BUDGET"} ${AMU_WALL_CAP:+--wall-cap "$AMU_WALL_CAP"} \
             $([ "$AMU_OBSERVE" = true ] && echo --observe) $([ "$AMU_COUNTERS" = true ] && echo --counters) \
             --generate-dollars "${AMU_GENERATE_DOLLARS:-0}" --generate-minutes "${AMU_GENERATE_MINUTES:-20}" \
-            --generate-model "${AMU_GENERATE_MODEL:-claude-opus-5-5}" || true
+            --generate-model "${AMU_GENERATE_MODEL:-claude-opus-5-5}" $([ "$AMU_CLAUDE_CODE" = true ] && echo --generate-cli) || true
         else
           python -c 'import json, sys; json.dump({"error": "AMU could not be installed from " + sys.argv[1]}, open(sys.argv[2], "w"))' \
             "$AMU_REF" "$out/report.json"

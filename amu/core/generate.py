@@ -20,6 +20,11 @@ set of paths) is the same on both sides; one that changes with the folder is als
 A kept probe is reported as ``generated test shows a difference``, with both outcomes; the test written into the
 comment asserts what executing the changed code produced. Spending is capped in dollars and minutes; the model's
 own token counts price each call, and a call that could cross the dollar cap is not made.
+
+Two backends write the probes, with the same prompt and the same filter. The Anthropic API, with ANTHROPIC_API_KEY,
+billed per token under the dollar cap. Or, when no API key is set and it is asked for (``cli``), Claude Code's
+``claude -p`` when the command is on PATH or CLAUDE_CODE_OAUTH_TOKEN is set: billed to the Claude plan as usage, so
+only the minute cap applies. It runs in an empty folder with no tools, so the pull request's code never reaches it.
 """
 from __future__ import annotations
 
@@ -27,6 +32,9 @@ import ast
 import json
 import os
 import shutil
+import signal
+import subprocess
+import tempfile
 import textwrap
 import time
 from pathlib import Path
@@ -77,6 +85,79 @@ def client():
         return None
 
 
+class ClaudeCLI:
+    """The subscription backend: Claude Code's ``claude -p``, billed to the Claude plan, not per token."""
+    name = 'claude -p'
+
+    def __init__(self, command):
+        self.command = command
+
+
+CLI_SECONDS = 300  # one ``claude -p`` request at most
+
+
+def backend(cli=False):
+    """Who writes the probes: the Anthropic client; or, with ``cli`` and no ANTHROPIC_API_KEY, ``claude -p`` when the
+    command is on PATH or CLAUDE_CODE_OAUTH_TOKEN is set. None when neither is available."""
+    if cli and not os.environ.get('ANTHROPIC_API_KEY') and (shutil.which('claude') or os.environ.get('CLAUDE_CODE_OAUTH_TOKEN')):
+        return ClaudeCLI(shutil.which('claude') or 'claude')
+    return client()
+
+
+def ask_cli(cli, model, targets, examples, seconds):
+    """One request through ``claude -p``. Returns (probes, 0.0, problem or None): its cost is plan usage."""
+    command = [cli.command, '-p', '--output-format', 'json', '--model', model, '--system-prompt', SYSTEM,
+               '--json-schema', json.dumps(SCHEMA), '--tools', '', '--no-session-persistence', '--strict-mcp-config',
+               '--disable-slash-commands']
+    # Only what Claude Code needs to sign in and run: nothing of the project's environment.
+    env = {k: v for k, v in os.environ.items() if k in ('PATH', 'HOME', 'USER', 'LANG', 'TMPDIR', 'CLAUDE_CODE_OAUTH_TOKEN')}
+    with tempfile.TemporaryDirectory(prefix='amu-claude-') as empty:
+        try:
+            process = subprocess.Popen(command, cwd=empty, env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE, text=True, start_new_session=True)
+        except OSError as exc:
+            return [], 0.0, f'claude -p could not start: {exc.strerror or exc}'
+        try:
+            stdout, stderr = process.communicate(prompt(targets, examples), timeout=max(1, seconds))
+        except subprocess.TimeoutExpired:
+            try:
+                os.killpg(process.pid, signal.SIGKILL)
+            except OSError:
+                pass
+            process.communicate()
+            return [], 0.0, f'claude -p did not answer in {round(seconds)} s'
+    try:
+        reply = json.loads(stdout)
+    except ValueError:
+        reply = None
+    if not isinstance(reply, dict):
+        tail = (stderr or stdout or '').strip().splitlines()[-1:] or ['no output']
+        return [], 0.0, f'claude -p exited with status {process.returncode} and no readable reply: {tail[0][:160]}'
+    if reply.get('is_error') or process.returncode:
+        return [], 0.0, f"claude -p failed: {str(reply.get('result') or reply.get('subtype') or process.returncode)[:160]}"
+    answer = reply.get('structured_output')
+    if not isinstance(answer, dict):
+        body = str(reply.get('result') or '').strip()
+        body = body.split('\n', 1)[1].rsplit('```', 1)[0] if body.startswith('```') and '\n' in body else body
+        try:
+            answer = json.loads(body)
+        except ValueError:
+            answer = None
+    if not isinstance(answer, dict) or not isinstance(answer.get('probes'), list):
+        return [], 0.0, 'the model returned no readable probes'
+    return _kept(answer['probes'], targets), 0.0, None
+
+
+def _kept(probes, targets):
+    """The probes for known functions, at most KEEP each."""
+    known, kept, count = {t['id'] for t in targets}, [], {}
+    for probe in probes:
+        if isinstance(probe, dict) and probe.get('function') in known and count.get(probe['function'], 0) < KEEP:
+            count[probe['function']] = count.get(probe['function'], 0) + 1
+            kept.append(probe)
+    return kept
+
+
 def cost(model, usage):
     price_in, price_out = PRICES.get(model, PRICES[MODEL])
     tokens_in = (getattr(usage, 'input_tokens', 0) or 0) + (getattr(usage, 'cache_creation_input_tokens', 0) or 0)
@@ -124,12 +205,7 @@ def ask(api, model, targets, examples, dollars_left):
         probes = json.loads(body).get('probes', [])
     except ValueError:
         return [], spent, 'the model returned no readable probes'
-    known, kept, count = {t['id'] for t in targets}, [], {}
-    for probe in probes:
-        if isinstance(probe, dict) and probe.get('function') in known and count.get(probe['function'], 0) < KEEP:
-            count[probe['function']] = count.get(probe['function'], 0) + 1
-            kept.append(probe)
-    return kept, spent, None
+    return _kept(probes, targets), spent, None
 
 
 RECORDER = '''
@@ -243,19 +319,25 @@ def _run(runner, python, tree, ids, scratch, name, timeout, extra=None):
 
 
 def run(runner, python, after_tree, before_tree, targets, changed, examples, scratch, dollars, minutes, model=MODEL, api=None,
-        copy_before=False):
+        copy_before=False, cli=False):
     """Generate, filter and compare. ``targets`` are sidebyside.targets entries; ``changed`` is {path: changed lines on
-    the changed side}. Returns (info, differences, gaps)."""
+    the changed side}. ``cli`` allows the ``claude -p`` backend when no API key is set. Returns (info, differences, gaps)."""
     started = time.monotonic()
     info = dict(model=model, dollars_cap=dollars, minutes_cap=minutes, functions=len(targets), requests=0, cost=0.0,
-                proposed=0, compiled=0, ran=0, stable=0, reached=0, differed=0, accepted=0)
+                proposed=0, compiled=0, ran=0, stable=0, reached=0, differed=0, accepted=0, backend='api')
     gaps, differences = [], []
-    if not targets or dollars <= 0 or minutes <= 0:
+    if not targets or minutes <= 0 or dollars <= 0 and not cli:
         return info, differences, gaps
-    api = api or client()
+    api = api or backend(cli)
+    subscription = isinstance(api, ClaudeCLI)
     if api is None:
-        gaps.append('generated tests: no Anthropic SDK or credentials, so none were generated')
+        gaps.append('generated tests: no Anthropic SDK or credentials' + (', and no claude command or CLAUDE_CODE_OAUTH_TOKEN'
+                                                                         if cli else '') + ', so none were generated')
         return info, differences, gaps
+    if not subscription and dollars <= 0:
+        return info, differences, gaps
+    if subscription:
+        info.update(backend=api.name, cost_basis='plan usage')
     hosted = test_file(runner.name, [])
     if hosted is None:
         gaps.append(f'generated tests: the {runner.name} runner cannot host them yet')
@@ -265,10 +347,13 @@ def run(runner, python, after_tree, before_tree, targets, changed, examples, scr
         return minutes * 60 - (time.monotonic() - started)
     probes = []
     for start in range(0, len(targets), MAX_FUNCTIONS):
-        if dollars - info['cost'] <= 0 or left() < 30:
+        if not subscription and dollars - info['cost'] <= 0 or left() < 30:
             gaps.append('generated tests: the dollar or minute cap was reached before every changed function had probes')
             break
-        found, spent, problem = ask(api, model, targets[start:start + MAX_FUNCTIONS], examples, dollars - info['cost'])
+        if subscription:
+            found, spent, problem = ask_cli(api, model, targets[start:start + MAX_FUNCTIONS], examples, min(CLI_SECONDS, left()))
+        else:
+            found, spent, problem = ask(api, model, targets[start:start + MAX_FUNCTIONS], examples, dollars - info['cost'])
         info['requests'] += 1 if spent or not problem else 0
         info['cost'] = round(info['cost'] + spent, 5)
         probes += found

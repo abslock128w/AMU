@@ -16,6 +16,7 @@ from pathlib import Path
 VERBOSE = re.compile(r'^(\w+) \(([\w.]+)\)')
 STATE = re.compile(r'\.\.\. (ok|FAIL|ERROR|skipped|expected failure|unexpected success)')
 ORDER = {'failed': 3, 'passed': 2, 'skipped': 1}
+SECRETS = ('ANTHROPIC_', 'CLAUDE_CODE_OAUTH_TOKEN')  # never passed to the project's code
 MAX_SPLITS = 12  # extra runner starts allowed to isolate labels that abort a batch
 EXCEPTION = re.compile(r'^([A-Za-z_][\w.]*(Error|Exception|Exit|Interrupt|Warning)|LookupError|KeyError)\b.*')
 FRAME = re.compile(r'^\s*File "([^"]+)", line (\d+)')
@@ -292,7 +293,7 @@ def environment(tree, extra_env=None, autoload=True):
     if not autoload:
         extra.setdefault('PYTEST_DISABLE_PLUGIN_AUTOLOAD', '1')
     # The project's tests never see AMU's model credentials: the change under test is someone else's code.
-    inherited = {k: v for k, v in os.environ.items() if not k.startswith('ANTHROPIC_')}
+    inherited = {k: v for k, v in os.environ.items() if not k.startswith(SECRETS)}
     return dict(inherited, PYTHONDONTWRITEBYTECODE='1', PYTHONHASHSEED='0', **extra,
                 PYTHONPATH=os.pathsep.join(filter(None, [first, str(tree/'src'), str(tree), os.environ.get('PYTHONPATH')])))
 

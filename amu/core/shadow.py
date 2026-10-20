@@ -110,7 +110,7 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
     run once more on the code before the change while each changed function is executed side by side on the inputs
     they call it with (sidebyside); stable differences go to ``info['behaviour']``.
 
-    ``generate_with`` (dollars, minutes, model): changed functions the tests never called get model-written probes, kept
+    ``generate_with`` (dollars, minutes, model[, cli]): changed functions the tests never called get model-written probes, kept
     only on execution evidence (generate); results go to ``info['generated']``.
 
     ``base_cache`` (basecache.BaseCache) answers passing outcomes on the code before the change from earlier runs;
@@ -405,21 +405,22 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
             gaps += more
             if late(deadline):
                 cut.append('side-by-side, cut short')
-        if functions and not aborted and generate_with and generate_with[0] > 0 and late(deadline):
+        wanted = generate_with and (generate_with[0] > 0 or generate_with[3:4] == (True,))
+        if functions and not aborted and wanted and late(deadline):
             cut.append('generated probes')
-        elif functions and not aborted and generate_with and generate_with[0] > 0:
+        elif functions and not aborted and wanted:
             spec_targets, left_out = sidebyside.targets(functions, before_src, after_src)
             called = set((side or {}).get('called') or ())
             uncalled = [t for t in spec_targets if t['id'] not in called]
             example = next((_read(Path(trees['after'])/_path(i)) for i in ids if _path(i).endswith('.py')), '')
             changed = {path: _after_lines(path, edit) for path, edit in edits.items()
                        if path.endswith('.py') and not replay.is_test_file(path)}
-            dollars, minutes, model = generate_with
+            dollars, minutes, model, *cli = generate_with
             # The code before the change is the working tree itself when the change is not on disk; it is copied then,
             # never written to.
             made, generated, more = generate.run(runner, python, trees['after'], trees['before'], uncalled, changed, example,
                                                  scratch, dollars, within(minutes * 60, deadline) / 60, model,
-                                                 copy_before=not live_is_after)
+                                                 copy_before=not live_is_after, cli=bool(cli and cli[0]))
             if side is None:
                 # Side-by-side did not run (Python before 3.12), so its list of the changed functions left out, and why,
                 # is not in the report: it goes with the generated tests, which got the same targets.
