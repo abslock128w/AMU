@@ -11,10 +11,11 @@ reached the base branch after the pull request was opened are not in it. Writes 
 Under GitHub Actions, ``merge-base`` and ``flips`` are also written to ``$GITHUB_OUTPUT``.
 
 The index and any per-test recording live in ``.amu/index/`` (the action caches that folder on the merge base). ``--observe`` records
-one on the merge base, in a temporary worktree, when the cache has none. ``--wall-cap`` bounds everything: past it the
-run is stopped and the report says so. The recording gets only what the wall cap leaves after amu's own share, and is
-skipped when it would not fit there, so amu still runs and reports. A recording's hook files that an earlier, killed run
-left in the interpreter are removed first, and the report says so.
+one on the merge base, in a temporary worktree, when the cache has none. ``--wall-cap`` bounds everything. amu is given
+a deadline short of it: steps that do not fit are not started, and it reports what it found before then with what it
+did not do. Past the wall cap itself amu is stopped and the report says so. The recording gets only what the wall cap
+leaves after amu's own share, and is skipped when it would not fit there, so amu still runs and reports. A recording's
+hook files that an earlier, killed run left in the interpreter are removed first, and the report says so.
 """
 from __future__ import annotations
 
@@ -36,6 +37,7 @@ from ..core.index import cache_dir
 from ..core.shadow import SIDE_BY_SIDE
 
 RESERVE = 60  # seconds kept back from the wall cap for reading results
+FINISH = 60  # of amu's time, kept after its deadline for writing its report (a quarter of it, when that is less)
 RECORDING_MIN = 120  # a recording is not started with less than this
 RECORDING_STORE = 60  # of the recording's share, kept for storing what it recorded
 ATTEMPT = 'recording-attempt.json'  # beside the index: how the last recording that did not finish went
@@ -58,7 +60,7 @@ def merge_base(repo, base, head):
     return found
 
 
-def amu_command(patch, python, runner, budget, generate=None, merge_base=None):
+def amu_command(patch, python, runner, budget, generate=None, merge_base=None, deadline=None):
     command = [sys.executable, *SAFE, '-m', 'amu.core', '--repo', '.', '--patch-file', str(patch), '--run', '--full-evidence',
                '--python', python]
     if merge_base:
@@ -71,6 +73,8 @@ def amu_command(patch, python, runner, budget, generate=None, merge_base=None):
         command += ['--runner', runner]
     if budget:
         command += ['--budget', str(budget)]
+    if deadline:
+        command += ['--deadline', str(deadline)]
     return command
 
 
@@ -164,7 +168,7 @@ def run(repo, base, head, out, python=None, runner=None, pr=None, budget=None, i
     out.mkdir(parents=True, exist_ok=True)
     meta = dict(pr=pr, base=base, head=head, merge_base=None, amu_version=__version__, amu_ref=amu_ref,
                 runner=runner or None, budget=budget, wall_cap=wall_cap, install_ok=install_ok, status=None, seconds=None,
-                cached_index=cache_dir(repo).is_dir(), recording=None, counters=bool(counters))
+                cached_index=cache_dir(repo).is_dir(), recording=None, counters=bool(counters), deadline=None)
     started = time.monotonic()
     # Before anything: a hook an earlier recording could not remove (killed) would load in every test process.
     report, notes = None, sitehooks.sweep(python or sys.executable)
@@ -199,10 +203,15 @@ def run(repo, base, head, out, python=None, runner=None, pr=None, budget=None, i
                 if seconds is not None and seconds < 1:
                     report = dict(error=f'stopped at the wall cap of {wall_cap} s before amu ran')
                 else:
-                    done, problem = bounded(amu_command(patch, python or sys.executable, runner, budget, generate, found), repo,
-                                            seconds if seconds is not None else 24 * 3600)
+                    # amu stops starting steps at its deadline and reports what it found; the kill at the wall cap is the
+                    # backstop.
+                    meta['deadline'] = None if seconds is None else max(1, int(seconds - min(FINISH, seconds / 4)))
+                    done, problem = bounded(amu_command(patch, python or sys.executable, runner, budget, generate, found, meta['deadline']),
+                                            repo, seconds if seconds is not None else 24 * 3600)
                     if problem:
-                        report = dict(error=f'stopped at the wall cap of {wall_cap} s; amu reported nothing')
+                        report = dict(error=f'stopped at the wall cap of {wall_cap} s; amu reported nothing', gaps=[
+                            f"amu did not report within {round(seconds - meta['deadline'])} s of its deadline of {meta['deadline']} s "
+                            'and was stopped: what it found before the wall cap is lost'] if meta['deadline'] else [])
                     else:
                         try:
                             report = json.loads(done.stdout)

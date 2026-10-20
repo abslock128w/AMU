@@ -3,7 +3,8 @@
 Usage: python -m amu.ci.render DIR    (DIR holds report.json and meta.json; prints the comment)
 
 The first line is the flip count and the head SHA. Then flips, then a runner abort, then gaps, then what ran. The
-comment says only what ran: a count of 0 is a count among the tests that ran, never a pass for the suite.
+comment says only what ran: a count of 0 is a count among the tests that ran, never a pass for the suite. A run the
+wall cap stopped says so on the first line, and its first gap lists what was not done.
 
 Side-by-side's behaviour differences come last, collapsed, with their count on the first line. On the 18 rows
 hand-labelled in the brief 5 retrospective 11 were real (61%, under its 70% bar), so they stay collapsed until the
@@ -63,7 +64,7 @@ def quiet_body(report, meta, first, extra):
 def nothing_found(report):
     executed = report.get('executed') or {}
     return (not report.get('error') and not report.get('failure') and report.get('flips') == 0 and executed.get('ran')
-            and not any(report.get(k) for k in ('change_evidence', 'behaviour_differences', 'generated_differences', 'unstable'))
+            and not any(report.get(k) for k in ('change_evidence', 'behaviour_differences', 'generated_differences', 'unstable', 'cut'))
             and not any(isinstance(r, dict) and not str(r.get('label', '')).startswith('fails') for r in report.get('flip_trust') or []))
 
 
@@ -85,6 +86,10 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
         first = f'**AMU: no flip count** at {short(head)}: no candidate test ran'
     else:
         first = f"**AMU: {plural(flips, 'flip')}** at {short(head)}, among {plural(ran, 'test')} run"
+    if report.get('cut') and not report.get('error'):
+        cap = meta.get('wall_cap')
+        cap = f' of {cap} s' if isinstance(cap, int) and not isinstance(cap, bool) and 0 < cap < 10**7 else ''
+        first += f'; stopped at the wall cap{cap} before it finished'
     evidence = [row for row in report.get('change_evidence') or [] if isinstance(row, dict) and row.get('id')]
     if evidence and not report.get('error'):
         first += f"; {plural(len(evidence), 'test')} of the pull request's own fail on the merge base and pass on the head"

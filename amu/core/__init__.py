@@ -97,12 +97,15 @@ def after_facts(root, facts, edits, gaps):
 
 
 def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, index_dir=None, run=None, python=None,
-            budget=60, include_tests=False, runner=None, only=None, also=None, generate=None, merge_base=None):
+            budget=60, include_tests=False, runner=None, only=None, also=None, generate=None, merge_base=None, deadline=None):
     """What a change reaches, which existing tests to run first, and what could not be seen.
 
     ``patch`` is unified-diff text, applied or not yet applied to ``root``. Without one,
     the uncommitted change of the working tree is used. Nothing is imported or executed.
     ``merge_base``, with ``root`` at the change's head, is where execution takes a file the patch cannot be undone in.
+
+    ``deadline`` (a time.monotonic() value; CI's wall cap) bounds the run: steps that do not fit before it are not
+    started, and what was found before it is reported with what was not done (``cut``, and the first gap).
     """
     root = Path(root).resolve()
     early = []
@@ -380,7 +383,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
             rows.append(dict(id=copy, expect=expect, why='inherits ' + r['qual'] + '; ' + likely[ident], confidence=confidence,
                              line=r['line'], score=round(gain, 3)))
     found = consequences.find(graph, after, new_lines, renumbered, gaps)
-    executed = None
+    executed, cut = None, []
     if run:
         # Exact beats ranked: run the candidates on both sides of the change and report what flips.
         # With a recording, the candidates are the tests seen executing the change; run more of them.
@@ -420,19 +423,24 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         cache = basecache.BaseCache(cache_dir(root, index_dir)/'base-passes', forward, root, python,
                                     [chosen.name, *runners.plugin_args(runners.get(root, runner), python), trust.SEED])
         flips, executed, run_gaps = shadow.run(root, edits, wide, python, budget, runner, memo=memo, own=own, base_cache=cache,
-                                               functions=functions, generate_with=generate, merge_base=merge_base)
+                                               functions=functions, generate_with=generate, merge_base=merge_base, deadline=deadline)
         executed['selection'] = dict(selection, candidates=len(wide))
         gaps.extend(run_gaps)
+        cut += executed.get('cut', [])
         # A failing test defined on a base class is run again in every subclass that inherits it.
         ranked = {label_of(ident) for ident in picked}
         copies = sorted({copy for flip in flips if flip['after'] == 'failed' and flip['id'] in ranked
                          and trust.counted(flip.get('trust', trust.CONFIRMED))
                          for copy in inheritors(flip['id'])} - set(wide))[:RUN_CANDIDATES]
-        if copies:
+        if copies and shadow.late(deadline):
+            cut.append(f'failing tests in the subclasses that inherit them ({len(copies)})')
+        elif copies:
             more, again, more_gaps = shadow.run(root, edits, copies, python, budget, runner, memo=memo, base_cache=cache,
-                                                merge_base=merge_base)
+                                                merge_base=merge_base, deadline=deadline)
             flips.extend(more)
             gaps.extend(more_gaps)
+            if again.get('cut'):
+                cut.append(f'failing tests in the subclasses that inherit them ({len(copies)}), cut short')
             executed.update(ran=executed['ran'] + again['ran'], seconds=round(executed['seconds'] + again['seconds'], 1),
                             candidates=executed.get('candidates', 0) + again.get('candidates', 0),
                             outcomes={**executed.get('outcomes', {}), **again.get('outcomes', {})},
@@ -508,6 +516,9 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
                   untested=untested, tests=rows, consequences=found,
                   impacted=listed, gaps=sorted(set(gaps)),
                   caveats='Static unless a row says observed. Not proof.')
+    if cut:
+        # What the deadline left undone leads the gaps: what is reported ran before it.
+        report['gaps'].insert(0, 'not done before the wall cap: ' + ', '.join(cut))
     # Every listed test carries the exact command for the project's own runner.
     report['runner'] = chosen.name
     for row in rows:
@@ -545,6 +556,8 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         if executed.get('original_tests'):
             # Which tests of an edited test file were also run as they were before the edit, and how they did.
             report['original_tests'] = executed['original_tests']
+        if cut:
+            report['cut'] = cut
         if executed.get('aborted'):
             report = dict(failure=dict(executed['aborted'], runner=executed['runner']), flips=None, **{k: v for k, v in report.items() if k != 'flips'})
     report['report_hash'] = hashlib.sha256(encoded([hashes, patch, report])).hexdigest()[:12]

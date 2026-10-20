@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from amu.ci import run as ci_run
+from amu.ci.render import render
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -100,7 +101,50 @@ def test_wall_cap_stops_a_hanging_suite_and_says_so(pull_request, tmp_path, monk
     git(repo, 'commit', '-qm', 'slow suite')
     head = git(repo, 'rev-parse', 'HEAD')
     report, meta = ci_run.run(repo, base, head, tmp_path/'out', python=sys.executable, wall_cap=8)
-    assert 'wall cap of 8 s' in report['error'] and meta['seconds'] < 30
+    assert meta['status'] == 'ran' and meta['seconds'] < 30
+    assert report.get('flips') is None and report['gaps'][0].startswith('not done before the wall cap: 2 of 2 candidate tests'), report
+    assert render(report, meta).splitlines()[0].endswith('no candidate test ran; stopped at the wall cap of 8 s before it finished')
+
+
+@pytest.fixture
+def hangs_after_the_flip(pull_request, tmp_path):
+    """The pull request on a merge base whose suite hangs from the first run after test_add failed on the head and
+    passed on the merge base: every later step waits on it, as a slow suite outlasts what the wall cap leaves."""
+    repo, _, _ = pull_request
+    git(repo, 'checkout', '-q', 'main')
+    (repo/'tests'/'conftest.py').write_text(
+        f"import time\nfrom pathlib import Path\n\nMARKS = Path({str(tmp_path/'marks')!r})\n"
+        "if (MARKS/'flipped').exists():\n    time.sleep(120)\n\n\n"
+        "def pytest_runtest_logreport(report):\n"
+        "    if report.when == 'call' and report.nodeid.endswith('::test_add'):\n"
+        "        MARKS.mkdir(exist_ok=True)\n"
+        "        if report.failed:\n            (MARKS/'failed').touch()\n"
+        "        elif (MARKS/'failed').exists():\n            (MARKS/'flipped').touch()\n")
+    git(repo, 'add', '.')
+    git(repo, 'commit', '-qm', 'a suite that hangs once test_add has flipped')
+    base = git(repo, 'rev-parse', 'HEAD')
+    git(repo, 'checkout', '-q', 'feature')
+    git(repo, 'merge', '-q', '--no-edit', 'main')
+    return repo, base, git(repo, 'rev-parse', 'HEAD')
+
+
+def test_a_run_stopped_at_the_wall_cap_still_reports_the_flip_it_found(hangs_after_the_flip, tmp_path, monkeypatch):
+    repo, base, head = hangs_after_the_flip
+    monkeypatch.setattr(ci_run, 'RESERVE', 0)
+    report, meta = ci_run.run(repo, base, head, tmp_path/'out', python=sys.executable, wall_cap=20)
+    assert (tmp_path/'marks'/'flipped').exists(), 'the suite never hung; this test no longer shows the defect'
+    assert report.get('flips') == 1, report
+    assert [row['id'] for row in report['predicted_failures']] == ['tests/test_calc.py::test_add']
+    assert meta['status'] == 'ran' and meta['seconds'] < 20
+    # The reruns of the flip waited on the hang until amu's deadline; what came after them was not started.
+    assert report['gaps'][0].startswith('not done before the wall cap: reruns of flips'), report['gaps']
+    # Side-by-side runs on Python 3.12 and later only.
+    assert ('side-by-side' in report['gaps'][0]) == (sys.version_info >= (3, 12)), report['gaps']
+    body = render(report, meta)
+    assert body.splitlines()[0] == ('**AMU: 1 flip** at ' + f'`{head[:7]}`' + ', among 2 tests run; stopped at the wall cap '
+                                    'of 20 s before it finished')
+    assert '### Flips (1)' in body and '`tests/test_calc.py::test_add`' in body
+    assert '`not done before the wall cap: reruns of flips' in body
 
 
 def test_second_run_reuses_the_index_and_records_on_the_merge_base(pull_request, tmp_path):
@@ -124,6 +168,19 @@ def test_a_checkout_with_its_own_amu_package_does_not_shadow_the_installed_one(p
     head = git(repo, 'rev-parse', 'HEAD')
     report, _ = ci_run.run(repo, base, head, tmp_path/'out', python=sys.executable)
     assert report.get('flips') == 1, report
+
+
+def test_amu_stopped_at_the_wall_cap_after_its_deadline_says_what_was_lost(pull_request, tmp_path, monkeypatch):
+    repo, base, head = pull_request
+    monkeypatch.setattr(ci_run, 'RESERVE', 0)
+    # An amu that does not stop at its deadline: only the kill at the wall cap stops it.
+    monkeypatch.setattr(ci_run, 'amu_command', lambda *args: [sys.executable, '-c', 'import time; time.sleep(60)'])
+    report, meta = ci_run.run(repo, base, head, tmp_path/'out', python=sys.executable, wall_cap=8)
+    assert report['error'] == 'stopped at the wall cap of 8 s; amu reported nothing' and meta['seconds'] < 30
+    gaps = report.get('gaps', [])
+    assert len(gaps) == 1 and gaps[0].endswith(' s and was stopped: what it found before the wall cap is lost'), report
+    assert '### Gaps (1)' in render(report, meta)
+    assert 0 < meta['deadline'] < 8 and f" s of its deadline of {meta['deadline']} s " in gaps[0]
 
 
 def purelib(python=sys.executable):

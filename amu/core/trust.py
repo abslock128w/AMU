@@ -249,8 +249,9 @@ def _hits(folder):
     return found if any_file else None
 
 
-def in_process(runner, python, tree, flipped, scratch, timeout):
-    """Each flip run twice in a row in one process; the second outcome. {id: state}; empty when not available."""
+def in_process(runner, python, tree, flipped, scratch, timeout, deadline=None):
+    """Each flip run twice in a row in one process; the second outcome. {id: state}; empty when not available. No run
+    goes past ``deadline`` (time.monotonic())."""
     folder = Path(scratch)/'trust'
     if runner.name == 'pytest':
         out = Path(scratch)/'trust-in-process.json'
@@ -277,25 +278,30 @@ def in_process(runner, python, tree, flipped, scratch, timeout):
     # unittest and Django: the label twice in one run; the runner reports each, in order.
     states = {}
     for ident in flipped:
-        found = runners.sequence(runner, python, tree, [ident, ident], timeout)
+        allowed = timeout if deadline is None else min(timeout, deadline - time.monotonic())
+        if allowed <= 0:
+            break
+        found = runners.sequence(runner, python, tree, [ident, ident], allowed)
         if len(found.get(ident, [])) >= 2:
             states[ident] = found[ident][-1]
     return states
 
 
-def triad(runner, python, tree, flipped, candidates, scratch, left, changed, before_tree=None, context=None):
+def triad(runner, python, tree, flipped, candidates, scratch, left, changed, before_tree=None, context=None, deadline=None):
     """The three reruns and the reach check for ``flipped`` on the changed tree ``tree``.
 
-    ``candidates`` are all ids run on the changed side, in the order they ran. ``changed`` is {file: lines}.
+    ``candidates`` are all ids run on the changed side, in the order they ran. ``changed`` is {file: lines}. No rerun
+    goes past ``deadline`` (time.monotonic()), the 20 s each is otherwise allowed included; a rerun it cuts is missing.
     Returns ({id: dict(label, reruns, reach, why)}, gaps)."""
     folder = support(scratch, changed)
     gaps = []
     began = time.perf_counter()
 
     def remaining():
-        return max(left - (time.perf_counter() - began), 20)
+        allowed = max(left - (time.perf_counter() - began), 20)
+        return allowed if deadline is None else min(allowed, deadline - time.monotonic())
     legs = {leg: {} for leg in LEGS}
-    legs['in_process'] = in_process(runner, python, tree, flipped, scratch, remaining())
+    legs['in_process'] = in_process(runner, python, tree, flipped, scratch, remaining(), deadline)
     reach, paths = {}, {}
     relative = _relative(tree, changed)
     alone = flipped[:MAX_ALONE]
@@ -332,7 +338,7 @@ def triad(runner, python, tree, flipped, candidates, scratch, left, changed, bef
                                             remaining(), extra_args=_in_given_order(runner))
         repeated = [i for i in ordered if legs['in_process'].get(i) == 'failed']
         if repeated:
-            base_repeat = in_process(runner, python, before_tree, repeated, scratch, remaining())
+            base_repeat = in_process(runner, python, before_tree, repeated, scratch, remaining(), deadline)
     verdicts = {}
     for ident in flipped:
         reruns = {leg: legs[leg].get(ident) for leg in LEGS}
