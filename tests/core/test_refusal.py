@@ -11,7 +11,7 @@ TESTS = 'import unittest\n\nimport lib\n\n\nclass T(unittest.TestCase):\n' + ''.
     f'    def test_{n}(self):\n        self.assertEqual(lib.VALUE, 1)\n' for n in 'abcdef')
 
 
-def django(tmp_path, refuse='gis_tests', message=GIS, groups=('basic', 'gis_tests')):
+def django(tmp_path, refuse='gis_tests', message=GIS, groups=('basic', 'gis_tests'), extra=''):
     """A tree with a fake tests/runtests.py that, like Django's, refuses any batch holding a label of ``refuse`` before
     any test runs (``refuse`` None: every batch). Each start's labels go to starts.log."""
     log = tmp_path/'starts.log'
@@ -23,6 +23,7 @@ def django(tmp_path, refuse='gis_tests', message=GIS, groups=('basic', 'gis_test
         'print("Testing against Django installed in \'/somewhere/django\'")\n'
         f'if {refuse!r} is None or {refuse!r} in {{label.split(".")[0] for label in labels}}:\n'
         f'    print({message!r})\n    sys.exit(1)\n'
+        + extra +
         'result = unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromNames(labels))\n'
         'sys.exit(not result.wasSuccessful())\n')
     for group in groups:
@@ -85,14 +86,14 @@ def test_pytest_labels_have_no_group():
     assert runners.refusal(runner, 'ERROR: not found: tests/gis_tests/test_a.py', ['tests/gis_tests/test_a.py::test_x']) is None
 
 
-def _shadow(tmp_path, ids, monkeypatch, chunk=2):
-    """shadow.run with the change VALUE 1 -> 2 in lib.py, one process, ``chunk`` candidates per chunk."""
+def _shadow(tmp_path, ids, monkeypatch, chunk=2, parts=1, budget=120):
+    """shadow.run with the change VALUE 1 -> 2 in lib.py, ``parts`` processes, ``chunk`` candidates per chunk."""
     monkeypatch.setattr(shadow, 'CHUNK', chunk)
-    monkeypatch.setattr(shadow, 'PARTS', 1)
+    monkeypatch.setattr(shadow, 'PARTS', parts)
     (tmp_path/'lib.py').write_text('VALUE = 2\n')
     diff = ''.join(difflib.unified_diff(['VALUE = 1\n'], ['VALUE = 2\n'], 'a/lib.py', 'b/lib.py'))
     edits, _ = changes(tmp_path, diff)
-    return shadow.run(tmp_path, edits, ids, python=sys.executable, budget=120, runner='django-runtests')
+    return shadow.run(tmp_path, edits, ids, python=sys.executable, budget=budget, runner='django-runtests')
 
 
 def test_a_chunk_of_refused_labels_does_not_end_the_run(tmp_path, monkeypatch):
@@ -127,3 +128,12 @@ def test_a_runner_that_runs_nothing_on_either_side_stops_after_two_chunks(tmp_pa
     assert any(gap.startswith('shadow run stopped after 4 of 6 candidates: django-runtests ran none of them') for gap in gaps), gaps
     assert not any('budget' in gap for gap in gaps), gaps
     assert not any('basic.tests.T.test_e' in labels for labels in starts(log))
+
+
+def test_a_slice_that_times_out_ends_the_run_even_when_another_slice_is_refused(tmp_path, monkeypatch):
+    """Review of this fix: a chunk with one slice refused and one cut at the budget counted the cut slice as run."""
+    django(tmp_path, extra='import time\nif "basic" in {label.split(".")[0] for label in labels}:\n    time.sleep(30)\n')
+    ids = [ident(group, n) for n in 'abcd' for group in ('gis_tests', 'basic')]
+    _, info, gaps = _shadow(tmp_path, ids, monkeypatch, chunk=2, parts=2, budget=6)
+    assert info['ran'] == 0, (info, gaps)
+    assert not [gap for gap in gaps if 'budget' in gap and ' 0 of' not in gap], gaps

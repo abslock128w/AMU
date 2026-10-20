@@ -192,7 +192,8 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
                         break
                     if lost:
                         struck[problem] = len(present)
-            if problem == 'timed out':
+            if 'timed out' in problems:
+                # A slice cut short ends the run, whatever another slice of the chunk met.
                 break
             # The rate counts only chunks that finished: a chunk stopped at the budget took its time and left few
             # outcomes or none.
