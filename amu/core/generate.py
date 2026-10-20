@@ -12,9 +12,10 @@ records what the call returned or raised, and the probe is kept only if it passe
 4. it runs a changed line (the reach tracer);
 5. on the code before the change it gives one outcome twice, and that outcome differs.
 
-An outcome is recorded with the tree's own folder, however the process spells it, written as ``<tree>``: the two
-sides run in different folders, so a path into the tree is no difference by itself (sympy #30701). An outcome that
-depends on the folder some other way (its name, its depth) changes in the run from the second folder.
+An outcome is recorded with the tree's own folder, however the process spells it, written as ``<tree>``, so a
+path into the tree is no difference by itself (sympy #30701). The code before runs at the same path as the first four
+runs of the changed code, so an outcome that depends on the folder some other way (its name, its depth, the order of a
+set of paths) is the same on both sides; one that changes with the folder is also dropped by the run from a second one.
 
 A kept probe is reported as ``generated test shows a difference``, with both outcomes; the test written into the
 comment asserts what executing the changed code produced. Spending is capped in dollars and minutes; the model's
@@ -310,11 +311,12 @@ def run(runner, python, after_tree, before_tree, targets, changed, examples, scr
             reached.append(i)
     info['reached'] = len(reached)
     if reached:
-        if copy_before:
-            copy = Path(scratch)/'c1-base'
-            shutil.rmtree(copy, ignore_errors=True)
-            shutil.copytree(before_tree, copy, symlinks=True, ignore=shutil.ignore_patterns('.git', '.amu', '__pycache__'))
-            before_tree = copy
+        # The code before runs at the very path of the first head runs, so nothing about the location (its spelling,
+        # length, depth, name, or the hash order of paths in it) differs between the two sides.
+        copy = Path(scratch)/'c1-head'
+        shutil.rmtree(copy, ignore_errors=True)
+        shutil.copytree(before_tree, copy, symlinks=True, ignore=shutil.ignore_patterns('.git', '.amu', '__pycache__'))
+        before_tree = copy
         made = _install(before_tree, rel, source)
         try:
             base = [_run(runner, python, before_tree, [ids[i] for i in reached], scratch, f'base-{n}', timeout) for n in range(2)]
@@ -331,13 +333,15 @@ def run(runner, python, after_tree, before_tree, targets, changed, examples, scr
     info['accepted'] = len(differences)
     info['seconds'] = round(time.monotonic() - started, 1)
     shutil.rmtree(elsewhere.parent, ignore_errors=True)
-    shutil.rmtree(Path(scratch)/'c1-base', ignore_errors=True)
+    shutil.rmtree(Path(scratch)/'c1-head', ignore_errors=True)
     return info, differences, gaps
 
 
 def written_test(probe, outcome):
     """The generated test as it would be committed: the assertion is what executing the changed code produced."""
     kind, type_name, shown = outcome
+    if '<tree>' in shown:
+        return ''  # the outcome names the tree's folder, which a committed test cannot know
     setup = textwrap.dedent(probe['setup'] or '').strip()
     if kind == 'raise':
         check = f"with pytest.raises({type_name}):\n    {probe['call']}"

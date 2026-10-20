@@ -85,9 +85,18 @@ def test_an_outcome_that_depends_on_where_the_tree_lives_is_not_a_difference(tmp
     assert (made['ran'], made['stable'], made['reached'], made['accepted']) == (5, 4, 4, 1), made
     [row] = rows
     assert row['before'][2] == "(100, '<tree>/lib.py')" and row['after'][2] == "(150, '<tree>/lib.py')", row
+    assert row['test'] == '', row['test']  # a committed test cannot know the tree's folder
 
 
-def test_every_spelling_of_the_tree_is_taken_out_of_an_outcome(tmp_path):
+def test_the_code_before_runs_at_the_path_the_changed_code_ran_from(tmp_path, monkeypatch):
+    # Review: a folder's name, or the hash order of paths into it, is the same in both head folders and differed from
+    # the folder the code before ran in, so such probes were kept with no change in behaviour.
+    setup = 'import os\nfrom lib import scale'
+    probes = [dict(function='lib.py#scale', setup=setup, call='(scale(1), os.getcwd().endswith("head"))', why='the name')]
+    report, _ = run(tmp_path, probes, monkeypatch)
+    assert report['generated']['reached'] == 1 and report['generated_differences'] == [], report['generated']
+
+def test_the_tree_spellings_include_the_link_and_the_resolved_path(tmp_path):
     real = tmp_path/'real'
     real.mkdir()
     (tmp_path/'link').symlink_to(real, target_is_directory=True)
