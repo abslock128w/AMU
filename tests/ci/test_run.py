@@ -177,6 +177,25 @@ def test_a_recording_killed_at_its_share_leaves_no_hook_behind(slow_to_record, s
     assert note == 'recording on the merge base did not finish in its share of 8 s; static ranking only'
 
 
+def test_a_hook_left_by_a_killed_run_is_removed_before_anything_and_reported(slow_to_record, monkeypatch, tmp_path):
+    repo, base, head = slow_to_record
+    # A run killed while its recording ran (SIGKILL: the job's own limit) never reaches its backstop.
+    monkeypatch.setattr(ci_run, 'RECORDING_STORE', -60)
+    sweep = ci_run.remove_hooks
+    monkeypatch.setattr(ci_run, 'remove_hooks', lambda python: None)
+    try:
+        ci_run.observe(repo.resolve(), base, sys.executable, None, 8)
+        left = [path.name for path in hook_files()]
+        assert left, 'the kill did not leave the hook behind; this test no longer shows the defect'
+        report, meta = ci_run.run(repo, base, head, tmp_path/'out', python=sys.executable, budget=20)
+        assert hook_files() == []
+        assert (f"removed a stale recording hook ({', '.join(left)}) from {purelib()}: an earlier recording was stopped "
+                f"before it could remove it") in report['gaps'], report['gaps']
+        assert report['flips'] == 1 and meta['status'] == 'ran'
+    finally:
+        sweep(sys.executable)
+
+
 def test_no_recording_when_the_wall_cap_leaves_it_no_share(pull_request, tmp_path):
     repo, base, head = pull_request
     report, meta = ci_run.run(repo, base, head, tmp_path/'out', python=sys.executable, wall_cap=600, record=True, budget=300)

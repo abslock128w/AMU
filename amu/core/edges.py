@@ -28,7 +28,7 @@ import time
 from collections import deque
 from pathlib import Path
 
-from . import runners
+from . import runners, sitehooks
 from .index import build
 
 FORMAT = 'amu-edges-1'  # edges are [caller, callee, direct]; caller -1 when no first-party frame called
@@ -219,18 +219,11 @@ def record(root, python=None, runner=None, index_dir=None, timeout=7200, labels=
     with tempfile.TemporaryDirectory(prefix='amu-edges-') as scratch:
         out = Path(scratch)/'out'
         out.mkdir()
-        installed = []
         try:
             # The hook is needed by pytest (-p amu_edges_hook) even in a plain run, where it records nothing.
             module, pth = HOOK_FILES
-            (purelib/module).write_text(HOOK)
-            installed.append(purelib/module)
-            if not plain:
-                (purelib/pth).write_text('import amu_edges_hook\n')
-                installed.append(purelib/pth)
+            remove = sitehooks.install(purelib, {module: HOOK, **({} if plain else {pth: 'import amu_edges_hook\n'})})
         except OSError:
-            for path in installed:
-                path.unlink(missing_ok=True)
             info['gaps'].append('could not install the edge hook in the interpreter; nothing recorded')
             return info
         env = dict({k: v for k, v in os.environ.items() if not k.startswith('ANTHROPIC_')}, PYTHONDONTWRITEBYTECODE='1',
@@ -249,8 +242,7 @@ def record(root, python=None, runner=None, index_dir=None, timeout=7200, labels=
         except subprocess.TimeoutExpired:
             info['gaps'].append(f'the suite did not finish in {timeout} s; what ran is recorded')
         finally:
-            for path in installed:
-                path.unlink(missing_ok=True)
+            remove()
         info.update(command=' '.join(command), seconds=round(time.perf_counter() - started, 1),
                     processes=len(list(out.glob('*.json'))))
         if plain:
