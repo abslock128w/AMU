@@ -2896,6 +2896,49 @@ def graph(
             typer.echo(f"warnings   {', '.join(p['warnings'])}")
 
 
+HOOK_SCRIPT = """#!/bin/sh
+# Installed by `amu pre-commit --install`: prints AMU's summary of the staged change and never blocks the commit.
+amu pre-commit || true
+exit 0
+"""
+
+
+@app.command("pre-commit")
+def pre_commit_cmd(
+    install: bool = typer.Option(False, "--install", help="write .git/hooks/pre-commit (an existing hook is left alone)"),
+    budget: int = typer.Option(60, "--budget", help="seconds of test time per side"),
+):
+    """Bare amu on the staged change, for a pre-commit hook: the summary line and the flips. It never blocks the commit."""
+    import subprocess
+
+    if install:
+        hooks = Path(subprocess.run(["git", "rev-parse", "--git-path", "hooks"], capture_output=True, text=True).stdout.strip() or ".git/hooks")
+        target = hooks/"pre-commit"
+        if target.exists():
+            typer.echo(f"{target} exists; add `amu pre-commit || true` to it, or use .pre-commit-hooks.yaml (id: amu)")
+            return
+        hooks.mkdir(parents=True, exist_ok=True)
+        target.write_text(HOOK_SCRIPT)
+        target.chmod(0o755)
+        typer.echo(f"installed {target}")
+        return
+    try:
+        from amu import core
+        from amu.core import runners
+
+        staged = subprocess.run(["git", "diff", "--cached", "--no-ext-diff", "--no-textconv", "--no-color", "--no-renames"],
+                                capture_output=True, text=True, timeout=30).stdout
+        if not staged.strip():
+            typer.echo("amu: nothing staged")
+            return
+        report = core.analyze(".", staged, run=runners.evident("."), budget=budget)
+        typer.echo("amu: " + (report.get("summary") or report.get("error") or "no report"))
+        for row in report.get("predicted_failures") or []:
+            typer.echo(f"  flip: {row['id'] if isinstance(row, dict) else row}")
+    except Exception as exc:  # the hook never blocks a commit
+        typer.echo(f"amu: could not run ({type(exc).__name__}: {exc})"[:300])
+
+
 @app.command("watch")
 def watch_cmd(
     phase: int = typer.Option(None, "--phase"),
