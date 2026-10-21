@@ -14,6 +14,15 @@ Built using **GPT‑6.1 Sol in Codex**.
 
 ---
 
+## At your keyboard
+
+**AMU runs the tests a change reaches on both sides of it, the code before the change and after, and tells you which
+ones flip from passing to failing.** On a pull request it does that as a GitHub Action (`ci/`, `evaluation/ci/INSTALL-NOTE.md`).
+At your keyboard, bare `amu` does it for the uncommitted change of the working tree, and:
+
+- `amu --since REF` does it for the commits since `REF` (from where your branch left it) together with what is not
+  committed yet, for example `amu --since main` before you open the pull request.
+
 ## Why AMU exists
 
 A correct-looking patch is only part of a successful change.

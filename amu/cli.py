@@ -187,9 +187,24 @@ def _lookup_factory(repo: str):
 
 
 @app.callback()
-def main(ctx: typer.Context, version: bool = typer.Option(False, "--version", help="print version and exit")):
+def main(
+    ctx: typer.Context,
+    version: bool = typer.Option(False, "--version", help="print version and exit"),
+    since: str = typer.Option(None, "--since", metavar="REF",
+                              help="bare amu on the commits since REF and what is not committed yet, not only the working tree"),
+):
     if version:
         typer.echo(f"amu {__version__} · TWC Thugs · entire {entire.version()} · entire-graph {entire.graph_version()}")
+        raise typer.Exit()
+    if since is not None and ctx.invoked_subcommand is None:
+        from amu import core
+        from amu.core import runners
+        from amu.core.git import since_diff
+
+        diff, base, gaps = since_diff(".", since)
+        report = core.analyze(".", diff, run=bool(diff.strip()) and runners.evident("."), merge_base=base)
+        report["gaps"] = gaps + list(report.get("gaps") or [])
+        typer.echo(core.encoded(report).decode())
         raise typer.Exit()
     if ctx.invoked_subcommand is None:
         if _uncommitted_python_change():
