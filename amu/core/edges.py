@@ -226,7 +226,7 @@ def record(root, python=None, runner=None, index_dir=None, timeout=7200, labels=
         except OSError:
             info['gaps'].append('could not install the edge hook in the interpreter; nothing recorded')
             return info
-        env = dict({k: v for k, v in os.environ.items() if not k.startswith('ANTHROPIC_')}, PYTHONDONTWRITEBYTECODE='1',
+        env = dict({k: v for k, v in os.environ.items() if not k.startswith(runners.SECRETS)}, PYTHONDONTWRITEBYTECODE='1',
                    PYTHONPATH=os.pathsep.join(filter(None, [str(root/'src'), str(root), os.environ.get('PYTHONPATH')])))
         if not plain:
             env.update(AMU_EDGES_OUT=str(out), AMU_EDGES_ROOT=str(root))

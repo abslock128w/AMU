@@ -180,9 +180,11 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
     produced = [row for row in report.get('generated_differences') or [] if isinstance(row, dict)]
     if made is not None and not report.get('error') and made.get('proposed'):
         out += [f"### Generated tests showing a difference ({len(produced)})", '']
+        spent = (f"through {code(str(made.get('backend')), 20)}, at a cost of Claude plan usage, within "
+                 f"{float(made.get('minutes_cap') or 0):g} min" if made.get('cost_basis') == 'plan usage' else
+                 f"at ${float(made.get('cost') or 0):.3f} of a ${float(made.get('dollars_cap') or 0):.2f} cap")
         out += [f"For changed functions no test called, {code(made.get('model', '?'), 40)} proposed "
-                f"{made.get('proposed', 0)} probe(s) for {made.get('functions', 0)} function(s), at "
-                f"${float(made.get('cost') or 0):.3f} of a ${float(made.get('dollars_cap') or 0):.2f} cap. Each was kept only if it "
+                f"{made.get('proposed', 0)} probe(s) for {made.get('functions', 0)} function(s), {spent}. Each was kept only if it "
                 f"compiled ({made.get('compiled', 0)}), ran on the head ({made.get('ran', 0)}), gave the same outcome five times "
                 f"there ({made.get('stable', 0)}), ran a changed line ({made.get('reached', 0)}), and gave one stable, different "
                 f"outcome on the merge base ({made.get('accepted', 0)}). The outcomes come from running the code, not from the model.", '']

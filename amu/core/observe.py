@@ -134,7 +134,7 @@ def record(root, python=None, runner=None, index_dir=None, timeout=7200, labels=
         except OSError:
             info['gaps'].append('could not install the recording hook in the interpreter; nothing recorded')
             return info
-        env = dict({k: v for k, v in os.environ.items() if not k.startswith('ANTHROPIC_')}, AMU_OBSERVE_RC=str(rc), PYTHONDONTWRITEBYTECODE='1',
+        env = dict({k: v for k, v in os.environ.items() if not k.startswith(runners.SECRETS)}, AMU_OBSERVE_RC=str(rc), PYTHONDONTWRITEBYTECODE='1',
                    PYTHONPATH=os.pathsep.join(filter(None, [str(root/'src'), str(root), os.environ.get('PYTHONPATH')])))
         command = [*SUITE[chosen.name](python), *labels]
         started = time.perf_counter()

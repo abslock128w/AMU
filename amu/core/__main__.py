@@ -31,6 +31,8 @@ def main(argv=None):
                    help='dollars allowed for model-written probes of changed functions no test calls (0: none)')
     p.add_argument('--generate-minutes', type=float, default=20.0, help='minutes allowed for generating and checking probes')
     p.add_argument('--generate-model', default='claude-opus-5-5', help='Claude model that writes the probes')
+    p.add_argument('--generate-cli', action='store_true',
+                   help="with no ANTHROPIC_API_KEY, have Claude Code's claude -p write the probes (plan usage; the minute cap applies)")
     p.add_argument('--observe-calls', action='store_true',
                    help='run the whole suite once with the sys.monitoring call tracer (Python 3.12+) and store per-test call edges')
     p.add_argument('--observe-seconds', type=int, default=7200,
@@ -45,7 +47,7 @@ def main(argv=None):
         sys.stdout.write(encoded(observe.record(a.repo, a.python, a.runner, timeout=a.observe_seconds)).decode() + '\n')
         return
     patch = None if a.patch_file is None else sys.stdin.read() if a.patch_file == '-' else Path(a.patch_file).read_text(errors='replace')
-    sys.stdout.write(encoded(analyze(a.repo, patch, full_evidence=a.full_evidence, coverage_evidence=a.coverage, run=False if a.static else True if a.run else None, python=a.python, budget=a.budget, include_tests=a.tests, runner=a.runner, only=a.only, also=a.also, generate=(a.generate_dollars, a.generate_minutes, a.generate_model) if a.generate_dollars > 0 else None, merge_base=a.merge_base, deadline=None if a.deadline is None else started + a.deadline)).decode() + '\n')
+    sys.stdout.write(encoded(analyze(a.repo, patch, full_evidence=a.full_evidence, coverage_evidence=a.coverage, run=False if a.static else True if a.run else None, python=a.python, budget=a.budget, include_tests=a.tests, runner=a.runner, only=a.only, also=a.also, generate=(a.generate_dollars, a.generate_minutes, a.generate_model, a.generate_cli) if a.generate_dollars > 0 or a.generate_cli else None, merge_base=a.merge_base, deadline=None if a.deadline is None else started + a.deadline)).decode() + '\n')
 
 
 if __name__ == '__main__':
