@@ -8,14 +8,18 @@ AMU runs the tests that a pull request's diff reaches on both sides of the chang
 posts one comment listing the tests that flip from passing to failing. It edits that comment on every push, and it
 never blocks a merge. To try it, copy two workflow files from
 [github.com/abslock128w/AMU/tree/v0.3.0/ci](https://github.com/abslock128w/AMU/tree/v0.3.0/ci) into
-`.github/workflows/`. In `amu-pr.yml`, set `install:` to the command that installs your project and its test
-dependencies.
+`.github/workflows/` on your default branch. In `amu-pr.yml`, set both `install:` lines (the AMU job's and the optional
+verify job's) to the command that installs your project and its test dependencies, test runner included: for sympy,
+`python -m pip install -e . pytest hypothesis`.
 - The first file runs your pull request's code under `pull_request`, with a read-only token, and only saves a JSON
-  report.
-- The second posts the comment from `workflow_run` and never checks out or runs pull request code. Fork pull requests
-  are covered without `pull_request_target`.
-- By default AMU spends up to 300 s of test time per side, inside a 20-minute cap, and caches its index on the merge
-  base.
+  report. It must also be on any other branch pull requests target.
+- The second posts the comment from `workflow_run` and never checks out or runs pull request code. GitHub runs it only
+  from the default branch. Fork pull requests are covered without `pull_request_target`.
+- By default AMU spends up to 300 s of test time per side, inside a 20-minute cap. On sympy the job took 9 to 12
+  minutes. The comment follows when the posting job gets a runner, which took up to 15 minutes more while the
+  repository's own CI held the runners.
+- It caches its index keyed on the merge base. A cache saved by one pull request's job is visible only to that pull
+  request's later pushes: a second pull request on the same merge base starts without it.
 - With `counters: 'true'` it also keeps per-push counts and SHAs (never source or test names) in a hidden part of its
   own comment. Those let us measure whether its flips are real and whether they get fixed before merge. Nothing is
   sent anywhere else.
