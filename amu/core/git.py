@@ -49,3 +49,14 @@ def working_diff(root):
     if not diff.strip():
         gaps.append('No uncommitted change to tracked files')
     return diff, gaps
+
+
+def since_diff(root, ref):
+    """(diff from where the working tree's branch left ``ref`` to the working tree, that commit, gaps): the commits since
+    ``ref`` and what is not committed yet. Never raises; an unknown ref is a gap and an empty diff."""
+    try:
+        base = _git(root, 'merge-base', ref, 'HEAD').strip()
+        diff = _git(root, 'diff', base, '--no-ext-diff', '--no-textconv', '--no-color', '--no-renames')
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return '', None, [f'--since {ref}: no common commit with HEAD or git unavailable ({exc})']
+    return diff, base, [] if diff.strip() else [f'No change since {ref} ({base[:12]})']
