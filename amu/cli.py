@@ -2901,9 +2901,19 @@ def watch_cmd(
     phase: int = typer.Option(None, "--phase"),
     no_live: bool = typer.Option(False, "--no-live"),
     seconds: float = typer.Option(None, "--seconds", hidden=True),
+    budget: int = typer.Option(60, "--budget", help="seconds of test time per side for each run"),
     repo: str = REPO_OPT,
 ):
-    """Watch the working tree; update node states (▸ editing · ↯ drift) against the active contract. Never runs tests."""
+    """Re-run bare amu on every save of a Python file: its summary line and flips. With --phase, the older mode: update
+    node states (▸ editing · ↯ drift) against the active contract, and never run tests."""
+    if phase is None:
+        from amu.core import live
+
+        try:
+            live.watch(repo, lambda out: typer.echo("\n".join(out)), budget=budget, stop_after=seconds)
+        except KeyboardInterrupt:
+            pass
+        return
     brand.header("watch", state.repo_name(repo), False)
     m = state.read_json("map.json", repo)
     if not m:

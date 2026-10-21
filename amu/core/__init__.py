@@ -127,6 +127,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     moves labelled), ``explore`` (a tenth of the candidate order for never-run tests), ``mutation`` (mutants on covered
     changed lines), ``equivalence`` (CrossHair and Hypothesis on annotated pure changed functions).
     """
+    began = time.perf_counter()
     root = Path(root).resolve()
     early = []
     own_tree = patch is None
@@ -443,6 +444,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
                    for path, fact in facts.items()}
         cache = basecache.BaseCache(cache_dir(root, index_dir)/'base-passes', forward, root, python,
                                     [chosen.name, *runners.plugin_args(runners.get(root, runner), python), trust.SEED])
+        prepared = time.perf_counter() - began
         flips, executed, run_gaps = shadow.run(root, edits, wide, python, budget, runner, memo=memo, own=own, base_cache=cache,
                                                functions=functions, generate_with=generate, merge_base=merge_base, deadline=deadline,
                                                extras=extras)
@@ -585,6 +587,9 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
                 report[extra] = executed[extra]
         if executed.get('first_flip_seconds') is not None:
             report['first_flip_seconds'] = executed['first_flip_seconds']
+        if executed.get('seconds_before_running') is not None:
+            # From the call to the first test run: reading the change, ranking, and the copy of the tree.
+            report['seconds_before_running'] = round(prepared + executed['seconds_before_running'], 2)
         if executed.get('aborted'):
             report = dict(failure=dict(executed['aborted'], runner=executed['runner']), flips=None, **{k: v for k, v in report.items() if k != 'flips'})
     if 'refactor' in extras:

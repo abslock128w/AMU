@@ -211,6 +211,10 @@ def parse_or_none(path, data):
 RELINK_LIMIT = 25
 STATE_KEEP = 2
 PARALLEL_FROM = 300
+# A process that stays (amu watch) keeps its last snapshot here, by cache folder, and does not write one per save: the
+# file round trip was most of a warm run on Django (1.3 of 2 s). Off for every other caller.
+MEMORY = False
+_held, _complete = {}, {}
 SLIM_DROP = ('refs', 'bindings', 'imports', 'returns', 'args', 'required_args', 'values')
 
 
@@ -340,16 +344,20 @@ def state(root, index_dir=None):
     key = hashlib.sha256(json.dumps(sorted(hashes.items())).encode()).hexdigest()
     # state2: snapshots carry each file's imported modules (deps) for the import closure (select module).
     dest = cache/('state2-'+key+'.json')
+    held = _held.get(str(cache)) if MEMORY else None
     try:
-        saved = json.loads(dest.read_text())
+        saved = held[1] if held and held[0] == key else json.loads(dest.read_text())
+        if MEMORY:
+            _held[str(cache)] = (key, saved)
         return saved['facts'], hashes, sorted(set(gaps) | set(saved['gaps'])), 0, Graph(saved['facts'], saved['graph'])
     except (OSError, ValueError, KeyError, TypeError):
         pass
-    built, facts, parsed = None, None, 0
-    for earlier in sorted(cache.glob('state2-*.json'), key=lambda p: p.stat().st_mtime, reverse=True)[:1]:
+    built, facts, parsed, differs = None, None, 0, None
+    latest = sorted(cache.glob('state2-*.json'), key=lambda p: p.stat().st_mtime, reverse=True)[:1]
+    for earlier in [None] if held else latest:
         # An edited tree: reuse the latest snapshot's graph and facts, and relink only the files that differ.
         try:
-            saved = json.loads(earlier.read_text())
+            saved = held[1] if held else json.loads(earlier.read_text())
             differs = {path for path in set(hashes) | set(saved['hashes']) if hashes.get(path) != saved['hashes'].get(path)}
             if len(differs) <= RELINK_LIMIT:
                 fresh, parsed = _facts(cache, [row for row in sources if row[0] in differs], gaps)
@@ -357,11 +365,17 @@ def state(root, index_dir=None):
                 facts = {path: fact for path, fact in facts.items() if fact}
 
                 def complete(path):
-                    # Untouched files stay in their slim form until the changed code refers into them.
+                    # Untouched files stay in their slim form until the changed code refers into them. A process that
+                    # stays keeps what it read: the same file at the same hash reads the same.
+                    if MEMORY and (path, hashes.get(path)) in _complete:
+                        return _complete[(path, hashes.get(path))]
                     try:
-                        return json.loads(_fact_file(cache, path, hashes[path]).read_text())
+                        found = json.loads(_fact_file(cache, path, hashes[path]).read_text())
                     except (OSError, ValueError, KeyError):
                         return None
+                    if MEMORY:
+                        _complete[(path, hashes[path])] = found
+                    return found
                 built = Graph(facts, saved['graph'], relink=differs, loader=complete)
                 gaps.append(f'graph reused from the previous state; {len(differs)} changed file(s) relinked')
         except (OSError, ValueError, KeyError, TypeError):
@@ -370,8 +384,15 @@ def state(root, index_dir=None):
         facts, parsed = _facts(cache, sources, gaps)
         built = Graph(facts)
     from .select import deps
-    slim = {path: dict(fact, deps=deps(fact), records={ident: {k: v for k, v in record.items() if k not in SLIM_DROP}
-                                      for ident, record in fact['records'].items()}) for path, fact in facts.items()}
+    # Held in memory, the slim form of a file that did not change is the one already made.
+    kept = held[1]['facts'] if held and built is not None and differs is not None else {}
+    slim = {path: kept[path] if path in kept and path not in differs else
+            dict(fact, deps=deps(fact), records={ident: {k: v for k, v in record.items() if k not in SLIM_DROP}
+                                                 for ident, record in fact['records'].items()}) for path, fact in facts.items()}
+    if MEMORY:
+        _held[str(cache)] = (key, dict(facts=slim, hashes=hashes, gaps=sorted(g for g in set(gaps) if 'relinked' not in g),
+                                       graph=built.snapshot()))
+        return facts, hashes, sorted(set(gaps)), parsed, built
     try:
         cache.mkdir(parents=True, exist_ok=True)
         for old in [*cache.glob('state-*.json'), *sorted(cache.glob('state2-*.json'), key=lambda p: p.stat().st_mtime)[:-STATE_KEEP]]:

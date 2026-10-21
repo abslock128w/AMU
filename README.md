@@ -14,6 +14,16 @@ Built using **GPT‑6.1 Sol in Codex**.
 
 ---
 
+## At your keyboard
+
+**AMU runs the tests a change reaches on both sides of it, the code before the change and after, and tells you which
+ones flip from passing to failing.** On a pull request it does that as a GitHub Action (`ci/`, `evaluation/ci/INSTALL-NOTE.md`).
+At your keyboard, bare `amu` does it for the uncommitted change of the working tree, and:
+
+- `amu watch` does it again on every save of a Python file and prints the summary line and the flips. It keeps the
+  index and its copy of the tree between saves, so on Django the first test runs 1.3 to 1.7 s after a save once the
+  first save has warmed it (the first run builds the index; `amu watch --phase N` is the older contract watch).
+
 ## Why AMU exists
 
 A correct-looking patch is only part of a successful change.
