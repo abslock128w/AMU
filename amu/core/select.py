@@ -98,13 +98,24 @@ def candidates(graph, facts, changed_paths, tests, observed_ids=(), static_ids=(
     return chosen, info
 
 
-def order(ids, touched=(), flips=None, durations=None, tiebreak=None):
+def order(ids, touched=(), flips=None, durations=None, tiebreak=None, explore=0.0):
     """``ids`` in run order: touched first, then most recent flip, then shortest measured duration, then ``tiebreak``
-    (position in the static ranking; lower first)."""
+    (position in the static ranking; lower first). With ``explore`` (a share, 0.1 for a tenth), that share of the places
+    after the touched tests goes to tests never run before (no measured duration), spread evenly, in ``tiebreak`` order:
+    without it, a test with no history waits behind every measured one."""
     flips, durations, tiebreak = flips or {}, durations or {}, tiebreak or {}
     known = sorted(durations.values())
     typical = known[len(known) // 2] if known else 0.0
     first = list(dict.fromkeys(touched))
     rest = [i for i in dict.fromkeys(ids) if i not in set(first)]
     rest.sort(key=lambda i: (-(flips.get(i) or 0), durations.get(i, typical), tiebreak.get(i, len(tiebreak))))
-    return first + rest
+    fresh = sorted((i for i in rest if i not in durations and not flips.get(i)), key=lambda i: tiebreak.get(i, len(tiebreak)))
+    if explore <= 0 or not fresh or not durations:
+        return first + rest
+    every = max(1, round(1 / explore))
+    others, out = [i for i in rest if i not in set(fresh)], []
+    for i in others:
+        if fresh and len(out) % every == every - 1:
+            out.append(fresh.pop(0))
+        out.append(i)
+    return first + out + fresh

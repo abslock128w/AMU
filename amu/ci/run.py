@@ -60,7 +60,7 @@ def merge_base(repo, base, head):
     return found
 
 
-def amu_command(patch, python, runner, budget, generate=None, merge_base=None, deadline=None):
+def amu_command(patch, python, runner, budget, generate=None, merge_base=None, deadline=None, extras=()):
     command = [sys.executable, *SAFE, '-m', 'amu.core', '--repo', '.', '--patch-file', str(patch), '--run', '--full-evidence',
                '--python', python]
     if merge_base:
@@ -76,6 +76,8 @@ def amu_command(patch, python, runner, budget, generate=None, merge_base=None, d
         command += ['--budget', str(budget)]
     if deadline:
         command += ['--deadline', str(deadline)]
+    if extras:
+        command += ['--extras', ','.join(extras)]
     return command
 
 
@@ -164,7 +166,7 @@ def observe(repo, found, python, runner, seconds):
 
 
 def run(repo, base, head, out, python=None, runner=None, pr=None, budget=None, install_ok=None, amu_ref=None,
-        wall_cap=None, record=False, counters=False, generate=None):
+        wall_cap=None, record=False, counters=False, generate=None, extras=()):
     repo, out = Path(repo).resolve(), Path(out)
     out.mkdir(parents=True, exist_ok=True)
     meta = dict(pr=pr, base=base, head=head, merge_base=None, amu_version=__version__, amu_ref=amu_ref,
@@ -207,7 +209,7 @@ def run(repo, base, head, out, python=None, runner=None, pr=None, budget=None, i
                     # amu stops starting steps at its deadline and reports what it found; the kill at the wall cap is the
                     # backstop.
                     meta['deadline'] = None if seconds is None else max(1, int(seconds - min(FINISH, seconds / 4)))
-                    done, problem = bounded(amu_command(patch, python or sys.executable, runner, budget, generate, found, meta['deadline']),
+                    done, problem = bounded(amu_command(patch, python or sys.executable, runner, budget, generate, found, meta['deadline'], extras),
                                             repo, seconds if seconds is not None else 24 * 3600)
                     if problem:
                         report = dict(error=f'stopped at the wall cap of {wall_cap} s; amu reported nothing', gaps=[
@@ -246,6 +248,7 @@ def main(argv=None):
     p.add_argument('--budget', type=int, help='seconds allowed per side; default: amu\'s')
     p.add_argument('--wall-cap', type=int, help='seconds for everything, recording included; past it the run is stopped')
     p.add_argument('--observe', action='store_true', help='record the suite on the merge base when the cache has no recording')
+    p.add_argument('--extras', default='', help='comma-separated features still behind a flag: refactor, explore, mutation, equivalence')
     p.add_argument('--counters', action='store_true', help='opt in to the counters kept in the comment (counts and SHAs only)')
     p.add_argument('--generate-dollars', type=float, default=0.0, help='dollar cap for generated tests per run (needs ANTHROPIC_API_KEY)')
     p.add_argument('--generate-minutes', type=float, default=20.0, help='minute cap for generated tests per run')
@@ -258,7 +261,8 @@ def main(argv=None):
     try:
         report, meta = run(a.repo, a.base, a.head or None, a.out, a.python, a.runner, a.pr, a.budget,
                            None if a.install_ok is None else a.install_ok == 'true', a.amu_ref, a.wall_cap, a.observe, a.counters,
-                           (a.generate_dollars, a.generate_minutes, a.generate_model, a.generate_cli) if a.generate_dollars > 0 or a.generate_cli else None)
+                           (a.generate_dollars, a.generate_minutes, a.generate_model, a.generate_cli) if a.generate_dollars > 0 or a.generate_cli else None,
+                           tuple(e for e in a.extras.split(',') if e))
         print(f"amu: {meta['status']}; flips: {report.get('flips')}; {report.get('error') or report.get('summary', '')}"[:500])
     except Exception as exc:  # the job never fails because of AMU
         print(f'amu ci run failed: {type(exc).__name__}: {exc}')

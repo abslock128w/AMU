@@ -18,12 +18,13 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from . import basecache, generate, isolate, replay, runners, sidebyside, trust
+from . import basecache, equivalence, generate, isolate, mutate, replay, runners, sidebyside, trust
 from .git import _git, file_at
 from .patch import applied, candidate, original, renumber
 
 CHUNK = 40
 SIDE_BY_SIDE = 120  # seconds at most for the side-by-side run on the code before the change
+EXTRAS_SECONDS = 120  # for each of mutation and equivalence, when turned on (build queue part 4)
 ISOLATED = 3  # flips whose hunk is isolated
 ISOLATE_SECONDS = 120  # per flip
 CONFIRM = 20  # seconds always allowed for confirming a failure on the unchanged code
@@ -100,7 +101,7 @@ def late(deadline):
 
 
 def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=(), base_cache=None, functions=(), generate_with=None,
-        merge_base=None, deadline=None):
+        merge_base=None, deadline=None, extras=()):
     """Outcomes of ``ids`` before and after the change. Returns (rows, info, gaps).
 
     ``own`` are the tests the change adds or edits (replay.touched); they are also run on the code before the change
@@ -181,6 +182,7 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
         # that fail there are run on the code as it was, to confirm they passed before. A test that passes
         # after the change cannot be a new failure, so the unchanged side is never paid for it.
         left, done, aborted, measured, measured_seconds, pace = float(budget), 0, None, 0, 0.0, rate
+        first_flip = None  # seconds into the run when the first flip was confirmed (time to first difference)
         stopped, struck = None, {}
         while left > 1:
             if done == len(ids):
@@ -261,6 +263,8 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
                     gaps.append(f'shadow run (before the change, {runner.name}): {problem}')
                 if late(deadline) and any(ident not in confirmed for ident in unknown):
                     cut.append(f'confirming {sum(ident not in confirmed for ident in unknown)} failure(s) on the code before the change')
+            if first_flip is None and any(_flip(states['before'].get(i), states['after'].get(i)) for i in failing):
+                first_flip = round(time.perf_counter() - started, 1)
             done = start + len(chunk)
         if len(ids) < len(pool):
             gaps.insert(0, f'{len(pool) - len(ids)} lower-ranked candidate(s) not run: about {rate:.0f} tests/s per process fit {len(ids)} in the {budget} s allowed')
@@ -276,7 +280,7 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
         for ident in removed:
             states['after'][ident] = 'removed'
         unstable, edited_flips, originals, replayed, verdicts, edited_verdicts, trust_seconds = [], [], {}, [], {}, {}, 0.0
-        side, behaviour, made, generated = None, [], None, []
+        side, behaviour, made, generated, mutation, equivalent = None, [], None, [], None, None
         if not aborted:
             # A flip is believed only after the trust checks (trust module): the reach check and three reruns on the
             # changed code. A "before" outcome taken from the memo is confirmed afresh, so a test that is flaky on the
@@ -426,6 +430,38 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
                 # is not in the report: it goes with the generated tests, which got the same targets.
                 made['not_compared'] = left_out
             gaps += more
+        flagged = [extra for extra in ('mutation', 'equivalence') if extra in extras]
+        if functions and not aborted and flagged and late(deadline):
+            cut.append(' and '.join(flagged))
+        elif not aborted and flagged:
+            production = [path for path in edits if path.endswith('.py') and not replay.is_test_file(path) and after_src.get(path)]
+
+            def put(path, text):
+                if text is None:
+                    (other/path).unlink(missing_ok=True)
+                else:
+                    _write(other/path, text)
+            # The copy becomes the changed code for these runs, and is put back after.
+            for path in edits:
+                put(path, after_src.get(path))
+            try:
+                if 'mutation' in flagged:
+                    passing = [i for i in ids if states['after'].get(i) == 'passed' and i not in set(own)]
+                    mutation, more = mutate.run(runner, python, other, {p: after_src[p] for p in production},
+                                                {p: _after_lines(p, edits[p]) for p in production}, passing, scratch,
+                                                within(EXTRAS_SECONDS, deadline), put)
+                    gaps += more
+                if 'equivalence' in flagged:
+                    spec_targets, _ = sidebyside.targets(functions, before_src, after_src)
+                    began_equivalence = time.monotonic()
+                    equivalent, equivalent_rows, more = equivalence.run(
+                        python, other, spec_targets, before_src, after_src, scratch,
+                        left=lambda: within(EXTRAS_SECONDS, deadline) - (time.monotonic() - began_equivalence))
+                    equivalent['rows'] = equivalent_rows
+                    gaps += more
+            finally:
+                for path in edits:
+                    put(path, before_src.get(path) if live_is_after else after_src.get(path))
     ran_after = sum(state in OUTCOMES for state in states['after'].values())
     remembered.setdefault('durations', {}).update(runner.durations or {})
     now = round(time.time())
@@ -495,6 +531,11 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
         info['ran_original'] = len(info['original_tests'])
     if cut:
         info['cut'] = list(dict.fromkeys(cut))
+    info['first_flip_seconds'] = first_flip
+    if mutation is not None:
+        info['mutation'] = mutation
+    if equivalent is not None:
+        info['equivalence'] = equivalent
     return rows, info, gaps
 
 
