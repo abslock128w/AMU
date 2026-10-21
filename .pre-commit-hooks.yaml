@@ -1,0 +1,9 @@
+# For https://pre-commit.com: prints AMU's summary of the staged change and never blocks the commit.
+- id: amu
+  name: amu (summary of the staged change; never blocks)
+  entry: amu pre-commit
+  language: python
+  pass_filenames: false
+  always_run: true
+  verbose: true
+  stages: [pre-commit]
