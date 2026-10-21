@@ -42,7 +42,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           AMU_QUIET: 'true'   # one line when nothing was found; 'false' for every section
-          AMU_REF: v0.2.6
+          AMU_REF: v0.3.0
         run: |
           python -m venv "$RUNNER_TEMP/amu"
           "$RUNNER_TEMP/amu/bin/python" -m pip install --quiet --disable-pip-version-check --no-deps \
