@@ -61,10 +61,31 @@ def quiet_body(report, meta, first, extra):
                       extra, MARKER]).replace('\n\n\n', '\n\n')
 
 
+def extras(report, listed=LISTED):
+    """Sections for features still behind a flag: renames and moves, and inputs on which two versions differ."""
+    out = []
+    moved = [row for row in report.get('refactors') or [] if isinstance(row, dict)]
+    if moved and not report.get('error'):
+        out += [f'### Renamed or moved, nothing else ({len(moved)})', '',
+                'The same code under a new name or in a new place: refactor, behaviour preserved if tests pass.', '']
+        out += rows(moved, lambda row: f"{code(row.get('from', '?'), 120)} -> {code(row.get('to', '?'), 120)} ({row.get('kind', '?')})",
+                    listed) + ['']
+    differ = [row for row in (report.get('equivalence') or {}).get('rows') or [] if isinstance(row, dict)]
+    if differ and not report.get('error'):
+        out += [f'### An input on which the two versions differ ({len(differ)})', '',
+                'Found by a search over the inputs of annotated, pure changed functions (CrossHair, Hypothesis):', '']
+        out += rows(differ, lambda row: f"{code(row.get('target', '?'), 120)}: {code(row.get('input', ''), 200)} gives "
+                                        f"{code(row.get('before', ''), 160)} and {code(row.get('after', ''), 160)} "
+                                        f"({row.get('tool', '?')})", listed) + ['']
+    return out
+
+
 def nothing_found(report):
     executed = report.get('executed') or {}
     return (not report.get('error') and not report.get('failure') and report.get('flips') == 0 and executed.get('ran')
-            and not any(report.get(k) for k in ('change_evidence', 'behaviour_differences', 'generated_differences', 'unstable', 'cut'))
+            and not any(report.get(k) for k in ('change_evidence', 'behaviour_differences', 'generated_differences', 'unstable', 'cut',
+                                                'refactors'))
+            and not (report.get('equivalence') or {}).get('rows') and not (report.get('mutation') or {}).get('survivors')
             and not any(isinstance(r, dict) and not str(r.get('label', '')).startswith('fails') for r in report.get('flip_trust') or []))
 
 
@@ -228,6 +249,16 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
                 f"The test runner ({code(aborted.get('runner') or executed.get('runner') or '?')}) starts on the merge base "
                 f"and aborts on the head before running any test: {code(aborted.get('error', ''))}. On the merge base it "
                 f"ran {aborted.get('ran_before', '?')} of the same {aborted.get('probed', '?')} candidates.", '']
+    out += extras(report, listed)
+    found = report.get('mutation') or {}
+    survivors = [row for row in found.get('survivors') or [] if isinstance(row, dict)]
+    if survivors and not report.get('error'):
+        collapsed += [f'<details><summary>Tests that would not notice ({len(survivors)})</summary>', '',
+                      f"Mutants on changed lines the tests run, {found.get('mutants', 0)} in all, {found.get('killed', 0)} caught: "
+                      f"each of these was run by the {found.get('tests', '?')} best-ranked passing candidates, and every one "
+                      'passed. A change there could go unnoticed. (Behind a flag; an equivalent mutant also lands here.)', '',
+                      *rows(survivors, lambda row: f"{code(str(row.get('file')) + ':' + str(row.get('line')), 120)}: "
+                                                   f"{code(row.get('mutant', ''), 160)}", listed), '', '</details>', '']
     gaps = list(report.get('gaps') or [])
     if meta.get('install_ok') is False:
         gaps.insert(0, "the project's install command failed; see install.log in the artifact")

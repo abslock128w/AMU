@@ -6,9 +6,24 @@ import hashlib
 import json
 import math
 import re
+import time
 from pathlib import Path
 
-from . import basecache, consequences, coverage, edges, lexical, rank, replay, runners, select, shadow, trust, vanished
+from . import (
+    basecache,
+    consequences,
+    coverage,
+    edges,
+    lexical,
+    rank,
+    refactor,
+    replay,
+    runners,
+    select,
+    shadow,
+    trust,
+    vanished,
+)
 from .git import working_diff
 from .index import cache_dir, parse_or_none
 from .index import state as load_state
@@ -97,7 +112,8 @@ def after_facts(root, facts, edits, gaps):
 
 
 def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, index_dir=None, run=None, python=None,
-            budget=60, include_tests=False, runner=None, only=None, also=None, generate=None, merge_base=None, deadline=None):
+            budget=60, include_tests=False, runner=None, only=None, also=None, generate=None, merge_base=None, deadline=None,
+            extras=()):
     """What a change reaches, which existing tests to run first, and what could not be seen.
 
     ``patch`` is unified-diff text, applied or not yet applied to ``root``. Without one,
@@ -106,6 +122,10 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
 
     ``deadline`` (a time.monotonic() value; CI's wall cap) bounds the run: steps that do not fit before it are not
     started, and what was found before it is reported with what was not done (``cut``, and the first gap).
+
+    ``extras`` turns on what is still behind a flag (build queue part 4), each off by default: ``refactor`` (renames and
+    moves labelled), ``explore`` (a tenth of the candidate order for never-run tests), ``mutation`` (mutants on covered
+    changed lines), ``equivalence`` (CrossHair and Hypothesis on annotated pure changed functions).
     """
     root = Path(root).resolve()
     early = []
@@ -398,7 +418,8 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         flipped_at, durations = shadow.history(memo)
         expanded = list(dict.fromkeys(run_id for ident in sorted(picked, key=position.get) for run_id in run_ids(label_of(ident))))
         tiebreak = {run_id: n for n, run_id in enumerate(expanded)}
-        wide = select.order(expanded, flips=flipped_at, durations=durations, tiebreak=tiebreak)
+        wide = select.order(expanded, flips=flipped_at, durations=durations, tiebreak=tiebreak,
+                            explore=0.1 if 'explore' in extras else 0.0)
         if only:
             # A caller that already knows which tests matter (a hook re-checking earlier failures) names them.
             wide = list(dict.fromkeys(run_id for test in only for run_id in run_ids(test)))
@@ -423,7 +444,8 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         cache = basecache.BaseCache(cache_dir(root, index_dir)/'base-passes', forward, root, python,
                                     [chosen.name, *runners.plugin_args(runners.get(root, runner), python), trust.SEED])
         flips, executed, run_gaps = shadow.run(root, edits, wide, python, budget, runner, memo=memo, own=own, base_cache=cache,
-                                               functions=functions, generate_with=generate, merge_base=merge_base, deadline=deadline)
+                                               functions=functions, generate_with=generate, merge_base=merge_base, deadline=deadline,
+                                               extras=extras)
         executed['selection'] = dict(selection, candidates=len(wide))
         gaps.extend(run_gaps)
         cut += executed.get('cut', [])
@@ -558,8 +580,18 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
             report['original_tests'] = executed['original_tests']
         if cut:
             report['cut'] = cut
+        for extra in ('mutation', 'equivalence'):
+            if executed.get(extra) is not None:
+                report[extra] = executed[extra]
+        if executed.get('first_flip_seconds') is not None:
+            report['first_flip_seconds'] = executed['first_flip_seconds']
         if executed.get('aborted'):
             report = dict(failure=dict(executed['aborted'], runner=executed['runner']), flips=None, **{k: v for k, v in report.items() if k != 'flips'})
+    if 'refactor' in extras:
+        # Renames and moves (refactor): a static reading of the change, so it is there whether or not tests ran.
+        began = time.perf_counter()
+        report['refactors'] = refactor.label({path: (original(root, path, edit), candidate(root, path, edit)) for path, edit in edits.items()})
+        report['refactor_seconds'] = round(time.perf_counter() - began, 2)
     report['report_hash'] = hashlib.sha256(encoded([hashes, patch, report])).hexdigest()[:12]
     if full_evidence:
         report['index'] = {'parsed_files': parsed, 'files': len(facts)}

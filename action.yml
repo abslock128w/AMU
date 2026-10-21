@@ -77,6 +77,12 @@ inputs:
       so a same-repository pull request could read it; forks never receive secrets."
     required: false
     default: ''
+  extras:
+    description: "Comma-separated features still behind a flag, each off by default: refactor (renames and moves labelled),
+      explore (a tenth of the candidate order for never-run tests), mutation (mutants on covered changed lines),
+      equivalence (CrossHair and Hypothesis on annotated pure changed functions; both must be installed by install)."
+    required: false
+    default: ''
   claude-code:
     description: "'true' installs Claude Code on the runner and, when anthropic-api-key is empty, has `claude -p` write the
       probes, billed to the Claude plan as usage (generate-minutes still caps them). Off by default."
@@ -192,6 +198,7 @@ runs:
         AMU_GENERATE_MODEL: ${{ inputs.generate-model }}
         ANTHROPIC_API_KEY: ${{ inputs.anthropic-api-key }}
         AMU_CLAUDE_CODE: ${{ inputs.claude-code }}
+        AMU_EXTRAS: ${{ inputs.extras }}
         CLAUDE_CODE_OAUTH_TOKEN: ${{ inputs.claude-code == 'true' && inputs.claude-code-oauth-token || '' }}
       run: |
         out="$RUNNER_TEMP/amu-out"
@@ -202,7 +209,8 @@ runs:
             ${AMU_BUDGET:+--budget "$AMU_BUDGET"} ${AMU_WALL_CAP:+--wall-cap "$AMU_WALL_CAP"} \
             $([ "$AMU_OBSERVE" = true ] && echo --observe) $([ "$AMU_COUNTERS" = true ] && echo --counters) \
             --generate-dollars "${AMU_GENERATE_DOLLARS:-0}" --generate-minutes "${AMU_GENERATE_MINUTES:-20}" \
-            --generate-model "${AMU_GENERATE_MODEL:-claude-opus-5-5}" $([ "$AMU_CLAUDE_CODE" = true ] && echo --generate-cli) || true
+            --generate-model "${AMU_GENERATE_MODEL:-claude-opus-5-5}" $([ "$AMU_CLAUDE_CODE" = true ] && echo --generate-cli) \
+            ${AMU_EXTRAS:+--extras "$AMU_EXTRAS"} || true
         else
           python -c 'import json, sys; json.dump({"error": "AMU could not be installed from " + sys.argv[1]}, open(sys.argv[2], "w"))' \
             "$AMU_REF" "$out/report.json"

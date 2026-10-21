@@ -22,6 +22,7 @@ def main(argv=None):
     p.add_argument('--budget', type=int, default=60, help='seconds allowed per side for --run')
     p.add_argument('--merge-base', metavar='SHA',
                    help='with the tree at the change\'s head: the commit before it, where --run takes a file the patch cannot be undone in')
+    p.add_argument('--extras', default='', help='comma-separated, off by default: refactor, explore, mutation, equivalence')
     p.add_argument('--deadline', type=float, help='seconds this run may take in all (a CI wall cap): steps that do not fit are '
                                                   'not started, and the report lists them')
     p.add_argument('--only', nargs='+', metavar='TEST', help='run exactly these tests (path::Class::test) instead of the ranked candidates')
@@ -47,7 +48,7 @@ def main(argv=None):
         sys.stdout.write(encoded(observe.record(a.repo, a.python, a.runner, timeout=a.observe_seconds)).decode() + '\n')
         return
     patch = None if a.patch_file is None else sys.stdin.read() if a.patch_file == '-' else Path(a.patch_file).read_text(errors='replace')
-    sys.stdout.write(encoded(analyze(a.repo, patch, full_evidence=a.full_evidence, coverage_evidence=a.coverage, run=False if a.static else True if a.run else None, python=a.python, budget=a.budget, include_tests=a.tests, runner=a.runner, only=a.only, also=a.also, generate=(a.generate_dollars, a.generate_minutes, a.generate_model, a.generate_cli) if a.generate_dollars > 0 or a.generate_cli else None, merge_base=a.merge_base, deadline=None if a.deadline is None else started + a.deadline)).decode() + '\n')
+    sys.stdout.write(encoded(analyze(a.repo, patch, full_evidence=a.full_evidence, coverage_evidence=a.coverage, run=False if a.static else True if a.run else None, python=a.python, budget=a.budget, include_tests=a.tests, runner=a.runner, only=a.only, also=a.also, generate=(a.generate_dollars, a.generate_minutes, a.generate_model, a.generate_cli) if a.generate_dollars > 0 or a.generate_cli else None, merge_base=a.merge_base, deadline=None if a.deadline is None else started + a.deadline, extras=tuple(e for e in a.extras.split(',') if e))).decode() + '\n')
 
 
 if __name__ == '__main__':
