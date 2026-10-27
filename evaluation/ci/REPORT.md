@@ -610,8 +610,8 @@ Django, sympy #30476, #30511 and #30515). Sympy #30477 started and has only its 
 checkpoint files say 53. `measure.log` holds the Django rows twice: a second launch on 2026-10-27 re-read the
 checkpoints and died on #30477.
 
-So the extras' numbers cover Django and three sympy pull requests: refactor 4 rows (all on Django #21805), mutation
-survivors on 11 Django PRs, equivalence 0. They are not enough for the ship rule (at least one true row and under 10%
+So the extras' numbers cover Django and three sympy pull requests: refactor 2 rows (both on Django #21805), mutation
+survivors on 18 pull requests, equivalence 0. They are not enough for the ship rule (at least one true row and under 10%
 false on a hand sample of 10). The sympy half has to be restarted from its checkpoints (`measure.py` skips finished pull
 requests) before any ship-rule decision on the extras. The stale lock was left in place; it must be removed before that
 restart, because the driver waits on it. This re-score ran without taking it (nothing else was running).
