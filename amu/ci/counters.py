@@ -62,6 +62,11 @@ def clean(raw):
     for key in FLAGS:
         out[key] = raw.get(key) is True
     seconds = raw.get('seconds')
+    if isinstance(seconds, str):
+        try:
+            seconds = float(seconds)
+        except ValueError:
+            seconds = None
     out['seconds'] = round(float(seconds), 1) if isinstance(seconds, (int, float)) and not isinstance(seconds, bool) else None
     spent = raw.get('generated_cost')
     out['generated_cost'] = (round(float(spent), 4) if isinstance(spent, (int, float)) and not isinstance(spent, bool)

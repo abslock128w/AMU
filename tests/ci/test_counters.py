@@ -18,7 +18,7 @@ def test_record_keeps_counts_and_shas_only():
     nasty['error'] = 'source line: password = "hunter2"'
     row = counters.record(nasty, dict(head=H1, merge_base='not a sha', seconds='12', pr=3), dict(checked=2, held='x', false=1))
     assert row == dict(head=H1, merge_base=None, flips=2, ran=10, candidates=10, gaps=1, checked=2, held=None, false=1,
-                       aborted=False, error=True, seconds=None, evidence=None, replayed=None, unstable=None, not_caused=None,
+                       aborted=False, error=True, seconds=12.0, evidence=None, replayed=None, unstable=None, not_caused=None,
                        generated=None, generated_kept=None, generated_cost=None, behaviour=None)
     text = counters.block([row])
     assert 'secret' not in text and 'hunter2' not in text and '-->' not in text[:-3]
