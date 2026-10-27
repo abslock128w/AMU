@@ -164,6 +164,18 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
         first = f'**AMU: no flip count** at {short(head)}: no candidate test ran'
     elif failures:
         first = f"**AMU: {plural(len(failures), 'flip')}** at {short(head)}, among {plural(ran, 'test')} run"
+    elif report.get('adds_only'):
+        # Only new definitions outside the tests: nothing that ran before changed. The new tests failing before the
+        # change on the missing names is what they should do.
+        replayed = [row for row in report.get('replayed') or [] if isinstance(row, dict)]
+        made = [row for row in replayed if row.get('verdict') == 'new_code']
+        kinds = sorted({str(row.get('why', '')).split(' on ', 1)[0] for row in made if row.get('why')}) or ['ImportError']
+        first = f'**AMU: adds new code only** at {short(head)}'
+        if made:
+            verb = 'fails' if len(made) == 1 else 'fail'
+            first += f"; its {plural(len(made), 'new test')} {verb} on the base with {' or '.join(kinds)}, as expected"
+        elif not any(row.get('head') not in (None, 'skipped') for row in replayed):
+            first += '; no test of it ran'
     else:
         reached, files = reach(report)
         if reached is False:
@@ -171,13 +183,16 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
             mine = own_tests(report)
             where = ', '.join(code(f, 120) for f in files[:3]) + (f' and {len(files) - 3} more' if len(files) > 3 else '')
             besides = f", apart from the {plural(mine, 'test')} this pull request adds or edits" if mine else ''
-            timed = ' before the side-by-side time limit' if stopped(report) else ''
-            first = f"**AMU: no test ran the changed code in {where}** at {short(head)}{besides}; {plural(ran, 'test')} run{timed}"
+            first = f"**AMU: no test ran the changed code in {where}** at {short(head)}{besides}; {plural(ran, 'test')} run"
         elif reached:
             first = f"**AMU: 0 flips** at {short(head)}, among {plural(ran, 'test')} run, some of them on the changed code"
         else:
             first = (f"**AMU: no flip** at {short(head)} among {plural(ran, 'test')} run; whether any ran the changed code "
                      'was not seen')
+    timed = report.get('side_by_side') if isinstance(report.get('side_by_side'), dict) else None
+    if timed is not None and stopped(report) and not report.get('error') and not report.get('refactor_only'):
+        first += (f"; side-by-side got to {timed.get('functions_called', 0)} of {timed.get('targets', 0)} changed "
+                  'functions before its time limit')
     if report.get('cut') and not report.get('error'):
         cap = meta.get('wall_cap')
         cap = f' of {cap} s' if isinstance(cap, int) and not isinstance(cap, bool) and 0 < cap < 10**7 else ''

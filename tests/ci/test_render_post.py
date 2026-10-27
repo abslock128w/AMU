@@ -276,7 +276,8 @@ def test_when_no_test_ran_the_changed_code_the_first_line_says_so_and_is_never_f
     own = dict(report, changed_functions=report['changed_functions'] + [dict(file='tests/test_c.py', symbol='test_c')])
     assert ', apart from the 1 test this pull request adds or edits; ' in render(own, META).splitlines()[0]
     cut = dict(report, side_by_side=dict(report['side_by_side'], stopped=True))
-    assert render(cut, META).splitlines()[0].endswith('29 tests run before the side-by-side time limit')
+    assert render(cut, META).splitlines()[0].endswith(
+        '29 tests run; side-by-side got to 0 of 1 changed functions before its time limit')
 
 
 def test_zero_flips_appears_only_when_something_ran_the_changed_code():
@@ -299,3 +300,33 @@ def test_the_first_line_does_not_count_the_pull_requests_own_tests_skipped_on_th
     assert first == '**AMU: no test ran the changed code in `lib.py`** at `abcdef1`; 40 tests run', first
     ran = dict(report, replayed=[dict(replayed[0], head='passed', base='failed', verdict='evidence'), *replayed[1:]])
     assert ', apart from the 1 test this pull request adds or edits; ' in render(ran, META).splitlines()[0]
+
+
+def test_side_by_side_at_its_time_limit_says_how_many_changed_functions_it_got_to():
+    # Live trials (b) and (c) on 0.4.0: the time limit was named, not how far side-by-side got.
+    report = dict(flips=0, predicted_failures=[], gaps=['side-by-side run stopped at its time limit; calls captured until '
+                                                        'then are compared'], executed=EXECUTED,
+                  side_by_side=dict(compared_calls=4, functions_called=2, targets=5),
+                  changed_functions=[dict(file='lib.py', symbol='f', lines='1-2')])
+    first = render(report, META).splitlines()[0]
+    assert first == ('**AMU: 0 flips** at `abcdef1`, among 40 tests run, some of them on the changed code; '
+                     'side-by-side got to 2 of 5 changed functions before its time limit'), first
+    whole = dict(report, gaps=[])
+    assert 'time limit' not in render(whole, META).splitlines()[0]
+
+
+def test_a_change_that_only_adds_code_says_so_and_why_its_new_tests_fail_on_the_base():
+    # Live trial (f) on 0.4.0: a new helper and its new test read as "no flip ... whether any ran the changed code was
+    # not seen".
+    replayed = [dict(id='tests/t.py::test_percent', head='passed', base='unloadable', verdict='new_code',
+                     why='ImportError on percent'),
+                dict(id='tests/t.py::test_ratio', head='passed', base='unloadable', verdict='new_code',
+                     why='ImportError on ratio')]
+    report = dict(flips=0, predicted_failures=[], gaps=[], executed=EXECUTED, adds_only=True, replayed=replayed,
+                  change_evidence=[])
+    first = render(report, META).splitlines()[0]
+    assert first == ('**AMU: adds new code only** at `abcdef1`; its 2 new tests fail on the base with ImportError, '
+                     'as expected'), first
+    assert render(dict(report, replayed=[]), META).splitlines()[0] == '**AMU: adds new code only** at `abcdef1`; no test of it ran'
+    flipped = dict(report, flips=1, predicted_failures=[flip('tests/t.py::test_old')])
+    assert render(flipped, META).splitlines()[0].startswith('**AMU: 1 flip**')

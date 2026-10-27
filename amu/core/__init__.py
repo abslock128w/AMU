@@ -413,12 +413,13 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         # A file the change leaves alone that still says an old name (an import, a call) is broken by the rename, or
         # reaches it some way the syntax does not show: then it is not only a rename, and the tests run.
         old = {row['from'].rsplit('#', 1)[1].rsplit('.', 1)[-1] for row in renamed}
+        homes = {refactor._module(row['from'].split('#', 1)[0]) for row in renamed}
         pattern = re.compile(r'\b(' + '|'.join(re.escape(name) for name in sorted(old)) + r')\b')
         for path in facts:
             if path in edits or not path.endswith('.py'):
                 continue
             text = _read(root, path)
-            if text and pattern.search(text) and refactor.says(text, old):
+            if text and pattern.search(text) and refactor.says(text, old, homes):
                 renamed = None
                 break
     if renamed is not None:
@@ -610,6 +611,9 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
             report['seconds_before_running'] = round(prepared + executed['seconds_before_running'], 2)
         if executed.get('aborted'):
             report = dict(failure=dict(executed['aborted'], runner=executed['runner']), flips=None, **{k: v for k, v in report.items() if k != 'flips'})
+    if renamed is None and edits and refactor.adds_only({path: (original(root, path, edit), candidate(root, path, edit))
+                                                         for path, edit in edits.items()}):
+        report['adds_only'] = True  # only new definitions outside the tests: nothing that ran before has changed
     if renamed is not None:
         report['refactor_only'] = True
         report['refactors'] = renamed
