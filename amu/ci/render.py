@@ -426,3 +426,8 @@ def load_verify(folder):
 
 if __name__ == '__main__':
     print(render(*load(sys.argv[1])))
+
+
+def percent(part, whole):
+    """``part`` of ``whole`` as a whole-number percentage, or '-' when there is no whole."""
+    return f'{round(100 * part / whole)}%' if whole else '-'
