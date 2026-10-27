@@ -153,6 +153,10 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
     aborted = report.get('failure')
     if report.get('error'):
         first = f"**AMU: no flip count** at {short(head)}: {code(report['error'])}"
+    elif report.get('refactor_only'):
+        moved = [row for row in report.get('refactors') or [] if isinstance(row, dict)]
+        first = (f"**AMU: refactor only** at {short(head)}: every change renames or moves "
+                 f"{plural(len(moved), 'definition')} without changing it; no tests run")
     elif aborted:
         first = f'**AMU: no flip count** at {short(head)}: the test runner aborts on the head before any test'
     elif flips is None or not ran:
@@ -342,6 +346,9 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
                 f"and aborts on the head before running any test: {code(aborted.get('error', ''))}. On the merge base it "
                 f"ran {aborted.get('ran_before', '?')} of the same {aborted.get('probed', '?')} candidates.", '']
     out += extras(report, listed)
+    if report.get('refactor_only') and not report.get('error'):
+        out += ['Read from the syntax of the change: with the old names spelled the new way, the code before and after is '
+                'the same. Callers outside this repository, and names looked up from strings, are not checked.', '']
     found = report.get('mutation') or {}
     survivors = [row for row in found.get('survivors') or [] if isinstance(row, dict)]
     if survivors and not report.get('error'):
@@ -373,6 +380,8 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
             elif cached.get('answered'):
                 out.append(f"On the merge base, {cached['answered']} outcomes came from the cache of earlier passes and "
                            f"{cached['ran']} ran.")
+        elif report.get('refactor_only'):
+            out.append('No test ran: the change only renames or moves code.')
         else:
             out.append('No test ran, so nothing here says whether the change breaks one.')
         out.append('')

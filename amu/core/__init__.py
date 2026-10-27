@@ -405,6 +405,24 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
                              line=r['line'], score=round(gain, 3)))
     found = consequences.find(graph, after, new_lines, renumbered, gaps)
     executed, cut = None, []
+    # A change that only renames or moves definitions, every hunk of it (refactor.only), runs no tests: they could only
+    # say what the syntax already shows. Read from the patch, so it is known before anything runs.
+    renamed = refactor.only({path: (original(root, path, edit), candidate(root, path, edit)) for path, edit in edits.items()}) \
+        if edits and not only and not also else None
+    if renamed is not None:
+        # A file the change leaves alone that still says an old name (an import, a call) is broken by the rename, or
+        # reaches it some way the syntax does not show: then it is not only a rename, and the tests run.
+        old = {row['from'].rsplit('#', 1)[1].rsplit('.', 1)[-1] for row in renamed}
+        pattern = re.compile(r'\b(' + '|'.join(re.escape(name) for name in sorted(old)) + r')\b')
+        for path in facts:
+            if path in edits or not path.endswith('.py'):
+                continue
+            text = _read(root, path)
+            if text and pattern.search(text) and refactor.says(text, old):
+                renamed = None
+                break
+    if renamed is not None:
+        run = False
     if run:
         # Exact beats ranked: run the candidates on both sides of the change and report what flips.
         # With a recording, the candidates are the tests seen executing the change; run more of them.
@@ -592,7 +610,13 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
             report['seconds_before_running'] = round(prepared + executed['seconds_before_running'], 2)
         if executed.get('aborted'):
             report = dict(failure=dict(executed['aborted'], runner=executed['runner']), flips=None, **{k: v for k, v in report.items() if k != 'flips'})
-    if 'refactor' in extras:
+    if renamed is not None:
+        report['refactor_only'] = True
+        report['refactors'] = renamed
+        report['summary'] = (f"REFACTOR ONLY: every change renames or moves a definition without changing it "
+                             f"({len(renamed)} definition(s)); no tests run. Callers outside this repository and names looked "
+                             'up from strings are not checked.')
+    elif 'refactor' in extras:
         # Renames and moves (refactor): a static reading of the change, so it is there whether or not tests ran.
         began = time.perf_counter()
         report['refactors'] = refactor.label({path: (original(root, path, edit), candidate(root, path, edit)) for path, edit in edits.items()})

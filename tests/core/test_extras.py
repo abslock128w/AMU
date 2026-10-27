@@ -104,3 +104,64 @@ def test_the_comment_shows_renames_and_differing_inputs():
     body = render(report, dict(head='a' * 40), quiet=True)
     assert 'Renamed or moved, nothing else (1)' in body and 'grand_total' in body
     assert 'An input on which the two versions differ (1)' in body and 'x=3' in body
+
+
+def test_a_change_that_only_renames_runs_no_test_and_says_refactor_only(tmp_path):
+    # Live case (c) of the comment-usefulness test: a private helper renamed, 160 tests run, 7 minutes, nothing said.
+    import difflib
+    import sys
+
+    from amu.ci.render import render
+    from amu.core import analyze, refactor
+
+    lib0 = ('import os\n\n\ndef _relative(root, name):\n    return os.path.relpath(name, root)\n\n\n'
+            'def report(root, names):\n    return [_relative(root, n) for n in names]\n')
+    lib1 = lib0.replace('_relative(', '_repo_path(')
+    tests = 'from lib import report\n\n\ndef test_report():\n    assert report("/a", ["/a/b"]) == ["b"]\n'
+    for name, text in {'lib.py': lib1, 'tests/test_lib.py': tests}.items():
+        (tmp_path/name).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path/name).write_text(text)
+    diff = ''.join(difflib.unified_diff(lib0.splitlines(True), lib1.splitlines(True), 'a/lib.py', 'b/lib.py'))
+    report = analyze(tmp_path, diff, full_evidence=True, index_dir=tmp_path/'.index', run=True, python=sys.executable)
+    assert report['refactor_only'] is True and 'flips' not in report and 'executed' not in report, report
+    assert [(r['from'], r['to']) for r in report['refactors']] == [('lib.py#_relative', 'lib.py#_repo_path')]
+    first = render(report, dict(head='a' * 40, merge_base='b' * 40)).splitlines()[0]
+    assert first == ('**AMU: refactor only** at `aaaaaaa`: every change renames or moves 1 definition without changing it; '
+                     'no tests run'), first
+    # A rename with any other change in it is not refactor only, and runs as usual.
+    lib2 = lib1.replace('return [', 'return sorted([').replace('names]\n', 'names])\n')
+    assert refactor.only({'lib.py': (lib0, lib2)}) is None
+    (tmp_path/'lib.py').write_text(lib2)
+    diff = ''.join(difflib.unified_diff(lib0.splitlines(True), lib2.splitlines(True), 'a/lib.py', 'b/lib.py'))
+    report = analyze(tmp_path, diff, full_evidence=True, index_dir=tmp_path/'.index', run=True, python=sys.executable)
+    assert 'refactor_only' not in report and report['executed']['ran'] >= 1, report
+
+
+def test_refactor_only_covers_moves_and_refuses_strings_and_other_files():
+    from amu.core import refactor
+
+    a0 = 'def helper(x):\n    return x + 1\n\n\ndef main():\n    return helper(1)\n'
+    b0 = 'def other():\n    return 0\n'
+    a1 = 'from pkg.b import helper\n\n\ndef main():\n    return helper(1)\n'
+    b1 = b0 + '\n\ndef helper(x):\n    return x + 1\n'
+    # Moved, and the old module now imports it: an import line the before side does not have, so not only a move.
+    assert refactor.only({'pkg/a.py': (a0, a1), 'pkg/b.py': (b0, b1)}) is None
+    c0 = 'from pkg.a import helper\n\n\ndef use():\n    return helper(2)\n'
+    c1 = 'from pkg.b import helper\n\n\ndef use():\n    return helper(2)\n'
+    a2 = 'def main():\n    return 1\n'
+    a2_before = a0.replace('return helper(1)', 'return 1')
+    rows = refactor.only({'pkg/a.py': (a2_before, a2), 'pkg/b.py': (b0, b1), 'pkg/c.py': (c0, c1)})
+    assert rows and rows[0]['kind'] == 'move', rows
+    s0 = 'def old():\n    return 1\n\n\nNAME = "old"\n'
+    assert refactor.only({'m.py': (s0, s0.replace('def old', 'def new'))}) is None  # the string still says old
+    assert refactor.only({'m.py': (s0, s0.replace('old', 'new')), 'README.md': ('a', 'b')}) is None
+
+
+def test_a_rename_that_a_file_left_alone_still_imports_is_not_refactor_only():
+    from amu.core import refactor
+
+    assert refactor.says('from lib import to_upper\nCONVERTERS = [to_upper]\n', {'to_upper'})
+    assert refactor.says('import lib\nlib.to_upper("a")\n', {'to_upper'})
+    assert refactor.says('f = getattr(lib, "to_upper")\n', {'to_upper'})
+    # Its own definition of the same name, used bare: another function, not the one renamed.
+    assert not refactor.says('def _relative(a):\n    return a\n\n\nx = _relative(1)\n', {'_relative'})
