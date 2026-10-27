@@ -452,3 +452,81 @@ requests of Django and sympy that touch production Python.
   - profile sympy #30476 first;
   - move side-by-side rows to the collapsed section;
   - the generated-test rule, as written.
+
+## Does the comment tell a reviewer something the diff does not? (2026-10-27)
+
+A short test, no engine change. Live part on this repository with the Action as a maintainer gets it today: the
+workflows on main pin `v0.3.0`, so the features merged behind `--extras` are off, there is no `ANTHROPIC_API_KEY`
+secret (no generated tests), and the recording is off (the default).
+
+### Step 1: three throwaway pull requests on this repository
+
+Each was a one-commit change with no test touching it, opened into main, closed unmerged, branch deleted
+(#48, #49, #50, 2026-10-27).
+
+| Case | Change | Wanted | Comment posted | Came out as wanted |
+|---|---|---|---|---|
+| (a) tests call it, no test asserts on the edge | `amu/ci/render.py#short`: a missing sha renders `(none)` instead of `unknown`. Tests call `short(None)`; none checks the text. | a side-by-side row with the input and both outcomes | "0 flips among 111 tests run". Collapsed: side-by-side compared 5 calls of `short`, no difference; side-by-side stopped at its time limit. | no |
+| (b) no test reaches it | `amu/ci/counters.py#collect` skips pull requests closed without merging. No test calls `collect` or `counters.main`. | an untested-change row or a probe, not silence | "0 flips among 29 tests run". Collapsed gaps: "No existing test reaches the change within five source hops"; the changed function was not called. No probe (no API key; generated tests need one). | no: the fact is there, but only as a gap line under a "0 flips" headline |
+| (c) pure rename of a private helper | `amu/core/coverage.py#_relative` renamed `_repo_path` (3 sites in one file). | quiet, or marked as a refactor | "0 flips among 160 tests run", 160 of 182 candidates, nothing else. Not marked as a refactor (that labelling is behind `--extras`, not in v0.3.0). | yes (quiet) |
+
+Wanted: 1 of 3.
+
+- (a) The headline reads as all-clear on a pull request that changes behaviour. Why no row: side-by-side captures at
+  most 5 calls per changed function per process (`CALLS` in `amu/core/sidebyside.py`), and it compared exactly 5. Run
+  locally, the CI tests (`tests/ci`) call `short` 46 times, 3 of them with `None`, so the 5 captured were most likely real shas, where
+  both versions agree. The report JSON does not list which calls were captured, so this is the likely cause, not a
+  read one.
+- (b) The comment is not silent, but a reviewer sees "0 flips" and must open the collapsed section to learn that
+  nothing tested the change. The gap line is the only place that says so.
+- (c) Spent 7 minutes and 160 tests to say nothing about a rename. Quiet is the right answer; it is not cheap.
+
+### Step 2: ten pull requests from the frozen 100
+
+Picked by rule, not by reading them first: in the order the Brief 5 run processed them (its local results table,
+not in the repository), the first three Django and first two sympy pull requests with a flip or a side-by-side row ("reported"), and the first
+three Django and first two sympy pull requests whose comment was quiet. The comments are the v0.2.6 ones from Brief 5
+(`evaluation/retrospective/<repo>/<n>.md`); v0.3.0 renders these sections the same way. "Diff alone" is what a
+reviewer gets from the diff and the description.
+
+| Pull request | AMU said | Diff alone | What the comment adds | Label |
+|---|---|---|---|---|
+| Django #21820 | 1 flip | A `TypeError` message for `path()` gains "but got str."; the one test asserting the message is edited to match. | The flip is that edited test run in its old form, which fails by design. The evidence row (new test fails on the base) is true but obvious for a message-string change. | adds noise |
+| Django #21805 | 3 flips | Deprecation warnings renamed across 30+ files, old names kept as aliases, many tests edited. | 3 flips, all edited tests in their old form; 28 "evidence" tests only fail on the base because they import the new names; 40 of 4,128 candidates ran, runner errors fill the gaps. | adds noise |
+| Django #21736 | 1 side-by-side row | `EmailValidator.validate_domain_part()` deprecated in favour of `validate_domain()`; docs and deprecation timeline say so. | The row shows `validate_domain_part('example.com')` returned `True` and now raises the deprecation warning: the deprecation the diff announces. 14 evidence tests fail on the base because they call the new method. | adds nothing |
+| sympy #30540 | 1 flip | `nonlinsolve` keeps denominator restrictions (fixes two issues); 9 new tests, one older test's expected answer edited. | The flip is the edited older test (visible in the diff). But all 9 new tests fail on the base and pass on the head, checked by running them: the tests pin the fix, which the diff cannot show. | adds something a reviewer would want |
+| sympy #30572 | 2 flips | Printing of elementwise functions changes (`exp_o(A)`); the expected strings in 2 printing tests are edited, 2 tests added. | Both flips are the edited expected strings in their old form; the 4 evidence tests fail on the base because the output text changed. | adds noise |
+| Django #21853 | quiet | One Oracle 23ai skip entry added for a GIS test. | 0 flips among 14 tests; the changed code is Oracle-only and no test ran it. | adds nothing |
+| Django #21714 | quiet | One line in `RelatedIn` (`self.prepare_rhs = False`); no test added. | 0 flips among 2,393 tests and no difference on 5 captured calls; Django's own CI says the first part. That no test reaches the case the line fixes is implied, not said. | adds nothing |
+| Django #21659 | quiet | `DISTINCT ON` ordering fix in the SQL compiler with 8 new tests and a 6.1.1 release note. | The collapsed section says the 8 new tests "pass on the merge base too, so they show nothing about the change". They were skipped on both sides (SQLite has no `DISTINCT ON`), so the sentence is wrong. | adds noise |
+| sympy #30515 | quiet | `function_range` decomposes composed functions so `sin(exp(x))` stops hanging; one regression test. | 0 flips among 552 tests; the changed function was not called by any test that ran. Replaying the new test on the base timed out, which is the hang the PR fixes, but the comment lists it as a gap, not as evidence. | adds nothing |
+| sympy #30477 | quiet | LaTeX (lark) grammar so `\sinh x` parses; 3 tests added or edited. | The collapsed section says the 3 tests "pass on the merge base too". They were skipped on both sides (lark is not installed), and none of the 73 tests run touched the parser. | adds noise |
+
+Count: adds something 1, adds nothing 4, adds noise 5.
+
+- Every flip in the five "reported" pull requests is a test the pull request edited, run in its old form. The headline
+  counts it as a flip, so the first line of the comment flags an intended, visible change.
+- The one useful thing in the ten is change evidence on a fix whose new tests could have passed without it (#30540).
+  It is useful only when the tests are not trivially new (new names, new message text, new methods).
+- Defect, not fixed here: `amu/ci/render.py` counts a replayed test with verdict `none` as "pass on the merge base
+  too". A test skipped on both sides gets that verdict, so a skipped test is reported as passing (#21659, #30477).
+
+### Step 3: time from pull request opened to comment posted
+
+From the pull request's `created_at` to the AMU comment's `created_at` (GitHub API).
+
+| Case | Opened (UTC) | Comment posted (UTC) | Minutes | AMU's own run time (report) |
+|---|---|---|---:|---:|
+| (a) #48 | 10:25:54 | 10:33:34 | 7.7 | 399 s |
+| (b) #49 | 10:25:56 | 10:27:11 | 1.3 | 13 s |
+| (c) #50 | 10:25:57 | 10:34:09 | 8.2 | 428 s |
+
+- (a) and (c) went past the 300 s per-side budget: the side-by-side run on the merge base hit its own time limit, and
+  in (c) the shadow run stopped at 160 of 182 candidates.
+
+### What this says
+
+- Live: 1 of 3 came out as wanted, and that one is the case where saying nothing is right.
+- Frozen: the comment added something a reviewer would want on 1 of 10 pull requests; 5 of 10 it added noise.
+- The headline is the problem in both parts. It counts tests the pull request edited as flips, and it says "0 flips"
+  over a change no test reached or a behaviour change no captured call exercised.
