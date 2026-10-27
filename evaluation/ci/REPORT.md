@@ -530,3 +530,88 @@ From the pull request's `created_at` to the AMU comment's `created_at` (GitHub A
 - Frozen: the comment added something a reviewer would want on 1 of 10 pull requests; 5 of 10 it added noise.
 - The headline is the problem in both parts. It counts tests the pull request edited as flips, and it says "0 flips"
   over a change no test reached or a behaviour change no captured call exercised.
+
+## The five comment fixes, re-scored on the same 13 cases (0.4.0, 2026-10-27)
+
+Fixes, each with a test that fails on the code before it, each its own PR: #52 skipped is not passed; #53 new test for
+new code; #54 the first line (edited tests are not flips; "no test ran the changed code"; "0 flips" only when something
+ran it); #55 side-by-side sampled by argument shape, compared calls recorded; #56 refactor only. The rename-labelling
+extra had not met its ship rule (see the last section), so #56 runs AMU's own rename-and-move match by default.
+Released as `v0.4.0`. While re-scoring, #58 fixed a slip in #54: the first line counted the pull request's own tests
+skipped on the head as having run (sympy #30477). The tables use the renderer with #58.
+
+How each case was re-run: the engine at `967db59` (main after #56; its footer still says `0.3.0`, the version bump came
+with the release PR), as the Action runs it: budget 300 s per side, wall cap 1200 s, no generated tests, comment
+rendered quiet. The three live cases ran locally at their original heads against merge base `a51c07e`, recording off
+as on the Action. The ten frozen pull requests were rerun locally, not re-rendered, because #53 and #55 change what is
+captured. They used the retrospective's SHAs and its recording setting (Django on, sympy off), each starting from a copy
+of the index cache the retrospective left. Driver: `evaluation/ci/rescore-0.4.0/rescore.py`. Every comment is in that
+folder.
+
+### Step 1 again: the three live cases
+
+| Case | Wanted | 0.3.0 first line (CI) | 0.4.0 first line (local) | Wanted? before → after |
+|---|---|---|---|---|
+| (a) edge-case change, tests call it, none asserts | a side-by-side row | `AMU: 0 flips … among 111 tests run`; no row | `AMU: 0 flips … among 111 tests run, some of them on the changed code; 1 behaviour difference on captured input`. The row: `short(None)`, `'unknown'` before, `'(none)'` after; 10 calls compared over 3 shapes | no → yes |
+| (b) change no test reaches | not silence | `AMU: 0 flips … among 29 tests run`; the fact in a collapsed gap | `AMU: no test ran the changed code in amu/ci/counters.py … ; 29 tests run` | no → yes |
+| (c) pure rename of a private helper | quiet or refactor | `AMU: 0 flips … among 160 tests run`, 7 min | `AMU: refactor only … every change renames or moves 1 definition without changing it; no tests run` | yes (quiet) → yes (refactor) |
+
+Wanted: 1 of 3 before, 3 of 3 after. AMU's own run time locally: 321 s, 5 s, 3 s. This was measured on this machine,
+so it does not compare directly with the CI minutes before, but (c) no longer runs tests at all.
+
+### Step 2 again: the ten frozen pull requests
+
+Same picks, same three labels, same reading: what a reviewer gets from the diff and description, against what the
+comment adds.
+
+| Pull request | Before (v0.2.6) | After (0.4.0): what the comment says now | After | Job s before → after |
+|---|---|---|---|---:|
+| Django #21820 | adds noise | `0 flips` among 965; the edited message test is under "Tests this pull request updated", not a flip; its new form fails on the base on the message (evidence). The diff already shows the message change. | adds nothing | 435 → 65 |
+| Django #21805 | adds noise | `0 flips` among 16,081 (40 before: the `gis_tests` abort was fixed in 0.3.0). 117 edited tests under "updated"; 11 "new tests for new code"; 106 "do not load on the merge base for a reason AMU did not read". No false claim; nothing a reviewer needs. | adds nothing | 42 → 423 |
+| Django #21736 | adds nothing | `0 flips`; 9 evidence tests (overrides of the new hooks fail on the base by assertion); 5 new tests for new code; 8 collapsed rows, all the deprecation warning the diff announces | adds nothing | 17 → 289 |
+| sympy #30540 | adds something | `0 flips`; the edited older test is under "updated"; 10 evidence tests pin the fix; one collapsed row the diff does not make obvious: `substitution` used to empty the `result` list its caller passes and now leaves `[{y: 1}]` in it | adds something a reviewer would want | 54 → 319 |
+| sympy #30572 | adds noise | `0 flips`; the 2 edited printing tests under "updated"; 4 evidence tests fail on the base because the printed text changed | adds nothing | 225 → 332 |
+| Django #21853 | adds nothing | `no test ran the changed code in django/contrib/gis/db/backends/oracle/features.py` | adds nothing (true now, but a reviewer knows an Oracle skip list is not run here) | 16 → 29 |
+| Django #21714 | adds nothing | `0 flips` among 4,776, some on the changed code; no difference on the captured calls; nothing says the fixed case went untested | adds nothing | 68 → 266 |
+| Django #21659 | adds noise | `0 flips`; collapsed: "8 tests skipped on both sides … they did not run here" (was "pass on the merge base too") | adds nothing | 23 → 415 |
+| sympy #30515 | adds nothing | `no test ran the changed code in sympy/calculus/util.py, apart from the 1 test this pull request adds or edits; 2896 tests run`: the new branch for every composed function is exercised only by the test the pull request edits (9,978 lower-ranked candidates not run) | adds something a reviewer would want | 360 → 352 |
+| sympy #30477 | adds noise | `no test ran the changed code in` the two lark parser files; collapsed: the 3 new tests were skipped on both sides (lark not installed) | adds nothing | 380 → 382 |
+
+| | adds something | adds nothing | adds noise |
+|---|---:|---:|---:|
+| Before (v0.2.6) | 1 | 4 | 5 |
+| After (0.4.0) | 2 | 8 | 0 |
+
+Target was noise 0 of 10 (met) and adds something at least 3 of 10 (not met: 2). The fixes removed the noise. On these
+ten they found one thing a reviewer would want that the earlier comment did not show (#30515's first line). #30540's
+mutation row is a second, but it is collapsed.
+
+Job time went up on most Django pull requests because 0.3.0 runs what `gis_tests` used to abort (21805: 40 tests then,
+16,081 now), not because of these fixes. The flip counts held: no flips among the ten after, as before once edited
+tests are set apart.
+
+### Found while re-scoring, not fixed
+
+- **Django #21805, 106 tests "not read".** `tests/mail/__init__.py` imports the new warning class. On the merge base
+  Django cannot import that test package, and the whole replay batch aborts. The existing split rule ("half a batch
+  aborts the same way: every remaining candidate is unrunnable") then marks all of them unrunnable, so the runner never
+  prints a per-test error for #53 to read. Run directly on the merge base, each of the 106 fails with its own
+  `ImportError` on `RemovedInDjango2028Warning`. The fix belongs in the split rule, not in the comment.
+- **Django #21805, side-by-side did not start: "Argument list too long".** 16,081 labels on one runner command line.
+  This existed before 0.4.0 and was hidden while `gis_tests` aborted the runs.
+- **The footer** shows the engine's `__version__`; a run from an unreleased commit shows the last release.
+
+### The part 4 measurement of the extras did not finish
+
+`/Users/Shared/amu-retro-2026-10-18/suite.lock` was still held when the re-score started. Holder: the part 4
+measurement (`q4/measure.py`), "sympy 30477", pid 6741, taken 2026-10-27 16:14 IST. That process is gone, and the lock
+was not released. Its checkpoints (`out-q4/<repo>/<n>/done.json`) show 53 of the 100 pull requests finished (all 50
+Django, sympy #30476, #30511 and #30515). Sympy #30477 started and has only its patch. The owner's note says 49 PRs; the
+checkpoint files say 53. `measure.log` holds the Django rows twice: a second launch on 2026-10-27 re-read the
+checkpoints and died on #30477.
+
+So the extras' numbers cover Django and three sympy pull requests: refactor 4 rows (all on Django #21805), mutation
+survivors on 11 Django PRs, equivalence 0. They are not enough for the ship rule (at least one true row and under 10%
+false on a hand sample of 10). The sympy half has to be restarted from its checkpoints (`measure.py` skips finished pull
+requests) before any ship-rule decision on the extras. The stale lock was left in place; it must be removed before that
+restart, because the driver waits on it. This re-score ran without taking it (nothing else was running).
