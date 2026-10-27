@@ -19,7 +19,8 @@ def test_first_line_is_flip_count_and_head_then_sections_in_order():
 
 
 def test_zero_flips_is_a_count_among_what_ran_not_a_pass():
-    body = render(dict(flips=0, predicted_failures=[], gaps=[], executed=EXECUTED), META)
+    body = render(dict(flips=0, predicted_failures=[], gaps=[], executed=EXECUTED,
+                       side_by_side=dict(compared_calls=1, functions_called=1, targets=1)), META)
     assert body.startswith('**AMU: 0 flips** at `abcdef1`, among 40 tests run')
     assert 'Tests outside the candidates were not run.' in body
     for claim in ('safe', 'passes', 'no regression', 'all clear'):
@@ -148,7 +149,7 @@ def test_quiet_mode_folds_a_report_with_nothing_found_into_one_line():
     quiet = dict(flips=0, predicted_failures=[], gaps=['20 call sites unresolved'], executed=dict(ran=4, candidates=4, runner='pytest'))
     body = render(quiet, META, quiet=True)
     first, rest = body.split('\n', 1)
-    assert first.startswith('**AMU: 0 flips**') and rest.lstrip().startswith('<details>') and '### What ran' in rest
+    assert first.startswith('**AMU: no flip**') and rest.lstrip().startswith('<details>') and '### What ran' in rest
     loud = dict(quiet, flips=1, predicted_failures=[dict(id='t.py::test_a')])
     assert '<details><summary>What ran' not in render(loud, META, quiet=True)
 
@@ -203,7 +204,8 @@ def test_a_run_the_wall_cap_stopped_shows_what_it_found_and_what_it_did_not_do()
     # Nothing found among what ran is still not folded away when the cap stopped the run.
     none = dict(report, flips=0, predicted_failures=[])
     body = render(none, dict(META, wall_cap=1200), quiet=True)
-    assert body.startswith('**AMU: 0 flips** at `abcdef1`, among 40 tests run; stopped at the wall cap of 1200 s')
+    assert body.startswith('**AMU: no flip** at `abcdef1` among 40 tests run; whether any ran the changed code was not '
+                           'seen; stopped at the wall cap of 1200 s')
     assert '<details><summary>What ran' not in body and '### Gaps (2)' in body
     # A wall cap the artifact gives as anything but a count of seconds is not shown.
     assert render(report, dict(META, wall_cap='1200`')).splitlines()[0].endswith('; stopped at the wall cap before it finished')
@@ -241,3 +243,47 @@ def test_new_tests_for_new_code_get_their_own_heading_and_are_not_change_evidenc
     assert body.index('`tests/t.py::test_value`') < new < body.index('`tests/t.py::test_new_api`')
     assert '`AttributeError on validate_domain`' in body and '`ImportError on RemovedInDjango2028Warning`' in body
     assert '1 test do not load on the merge base for a reason AMU did not read' in body
+
+
+def test_a_test_the_pull_request_edited_is_not_a_flip_and_never_counts_in_the_first_line():
+    # Django #21820, #21805, sympy #30540, #30572 (comment-usefulness test): every flip was an edited test in its old form.
+    edited = dict(flip('tests/t.py::test_message'), label='test edited, not fixed')
+    side = dict(compared_calls=5, functions_called=1, targets=1)
+    old_style = dict(flips=1, predicted_failures=[edited], gaps=[], executed=EXECUTED, side_by_side=side)
+    new_style = dict(flips=0, predicted_failures=[], updated_tests=[edited], gaps=[], executed=EXECUTED, side_by_side=side)
+    for report in (old_style, new_style):
+        body = render(report, META)
+        first = body.splitlines()[0]
+        assert 'flip' in first and '1 flip' not in first and first.startswith('**AMU: 0 flips**'), first
+        assert '### Flips' not in body
+        assert body.index('### Tests this pull request updated (1)') < body.index('`tests/t.py::test_message`')
+    both = dict(old_style, flips=2, predicted_failures=[edited, flip('tests/t.py::test_other')])
+    body = render(both, META)
+    assert body.splitlines()[0].startswith('**AMU: 1 flip** at'), body.splitlines()[0]
+    assert '### Flips (1)' in body and '### Tests this pull request updated (1)' in body
+
+
+def test_when_no_test_ran_the_changed_code_the_first_line_says_so_and_is_never_folded():
+    # Live case (b) and sympy #30515: "0 flips" over a change no test reached; the fact was a collapsed gap line.
+    report = dict(flips=0, predicted_failures=[], gaps=['g'], executed=dict(EXECUTED, ran=29, candidates=29),
+                  side_by_side=dict(compared_calls=0, functions_called=0, targets=1),
+                  changed_functions=[dict(file='amu/ci/counters.py', symbol='collect', lines='155-160')])
+    for quiet in (False, True):
+        body = render(report, META, quiet=quiet)
+        first = body.splitlines()[0]
+        assert first == '**AMU: no test ran the changed code in `amu/ci/counters.py`** at `abcdef1`; 29 tests run', first
+        assert '<details><summary>What ran' not in body
+    own = dict(report, changed_functions=report['changed_functions'] + [dict(file='tests/test_c.py', symbol='test_c')])
+    assert ', apart from the 1 test this pull request adds or edits; ' in render(own, META).splitlines()[0]
+    cut = dict(report, side_by_side=dict(report['side_by_side'], stopped=True))
+    assert render(cut, META).splitlines()[0].endswith('29 tests run before the side-by-side time limit')
+
+
+def test_zero_flips_appears_only_when_something_ran_the_changed_code():
+    base = dict(flips=0, predicted_failures=[], gaps=[], executed=EXECUTED,
+                changed_functions=[dict(file='lib.py', symbol='f', lines='1-2')])
+    called = render(dict(base, side_by_side=dict(compared_calls=3, functions_called=1, targets=1)), META)
+    assert called.startswith('**AMU: 0 flips** at `abcdef1`, among 40 tests run, some of them on the changed code')
+    unseen = render(base, META)  # no side-by-side (Python before 3.12), no evidence: not seen
+    assert '0 flips' not in unseen and unseen.startswith('**AMU: no flip** at `abcdef1` among 40 tests run; whether any '
+                                                          'ran the changed code was not seen')

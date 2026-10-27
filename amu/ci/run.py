@@ -34,7 +34,7 @@ from .. import __version__
 from ..core import edges as core_edges
 from ..core import sitehooks
 from ..core.index import cache_dir
-from ..core.shadow import SIDE_BY_SIDE
+from ..core.shadow import EDITED, SIDE_BY_SIDE
 
 RESERVE = 60  # seconds kept back from the wall cap for reading results
 FINISH = 60  # of amu's time, kept after its deadline for writing its report (a quarter of it, when that is less)
@@ -165,6 +165,23 @@ def observe(repo, found, python, runner, seconds):
         shutil.rmtree(scratch, ignore_errors=True)
 
 
+def updated_apart(report):
+    """A test the pull request edited, failing only as it was before the edit, is not a flip: the edit is in the diff.
+    It moves from the flips to ``updated_tests``, so the flip count, the fresh-job rerun and the counters leave it out.
+    (The engine keeps it among its failures, labelled: an agent editing a test to make it pass is told so.)"""
+    failures = report.get('predicted_failures')
+    if not isinstance(failures, list):
+        return report
+    edited = [row for row in failures if isinstance(row, dict) and row.get('label') == EDITED]
+    if not edited:
+        return report
+    kept = [row for row in failures if row not in edited]
+    report = dict(report, predicted_failures=kept, updated_tests=[*(report.get('updated_tests') or []), *edited])
+    if isinstance(report.get('flips'), int):
+        report['flips'] = len(kept)
+    return report
+
+
 def run(repo, base, head, out, python=None, runner=None, pr=None, budget=None, install_ok=None, amu_ref=None,
         wall_cap=None, record=False, counters=False, generate=None, extras=()):
     repo, out = Path(repo).resolve(), Path(out)
@@ -225,6 +242,7 @@ def run(repo, base, head, out, python=None, runner=None, pr=None, budget=None, i
         report = dict(error=f'could not run: {exc}')
     if notes and isinstance(report.get('gaps'), list):
         report['gaps'] = notes + report['gaps']
+    report = updated_apart(report)
     meta['seconds'] = round(time.monotonic() - started, 1)
     meta['status'] = 'error' if 'error' in report else 'ran'
     (out/'report.json').write_text(json.dumps(report, indent=1))
