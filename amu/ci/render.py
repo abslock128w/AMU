@@ -97,10 +97,11 @@ def stopped(report):
 
 
 def own_tests(report):
-    """Tests the pull request adds or edits: replayed, or changed functions in test files."""
+    """Tests the pull request adds or edits that ran on the head: replayed and not skipped there, or, with nothing
+    replayed, changed functions in test files."""
     replayed = [row for row in report.get('replayed') or [] if isinstance(row, dict)]
     if replayed:
-        return len(replayed)
+        return sum(row.get('head') != 'skipped' for row in replayed)
     return sum(isinstance(row, dict) and is_test_file(str(row.get('file', ''))) for row in report.get('changed_functions') or [])
 
 
