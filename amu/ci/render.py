@@ -231,9 +231,18 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
             def shown(row):
                 return code(row['id']) + (' (does not load on the merge base)' if row.get('before') == 'unloadable' else '')
             out += rows(evidence, shown, listed) + ['']
-        quiet = sum(row.get('verdict') == 'none' for row in replayed)
-        if quiet:
-            out += [f"{plural(quiet, 'test')} pass on the merge base too, so they show nothing about the change.", '']
+        # Verdict 'none' covers a test that passed on both sides and one that was skipped on either: only the first passed.
+        quiet = [row for row in replayed if row.get('verdict') == 'none']
+        skipped_both = sum(row.get('head') == 'skipped' and row.get('base') == 'skipped' for row in quiet)
+        skipped_one = sum((row.get('head') == 'skipped') != (row.get('base') == 'skipped') for row in quiet)
+        passed = len(quiet) - skipped_both - skipped_one
+        if passed:
+            out += [f"{plural(passed, 'test')} pass on the merge base too, so they show nothing about the change.", '']
+        if skipped_both:
+            out += [f"{plural(skipped_both, 'test')} skipped on both sides, so they show nothing about the change: "
+                    'they did not run here.', '']
+        if skipped_one:
+            out += [f"{plural(skipped_one, 'test')} skipped on one side only, so they show nothing about the change.", '']
     labelled = [row for row in report.get('flip_trust') or [] if isinstance(row, dict) and row.get('id')
                 and not str(row.get('label', '')).startswith('fails')]
     unstable = report.get('unstable') or []
