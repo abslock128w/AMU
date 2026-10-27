@@ -73,3 +73,135 @@ def label(sources):
     # The methods of a class that moved as a whole moved with it: one row, the class's.
     outer = {row['from'] for row in rows if row['what'] == 'class'}
     return [row for row in rows if not any(row['from'].startswith(o + '.') for o in outer)]
+
+
+class _Renamed(ast.NodeTransformer):
+    """The before side with each renamed or moved name spelled as the change spells it."""
+
+    def __init__(self, names, modules):
+        self.names, self.modules = names, modules
+
+    def _name(self, value):
+        return self.names.get(value, value)
+
+    def visit_Name(self, node):
+        node.id = self._name(node.id)
+        return node
+
+    def visit_Attribute(self, node):
+        self.generic_visit(node)
+        node.attr = self._name(node.attr)
+        return node
+
+    def visit_FunctionDef(self, node):
+        self.generic_visit(node)
+        node.name = self._name(node.name)
+        return node
+
+    visit_AsyncFunctionDef = visit_FunctionDef
+
+    def visit_ClassDef(self, node):
+        self.generic_visit(node)
+        node.name = self._name(node.name)
+        return node
+
+    def visit_alias(self, node):
+        node.name = '.'.join(self._name(part) for part in node.name.split('.'))
+        if node.asname:
+            node.asname = self._name(node.asname)
+        return node
+
+    def visit_ImportFrom(self, node):
+        self.generic_visit(node)
+        moved = [self.modules.get((node.module, alias.name)) for alias in node.names]
+        if node.module and moved and all(moved) and len(set(moved)) == 1:
+            node.module = moved[0]
+        return node
+
+
+
+def _module(path):
+    module = path[:-3].replace('/', '.')
+    return module[:-len('.__init__')] if module.endswith('.__init__') else module
+
+
+def _without(tree, quals):
+    """``tree`` with the definitions named in ``quals`` (Class.method or function) left out."""
+    def strip(body, owner):
+        kept = []
+        for node in body:
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) and owner + node.name in quals:
+                continue
+            if isinstance(node, ast.ClassDef):
+                node.body = strip(node.body, owner + node.name + '.') or [ast.Pass()]
+            kept.append(node)
+        return kept
+    tree.body = strip(tree.body, '')
+    return tree
+
+
+def only(sources):
+    """The rename and move rows when every change in ``sources`` {path: (before text or None, after text or None)} is
+    one of them, read as Python: the before side, with each renamed or moved name spelled the new way, has the same
+    syntax tree as the after side once the moved definitions are set aside. Otherwise None. A change to any other
+    file, a comment-only edit aside, is not a rename."""
+    if not sources or any(not path.endswith('.py') for path in sources):
+        return None
+    rows = label(sources)
+    if not rows:
+        return None
+    names, modules, gone, came = {}, {}, {}, {}
+    for row in rows:
+        old_path, old_qual = row['from'].split('#', 1)
+        new_path, new_qual = row['to'].split('#', 1)
+        old_name, new_name = old_qual.rsplit('.', 1)[-1], new_qual.rsplit('.', 1)[-1]
+        if old_name != new_name:
+            if names.get(old_name, new_name) != new_name:
+                return None  # one name renamed two ways: not read as a plain rename
+            names[old_name] = new_name
+        if row['kind'] == 'move':
+            gone.setdefault(old_path, set()).add(old_qual)
+            came.setdefault(new_path, set()).add(new_qual)
+            if old_path != new_path:
+                modules[(_module(old_path), new_name)] = _module(new_path)
+    for path, (old, new) in sources.items():
+        try:
+            before = ast.parse(old or '')
+            after = ast.parse(new or '')
+        except (SyntaxError, ValueError):
+            return None
+        if any(isinstance(node, ast.Constant) and node.value in names for node in ast.walk(before)):
+            return None  # the old name in a string may be looked up by it (getattr, a registry): not only a rename
+        before = _Renamed(names, modules).visit(_without(before, gone.get(path, set())))
+        after = _without(after, came.get(path, set()))
+        if ast.dump(before, include_attributes=False) != ast.dump(after, include_attributes=False):
+            return None
+    return rows
+
+
+def says(text, names):
+    """Whether the source ``text`` of a file the change leaves alone uses one of ``names`` (old names a change renames):
+    imports it, reads it as an attribute, holds it in a string, or uses it bare without defining it itself. A file
+    that does not parse is taken to use it."""
+    try:
+        tree = ast.parse(text)
+    except (SyntaxError, ValueError):
+        return True
+    own = set()
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            own.add(node.name)
+        elif isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store):
+            own.add(node.id)
+        elif isinstance(node, ast.arg):
+            own.add(node.arg)
+    for node in ast.walk(tree):
+        if isinstance(node, ast.alias) and node.name.split('.')[-1] in names:
+            return True
+        if isinstance(node, ast.Attribute) and node.attr in names:
+            return True
+        if isinstance(node, ast.Constant) and node.value in names:
+            return True
+        if isinstance(node, ast.Name) and node.id in names and node.id not in own:
+            return True
+    return False
