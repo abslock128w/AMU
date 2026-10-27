@@ -179,10 +179,12 @@ def only(sources):
     return rows
 
 
-def says(text, names):
+def says(text, names, modules=None):
     """Whether the source ``text`` of a file the change leaves alone uses one of ``names`` (old names a change renames):
-    imports it, reads it as an attribute, holds it in a string, or uses it bare without defining it itself. A file
-    that does not parse is taken to use it."""
+    imports it, reads it as an attribute, or uses it bare without defining it itself. A string holding the old name
+    counts only in a file that imports one of ``modules`` (where the renamed definitions were), or names one in a
+    string (importlib): only there can getattr or a registry look it up on that module. With ``modules`` None, every
+    such string counts. A file that does not parse is taken to use it."""
     try:
         tree = ast.parse(text)
     except (SyntaxError, ValueError):
@@ -195,13 +197,58 @@ def says(text, names):
             own.add(node.id)
         elif isinstance(node, ast.arg):
             own.add(node.arg)
+    strings = modules is None or _imports(tree, set(modules))
     for node in ast.walk(tree):
         if isinstance(node, ast.alias) and node.name.split('.')[-1] in names:
             return True
         if isinstance(node, ast.Attribute) and node.attr in names:
             return True
-        if isinstance(node, ast.Constant) and node.value in names:
+        if strings and isinstance(node, ast.Constant) and node.value in names:
             return True
         if isinstance(node, ast.Name) and node.id in names and node.id not in own:
             return True
     return False
+
+
+def _imports(tree, modules):
+    """Whether ``tree`` imports one of ``modules`` (dotted): ``import m`` or a package above it, ``from m import x``,
+    ``from package import m``, or ``m`` as a string (importlib.import_module)."""
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            if any(m == alias.name or m.startswith(alias.name + '.') for alias in node.names for m in modules):
+                return True
+        elif isinstance(node, ast.ImportFrom) and node.module and not node.level:
+            if node.module in modules or any(f'{node.module}.{alias.name}' in modules for alias in node.names):
+                return True
+        elif isinstance(node, ast.ImportFrom):
+            # A relative import: its target is not resolved here, so it may be the module.
+            if any(alias.name == m.rsplit('.', 1)[-1] for alias in node.names for m in modules) or \
+                    (node.module and any(m.endswith('.' + node.module) or m == node.module for m in modules)):
+                return True
+        elif isinstance(node, ast.Constant) and node.value in modules:
+            return True
+    return False
+
+
+def adds_only(sources):
+    """Whether the change only adds code: in every Python file outside the tests, the code before is the code after once
+    the definitions it adds are set aside (new functions, classes and methods; a new file counts whole). Test files may
+    change freely; other files are not read. False when no Python file outside the tests changed."""
+    from .replay import is_test_file
+
+    seen = False
+    for path, (old, new) in sources.items():
+        if not path.endswith('.py') or is_test_file(path):
+            continue
+        seen = True
+        if not old:
+            continue
+        try:
+            before, after = ast.parse(old), ast.parse(new or '')
+        except (SyntaxError, ValueError):
+            return False
+        kept = set(_definitions(old, path))
+        added = {qual for (_, qual) in _definitions(new, path) if (path, qual) not in kept}
+        if ast.dump(before, include_attributes=False) != ast.dump(_without(after, added), include_attributes=False):
+            return False
+    return seen

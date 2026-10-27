@@ -165,3 +165,73 @@ def test_a_rename_that_a_file_left_alone_still_imports_is_not_refactor_only():
     assert refactor.says('f = getattr(lib, "to_upper")\n', {'to_upper'})
     # Its own definition of the same name, used bare: another function, not the one renamed.
     assert not refactor.says('def _relative(a):\n    return a\n\n\nx = _relative(1)\n', {'_relative'})
+
+
+def test_a_string_with_the_old_name_blocks_refactor_only_only_where_the_module_is_imported(tmp_path):
+    # Live trial (c) on 0.4.0: tests/core/test_extras.py holds the string '_relative' and does not import
+    # amu.core.coverage, yet it stopped the rename of coverage._relative from reading as refactor only.
+    import difflib
+    import sys
+
+    from amu.core import analyze, refactor
+
+    home = {'pkg.cov'}
+    assert not refactor.says("from pkg import other\nNAMES = {'_relative'}\n", {'_relative'}, home)
+    assert refactor.says('from pkg import cov\nf = getattr(cov, "_relative")\n', {'_relative'}, home)
+    assert refactor.says('import pkg.cov\nREGISTRY = {"r": "_relative"}\n', {'_relative'}, home)
+    assert refactor.says('import importlib\nm = importlib.import_module("pkg.cov")\nf = m.__dict__["_relative"]\n',
+                         {'_relative'}, home)
+    assert refactor.says("NAMES = {'_relative'}\n", {'_relative'})  # no modules given: every string counts
+
+    cov0 = 'import os\n\n\ndef _relative(root, name):\n    return os.path.relpath(name, root)\n\n\n' \
+           'def report(root, names):\n    return [_relative(root, n) for n in names]\n'
+    cov1 = cov0.replace('_relative(', '_repo_path(')
+    files = {'pkg/__init__.py': '', 'pkg/cov.py': cov1, 'pkg/other.py': 'def other():\n    return 1\n',
+             'tests/test_cov.py': 'from pkg.cov import report\n\n\ndef test_report():\n    assert report("/a", ["/a/b"]) == ["b"]\n',
+             'tests/test_strings.py': "from pkg.other import other\n\n\ndef test_names():\n    assert '_relative' in {'_relative'}\n"}
+    for name, text in files.items():
+        (tmp_path/name).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path/name).write_text(text)
+    diff = ''.join(difflib.unified_diff(cov0.splitlines(True), cov1.splitlines(True), 'a/pkg/cov.py', 'b/pkg/cov.py'))
+    report = analyze(tmp_path, diff, full_evidence=True, index_dir=tmp_path/'.index', run=True, python=sys.executable)
+    assert report.get('refactor_only') is True and 'executed' not in report, report.get('summary')
+    # A real lookup by name, in a file that imports the module: still blocks, and the tests run.
+    (tmp_path/'tests/test_lookup.py').write_text('from pkg import cov\n\n\ndef test_lookup():\n'
+                                                 '    assert getattr(cov, "_relative", None) is None or True\n')
+    report = analyze(tmp_path, diff, full_evidence=True, index_dir=tmp_path/'.index2', run=True, python=sys.executable)
+    assert 'refactor_only' not in report and report['executed']['ran'] >= 1, report.get('summary')
+
+
+def test_adds_only_is_read_from_the_syntax_of_every_production_file():
+    from amu.core import refactor
+
+    a = 'def f():\n    return 1\n'
+    assert refactor.adds_only({'m.py': (a, a + '\n\ndef g():\n    return 2\n'), 'tests/test_m.py': ('', 'def test_g(): pass\n')})
+    assert refactor.adds_only({'pkg/new.py': ('', a)})
+    assert refactor.adds_only({'m.py': ('class A:\n    x = 1\n', 'class A:\n    x = 1\n\n    def m(self):\n        return 1\n')})
+    assert not refactor.adds_only({'m.py': (a, a.replace('1', '3') + '\n\ndef g():\n    return 2\n')})
+    assert not refactor.adds_only({'m.py': (a, 'X = 2\n' + a)})  # a new module-level statement runs on import
+    assert not refactor.adds_only({'tests/test_m.py': ('', 'def test_g(): pass\n')})
+
+
+def test_a_new_helper_with_its_new_test_reads_as_adds_new_code_only(tmp_path):
+    import difflib
+    import sys
+
+    from amu.ci.render import render
+    from amu.core import analyze
+
+    lib0 = 'def code(text):\n    return "`" + text + "`"\n'
+    lib1 = lib0 + '\n\ndef percent(part, whole):\n    return f"{round(100 * part / whole)}%" if whole else "-"\n'
+    test1 = 'from lib import percent\n\n\ndef test_percent():\n    assert percent(1, 4) == "25%"\n'
+    old = 'from lib import code\n\n\ndef test_code():\n    assert code("a") == "`a`"\n'
+    for name, text in {'lib.py': lib1, 'tests/test_percent.py': test1, 'tests/test_code.py': old}.items():
+        (tmp_path/name).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path/name).write_text(text)
+    diff = (''.join(difflib.unified_diff(lib0.splitlines(True), lib1.splitlines(True), 'a/lib.py', 'b/lib.py'))
+            + ''.join(difflib.unified_diff([], test1.splitlines(True), '/dev/null', 'b/tests/test_percent.py')))
+    report = analyze(tmp_path, diff, full_evidence=True, index_dir=tmp_path/'.index', run=True, python=sys.executable)
+    assert report.get('adds_only') is True, report.get('summary')
+    first = render(report, dict(head='a' * 40, merge_base='b' * 40)).splitlines()[0]
+    assert first == ('**AMU: adds new code only** at `aaaaaaa`; its 1 new test fails on the base with ImportError, '
+                     'as expected'), first
