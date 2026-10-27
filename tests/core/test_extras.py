@@ -94,7 +94,7 @@ def test_time_to_the_first_flip_and_labels_are_reported_only_when_asked(tmp_path
     assert report['refactors'] == [] and 'mutation' not in report and 'equivalence' not in report
     plain = analyze(root, diff('lib.py', LIB0, LIB1), full_evidence=True, index_dir=tmp_path/'.index', run=True, python=sys.executable,
                     runner='pytest')
-    assert 'refactors' not in plain and 'mutation' not in plain
+    assert plain['refactors'] == [] and 'mutation' not in plain
 
 
 def test_the_comment_shows_renames_and_differing_inputs():
@@ -235,3 +235,16 @@ def test_a_new_helper_with_its_new_test_reads_as_adds_new_code_only(tmp_path):
     first = render(report, dict(head='a' * 40, merge_base='b' * 40)).splitlines()[0]
     assert first == ('**AMU: adds new code only** at `aaaaaaa`; its 1 new test fails on the base with ImportError, '
                      'as expected'), first
+
+
+def test_renames_inside_a_larger_change_are_labelled_by_default_and_the_tests_still_run(tmp_path):
+    # Part 4 measurement on the 100 frozen pull requests: refactor gave 6 rows, all true on a hand check, so it is on by
+    # default. Django #21805 and sympy #30601 are such mixed changes.
+    lib0 = 'def total(xs):\n    return sum(xs)\n\n\ndef clamp(v, top):\n    return min(v, top)\n'
+    lib1 = 'def grand_total(xs):\n    return sum(xs)\n\n\ndef clamp(v, top):\n    return min(v, top - 1)\n'
+    tests = 'from lib import clamp\n\n\ndef test_low():\n    assert clamp(1, 5) == 1\n'
+    root = write(tmp_path, {'lib.py': lib1, 'tests/test_lib.py': tests})
+    report = analyze(root, diff('lib.py', lib0, lib1), full_evidence=True, index_dir=tmp_path/'.index', run=True,
+                     python=sys.executable, runner='pytest')
+    assert [(r['from'], r['to'], r['kind']) for r in report['refactors']] == [('lib.py#total', 'lib.py#grand_total', 'rename')]
+    assert 'refactor_only' not in report and report['executed']['ran'] >= 1

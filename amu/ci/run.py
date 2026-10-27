@@ -266,7 +266,7 @@ def main(argv=None):
     p.add_argument('--budget', type=int, help='seconds allowed per side; default: amu\'s')
     p.add_argument('--wall-cap', type=int, help='seconds for everything, recording included; past it the run is stopped')
     p.add_argument('--observe', action='store_true', help='record the suite on the merge base when the cache has no recording')
-    p.add_argument('--extras', default='', help='comma-separated features still behind a flag: refactor, explore, mutation, equivalence')
+    p.add_argument('--extras', default='', help='comma-separated features still behind a flag: explore, mutation, equivalence (refactor labels are always on)')
     p.add_argument('--counters', action='store_true', help='opt in to the counters kept in the comment (counts and SHAs only)')
     p.add_argument('--generate-dollars', type=float, default=0.0, help='dollar cap for generated tests per run (needs ANTHROPIC_API_KEY)')
     p.add_argument('--generate-minutes', type=float, default=20.0, help='minute cap for generated tests per run')

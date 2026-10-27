@@ -1,0 +1,319 @@
+[
+ {
+  "sample": "django-10",
+  "repo": "django",
+  "pr": "21523",
+  "file": "django/contrib/sites/middleware.py",
+  "line": 11,
+  "mutant": "constant: False -> True",
+  "verdict": "true",
+  "how": "reasoned: the fix itself; no test pins one middleware's async_capable"
+ },
+ {
+  "sample": "django-10",
+  "repo": "django",
+  "pr": "21482",
+  "file": "django/forms/models.py",
+  "line": 741,
+  "mutant": "condition negated: self.form.add_prefix is BaseForm.add_prefix -> not (self.form.add_prefix is BaseForm.add_prefix)",
+  "labels": [
+   "model_formsets"
+  ],
+  "base_rc": 0,
+  "base_failing": 0,
+  "mutant_rc": 1,
+  "newly_failing": 3,
+  "example": [
+   "(failures=2)"
+  ],
+  "verdict": "false",
+  "how": "an existing test fails on the mutant"
+ },
+ {
+  "sample": "django-10",
+  "repo": "django",
+  "pr": "21523",
+  "file": "django/contrib/sessions/middleware.py",
+  "line": 13,
+  "mutant": "constant: False -> True",
+  "verdict": "true",
+  "how": "reasoned: the fix itself; no test pins one middleware's async_capable"
+ },
+ {
+  "sample": "django-10",
+  "repo": "django",
+  "pr": "21523",
+  "file": "django/middleware/clickjacking.py",
+  "line": 25,
+  "mutant": "constant: False -> True",
+  "verdict": "true",
+  "how": "reasoned: the fix itself; no test pins one middleware's async_capable"
+ },
+ {
+  "sample": "django-10",
+  "repo": "django",
+  "pr": "22025",
+  "file": "django/db/models/query.py",
+  "line": 665,
+  "mutant": "condition negated: len(results) >= chunk_size -> not (len(results) >= chunk_size)",
+  "labels": [
+   "async.test_async_queryset",
+   "prefetch_related"
+  ],
+  "base_rc": 0,
+  "base_failing": 0,
+  "mutant_rc": 0,
+  "newly_failing": 0,
+  "example": [],
+  "verdict": "true",
+  "how": "no test in those labels fails on the mutant"
+ },
+ {
+  "sample": "django-10",
+  "repo": "django",
+  "pr": "22041",
+  "file": "django/db/models/sql/query.py",
+  "line": 1632,
+  "mutant": "boolean: and -> or",
+  "labels": [
+   "null_queries",
+   "lookup",
+   "queries.tests"
+  ],
+  "base_rc": 0,
+  "base_failing": 0,
+  "mutant_rc": 1,
+  "newly_failing": 24,
+  "example": [
+   "(failures=24,"
+  ],
+  "verdict": "false",
+  "how": "an existing test fails on the mutant"
+ },
+ {
+  "sample": "django-10",
+  "repo": "django",
+  "pr": "21736",
+  "file": "django/core/validators.py",
+  "line": 298,
+  "mutant": "constant: 1 -> 2",
+  "labels": [
+   "validators"
+  ],
+  "base_rc": 0,
+  "base_failing": 0,
+  "mutant_rc": 1,
+  "newly_failing": 1,
+  "example": [
+   "(errors=4,"
+  ],
+  "verdict": "false",
+  "how": "an existing test fails on the mutant"
+ },
+ {
+  "sample": "django-10",
+  "repo": "django",
+  "pr": "21523",
+  "file": "django/contrib/messages/middleware.py",
+  "line": 11,
+  "mutant": "constant: False -> True",
+  "verdict": "true",
+  "how": "reasoned: the fix itself; no test pins one middleware's async_capable"
+ },
+ {
+  "sample": "django-10",
+  "repo": "django",
+  "pr": "21523",
+  "file": "django/middleware/common.py",
+  "line": 122,
+  "mutant": "constant: False -> True",
+  "verdict": "true",
+  "how": "reasoned: the fix itself; no test pins one middleware's async_capable"
+ },
+ {
+  "sample": "django-10",
+  "repo": "django",
+  "pr": "21357",
+  "file": "django/template/defaulttags.py",
+  "line": 410,
+  "mutant": "boolean: or -> and",
+  "labels": [
+   "template_tests.syntax_tests.test_now"
+  ],
+  "base_rc": 0,
+  "base_failing": 0,
+  "mutant_rc": 1,
+  "newly_failing": 1,
+  "example": [
+   "(failures=12)"
+  ],
+  "verdict": "false",
+  "how": "an existing test fails on the mutant"
+ },
+ {
+  "sample": "pooled-10",
+  "repo": "sympy",
+  "pr": "30601",
+  "file": "sympy/tensor/array/expressions/array_expressions.py",
+  "line": 46,
+  "mutant": "constant: False -> True",
+  "labels": [
+   "sympy/tensor/array/expressions/tests"
+  ],
+  "base_rc": 0,
+  "base_failing": 0,
+  "mutant_rc": 1,
+  "newly_failing": 2,
+  "example": [
+   "sympy/tensor/array/expressions/tests/test_array_expressions.py::test_array_sum_doit_and_as_explicit"
+  ],
+  "verdict": "false",
+  "how": "an existing test fails on the mutant"
+ },
+ {
+  "sample": "pooled-10",
+  "repo": "sympy",
+  "pr": "30589",
+  "file": "sympy/core/relational.py",
+  "line": 1945,
+  "mutant": "boolean: and -> or",
+  "labels": [
+   "sympy/core/tests/test_relational.py"
+  ],
+  "base_rc": 0,
+  "base_failing": 0,
+  "mutant_rc": 0,
+  "newly_failing": 0,
+  "example": [],
+  "verdict": "true",
+  "how": "no test in those labels fails on the mutant"
+ },
+ {
+  "sample": "pooled-10",
+  "repo": "sympy",
+  "pr": "30589",
+  "file": "sympy/core/relational.py",
+  "line": 1945,
+  "mutant": "constant: True -> False",
+  "labels": [
+   "sympy/core/tests/test_relational.py"
+  ],
+  "base_rc": 0,
+  "base_failing": 0,
+  "mutant_rc": 0,
+  "newly_failing": 0,
+  "example": [],
+  "verdict": "true",
+  "how": "no test in those labels fails on the mutant"
+ },
+ {
+  "sample": "pooled-10",
+  "repo": "django",
+  "pr": "21523",
+  "file": "django/contrib/flatpages/middleware.py",
+  "line": 8,
+  "mutant": "constant: False -> True",
+  "verdict": "true",
+  "how": "reasoned: the fix itself; no test pins one middleware's async_capable"
+ },
+ {
+  "sample": "pooled-10",
+  "repo": "django",
+  "pr": "21805",
+  "file": "django/core/mail/__init__.py",
+  "line": 85,
+  "mutant": "constant: 1 -> 2",
+  "labels": [
+   "mail"
+  ],
+  "base_rc": 0,
+  "base_failing": 0,
+  "mutant_rc": 1,
+  "newly_failing": 4,
+  "example": [
+   "(errors=11,"
+  ],
+  "verdict": "false",
+  "how": "an existing test fails on the mutant"
+ },
+ {
+  "sample": "pooled-10",
+  "repo": "django",
+  "pr": "21523",
+  "file": "django/contrib/auth/middleware.py",
+  "line": 30,
+  "mutant": "constant: False -> True",
+  "verdict": "true",
+  "how": "reasoned: the fix itself; no test pins one middleware's async_capable"
+ },
+ {
+  "sample": "pooled-10",
+  "repo": "sympy",
+  "pr": "30563",
+  "file": "sympy/algebras/quaternion.py",
+  "line": 928,
+  "mutant": "constant: 2 -> 3",
+  "labels": [
+   "sympy/algebras/tests/test_quaternion.py"
+  ],
+  "base_rc": 0,
+  "base_failing": 0,
+  "mutant_rc": 1,
+  "newly_failing": 7,
+  "example": [
+   "sympy/algebras/tests/test_quaternion.py::test_issue_16318"
+  ],
+  "verdict": "false",
+  "how": "an existing test fails on the mutant"
+ },
+ {
+  "sample": "pooled-10",
+  "repo": "sympy",
+  "pr": "30575",
+  "file": "sympy/core/mul.py",
+  "line": 980,
+  "mutant": "constant: 0 -> 1",
+  "labels": [
+   "sympy/core/tests/test_arit.py",
+   "sympy/series/tests/test_order.py",
+   "sympy/series/tests/test_series.py"
+  ],
+  "base_rc": 0,
+  "base_failing": 0,
+  "mutant_rc": 0,
+  "newly_failing": 0,
+  "example": [],
+  "verdict": "true",
+  "how": "no test in those labels fails on the mutant"
+ },
+ {
+  "sample": "pooled-10",
+  "repo": "django",
+  "pr": "21523",
+  "file": "django/middleware/http.py",
+  "line": 14,
+  "mutant": "constant: False -> True",
+  "verdict": "true",
+  "how": "reasoned: the fix itself; no test pins one middleware's async_capable"
+ },
+ {
+  "sample": "pooled-10",
+  "repo": "django",
+  "pr": "21886",
+  "file": "django/utils/version.py",
+  "line": 83,
+  "mutant": "comparison: == -> !=",
+  "labels": [
+   "version"
+  ],
+  "base_rc": 0,
+  "base_failing": 0,
+  "mutant_rc": 1,
+  "newly_failing": 6,
+  "example": [
+   "(failures=26,"
+  ],
+  "verdict": "false",
+  "how": "an existing test fails on the mutant"
+ }
+]

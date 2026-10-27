@@ -123,8 +123,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     ``deadline`` (a time.monotonic() value; CI's wall cap) bounds the run: steps that do not fit before it are not
     started, and what was found before it is reported with what was not done (``cut``, and the first gap).
 
-    ``extras`` turns on what is still behind a flag (build queue part 4), each off by default: ``refactor`` (renames and
-    moves labelled), ``explore`` (a tenth of the candidate order for never-run tests), ``mutation`` (mutants on covered
+    ``extras`` turns on what is still behind a flag (build queue part 4), each off by default: ``explore`` (a tenth of the candidate order for never-run tests), ``mutation`` (mutants on covered
     changed lines), ``equivalence`` (CrossHair and Hypothesis on annotated pure changed functions).
     """
     began = time.perf_counter()
@@ -620,8 +619,9 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         report['summary'] = (f"REFACTOR ONLY: every change renames or moves a definition without changing it "
                              f"({len(renamed)} definition(s)); no tests run. Callers outside this repository and names looked "
                              'up from strings are not checked.')
-    elif 'refactor' in extras:
-        # Renames and moves (refactor): a static reading of the change, so it is there whether or not tests ran.
+    else:
+        # Renames and moves (refactor): a static reading of the change, so it is there whether or not tests ran. On by
+        # default since the part 4 measurement on the 100 frozen pull requests: 6 rows, all 6 true on a hand check.
         began = time.perf_counter()
         report['refactors'] = refactor.label({path: (original(root, path, edit), candidate(root, path, edit)) for path, edit in edits.items()})
         report['refactor_seconds'] = round(time.perf_counter() - began, 2)

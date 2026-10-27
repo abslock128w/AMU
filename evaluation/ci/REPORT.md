@@ -615,3 +615,59 @@ survivors on 18 pull requests, equivalence 0. They are not enough for the ship r
 false on a hand sample of 10). The sympy half has to be restarted from its checkpoints (`measure.py` skips finished pull
 requests) before any ship-rule decision on the extras. The stale lock was left in place; it must be removed before that
 restart, because the driver waits on it. This re-score ran without taking it (nothing else was running).
+
+## 0.4.0 tested end to end, 0.4.1, and the extras decided (2026-10-27 and 28)
+
+### Six throwaway pull requests on 0.4.0 (#60–#65, closed, branches deleted)
+
+The workflows on main pinned `@v0.4.0`; no API key, no recording.
+
+| Case | Change | First line | As intended? | Minutes to comment |
+|---|---|---|---|---:|
+| (a) #60 | `short(None)`: an edge tests call and none checks | `0 flips … some of them on the changed code; 1 behaviour difference` (`short(None)`: 'unknown' before, '(none)' after) | yes | 8.1 |
+| (b) #61 | `counters.collect`, which no test reaches | `no test ran the changed code in amu/ci/counters.py` | yes | 5.8 |
+| (c) #62 | rename `coverage._relative` | `no test ran the changed code in amu/core/coverage.py; 160 tests run` | no: should be "refactor only" | 8.4 |
+| (d) #63 | `short()` shows 8 characters: tests assert 7 | `12 flips`, each with its call path; the fresh-job rerun held all 12 on the merge base | yes | 10.2 |
+| (e) #64 | counters read numeric-string seconds; the one test pinning the old behaviour edited | `0 flips`; the edited test under "Tests this pull request updated"; it is change evidence | yes | 6.6 |
+| (f) #65 | new `percent()` and a new test importing it | `no flip … whether any ran the changed code was not seen`; the body lists the test under "New tests for new code" | yes, but the first line says little | 6.8 |
+
+(c) missed because `tests/core/test_extras.py` (added in #56) holds the string `'_relative'`. The rule then was that any
+untouched file holding the old name as a string blocks "refactor only".
+
+### 0.4.1 (#66, with #58)
+
+- A string with the old name blocks "refactor only" only in a file that imports the renamed definition's module (or
+  names it as a string for importlib), where getattr or a registry could look it up. Run on main, (c) now reads
+  `refactor only` and runs no tests. A `getattr(cov, "_relative")` in a file importing the module still blocks.
+- (f) now reads `adds new code only; its N new tests fail on the base with ImportError, as expected`
+  (`refactor.adds_only`: every production file is the code before plus new definitions).
+- When side-by-side stops at its time limit, the first line says how many changed functions it got to.
+
+### The part 4 measurement of the extras, finished
+
+The stale `suite.lock` was removed (its holder, pid 6741, was gone; the record is in
+`evaluation/extras-part4/stale-suite-lock-holder.txt`). The sympy half was restarted from its checkpoints on the same
+part 4 engine, `feat/flags-part4`. All 100 pull requests finished with no errors. Per-PR results are in
+`evaluation/extras-part4/done.json`.
+
+Ship rule (build queue part 4): an extra goes on by default only if it added at least one true row across the 100 and
+had under 10% false rows on a hand sample of 10. With fewer than 10 rows, every row was checked.
+
+| Extra | Rows on the 100 | Hand check | Decision |
+|---|---|---|---|
+| refactor | 6 (Django #21805: 2 deprecation-class renames; sympy #30601: 4 methods moved from `_CodegenArrayAbstract` to `_ArrayExpr`) | 6 true, 0 false. #30601 was run on both sides: `ZeroArray`, `OneArray` and `ArraySymbol` now inherit the moved methods; `doit` gives the same results, and `subrank`/`subranks` raise as before (now with a deprecation warning) | **on by default** (this PR) |
+| mutation | 86 survivors on 35 PRs | Seeded sample of 10 from all 86: 6 true, 4 false. The Django-only sample gave the same split. Each mutant was rebuilt with the part 4 generator and run on the module most likely to catch it (`evaluation/extras-part4/mutation-labels.json`) | off: 40% false |
+| equivalence | 0 (3 functions eligible in 100 PRs, all compared, none differ) | — | off: no true row |
+| explore | none by design (it reorders) | Its measure, time to the first flip, was recorded on 0 of the 17 PRs that flipped | off: not measured |
+
+- **Mutation, the false rows:** an existing test catches each of these mutants, but it was not among the 40
+  best-ranked candidates the mutation step ran. Examples: Django #21482's own `test_overridden_add_prefix`; the
+  validators, `{% now %}`, query and quaternion test modules. The true rows are mostly #21523's fix (a middleware's
+  `async_capable = False`, which no test pins), sympy #30589's finiteness check, #22025's async prefetch chunking, and
+  sympy #30575's `Mul` series branch.
+- **Explore:** `first_flip_seconds` is only set when a flip is confirmed in the first pass. None of the 17 flipping
+  pull requests set it, so there is nothing to compare an ordering against.
+- **Bytecode during labelling:** my first label runs wrote `.pyc` files. A same-size mutant written within the same
+  second can reuse stale bytecode, so those first runs were not trusted. The labels above come from a clean re-run
+  with no bytecode written and the generated `__pycache__` cleared. AMU's own runs set `PYTHONDONTWRITEBYTECODE=1` and
+  are not affected.
