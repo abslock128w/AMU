@@ -22,7 +22,7 @@ def main(argv=None):
     p.add_argument('--budget', type=int, default=60, help='seconds allowed per side for --run')
     p.add_argument('--merge-base', metavar='SHA',
                    help='with the tree at the change\'s head: the commit before it, where --run takes a file the patch cannot be undone in')
-    p.add_argument('--extras', default='', help='comma-separated, off by default: refactor, explore, mutation, equivalence')
+    p.add_argument('--extras', default='', help='comma-separated, off by default: explore, mutation, equivalence (refactor labels are always on)')
     p.add_argument('--deadline', type=float, help='seconds this run may take in all (a CI wall cap): steps that do not fit are '
                                                   'not started, and the report lists them')
     p.add_argument('--only', nargs='+', metavar='TEST', help='run exactly these tests (path::Class::test) instead of the ranked candidates')

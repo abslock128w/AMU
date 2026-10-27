@@ -1,0 +1,82 @@
+[
+ {
+  "repo": "sympy",
+  "pr": "30601",
+  "file": "sympy/tensor/array/expressions/array_expressions.py",
+  "line": 46,
+  "mutant": "constant: False -> True",
+  "tests": 40
+ },
+ {
+  "repo": "sympy",
+  "pr": "30589",
+  "file": "sympy/core/relational.py",
+  "line": 1945,
+  "mutant": "boolean: and -> or",
+  "tests": 40
+ },
+ {
+  "repo": "sympy",
+  "pr": "30589",
+  "file": "sympy/core/relational.py",
+  "line": 1945,
+  "mutant": "constant: True -> False",
+  "tests": 40
+ },
+ {
+  "repo": "django",
+  "pr": "21523",
+  "file": "django/contrib/flatpages/middleware.py",
+  "line": 8,
+  "mutant": "constant: False -> True",
+  "tests": 40
+ },
+ {
+  "repo": "django",
+  "pr": "21805",
+  "file": "django/core/mail/__init__.py",
+  "line": 85,
+  "mutant": "constant: 1 -> 2",
+  "tests": 40
+ },
+ {
+  "repo": "django",
+  "pr": "21523",
+  "file": "django/contrib/auth/middleware.py",
+  "line": 30,
+  "mutant": "constant: False -> True",
+  "tests": 40
+ },
+ {
+  "repo": "sympy",
+  "pr": "30563",
+  "file": "sympy/algebras/quaternion.py",
+  "line": 928,
+  "mutant": "constant: 2 -> 3",
+  "tests": 40
+ },
+ {
+  "repo": "sympy",
+  "pr": "30575",
+  "file": "sympy/core/mul.py",
+  "line": 980,
+  "mutant": "constant: 0 -> 1",
+  "tests": 40
+ },
+ {
+  "repo": "django",
+  "pr": "21523",
+  "file": "django/middleware/http.py",
+  "line": 14,
+  "mutant": "constant: False -> True",
+  "tests": 40
+ },
+ {
+  "repo": "django",
+  "pr": "21886",
+  "file": "django/utils/version.py",
+  "line": 83,
+  "mutant": "comparison: == -> !=",
+  "tests": 40
+ }
+]

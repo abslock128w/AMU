@@ -78,7 +78,7 @@ inputs:
     required: false
     default: ''
   extras:
-    description: "Comma-separated features still behind a flag, each off by default: refactor (renames and moves labelled),
+    description: "Comma-separated features still behind a flag, each off by default (renames and moves are labelled always):
       explore (a tenth of the candidate order for never-run tests), mutation (mutants on covered changed lines),
       equivalence (CrossHair and Hypothesis on annotated pure changed functions; both must be installed by install)."
     required: false
