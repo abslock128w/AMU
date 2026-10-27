@@ -6,6 +6,7 @@ interpreter the caller names, so it belongs to the developer working on their ow
 from __future__ import annotations
 
 import ast
+import fnmatch
 import hashlib
 import json
 import os
@@ -34,6 +35,57 @@ RATES = 9  # measured rates kept; the estimate is their median, so one slow run 
 FILL = 0.8  # share of the budget the candidates are planned to fill; the rest is kept for the checks after them
 IGNORED = ('.git', '.amu', '.amu-index', '.venv', 'venv', 'node_modules', '__pycache__', '.tox', '.nox',
            '.mypy_cache', '.pytest_cache', '.ruff_cache', 'dist', 'build', '*.egg-info', '.coverage', 'coverage.json')
+# A process that stays (amu watch) sets a folder here: the copy of the tree is kept there between runs and brought up to
+# date file by file, instead of being made afresh (2.2 s on Django, more than the rest of a warm run).
+MIRROR = None
+MIRROR_CHANGED = None  # paths, relative to the tree, that changed since the last run (amu watch's events); None: all
+_mirror_state = dict(synced=False, written=set())
+
+
+def _ignored(name):
+    return any(fnmatch.fnmatchcase(name, pattern) for pattern in IGNORED)
+
+
+def _refresh(root, mirror, paths):
+    """Copy each of ``paths`` from ``root`` into ``mirror`` again, or take it away when ``root`` no longer has it."""
+    for path in paths:
+        source, target = Path(root)/path, Path(mirror)/path
+        if any(_ignored(part) for part in Path(path).parts):
+            continue
+        target.unlink(missing_ok=True)
+        if source.is_file():
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, target)
+
+
+def _sync(root, mirror):
+    """Make ``mirror`` a copy of ``root`` again, copying only files whose size or modification time differ."""
+    root, mirror, seen = Path(root), Path(mirror), set()
+    for folder, names, files in os.walk(root):
+        names[:] = [n for n in names if not _ignored(n)]
+        relative = Path(folder).relative_to(root)
+        (mirror/relative).mkdir(parents=True, exist_ok=True)
+        for name in files:
+            if _ignored(name):
+                continue
+            source, target = Path(folder)/name, mirror/relative/name
+            seen.add(str(relative/name))
+            try:
+                have, want = target.lstat(), source.lstat()
+                if (have.st_size, have.st_mtime_ns) == (want.st_size, want.st_mtime_ns):
+                    continue
+                target.unlink()
+            except FileNotFoundError:
+                pass
+            if source.is_symlink():
+                target.symlink_to(os.readlink(source))
+            else:
+                shutil.copy2(source, target)
+    for folder, names, files in os.walk(mirror):
+        relative = Path(folder).relative_to(mirror)
+        for name in files:
+            if str(relative/name) not in seen:
+                (Path(folder)/name).unlink(missing_ok=True)
 
 
 def parent_key(root):
@@ -144,8 +196,17 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
     rate = remembered.get('rate') or RATE
     pool, ids = ids, ids[:max(CHUNK, int(rate * parts * budget * FILL))]
     with tempfile.TemporaryDirectory(prefix='amu-shadow-') as scratch:
-        other = Path(scratch)/'tree'
-        shutil.copytree(root, other, ignore=shutil.ignore_patterns(*IGNORED), symlinks=True)
+        if MIRROR is not None:
+            other = Path(MIRROR)
+            if _mirror_state['synced'] and MIRROR_CHANGED is not None:
+                # Only what changed since, and what the last run wrote into the copy, needs copying again.
+                _refresh(root, other, set(MIRROR_CHANGED) | _mirror_state['written'] | set(edits))
+            else:
+                _sync(root, other)
+            _mirror_state.update(synced=True, written=set(edits))
+        else:
+            other = Path(scratch)/'tree'
+            shutil.copytree(root, other, ignore=shutil.ignore_patterns(*IGNORED), symlinks=True)
         on_disk, before_src, after_src, unbuilt = {}, {}, {}, []
         for path, edit in edits.items():
             on_disk[path] = applied(root, path, edit)
@@ -177,6 +238,7 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
         live_is_after = any(on_disk.values())
         trees = dict(after=root if live_is_after else other, before=other if live_is_after else root)
         states = dict(after={}, before={})
+        ready = round(time.perf_counter() - started, 2)  # the copy is made: what comes next runs tests
         context, from_memo = {}, set()
         # Most promising candidates first, in chunks. Each chunk runs on the changed code; only the tests
         # that fail there are run on the code as it was, to confirm they passed before. A test that passes
@@ -508,7 +570,7 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
     other = [ident for ident in unrunnable if runner.group(ident) not in refused]
     if other:
         gaps.append(f'{len(other)} candidate(s) could not be run by {runner.name} and are not covered by this result')
-    info = dict(ran=ran_after, candidates=len(ids), unrunnable=len(unrunnable), outcomes=states['after'], seconds=round(time.perf_counter() - started, 1), runner=runner.name)
+    info = dict(seconds_before_running=ready, ran=ran_after, candidates=len(ids), unrunnable=len(unrunnable), outcomes=states['after'], seconds=round(time.perf_counter() - started, 1), runner=runner.name)
     if aborted:
         info['aborted'] = aborted
     if unstable:
