@@ -155,6 +155,8 @@ def collect(github, repo, author):
     from .render import MARKER
     prs = []
     for pr in github.pages(f'/repos/{repo}/pulls?state=all&sort=created&direction=asc'):
+        if pr.get('state') == 'closed' and not pr.get('merged_at'):
+            continue
         for comment in github.pages(f"/repos/{repo}/issues/{pr['number']}/comments"):
             if MARKER in (comment.get('body') or '') and (comment.get('user') or {}).get('login') == author:
                 pushes = history(comment['body'])
