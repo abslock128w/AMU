@@ -31,7 +31,9 @@ from pathlib import Path
 from . import replay, runners
 
 KIND = 'behaviour differs on captured input'
-CALLS = 5          # calls captured per changed function, per process
+CALLS = 5          # calls captured per argument shape of a changed function, per process
+SHAPES = 8         # argument shapes sampled per changed function, per process
+LISTED = 100       # captured calls named in the report
 PRIVATE = re.compile(r'(?<![\w.])__[A-Za-z]\w*(?<!__)\b')
 
 HOOK = r'''
@@ -61,6 +63,8 @@ if _spec_path and _sys.version_info >= (3, 12):
             except Exception:
                 pass
         _limit = _spec.get("calls", 5)
+        _shapes = _spec.get("shapes", 8)
+        _taken = {}
         _bytes = _spec.get("bytes", 262144)
         _ADDRESS = re.compile(r" at 0x[0-9a-fA-F]+")
         _GEN = 0x20 | 0x80 | 0x100 | 0x200
@@ -397,7 +401,7 @@ if _spec_path and _sys.version_info >= (3, 12):
                 calls, _local.calls = _local.calls, None
             return dict(result=result, args_after=_fp([pos, kw]), stdout=out.getvalue()[:2000], calls=calls)
 
-        def _compare(target, code, frame):
+        def _arguments(code, frame):
             names = code.co_varnames
             flags = code.co_flags
             n = code.co_argcount
@@ -411,6 +415,32 @@ if _spec_path and _sys.version_info >= (3, 12):
                 extra += 1
             if flags & 0x08:
                 kw.update(local[names[extra]])
+            return pos, kw
+
+        def _one(value):
+            """One argument's shape: its type, None, emptiness, and a length bucket (0, 1, 2-10, 11-100, more)."""
+            if value is None:
+                return "None"
+            kind = type(value).__qualname__
+            if isinstance(value, bool):
+                return kind + ":" + str(value)
+            if isinstance(value, (int, float)):
+                return kind + (":0" if value == 0 else ":-" if value < 0 else ":+")
+            try:
+                size = len(value)
+            except Exception:
+                return kind
+            return kind + ":" + ("empty" if size == 0 else "1" if size == 1 else "2-10" if size <= 10 else
+                                 "11-100" if size <= 100 else "100+")
+
+        def _shape(pos, kw):
+            try:
+                return ",".join([_one(v) for v in pos] + [k + "=" + _one(v) for k, v in sorted(kw.items())])
+            except Exception:
+                return "?"
+
+        def _compare(target, code, frame, pos, kw, shape):
+            flags = code.co_flags
             try:
                 blob = ("pickle", pickle.dumps((pos, kw), protocol=4))
                 if len(blob[1]) > _bytes:
@@ -441,7 +471,7 @@ if _spec_path and _sys.version_info >= (3, 12):
                 shown = repr(_thaw(blob))
             except Exception:
                 shown = "<input>"
-            _emit("result", **dict(target=target["id"], copied=blob[0] != "live", test=_os.environ.get("AMU_TEST_CONTEXT") or _os.environ.get("PYTEST_CURRENT_TEST", ""),
+            _emit("result", **dict(target=target["id"], shape=shape, copied=blob[0] != "live", test=_os.environ.get("AMU_TEST_CONTEXT") or _os.environ.get("PYTEST_CURRENT_TEST", ""),
                                  input=_ADDRESS.sub(" at 0x?", shown)[:400], stable=stable, differs=differs,
                                  before=runs[0], after=runs[2]))
 
@@ -457,15 +487,27 @@ if _spec_path and _sys.version_info >= (3, 12):
             if code.co_flags & (0x80 | 0x100 | 0x200):
                 _emit("skipped", target=target["id"], reason="coroutine or async generator")
                 return _m.DISABLE
-            seen = _count.get(target["id"], 0)
-            if seen >= _limit:
-                return _m.DISABLE
-            _count[target["id"]] = seen + 1
-            _emit("captured", target=target["id"])
+            # Sampled by argument shape, not first come: up to _limit calls of each shape, up to _shapes shapes. A run's
+            # first five calls are often alike; the edge case a change is about is another shape (None, empty, zero).
+            frame = _sys._getframe(1)
+            try:
+                pos, kw = _arguments(code, frame)
+            except Exception:
+                return None
+            shape = _shape(pos, kw)
+            shapes = _taken.setdefault(target["id"], {})
+            seen = shapes.get(shape, 0)
+            if seen >= _limit or (shape not in shapes and len(shapes) >= _shapes):
+                if len(shapes) >= _shapes and all(n >= _limit for n in shapes.values()):
+                    return _m.DISABLE
+                return None
+            shapes[shape] = seen + 1
+            _count[target["id"]] = _count.get(target["id"], 0) + 1
+            _emit("captured", target=target["id"], shape=shape)
             _local.busy, _local.calls = True, None
             _m.set_events(_tool, _m.events.PY_START | _m.events.CALL)
             try:
-                _compare(target, code, _sys._getframe(1))
+                _compare(target, code, frame, pos, kw, shape)
             except BaseException as exc:
                 _emit("skipped", target=target["id"], reason="could not be compared: " + type(exc).__name__ + ": " + str(exc)[:160])
             finally:
@@ -649,13 +691,17 @@ def support(scratch, tree, spec_targets, added=(), modules=()):
     rows = [dict(t, file=str(Path(tree)/t['file'])) for t in spec_targets]
     extra = [dict(a, file=str(Path(tree)/a['file'])) for a in added]
     new = [dict(m, file=str(Path(tree)/m['file'])) for m in modules]
-    (folder/'spec.json').write_text(json.dumps(dict(root=str(tree), targets=rows, additions=extra, modules=new, calls=CALLS)))
+    (folder/'spec.json').write_text(json.dumps(dict(root=str(tree), targets=rows, additions=extra, modules=new, calls=CALLS,
+                                                    shapes=SHAPES)))
     return folder
 
 
-def run(runner, python, before_tree, ids, spec_targets, skipped, scratch, timeout, added=(), modules=()):
-    """Run ``ids`` on the code before the change with the hook. Returns (info, differences, gaps)."""
+def run(runner, python, before_tree, ids, spec_targets, skipped, scratch, timeout, added=(), modules=(), prefer=()):
+    """Run ``ids`` on the code before the change with the hook. Returns (info, differences, gaps). Tests in ``prefer``
+    (seen running a changed line) run first, so theirs are the calls a full shape keeps."""
     gaps = []
+    first = set(prefer)
+    ids = sorted(ids, key=lambda i: not any(i == p or i.startswith(p + '::') for p in first)) if first else list(ids)
     if not spec_targets:
         return dict(targets=0, skipped=skipped), [], gaps
     folder = support(scratch, before_tree, spec_targets, added, modules)
@@ -711,6 +757,11 @@ def run(runner, python, before_tree, ids, spec_targets, skipped, scratch, timeou
     info = dict(targets=len(spec_targets), compared_calls=len(results), functions_called=len(captured), called=sorted(captured),
                 unstable=sum(not r['stable'] for r in results), differences=len(differences), skipped=skipped,
                 input_built_before_the_change=built_before, calls_not_fitting_a_changed_signature=misfit)
+    # Which calls were compared: per target, its argument shape, the input and the test it came from.
+    info['captured'] = [dict(target=r['target'], shape=r.get('shape', '?'), input=str(r.get('input', ''))[:200],
+                             test=str(r.get('test', ''))[:200]) for r in results[:LISTED]]
+    if len(results) > LISTED:
+        info['captured_not_listed'] = len(results) - LISTED
     if stopped:
         info['stopped'] = True  # calls after the time limit were not seen: none captured does not mean none made
     if not results:

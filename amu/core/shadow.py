@@ -153,8 +153,9 @@ def late(deadline):
 
 
 def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=(), base_cache=None, functions=(), generate_with=None,
-        merge_base=None, deadline=None, extras=()):
-    """Outcomes of ``ids`` before and after the change. Returns (rows, info, gaps).
+        merge_base=None, deadline=None, extras=(), prefer=()):
+    """Outcomes of ``ids`` before and after the change. Returns (rows, info, gaps). ``prefer``: tests seen running a
+    changed line, run first by side-by-side.
 
     ``own`` are the tests the change adds or edits (replay.touched); they are also run on the code before the change
     with the tests as the change leaves them, and their verdicts go to ``info['replayed']``.
@@ -466,7 +467,8 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
             modules = [dict(name=module_name(path), file=path, source=after_src[path]) for path in edits
                        if path.endswith('.py') and not replay.is_test_file(path) and not before_src.get(path) and after_src.get(path)]
             side, behaviour, more = sidebyside.run(runner, python, trees['before'], ran_ids, spec_targets, skipped, scratch,
-                                                   within(max(min(budget, SIDE_BY_SIDE), CONFIRM), deadline), added, modules)
+                                                   within(max(min(budget, SIDE_BY_SIDE), CONFIRM), deadline), added, modules,
+                                                   prefer=prefer)
             side['seconds'] = round(time.perf_counter() - began, 1)
             gaps += more
             if late(deadline):
