@@ -27,7 +27,7 @@ def _test_identity(context):
     return path + '#' + re.sub(r'\[.*\]$', '', name).replace('::', '.')
 
 
-def _relative(root, name, known=()):
+def _repo_path(root, name, known=()):
     path = Path(name)
     if not path.is_absolute():
         return path.as_posix()
@@ -55,7 +55,7 @@ def _artifact(root, raw, hashes):
 def _json_report(root, raw, hashes, recorded_at):
     files = {}
     for name, entry in raw['files'].items():
-        path = _relative(root, name, hashes)
+        path = _repo_path(root, name, hashes)
         if path:
             files[path] = {int(line): set(contexts) for line, contexts in entry.get('contexts', {}).items()}
     return files, _newer(root, files, recorded_at)
@@ -68,7 +68,7 @@ def _data_file(root, source, hashes, recorded_at):
     files = {}
     try:
         for name in data.measured_files():
-            path = _relative(root, name, hashes)
+            path = _repo_path(root, name, hashes)
             if path and not data.file_tracer(name):
                 files[path] = {int(line): set(contexts) for line, contexts in data.contexts_by_lineno(name).items()}
     finally:
