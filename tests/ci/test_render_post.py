@@ -207,3 +207,19 @@ def test_a_run_the_wall_cap_stopped_shows_what_it_found_and_what_it_did_not_do()
     assert '<details><summary>What ran' not in body and '### Gaps (2)' in body
     # A wall cap the artifact gives as anything but a count of seconds is not shown.
     assert render(report, dict(META, wall_cap='1200`')).splitlines()[0].endswith('; stopped at the wall cap before it finished')
+
+
+def test_a_replayed_test_skipped_on_both_sides_is_said_to_be_skipped_never_to_pass():
+    # Django #21659 and sympy #30477 (comment-usefulness test): the new tests were skipped on both sides (no DISTINCT ON
+    # on SQLite, lark not installed) and the comment said they "pass on the merge base too".
+    replayed = [dict(id='tests/t.py::test_skip_a', head='skipped', base='skipped', verdict='none'),
+                dict(id='tests/t.py::test_skip_b', head='skipped', base='skipped', verdict='none'),
+                dict(id='tests/t.py::test_same', head='passed', base='passed', verdict='none'),
+                dict(id='tests/t.py::test_half', head='passed', base='skipped', verdict='none')]
+    body = render(dict(flips=0, predicted_failures=[], gaps=[], executed=EXECUTED, replayed=replayed, change_evidence=[]), META)
+    assert '2 tests skipped on both sides' in body
+    assert '1 test pass on the merge base too' in body
+    assert '1 test skipped on one side only' in body
+    only_skipped = render(dict(flips=0, predicted_failures=[], gaps=[], executed=EXECUTED, replayed=replayed[:2],
+                               change_evidence=[]), META)
+    assert 'pass on the merge base' not in only_skipped and '2 tests skipped on both sides' in only_skipped
