@@ -287,3 +287,15 @@ def test_zero_flips_appears_only_when_something_ran_the_changed_code():
     unseen = render(base, META)  # no side-by-side (Python before 3.12), no evidence: not seen
     assert '0 flips' not in unseen and unseen.startswith('**AMU: no flip** at `abcdef1` among 40 tests run; whether any '
                                                           'ran the changed code was not seen')
+
+
+def test_the_first_line_does_not_count_the_pull_requests_own_tests_skipped_on_the_head():
+    # sympy #30477 re-scored on 0.4.0: "apart from the 3 tests this pull request adds or edits", all 3 skipped (no lark).
+    replayed = [dict(id=f'tests/t.py::test_{i}', head='skipped', base='skipped', verdict='none') for i in range(3)]
+    report = dict(flips=0, predicted_failures=[], gaps=[], executed=EXECUTED, replayed=replayed, change_evidence=[],
+                  side_by_side=dict(compared_calls=0, functions_called=0, targets=1),
+                  changed_functions=[dict(file='lib.py', symbol='f', lines='1-2')])
+    first = render(report, META).splitlines()[0]
+    assert first == '**AMU: no test ran the changed code in `lib.py`** at `abcdef1`; 40 tests run', first
+    ran = dict(report, replayed=[dict(replayed[0], head='passed', base='failed', verdict='evidence'), *replayed[1:]])
+    assert ', apart from the 1 test this pull request adds or edits; ' in render(ran, META).splitlines()[0]
