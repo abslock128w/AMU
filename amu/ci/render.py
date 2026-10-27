@@ -36,7 +36,7 @@ def code(text, limit=FIELD):
 
 
 def short(sha):
-    return code((sha or 'unknown')[:7])
+    return code((sha or '(none)')[:7])
 
 
 def failure_id(row):
