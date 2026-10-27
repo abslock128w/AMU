@@ -273,3 +273,14 @@ def test_no_recording_when_the_wall_cap_leaves_it_no_share(pull_request, tmp_pat
     report, meta = ci_run.run(repo, base, head, tmp_path/'out', python=sys.executable, wall_cap=600, record=True, budget=300)
     assert report.get('flips') == 1 and meta['recording'] is False
     assert "recording skipped: the wall cap leaves 0 s for it after amu's share" in report['gaps']
+
+
+def test_an_edited_test_failing_only_as_it_was_leaves_the_flip_count_the_rerun_and_the_counters():
+    from amu.ci import counters, run, verify  # noqa: F401
+    edited = dict(id='tests/t.py::test_message', before='passed', after='failed', label='test edited, not fixed')
+    real = dict(id='tests/t.py::test_other', before='passed', after='failed', label='executed')
+    report = run.updated_apart(dict(flips=2, predicted_failures=[edited, real], executed=dict(ran=5)))
+    assert report['flips'] == 1 and report['predicted_failures'] == [real] and report['updated_tests'] == [edited]
+    assert counters.record(report, dict(head='a' * 40))['flips'] == 1
+    assert run.updated_apart(dict(flips=None, predicted_failures=[edited]))['flips'] is None
+    assert run.updated_apart(dict(error='x')) == dict(error='x')

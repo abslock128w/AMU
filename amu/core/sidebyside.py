@@ -665,6 +665,7 @@ def run(runner, python, before_tree, ids, spec_targets, skipped, scratch, timeou
         gaps.append(f'side-by-side run ({runner.name}): {problem}')
     elif problem:
         gaps.append('side-by-side run stopped at its time limit; calls captured until then are compared')
+    stopped = problem == 'timed out'
     results, captured = [], {}
     for part in sorted((folder/'out').glob('*.jsonl')):
         try:
@@ -710,6 +711,8 @@ def run(runner, python, before_tree, ids, spec_targets, skipped, scratch, timeou
     info = dict(targets=len(spec_targets), compared_calls=len(results), functions_called=len(captured), called=sorted(captured),
                 unstable=sum(not r['stable'] for r in results), differences=len(differences), skipped=skipped,
                 input_built_before_the_change=built_before, calls_not_fitting_a_changed_signature=misfit)
+    if stopped:
+        info['stopped'] = True  # calls after the time limit were not seen: none captured does not mean none made
     if not results:
         gaps.append(f'side-by-side: none of the {len(spec_targets)} comparable changed function(s) was called by the tests run on the code before the change')
     return info, differences, gaps

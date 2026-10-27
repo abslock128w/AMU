@@ -54,6 +54,56 @@ def rows(items, render, limit=LISTED):
     return lines
 
 
+EDITED = 'test edited, not fixed'
+CUT = 'side-by-side run stopped at its time limit'
+
+
+def is_test_file(path):
+    """The rule amu.core.replay uses: under a tests directory, test_*.py, *_test.py, tests.py or conftest.py."""
+    parts = str(path).split('/')
+    name = parts[-1]
+    return name.endswith('.py') and ('tests' in parts[:-1] or name.startswith('test_') or name.endswith('_test.py')
+                                     or name in ('tests.py', 'conftest.py'))
+
+
+def split_flips(report):
+    """(flips, tests the pull request updated): a test the pull request edited, failing only as it was before the edit,
+    is not a flip. Reports from before 0.4.0 keep those among the flips, labelled; newer ones list them apart."""
+    failures = [row for row in report.get('predicted_failures') or [] if failure_id(row)]
+    updated = [row for row in failures if isinstance(row, dict) and row.get('label') == EDITED]
+    updated += [row for row in report.get('updated_tests') or [] if isinstance(row, dict) and row.get('id')]
+    return [row for row in failures if not (isinstance(row, dict) and row.get('label') == EDITED)], updated
+
+
+def reach(report):
+    """Whether something ran the changed code: True, False (side-by-side watched every comparable changed function
+    and no test called one), or None (not seen). With False, the production files those functions are in."""
+    counted, updated = split_flips(report)
+    side = report.get('side_by_side') if isinstance(report.get('side_by_side'), dict) else None
+    if counted or updated or report.get('change_evidence') or (side and side.get('functions_called')):
+        return True, []
+    if any(isinstance(row, dict) and row.get('expect') == 'ran_changed_lines' for row in report.get('tests') or []):
+        return True, []
+    files = sorted({row.get('file') for row in report.get('changed_functions') or []
+                    if isinstance(row, dict) and isinstance(row.get('file'), str) and not is_test_file(row['file'])})
+    if side and side.get('targets') and not side.get('functions_called') and files:
+        return False, files
+    return None, []
+
+
+def stopped(report):
+    side = report.get('side_by_side') if isinstance(report.get('side_by_side'), dict) else {}
+    return bool(side.get('stopped')) or any(str(gap).startswith(CUT) for gap in report.get('gaps') or [])
+
+
+def own_tests(report):
+    """Tests the pull request adds or edits: replayed, or changed functions in test files."""
+    replayed = [row for row in report.get('replayed') or [] if isinstance(row, dict)]
+    if replayed:
+        return len(replayed)
+    return sum(isinstance(row, dict) and is_test_file(str(row.get('file', ''))) for row in report.get('changed_functions') or [])
+
+
 def quiet_body(report, meta, first, extra):
     """Nothing found: the first line, and what ran and what was not seen, collapsed."""
     full = render(report, meta, extra='', quiet=False).split('\n', 1)[1].rsplit(MARKER, 1)[0].strip()
@@ -82,7 +132,9 @@ def extras(report, listed=LISTED):
 
 def nothing_found(report):
     executed = report.get('executed') or {}
-    return (not report.get('error') and not report.get('failure') and report.get('flips') == 0 and executed.get('ran')
+    counted, _ = split_flips(report)
+    return (not report.get('error') and not report.get('failure') and report.get('flips') is not None and not counted
+            and executed.get('ran') and reach(report)[0] is not False
             and not any(report.get(k) for k in ('change_evidence', 'behaviour_differences', 'generated_differences', 'unstable', 'cut',
                                                 'refactors'))
             and not (report.get('equivalence') or {}).get('rows') and not (report.get('mutation') or {}).get('survivors')
@@ -97,7 +149,7 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
     executed = report.get('executed') or {}
     ran = executed.get('ran') or 0
     flips = report.get('flips')
-    failures = [row for row in report.get('predicted_failures') or [] if failure_id(row)]
+    failures, updated = split_flips(report)
     aborted = report.get('failure')
     if report.get('error'):
         first = f"**AMU: no flip count** at {short(head)}: {code(report['error'])}"
@@ -105,8 +157,22 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
         first = f'**AMU: no flip count** at {short(head)}: the test runner aborts on the head before any test'
     elif flips is None or not ran:
         first = f'**AMU: no flip count** at {short(head)}: no candidate test ran'
+    elif failures:
+        first = f"**AMU: {plural(len(failures), 'flip')}** at {short(head)}, among {plural(ran, 'test')} run"
     else:
-        first = f"**AMU: {plural(flips, 'flip')}** at {short(head)}, among {plural(ran, 'test')} run"
+        reached, files = reach(report)
+        if reached is False:
+            # Never folded away: a reviewer reading only this line must not take it for "nothing changed".
+            mine = own_tests(report)
+            where = ', '.join(code(f, 120) for f in files[:3]) + (f' and {len(files) - 3} more' if len(files) > 3 else '')
+            besides = f", apart from the {plural(mine, 'test')} this pull request adds or edits" if mine else ''
+            timed = ' before the side-by-side time limit' if stopped(report) else ''
+            first = f"**AMU: no test ran the changed code in {where}** at {short(head)}{besides}; {plural(ran, 'test')} run{timed}"
+        elif reached:
+            first = f"**AMU: 0 flips** at {short(head)}, among {plural(ran, 'test')} run, some of them on the changed code"
+        else:
+            first = (f"**AMU: no flip** at {short(head)} among {plural(ran, 'test')} run; whether any ran the changed code "
+                     'was not seen')
     if report.get('cut') and not report.get('error'):
         cap = meta.get('wall_cap')
         cap = f' of {cap} s' if isinstance(cap, int) and not isinstance(cap, bool) and 0 < cap < 10**7 else ''
@@ -155,7 +221,7 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
         def flip(row):
             label = row.get('label') if isinstance(row, dict) else None
             gone = [names.get(leg, str(leg)) for leg in missing.get(failure_id(row), [])]
-            return (code(failure_id(row)) + (' (fails as the test was before it was edited)' if label == 'test edited, not fixed' else '')
+            return (code(failure_id(row)) + (' (fails as the test was before it was edited)' if label == EDITED else '')
                     + (f" (order-dependent, new with this change: {code(leaks[failure_id(row)], 200)})" if failure_id(row) in leaks else '')
                     + route(failure_id(row))
                     + (f" (not rerun {', '.join(gone)})" if gone else ''))
@@ -164,6 +230,11 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
             out += [f"Rerun on the merge base in a fresh job: {verify.get('held', 0)} passed again, "
                     f"{verify.get('false', 0)} failed there too, so not the change, "
                     f"{verify.get('other', 0)} could not be rerun.", '']
+    if updated and not report.get('error'):
+        out += [f'### Tests this pull request updated ({len(updated)})', '',
+                'Pass on the merge base and fail on the head as they were before this pull request edited them; as edited, '
+                'they pass. The edit is in the diff, so they are not flips.', '']
+        out += rows(updated, lambda row: code(failure_id(row)), listed) + ['']
     if side is not None and not report.get('error'):
         section = [f"Each changed function the tests called on the merge base ran there twice as it was and twice as changed, "
                    f"on copies of the same arguments: {side.get('compared_calls', 0)} call(s) of "
