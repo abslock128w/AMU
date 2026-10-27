@@ -447,7 +447,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         prepared = time.perf_counter() - began
         flips, executed, run_gaps = shadow.run(root, edits, wide, python, budget, runner, memo=memo, own=own, base_cache=cache,
                                                functions=functions, generate_with=generate, merge_base=merge_base, deadline=deadline,
-                                               extras=extras)
+                                               extras=extras, prefer=[row['id'] for row in rows if row['expect'] == 'ran_changed_lines'])
         executed['selection'] = dict(selection, candidates=len(wide))
         gaps.extend(run_gaps)
         cut += executed.get('cut', [])

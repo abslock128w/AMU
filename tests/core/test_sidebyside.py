@@ -405,3 +405,21 @@ def test_a_private_name_in_a_member_the_change_adds_is_mangled_as_in_its_class(t
     report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1, 'tests/test_lib.py': tests})
     assert report['side_by_side']['compared_calls'] == 1, report['side_by_side']
     assert report['behaviour_differences'] == [], report['behaviour_differences']
+
+
+def test_calls_are_sampled_by_argument_shape_so_a_rare_edge_case_is_compared(tmp_path):
+    # Live case (a) of the comment-usefulness test: the tests call short() 46 times, 3 with None; the first five calls
+    # captured were all strings, so the change to the None case showed no row.
+    lib0 = "def short(sha):\n    return (sha or 'unknown')[:7]\n"
+    lib1 = "def short(sha):\n    return (sha or '(none)')[:7]\n"
+    tests = ('from lib import short\n\n\ndef test_many():\n    for i in range(20):\n        assert short("abcdef%07d" % i)\n\n\n'
+             'def test_missing():\n    short(None)\n')
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1, 'tests/test_lib.py': tests})
+    [row] = report['behaviour_differences']
+    assert row['input'] == '([None], {})' and row['before']['result'] == ['return', "'unknown'"], row
+    assert row['after']['result'] == ['return', "'(none)'"], row
+    captured = report['side_by_side']['captured']
+    shapes = sorted({c['shape'] for c in captured})
+    assert shapes == ['None', 'str:11-100'], shapes
+    assert sum(c['shape'] == 'str:11-100' for c in captured) == 5  # at most five of one shape
+    assert all(c['target'] == 'lib.py#short' and c['test'] for c in captured), captured
