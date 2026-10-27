@@ -21,6 +21,8 @@ MAX_SPLITS = 12  # extra runner starts allowed to isolate labels that abort a ba
 EXCEPTION = re.compile(r'^([A-Za-z_][\w.]*(Error|Exception|Exit|Interrupt|Warning)|LookupError|KeyError)\b.*')
 FRAME = re.compile(r'^\s*File "([^"]+)", line (\d+)')
 DESELECTED = re.compile(r'\b\d+ deselected\b')
+TEXT = 20_000  # characters kept of what the runner printed about one test
+BLOCK = re.compile(r'^(?:ERROR|FAIL): \S+ \(([\w.]+)\)\s*$', re.M)
 
 
 def abort_reason(output, tree):
@@ -128,6 +130,36 @@ class Runner:
         return found
 
 
+    def failure_texts(self, tree, output, report, ids):
+        """{id: what the report says about the test's failure or error}, from the JUnit report."""
+        texts = {}
+        try:
+            cases = list(ET.parse(report).getroot().iter('testcase'))
+        except (OSError, ET.ParseError):
+            return texts
+        for case in cases:
+            said = ''.join((child.get('message') or '') + '\n' + (child.text or '') + '\n'
+                           for child in case if child.tag in ('failure', 'error'))
+            if not said:
+                continue
+            if not case.get('classname'):
+                # A module that cannot be collected: its error goes to every requested test in that file.
+                path = case.get('name', '').replace('.', '/') + '.py'
+                for ident in ids:
+                    if ident.split('::')[0] == path:
+                        texts[ident] = texts.get(ident, '') + said
+                continue
+            parts = case.get('classname', '').split('.')
+            for cut in range(len(parts), 0, -1):
+                if (tree/('/'.join(parts[:cut]) + '.py')).is_file():
+                    break
+            else:
+                continue
+            ident = '::'.join(['/'.join(parts[:cut]) + '.py', *parts[cut:], case.get('name', '').split('[')[0]])
+            texts[ident] = texts.get(ident, '') + said
+        return texts
+
+
 class Unittest(Runner):
     """``python -m unittest`` and the Django runners share verbose output and dotted labels."""
     name = 'unittest'
@@ -166,6 +198,26 @@ class Unittest(Runner):
             if ident not in found and any(name in label.split('.') for name in unloadable):
                 found[ident] = 'failed'
         return found
+
+
+    def failure_texts(self, tree, output, report, ids):
+        """{id: its ERROR or FAIL block from the verbose output}. A module that does not load is reported as
+        ``unittest.loader._FailedTest.<module>``: its block goes to every test under that module."""
+        by_label = {self.label(ident): ident for ident in ids}
+        texts = {}
+        for block in re.split(r'^={20,}$', output, flags=re.M)[1:]:
+            match = BLOCK.search(block)
+            if not match:
+                continue
+            label = match[1]
+            if '._FailedTest.' in label:
+                module = label.split('._FailedTest.', 1)[1]
+                for known, ident in by_label.items():
+                    if known == module or known.startswith(module + '.') or module.rsplit('.', 1)[-1] in known.split('.'):
+                        texts[ident] = texts.get(ident, '') + block
+            elif label in by_label:
+                texts[by_label[label]] = texts.get(by_label[label], '') + block
+        return texts
 
 
 class DjangoRuntests(Unittest):
@@ -322,8 +374,12 @@ def sequence(runner, python, tree, ids, timeout):
     return found
 
 
-def execute(runner, python, tree, ids, report, timeout, extra_env=None, extra_args=None):
-    """Run ``ids`` in ``tree``. Returns ({id: state}, problem or None)."""
+def execute(runner, python, tree, ids, report, timeout, extra_env=None, extra_args=None, texts=None):
+    """Run ``ids`` in ``tree``. Returns ({id: state}, problem or None).
+
+    ``texts``, a dict when given, gets what the runner printed about each test that did not pass:
+    {id: {'text': ..., 'own': True}} from the test's own failure report, or {'text': <the run's output>, 'own': False}
+    when the runner said nothing about the test itself (a module that does not load)."""
     usable = [ident for ident in ids if not runner.needs_class or ident.count('::') >= 2]
     if not usable:
         return {}, None
@@ -356,6 +412,15 @@ def execute(runner, python, tree, ids, report, timeout, extra_env=None, extra_ar
         output = (done.stderr + done.stdout).decode(errors='replace')
         got = runner.outcomes(tree, output, report, batch)
         found.update(got)
+        if texts is not None:
+            own = runner.failure_texts(tree, output, report, batch)
+            for ident in batch:
+                if got.get(ident) == 'passed' or got.get(ident) == 'skipped':
+                    continue
+                if ident in own:
+                    texts[ident] = dict(text=own[ident][-TEXT:], own=True)
+                elif ident not in texts or not texts[ident]['own']:
+                    texts[ident] = dict(text=output[-TEXT:], own=False)
         missing = [i for i in batch if i not in got]
         if missing and runner.name == 'pytest' and DESELECTED.search(output):
             # Deselected by the project's configuration, not lost to an abort: skipped, and not split to find out.

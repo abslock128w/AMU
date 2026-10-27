@@ -609,9 +609,11 @@ def _monitoring(python):
     return supported(python)
 
 
-def _base(cache, runner, python, tree, ids, report, timeout):
-    """runners.execute on the code before the change, through the cache of passing outcomes when there is one."""
-    return basecache.execute(cache, lambda t, i, *rest: runners.execute(runner, python, t, i, *rest), tree, ids, report, timeout)
+def _base(cache, runner, python, tree, ids, report, timeout, texts=None):
+    """runners.execute on the code before the change, through the cache of passing outcomes when there is one.
+    ``texts`` gets what the runner printed about each test that did not pass (runners.execute)."""
+    return basecache.execute(cache, lambda t, i, *rest: runners.execute(runner, python, t, i, *rest, texts=texts), tree, ids,
+                             report, timeout)
 
 
 def _after_lines(path, edit):
@@ -642,8 +644,9 @@ def _replay(runner, python, after_tree, other, edits, before_src, after_src, liv
     for path in edits:
         _write(other/path, after_src[path] if replay.is_test_file(path) else before_src[path])
     try:
+        said = {}
         base, problem = _base(base_cache, runner, python, other, runnable, Path(scratch)/'own-base.xml',
-                              within(max(left, CONFIRM), deadline))
+                              within(max(left, CONFIRM), deadline), texts=said)
         # A failure on the code before the change is the evidence; it must repeat in a fresh process to count.
         failing = [i for i in runnable if base.get(i) in ('failed', 'unrunnable') and after_states[i] == 'passed']
         again = runners.execute(runner, python, other, failing, Path(scratch)/'own-base-again.xml',
@@ -658,6 +661,9 @@ def _replay(runner, python, after_tree, other, edits, before_src, after_src, liv
     if late(deadline):
         unfinished += [i for i in runnable if i not in base or (i in failing and i not in again)]
     rows = []
+    # What the change adds outside its tests: a test that fails before the change only because that is not there yet
+    # (ImportError, AttributeError or NameError on it) shows the new code exists, not what it does.
+    added = replay.added_names({path: (before_src.get(path), after_src.get(path)) for path in edits})
     for ident in runnable:
         if ident in unfinished:
             continue
@@ -671,7 +677,18 @@ def _replay(runner, python, after_tree, other, edits, before_src, after_src, liv
         verdict = replay.classify(head, was)
         if verdict is None:
             continue
-        rows.append(dict(id=ident, head=head, base=was, verdict=verdict))
+        row = dict(id=ident, head=head, base=was, verdict=verdict)
+        if verdict == 'evidence':
+            text = said.get(ident) or {}
+            missing = replay.new_code_error(text.get('text'), added)
+            if missing and not text.get('own') and not (replay.mentions(text.get('text'), _path(ident))
+                                                        and replay.references(after_src.get(_path(ident)), missing[1])):
+                missing = None  # the run's output names it, but not for this test's file
+            if missing:
+                row.update(verdict='new_code', why=f'{missing[0]} on {missing[1]}')
+            elif was == 'unloadable':
+                row.update(verdict='unloadable', why='does not load on the code before the change; the cause was not read')
+        rows.append(row)
     return rows, gaps, unfinished
 OUTCOMES = ('passed', 'failed', 'skipped')
 

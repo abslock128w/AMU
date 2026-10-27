@@ -9,11 +9,74 @@ as the change leaves them. That is the fail-to-pass oracle SWT-bench scores:
 from __future__ import annotations
 
 import ast
+import re
 from pathlib import PurePosixPath
 
 from .patch import candidate, original
 
 EVIDENCE = "change evidence: the PR's own test"
+NEW_CODE = 'new test for new code'
+# What a test that only uses what the change adds raises on the code before it.
+MISSING = (re.compile(r"\b(ImportError|ModuleNotFoundError): cannot import name '([\w.]+)'"),
+           re.compile(r"\b(ModuleNotFoundError|ImportError): No module named '([\w.]+)'"),
+           re.compile(r"\b(AttributeError): .*?has no attribute '(\w+)'"),
+           re.compile(r"\b(NameError): name '(\w+)' is not defined"))
+
+
+def added_names(sources):
+    """Names the change adds outside test files, from ``sources`` {path: (before text or None, after text or None)}:
+    functions, classes and assigned names at module or class level that the file did not define before, and the dotted
+    module of a file that did not exist before."""
+    def defined(text):
+        try:
+            body = ast.parse(text or '').body
+        except (SyntaxError, ValueError):
+            return set()
+        names = set()
+
+        def visit(nodes):
+            for node in nodes:
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                    names.add(node.name)
+                    if isinstance(node, ast.ClassDef):
+                        visit(node.body)
+                elif isinstance(node, (ast.Assign, ast.AnnAssign)):
+                    for target in (node.targets if isinstance(node, ast.Assign) else [node.target]):
+                        names.update(n.id for n in ast.walk(target) if isinstance(n, ast.Name))
+        visit(body)
+        return names
+    added = set()
+    for path, (before, after) in sources.items():
+        if not path.endswith('.py') or is_test_file(path) or after is None:
+            continue
+        added |= defined(after) - defined(before)
+        if not before:
+            module = path[:-3].replace('/', '.')
+            added.add(module[:-len('.__init__')] if module.endswith('.__init__') else module)
+    return added
+
+
+def new_code_error(text, names):
+    """(exception, name) when ``text`` shows an ImportError, ModuleNotFoundError, AttributeError or NameError on one of
+    ``names`` (what the change adds), else None."""
+    modules = {name for name in names if '.' in name}
+    for pattern in MISSING:
+        for exception, name in pattern.findall(text or ''):
+            if name in names or name.rsplit('.', 1)[-1] in names or any(m == name or m.startswith(name + '.') or
+                                                                        name.startswith(m + '.') for m in modules):
+                return exception, name
+    return None
+
+
+def mentions(output, path):
+    """Whether a runner's ``output`` names the test file ``path``, as a path or as a dotted module."""
+    module = path[:-3].replace('/', '.') if path.endswith('.py') else path
+    return path in (output or '') or bool(re.search(r'\b' + re.escape(module) + r'\b', output or ''))
+
+
+def references(text, name):
+    """Whether the source ``text`` mentions ``name`` (its last dotted part) as a word."""
+    return bool(re.search(r'\b' + re.escape(name.rsplit('.', 1)[-1]) + r'\b', text or ''))
 
 
 def is_test_file(path):

@@ -231,6 +231,18 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
             def shown(row):
                 return code(row['id']) + (' (does not load on the merge base)' if row.get('before') == 'unloadable' else '')
             out += rows(evidence, shown, listed) + ['']
+        made_for = [row for row in replayed if row.get('verdict') == 'new_code' and row.get('id')]
+        if made_for:
+            out += [f'### New tests for new code ({len(made_for)})', '',
+                    'Fail on the merge base only because what they use is not there yet (an ImportError, AttributeError or '
+                    'NameError on a name this pull request adds), and pass on the head. They show the new code exists, not '
+                    'what it does, so they are not counted as change evidence.', '']
+            out += rows(made_for, lambda row: code(row['id']) + (f" ({code(row['why'], 120)})" if row.get('why') else ''),
+                        listed) + ['']
+        unread = sum(row.get('verdict') == 'unloadable' for row in replayed)
+        if unread:
+            out += [f"{plural(unread, 'test')} do not load on the merge base for a reason AMU did not read, and pass on the "
+                    'head: not counted as change evidence.', '']
         # Verdict 'none' covers a test that passed on both sides and one that was skipped on either: only the first passed.
         quiet = [row for row in replayed if row.get('verdict') == 'none']
         skipped_both = sum(row.get('head') == 'skipped' and row.get('base') == 'skipped' for row in quiet)
