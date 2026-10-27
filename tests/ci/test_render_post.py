@@ -223,3 +223,21 @@ def test_a_replayed_test_skipped_on_both_sides_is_said_to_be_skipped_never_to_pa
     only_skipped = render(dict(flips=0, predicted_failures=[], gaps=[], executed=EXECUTED, replayed=replayed[:2],
                                change_evidence=[]), META)
     assert 'pass on the merge base' not in only_skipped and '2 tests skipped on both sides' in only_skipped
+
+
+def test_new_tests_for_new_code_get_their_own_heading_and_are_not_change_evidence():
+    replayed = [dict(id='tests/t.py::test_value', head='passed', base='failed', verdict='evidence'),
+                dict(id='tests/t.py::test_new_api', head='passed', base='failed', verdict='new_code',
+                     why='AttributeError on validate_domain'),
+                dict(id='tests/u.py::test_import', head='passed', base='unloadable', verdict='new_code',
+                     why='ImportError on RemovedInDjango2028Warning'),
+                dict(id='tests/v.py::test_odd', head='passed', base='unloadable', verdict='unloadable')]
+    report = dict(flips=0, predicted_failures=[], gaps=[], executed=EXECUTED, replayed=replayed,
+                  change_evidence=[dict(id='tests/t.py::test_value', before='failed', after='passed')])
+    body = render(report, META)
+    assert "1 test of the pull request's own fail on the merge base" in body.splitlines()[0]
+    assert '### Change evidence: the pull request\'s own tests (1)' in body
+    new = body.index('### New tests for new code (2)')
+    assert body.index('`tests/t.py::test_value`') < new < body.index('`tests/t.py::test_new_api`')
+    assert '`AttributeError on validate_domain`' in body and '`ImportError on RemovedInDjango2028Warning`' in body
+    assert '1 test do not load on the merge base for a reason AMU did not read' in body

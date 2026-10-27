@@ -57,11 +57,44 @@ def test_a_new_test_that_fails_before_the_change_and_passes_after_is_change_evid
     assert result['flips'] == 0 and "change evidence" in result['summary']
 
 
-def test_a_new_test_file_importing_what_the_change_adds_counts_as_failing_before(tmp_path):
-    lib1 = LIB1 + '\n\ndef added():\n    return 7\n'
+def test_a_new_test_that_fails_before_only_because_what_it_uses_is_new_is_not_change_evidence(tmp_path):
+    # Django #21805 and #21736 (comment-usefulness test): tests that only import or call what the change adds were
+    # counted as change evidence. Only a failure on the code before the change by assertion or behaviour counts.
+    lib1 = LIB1 + '\n\ndef added():\n    return 7\n\n\nclass Box:\n    def fresh(self):\n        return 3\n'
+    lib0 = LIB0 + '\n\nclass Box:\n    pass\n'
     tests1 = 'from lib import added\ndef test_added():\n    assert added() == 7\n'
-    result = run_change(tmp_path, {'lib.py': LIB0}, {'lib.py': lib1, 'tests/test_added.py': tests1})
-    assert [(row['id'], row['before']) for row in result['change_evidence']] == [('tests/test_added.py::test_added', 'unloadable')], result
+    own1 = ('import lib\nfrom lib import Box, work\n'
+            'def test_method():\n    assert Box().fresh() == 3\n'
+            'def test_module_attribute():\n    assert lib.added() == 7\n'
+            'def test_value():\n    assert work() == 2\n')
+    result = run_change(tmp_path/'a', {'lib.py': lib0}, {'lib.py': lib1, 'tests/test_lib.py': own1})
+    verdicts = {row['id'].split('::')[-1]: (row['verdict'], row.get('why')) for row in result['replayed']}
+    assert verdicts == {'test_method': ('new_code', 'AttributeError on fresh'),
+                        'test_module_attribute': ('new_code', 'AttributeError on added'),
+                        'test_value': ('evidence', None)}, verdicts
+    assert [row['id'] for row in result['change_evidence']] == ['tests/test_lib.py::test_value']
+    # A new file that does not even import before the change: pytest reports it as a collection error of that file.
+    result = run_change(tmp_path/'b', {'lib.py': lib0}, {'lib.py': lib1, 'tests/test_added.py': tests1})
+    assert [(row['verdict'], row.get('why')) for row in result['replayed']] == [('new_code', 'ImportError on added')], result
+    assert result['change_evidence'] == []
+
+
+def test_new_code_is_told_apart_under_the_unittest_runner_too(tmp_path):
+    lib1 = LIB1 + '\n\ndef added():\n    return 7\n'
+    tests1 = ('import unittest\nfrom lib import added, work\n\n\nclass T(unittest.TestCase):\n'
+              '    def test_added(self):\n        self.assertEqual(added(), 7)\n\n'
+              '    def test_value(self):\n        self.assertEqual(work(), 2)\n')
+    other1 = ('import unittest\nimport lib\n\n\nclass U(unittest.TestCase):\n'
+              '    def test_attribute(self):\n        self.assertEqual(lib.added(), 7)\n\n'
+              '    def test_value(self):\n        self.assertEqual(lib.work(), 2)\n')
+    result = run_change(tmp_path, {'lib.py': LIB0}, {'lib.py': lib1, 'tests/test_new.py': tests1, 'tests/test_other.py': other1},
+                        runner='unittest')
+    verdicts = {row['id']: row['verdict'] for row in result['replayed']}
+    # The module importing ``added`` does not load before the change: both its tests are new tests for new code, even
+    # test_value, which cannot run there at all. In the module that loads, only the assertion failure is evidence.
+    assert verdicts == {'tests/test_new.py::T::test_added': 'new_code', 'tests/test_new.py::T::test_value': 'new_code',
+                        'tests/test_other.py::U::test_attribute': 'new_code',
+                        'tests/test_other.py::U::test_value': 'evidence'}, verdicts
 
 
 def test_a_new_test_that_fails_on_both_sides_is_a_gap_not_evidence(tmp_path):
