@@ -1,0 +1,378 @@
+{
+ "django#21855": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "New HTTP QUERY method: 20 new tests correctly 'new test for new code', 4 behaviour evidence tests, 155 captured calls of 8 changed functions unchanged; correct, but no more than a green CI run says. 691 s job.",
+  "number": 21855,
+  "repo": "django",
+  "rows": "-"
+ },
+ "django#21887": {
+  "adds": "nothing",
+  "first_line_correct": false,
+  "note": "MySQL 9.5-only GIS feature flag (class attribute turned property): nothing here can run it (gis_tests abort, no MySQL); headline says 'no flip among 9 tests, not seen' rather than 'no test ran the changed code' (a new property is not comparable, so side-by-side had no target).",
+  "number": 21887,
+  "repo": "django",
+  "rows": "-"
+ },
+ "django#22026": {
+  "adds": "noise",
+  "first_line_correct": false,
+  "note": "First line reports 9 behaviour differences; all are side-by-side artifacts: get_prefetcher as changed uses a module-level import the PR adds (from django.utils import functional), which the code before does not have, so every as-changed run raises NameError. The real change (deprecating cached_property) shows only in the 1 evidence test.",
+  "number": 22026,
+  "repo": "django",
+  "rows": "rows 9, real 0"
+ },
+ "django#22046": {
+  "adds": "nothing",
+  "first_line_correct": false,
+  "note": "Docstring-only change (plus docs): read as a code change, 3903 tests and 231 s to say 'no flip, not seen'; no first-line category for docstring/comment-only changes.",
+  "number": 22046,
+  "repo": "django",
+  "rows": "-"
+ },
+ "django#22095": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "Intended behaviour change (mode now combined with umask, vendored chmod dropped); the edited and new permission tests failing on the base say what the diff and description already say.",
+  "number": 22095,
+  "repo": "django",
+  "rows": "-"
+ },
+ "django#22102": {
+  "adds": "something",
+  "first_line_correct": true,
+  "note": "Bug fix (lookup mutated in place) with one new test; AMU confirms the test fails on the merge base and passes on the head, i.e. it reproduces the bug. CI shows only that it passes.",
+  "number": 22102,
+  "repo": "django",
+  "rows": "-"
+ },
+ "django#22137": {
+  "adds": "something",
+  "first_line_correct": true,
+  "note": "CSP nonce for streaming responses: both new tests fail without the fix (evidence), and the helper moved from checks to utils is labelled as a move, which lets a reviewer skip 14 lines.",
+  "number": 22137,
+  "repo": "django",
+  "rows": "-"
+ },
+ "django#22154": {
+  "adds": "something",
+  "first_line_correct": true,
+  "note": "Routing fix for generic relation managers: both new tests fail on the base and pass on the head (they reproduce the bug); 5 captured calls of the changed method show no difference on existing tests.",
+  "number": 22154,
+  "repo": "django",
+  "rows": "-"
+ },
+ "django#22158": {
+  "adds": "nothing",
+  "first_line_correct": false,
+  "note": "Python 3.15-only frozendict serializer: under 3.14 the new code is inert and its tests skip; headline says 'no flip, not seen' instead of 'no test ran the changed code' (no comparable changed function: the change is a new class plus a registry entry).",
+  "number": 22158,
+  "repo": "django",
+  "rows": "-"
+ },
+ "django#22169": {
+  "adds": "something",
+  "first_line_correct": true,
+  "note": "XOR join promotion: both new tests fail on the base (they reproduce the bug), and 18 captured calls of the restructured JoinPromoter.__init__ (AND/OR branches rewritten) show no difference for existing callers.",
+  "number": 22169,
+  "repo": "django",
+  "rows": "-"
+ },
+ "django#22171": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "One-line guard; the edited test failing on the base is evident from the diff (the operation is added to the list of unsupported ones). No captured call (nothing calls select_for_update on a combined query).",
+  "number": 22171,
+  "repo": "django",
+  "rows": "-"
+ },
+ "django#22176": {
+  "adds": "noise",
+  "first_line_correct": true,
+  "note": "First line counts 3 tests as change evidence, but 2 (test_trim_value, test_trim_value_non_string) only fail before because trim_value is new: Django subTest failure blocks ('ERROR: name (label) (value=...)') are not parsed, so #53's new-code check misses them. Their sibling without subTest was classified right.",
+  "number": 22176,
+  "repo": "django",
+  "rows": "-"
+ },
+ "django#22179": {
+  "adds": "something",
+  "first_line_correct": true,
+  "note": "Fail-open CSP fix: 5 new tests fail on the base and pass on the head (they reproduce the bug); side-by-side also saw 24 calls of build_policy from existing tests with no difference, i.e. no existing test reached the empty-directive case.",
+  "number": 22179,
+  "repo": "django",
+  "rows": "-"
+ },
+ "django#22186": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "Windows-only branch (os.name == 'nt') plus a POSIX bytes path; 76 tests and 19 captured calls show no difference on POSIX. The comment does not say the Windows branch could not run here.",
+  "number": 22186,
+  "repo": "django",
+  "rows": "-"
+ },
+ "django#22187": {
+  "adds": "nothing",
+  "first_line_correct": false,
+  "note": "One string in the LANG_INFO data dict: 3711 tests run, 136 s, headline 'no flip, not seen'; module-level data changes have no reach measure, so the comment cannot say whether any test read the changed entry.",
+  "number": 22187,
+  "repo": "django",
+  "rows": "-"
+ },
+ "django#22189": {
+  "adds": "something",
+  "first_line_correct": true,
+  "note": "Template lexer regex fix: both new tests fail on the base and pass on the head (they reproduce the bug). The change is to class-level regexes, so side-by-side had nothing to watch; the evidence carries the first line.",
+  "number": 22189,
+  "repo": "django",
+  "rows": "-"
+ },
+ "django#22204": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "Oracle 21c test skips: 'no test ran the changed code in oracle/features.py' is correct, and a reviewer knows Oracle-only code does not run here.",
+  "number": 22204,
+  "repo": "django",
+  "rows": "-"
+ },
+ "flask#5812": {
+  "adds": "noise",
+  "first_line_correct": true,
+  "note": "Request context merged into app context: 17 rows are real and intended (request_context()/test_request_context() now return AppContext); 60 are side-by-side artifacts (as-changed methods run against context objects the old code built: AttributeError '_request', RuntimeError, has_request_context True->False). Category right, 78% of rows false.",
+  "number": 5812,
+  "repo": "flask",
+  "rows": "rows 77, real 17, intended 17"
+ },
+ "flask#5818": {
+  "adds": "noise",
+  "first_line_correct": false,
+  "note": "Dispatch methods gained a leading ctx parameter; calls captured from the old code bind positionally (exception into ctx), so all 33 rows are artifacts (AttributeError ... has no attribute 'request', TypeError invalid response). The changed-signature filter only catches TypeErrors raised at the call.",
+  "number": 5818,
+  "repo": "flask",
+  "rows": "rows 33, real 0"
+ },
+ "flask#5898": {
+  "adds": "noise",
+  "first_line_correct": false,
+  "note": "redirect() default code 302 -> 303: side-by-side captures arguments after defaults are bound, so it replays code=302 explicitly and cannot see a default-value change; '0 flips, some of them on the changed code' reads as tested and unchanged, while no Flask test checks the default code.",
+  "number": 5898,
+  "repo": "flask",
+  "rows": "rows 0 (missed)"
+ },
+ "flask#5899": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "Deprecates should_ignore_error: 17 captured calls unchanged, 0 flips; nothing beyond the diff.",
+  "number": 5899,
+  "repo": "flask",
+  "rows": "-"
+ },
+ "flask#5917": {
+  "adds": "something",
+  "first_line_correct": true,
+  "note": "provide_automatic_options fix inside a large test rewrite: of 11 edited tests, AMU names the 2 (attr_enable, in test_basic and test_views) that fail without the fix and pass with it, the ones that pin the bug.",
+  "number": 5917,
+  "repo": "flask",
+  "rows": "-"
+ },
+ "flask#5928": {
+  "adds": "noise",
+  "first_line_correct": true,
+  "note": "14 'evidence' tests, 13 false: the new test_robust_teardown fails on the base and leaves teardown broken, so every later test in the process errors (ValueError: app_teardown); alone, each passes on the base. The fresh-process confirmation reruns them together, so the cascade repeats.",
+  "number": 5928,
+  "repo": "flask",
+  "rows": "-"
+ },
+ "flask#6013": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "Case-insensitive autoescape check: 14 captured calls, all lower-case names, no difference; no test uses an upper-case extension, which the comment does not say.",
+  "number": 6013,
+  "repo": "flask",
+  "rows": "-"
+ },
+ "flask#6096": {
+  "adds": "something",
+  "first_line_correct": true,
+  "note": "IPv6 host parsing fix: the 2 new/edited tests fail on the base and pass on the head (they reproduce the bug); 24 captured calls from other tests unchanged.",
+  "number": 6096,
+  "repo": "flask",
+  "rows": "-"
+ },
+ "flask#6133": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "New app.query decorator: 'adds new code only; its 1 new test fails on the base with AttributeError, as expected' is right and is what the diff shows.",
+  "number": 6133,
+  "repo": "flask",
+  "rows": "-"
+ },
+ "flask#6168": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "Drop Python 3.10 (version-gated code removed): 17 captured calls unchanged, 0 flips; nothing beyond the diff.",
+  "number": 6168,
+  "repo": "flask",
+  "rows": "-"
+ },
+ "sympy#29693": {
+  "adds": "noise",
+  "first_line_correct": false,
+  "note": "Says 'adds new code only', but the new LatexPrinter._print_OrdinalZero is found by name dispatch and changes latex(OrdinalZero) from '' to '0' (a regression fix; its test fails on the base). adds_only treats any new method as inert, including ones that override or are dispatched to.",
+  "number": 29693,
+  "repo": "sympy",
+  "rows": "-"
+ },
+ "sympy#29763": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "New _print_conjugate methods where printing raised PrintMethodNotImplementedError before: 'adds new code only' fits (nothing that worked changes); the 3 evidence tests fail on the base with that error, as the description says.",
+  "number": 29763,
+  "repo": "sympy",
+  "rows": "-"
+ },
+ "sympy#30147": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "'factorial' added to a class-level tuple; the edited test failing on the base is evident from the diff.",
+  "number": 30147,
+  "repo": "sympy",
+  "rows": "-"
+ },
+ "sympy#30571": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "Lark LaTeX parser rewrite: lark is not installed in this environment, so its 14 tests skip and nothing runs the parser; 'no test ran the changed code' is correct but says nothing about the change.",
+  "number": 30571,
+  "repo": "sympy",
+  "rows": "-"
+ },
+ "sympy#30646": {
+  "adds": "something",
+  "first_line_correct": true,
+  "note": "Lie group heuristic exception fixes: 3 new tests fail on the base and pass on the head (reproduce the errors); no existing test call of the 3 changed heuristics was captured.",
+  "number": 30646,
+  "repo": "sympy",
+  "rows": "-"
+ },
+ "sympy#30741": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "PurePoly canonical generators: the 4 rows (charpoly with an explicit x returns Poly, not PurePoly) are real and the PR documents exactly that; 30 evidence tests match the description.",
+  "number": 30741,
+  "repo": "sympy",
+  "rows": "rows 4, real 4, intended 4"
+ },
+ "sympy#30776": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "New Integral.reverse_limits: 'adds new code only; its 1 new test fails on the base with AttributeError, as expected' is right and is what the diff shows.",
+  "number": 30776,
+  "repo": "sympy",
+  "rows": "-"
+ },
+ "sympy#30779": {
+  "adds": "something",
+  "first_line_correct": true,
+  "note": "Plane.distance fix for parallel segments/rays: the new test fails on the base (ValueError unpacking an empty intersection) and passes on the head; no existing test called distance with such input (0 captured calls).",
+  "number": 30779,
+  "repo": "sympy",
+  "rows": "-"
+ },
+ "sympy#30780": {
+  "adds": "something",
+  "first_line_correct": true,
+  "note": "pinv fix for vectors: the new test fails on the base and passes on the head. The new early return changes the path for every row/column vector, numeric too, and no existing test call was captured (0 calls), which the first line does not say.",
+  "number": 30780,
+  "repo": "sympy",
+  "rows": "-"
+ },
+ "sympy#30781": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "as_dummy rewrite: 4 evidence tests, and 4 existing tests whose expected outputs the PR edits are listed as 'updated' (visible in the diff); 33 captured calls of the one comparable target unchanged.",
+  "number": 30781,
+  "repo": "sympy",
+  "rows": "-"
+ },
+ "sympy#30797": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "autolev ANTLR parser: antlr4 is not installed here; 'no test ran the changed code' is correct and expected.",
+  "number": 30797,
+  "repo": "sympy",
+  "rows": "-"
+ },
+ "sympy#30803": {
+  "adds": "something",
+  "first_line_correct": true,
+  "note": "EXRAW recursion fix: the 2 rows show the wrap also changes the ordinary ZZ path (_rebuild_expr returns FracElement instead of a raw ground element), which the description presents as EXRAW-only; intended (mirrors PolyRing). New test reproduces the recursion.",
+  "number": 30803,
+  "repo": "sympy",
+  "rows": "rows 2, real 2, intended 2"
+ },
+ "sympy#30808": {
+  "adds": "something",
+  "first_line_correct": true,
+  "note": "fuzzy_or fix in Mul._eval_real_imag: the new test fails on the base (reproduces the issue) and 10 captured calls from existing tests are unchanged.",
+  "number": 30808,
+  "repo": "sympy",
+  "rows": "-"
+ },
+ "sympy#30809": {
+  "adds": "nothing",
+  "first_line_correct": false,
+  "note": "__slots__ = () on the NotIterable mixin changes every subclass (no instance __dict__); headline 'no flip, not seen' (class attribute: no side-by-side target), and the PR's own test is filed as 'new test for new code' because the AttributeError names __slots__, though it checks a behaviour change.",
+  "number": 30809,
+  "repo": "sympy",
+  "rows": "-"
+ },
+ "sympy#30815": {
+  "adds": "something",
+  "first_line_correct": true,
+  "note": "as_terms exponent accumulation: the new test fails on the base (reproduces the bug); 12 captured calls from existing tests unchanged.",
+  "number": 30815,
+  "repo": "sympy",
+  "rows": "-"
+ },
+ "sympy#30825": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "Type-annotation-only change: '0 flips, some on the changed code' (17 calls, no difference) is true, but 3580 tests and 281 s were spent on a change with no runtime effect; refactor-only does not cover annotation-only edits.",
+  "number": 30825,
+  "repo": "sympy",
+  "rows": "-"
+ },
+ "sympy#30827": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "Plane.distance rewritten with closed forms: 1 updated test and 1 evidence test, both expectation changes visible in the diff; no existing call of Plane.distance captured.",
+  "number": 30827,
+  "repo": "sympy",
+  "rows": "-"
+ },
+ "sympy#30838": {
+  "adds": "nothing",
+  "first_line_correct": false,
+  "note": "Docstring typo fix: side-by-side itself recorded 'only its docstring, comments or layout changed', yet the headline is 'no flip, not seen' after 3732 tests and 245 s. Docstring-only changes are not read like refactor-only ones.",
+  "number": 30838,
+  "repo": "sympy",
+  "rows": "-"
+ },
+ "sympy#30841": {
+  "adds": "something",
+  "first_line_correct": true,
+  "note": "singularities() Pow fix: the edited regression tests (and one whose xfail the PR removes) fail on the base and pass on the head; 3 captured calls from other tests unchanged.",
+  "number": 30841,
+  "repo": "sympy",
+  "rows": "-"
+ },
+ "sympy#30851": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "Mathematica printer fixes (EllipticF name, Heaviside/DiracDelta methods): the edited test fails on the base, as the edit shows.",
+  "number": 30851,
+  "repo": "sympy",
+  "rows": "-"
+ }
+}

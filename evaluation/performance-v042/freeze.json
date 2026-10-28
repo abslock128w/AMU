@@ -1,0 +1,1011 @@
+{
+ "after": "2026-10-18T00:00:00Z",
+ "counts": {
+  "django": 20,
+  "flask": 10,
+  "sympy": 20
+ },
+ "prs": {
+  "django": [
+   {
+    "base_sha": "360ccd4bd89d8c2404d5d29bdc71a4a465c7e740",
+    "files": 1,
+    "head_sha": "8b6119edf2b7166063f1090df72075e529828be3",
+    "merge_base": "360ccd4bd89d8c2404d5d29bdc71a4a465c7e740",
+    "merge_commit": "63d898bde2ae34241b5038434186e73ffb7470ef",
+    "merged_at": "2026-10-27T16:31:31Z",
+    "number": 22204,
+    "production_files": [
+     "django/db/backends/oracle/features.py"
+    ],
+    "test_files": [],
+    "title": "Fixed #35225 -- Skipped JSONObject ordering tests on Oracle 21c."
+   },
+   {
+    "base_sha": "77eea99b455396145188305c31284720751df6f5",
+    "files": 3,
+    "head_sha": "62ed9edb9e864ca8d410dfbe8eeb4717016fcd40",
+    "merge_base": "77eea99b455396145188305c31284720751df6f5",
+    "merge_commit": "360ccd4bd89d8c2404d5d29bdc71a4a465c7e740",
+    "merged_at": "2026-10-27T10:01:16Z",
+    "number": 22171,
+    "production_files": [
+     "django/db/models/query.py"
+    ],
+    "test_files": [
+     "tests/queries/test_qs_combinators.py"
+    ],
+    "title": "Fixed #37432 -- Made `select_for_update` raise after combined queries"
+   },
+   {
+    "base_sha": "5c13b5a19864807cae7266339554c14e151e5961",
+    "files": 2,
+    "head_sha": "4ea250d2ccca7ba965f0380ff680e5dc2bc7084b",
+    "merge_base": "d430084791a61b31cecec132bce3dca19194f7f2",
+    "merge_commit": "77eea99b455396145188305c31284720751df6f5",
+    "merged_at": "2026-10-27T07:52:13Z",
+    "number": 22169,
+    "production_files": [
+     "django/db/models/sql/query.py"
+    ],
+    "test_files": [
+     "tests/queries/tests.py"
+    ],
+    "title": "Fixed #37438 -- Fixed join promotion for XOR conditions."
+   },
+   {
+    "base_sha": "45fe4636d8d147b87040170a6cee4ab036ed2324",
+    "files": 27,
+    "head_sha": "e85b3c06b408bed0b034402c837f37e8f2663582",
+    "merge_base": "45fe4636d8d147b87040170a6cee4ab036ed2324",
+    "merge_commit": "5c13b5a19864807cae7266339554c14e151e5961",
+    "merged_at": "2026-10-26T15:48:52Z",
+    "number": 21855,
+    "production_files": [
+     "django/contrib/admin/options.py",
+     "django/contrib/auth/admin.py",
+     "django/middleware/common.py",
+     "django/middleware/csrf.py",
+     "django/middleware/http.py",
+     "django/test/client.py",
+     "django/utils/cache.py",
+     "django/views/decorators/http.py",
+     "django/views/generic/base.py"
+    ],
+    "test_files": [
+     "tests/admin_views/tests.py",
+     "tests/conditional_processing/tests.py",
+     "tests/csrf_tests/tests.py",
+     "tests/decorators/test_http.py",
+     "tests/generic_views/test_base.py",
+     "tests/middleware/tests.py",
+     "tests/test_client/tests.py",
+     "tests/test_client/urls.py",
+     "tests/test_client/views.py"
+    ],
+    "title": "Fixed #37232 -- Added support for the HTTP QUERY method."
+   },
+   {
+    "base_sha": "a2a0b4f2764f7b192bff4bb75ed56ce017931a71",
+    "files": 4,
+    "head_sha": "d13621cb9afa774c5f225ce2f26fa056f9650a85",
+    "merge_base": "512b92a493f8006e149bb924957561acc6714e52",
+    "merge_commit": "45fe4636d8d147b87040170a6cee4ab036ed2324",
+    "merged_at": "2026-10-26T12:45:32Z",
+    "number": 22189,
+    "production_files": [
+     "django/template/base.py"
+    ],
+    "test_files": [
+     "tests/template_tests/syntax_tests/test_comment.py",
+     "tests/template_tests/syntax_tests/test_verbatim.py"
+    ],
+    "title": "Fixed #37450 -- Fixed parsing of comment and verbatim tags without spaces."
+   },
+   {
+    "base_sha": "512b92a493f8006e149bb924957561acc6714e52",
+    "files": 2,
+    "head_sha": "3da22de28a8c2f209bad88f761522f57118a93d9",
+    "merge_base": "512b92a493f8006e149bb924957561acc6714e52",
+    "merge_commit": "a2a0b4f2764f7b192bff4bb75ed56ce017931a71",
+    "merged_at": "2026-10-26T08:23:54Z",
+    "number": 22154,
+    "production_files": [
+     "django/contrib/contenttypes/fields.py"
+    ],
+    "test_files": [
+     "tests/multiple_database/tests.py"
+    ],
+    "title": "Fixed #37427 -- Kept generic relation queryset routing lazy."
+   },
+   {
+    "base_sha": "32a46625c24cbc72adc5a77296b085a49c47ae12",
+    "files": 106,
+    "head_sha": "be3dd9e15b45b016e49fe378001fb1734ce63080",
+    "merge_base": "a26ceb0903189bb534394db62e031403b2b9fa93",
+    "merge_commit": "512b92a493f8006e149bb924957561acc6714e52",
+    "merged_at": "2026-10-23T13:32:18Z",
+    "number": 22026,
+    "production_files": [
+     "django/apps/config.py",
+     "django/contrib/admin/helpers.py",
+     "django/contrib/admindocs/views.py",
+     "django/contrib/auth/management/commands/createsuperuser.py",
+     "django/contrib/auth/password_validation.py",
+     "django/contrib/contenttypes/fields.py",
+     "django/contrib/gis/db/backends/base/models.py",
+     "django/contrib/gis/db/backends/base/operations.py",
+     "django/contrib/gis/db/backends/mysql/features.py",
+     "django/contrib/gis/db/backends/mysql/operations.py",
+     "django/contrib/gis/db/backends/oracle/features.py",
+     "django/contrib/gis/db/backends/oracle/introspection.py",
+     "django/contrib/gis/db/backends/oracle/operations.py",
+     "django/contrib/gis/db/backends/postgis/operations.py",
+     "django/contrib/gis/db/backends/spatialite/features.py",
+     "django/contrib/gis/db/backends/spatialite/operations.py",
+     "django/contrib/gis/db/models/aggregates.py",
+     "django/contrib/gis/db/models/functions.py",
+     "django/contrib/gis/gdal/raster/source.py",
+     "django/contrib/gis/geoip2.py",
+     "django/contrib/gis/geos/libgeos.py",
+     "django/contrib/postgres/expressions.py",
+     "django/contrib/postgres/indexes.py",
+     "django/contrib/sessions/backends/db.py",
+     "django/contrib/staticfiles/management/commands/collectstatic.py",
+     "django/core/cache/backends/memcached.py",
+     "django/core/cache/backends/redis.py",
+     "django/core/files/base.py",
+     "django/core/files/storage/filesystem.py",
+     "django/core/files/storage/handler.py",
+     "django/core/files/storage/memory.py",
+     "django/core/handlers/asgi.py",
+     "django/core/handlers/wsgi.py",
+     "django/core/mail/backends/smtp.py",
+     "django/core/management/commands/loaddata.py",
+     "django/core/management/commands/makemessages.py",
+     "django/core/paginator.py",
+     "django/db/backends/base/base.py",
+     "django/db/backends/base/features.py",
+     "django/db/backends/mysql/base.py",
+     "django/db/backends/mysql/features.py",
+     "django/db/backends/oracle/base.py",
+     "django/db/backends/oracle/creation.py",
+     "django/db/backends/oracle/features.py",
+     "django/db/backends/oracle/operations.py",
+     "django/db/backends/postgresql/base.py",
+     "django/db/backends/postgresql/features.py",
+     "django/db/backends/sqlite3/features.py",
+     "django/db/backends/sqlite3/operations.py",
+     "django/db/migrations/autodetector.py",
+     "django/db/migrations/operations/fields.py",
+     "django/db/migrations/operations/models.py",
+     "django/db/migrations/state.py",
+     "django/db/models/expressions.py",
+     "django/db/models/fields/__init__.py",
+     "django/db/models/fields/composite.py",
+     "django/db/models/fields/generated.py",
+     "django/db/models/fields/mixins.py",
+     "django/db/models/fields/related.py",
+     "django/db/models/fields/related_descriptors.py",
+     "django/db/models/fields/reverse_related.py",
+     "django/db/models/lookups.py",
+     "django/db/models/options.py",
+     "django/db/models/query.py",
+     "django/db/models/query_utils.py",
+     "django/db/models/sql/compiler.py",
+     "django/db/models/sql/query.py",
+     "django/db/models/sql/where.py",
+     "django/db/utils.py",
+     "django/forms/boundfield.py",
+     "django/forms/forms.py",
+     "django/forms/formsets.py",
+     "django/forms/renderers.py",
+     "django/http/request.py",
+     "django/http/response.py",
+     "django/middleware/csrf.py",
+     "django/template/backends/base.py",
+     "django/template/backends/jinja2.py",
+     "django/template/engine.py",
+     "django/template/utils.py",
+     "django/urls/resolvers.py",
+     "django/utils/autoreload.py",
+     "django/utils/connection.py",
+     "django/utils/functional.py",
+     "django/utils/html.py",
+     "django/utils/text.py",
+     "django/views/generic/dates.py"
+    ],
+    "test_files": [
+     "tests/admin_docs/models.py",
+     "tests/admin_docs/test_views.py",
+     "tests/apps/tests.py",
+     "tests/gis_tests/test_data.py",
+     "tests/gis_tests/test_spatialrefsys.py",
+     "tests/i18n/test_compilation.py",
+     "tests/model_fields/test_mixins.py",
+     "tests/postgres_tests/__init__.py",
+     "tests/prefetch_related/models.py",
+     "tests/prefetch_related/tests.py",
+     "tests/sphinx_tests/test_github_links.py",
+     "tests/sphinx_tests/testdata/package/module.py",
+     "tests/utils_tests/test_functional.py"
+    ],
+    "title": "Fixed #30949 -- Deprecated django.utils.functional.cached_property."
+   },
+   {
+    "base_sha": "a26ceb0903189bb534394db62e031403b2b9fa93",
+    "files": 1,
+    "head_sha": "1b0f826eeea8ff7f1cc3d2afff7f8974c2d01aa1",
+    "merge_base": "549605de8c7834a0e62c42ad651d9285382c9d4a",
+    "merge_commit": "32a46625c24cbc72adc5a77296b085a49c47ae12",
+    "merged_at": "2026-10-23T12:54:23Z",
+    "number": 22187,
+    "production_files": [
+     "django/conf/locale/__init__.py"
+    ],
+    "test_files": [],
+    "title": "Fixed #37449 -- Corrected local name for Punjabi in django/conf/locale/__init__.py."
+   },
+   {
+    "base_sha": "026b005f3dc43a98557ce5a546b5e4938d06fed1",
+    "files": 3,
+    "head_sha": "b550194349e51e669ebb78b75ad7ae379927a104",
+    "merge_base": "026b005f3dc43a98557ce5a546b5e4938d06fed1",
+    "merge_commit": "a26ceb0903189bb534394db62e031403b2b9fa93",
+    "merged_at": "2026-10-23T12:07:03Z",
+    "number": 21887,
+    "production_files": [
+     "django/contrib/gis/db/backends/mysql/features.py"
+    ],
+    "test_files": [
+     "tests/gis_tests/geoapp/test_functions.py"
+    ],
+    "title": "Fixed test_asgeojson() on MySQL 9.5."
+   },
+   {
+    "base_sha": "549605de8c7834a0e62c42ad651d9285382c9d4a",
+    "files": 4,
+    "head_sha": "cf0752bb9a94c1bb56f97ea315a8e292bb82047e",
+    "merge_base": "549605de8c7834a0e62c42ad651d9285382c9d4a",
+    "merge_commit": "8e4e95da9b5b751923cd80989d9ece4b6c6fb1a3",
+    "merged_at": "2026-10-22T17:44:31Z",
+    "number": 22186,
+    "production_files": [
+     "django/core/management/commands/makemessages.py"
+    ],
+    "test_files": [],
+    "title": "Fixed #37447 -- Fixed makemessages with non-ASCII file names on Windows."
+   },
+   {
+    "base_sha": "79502d08405dbf24efa39e8731320f31035b9e9c",
+    "files": 5,
+    "head_sha": "bd2e265ad5e4c96beefab4343b9a889cf021667c",
+    "merge_base": "79502d08405dbf24efa39e8731320f31035b9e9c",
+    "merge_commit": "549605de8c7834a0e62c42ad651d9285382c9d4a",
+    "merged_at": "2026-10-22T15:18:09Z",
+    "number": 22179,
+    "production_files": [
+     "django/utils/csp.py"
+    ],
+    "test_files": [
+     "tests/middleware/test_csp.py",
+     "tests/utils_tests/test_csp.py"
+    ],
+    "title": "Fixed #37395 -- Emitted 'none' for CSP directives left empty by an unused nonce."
+   },
+   {
+    "base_sha": "9b83f7513c06aef91a20669450809ddd944e0792",
+    "files": 9,
+    "head_sha": "6ab7f905fca95a35b6a00753bc11a44da3002e61",
+    "merge_base": "9b83f7513c06aef91a20669450809ddd944e0792",
+    "merge_commit": "4b09d8c2c84b41931ca17e460edaa2f849e03170",
+    "merged_at": "2026-10-22T15:00:18Z",
+    "number": 22095,
+    "production_files": [
+     "django/core/cache/backends/filebased.py",
+     "django/core/files/storage/filesystem.py",
+     "django/utils/_os.py"
+    ],
+    "test_files": [
+     "tests/file_storage/tests.py",
+     "tests/staticfiles_tests/test_storage.py",
+     "tests/utils_tests/test_os_utils.py"
+    ],
+    "title": "Fixed #37401 -- Used os.makedirs() for safe_makedirs() on Python 3.15+."
+   },
+   {
+    "base_sha": "79502d08405dbf24efa39e8731320f31035b9e9c",
+    "files": 9,
+    "head_sha": "64cbef6424e0c8a4226a58451de573432c68b483",
+    "merge_base": "79502d08405dbf24efa39e8731320f31035b9e9c",
+    "merge_commit": "5190bbc3b70ae6c359a7604b7bc55e1fe3440841",
+    "merged_at": "2026-10-22T14:40:28Z",
+    "number": 22176,
+    "production_files": [
+     "django/contrib/gis/gdal/raster/source.py",
+     "django/db/models/query_utils.py",
+     "django/utils/text.py",
+     "django/views/debug.py"
+    ],
+    "test_files": [
+     "tests/gis_tests/geoapp/tests.py",
+     "tests/queries/test_q.py",
+     "tests/utils_tests/test_text.py",
+     "tests/view_tests/tests/test_debug.py"
+    ],
+    "title": "Fixed #37433 -- Escaped database error messages logged by Q.check()."
+   },
+   {
+    "base_sha": "11af25c0ae06c8275ebb8def8b8ca777a5660ed6",
+    "files": 6,
+    "head_sha": "013eb3a2b47a0538255b3901cf01afe699c8e12b",
+    "merge_base": "11af25c0ae06c8275ebb8def8b8ca777a5660ed6",
+    "merge_commit": "3d3d943b7442f1f5278ed876331a06047fa96ea8",
+    "merged_at": "2026-10-21T06:46:53Z",
+    "number": 22137,
+    "production_files": [
+     "django/core/checks/security/base.py",
+     "django/middleware/csp.py",
+     "django/utils/csp.py"
+    ],
+    "test_files": [
+     "tests/middleware/test_csp.py"
+    ],
+    "title": "Fixed #37419 -- Included CSP nonces in headers for streaming responses."
+   },
+   {
+    "base_sha": "cf564bf3a7e0d92bc32292ccff1eca5aeb24b1ef",
+    "files": 2,
+    "head_sha": "610888bba2e4888f2fbddd0046c07f3fa6479c0c",
+    "merge_base": "135d7c606fc66a9f47f690e5f242ced386524954",
+    "merge_commit": "6de4b35a79b8131cffe433aab67c20cae7ad8e56",
+    "merged_at": "2026-10-21T06:46:04Z",
+    "number": 22102,
+    "production_files": [
+     "django/db/models/lookups.py"
+    ],
+    "test_files": [
+     "tests/model_fields/test_uuid.py"
+    ],
+    "title": "Fixed #37407 -- Prevented UUIDTextMixin from mutating the lookup in place."
+   },
+   {
+    "base_sha": "45ce894a3b333edb154abe660e40e76f1a35e141",
+    "files": 4,
+    "head_sha": "40224a0be7307479ff9524103e1e125ffb3f0730",
+    "merge_base": "45ce894a3b333edb154abe660e40e76f1a35e141",
+    "merge_commit": "2fff3e9f493a9c85fb8a2294358c6751575ee4bf",
+    "merged_at": "2026-10-20T18:44:10Z",
+    "number": 22158,
+    "production_files": [
+     "django/db/migrations/serializer.py"
+    ],
+    "test_files": [
+     "tests/migrations/test_writer.py"
+    ],
+    "title": "Fixed #37431 -- Preserved frozendict values in migration serialization."
+   },
+   {
+    "base_sha": "9b83f7513c06aef91a20669450809ddd944e0792",
+    "files": 2,
+    "head_sha": "11038451cef99b7b73eca5536f98cdd77c54ed03",
+    "merge_base": "9b83f7513c06aef91a20669450809ddd944e0792",
+    "merge_commit": "45ce894a3b333edb154abe660e40e76f1a35e141",
+    "merged_at": "2026-10-20T15:51:14Z",
+    "number": 22046,
+    "production_files": [
+     "django/contrib/contenttypes/models.py"
+    ],
+    "test_files": [],
+    "title": "Doc'd ContentType.model_class behaviour for stale content types."
+   }
+  ],
+  "flask": [
+   {
+    "base_sha": "d73fa1cdcbd8b1465c151db8924ba58b1dd14e35",
+    "files": 12,
+    "head_sha": "7689f98403e2c0b0bc8d1031e60f8cff2620e86a",
+    "merge_base": "d73fa1cdcbd8b1465c151db8924ba58b1dd14e35",
+    "merge_commit": "728c5e440af704a786384159184f695cf04ecbe7",
+    "merged_at": "2026-10-07T13:56:06Z",
+    "number": 6168,
+    "production_files": [
+     "src/flask/cli.py",
+     "src/flask/helpers.py",
+     "src/flask/sessions.py"
+    ],
+    "test_files": [
+     "tests/test_appctx.py",
+     "tests/test_basic.py",
+     "tests/test_config.py",
+     "tests/test_json_tag.py"
+    ],
+    "title": "drop support for Python 3.10"
+   },
+   {
+    "base_sha": "3596b1ab61cea85edb8970e83ff61daa073facf8",
+    "files": 3,
+    "head_sha": "89992954ec71b594b1b911f98977cdc8ad46a057",
+    "merge_base": "3596b1ab61cea85edb8970e83ff61daa073facf8",
+    "merge_commit": "d8eaaba824655046958d1a97f11780de460c3271",
+    "merged_at": "2026-08-11T20:19:14Z",
+    "number": 6133,
+    "production_files": [
+     "src/flask/sansio/scaffold.py"
+    ],
+    "test_files": [
+     "tests/test_basic.py"
+    ],
+    "title": "add `app.query` route decorator"
+   },
+   {
+    "base_sha": "514fc6b3e8402e4c646d5284e97a4f0ab50a7c4b",
+    "files": 4,
+    "head_sha": "7203feabf723edae0286ae5dc64fec8ac4c91735",
+    "merge_base": "514fc6b3e8402e4c646d5284e97a4f0ab50a7c4b",
+    "merge_commit": "05e9c6bd630ecf4ec0ec884b1fc7901663737bc7",
+    "merged_at": "2026-08-11T19:48:41Z",
+    "number": 6096,
+    "production_files": [
+     "src/flask/app.py",
+     "src/flask/testing.py"
+    ],
+    "test_files": [
+     "tests/test_basic.py",
+     "tests/test_testing.py"
+    ],
+    "title": "Fix `.partition(\":\")` usage on potential IPv6 addresses"
+   },
+   {
+    "base_sha": "06ea505ce2b2042af26e96d35ebf159af7c0869d",
+    "files": 2,
+    "head_sha": "9368fb3f3c52d74534d14c1bef03c79c103356cd",
+    "merge_base": "06ea505ce2b2042af26e96d35ebf159af7c0869d",
+    "merge_commit": "dcbede0cb00df32e7f1895e19e37d5f40a75d1f6",
+    "merged_at": "2026-05-02T03:58:57Z",
+    "number": 6013,
+    "production_files": [
+     "src/flask/sansio/app.py"
+    ],
+    "test_files": [],
+    "title": "autoescape selection uses case-insensitive comparison"
+   },
+   {
+    "base_sha": "7b0088693ece1bd3a9238a6fdf56ed8df7a4d43b",
+    "files": 10,
+    "head_sha": "fbb6f0bc4c60a0bada0e03c3480d0ccf30a3c1df",
+    "merge_base": "7b0088693ece1bd3a9238a6fdf56ed8df7a4d43b",
+    "merge_commit": "c34d6e81fd8e405e6d4178bf24b364918811ef17",
+    "merged_at": "2026-02-20T04:00:34Z",
+    "number": 5928,
+    "production_files": [
+     "src/flask/app.py",
+     "src/flask/ctx.py",
+     "src/flask/helpers.py"
+    ],
+    "test_files": [
+     "tests/test_appctx.py",
+     "tests/test_basic.py",
+     "tests/test_blueprints.py",
+     "tests/test_helpers.py",
+     "tests/test_testing.py"
+    ],
+    "title": "all teardown callbacks are called despite errors"
+   },
+   {
+    "base_sha": "d3b78fd18a8d9e224cb9ef58a23cec9b1ffc9ce9",
+    "files": 7,
+    "head_sha": "e82db2ca3a22c9614c1987392c9cfaa8c6ce99ad",
+    "merge_base": "d3b78fd18a8d9e224cb9ef58a23cec9b1ffc9ce9",
+    "merge_commit": "12e95c93b488725f80753f34b2e0d24838ca4646",
+    "merged_at": "2026-02-12T21:07:51Z",
+    "number": 5917,
+    "production_files": [
+     "src/flask/sansio/app.py"
+    ],
+    "test_files": [
+     "tests/test_basic.py",
+     "tests/test_blueprints.py",
+     "tests/test_cli.py",
+     "tests/test_views.py"
+    ],
+    "title": "fix provide_automatic_options override"
+   },
+   {
+    "base_sha": "9b74a90dd3c47f792734823e8793ac36f38bc4dd",
+    "files": 3,
+    "head_sha": "c77a5203438fe772d41f6a47303ad3f57a4efe6d",
+    "merge_base": "9b74a90dd3c47f792734823e8793ac36f38bc4dd",
+    "merge_commit": "4b8bde97d4fa3486e18dce21c3c5f75570d50164",
+    "merged_at": "2026-01-25T03:53:12Z",
+    "number": 5899,
+    "production_files": [
+     "src/flask/app.py",
+     "src/flask/sansio/app.py"
+    ],
+    "test_files": [],
+    "title": "deprecate `should_ignore_error`"
+   },
+   {
+    "base_sha": "eb58d862cc4a8f31a369b6e9ad1724e9e642f13f",
+    "files": 4,
+    "head_sha": "eca5fd1dfdc614c2df876cc32018a7d71f84ea82",
+    "merge_base": "eb58d862cc4a8f31a369b6e9ad1724e9e642f13f",
+    "merge_commit": "809d5a8869d4ffe8656680b2438b10f7c8845613",
+    "merged_at": "2026-01-25T01:18:35Z",
+    "number": 5898,
+    "production_files": [
+     "src/flask/helpers.py",
+     "src/flask/sansio/app.py"
+    ],
+    "test_files": [],
+    "title": "redirect defaults to 303"
+   },
+   {
+    "base_sha": "adf363679da2d9a5ddc564bb2da563c7ca083916",
+    "files": 6,
+    "head_sha": "6a64969009bf1898bd302e6a9633f71942523f7f",
+    "merge_base": "adf363679da2d9a5ddc564bb2da563c7ca083916",
+    "merge_commit": "70d04b5a2620705011e65f79ccfd52caa86f5d6a",
+    "merged_at": "2025-11-17T16:49:53Z",
+    "number": 5818,
+    "production_files": [
+     "src/flask/app.py",
+     "src/flask/ctx.py",
+     "src/flask/templating.py"
+    ],
+    "test_files": [
+     "tests/test_reqctx.py",
+     "tests/test_subclassing.py"
+    ],
+    "title": "pass context through dispatch methods"
+   },
+   {
+    "base_sha": "330123258e8c3dc391cbe55ab1ed94891ca83af3",
+    "files": 36,
+    "head_sha": "c2705ffd9ce1dc8476cb29eaf5ff5d4c719852d9",
+    "merge_base": "330123258e8c3dc391cbe55ab1ed94891ca83af3",
+    "merge_commit": "adf363679da2d9a5ddc564bb2da563c7ca083916",
+    "merged_at": "2025-09-19T23:45:27Z",
+    "number": 5812,
+    "production_files": [
+     "src/flask/app.py",
+     "src/flask/cli.py",
+     "src/flask/ctx.py",
+     "src/flask/debughelpers.py",
+     "src/flask/globals.py",
+     "src/flask/helpers.py",
+     "src/flask/json/__init__.py",
+     "src/flask/sansio/app.py",
+     "src/flask/sansio/scaffold.py",
+     "src/flask/templating.py",
+     "src/flask/testing.py"
+    ],
+    "test_files": [
+     "tests/conftest.py",
+     "tests/test_appctx.py",
+     "tests/test_reqctx.py",
+     "tests/test_session_interface.py",
+     "tests/test_testing.py"
+    ],
+    "title": "merge app and request context"
+   }
+  ],
+  "sympy": [
+   {
+    "base_sha": "9a1e9e24af36d4c190ce7981727340de7110a663",
+    "files": 4,
+    "head_sha": "23a11c623299db957c25bbda34e851230ce416a7",
+    "merge_base": "9a1e9e24af36d4c190ce7981727340de7110a663",
+    "merge_commit": "f8ea58b03ec08777ed7832bf85606c1fae9f935a",
+    "merged_at": "2026-10-27T06:09:25Z",
+    "number": 30841,
+    "production_files": [
+     "sympy/calculus/singularities.py"
+    ],
+    "test_files": [
+     "sympy/calculus/tests/test_singularities.py",
+     "sympy/calculus/tests/test_util.py"
+    ],
+    "title": "fix singularities variable exp"
+   },
+   {
+    "base_sha": "9a1e9e24af36d4c190ce7981727340de7110a663",
+    "files": 2,
+    "head_sha": "16d8de2510d80adc7f05358110128923faf82488",
+    "merge_base": "fbf557ab210f4f0dd1a5c05129b9905073d24150",
+    "merge_commit": "cd86f04255d9411f11f32108cfa4ef773e4f401b",
+    "merged_at": "2026-10-26T20:40:15Z",
+    "number": 30838,
+    "production_files": [
+     "sympy/polys/polytools.py"
+    ],
+    "test_files": [],
+    "title": "Fix docstring typo in Poly.reduce (f_i -> g_i)"
+   },
+   {
+    "base_sha": "bfb177ed523cfac92135da1c52997e1313d04fde",
+    "files": 3,
+    "head_sha": "9b1263b9bd15902ed6a8803b274dc72b31c8ada6",
+    "merge_base": "bfb177ed523cfac92135da1c52997e1313d04fde",
+    "merge_commit": "dbae2c1ec7b02cd751fffd49eb064b2a7ad075e6",
+    "merged_at": "2026-10-26T19:12:36Z",
+    "number": 30851,
+    "production_files": [
+     "sympy/printing/mathematica.py"
+    ],
+    "test_files": [
+     "sympy/printing/tests/test_mathematica.py"
+    ],
+    "title": "Fix Heaviside, DiracDelta, and elliptic_f in Mathematica printer"
+   },
+   {
+    "base_sha": "fbf557ab210f4f0dd1a5c05129b9905073d24150",
+    "files": 3,
+    "head_sha": "29ef5436df25960a575e1cf2e3f58ecf614f3bb4",
+    "merge_base": "fbf557ab210f4f0dd1a5c05129b9905073d24150",
+    "merge_commit": "9a1e9e24af36d4c190ce7981727340de7110a663",
+    "merged_at": "2026-10-24T20:17:43Z",
+    "number": 30827,
+    "production_files": [
+     "sympy/geometry/line.py",
+     "sympy/geometry/plane.py"
+    ],
+    "test_files": [
+     "sympy/geometry/tests/test_plane.py"
+    ],
+    "title": "geometry: direct symbolic formulas for Plane.distance"
+   },
+   {
+    "base_sha": "f8531d83d716cec36a82f0023975bc3322a2984c",
+    "files": 2,
+    "head_sha": "13bc9277ecbedd5503186faac0006fa60853063a",
+    "merge_base": "f8531d83d716cec36a82f0023975bc3322a2984c",
+    "merge_commit": "65c7920cb5e5c8958872c11f3ce1b3ba6c3e3395",
+    "merged_at": "2026-10-24T19:25:10Z",
+    "number": 30646,
+    "production_files": [
+     "sympy/solvers/ode/lie_group.py"
+    ],
+    "test_files": [
+     "sympy/solvers/ode/tests/test_lie_group.py"
+    ],
+    "title": "fix(solvers.ode): handle exceptions in Lie group heuristics"
+   },
+   {
+    "base_sha": "f97cc7fc366ac93f872113512a60ad2c46807948",
+    "files": 2,
+    "head_sha": "9830c3710a713c54a94890621f550332e2e621da",
+    "merge_base": "f97cc7fc366ac93f872113512a60ad2c46807948",
+    "merge_commit": "fbf557ab210f4f0dd1a5c05129b9905073d24150",
+    "merged_at": "2026-10-24T10:43:38Z",
+    "number": 30825,
+    "production_files": [
+     "sympy/matrices/matrixbase.py"
+    ],
+    "test_files": [],
+    "title": "matrices: accept explicit matrices in MatrixBase.cross annotation"
+   },
+   {
+    "base_sha": "f8531d83d716cec36a82f0023975bc3322a2984c",
+    "files": 2,
+    "head_sha": "3ad8ec38cabc04732f12859566934a5ececba9fe",
+    "merge_base": "ec5281bfcd0a57a5bc15f0ce3d071f5eb02370f1",
+    "merge_commit": "f97cc7fc366ac93f872113512a60ad2c46807948",
+    "merged_at": "2026-10-23T18:07:40Z",
+    "number": 30815,
+    "production_files": [
+     "sympy/core/expr.py"
+    ],
+    "test_files": [
+     "sympy/core/tests/test_expr.py"
+    ],
+    "title": "core: accumulate repeated base exponents in as_terms"
+   },
+   {
+    "base_sha": "da2c7d12566841da7bef4ed6a43e0ae546699280",
+    "files": 10,
+    "head_sha": "3cef4d444e29f1c6af48c0792fb0ede69fe38942",
+    "merge_base": "b386392cd62ed543aadd696d9953ab35cb38d666",
+    "merge_commit": "f8531d83d716cec36a82f0023975bc3322a2984c",
+    "merged_at": "2026-10-23T15:58:23Z",
+    "number": 30781,
+    "production_files": [
+     "sympy/core/basic.py",
+     "sympy/core/function.py",
+     "sympy/functions/elementary/miscellaneous.py"
+    ],
+    "test_files": [
+     "sympy/core/tests/test_basic.py",
+     "sympy/core/tests/test_function.py",
+     "sympy/sets/tests/test_conditionset.py",
+     "sympy/sets/tests/test_fancysets.py",
+     "sympy/solvers/tests/test_solveset.py",
+     "sympy/stats/tests/test_mix.py"
+    ],
+    "title": "`as_dummy` guards against variable capture; IdentityFunction uses Symbol"
+   },
+   {
+    "base_sha": "4d185ff044004c4dca730c02a28789af6c1f2901",
+    "files": 3,
+    "head_sha": "9ba28026cd7c52889aafd69276675028f3e96e22",
+    "merge_base": "3180f8e740edc2d646bc2992fc96cc9d167da753",
+    "merge_commit": "ec5281bfcd0a57a5bc15f0ce3d071f5eb02370f1",
+    "merged_at": "2026-10-23T10:49:04Z",
+    "number": 30809,
+    "production_files": [
+     "sympy/utilities/iterables.py"
+    ],
+    "test_files": [
+     "sympy/utilities/tests/test_iterables.py"
+    ],
+    "title": "Add slots to NotIterable"
+   },
+   {
+    "base_sha": "3180f8e740edc2d646bc2992fc96cc9d167da753",
+    "files": 2,
+    "head_sha": "fbb633405af885704c008ed48d23e58e54a1ab8d",
+    "merge_base": "bcd3a171919e08f940d5e97b165b5191f37ed901",
+    "merge_commit": "4d185ff044004c4dca730c02a28789af6c1f2901",
+    "merged_at": "2026-10-23T06:15:31Z",
+    "number": 30808,
+    "production_files": [
+     "sympy/core/mul.py"
+    ],
+    "test_files": [
+     "sympy/core/tests/test_assumptions.py"
+    ],
+    "title": "assumptions: use fuzzy_or in Mul._eval_real_imag"
+   },
+   {
+    "base_sha": "ff210462342acdce06138465b34882c191bcafaa",
+    "files": 21,
+    "head_sha": "8147a2f064119d96be4c754dac98263261c68215",
+    "merge_base": "ff210462342acdce06138465b34882c191bcafaa",
+    "merge_commit": "93bae8c92255aa7054c33efcd2d86174efb91057",
+    "merged_at": "2026-10-22T23:36:56Z",
+    "number": 30797,
+    "production_files": [
+     "sympy/parsing/autolev/__init__.py",
+     "sympy/parsing/autolev/_listener_autolev_antlr.py",
+     "sympy/parsing/autolev/_parse_autolev_antlr.py",
+     "sympy/parsing/autolev/test-examples/pydy-example-repo/chaos_pendulum.py",
+     "sympy/parsing/autolev/test-examples/pydy-example-repo/double_pendulum.py",
+     "sympy/parsing/autolev/test-examples/pydy-example-repo/mass_spring_damper.py",
+     "sympy/parsing/autolev/test-examples/pydy-example-repo/non_min_pendulum.py",
+     "sympy/parsing/autolev/test-examples/ruletest1.py",
+     "sympy/parsing/autolev/test-examples/ruletest10.py",
+     "sympy/parsing/autolev/test-examples/ruletest11.py",
+     "sympy/parsing/autolev/test-examples/ruletest12.py",
+     "sympy/parsing/autolev/test-examples/ruletest2.py",
+     "sympy/parsing/autolev/test-examples/ruletest3.py",
+     "sympy/parsing/autolev/test-examples/ruletest4.py",
+     "sympy/parsing/autolev/test-examples/ruletest5.py",
+     "sympy/parsing/autolev/test-examples/ruletest6.py",
+     "sympy/parsing/autolev/test-examples/ruletest7.py",
+     "sympy/parsing/autolev/test-examples/ruletest8.py",
+     "sympy/parsing/autolev/test-examples/ruletest9.py"
+    ],
+    "test_files": [],
+    "title": "parsing: remove math and numpy imports from autolev parser output"
+   },
+   {
+    "base_sha": "ff210462342acdce06138465b34882c191bcafaa",
+    "files": 3,
+    "head_sha": "476ec0e431a10e2192acdd59d69a07805089302e",
+    "merge_base": "16700f29c50983a8a1ef1da267c3433d7197bed4",
+    "merge_commit": "c60dafcb4e3961aa6dea5193e9e1e864b662141d",
+    "merged_at": "2026-10-22T17:50:00Z",
+    "number": 30803,
+    "production_files": [
+     "sympy/polys/fields.py"
+    ],
+    "test_files": [
+     "sympy/polys/tests/test_fields.py"
+    ],
+    "title": "Fix infinite recursion in FracField.from_expr with EXRAW domain (again)"
+   },
+   {
+    "base_sha": "ff210462342acdce06138465b34882c191bcafaa",
+    "files": 5,
+    "head_sha": "7ef19937b800f28d5e5f40a0e3add38c5e13c8c3",
+    "merge_base": "44256baa9643febde826e099a1112e06461aef49",
+    "merge_commit": "76d8829d70c9cce75008fd2dbaf234b0c4a73d38",
+    "merged_at": "2026-10-22T16:45:54Z",
+    "number": 29763,
+    "production_files": [
+     "sympy/printing/numpy.py",
+     "sympy/printing/pycode.py"
+    ],
+    "test_files": [
+     "sympy/printing/tests/test_numpy.py",
+     "sympy/printing/tests/test_pycode.py"
+    ],
+    "title": "printing: Add _print_conjugate to PythonCodePrinter and NumPyPrinter"
+   },
+   {
+    "base_sha": "9278131b76a820f1d29efa7e5e1e1e232b75849a",
+    "files": 3,
+    "head_sha": "1c4db0aea3179e1eb6bd5121f4084d47a67cfeba",
+    "merge_base": "66b0602fe436df5c9f07bbcb2a1764c4a0fca809",
+    "merge_commit": "ff210462342acdce06138465b34882c191bcafaa",
+    "merged_at": "2026-10-22T15:43:24Z",
+    "number": 30147,
+    "production_files": [
+     "sympy/parsing/sympy_parser.py"
+    ],
+    "test_files": [
+     "sympy/parsing/tests/test_sympy_parser.py"
+    ],
+    "title": "Fix parse_expr(evaluate=False) for factorial"
+   },
+   {
+    "base_sha": "9278131b76a820f1d29efa7e5e1e1e232b75849a",
+    "files": 2,
+    "head_sha": "f1a8fd9f13b3c5a348a1a71971e01d177b7966cb",
+    "merge_base": "0a50bb0cf085aa941be2df0c245d40ab7e7e284a",
+    "merge_commit": "16700f29c50983a8a1ef1da267c3433d7197bed4",
+    "merged_at": "2026-10-22T14:52:08Z",
+    "number": 29693,
+    "production_files": [
+     "sympy/printing/latex.py"
+    ],
+    "test_files": [
+     "sympy/printing/tests/test_latex.py"
+    ],
+    "title": "Fix LaTeX printer for `OrdinalZero` returning empty string"
+   },
+   {
+    "base_sha": "92e2a7e6accdc417cf76c6dfbb3221de09bd41b9",
+    "files": 26,
+    "head_sha": "8b3b3148d18fd254b49048d0c094f347674db82c",
+    "merge_base": "92e2a7e6accdc417cf76c6dfbb3221de09bd41b9",
+    "merge_commit": "654880ab86c6b07635a387fc67ddb0811cc2660f",
+    "merged_at": "2026-10-22T05:06:09Z",
+    "number": 30741,
+    "production_files": [
+     "sympy/matrices/determinant.py",
+     "sympy/matrices/matrices.py",
+     "sympy/matrices/matrixbase.py",
+     "sympy/polys/domains/algebraicfield.py",
+     "sympy/polys/domains/domain.py",
+     "sympy/polys/matrices/dense.py",
+     "sympy/polys/matrices/domainmatrix.py",
+     "sympy/polys/matrices/sdm.py",
+     "sympy/polys/polytools.py",
+     "sympy/polys/specialpolys.py"
+    ],
+    "test_files": [
+     "sympy/matrices/tests/test_determinant.py",
+     "sympy/matrices/tests/test_eigen.py",
+     "sympy/matrices/tests/test_matrices.py",
+     "sympy/matrices/tests/test_matrixbase.py",
+     "sympy/matrices/tests/test_sparse.py",
+     "sympy/polys/domains/tests/test_domains.py",
+     "sympy/polys/numberfields/tests/test_minpoly.py",
+     "sympy/polys/numberfields/tests/test_numbers.py",
+     "sympy/polys/numberfields/tests/test_primes.py",
+     "sympy/polys/numberfields/tests/test_subfield.py",
+     "sympy/polys/tests/test_appellseqs.py",
+     "sympy/polys/tests/test_orthopolys.py",
+     "sympy/polys/tests/test_polytools.py",
+     "sympy/polys/tests/test_specialpolys.py",
+     "sympy/utilities/tests/test_wester.py"
+    ],
+    "title": "PurePoly canonical generators"
+   },
+   {
+    "base_sha": "9b67993d2e815ed4bec153e73d3ab8f857ac9252",
+    "files": 3,
+    "head_sha": "fa5f268a02298575f50e56e74c1d9d932dcadfa8",
+    "merge_base": "9b67993d2e815ed4bec153e73d3ab8f857ac9252",
+    "merge_commit": "263f29e9332661e24628e39ba0d4bd1fd729d2f9",
+    "merged_at": "2026-10-21T21:37:33Z",
+    "number": 30776,
+    "production_files": [
+     "sympy/integrals/integrals.py"
+    ],
+    "test_files": [
+     "sympy/integrals/tests/test_integrals.py"
+    ],
+    "title": "feat(integrals): add Integral.reverse_limits"
+   },
+   {
+    "base_sha": "10f07f50365ca394b0b19d696a399ec9bbeebee6",
+    "files": 3,
+    "head_sha": "f7d25f0ef9dd0149a091a8aaf73c49a9d8f0af3a",
+    "merge_base": "b386392cd62ed543aadd696d9953ab35cb38d666",
+    "merge_commit": "da2c7d12566841da7bef4ed6a43e0ae546699280",
+    "merged_at": "2026-10-21T19:57:42Z",
+    "number": 30780,
+    "production_files": [
+     "sympy/matrices/inverse.py"
+    ],
+    "test_files": [
+     "sympy/matrices/tests/test_decompositions.py"
+    ],
+    "title": "matrices: use _pinv_full_rank directly for vectors in _pinv_rank_decomposition"
+   },
+   {
+    "base_sha": "9350380769d772f6fb320052214afc2d488a41a3",
+    "files": 8,
+    "head_sha": "609fe8514dc970538313c3f58797888b6e833879",
+    "merge_base": "05008308547b4897a5e62cef1be301ee7f280ff0",
+    "merge_commit": "9d8ca701f8ba75b9b3cb1e23e6dcdac6572d7e73",
+    "merged_at": "2026-10-21T15:44:58Z",
+    "number": 30571,
+    "production_files": [
+     "sympy/parsing/latex/__init__.py",
+     "sympy/parsing/latex/lark/__init__.py",
+     "sympy/parsing/latex/lark/latex_parser.py",
+     "sympy/parsing/latex/lark/transformer.py"
+    ],
+    "test_files": [
+     "sympy/parsing/tests/test_latex_lark.py"
+    ],
+    "title": "Lark LaTeX parser: function argument readings, implicit products, derivatives and \\operatorname"
+   },
+   {
+    "base_sha": "b386392cd62ed543aadd696d9953ab35cb38d666",
+    "files": 3,
+    "head_sha": "97623a0b7363223e2b9138c054507f5d4771c129",
+    "merge_base": "b386392cd62ed543aadd696d9953ab35cb38d666",
+    "merge_commit": "ee053c66194e56e8cbc6b8ca41edd420e8531adc",
+    "merged_at": "2026-10-21T05:31:59Z",
+    "number": 30779,
+    "production_files": [
+     "sympy/geometry/plane.py"
+    ],
+    "test_files": [
+     "sympy/geometry/tests/test_plane.py"
+    ],
+    "title": "geometry: fix Plane.distance() for parallel Segment3D and Ray3D"
+   }
+  ]
+ },
+ "scanned": {
+  "django": {
+   "merged_scanned": 30,
+   "short": true,
+   "skipped_no_production_python": [
+    22198,
+    22206,
+    22052,
+    22196,
+    21614,
+    22191,
+    22180,
+    21753,
+    22184,
+    22125,
+    22172,
+    22155,
+    21764
+   ]
+  },
+  "flask": {
+   "merged_scanned": 12,
+   "short": false,
+   "skipped_no_production_python": [
+    5962,
+    5829
+   ]
+  },
+  "sympy": {
+   "merged_scanned": 25,
+   "short": false,
+   "skipped_no_production_python": [
+    30840,
+    30811,
+    30801,
+    30724,
+    30794
+   ]
+  }
+ },
+ "selection": "- Django and sympy: merged into the default branch (Django ``main``, sympy ``master``) at or after ``AFTER``, the end\n  of the Brief 5 freeze window (its cutoff), and before the moment this script runs; ordered by merge time, newest\n  first; the first 20 whose changed files include production Python are kept;\n- Flask: merged into ``main``, any date (Flask had no earlier window); ordered by merge time, newest first; the first\n  10 whose changed files include production Python are kept;\n- production Python: a ``.py`` file under the package (``django/``, ``sympy/``, ``src/flask/``) and not in a ``tests``\n  or ``benchmarks`` directory, whatever its status (added, modified, removed, renamed);\n- test files the pull request adds or edits: ``.py`` files under ``tests/`` (Django, Flask) or in a ``tests``\n  directory (sympy), with status added, modified or renamed.",
+ "sha256": "542eb81ecd13696bd94537c7af56da58f0a9cf553934e617520493c905fc12b5",
+ "until": "2026-10-28T03:51:36Z",
+ "v": 1,
+ "written": "2026-10-28T03:51:36Z"
+}
