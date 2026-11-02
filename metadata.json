@@ -1,0 +1,28 @@
+{
+  "cli_version": "0.10.5",
+  "checkpoint_id": "01M6EM8K15ZRC1J47AGV1Z11SQ",
+  "strategy": "manual-commit",
+  "branch": "cause3/hunk-states",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "amu/core/record.py",
+    "amu/core/shadow.py",
+    "tests/core/test_paired.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 34,
+    "cache_creation_tokens": 19877,
+    "cache_read_tokens": 9793884,
+    "output_tokens": 10332,
+    "api_call_count": 16
+  }
+}
