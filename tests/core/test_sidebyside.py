@@ -423,3 +423,21 @@ def test_calls_are_sampled_by_argument_shape_so_a_rare_edge_case_is_compared(tmp
     assert shapes == ['None', 'str:11-100'], shapes
     assert sum(c['shape'] == 'str:11-100' for c in captured) == 5  # at most five of one shape
     assert all(c['target'] == 'lib.py#short' and c['test'] for c in captured), captured
+
+
+def test_a_module_imported_after_the_first_comparison_still_gets_the_names_the_change_adds(tmp_path):
+    # Django #22026 (performance test at v0.4.2): get_prefetcher as changed uses `functional`, which the change adds to an
+    # import line of query.py; the hook prepared its swaps at the first comparison of the process, before query.py was
+    # imported, and never again, so all 9 rows were NameError artifacts.
+    first0 = 'def ident(x):\n    return x\n'
+    first1 = 'def ident(x):\n    y = x\n    return y\n'
+    later0 = 'from os import path\n\n\ndef join(a, b):\n    return path.join(a, b)\n'
+    later1 = 'from os import path, sep\n\n\ndef join(a, b):\n    return path.join(a, b).replace(sep, "|")\n'
+    tests = ('import first\n\n\ndef test_order():\n    assert first.ident(1) == 1\n    import later\n'
+             '    assert later.join("a", "b")\n')
+    report = change(tmp_path, {'first.py': first0, 'later.py': later0, 'tests/test_lib.py': tests},
+                    {'first.py': first1, 'later.py': later1, 'tests/test_lib.py': tests})
+    rows = report['behaviour_differences']
+    assert not any(row['after']['result'][:2] == ['raise', 'NameError'] for row in rows), rows
+    [row] = rows
+    assert row['target'] == 'later.py#join' and row['after']['result'] == ['return', "'a|b'"], row

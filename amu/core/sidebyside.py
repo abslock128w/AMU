@@ -188,6 +188,7 @@ if _spec_path and _sys.version_info >= (3, 12):
             return None
 
         _modules, _swaps, _MISSING = {}, [], object()
+        _ready = set()  # additions (by index) and targets (by id) prepared; one whose module was not loaded yet waits
 
         def _module_for(path):
             found = _modules.get(path)
@@ -201,7 +202,8 @@ if _spec_path and _sys.version_info >= (3, 12):
                     if isinstance(name, str) and _os.path.realpath(name) == path:
                         found = module
                         break
-                _modules[path] = found
+                if found:
+                    _modules[path] = found  # a module not loaded yet is looked for again next time
             return found
 
         def _owner(module, parts):
@@ -234,7 +236,10 @@ if _spec_path and _sys.version_info >= (3, 12):
             top-level statements and class members the change adds, the class members it removes, and every changed
             function that can be found in its module or class. A changed function must see the rest of the change, or
             the comparison mixes versions."""
-            if _swaps:
+            additions = list(enumerate(_spec.get("additions", [])))
+            waiting = [("a", i, a["file"]) for i, a in additions if ("a", i) not in _ready] + \
+                      [("t", t["id"], t["file"]) for t in _spec["targets"] if ("t", t["id"]) not in _ready]
+            if _swaps and not any(_module_for(_os.path.realpath(file)) for _, _, file in waiting):
                 return _swaps
             # Modules the change adds as new files: loaded from their changed source and put in sys.modules and on their
             # package for the as-changed runs, so changed code importing them finds them.
@@ -264,7 +269,11 @@ if _spec_path and _sys.version_info >= (3, 12):
                         setattr(holder, leaf, module)
             # Additions are applied as they are prepared and stay applied until all are, so an import in one file can
             # see a helper the change adds to another; one that fails is retried after the others.
-            pending = list(_spec.get("additions", []))
+            # Prepared once their module is loaded: preparing at a process's first comparison would leave out a module
+            # imported later (Django #22026: an import the change adds to query.py, missing as a NameError).
+            pending = [(i, a) for i, a in additions if ("a", i) not in _ready and _module_for(_os.path.realpath(a["file"]))]
+            _ready.update(("a", i) for i, _ in pending)
+            pending = [a for _, a in pending]
             for _ in range(3):
                 failed = []
                 for addition in pending:
@@ -317,9 +326,12 @@ if _spec_path and _sys.version_info >= (3, 12):
                 pending = failed
             _swapped(False)
             for target in _spec["targets"]:
+                if ("t", target["id"]) in _ready:
+                    continue
                 module = _module_for(_os.path.realpath(target["file"]))
                 if not module:
                     continue
+                _ready.add(("t", target["id"]))
                 owner = _owner(module, target["qual"].split(".")[:-1])
                 if owner is None:
                     continue
