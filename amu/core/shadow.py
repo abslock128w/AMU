@@ -19,7 +19,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from . import basecache, equivalence, evidence, generate, isolate, mutate, record, replay, runners, sidebyside, trust
+from . import basecache, equivalence, evidence, generate, isolate, mutate, replay, runners, sidebyside, trust
 from .git import _git, file_at
 from .patch import applied, candidate, original, renumber
 
@@ -208,7 +208,7 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
     remembered = load_memo(memo, key) if key else dict(before={}, rate=None, rates=[], durations={}, flips={})
     rate = remembered.get('rate') or RATE
     planned = None
-    if plan is not None and not record.supported(python):
+    if plan is not None and not _monitoring(python):
         plan = None  # no sys.monitoring: the static candidates, as given
     pool, ids = ids, ids[:max(CHUNK, int(rate * parts * budget * FILL))]
     with tempfile.TemporaryDirectory(prefix='amu-shadow-') as scratch:
@@ -502,7 +502,7 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
                         functions_called=len(paired_found['called']), called=paired_found['called'], paired=counts['paired'],
                         inputs_differ=counts['inputs_differ'], unpaired=counts['unpaired'], unreadable=counts['unreadable'],
                         unstable=counts['unstable'], differences=len(paired_found['rows']),
-                        skipped=dict(planned.get('skipped') or {}))
+                        skipped={**sidebyside.targets(functions, before_src, after_src)[1], **(planned.get('skipped') or {})})
             behaviour = [dict(target=row['function'], input=row['input'], differs=['result'],
                               before=dict(result=_shown(row['before'])), after=dict(result=_shown(row['after'])),
                               test=row['test'], label=sidebyside.PAIRED) for row in paired_found['rows']]
