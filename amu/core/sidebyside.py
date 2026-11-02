@@ -413,7 +413,12 @@ if _spec_path and _sys.version_info >= (3, 12):
                 if changed:
                     _swapped(False)
                 calls, _local.calls = _local.calls, None
-            layout = rebind.back(kw) if rebind is not None else [pos, kw]
+            if rebind is None:
+                layout = [pos, kw]
+            elif getattr(rebind, "keyed", True):
+                layout = rebind.back(kw)  # passed by name: every value is in kw
+            else:
+                layout = rebind.back((pos, kw))
             return dict(result=result, args_after=_fp(layout), stdout=out.getvalue()[:2000], calls=calls)
 
         def _arguments(code, frame):
@@ -483,6 +488,58 @@ if _spec_path and _sys.version_info >= (3, 12):
             rebind.back = lambda values: [[values.get(name) for name in before[:count]], {k: values.get(k) for k in keys}]
             return rebind
 
+        def _with_defaults(target, frame, pos, kw, rebind):
+            """When the change alters a parameter's default and the captured value equals the old default, the as-changed
+            runs get the new default: arguments are captured after defaults are bound, so a call that left the parameter
+            out looks like one that passed the old value (Flask #5898: redirect's code went from 302 to 303, unseen).
+            Returns (rebind, [names assumed left at their default])."""
+            changed = target.get("defaults") or {}
+            if not changed:
+                return rebind, []
+            names = target.get("params_before") or []
+            subs = {}
+            for name, (was, now) in changed.items():
+                try:
+                    old_value = eval(was, frame.f_globals)
+                    new_value = eval(now, frame.f_globals)
+                except Exception:
+                    continue
+                if name in kw:
+                    value = kw[name]
+                elif name in names[:len(pos)]:
+                    value = pos[names.index(name)]
+                else:
+                    continue
+                try:
+                    if type(value) is type(old_value) and value == old_value:
+                        subs[name] = (value, new_value)
+                except Exception:
+                    continue
+            if not subs:
+                return rebind, []
+            inner = rebind
+
+            def substituted(_pos, _kw):
+                p, k = inner(_pos, _kw) if inner is not None else (list(_pos), dict(_kw))
+                for name, (_, new_value) in subs.items():
+                    if name in k:
+                        k[name] = new_value
+                    elif name in names[:len(p)]:
+                        p[names.index(name)] = new_value
+                return p, k
+
+            def back(values):
+                layout = inner.back(values) if inner is not None else [list(values[0]), dict(values[1])]
+                for name, (captured, _) in subs.items():
+                    if name in layout[1]:
+                        layout[1][name] = captured
+                    elif name in names[:len(layout[0])]:
+                        layout[0][names.index(name)] = captured
+                return layout
+            substituted.back = back
+            substituted.keyed = inner is not None
+            return substituted, sorted(subs)
+
         def _compare(target, code, frame, pos, kw, shape):
             flags = code.co_flags
             try:
@@ -503,6 +560,8 @@ if _spec_path and _sys.version_info >= (3, 12):
                 fns = _built[target["id"]] = (_build(target, "before", frame.f_globals), _build(target, "after", frame.f_globals))
             base, head = fns
             rebind = _rebinder(target, head, pos, kw)
+            if rebind is not False:
+                rebind, assumed = _with_defaults(target, frame, pos, kw, rebind)
             if rebind is False:
                 # The change renamed, reordered or inserted positional parameters, and the captured call cannot be given
                 # to the as-changed version by name (Flask #5818: a new leading ctx parameter took the exception).
@@ -521,6 +580,8 @@ if _spec_path and _sys.version_info >= (3, 12):
                 shown = repr(_thaw(blob))
             except Exception:
                 shown = "<input>"
+            if assumed:
+                shown += " [as changed: " + ", ".join(assumed) + " left at the new default, assuming the caller did not pass it]"
             _emit("result", **dict(target=target["id"], shape=shape, copied=blob[0] != "live", test=_os.environ.get("AMU_TEST_CONTEXT") or _os.environ.get("PYTEST_CURRENT_TEST", ""),
                                  input=_ADDRESS.sub(" at 0x?", shown)[:400], stable=stable, differs=differs,
                                  before=runs[0], after=runs[2]))
@@ -668,8 +729,23 @@ def targets(functions, before_src, after_src):
         found.append(dict(id=ident, file=path, qual=qual, name=qual.rsplit('.', 1)[-1], before=old_text, after=new_text,
                           signature_changed=ast.dump(old.args) != ast.dump(new.args),
                           params_before=positional(old), params_after=positional(new),
-                          positional_only=bool(new.args.posonlyargs)))
+                          positional_only=bool(new.args.posonlyargs), defaults=_changed_defaults(old, new, before, after)))
     return found, skipped
+
+
+def _defaults(node, text):
+    """{parameter: source of its default} for a def statement."""
+    args = node.args
+    positional = [*args.posonlyargs, *args.args]
+    found = {a.arg: ast.get_source_segment(text, d) for a, d in zip(positional[len(positional) - len(args.defaults):], args.defaults)}
+    found.update({a.arg: ast.get_source_segment(text, d) for a, d in zip(args.kwonlyargs, args.kw_defaults) if d is not None})
+    return found
+
+
+def _changed_defaults(old, new, before, after):
+    """{parameter: [default before, default after]} for parameters on both sides whose default the change alters."""
+    was, now = _defaults(old, before), _defaults(new, after)
+    return {name: [was[name], now[name]] for name in was.keys() & now.keys() if was[name] and now[name] and was[name] != now[name]}
 
 
 def _defined(statement):
