@@ -5,6 +5,7 @@ label its command line accepts, so a row in the packet can be pasted into the pr
 """
 from __future__ import annotations
 
+import errno
 import json
 import os
 import re
@@ -408,6 +409,12 @@ def execute(runner, python, tree, ids, report, timeout, extra_env=None, extra_ar
         except subprocess.TimeoutExpired:
             return found, 'timed out'
         except OSError as exc:
+            if exc.errno == errno.E2BIG and len(batch) > 1:
+                # Too many labels for one command line (Django #22026: 17,539). Not the labels' fault: run them in
+                # halves, in order, without spending the splits kept for isolating labels that abort a batch.
+                half = len(batch) // 2
+                batches[:0] = [batch[:half], batch[half:]]
+                continue
             return found, f'could not start the test runner: {exc.strerror}'
         output = (done.stderr + done.stdout).decode(errors='replace')
         got = runner.outcomes(tree, output, report, batch)
