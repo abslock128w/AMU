@@ -131,7 +131,8 @@ def hangs_after_the_flip(pull_request, tmp_path):
 def test_a_run_stopped_at_the_wall_cap_still_reports_the_flip_it_found(hangs_after_the_flip, tmp_path, monkeypatch):
     repo, base, head = hangs_after_the_flip
     monkeypatch.setattr(ci_run, 'RESERVE', 0)
-    report, meta = ci_run.run(repo, base, head, tmp_path/'out', python=sys.executable, wall_cap=20)
+    # The order of steps this checks is the static selection's: the head runs first, then the merge base.
+    report, meta = ci_run.run(repo, base, head, tmp_path/'out', python=sys.executable, wall_cap=20, extras=('static-select',))
     assert (tmp_path/'marks'/'flipped').exists(), 'the suite never hung; this test no longer shows the defect'
     assert report.get('flips') == 1, report
     assert [row['id'] for row in report['predicted_failures']] == ['tests/test_calc.py::test_add']

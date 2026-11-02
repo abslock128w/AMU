@@ -462,10 +462,22 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
                    for path, fact in facts.items()}
         cache = basecache.BaseCache(cache_dir(root, index_dir)/'base-passes', forward, root, python,
                                     [chosen.name, *runners.plugin_args(runners.get(root, runner), python), trust.SEED])
+        # Execution first (evidence module): the whole suite when it fits, else the tests seen running the changed code,
+        # the static candidates only where no recording speaks. ``static-select`` keeps the static selection alone.
+        plan = None
+        if 'static-select' not in extras and not only:
+            # The suite as the project defines it: under pytest's ``testpaths`` when it names some.
+            where = runners.pytest_testpaths(root) if chosen.name == 'pytest' else ()
+            everything = list(dict.fromkeys(run_id for ident in sorted(tests) for run_id in run_ids(label_of(ident))
+                                            if not where or any(run_id == p or run_id.startswith(p + '/') or run_id.startswith(p + '::')
+                                                                for p in where)))
+            plan = dict(static=[i for i in wide if i not in set(own)], everything=everything, own=own,
+                        key=merge_base or shadow.parent_key(root))
         prepared = time.perf_counter() - began
         flips, executed, run_gaps = shadow.run(root, edits, wide, python, budget, runner, memo=memo, own=own, base_cache=cache,
                                                functions=functions, generate_with=generate, merge_base=merge_base, deadline=deadline,
-                                               extras=extras, prefer=[row['id'] for row in rows if row['expect'] == 'ran_changed_lines'])
+                                               extras=extras, prefer=[row['id'] for row in rows if row['expect'] == 'ran_changed_lines'],
+                                               plan=plan, cache_folder=cache_dir(root, index_dir))
         executed['selection'] = dict(selection, candidates=len(wide))
         gaps.extend(run_gaps)
         cut += executed.get('cut', [])
@@ -605,6 +617,11 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
                 report[extra] = executed[extra]
         if executed.get('first_flip_seconds') is not None:
             report['first_flip_seconds'] = executed['first_flip_seconds']
+        if executed.get('selection_evidence') is not None:
+            # Where the candidates came from (evidence module), and which tests ran each hunk on each side.
+            report['selection_evidence'] = executed['selection_evidence']
+            report['candidate_sources'] = executed['candidate_sources']
+            report['hunks'] = executed['hunks']
         if executed.get('seconds_before_running') is not None:
             # From the call to the first test run: reading the change, ranking, and the copy of the tree.
             report['seconds_before_running'] = round(prepared + executed['seconds_before_running'], 2)
@@ -630,7 +647,7 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         report['index'] = {'parsed_files': parsed, 'files': len(facts)}
         if executed is not None:
             # How much actually ran, for readers that must not claim more (the pull request comment).
-            report['executed'] = dict({k: executed.get(k) for k in ('ran', 'candidates', 'unrunnable', 'seconds', 'runner')},
+            report['executed'] = dict({k: executed.get(k) for k in ('ran', 'candidates', 'unrunnable', 'unrunnable_tests', 'seconds', 'runner')},
                                       budget=budget, replayed=len(executed.get('replayed') or []), selection=executed.get('selection'),
                                       base_cache=executed.get('base_cache'))
         report['changed_functions'] = functions

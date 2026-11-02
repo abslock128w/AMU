@@ -402,7 +402,25 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
         out += rows(gaps, code, listed) + ['']
     if not report.get('error'):
         out += ['### What ran', '']
-        if ran:
+        chosen = report.get('selection_evidence') if isinstance(report.get('selection_evidence'), dict) else None
+        sources = chosen.get('sources') if chosen and isinstance(chosen.get('sources'), dict) else {}
+        took = chosen.get('seconds') if chosen and isinstance(chosen.get('seconds'), dict) else {}
+        budget = f", budget {executed['budget']} s per side" if executed.get('budget') else ''
+        if ran and chosen and chosen.get('mode') == 'all of the suite':
+            out.append(f"All {plural(ran, 'test')} of the suite on both sides, no selection: {took.get('before', '?')} s on the "
+                       f"merge base and {took.get('after', '?')} s on the head with "
+                       f"{code(executed.get('runner') or report.get('runner') or '?')}{budget}.")
+        elif ran and chosen:
+            parts = [f"{sources[name]} {label}" for name, label in (
+                ('coverage', 'the merge base was seen running in the code the change touches'),
+                ('static graph', 'from the static graph, for changed code no recording covers'),
+                ("the change's own test", 'the pull request adds or edits')) if sources.get(name)]
+            seen = (f"the merge base ran {chosen.get('ran_before', '?')} tests with the recorder"
+                    + (', the whole suite' if chosen.get('base_complete') else ', not the whole suite in its budget'))
+            out.append(f"{executed.get('ran')} of {executed.get('candidates', '?')} candidate tests on the head and on the merge "
+                       f"base, {took.get('after', '?')} s with {code(executed.get('runner') or report.get('runner') or '?')}"
+                       f"{budget}. Candidates: {', '.join(parts) or 'none'}; {seen}. Tests outside the candidates were not run.")
+        if ran and not chosen:
             out.append(f"{executed.get('ran')} of {executed.get('candidates', '?')} candidate tests on the head, "
                        f"{executed.get('seconds', '?')} s with {code(executed.get('runner') or report.get('runner') or '?')}"
                        f"{', budget ' + str(executed['budget']) + ' s per side' if executed.get('budget') else ''}. "
@@ -416,6 +434,8 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
             elif cached.get('answered'):
                 out.append(f"On the merge base, {cached['answered']} outcomes came from the cache of earlier passes and "
                            f"{cached['ran']} ran.")
+        elif ran:
+            pass  # said above, with where the candidates came from
         elif report.get('refactor_only'):
             out.append('No test ran: the change only renames or moves code.')
         else:

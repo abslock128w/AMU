@@ -1,0 +1,213 @@
+"""Execution-first selection: which tests run on each side of a change, chosen from what the tests were seen to run.
+
+The order of evidence:
+
+1. **The whole suite.** When the suite's last measured time on the code before the change fits the budget, or no
+   time was measured yet, every test runs on that side, recorded (record module). If that run finishes inside the
+   planned share of the budget, every test also runs on the code after the change: no selection.
+2. **Coverage of the changed code.** Otherwise the candidates are the tests the recording saw entering the code each
+   hunk changes (hunks module): this run's recording, or one kept for the same commit (``Coverage``).
+3. **The static graph**, only for a hunk no recording can speak for: code the change adds where nothing ran before, a
+   hunk whose file was not recorded, a module-level hunk that runs at import, or a recording that did not finish.
+
+Every candidate keeps where it came from (``sources``), and each hunk the tests that ran it on each side.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import time
+from pathlib import Path
+
+from . import hunks as hunk_split
+from . import record, replay
+
+FILL = 0.8  # share of the budget a whole-suite run may take and still be run on the other side too
+WHOLE = 400  # tests per process in one chunk of a whole-suite run: fewer runner starts; a chunk the budget stops is lost
+ALL, COVERAGE, STATIC, OWN = 'all of the suite', 'coverage', 'static graph', "the change's own test"
+
+
+def _sha(text):
+    return hashlib.sha256((text or '').encode()).hexdigest()[:16]
+
+
+class Coverage:
+    """Per-test coverage of changed files on one commit, kept between runs (the CI cache is keyed by the merge base).
+    For each file: the hash of its text, the lines that were watched, and {line: [test]}. Only a recording of the whole
+    suite is kept, so a watched line nobody ran was run by no test."""
+
+    def __init__(self, folder, key):
+        self.path = Path(folder)/'coverage'/f'{key}.json' if folder and key else None
+        try:
+            self.data = json.loads(self.path.read_text()) if self.path else {}
+        except (OSError, ValueError):
+            self.data = {}
+
+    def tests(self, path, text, lines):
+        """Tests that ran any of ``lines``, or None when this commit's recording did not watch all of them."""
+        entry = (self.data.get('files') or {}).get(path)
+        if not entry or entry.get('sha') != _sha(text) or not set(lines) <= set(entry.get('watched', [])):
+            return None
+        hits = entry.get('hits', {})
+        return {test for line in lines for test in hits.get(str(line), [])}
+
+    def store(self, before_src, watched, coverage, tests_run):
+        if not self.path:
+            return
+        files = dict(self.data.get('files') or {})
+        for path, lines in watched.items():
+            hits = {}
+            for test, seen in coverage.items():
+                for line in seen.get(path, ()):
+                    hits.setdefault(str(line), []).append(test)
+            files[path] = dict(sha=_sha(before_src.get(path)), watched=sorted(lines), hits={k: sorted(v) for k, v in hits.items()})
+        try:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            self.path.write_text(json.dumps(dict(files=files, tests=tests_run)))
+        except OSError:
+            pass
+
+
+def _chunks(execute, runner, python, tree, ids, scratch, name, budget, deadline, parts, env, chunk):
+    """Run ``ids`` in order, a chunk at a time, until they are done or ``budget`` seconds are used. Returns
+    ({id: state}, [problems], seconds, {id: the slice it ran in}); ``problems`` holds 'wall cap' when the deadline
+    stopped it."""
+    found, problems, context, began = {}, [], {}, time.perf_counter()
+    for start in range(0, len(ids), chunk * parts):
+        left = budget - (time.perf_counter() - began)
+        if deadline is not None:
+            if deadline - time.monotonic() <= 1:
+                problems.append('wall cap')
+                break
+            left = min(left, deadline - time.monotonic())
+        if left <= 1:
+            break
+        part = ids[start:start + chunk * parts]
+        got, said = execute(runner, python, tree, part, scratch, f'{name}-{start}', left, parts, env)
+        found.update(got)
+        for slice_ in [part[i::parts] for i in range(parts)] if parts > 1 else [part]:
+            context.update({ident: slice_ for ident in slice_})
+        problems += [p for p in said if p not in problems]
+        if 'timed out' in said:
+            if deadline is not None and deadline - time.monotonic() <= 1:
+                problems.append('wall cap')
+            break
+    return found, problems, round(time.perf_counter() - began, 1), context
+
+
+def plan_hunks(edits, before_src, after_src):
+    """Every hunk of the changed production files (tests are the change's own tests, replayed apart)."""
+    return [h for path, edit in edits.items() if path.endswith('.py') and not replay.is_test_file(path)
+            for h in hunk_split.split(path, edit, before_src.get(path) or '', after_src.get(path) or '')]
+
+
+def run(execute, runner, python, trees, edits, before_src, after_src, plan, scratch, budget, deadline, parts, chunk,
+        remembered, cache_folder):
+    """Both sides of the change, chosen and run as the module says. Returns a dict: ids (the candidates run on the code
+    after the change, in order), before/after ({id: state}), context, sources ({id: where it came from}), mode, hunks
+    (each with the tests that ran it on each side), recorded coverage and calls per side, seconds, problems."""
+    hunks = plan_hunks(edits, before_src, after_src)
+    base_watch, head_watch = {}, {}
+    for h in hunks:
+        base_watch.setdefault(h['path'], set()).update(h['base'])
+        head_watch.setdefault(h['path'], set()).update(h['head'])
+    own = list(dict.fromkeys(plan.get('own') or []))
+    mine = set(own)
+    static = [i for i in plan.get('static') or [] if i not in mine]
+    everything = [i for i in plan.get('everything') or [] if i not in mine]
+    durations = remembered.get('durations') or {}
+    kept = Coverage(cache_folder, plan.get('key'))
+    suite = remembered.get('suite_seconds')
+    fits = suite is None or suite <= budget * FILL
+    # What a kept recording of this commit already says about each hunk; None where it cannot speak.
+    known = {(h['path'], h['index']): kept.tests(h['path'], before_src.get(h['path']), h['base']) if h['base'] else None
+             for h in hunks}
+    # A recording runs unless the suite is known not to fit and this commit's kept recording speaks for every hunk with
+    # code before the change.
+    exploring = fits or any(h['base'] and known[h['path'], h['index']] is None for h in hunks)
+    if exploring:
+        # Static candidates first, so a run the budget stops still has their outcomes; then the rest, quickest first.
+        first = set(static)
+        rest = sorted((i for i in everything if i not in first), key=lambda i: (durations.get(i, 0.5), i))
+        base_ids = list(dict.fromkeys([*static, *rest]))
+    else:
+        base_ids = None  # chosen from the kept recording below, then run
+    sources, gaps = {}, []
+    before_dir = Path(scratch)/'record-before'
+    env = record.prepare(before_dir, trees['before'], base_watch, plan.get('targets_before') or [])
+    coverage_b, calls_b = {}, []
+    if base_ids is not None:
+        found_b, problems_b, seconds_b, _ = _chunks(execute, runner, python, trees['before'], base_ids, scratch, 'before',
+                                                   budget, deadline, parts, env, WHOLE if fits else chunk)
+        coverage_b, calls_b, skipped_b = record.read(before_dir, trees['before'], runner.cwd(trees['before']))
+        complete = bool(base_ids) and all(i in found_b for i in base_ids)
+    else:
+        found_b, problems_b, seconds_b, complete, skipped_b = {}, [], 0.0, False, {}
+    mode = ALL if exploring and complete and seconds_b <= budget * FILL else COVERAGE
+    if exploring and complete:
+        remembered['suite_seconds'] = seconds_b
+        kept.store(before_src, {p: v for p, v in base_watch.items() if v}, coverage_b, len(base_ids))
+    elif exploring and not complete and fits:
+        # The whole suite did not fit: next time the kept recording, or the static graph, chooses.
+        remembered['suite_seconds'] = max(seconds_b, budget)
+    for h in hunks:
+        key = (h['path'], h['index'])
+        if complete or not exploring:
+            ran = record.tests_on(coverage_b, h['path'], h['base']) if exploring else known.get(key)
+        else:
+            ran = None
+        h['base_tests'] = sorted(t for t in (ran or ()) if t != record.IMPORT) if ran is not None else None
+        h['at_import'] = bool(ran and record.IMPORT in ran)
+    if mode == ALL:
+        head_ids = [*own, *base_ids]
+        sources.update({i: ALL for i in base_ids})
+    else:
+        chosen = []
+        for h in hunks:
+            if h['base_tests'] is not None and not (h['at_import'] and not h['base_tests']):
+                chosen += [t for t in h['base_tests'] if t not in mine]
+                sources.update({t: COVERAGE for t in h['base_tests'] if t not in mine and t not in sources})
+        if any(h['base_tests'] is None or (h['at_import'] and not h['base_tests']) for h in hunks) or not hunks:
+            chosen += static
+            for t in static:
+                sources.setdefault(t, STATIC)
+        head_ids = list(dict.fromkeys([*own, *chosen]))
+    sources.update({i: OWN for i in own})
+    after_dir = Path(scratch)/'record-after'
+    env = record.prepare(after_dir, trees['after'], head_watch, plan.get('targets_after') or [])
+    found_a, problems_a, seconds_a, context = _chunks(execute, runner, python, trees['after'], head_ids, scratch, 'after',
+                                                      budget, deadline, parts, env, WHOLE if mode == ALL else chunk)
+    coverage_a, calls_a, skipped_a = record.read(after_dir, trees['after'], runner.cwd(trees['after']))
+    # Candidates the code before the change has not run yet (chosen from a kept recording, or from the static graph):
+    # run there too, so each outcome on the changed code has its partner.
+    missing = [i for i in head_ids if i not in mine and i in found_a and i not in found_b]
+    if missing:
+        env = record.prepare(Path(scratch)/'record-before-2', trees['before'], base_watch, plan.get('targets_before') or [])
+        more, said, took, _ = _chunks(execute, runner, python, trees['before'], missing, scratch, 'before-2',
+                                      max(budget - seconds_b, budget * (1 - FILL)), deadline, parts, env, chunk)
+        found_b.update(more)
+        problems_b += [p for p in said if p not in problems_b]
+        seconds_b += took
+        cov2, calls2, _ = record.read(Path(scratch)/'record-before-2', trees['before'], runner.cwd(trees['before']))
+        for test, files in cov2.items():
+            for path, lines in files.items():
+                coverage_b.setdefault(test, {}).setdefault(path, set()).update(lines)
+        calls_b += calls2
+    for h in hunks:
+        h['head_tests'] = sorted(t for t in record.tests_on(coverage_a, h['path'], h['head']) if t != record.IMPORT)
+        h['head_at_import'] = record.IMPORT in record.tests_on(coverage_a, h['path'], h['head'])
+    cut = []
+    if 'wall cap' in problems_a or ('wall cap' in problems_b and not found_a):
+        cut.append(f'{sum(i not in found_a for i in head_ids)} of {len(head_ids)} candidate tests')
+    if 'wall cap' in problems_b and base_ids is not None and not complete:
+        cut.append(f'the code before the change: {sum(i not in found_b for i in base_ids)} of {len(base_ids)} tests')
+    problems_a = [p for p in problems_a if p != 'wall cap']
+    problems_b = [p for p in problems_b if p != 'wall cap']
+    if exploring and not complete and not cut:
+        gaps.append(f"the code before the change ran {len(found_b)} of {len(base_ids)} tests in its {budget} s: not the "
+                    f"whole suite, so the static graph adds candidates for every hunk")
+    return dict(ids=head_ids, before=found_b, after=found_a, context=context, sources=sources, mode=mode, hunks=hunks,
+                coverage=dict(before=coverage_b, after=coverage_a), calls=dict(before=calls_b, after=calls_a),
+                skipped={**skipped_b, **skipped_a}, seconds=dict(before=seconds_b, after=seconds_a),
+                problems=dict(before=problems_b, after=problems_a), base_complete=complete,
+                base_planned=len(base_ids) if base_ids is not None else 0, gaps=gaps, cut=cut)
