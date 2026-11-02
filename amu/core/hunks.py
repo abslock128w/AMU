@@ -14,13 +14,13 @@ from __future__ import annotations
 import ast
 
 
-def _functions(text):
+def _functions(text, with_headers=False):
     """[(first body line, last line, qualified name)] of every function in ``text``; [] when it does not parse."""
     try:
         tree = ast.parse(text or '')
     except (SyntaxError, ValueError):
-        return []
-    found = []
+        return ([], []) if with_headers else []
+    found, headers = [], []
 
     def walk(nodes, prefix):
         for node in nodes:
@@ -28,6 +28,7 @@ def _functions(text):
                 qual = prefix + node.name
                 if node.body:
                     found.append((node.body[0].lineno, node.end_lineno, qual))
+                    headers.append((min([node.lineno, *(d.lineno for d in node.decorator_list)]), node.body[0].lineno - 1, qual))
                 walk(node.body, qual + '.<locals>.')
             elif isinstance(node, ast.ClassDef):
                 walk(node.body, prefix + node.name + '.')
@@ -38,7 +39,7 @@ def _functions(text):
                 for handler in getattr(node, 'handlers', []) or []:
                     walk(handler.body, prefix)
     walk(tree.body, '')
-    return found
+    return (found, headers) if with_headers else found
 
 
 def code_lines(text):
@@ -50,6 +51,8 @@ def code_lines(text):
     found, pending = set(), [top]
     while pending:
         code = pending.pop()
+        if code.co_name == '__annotate__':
+            continue  # annotations evaluated lazily (3.14): only when someone asks for them, never by running the code
         found.update(line for _, _, line in code.co_lines() if line)
         pending.extend(c for c in code.co_consts if hasattr(c, 'co_lines'))
     return found
@@ -76,6 +79,55 @@ def executable(text, lines):
             out.update(n for n in range(inner.lineno, (inner.end_lineno or inner.lineno) + 1) if n in have)
         else:
             out.add(line)
+    return out
+
+
+def defaults(text, qual):
+    """{parameter: its default expression dumped} of the function ``qual`` (dotted, <locals> for nested) in ``text``."""
+    try:
+        tree = ast.parse(text or '')
+    except (SyntaxError, ValueError):
+        return {}
+    parts = qual.split('.')
+
+    def find(nodes, rest):
+        for node in nodes:
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) and node.name == rest[0]:
+                if len(rest) == 1:
+                    return node if not isinstance(node, ast.ClassDef) else None
+                tail = rest[1:]
+                if tail and tail[0] == '<locals>':
+                    tail = tail[1:]
+                return find(node.body, tail) if tail else None
+        return None
+    node = find(tree.body, parts)
+    if node is None:
+        return {}
+    args = node.args
+    positional = [*args.posonlyargs, *args.args]
+    found = {a.arg: d for a, d in zip(positional[len(positional) - len(args.defaults):], args.defaults)}
+    found.update({a.arg: d for a, d in zip(args.kwonlyargs, args.kw_defaults) if d is not None})
+    return found
+
+
+def changed_defaults(before, after, qual):
+    """{parameter: (default before, after)} where the change alters a default, each as record.literal of a plain value
+    or None when it is not one."""
+    import json
+    old, new = defaults(before, qual), defaults(after, qual)
+    out = {}
+    for name in set(old) | set(new):
+        a, b = old.get(name), new.get(name)
+        if a is not None and b is not None and ast.dump(a) == ast.dump(b):
+            continue
+
+        def form(node):
+            try:
+                value = ast.literal_eval(node) if node is not None else None
+            except (ValueError, SyntaxError, TypeError):
+                return None
+            return json.dumps(repr(value)) if isinstance(value, (int, float, str, bytes, bool, type(None))) else None
+        out[name] = (form(a), form(b))
     return out
 
 
@@ -143,7 +195,7 @@ def blocks(edit):
 def split(path, edit, before, after):
     """The hunks of one file's change, each a dict: path, index, removed and added line numbers, context lines on each
     side, the function holding it on each side, and the lines to watch on each side (``base``, ``head``)."""
-    old_functions, new_functions = _functions(before), _functions(after)
+    (old_functions, old_headers), (new_functions, new_headers) = _functions(before, True), _functions(after, True)
     found = []
     for index, block in enumerate(blocks(edit)):
         removed, added, old_context, new_context = block['removed'], block['added'], block['old_context'], block['new_context']
@@ -153,8 +205,9 @@ def split(path, edit, before, after):
         new_here = added or [max(1, new_start - 1)]
         old_function = innermost(old_functions, removed or old_here)
         new_function = innermost(new_functions, added or new_here)
-        old_touched = touched(old_functions, removed or old_here)
-        new_touched = touched(new_functions, added or new_here)
+        # A change to a signature (a default, a parameter) or a decorator changes the function too.
+        old_touched = touched(old_functions + old_headers, removed or old_here)
+        new_touched = touched(new_functions + new_headers, added or new_here)
         if old_function:
             base = set(range(old_function[0], old_function[1] + 1))
         elif removed:

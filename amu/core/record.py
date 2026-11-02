@@ -44,7 +44,9 @@ if _spec_path and _sys.version_info >= (3, 12):
         _m.use_tool_id(_tool, "amu-record")
         _E = _m.events
         _lines = {_os.path.realpath(_os.path.join(_root, f)): set(v) for f, v in _spec["lines"].items()}
-        _targets = {(_os.path.realpath(_os.path.join(_root, f)), q): f + "#" + q for f, q in _spec["targets"]}
+        _targets = {(_os.path.realpath(_os.path.join(_root, t[0])), t[1]): t[0] + "#" + t[1] for t in _spec["targets"]}
+        # Parameters whose default the change alters: left out of the input digest, kept apart (pair decides).
+        _apart = {t[0] + "#" + t[1]: set(t[2]) for t in _spec["targets"] if len(t) > 2 and t[2]}
         _files = set(_lines) | {k[0] for k in _targets}
         _rel = {p: _os.path.relpath(p, _root) for p in _files}
         _limit, _per = _spec.get("calls", 20), _spec.get("per_function", 4000)
@@ -134,6 +136,16 @@ if _spec_path and _sys.version_info >= (3, 12):
             text = json.dumps(value, default=str)
             return hashlib.sha1(text.encode()).hexdigest()[:16], text[:_keep]
 
+        def _names(code):
+            count = code.co_argcount + code.co_kwonlyargcount
+            names = list(code.co_varnames[:count])
+            if code.co_flags & 0x04:
+                names.append(code.co_varnames[count])
+                count += 1
+            if code.co_flags & 0x08:
+                names.append(code.co_varnames[count])
+            return names
+
         def _arguments(code, frame):
             count = code.co_argcount + code.co_kwonlyargcount
             names = list(code.co_varnames[:count])
@@ -179,13 +191,22 @@ if _spec_path and _sys.version_info >= (3, 12):
             _totals[target] = _totals.get(target, 0) + 1
             _local.busy = True
             try:
-                args = _arguments(code, _sys._getframe(1))
-                digest, shown = _pack(_fp(args))
+                frame = _sys._getframe(1)
+                args = _arguments(code, frame)
+                apart = _apart.get(target)
+                if apart:
+                    names = _names(code)
+                    kept = [v for name, v in zip(names, args) if name not in apart]
+                    held = {name: json.dumps(_fp(v), default=str) for name, v in zip(names, args) if name in apart}
+                else:
+                    kept, held = args, None
+                digest, shown = _pack(_fp(kept))
             except Exception as exc:
                 args, digest, shown = None, None, "<" + type(exc).__name__ + ">"
             finally:
                 _local.busy = False
-            stack.append((code, dict(k="call", t=_state["test"], fn=target, n=n, i=digest, ishow=shown, args=args)))
+            stack.append((code, dict(k="call", t=_state["test"], fn=target, n=n, i=digest, ishow=shown, args=args,
+                                     **({"dp": held} if held else {}))))
             return None
 
         def _end(code, result):
@@ -326,7 +347,8 @@ def prepare(folder, tree, lines, targets, extra_plugins=None):
     (folder/'out').mkdir(exist_ok=True)
     (folder/'hook'/'sitecustomize.py').write_text(HOOK)
     (folder/'hook'/'amu_record_plugin.py').write_text(PLUGIN)
-    spec = dict(root=str(tree), lines={p: sorted(set(v)) for p, v in lines.items()}, targets=[list(t) for t in targets],
+    spec = dict(root=str(tree), lines={p: sorted(set(v)) for p, v in lines.items()},
+                targets=[[t[0], t[1], sorted(t[2])] if len(t) > 2 else list(t) for t in targets],
                 out=str(folder/'out'), calls=CALLS, per_function=PER_FUNCTION, preview=PREVIEW)
     (folder/'spec.json').write_text(json.dumps(spec))
     plugins = ','.join(filter(None, [extra_plugins, 'amu_record_plugin']))
@@ -381,7 +403,7 @@ def read(folder, tree, cwd=None):
             elif kind == 'call':
                 calls.append(dict(test=test, function=event['fn'], n=event['n'], input=event.get('i'),
                                   output=event.get('o'), input_shown=event.get('ishow', ''), output_shown=event.get('oshow', ''),
-                                  result=event.get('r'), after_shown=event.get('ashow', '')))
+                                  result=event.get('r'), after_shown=event.get('ashow', ''), held=event.get('dp') or {}))
             elif kind == 'skip':
                 skipped[event['fn']] = event['why']
     return coverage, calls, skipped
@@ -393,10 +415,20 @@ def tests_on(coverage, path, lines):
     return {test for test, files in coverage.items() if files.get(path, set()) & lines}
 
 
-def pair(before, after):
+def literal(value):
+    """The recorder's form of a scalar default (what ``held`` holds for an argument equal to it)."""
+    return json.dumps(repr(value))
+
+
+def pair(before, after, defaults=None):
     """Calls recorded on each side, paired by (test, function, call index). Returns (rows, counts): a row for each pair
     whose inputs are equal and whose outputs differ. A call with no partner, or whose inputs differ, is counted, never
-    compared."""
+    compared.
+
+    ``defaults``: {function: {parameter: (its default before, after)}} for parameters whose default the change alters
+    (``literal`` forms, None when not a plain value). Such a parameter is outside the input digest; the inputs count as
+    equal when it holds the same value on both sides, or when each side holds its own default (the caller left it out),
+    and the row says which parameters it assumed so."""
     left = {(c['test'], c['function'], c['n']): c for c in before if c['test'] != IMPORT}
     right = {(c['test'], c['function'], c['n']): c for c in after if c['test'] != IMPORT}
     rows, counts = [], dict(paired=0, compared=0, inputs_differ=0, unpaired=0, unreadable=0)
@@ -412,11 +444,27 @@ def pair(before, after):
         if old['input'] != new['input']:
             counts['inputs_differ'] += 1
             continue
+        assumed = []
+        changed = (defaults or {}).get(key[1], {})
+        for name in set(old.get('held') or {}) | set(new.get('held') or {}):
+            was, now = (old.get('held') or {}).get(name), (new.get('held') or {}).get(name)
+            if was == now:
+                continue
+            given = changed.get(name, (None, None))
+            if given[0] is not None and was == given[0] and now == given[1]:
+                assumed.append(name)
+                continue
+            assumed = None
+            break
+        if assumed is None:
+            counts['inputs_differ'] += 1
+            continue
         counts['compared'] += 1
         if old['output'] != new['output']:
             # What differs: the result, or only the arguments as the call left them (self included).
             differs = ['result'] if old.get('result') != new.get('result') else ['args_after']
-            rows.append(dict(test=key[0], function=key[1], n=key[2], input=old['input_shown'], differs=differs,
+            rows.append(dict(test=key[0], function=key[1], n=key[2], input=old['input_shown'] + (
+                             f" [{', '.join(sorted(assumed))} left at each side's default]" if assumed else ''), differs=differs,
                              before=old['output_shown'], after=new['output_shown'],
                              before_args=old.get('after_shown', ''), after_args=new.get('after_shown', ''),
                              digest=(old['output'], new['output'])))

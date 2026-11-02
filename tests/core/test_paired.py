@@ -111,3 +111,18 @@ def test_a_difference_in_what_a_call_leaves_on_its_arguments_says_so(tmp_path):
     [row] = report['behaviour_differences']
     assert row['differs'] == ['args_after'] and row['before']['result'] == row['after']['result'] == ['return', 'None'], row
     assert row['before']['args_after'] != row['after']['args_after'], row
+
+
+def test_a_changed_default_is_compared_when_the_caller_left_it_out(tmp_path):
+    # The input includes every argument, defaults applied: a caller that leaves `code` out gets 302 before and 303 after,
+    # so the inputs never matched. A parameter whose default changed is held apart, and each side holding its own
+    # default counts as the same call.
+    lib0 = 'def redirect(location, code=302):\n    return (code, location)\n'
+    lib1 = 'def redirect(location, code=303):\n    return (code, location)\n'
+    tests = ('from lib import redirect\n\n\ndef test_default():\n    assert redirect("/a")[1] == "/a"\n\n\n'
+             'def test_explicit():\n    assert redirect("/a", 301)[0] == 301\n')
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1})
+    [row] = report['behaviour_differences']
+    assert row['test'] == 'tests/test_lib.py::test_default' and "code left at each side's default" in row['input'], row
+    assert row['before']['result'] == ['return', ['tuple', ['302', "'/a'"], 2]], row
+    assert row['after']['result'] == ['return', ['tuple', ['303', "'/a'"], 2]], row
