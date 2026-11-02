@@ -461,3 +461,20 @@ def test_an_attribute_the_change_sets_at_construction_missing_on_an_old_object_i
     report = change(tmp_path/'b', {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib2, 'tests/test_lib.py': tests})
     rows = [row for row in report['behaviour_differences'] if row['target'] == 'lib.py#describe']
     assert [row['after']['result'][:2] for row in rows] == [['raise', 'AttributeError']], report['behaviour_differences']
+
+
+def test_a_parameter_inserted_or_moved_does_not_misbind_the_captured_call(tmp_path):
+    # Flask #5818 (performance test at v0.4.2): dispatch methods gained a leading ctx parameter; the captured calls,
+    # replayed by position, put the exception into ctx, and all 33 rows were artifacts.
+    lib0 = 'def handle(exc=None):\n    return "ok" if exc is None else "error"\n\n\ndef span(low, high):\n    return high - low\n'
+    lib1 = ('def handle(ctx, exc=None):\n    return "ok" if exc is None else "error " + ctx\n\n\n'
+            'def span(high, low):\n    return high - low\n')
+    tests = 'from lib import handle, span\n\n\ndef test_calls():\n    assert handle(ValueError())\n    assert span(1, 5) == 4\n'
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1, 'tests/test_lib.py': tests})
+    assert report['behaviour_differences'] == [], report['behaviour_differences']
+    assert report['side_by_side']['calls_not_fitting_a_changed_signature'] >= 1, report['side_by_side']
+    # A parameter only renamed in place is still compared by position, and a real change still shows.
+    lib2 = 'def handle(exc=None):\n    return "ok" if exc is None else "error"\n\n\ndef span(start, stop):\n    return stop - start + 1\n'
+    report = change(tmp_path/'b', {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib2, 'tests/test_lib.py': tests})
+    [row] = report['behaviour_differences']
+    assert row['target'] == 'lib.py#span' and row['after']['result'] == ['return', '5'], row

@@ -41,7 +41,7 @@ import os as _os, sys as _sys
 _spec_path = _os.environ.get("AMU_SBS_SPEC")
 if _spec_path and _sys.version_info >= (3, 12):
     try:
-        import contextlib, copy, io, json, pickle, re, textwrap, threading, types
+        import contextlib, copy, inspect, io, json, pickle, re, textwrap, threading, types
         with open(_spec_path) as _h:
             _spec = json.load(_h)
         _out = _os.environ["AMU_SBS_OUT"]
@@ -391,8 +391,10 @@ if _spec_path and _sys.version_info >= (3, 12):
         def _thaw(blob):
             return pickle.loads(blob[1]) if blob[0] == "pickle" else copy.deepcopy(blob[1]) if blob[0] == "copy" else blob[1]
 
-        def _run(fn, blob, generator, changed=False):
+        def _run(fn, blob, generator, changed=False, rebind=None):
             pos, kw = _thaw(blob)
+            if rebind is not None:
+                pos, kw = rebind(pos, kw)
             out = io.StringIO()
             _local.calls = []
             if changed:
@@ -411,7 +413,8 @@ if _spec_path and _sys.version_info >= (3, 12):
                 if changed:
                     _swapped(False)
                 calls, _local.calls = _local.calls, None
-            return dict(result=result, args_after=_fp([pos, kw]), stdout=out.getvalue()[:2000], calls=calls)
+            layout = rebind.back(kw) if rebind is not None else [pos, kw]
+            return dict(result=result, args_after=_fp(layout), stdout=out.getvalue()[:2000], calls=calls)
 
         def _arguments(code, frame):
             names = code.co_varnames
@@ -451,6 +454,35 @@ if _spec_path and _sys.version_info >= (3, 12):
             except Exception:
                 return "?"
 
+        def _rebinder(target, head, pos, kw):
+            """None when the positional parameters are the same on both sides. Otherwise a function that passes the
+            captured arguments to the as-changed version by name, or False when that cannot work: extra positional
+            values (*args), positional-only parameters, or a parameter the as-changed version requires that the call
+            never gave."""
+            before, after = target.get("params_before"), target.get("params_after")
+            if before is None or after is None or before == after:
+                return None
+            if len(before) == len(after) and all(b == a or (b not in after and a not in before) for b, a in zip(before, after)):
+                return None  # only renamed in place: a positional call still lands on the same parameters
+            if len(pos) > len(before) or target.get("positional_only"):
+                return False
+            named = dict(zip(before, pos))
+            named.update(kw)
+            try:
+                inspect.signature(head).bind(**named)
+            except TypeError:
+                return False
+
+            count, keys = len(pos), list(kw)
+
+            def rebind(_pos, _kw):
+                values = dict(zip(before, _pos))
+                values.update(_kw)
+                return [], values
+            # The arguments afterwards are compared in the captured layout, positions then keywords, as on the other side.
+            rebind.back = lambda values: [[values.get(name) for name in before[:count]], {k: values.get(k) for k in keys}]
+            return rebind
+
         def _compare(target, code, frame, pos, kw, shape):
             flags = code.co_flags
             try:
@@ -470,10 +502,16 @@ if _spec_path and _sys.version_info >= (3, 12):
             if fns is None:
                 fns = _built[target["id"]] = (_build(target, "before", frame.f_globals), _build(target, "after", frame.f_globals))
             base, head = fns
+            rebind = _rebinder(target, head, pos, kw)
+            if rebind is False:
+                # The change renamed, reordered or inserted positional parameters, and the captured call cannot be given
+                # to the as-changed version by name (Flask #5818: a new leading ctx parameter took the exception).
+                _emit("misfit", target=target["id"])
+                return
             generator = bool(flags & 0x20)
             untouched = _fp([pos, kw]) if blob[0] == "live" else None
             runs = [_run(base, blob, generator), _run(base, blob, generator),
-                    _run(head, blob, generator, True), _run(head, blob, generator, True)]
+                    _run(head, blob, generator, True, rebind), _run(head, blob, generator, True, rebind)]
             if untouched is not None and any(run["args_after"] != untouched for run in runs):
                 _emit("skipped", target=target["id"], reason="changes arguments that cannot be copied; not compared on them")
                 return
@@ -625,8 +663,12 @@ def targets(functions, before_src, after_src):
         if any(isinstance(n, (ast.Yield, ast.YieldFrom)) for n in ast.walk(old)) != any(isinstance(n, (ast.Yield, ast.YieldFrom)) for n in ast.walk(new)):
             skipped[ident] = 'a generator on one side only'
             continue
+        def positional(node):
+            return [a.arg for a in [*node.args.posonlyargs, *node.args.args]]
         found.append(dict(id=ident, file=path, qual=qual, name=qual.rsplit('.', 1)[-1], before=old_text, after=new_text,
-                          signature_changed=ast.dump(old.args) != ast.dump(new.args)))
+                          signature_changed=ast.dump(old.args) != ast.dump(new.args),
+                          params_before=positional(old), params_after=positional(new),
+                          positional_only=bool(new.args.posonlyargs)))
     return found, skipped
 
 
@@ -749,7 +791,7 @@ def run(runner, python, before_tree, ids, spec_targets, skipped, scratch, timeou
     elif problem:
         gaps.append('side-by-side run stopped at its time limit; calls captured until then are compared')
     stopped = problem == 'timed out'
-    results, captured = [], {}
+    results, captured, misfit_calls = [], {}, 0
     for part in sorted((folder/'out').glob('*.jsonl')):
         try:
             lines = part.read_text().splitlines()
@@ -767,6 +809,8 @@ def run(runner, python, before_tree, ids, spec_targets, skipped, scratch, timeou
                 skipped[event['target']] = event['reason']
             elif kind == 'captured':
                 captured[event['target']] = captured.get(event['target'], 0) + 1
+            elif kind == 'misfit':
+                misfit_calls += 1
     # An object built by the code before the change lacks state a changed method now gives it. When one changed method
     # of a class changes the object's state, an AttributeError from another changed method of that class says the input
     # was built by the old code, not that the method behaves differently: set aside, and counted.
@@ -775,7 +819,7 @@ def run(runner, python, before_tree, ids, spec_targets, skipped, scratch, timeou
     # A call captured from the old code does not fit a function whose parameters the change altered: the as-changed
     # version refuses it at the call. That is a different signature, not a behaviour seen on the input: set aside.
     reshaped = {t['id'] for t in spec_targets if t.get('signature_changed')}
-    seen, differences, built_before, misfit = set(), [], 0, 0
+    seen, differences, built_before, misfit = set(), [], 0, misfit_calls
     for row in results:
         after = row['after']['result']
         if (row['target'] in reshaped and after[0] == 'raise' and after[1] == 'TypeError'
