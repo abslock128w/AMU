@@ -1,0 +1,27 @@
+Background (from the session that started this one):
+AMU (PyPI `anti-messup`, command `amu`, repo github.com/abslock128w/AMU, remote named `github`) is a Python change-impact tool that posts a PR comment: it selects candidate tests from a static/lexical/co-change graph plus coverage, runs them on the base and head trees, reports flips, replays the PR's own tests on base, and shows side-by-side behaviour differences of changed functions on captured arguments. Current release v0.5.1 (main after PRs #71-#85). Numbers on a frozen 47-PR set from Django/sympy/Flask: first line correct 42/47, false behaviour rows 1, noisy comments 2, useful 19, false flips 0. See `evaluation/STATUS.md`, `evaluation/performance-v042/REPORT.md` (protocol, labels.json rubric, freeze.py/run.py), and `evaluation/ci/INSTALL-NOTE.md` (two-workflow GitHub Action: untrusted PR run + privileged comment post). A sympy fork pilot was done earlier the same way (fork, replay PRs, let the Action run). The owner has decided: no engine changes, no new features; the next evidence needed is AMU on a fifth codebase with a different shape, run live through the Action on the owner's own fork, never touching the upstream community repo. Owner rules: never run an upstream repo's test suite without asking once per repository (attrs is approved for this task); never commit keys; use `gh` (already authenticated as abslock128w); the owner is away, so do not stop for questions, record blockers and continue; standing authority covers merging your own PRs to abslock128w/AMU when CI is green and deleting your own branches. This checkout `/Users/Abslock128/Documents/ChatGPT/AMU/fix-base` is a git worktree of the AMU repo on branch `docs/status`; create your own branch from `github/main` for the report, do not switch this worktree's branch, do not commit to `docs/status`. Local recording/site-hook tests can fail on this Mac under load; GitHub CI is the arbiter.
+
+Task:
+Run an AMU pilot on a fork of `python-attrs/attrs`, entirely on the owner's GitHub. Never open an issue, PR or comment on python-attrs.
+
+Steps:
+1. Fork python-attrs/attrs to abslock128w/attrs with `gh repo fork`. Install the AMU Action on the fork exactly per `evaluation/ci/INSTALL-NOTE.md` (two workflows; comment posting on the fork only), pinned to AMU v0.5.1. Commit that to the fork's default branch.
+2. Pick the last 15 merged upstream PRs that change Python under `src/attr/` or `src/attrs/` (skip docs-only, changelog-only, CI-only). For each, open a PR on the fork: base branch = a branch at the upstream merge-base commit (plus the AMU workflow commit), head = the PR's commits on top. Let the Action run live. Do not run anything locally that the Action should run.
+3. For each PR record: job time from queue to comment, whether the comment posted, first line text and whether it is correct, useful/nothing/noise by the rubric in `evaluation/performance-v042/labels.json`, false behaviour rows, false flips, and what fraction of the attrs suite the budget covered (attrs' full suite is ~1 minute, so it should be all of it; report if not).
+4. Measure two things not measured before: the per-PR cost of the Action on a small pure-Python project (job minutes), and whether side-by-side produces real rows on attrs' generated-class code.
+5. If the Action fails to run at all on the fork, diagnose only enough to say why (secrets, permissions, runner, workflow), record it, and if it is an install-note error, fix the note in your report PR. No engine changes. Any engine defect gets a one-paragraph record with a reproduction, not a fix.
+6. Write `evaluation/pilot/attrs/REPORT.md` with: the 15-row table, job-time range, budget coverage, the hand labels in `labels.json`, every defect, and a one-paragraph verdict on whether attrs is a fit for a maintainer ask. Open it as a PR to abslock128w/AMU on a branch from `github/main`, merge when CI is green.
+
+Done looks like: 15 PRs on abslock128w/attrs each with an AMU comment (or a recorded reason for none), the report merged on main, and your final message starting with the 15-row table, then job-time range, then the verdict. Losses first.
+
+Shared notes folder for this group of sessions (outside the repo; read siblings' notes there, leave hand-over notes or large findings there instead of pasting them into messages): /Users/Abslock128/Library/Application Support/Claude/side-session-notes/local_94829d25-ae8d-40df-a1a8-75a3ad1c3378
+
+---
+
+<task-notification>
+<task-id>bwp4bjhcq</task-id>
+<tool-use-id>toolu_012NkbuDixyDsFiTsnb7Tq6h</tool-use-id>
+<output-file>/private/tmp/claude-502/REDACTED/b2f1bc66-3e20-4459-84e0-72c90221b63f/tasks/bwp4bjhcq.output</output-file>
+<status>completed</status>
+<summary>Background command "Wait until all fork workflow runs complete" completed (exit code 0)</summary>
+</task-notification>
