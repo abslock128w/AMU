@@ -91,6 +91,23 @@ def reach(report):
     return None, []
 
 
+# side-by-side's reason (amu/core/sidebyside.py) for a changed function whose code is the same once docstrings,
+# comments and layout are set aside.
+DOCS_ONLY = 'only its docstring, comments or layout changed'
+
+
+def docs_only(report):
+    """Every change outside the tests is to docstrings, comments or layout: side-by-side found each changed production
+    function differs only there, and nothing else in those files changed (no data, class or module-level line)."""
+    side = report.get('side_by_side') if isinstance(report.get('side_by_side'), dict) else {}
+    reasons = side.get('not_compared') if isinstance(side.get('not_compared'), dict) else {}
+    functions = {f"{row['file']}#{row.get('symbol')}" for row in report.get('changed_functions') or []
+                 if isinstance(row, dict) and isinstance(row.get('file'), str) and not is_test_file(row['file'])}
+    symbols = {name for name in report.get('changed_symbols') or []
+               if isinstance(name, str) and not is_test_file(name.split('#', 1)[0])}
+    return bool(functions) and all(reasons.get(name) == DOCS_ONLY for name in functions) and symbols <= functions
+
+
 def stopped(report):
     side = report.get('side_by_side') if isinstance(report.get('side_by_side'), dict) else {}
     return bool(side.get('stopped')) or any(str(gap).startswith(CUT) for gap in report.get('gaps') or [])
@@ -176,6 +193,9 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
             first += f"; its {plural(len(made), 'new test')} {verb} on the base with {' or '.join(kinds)}, as expected"
         elif not any(row.get('head') not in (None, 'skipped') for row in replayed):
             first += '; no test of it ran'
+    elif docs_only(report) and not report.get('change_evidence'):
+        # Sympy #30838, Django #22046: a docstring typo read "whether any ran the changed code was not seen".
+        first = f"**AMU: docstring or comment changes only** at {short(head)}; no flip among {plural(ran, 'test')} run"
     else:
         reached, files = reach(report)
         if reached is False:

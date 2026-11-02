@@ -25,8 +25,8 @@
  },
  "django#22046": {
   "adds": "nothing",
-  "first_line_correct": false,
-  "note": "Docstring-only change (plus docs): read as a code change, 3903 tests and 231 s to say 'no flip, not seen'; no first-line category for docstring/comment-only changes.",
+  "first_line_correct": true,
+  "note": "After the docstring-only first line: '**AMU: docstring or comment changes only** at `1103845`; no flip among 3903 tests run'. Right; the 3903-test run is still spent (engine). Docstring-only change (plus docs): read as a code change, 3903 tests and 231 s to say 'no flip, not seen'; no first-line category for docstring/comment-only changes.",
   "number": 22046,
   "repo": "django",
   "rows": "-"
@@ -353,8 +353,8 @@
  },
  "sympy#30838": {
   "adds": "nothing",
-  "first_line_correct": false,
-  "note": "Docstring typo fix: side-by-side itself recorded 'only its docstring, comments or layout changed', yet the headline is 'no flip, not seen' after 3732 tests and 245 s. Docstring-only changes are not read like refactor-only ones.",
+  "first_line_correct": true,
+  "note": "After the docstring-only first line: '**AMU: docstring or comment changes only** at `16d8de2`; no flip among 4269 tests run'. Right; the 4269-test run is still spent (engine). Docstring typo fix: side-by-side itself recorded 'only its docstring, comments or layout changed', yet the headline is 'no flip, not seen' after 3732 tests and 245 s. Docstring-only changes are not read like refactor-only ones.",
   "number": 30838,
   "repo": "sympy",
   "rows": "-"

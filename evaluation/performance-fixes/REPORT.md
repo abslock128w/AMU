@@ -104,3 +104,9 @@ Django #22026 now also shows #71 on real code. `get_prefetcher` was compared on 
 What is still false:
 - **Flask #5812, 1 row:** `make_default_options_response` raises `'NoneType' object has no attribute 'allowed_methods'`. The old context has no matched URL rule where the new code looks for one.
 - **Two noise PRs:** Django #22176 (subTest failure blocks not parsed) and sympy #29693 ("adds new code only" for a method found by name dispatch). Both are outside these fixes.
+
+## Follow-up: docstring-only first line, 2026-11-02
+
+The first line was wrong on 7 of 47 after v0.5.0. Two of them, Django #22046 and sympy #30838, change only a docstring, and they read "no flip … whether any ran the changed code was not seen". The comment now says **"AMU: docstring or comment changes only"** in that case: every changed production function differs only in its docstring, comments or layout (side-by-side's own finding), and nothing else in those files changed. Re-rendering all 47 stored reports changes the first line of exactly these two. First line correct: 40 → 42 of 47.
+
+The tests still run on such a change (3,903 and 4,269 tests here). Skipping them, as "refactor only" does, would be an engine change.

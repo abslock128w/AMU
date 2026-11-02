@@ -330,3 +330,25 @@ def test_a_change_that_only_adds_code_says_so_and_why_its_new_tests_fail_on_the_
     assert render(dict(report, replayed=[]), META).splitlines()[0] == '**AMU: adds new code only** at `abcdef1`; no test of it ran'
     flipped = dict(report, flips=1, predicted_failures=[flip('tests/t.py::test_old')])
     assert render(flipped, META).splitlines()[0].startswith('**AMU: 1 flip**')
+
+
+def test_a_change_to_docstrings_and_comments_only_says_so_on_the_first_line():
+    # Django #22046 and sympy #30838 (performance test): a docstring edit read "no flip ... whether any ran the changed
+    # code was not seen", which a reviewer cannot tell from an untested code change.
+    reason = 'only its docstring, comments or layout changed'
+    report = dict(flips=0, predicted_failures=[], gaps=[], executed=dict(EXECUTED, ran=3903, candidates=3971),
+                  side_by_side=dict(targets=0, compared_calls=0, functions_called=0,
+                                    not_compared={'django/contrib/contenttypes/models.py#ContentType.model_class': reason}),
+                  changed_symbols=['django/contrib/contenttypes/models.py#ContentType.model_class'],
+                  changed_functions=[dict(file='django/contrib/contenttypes/models.py', symbol='ContentType.model_class',
+                                          lines='166')])
+    for quiet in (False, True):
+        first = render(report, META, quiet=quiet).splitlines()[0]
+        assert first == '**AMU: docstring or comment changes only** at `abcdef1`; no flip among 3903 tests run', first
+    # Anything else changed in a production file (here a module-level dict), or one changed function whose code differs:
+    # not docstrings only, and the line stays as it was.
+    data = dict(report, changed_symbols=report['changed_symbols'] + ['django/contrib/contenttypes/models.py#TABLE'])
+    code = dict(report, changed_functions=report['changed_functions'] + [dict(file='django/utils/x.py', symbol='f')],
+                changed_symbols=report['changed_symbols'] + ['django/utils/x.py#f'])
+    for other in (data, code):
+        assert render(other, META).splitlines()[0].startswith('**AMU: no flip** at `abcdef1` among 3903 tests run'), other
