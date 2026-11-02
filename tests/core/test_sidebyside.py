@@ -463,6 +463,26 @@ def test_an_attribute_the_change_sets_at_construction_missing_on_an_old_object_i
     assert [row['after']['result'][:2] for row in rows] == [['raise', 'AttributeError']], report['behaviour_differences']
 
 
+def test_an_attribute_new_to_one_class_counts_as_fresh_when_another_class_of_the_file_already_set_it(tmp_path):
+    # Flask #5812 (re-score after #72): the old RequestContext.__init__ set _after_request_functions, the new
+    # AppContext.__init__ sets it too; compared per file the name was not new, and 4 rows on old AppContexts stayed.
+    lib0 = ('class Other:\n    def __init__(self):\n        self._request = None\n\n\n'
+            'class Ctx:\n    def __init__(self, url):\n        self.url = url\n\n\n'
+            'def describe(ctx):\n    return "ctx " + ctx.url\n')
+    lib1 = ('class Other:\n    def __init__(self):\n        self._request = None\n\n\n'
+            'class Ctx:\n    def __init__(self, url):\n        self.url = url\n        self._request = url.upper()\n\n\n'
+            'def describe(ctx):\n    return "ctx " + ctx._request\n')
+    tests = ('import lib\n\nCTX = lib.Ctx("a")\n\n\ndef test_describe():\n    assert lib.describe(CTX)\n')
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1, 'tests/test_lib.py': tests})
+    assert [row['target'] for row in report['behaviour_differences']] == ['lib.py#Ctx.__init__'], report['behaviour_differences']
+    assert report['side_by_side']['input_built_before_the_change'] >= 1, report['side_by_side']
+    from amu.core.sidebyside import fresh_attributes
+    assert fresh_attributes(lib0, lib1) == {('Ctx', '_request')}
+    # A subclass defined in the file inherits what its base now sets.
+    sub = '\n\nclass Sub(Ctx):\n    pass\n'
+    assert fresh_attributes(lib0 + sub, lib1 + sub) == {('Ctx', '_request'), ('Sub', '_request')}
+
+
 def test_a_parameter_inserted_or_moved_does_not_misbind_the_captured_call(tmp_path):
     # Flask #5818 (performance test at v0.4.2): dispatch methods gained a leading ctx parameter; the captured calls,
     # replayed by position, put the exception into ctx, and all 33 rows were artifacts.

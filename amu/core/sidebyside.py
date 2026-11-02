@@ -827,27 +827,41 @@ def support(scratch, tree, spec_targets, added=(), modules=()):
 
 
 def fresh_attributes(before, after):
-    """Attribute names the change starts setting when an object is built, in one file: ``self.name = ...`` inside
-    ``__init__``, ``__new__`` or ``__post_init__`` in ``after`` and in none of those in ``before``. Every object the code
-    after the change builds has them; one the code before it built does not. (An attribute set by some other method is
-    left out: an object built after the change can lack it too, so missing it may be a real regression.)"""
+    """(class, attribute) pairs the change starts setting when an object is built, in one file: ``self.name = ...``
+    inside ``__init__``, ``__new__`` or ``__post_init__`` of a class (or of a base class defined in the same file) in
+    ``after`` and not in that class in ``before``. Every object of that class the code after the change builds has them;
+    one the code before it built does not. Per class, not per file: another class of the file already setting the name
+    before the change says nothing about this one (Flask #5812: the old ``RequestContext`` set
+    ``_after_request_functions``; the new ``AppContext`` does). (An attribute set by some other method is left out: an
+    object built after the change can lack it too, so missing it may be a real regression.)"""
     def names(text):
         try:
             tree = ast.parse(text or '')
         except (SyntaxError, ValueError):
-            return set()
-        found = set()
+            return {}
+        own, bases = {}, {}
         for node in ast.walk(tree):
-            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name in ('__init__', '__new__', '__post_init__'):
-                for inner in ast.walk(node):
-                    if isinstance(inner, ast.Attribute) and isinstance(inner.ctx, ast.Store) and isinstance(inner.value, ast.Name) \
-                            and inner.value.id in ('self', 'cls', 'obj', 'instance'):
-                        found.add(inner.attr)
-        return found
-    return names(after) - names(before)
+            if not isinstance(node, ast.ClassDef):
+                continue
+            bases[node.name] = [b.id for b in node.bases if isinstance(b, ast.Name)]
+            found = own.setdefault(node.name, set())
+            for item in node.body:
+                if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)) and item.name in ('__init__', '__new__', '__post_init__'):
+                    for inner in ast.walk(item):
+                        if isinstance(inner, ast.Attribute) and isinstance(inner.ctx, ast.Store) and isinstance(inner.value, ast.Name) \
+                                and inner.value.id in ('self', 'cls', 'obj', 'instance'):
+                            found.add(inner.attr)
+
+        def every(name, seen=()):
+            if name in seen or name not in own:
+                return set()
+            return own[name].union(*(every(b, (*seen, name)) for b in bases.get(name, ())))
+        return {name: every(name) for name in own}
+    old, new = names(before), names(after)
+    return {(cls, attr) for cls, attrs in new.items() for attr in attrs - old.get(cls, set())}
 
 
-ATTRIBUTE = re.compile(r"object has no attribute '(\w+)'")
+ATTRIBUTE = re.compile(r"'(\w+)' object has no attribute '(\w+)'")
 
 
 def run(runner, python, before_tree, ids, spec_targets, skipped, scratch, timeout, added=(), modules=(), prefer=(),
@@ -903,7 +917,7 @@ def run(runner, python, before_tree, ids, spec_targets, skipped, scratch, timeou
             misfit += 1
             continue
         missing = ATTRIBUTE.search(after[2]) if after[0] == 'raise' and after[1] == 'AttributeError' else None
-        if row['stable'] and row['differs'] and missing and missing[1] in fresh and row['before']['result'][:2] != after[:2]:
+        if row['stable'] and row['differs'] and missing and (missing[1], missing[2]) in fresh and row['before']['result'][:2] != after[:2]:
             # The changed code reads an attribute the change starts setting, on an object the code before it built
             # (Flask #5812: 'AppContext' object has no attribute '_request'): the input, not the behaviour.
             built_before += 1
