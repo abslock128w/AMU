@@ -1,0 +1,32 @@
+{
+  "cli_version": "0.10.5",
+  "checkpoint_id": "01M6ESM6DVXQHAB97M0A1VZXRT",
+  "strategy": "manual-commit",
+  "branch": "release/0.6.0",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".github/workflows/amu-pr-comment.yml",
+    ".github/workflows/amu-pr.yml",
+    "action.yml",
+    "amu/__init__.py",
+    "ci/amu-pr-comment.yml",
+    "ci/amu-pr.yml",
+    "evaluation/ci/INSTALL-NOTE.md"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 14,
+    "cache_creation_tokens": 8915,
+    "cache_read_tokens": 4193913,
+    "output_tokens": 4464,
+    "api_call_count": 6
+  }
+}
