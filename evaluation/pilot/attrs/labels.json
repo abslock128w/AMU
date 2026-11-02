@@ -1,0 +1,122 @@
+{
+ "attrs#1454": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "Exposes ClassProps (new public class, 665 lines). 10 edited tests set apart as updated, 15 labelled new-code (ImportError on ClassProps), 15 candidates could not run. Correct, no more than the diff.",
+  "number": 1454,
+  "repo": "attrs",
+  "rows": "-"
+ },
+ "attrs#1469": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "astuple performance for the common case. 0 flips among 63 tests; the edited test passes on both sides; 28 captured calls of astuple unchanged. Only 4 TestAsTuple tests were candidates, the ones this PR edits (same selection gap as 1636, but here the first line holds).",
+  "number": 1469,
+  "repo": "attrs",
+  "rows": "-"
+ },
+ "attrs#1507": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "'update dev': replaces three lambdas in _make.py with direct references. 0 flips, behaviour kept on 6 captured calls. This PR is the one that started mutating evolve's dunders (fixed later by 1606); that path runs only on 3.13+, so a 3.12 job could not see it.",
+  "number": 1507,
+  "repo": "attrs",
+  "rows": "-"
+ },
+ "attrs#1509": {
+  "adds": "noise",
+  "first_line_correct": false,
+  "note": "Bug fix: resolve aliases before field_transformer. 13 own tests fail on the merge base and pass on the head (useful on its own), but the first line also reports 62 behaviour differences and all are side-by-side artifacts: the PR adds 'alias_is_default' to Attribute.__slots__, and the changed Attribute methods were run on Attribute objects of the old class, which has no such slot, so they raise AttributeError/TypeError (defect 3). Collapsed in the body, counted in the first line.",
+  "number": 1509,
+  "repo": "attrs",
+  "rows": "rows 62, real 0"
+ },
+ "attrs#1513": {
+  "adds": "something",
+  "first_line_correct": true,
+  "note": "Bug fix: validators.disabled() restores state when nested. The new nested test fails on the merge base and passes on the head: reproduces the bug.",
+  "number": 1513,
+  "repo": "attrs",
+  "rows": "-"
+ },
+ "attrs#1529": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "New feature: attrs.fields() accepts instances. 2 evidence tests are the feature's tests. 41 of 625 candidates could not be run and the report does not name them (defect 5).",
+  "number": 1529,
+  "repo": "attrs",
+  "rows": "-"
+ },
+ "attrs#1541": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "New feature: converter as a decorator. 3 evidence tests fail on the merge base because the feature is missing; the diff says as much.",
+  "number": 1541,
+  "repo": "attrs",
+  "rows": "-"
+ },
+ "attrs#1571": {
+  "adds": "nothing",
+  "first_line_correct": false,
+  "note": "New `ne` validator plus docstring punctuation in 12 existing validators. First line 'whether any ran the changed code was not seen'; 'adds new code only' was knowable: the only non-docstring change is the new function (defect 4). The 5 new tests were correctly set apart as new tests for new code.",
+  "number": 1571,
+  "repo": "attrs",
+  "rows": "-"
+ },
+ "attrs#1592": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "on_setattr hooks may be generators (new feature, 331 lines). 0 flips; 3 new tests labelled new-code, 8 new setattr tests 'do not load on the merge base, cause not read'. 17 candidates could not run. Nothing beyond the diff.",
+  "number": 1592,
+  "repo": "attrs",
+  "rows": "-"
+ },
+ "attrs#1593": {
+  "adds": "something",
+  "first_line_correct": true,
+  "note": "Bug fix: ClassVar detection for forward references. The new test fails on the merge base and passes on the head, i.e. it reproduces the bug; 30 captured calls of _is_class_var unchanged.",
+  "number": 1593,
+  "repo": "attrs",
+  "rows": "-"
+ },
+ "attrs#1600": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "Defers imports on the cold import path (performance). 0 flips; side-by-side compared 111 captured calls of 8 changed functions with no difference: mild confirmation that the refactor keeps behaviour, as the PR claims.",
+  "number": 1600,
+  "repo": "attrs",
+  "rows": "-"
+ },
+ "attrs#1603": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "Drop Python 3.9: removes version branches across 16 files. 0 flips among 599 tests, 533 captured calls of 5 changed functions unchanged; what green CI says.",
+  "number": 1603,
+  "repo": "attrs",
+  "rows": "-"
+ },
+ "attrs#1606": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "Replaces _add_method_dunders(evolve) with a local __replace__ proxy. add_replace runs only on Python 3.13+, and the Action ran 3.12, so 'no test ran the changed code' is literally right; its new regression test skipped on both sides. The comment does not say the cause is the Python version.",
+  "number": 1606,
+  "repo": "attrs",
+  "rows": "-"
+ },
+ "attrs#1625": {
+  "adds": "nothing",
+  "first_line_correct": false,
+  "note": "Fixes 'picked picked' in a comment inside Attribute.evolve. First line says 'adds new code only'; it should say 'docstring or comment changes only'. The engine sets adds_only for this diff and the renderer checks adds_only before docs_only (defect 2). 468 tests run for a comment typo. Misleading line, nothing hidden by it.",
+  "number": 1625,
+  "repo": "attrs",
+  "rows": "-"
+ },
+ "attrs#1636": {
+  "adds": "noise",
+  "first_line_correct": false,
+  "note": "astuple performance tweak on the nested-sequence line. First line says no test ran the changed code, but 8 tests in tests/test_funcs.py::TestAsTuple run that line (checked by making it raise: 8 fail). AMU picked 10 tests that reach astuple only through VersionInfo comparisons and none of TestAsTuple, which imports it as `from attr import astuple` (defect 1). 37 s job.",
+  "number": 1636,
+  "repo": "attrs",
+  "rows": "-"
+ }
+}
