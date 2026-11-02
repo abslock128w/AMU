@@ -606,6 +606,7 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
 
 
 EDITED = 'test edited, not fixed'
+ALONE = 25  # tests of the change's own whose failure on the code before it is rerun each in a process of its own
 
 
 def _monitoring(python):
@@ -651,10 +652,21 @@ def _replay(runner, python, after_tree, other, edits, before_src, after_src, liv
         said = {}
         base, problem = _base(base_cache, runner, python, other, runnable, Path(scratch)/'own-base.xml',
                               within(max(left, CONFIRM), deadline), texts=said)
-        # A failure on the code before the change is the evidence; it must repeat in a fresh process to count.
+        # A failure on the code before the change is the evidence; it must repeat in a fresh process to count, each test
+        # alone: run together, one test that breaks shared state on the code before the change makes the next ones fail
+        # there too, and they would repeat it (Flask #5928: 13 of 14 'evidence' tests only failed after a new test broke
+        # teardown). Past ALONE tests, the rest rerun together.
         failing = [i for i in runnable if base.get(i) in ('failed', 'unrunnable') and after_states[i] == 'passed']
-        again = runners.execute(runner, python, other, failing, Path(scratch)/'own-base-again.xml',
-                                within(max(left, CONFIRM), deadline))[0] if failing else {}
+        again = {}
+        for ident in failing[:ALONE]:
+            if late(deadline):
+                break
+            again.update(runners.execute(runner, python, other, [ident], Path(scratch)/'own-base-alone.xml',
+                                         within(max(left, CONFIRM), deadline))[0])
+        rest = [i for i in failing if i not in again]
+        if rest and not late(deadline):
+            again.update(runners.execute(runner, python, other, rest, Path(scratch)/'own-base-again.xml',
+                                         within(max(left, CONFIRM), deadline))[0])
     finally:
         for path in edits:
             _write(other/path, before_src[path] if live_is_after else after_src[path])
@@ -676,7 +688,8 @@ def _replay(runner, python, after_tree, other, edits, before_src, after_src, liv
             # Runs after the change and does not even load before it (an import of what the change adds).
             was = 'unloadable'
         if ident in again and again[ident] == 'passed':
-            rows.append(dict(id=ident, head=head, base=was, verdict='unstable', why='failed on the code before the change once, passed on a rerun'))
+            rows.append(dict(id=ident, head=head, base=was, verdict='unstable',
+                             why='failed on the code before the change with the other tests, passed there alone in a fresh process'))
             continue
         verdict = replay.classify(head, was)
         if verdict is None:

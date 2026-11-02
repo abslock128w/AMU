@@ -244,3 +244,17 @@ def test_a_runner_limit_covers_the_splits_made_to_isolate_an_unknown_label(tmp_p
     found, problem = runners.execute(runners.get(tmp_path, 'pytest'), sys.executable, tmp_path, ids, tmp_path/'r.xml', 6)
     assert time.monotonic() - began < 8, (found, problem, time.monotonic() - began)
     assert found.get('tests/test_slow.py::test_a') == 'passed' and problem == 'timed out', (found, problem)
+
+
+def test_a_new_test_that_fails_before_only_after_another_one_broke_shared_state_is_not_evidence(tmp_path):
+    # Flask #5928 (performance test at v0.4.2): the new test_robust_teardown failed on the code before the change and
+    # left teardown broken; 13 tests after it in the same process errored there too, and the confirming rerun, run
+    # together, repeated it. Alone, each passed on the code before the change.
+    lib0 = 'STATE = []\n\n\ndef feature():\n    return False\n'
+    lib1 = 'STATE = []\n\n\ndef feature():\n    return True\n'
+    tests = ('import lib\n\n\ndef test_a_breaks():\n    lib.STATE.append(1)\n    assert lib.feature()\n    lib.STATE.pop()\n\n\n'
+             'def test_b_clean():\n    assert not lib.STATE\n')
+    result = run_change(tmp_path, {'lib.py': lib0}, {'lib.py': lib1, 'tests/test_state.py': tests})
+    verdicts = {row['id'].split('::')[-1]: row['verdict'] for row in result['replayed']}
+    assert verdicts == {'test_a_breaks': 'evidence', 'test_b_clean': 'unstable'}, result['replayed']
+    assert [row['id'] for row in result['change_evidence']] == ['tests/test_state.py::test_a_breaks']
