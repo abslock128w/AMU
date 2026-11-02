@@ -28,8 +28,10 @@ def test_steps_past_the_deadline_are_not_started_and_the_flip_found_before_it_is
         return found
     monkeypatch.setattr(trust, 'triad', triad)
     monkeypatch.setattr(shadow, 'late', lambda deadline: deadline is not None and bool(ended))
+    # The order of steps is the static selection's: side-by-side after the flip's reruns. (Paired records come from the
+    # two-sided run itself, before them.)
     report = analyze(tmp_path, diff, full_evidence=True, index_dir=tmp_path/'.index', run=True, python=sys.executable,
-                     deadline=time.monotonic() + 600)
+                     deadline=time.monotonic() + 600, extras=('static-select',))
     assert report['flips'] == 1 and [row['id'] for row in report['predicted_failures']] == ['tests/test_lib.py::test_f4']
     [row] = report['flip_trust']
     assert row['label'] == 'fails' and 'isolated' not in row, row

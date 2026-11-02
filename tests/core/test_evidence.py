@@ -61,7 +61,7 @@ def test_a_suite_that_fits_runs_whole_on_both_sides(tmp_path):
     assert report['executed']['ran'] == 3, report['executed']
     assert [row['id'] for row in report['predicted_failures']] == ['tests/test_shape.py::test_nested'], report['summary']
     [hunk] = report['hunks']
-    assert hunk['head_tests'] == ['tests/test_shape.py::test_nested'], hunk  # the test that runs the changed line
+    assert hunk['state'] == 'executed-both-sides' and hunk['sample'] == ['tests/test_shape.py::test_nested'], hunk  # runs the line
 
 
 def test_past_the_budget_the_candidates_are_the_tests_seen_in_the_changed_function(tmp_path):

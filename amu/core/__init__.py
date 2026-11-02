@@ -21,10 +21,11 @@ from . import (
     runners,
     select,
     shadow,
+    states,
     trust,
     vanished,
 )
-from .git import working_diff
+from .git import file_at, working_diff
 from .index import cache_dir, parse_or_none
 from .index import state as load_state
 from .patch import align, applied, candidate, changes, original, renumber
@@ -621,12 +622,29 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
             # Where the candidates came from (evidence module), and which tests ran each hunk on each side.
             report['selection_evidence'] = executed['selection_evidence']
             report['candidate_sources'] = executed['candidate_sources']
-            report['hunks'] = executed['hunks']
         if executed.get('seconds_before_running') is not None:
             # From the call to the first test run: reading the change, ranking, and the copy of the tree.
             report['seconds_before_running'] = round(prepared + executed['seconds_before_running'], 2)
         if executed.get('aborted'):
             report = dict(failure=dict(executed['aborted'], runner=executed['runner']), flips=None, **{k: v for k, v in report.items() if k != 'flips'})
+    # Each hunk's evidence state (states module): what ran it on each side, or why nothing could.
+    if edits and renamed is None:
+        before_src, after_src = {}, {}
+        for path, edit in edits.items():
+            on_disk = applied(root, path, edit)
+            earlier = original(root, path, edit) if on_disk else _read(root, path)
+            if earlier is None and merge_base:
+                earlier = file_at(root, merge_base, path)
+            before_src[path], after_src[path] = earlier, candidate(root, path, edit)
+        recorded = (executed or {}).get('_recorded') or {}
+        production = [p for p in facts if p.endswith('.py') and not replay.is_test_file(p)]
+        try:
+            report['hunks'] = states.classify(root, edits, before_src, after_src, recorded.get('hunks'),
+                                              ran_before=[i for i, v in (recorded.get('before') or {}).items() if v in ('passed', 'failed', 'skipped')],
+                                              python=python if run else None, production=production,
+                                              own=(executed or {}).get('own') or [])
+        except (OSError, ValueError, SyntaxError) as exc:
+            report.setdefault('gaps', []).append(f'hunk states not read: {type(exc).__name__}')
     if renamed is None and edits and refactor.adds_only({path: (original(root, path, edit), candidate(root, path, edit))
                                                          for path, edit in edits.items()}):
         report['adds_only'] = True  # only new definitions outside the tests: nothing that ran before has changed

@@ -75,39 +75,6 @@ def split_flips(report):
     return [row for row in failures if not (isinstance(row, dict) and row.get('label') == EDITED)], updated
 
 
-def reach(report):
-    """Whether something ran the changed code: True, False (side-by-side watched every comparable changed function
-    and no test called one), or None (not seen). With False, the production files those functions are in."""
-    counted, updated = split_flips(report)
-    side = report.get('side_by_side') if isinstance(report.get('side_by_side'), dict) else None
-    if counted or updated or report.get('change_evidence') or (side and side.get('functions_called')):
-        return True, []
-    if any(isinstance(row, dict) and row.get('expect') == 'ran_changed_lines' for row in report.get('tests') or []):
-        return True, []
-    files = sorted({row.get('file') for row in report.get('changed_functions') or []
-                    if isinstance(row, dict) and isinstance(row.get('file'), str) and not is_test_file(row['file'])})
-    if side and side.get('targets') and not side.get('functions_called') and files:
-        return False, files
-    return None, []
-
-
-# side-by-side's reason (amu/core/sidebyside.py) for a changed function whose code is the same once docstrings,
-# comments and layout are set aside.
-DOCS_ONLY = 'only its docstring, comments or layout changed'
-
-
-def docs_only(report):
-    """Every change outside the tests is to docstrings, comments or layout: side-by-side found each changed production
-    function differs only there, and nothing else in those files changed (no data, class or module-level line)."""
-    side = report.get('side_by_side') if isinstance(report.get('side_by_side'), dict) else {}
-    reasons = side.get('not_compared') if isinstance(side.get('not_compared'), dict) else {}
-    functions = {f"{row['file']}#{row.get('symbol')}" for row in report.get('changed_functions') or []
-                 if isinstance(row, dict) and isinstance(row.get('file'), str) and not is_test_file(row['file'])}
-    symbols = {name for name in report.get('changed_symbols') or []
-               if isinstance(name, str) and not is_test_file(name.split('#', 1)[0])}
-    return bool(functions) and all(reasons.get(name) == DOCS_ONLY for name in functions) and symbols <= functions
-
-
 def stopped(report):
     side = report.get('side_by_side') if isinstance(report.get('side_by_side'), dict) else {}
     return bool(side.get('stopped')) or any(str(gap).startswith(CUT) for gap in report.get('gaps') or [])
@@ -148,11 +115,74 @@ def extras(report, listed=LISTED):
     return out
 
 
+# Hunk states (amu/core/states.py), worst first: the first one any hunk has is what the first line reports.
+WORST = ('executed-none', 'not-executable-here', 'not-recorded', 'executed-head-only', 'new-code', 'executed-both-sides',
+         'not-code')
+STATE_TEXT = {'executed-none': 'ran in no test', 'not-executable-here': 'cannot run here', 'not-recorded': 'not recorded',
+              'executed-head-only': "ran only in the pull request's own tests", 'new-code': 'new code, no existing callers',
+              'executed-both-sides': 'ran on both sides', 'not-code': 'docstring, comment or layout only'}
+
+
+def hunk_rows(report):
+    return [row for row in report.get('hunks') or [] if isinstance(row, dict) and row.get('state') in WORST]
+
+
+def place(row):
+    return code(f"{row.get('path', '?')}:{row.get('line', '?')}", 120)
+
+
+def places(rows, limit=3):
+    return ', '.join(place(row) for row in rows[:limit]) + (f' and {len(rows) - limit} more' if len(rows) > limit else '')
+
+
+def headline(report, head, ran):
+    """The first line when tests ran and none flipped: what the worst hunk's evidence says. Without hunk states (a report
+    from an older engine), only that nothing flipped."""
+    rows = hunk_rows(report)
+    chosen = report.get('selection_evidence') if isinstance(report.get('selection_evidence'), dict) else {}
+    among = (f"ran all {plural(ran, 'test')}" if chosen.get('mode') == 'all of the suite'
+             else f"among {plural(ran, 'test')} run")
+    if not rows:
+        return f"**AMU: 0 flips** at {short(head)}, {among}"
+    present = {row['state'] for row in rows}
+    if present == {'not-code'}:
+        return f"**AMU: docstring or comment changes only** at {short(head)}; no flip, {among}"
+    if present <= {'new-code', 'not-code'}:
+        replayed = [row for row in report.get('replayed') or [] if isinstance(row, dict)]
+        made = [row for row in replayed if row.get('verdict') == 'new_code']
+        text = f'**AMU: adds new code only** at {short(head)}'
+        if made:
+            kinds = sorted({str(row.get('why', '')).split(' on ', 1)[0] for row in made if row.get('why')}) or ['ImportError']
+            verb = 'fails' if len(made) == 1 else 'fail'
+            return text + f"; its {plural(len(made), 'new test')} {verb} on the base with {' or '.join(kinds)}, as expected"
+        tested = sum(row.get('tests') or 0 for row in rows if row['state'] == 'new-code')
+        return text + (f'; {plural(tested, "test")} ran it' if tested else '; no test ran it')
+    worst = next(state for state in WORST if state in present)
+    picked = [row for row in rows if row['state'] == worst]
+    total = len([row for row in rows if row['state'] != 'not-code'])
+    first = f"**AMU: 0 flips** at {short(head)}, {among}; "
+    if worst == 'executed-none':
+        return first + f"{len(picked)} of {plural(total, 'changed hunk')} ran in no test: {places(picked)}"
+    if worst == 'not-executable-here':
+        reasons = sorted({row.get('why') or 'not executable here' for row in picked})
+        return first + f"{len(picked)} of {plural(total, 'changed hunk')} {'; '.join(reasons)}: {places(picked)}"
+    if worst == 'not-recorded':
+        return first + 'which tests ran the changed code was not recorded'
+    if worst == 'executed-head-only':
+        return first + f"{len(picked)} of {plural(total, 'changed hunk')} ran only in the pull request's own tests: {places(picked)}"
+    covered = max((row.get('tests') or 0 for row in rows if row['state'] == 'executed-both-sides'), default=0)
+    fresh = [row for row in rows if row['state'] == 'new-code']
+    text = first + (f"every changed hunk ran on both sides, in up to {plural(covered, 'test')}" if not fresh else
+                    f"every changed hunk that existed before ran on both sides; {len(fresh)} add new code with no existing callers")
+    return text
+
+
 def nothing_found(report):
     executed = report.get('executed') or {}
     counted, _ = split_flips(report)
+    worst = next((state for state in WORST if state in {row['state'] for row in hunk_rows(report)}), None)
     return (not report.get('error') and not report.get('failure') and report.get('flips') is not None and not counted
-            and executed.get('ran') and reach(report)[0] is not False
+            and executed.get('ran') and worst not in ('executed-none', 'not-executable-here', 'executed-head-only')
             and not any(report.get(k) for k in ('change_evidence', 'behaviour_differences', 'generated_differences', 'unstable', 'cut',
                                                 'refactors'))
             and not (report.get('equivalence') or {}).get('rows') and not (report.get('mutation') or {}).get('survivors')
@@ -181,34 +211,8 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
         first = f'**AMU: no flip count** at {short(head)}: no candidate test ran'
     elif failures:
         first = f"**AMU: {plural(len(failures), 'flip')}** at {short(head)}, among {plural(ran, 'test')} run"
-    elif report.get('adds_only'):
-        # Only new definitions outside the tests: nothing that ran before changed. The new tests failing before the
-        # change on the missing names is what they should do.
-        replayed = [row for row in report.get('replayed') or [] if isinstance(row, dict)]
-        made = [row for row in replayed if row.get('verdict') == 'new_code']
-        kinds = sorted({str(row.get('why', '')).split(' on ', 1)[0] for row in made if row.get('why')}) or ['ImportError']
-        first = f'**AMU: adds new code only** at {short(head)}'
-        if made:
-            verb = 'fails' if len(made) == 1 else 'fail'
-            first += f"; its {plural(len(made), 'new test')} {verb} on the base with {' or '.join(kinds)}, as expected"
-        elif not any(row.get('head') not in (None, 'skipped') for row in replayed):
-            first += '; no test of it ran'
-    elif docs_only(report) and not report.get('change_evidence'):
-        # Sympy #30838, Django #22046: a docstring typo read "whether any ran the changed code was not seen".
-        first = f"**AMU: docstring or comment changes only** at {short(head)}; no flip among {plural(ran, 'test')} run"
     else:
-        reached, files = reach(report)
-        if reached is False:
-            # Never folded away: a reviewer reading only this line must not take it for "nothing changed".
-            mine = own_tests(report)
-            where = ', '.join(code(f, 120) for f in files[:3]) + (f' and {len(files) - 3} more' if len(files) > 3 else '')
-            besides = f", apart from the {plural(mine, 'test')} this pull request adds or edits" if mine else ''
-            first = f"**AMU: no test ran the changed code in {where}** at {short(head)}{besides}; {plural(ran, 'test')} run"
-        elif reached:
-            first = f"**AMU: 0 flips** at {short(head)}, among {plural(ran, 'test')} run, some of them on the changed code"
-        else:
-            first = (f"**AMU: no flip** at {short(head)} among {plural(ran, 'test')} run; whether any ran the changed code "
-                     'was not seen')
+        first = headline(report, head, ran)
     timed = report.get('side_by_side') if isinstance(report.get('side_by_side'), dict) else None
     if timed is not None and stopped(report) and not report.get('error') and not report.get('refactor_only'):
         first += (f"; side-by-side got to {timed.get('functions_called', 0)} of {timed.get('targets', 0)} changed "
@@ -409,6 +413,18 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
                       'passed. A change there could go unnoticed. (Behind a flag; an equivalent mutant also lands here.)', '',
                       *rows(survivors, lambda row: f"{code(str(row.get('file')) + ':' + str(row.get('line')), 120)}: "
                                                    f"{code(row.get('mutant', ''), 160)}", listed), '', '</details>', '']
+    listed_hunks = hunk_rows(report)
+    if listed_hunks and not report.get('error'):
+        out += [f'### Changed hunks ({len(listed_hunks)})', '', "What ran each hunk of the change, from each side's own run:", '']
+
+        def hunk(row):
+            text = place(row) + (f" in {code(row['function'], 80)}" if row.get('function') else '') + ': ' + STATE_TEXT[row['state']]
+            if row['state'] in ('executed-both-sides', 'executed-head-only', 'new-code') and row.get('tests'):
+                text += f" ({plural(row['tests'], 'test')})"
+            if row.get('why'):
+                text += f" ({code(row['why'], 80)})"
+            return text
+        out += rows(listed_hunks, hunk, listed) + ['']
     gaps = list(report.get('gaps') or [])
     if meta.get('install_ok') is False:
         gaps.insert(0, "the project's install command failed; see install.log in the artifact")
