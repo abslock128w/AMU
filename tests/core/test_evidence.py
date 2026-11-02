@@ -61,7 +61,7 @@ def test_a_suite_that_fits_runs_whole_on_both_sides(tmp_path):
     assert report['executed']['ran'] == 3, report['executed']
     assert [row['id'] for row in report['predicted_failures']] == ['tests/test_shape.py::test_nested'], report['summary']
     [hunk] = report['hunks']
-    assert hunk['head_tests'] == ['tests/test_shape.py::test_nested'], hunk  # the test that runs the changed line
+    assert hunk['state'] == 'executed-both-sides' and hunk['sample'] == ['tests/test_shape.py::test_nested'], hunk  # runs the line
 
 
 def test_past_the_budget_the_candidates_are_the_tests_seen_in_the_changed_function(tmp_path):
@@ -101,3 +101,19 @@ def test_candidates_that_cannot_run_are_named(tmp_path):
     (tmp_path/'tests/test_broken.py').write_text('import not_installed_plugin\n\n\ndef test_never():\n    pass\n')
     report = change(tmp_path, BROKEN)
     assert report['executed']['unrunnable_tests'] == ['tests/test_broken.py::test_never'], report['executed']
+
+
+def test_a_directory_whose_conftest_cannot_load_does_not_take_the_other_tests_with_it(tmp_path):
+    # Two parts split from the same failing part are not disjoint: only two parts with no test in common, both failing
+    # alike, say the runner itself aborts.
+    from amu.core import runners
+    (tmp_path/'examples/tests').mkdir(parents=True)
+    (tmp_path/'examples/tests/conftest.py').write_text('import not_installed_example\n')
+    (tmp_path/'examples/tests/test_example.py').write_text('def test_one():\n    pass\n\n\ndef test_two():\n    pass\n')
+    (tmp_path/'tests').mkdir()
+    (tmp_path/'tests/test_good.py').write_text(''.join(f'def test_{n}():\n    pass\n\n\n' for n in range(6)))
+    ids = ['examples/tests/test_example.py::test_one', 'examples/tests/test_example.py::test_two',
+           *[f'tests/test_good.py::test_{n}' for n in range(6)]]
+    found, problem = runners.execute(runners.get(tmp_path, 'pytest'), sys.executable, tmp_path, ids, tmp_path/'r.xml', 120)
+    assert all(found[f'tests/test_good.py::test_{n}'] == 'passed' for n in range(6)), found
+    assert found['examples/tests/test_example.py::test_one'] == 'unrunnable', found

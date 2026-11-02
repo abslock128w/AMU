@@ -21,10 +21,11 @@ from . import (
     runners,
     select,
     shadow,
+    states,
     trust,
     vanished,
 )
-from .git import working_diff
+from .git import file_at, working_diff
 from .index import cache_dir, parse_or_none
 from .index import state as load_state
 from .patch import align, applied, candidate, changes, original, renumber
@@ -471,7 +472,8 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
             everything = list(dict.fromkeys(run_id for ident in sorted(tests) for run_id in run_ids(label_of(ident))
                                             if not where or any(run_id == p or run_id.startswith(p + '/') or run_id.startswith(p + '::')
                                                                 for p in where)))
-            plan = dict(static=[i for i in wide if i not in set(own)], everything=everything, own=own,
+            in_suite = [i for i in wide if not where or any(i == p or i.startswith(p + '/') or i.startswith(p + '::') for p in where)]
+            plan = dict(static=[i for i in in_suite if i not in set(own)], everything=everything, own=own,
                         key=merge_base or shadow.parent_key(root))
         prepared = time.perf_counter() - began
         flips, executed, run_gaps = shadow.run(root, edits, wide, python, budget, runner, memo=memo, own=own, base_cache=cache,
@@ -596,7 +598,8 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
             report['order'] = executed.get('order')
         if executed.get('side_by_side') is not None:
             # Changed functions run side by side on the inputs the tests called them with (sidebyside).
-            report['behaviour_differences'] = [{k: row[k] for k in ('target', 'input', 'differs', 'before', 'after', 'test', 'label')}
+            report['behaviour_differences'] = [{k: row[k] for k in ('target', 'input', 'differs', 'before', 'after', 'test', 'label', 'seen')
+                                                if k in row}
                                                for row in executed.get('behaviour', [])]
             report['side_by_side'] = {k: v for k, v in executed['side_by_side'].items() if k != 'skipped'}
             report['side_by_side']['not_compared'] = executed['side_by_side'].get('skipped', {})
@@ -621,12 +624,29 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
             # Where the candidates came from (evidence module), and which tests ran each hunk on each side.
             report['selection_evidence'] = executed['selection_evidence']
             report['candidate_sources'] = executed['candidate_sources']
-            report['hunks'] = executed['hunks']
         if executed.get('seconds_before_running') is not None:
             # From the call to the first test run: reading the change, ranking, and the copy of the tree.
             report['seconds_before_running'] = round(prepared + executed['seconds_before_running'], 2)
         if executed.get('aborted'):
             report = dict(failure=dict(executed['aborted'], runner=executed['runner']), flips=None, **{k: v for k, v in report.items() if k != 'flips'})
+    # Each hunk's evidence state (states module): what ran it on each side, or why nothing could.
+    if edits and renamed is None:
+        before_src, after_src = {}, {}
+        for path, edit in edits.items():
+            on_disk = applied(root, path, edit)
+            earlier = original(root, path, edit) if on_disk else _read(root, path)
+            if earlier is None and merge_base:
+                earlier = file_at(root, merge_base, path)
+            before_src[path], after_src[path] = earlier, candidate(root, path, edit)
+        recorded = (executed or {}).get('_recorded') or {}
+        production = [p for p in facts if p.endswith('.py') and not replay.is_test_file(p)]
+        try:
+            report['hunks'] = states.classify(root, edits, before_src, after_src, recorded.get('hunks'),
+                                              ran_before=[i for i, v in (recorded.get('before') or {}).items() if v in ('passed', 'failed', 'skipped')],
+                                              python=python if run else None, production=production,
+                                              own=(executed or {}).get('own') or [])
+        except (OSError, ValueError, SyntaxError) as exc:
+            report.setdefault('gaps', []).append(f'hunk states not read: {type(exc).__name__}')
     if renamed is None and edits and refactor.adds_only({path: (original(root, path, edit), candidate(root, path, edit))
                                                          for path, edit in edits.items()}):
         report['adds_only'] = True  # only new definitions outside the tests: nothing that ran before has changed
@@ -671,6 +691,9 @@ def compact(report, include_tests=False):
     # Untested rows are evidence for a reader, not a signal: scored on Django history, neither the static
     # rows nor the recording-backed ones were more likely to be fixed later than covered functions.
     out.pop('untested', None)
+    # Per-hunk states and candidate sources are for the comment and --full-evidence; the agent packet keeps its size.
+    for key in ('hunks', 'candidate_sources', 'selection_evidence'):
+        out.pop(key, None)
     if 'predicted_failures' in report:
         commands = {row['id']: row.get('run') for row in report['tests']}
         out['predicted_failures'] = [(row['id'] if native else commands.get(row['id']) or row['id']) for row in report['predicted_failures'][:12]]

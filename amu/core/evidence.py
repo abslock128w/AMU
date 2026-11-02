@@ -99,12 +99,12 @@ RERUN = 60  # seconds at most for running again, on each side, the tests whose c
 
 
 def compare(execute, runner, python, trees, plan, scratch, deadline, parts, chunk, calls_b, calls_a, both, base_watch,
-            head_watch):
+            head_watch, moved=None):
     """Calls of each changed function present on both sides, paired by test and call index (record.pair). A pair whose
     outputs differ on equal inputs is kept only if a second run of its test, on each side, gives the same two outputs:
     a difference neither side repeats is nondeterminism, counted and not shown."""
-    rows, counts = record.pair([c for c in calls_b if c['function'] in both], [c for c in calls_a if c['function'] in both])
-    tests = sorted({row['test'] for row in rows})
+    rows, counts = record.pair([c for c in calls_b if c['function'] in both], [c for c in calls_a if c['function'] in both], moved)
+    tests = sorted({row['test'] for row in rows})  # one representative test per distinct row
     kept, unstable = rows, 0
     if tests:
         again = {}
@@ -112,7 +112,7 @@ def compare(execute, runner, python, trees, plan, scratch, deadline, parts, chun
             folder = Path(scratch)/f'record-{side}-again'
             env = record.prepare(folder, trees[side], watch, targets)
             _chunks(execute, runner, python, trees[side], tests, scratch, f'{side}-again', RERUN, deadline, parts, env, chunk)
-            again[side] = {(c['test'], c['function'], c['n']): c['output'] for c in record.read(folder, trees[side],
+            again[side] = {(c['test'], c['function'], c['n']): c.get('result') or c['output'] for c in record.read(folder, trees[side],
                                                                                                 runner.cwd(trees[side]))[1]}
         kept = [row for row in rows if again['before'].get((row['test'], row['function'], row['n'])) == row['digest'][0]
                 and again['after'].get((row['test'], row['function'], row['n'])) == row['digest'][1]]
@@ -138,8 +138,16 @@ def run(execute, runner, python, trees, edits, before_src, after_src, plan, scra
         base_watch.setdefault(h['path'], set()).update(h['base'])
         head_watch.setdefault(h['path'], set()).update(h['head'])
     # Every function a hunk changes, on each side where it exists, is recorded in that side's own run (record).
-    targets_before = sorted({(h['path'], qual) for h in hunks for qual in h['old_touched']})
-    targets_after = sorted({(h['path'], qual) for h in hunks for qual in h['new_touched']})
+    moved = {}
+    for h in hunks:
+        for qual in set(h['old_touched']) & set(h['new_touched']):
+            found = hunk_split.changed_defaults(before_src.get(h['path']) or '', after_src.get(h['path']) or '', qual)
+            if found:
+                moved[f"{h['path']}#{qual}"] = found
+    targets_before = sorted({(h['path'], qual, tuple(sorted(moved.get(f"{h['path']}#{qual}", {}))))
+                             for h in hunks for qual in h['old_touched']})
+    targets_after = sorted({(h['path'], qual, tuple(sorted(moved.get(f"{h['path']}#{qual}", {}))))
+                            for h in hunks for qual in h['new_touched']})
     plan = dict(plan, targets_before=targets_before, targets_after=targets_after)
     own = list(dict.fromkeys(plan.get('own') or []))
     mine = set(own)
@@ -170,7 +178,8 @@ def run(execute, runner, python, trees, edits, before_src, after_src, plan, scra
         found_b, problems_b, seconds_b, _ = _chunks(execute, runner, python, trees['before'], base_ids, scratch, 'before',
                                                    budget, deadline, parts, env, WHOLE if fits else chunk)
         coverage_b, calls_b, skipped_b = record.read(before_dir, trees['before'], runner.cwd(trees['before']))
-        complete = bool(base_ids) and all(i in found_b for i in base_ids)
+        complete = bool(base_ids) and all(i in found_b for i in base_ids) and any(
+            state in ('passed', 'failed', 'skipped') for state in found_b.values())
     else:
         found_b, problems_b, seconds_b, complete, skipped_b = {}, [], 0.0, False, {}
     mode = ALL if exploring and complete and seconds_b <= budget * FILL else COVERAGE
@@ -227,7 +236,8 @@ def run(execute, runner, python, trees, edits, before_src, after_src, plan, scra
         h['head_tests'] = sorted(t for t in record.tests_on(coverage_a, h['path'], h['head']) if t != record.IMPORT)
         h['head_at_import'] = record.IMPORT in record.tests_on(coverage_a, h['path'], h['head'])
     paired = compare(execute, runner, python, trees, plan, scratch, deadline, parts, chunk, calls_b, calls_a,
-                     {f'{p}#{q}' for p, q in targets_before} & {f'{p}#{q}' for p, q in targets_after}, base_watch, head_watch)
+                     {f'{t[0]}#{t[1]}' for t in targets_before} & {f'{t[0]}#{t[1]}' for t in targets_after}, base_watch,
+                     head_watch, moved)
     cut = []
     if 'wall cap' in problems_a or ('wall cap' in problems_b and not found_a):
         cut.append(f'{sum(i not in found_a for i in head_ids)} of {len(head_ids)} candidate tests')

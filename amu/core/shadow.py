@@ -503,9 +503,10 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
                         inputs_differ=counts['inputs_differ'], unpaired=counts['unpaired'], unreadable=counts['unreadable'],
                         unstable=counts['unstable'], differences=len(paired_found['rows']),
                         skipped={**sidebyside.targets(functions, before_src, after_src)[1], **(planned.get('skipped') or {})})
-            behaviour = [dict(target=row['function'], input=row['input'], differs=['result'],
-                              before=dict(result=_shown(row['before'])), after=dict(result=_shown(row['after'])),
-                              test=row['test'], label=sidebyside.PAIRED) for row in paired_found['rows']]
+            behaviour = [dict(target=row['function'], input=row['input'], differs=row.get('differs') or ['result'],
+                              before=dict(result=_shown(row['before']), args_after=_shown(row.get('before_args'))),
+                              after=dict(result=_shown(row['after']), args_after=_shown(row.get('after_args'))),
+                              test=row['test'], label=sidebyside.PAIRED, seen=row.get('seen', 1)) for row in paired_found['rows']]
         elif functions and not aborted and _monitoring(python) and late(deadline) and legacy:
             if any(states['after'].get(i) in OUTCOMES for i in ids if i not in set(own)):
                 cut.append('side-by-side')
@@ -666,7 +667,8 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
         info['hunks'] = [dict(h, base_tests=None if h['base_tests'] is None else h['base_tests'][:50],
                               base_test_count=None if h['base_tests'] is None else len(h['base_tests']),
                               head_tests=h['head_tests'][:50], head_test_count=len(h['head_tests'])) for h in planned['hunks']]
-        info['_recorded'] = planned  # in memory only: the comparison of calls reads it
+        info['_recorded'] = planned  # in memory only: the comparison of calls and the hunk states read it
+        info['own'] = list(own)
     if mutation is not None:
         info['mutation'] = mutation
     if equivalent is not None:

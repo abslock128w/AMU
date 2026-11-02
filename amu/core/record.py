@@ -39,12 +39,15 @@ if _spec_path and _sys.version_info >= (3, 12):
         with open(_spec_path) as _h:
             _spec = json.load(_h)
         _root = _os.path.realpath(_spec["root"])
+        _prefixes = sorted({_root, _os.path.abspath(_spec["root"])}, key=len, reverse=True)
         _m = _sys.monitoring
         _tool = next(i for i in (5, 4, 3) if _m.get_tool(i) is None)
         _m.use_tool_id(_tool, "amu-record")
         _E = _m.events
         _lines = {_os.path.realpath(_os.path.join(_root, f)): set(v) for f, v in _spec["lines"].items()}
-        _targets = {(_os.path.realpath(_os.path.join(_root, f)), q): f + "#" + q for f, q in _spec["targets"]}
+        _targets = {(_os.path.realpath(_os.path.join(_root, t[0])), t[1]): t[0] + "#" + t[1] for t in _spec["targets"]}
+        # Parameters whose default the change alters: left out of the input digest, kept apart (pair decides).
+        _apart = {t[0] + "#" + t[1]: set(t[2]) for t in _spec["targets"] if len(t) > 2 and t[2]}
         _files = set(_lines) | {k[0] for k in _targets}
         _rel = {p: _os.path.relpath(p, _root) for p in _files}
         _limit, _per = _spec.get("calls", 20), _spec.get("per_function", 4000)
@@ -82,7 +85,13 @@ if _spec_path and _sys.version_info >= (3, 12):
             kind = type(value)
             if value is None or kind in (bool, int, float, complex):
                 return repr(value)
-            if kind in (str, bytes):
+            if kind is str:
+                # Each side runs in its own copy of the tree: where that copy is, is not what the code did.
+                for prefix in _prefixes:
+                    if prefix in value:
+                        value = value.replace(prefix, "<root>")
+                return repr(value) if len(value) <= 2000 else repr(value[:2000]) + "+%d" % len(value)
+            if kind is bytes:
                 return repr(value) if len(value) <= 2000 else repr(value[:2000]) + "+%d" % len(value)
             if depth > 4 or id(value) in seen:
                 return "<" + kind.__qualname__ + ">"
@@ -94,6 +103,10 @@ if _spec_path and _sys.version_info >= (3, 12):
                 items = sorted((_fp(v, depth + 1, seen) for v in list(value)[:100]), key=repr)
                 return [kind.__name__, items, len(value)]
             if kind is dict:
+                named = value.get("__name__") if "__builtins__" in value else None
+                module = _sys.modules.get(named) if type(named) is str else None
+                if module is not None and getattr(module, "__dict__", None) is value:
+                    return "globals:" + named  # a module's namespace: its name, not everything defined in it
                 pairs = [[_fp(k, depth + 1, seen), _fp(v, depth + 1, seen)] for k, v in list(value.items())[:100]]
                 return ["dict", pairs, len(value)]
             if isinstance(value, type):
@@ -107,7 +120,9 @@ if _spec_path and _sys.version_info >= (3, 12):
             try:
                 found = object.__getattribute__(value, "__dict__")
                 if type(found) is dict:
-                    state = {k: v for k, v in found.items()}
+                    # A value cached under a name the class defines as a non-data descriptor (a cached property) is
+                    # derived state: whether it was computed yet says when it was asked for, not what the object is.
+                    state = {k: v for k, v in found.items() if not _cached(kind, k)}
             except Exception:
                 pass
             slots = []
@@ -130,9 +145,29 @@ if _spec_path and _sys.version_info >= (3, 12):
                 text = "<repr failed: " + type(exc).__name__ + ">"
             return name + ":" + _ADDRESS.sub(" at 0x?", text)[:2000]
 
+        def _cached(kind, name):
+            for klass in kind.__mro__:
+                attribute = klass.__dict__.get(name)
+                if attribute is not None:
+                    # Any descriptor serving that name (a cached property, with or without __set__): the instance
+                    # dict entry is its cache. Plain methods are not descriptors of state.
+                    return (hasattr(type(attribute), "__get__")
+                            and not isinstance(attribute, (types.FunctionType, staticmethod, classmethod)))
+            return False
+
         def _pack(value):
             text = json.dumps(value, default=str)
             return hashlib.sha1(text.encode()).hexdigest()[:16], text[:_keep]
+
+        def _names(code):
+            count = code.co_argcount + code.co_kwonlyargcount
+            names = list(code.co_varnames[:count])
+            if code.co_flags & 0x04:
+                names.append(code.co_varnames[count])
+                count += 1
+            if code.co_flags & 0x08:
+                names.append(code.co_varnames[count])
+            return names
 
         def _arguments(code, frame):
             count = code.co_argcount + code.co_kwonlyargcount
@@ -179,13 +214,23 @@ if _spec_path and _sys.version_info >= (3, 12):
             _totals[target] = _totals.get(target, 0) + 1
             _local.busy = True
             try:
-                args = _arguments(code, _sys._getframe(1))
-                digest, shown = _pack(_fp(args))
+                frame = _sys._getframe(1)
+                args = _arguments(code, frame)
+                apart = _apart.get(target)
+                if apart:
+                    names = _names(code)
+                    kept = [v for name, v in zip(names, args) if name not in apart]
+                    held = {name: json.dumps(_fp(v), default=str) for name, v in zip(names, args) if name in apart}
+                else:
+                    kept, held = args, None
+                digest, shown = _pack(_fp(kept))
             except Exception as exc:
-                args, digest, shown = None, None, "<" + type(exc).__name__ + ">"
+                args, kept, held, digest, shown = None, None, None, None, "<" + type(exc).__name__ + ">"
             finally:
                 _local.busy = False
-            stack.append((code, dict(k="call", t=_state["test"], fn=target, n=n, i=digest, ishow=shown, args=args)))
+            # The arguments as the call leaves them, without those held apart (their value is the default itself).
+            stack.append((code, dict(k="call", t=_state["test"], fn=target, n=n, i=digest, ishow=shown, args=kept,
+                                     **({"dp": held} if held else {}))))
             return None
 
         def _end(code, result):
@@ -202,7 +247,8 @@ if _spec_path and _sys.version_info >= (3, 12):
             try:
                 after = _fp(record.pop("args")) if record.get("args") is not None else None
                 out, shown = _pack([result, after])
-                record.update(o=out, oshow=_pack(result)[1])
+                result_digest, result_shown = _pack(result)
+                record.update(o=out, oshow=result_shown, r=result_digest, ashow=_pack(after)[1])
             except Exception as exc:
                 record.pop("args", None)
                 record.update(o=None, oshow="<" + type(exc).__name__ + ">")
@@ -325,7 +371,8 @@ def prepare(folder, tree, lines, targets, extra_plugins=None):
     (folder/'out').mkdir(exist_ok=True)
     (folder/'hook'/'sitecustomize.py').write_text(HOOK)
     (folder/'hook'/'amu_record_plugin.py').write_text(PLUGIN)
-    spec = dict(root=str(tree), lines={p: sorted(set(v)) for p, v in lines.items()}, targets=[list(t) for t in targets],
+    spec = dict(root=str(tree), lines={p: sorted(set(v)) for p, v in lines.items()},
+                targets=[[t[0], t[1], sorted(t[2])] if len(t) > 2 else list(t) for t in targets],
                 out=str(folder/'out'), calls=CALLS, per_function=PER_FUNCTION, preview=PREVIEW)
     (folder/'spec.json').write_text(json.dumps(spec))
     plugins = ','.join(filter(None, [extra_plugins, 'amu_record_plugin']))
@@ -379,7 +426,8 @@ def read(folder, tree, cwd=None):
                     into.setdefault(path, set()).update(found)
             elif kind == 'call':
                 calls.append(dict(test=test, function=event['fn'], n=event['n'], input=event.get('i'),
-                                  output=event.get('o'), input_shown=event.get('ishow', ''), output_shown=event.get('oshow', '')))
+                                  output=event.get('o'), input_shown=event.get('ishow', ''), output_shown=event.get('oshow', ''),
+                                  result=event.get('r'), after_shown=event.get('ashow', ''), held=event.get('dp') or {}))
             elif kind == 'skip':
                 skipped[event['fn']] = event['why']
     return coverage, calls, skipped
@@ -391,10 +439,20 @@ def tests_on(coverage, path, lines):
     return {test for test, files in coverage.items() if files.get(path, set()) & lines}
 
 
-def pair(before, after):
+def literal(value):
+    """The recorder's form of a scalar default (what ``held`` holds for an argument equal to it)."""
+    return json.dumps(repr(value))
+
+
+def pair(before, after, defaults=None):
     """Calls recorded on each side, paired by (test, function, call index). Returns (rows, counts): a row for each pair
     whose inputs are equal and whose outputs differ. A call with no partner, or whose inputs differ, is counted, never
-    compared."""
+    compared.
+
+    ``defaults``: {function: {parameter: (its default before, after)}} for parameters whose default the change alters
+    (``literal`` forms, None when not a plain value). Such a parameter is outside the input digest; the inputs count as
+    equal when it holds the same value on both sides, or when each side holds its own default (the caller left it out),
+    and the row says which parameters it assumed so."""
     left = {(c['test'], c['function'], c['n']): c for c in before if c['test'] != IMPORT}
     right = {(c['test'], c['function'], c['n']): c for c in after if c['test'] != IMPORT}
     rows, counts = [], dict(paired=0, compared=0, inputs_differ=0, unpaired=0, unreadable=0)
@@ -410,8 +468,38 @@ def pair(before, after):
         if old['input'] != new['input']:
             counts['inputs_differ'] += 1
             continue
+        assumed = []
+        changed = (defaults or {}).get(key[1], {})
+        for name in set(old.get('held') or {}) | set(new.get('held') or {}):
+            was, now = (old.get('held') or {}).get(name), (new.get('held') or {}).get(name)
+            if was == now:
+                continue
+            given = changed.get(name, (None, None))
+            if given[0] is not None and was == given[0] and now == given[1]:
+                assumed.append(name)
+                continue
+            assumed = None
+            break
+        if assumed is None:
+            counts['inputs_differ'] += 1
+            continue
         counts['compared'] += 1
-        if old['output'] != new['output']:
-            rows.append(dict(test=key[0], function=key[1], n=key[2], input=old['input_shown'],
-                             before=old['output_shown'], after=new['output_shown'], digest=(old['output'], new['output'])))
-    return rows, counts
+        # The output compared is the return value or the exception. The arguments as the call left them are shown, not
+        # compared: what a call leaves on its arguments is mostly lazy caches filled earlier or later on one side.
+        if (old.get('result') or old['output']) != (new.get('result') or new['output']):
+            differs = ['result']
+            rows.append(dict(test=key[0], function=key[1], n=key[2], input=old['input_shown'] + (
+                             f" [{', '.join(sorted(assumed))} left at each side's default]" if assumed else ''), differs=differs,
+                             before=old['output_shown'], after=new['output_shown'],
+                             before_args=old.get('after_shown', ''), after_args=new.get('after_shown', ''),
+                             digest=(old.get('result') or old['output'], new.get('result') or new['output'])))
+    # The same difference on the same input, seen in several tests or calls, is one row with its count.
+    unique = {}
+    for row in rows:
+        key = (row['function'], row['input'], row['digest'])
+        if key in unique:
+            unique[key]['seen'] += 1
+        else:
+            unique[key] = dict(row, seen=1)
+    counts['differing_calls'] = len(rows)
+    return list(unique.values()), counts

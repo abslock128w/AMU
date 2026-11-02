@@ -14,13 +14,13 @@ from __future__ import annotations
 import ast
 
 
-def _functions(text):
+def _functions(text, with_headers=False):
     """[(first body line, last line, qualified name)] of every function in ``text``; [] when it does not parse."""
     try:
         tree = ast.parse(text or '')
     except (SyntaxError, ValueError):
-        return []
-    found = []
+        return ([], []) if with_headers else []
+    found, headers = [], []
 
     def walk(nodes, prefix):
         for node in nodes:
@@ -28,6 +28,7 @@ def _functions(text):
                 qual = prefix + node.name
                 if node.body:
                     found.append((node.body[0].lineno, node.end_lineno, qual))
+                    headers.append((min([node.lineno, *(d.lineno for d in node.decorator_list)]), node.body[0].lineno - 1, qual))
                 walk(node.body, qual + '.<locals>.')
             elif isinstance(node, ast.ClassDef):
                 walk(node.body, prefix + node.name + '.')
@@ -38,7 +39,96 @@ def _functions(text):
                 for handler in getattr(node, 'handlers', []) or []:
                     walk(handler.body, prefix)
     walk(tree.body, '')
+    return (found, headers) if with_headers else found
+
+
+def code_lines(text):
+    """Lines of ``text`` that have bytecode: the only lines a line event can fire on. None when it does not compile."""
+    try:
+        top = compile(text or '', '<hunk>', 'exec', dont_inherit=True)
+    except (SyntaxError, ValueError):
+        return None
+    found, pending = set(), [top]
+    while pending:
+        code = pending.pop()
+        if code.co_name == '__annotate__':
+            continue  # annotations evaluated lazily (3.14): only when someone asks for them, never by running the code
+        found.update(line for _, _, line in code.co_lines() if line)
+        pending.extend(c for c in code.co_consts if hasattr(c, 'co_lines'))
     return found
+
+
+def executable(text, lines):
+    """``lines`` as a line event can see them: a line without bytecode (an element of a literal spread over lines, a
+    name in a parenthesised import) stands for the lines of the innermost statement holding it that have some."""
+    have = code_lines(text)
+    if have is None:
+        return set(lines)
+    try:
+        statements = [n for n in ast.walk(ast.parse(text or '')) if isinstance(n, ast.stmt)]
+    except (SyntaxError, ValueError):
+        return set(lines)
+    out = set()
+    for line in lines:
+        if line in have:
+            out.add(line)
+            continue
+        holding = [s for s in statements if s.lineno <= line <= (s.end_lineno or s.lineno)]
+        if holding:
+            inner = min(holding, key=lambda s: (s.end_lineno or s.lineno) - s.lineno)
+            out.update(n for n in range(inner.lineno, (inner.end_lineno or inner.lineno) + 1) if n in have)
+        else:
+            out.add(line)
+    return out
+
+
+def defaults(text, qual):
+    """{parameter: its default expression dumped} of the function ``qual`` (dotted, <locals> for nested) in ``text``."""
+    try:
+        tree = ast.parse(text or '')
+    except (SyntaxError, ValueError):
+        return {}
+    parts = qual.split('.')
+
+    def find(nodes, rest):
+        for node in nodes:
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) and node.name == rest[0]:
+                if len(rest) == 1:
+                    return node if not isinstance(node, ast.ClassDef) else None
+                tail = rest[1:]
+                if tail and tail[0] == '<locals>':
+                    tail = tail[1:]
+                return find(node.body, tail) if tail else None
+        return None
+    node = find(tree.body, parts)
+    if node is None:
+        return {}
+    args = node.args
+    positional = [*args.posonlyargs, *args.args]
+    found = {a.arg: d for a, d in zip(positional[len(positional) - len(args.defaults):], args.defaults)}
+    found.update({a.arg: d for a, d in zip(args.kwonlyargs, args.kw_defaults) if d is not None})
+    return found
+
+
+def changed_defaults(before, after, qual):
+    """{parameter: (default before, after)} where the change alters a default, each as record.literal of a plain value
+    or None when it is not one."""
+    import json
+    old, new = defaults(before, qual), defaults(after, qual)
+    out = {}
+    for name in set(old) | set(new):
+        a, b = old.get(name), new.get(name)
+        if a is not None and b is not None and ast.dump(a) == ast.dump(b):
+            continue
+
+        def form(node):
+            try:
+                value = ast.literal_eval(node) if node is not None else None
+            except (ValueError, SyntaxError, TypeError):
+                return None
+            return json.dumps(repr(value)) if isinstance(value, (int, float, str, bytes, bool, type(None))) else None
+        out[name] = (form(a), form(b))
+    return out
 
 
 def innermost(functions, lines):
@@ -62,34 +152,62 @@ def touched(functions, lines):
     return found
 
 
+CONTEXT = 3  # context lines kept around a block
+
+
+def blocks(edit):
+    """Each run of removed and added lines of a file's diff, between context lines: a diff hunk can hold several (two
+    changes a few lines apart share one). Each block keeps its rows, where it starts on each side, and up to CONTEXT
+    context lines before and after it on each side."""
+    found = []
+    for old_start, body, new_start in edit.get('hunks', []):
+        old_line, new_line, context, current = old_start, new_start, [], None
+        for row in body:
+            sign = row[:1]
+            if sign in '-+':
+                if current is None:
+                    current = dict(rows=[], removed=[], added=[], old_start=old_line, new_start=new_line,
+                                   old_context=[c[0] for c in context[-CONTEXT:]], new_context=[c[1] for c in context[-CONTEXT:]], after=0)
+                    found.append(current)
+                current['rows'].append(row)
+                if sign == '-':
+                    current['removed'].append(old_line)
+                    old_line += 1
+                else:
+                    current['added'].append(new_line)
+                    new_line += 1
+            else:
+                if current is not None:
+                    if current['after'] < CONTEXT:
+                        current['old_context'].append(old_line)
+                        current['new_context'].append(new_line)
+                        current['after'] += 1
+                    if current['after'] >= CONTEXT:
+                        current = None
+                context.append((old_line, new_line))
+                old_line += 1
+                new_line += 1
+    for block in found:
+        block.pop('after', None)
+    return found
+
+
 def split(path, edit, before, after):
     """The hunks of one file's change, each a dict: path, index, removed and added line numbers, context lines on each
     side, the function holding it on each side, and the lines to watch on each side (``base``, ``head``)."""
-    old_functions, new_functions = _functions(before), _functions(after)
+    (old_functions, old_headers), (new_functions, new_headers) = _functions(before, True), _functions(after, True)
     found = []
-    for index, (old_start, body, new_start) in enumerate(edit.get('hunks', [])):
-        old_line, new_line = old_start, new_start
-        removed, added, old_context, new_context = [], [], [], []
-        for row in body:
-            sign = row[:1]
-            if sign == '-':
-                removed.append(old_line)
-                old_line += 1
-            elif sign == '+':
-                added.append(new_line)
-                new_line += 1
-            else:
-                old_context.append(old_line)
-                new_context.append(new_line)
-                old_line += 1
-                new_line += 1
-        # Where the hunk sits on each side: what it removes or adds, else the gap between its context lines.
-        old_here = removed or [n for n in old_context if n < (old_context[-1] if old_context else 0)][-1:] or old_context[:1]
-        new_here = added or [n for n in new_context if n < (new_context[-1] if new_context else 0)][-1:] or new_context[:1]
+    for index, block in enumerate(blocks(edit)):
+        removed, added, old_context, new_context = block['removed'], block['added'], block['old_context'], block['new_context']
+        old_start, new_start = block['old_start'], block['new_start']
+        # Where the block sits on each side: what it removes or adds, else the line just before the gap.
+        old_here = removed or [max(1, old_start - 1)]
+        new_here = added or [max(1, new_start - 1)]
         old_function = innermost(old_functions, removed or old_here)
         new_function = innermost(new_functions, added or new_here)
-        old_touched = touched(old_functions, removed or old_here)
-        new_touched = touched(new_functions, added or new_here)
+        # A change to a signature (a default, a parameter) or a decorator changes the function too.
+        old_touched = touched(old_functions + old_headers, removed or old_here)
+        new_touched = touched(new_functions + new_headers, added or new_here)
         if old_function:
             base = set(range(old_function[0], old_function[1] + 1))
         elif removed:
@@ -102,8 +220,9 @@ def split(path, edit, before, after):
             base = set(old_context)  # module or class level: the lines around the insertion run when it runs
         else:
             base = set()  # inside a function the code before the change does not have
-        head = set(added) if added else set(new_context)
-        found.append(dict(path=path, index=index, removed=removed, added=added, old_start=old_start, new_start=new_start,
+        head = executable(after, set(added) if added else set(new_context))
+        base = executable(before, base) if not old_function else base
+        found.append(dict(path=path, index=index, rows=block['rows'], removed=removed, added=added, old_start=old_start, new_start=new_start,
                           old_function=old_function[2] if old_function else None,
                           new_function=new_function[2] if new_function else None,
                           old_touched=old_touched, new_touched=new_touched,

@@ -100,3 +100,38 @@ def test_a_difference_neither_side_repeats_is_not_a_row(tmp_path):
     report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1})
     assert report['behaviour_differences'] == [], report['behaviour_differences']
     assert report['side_by_side']['unstable'] == 1, report['side_by_side']
+
+
+def test_what_a_call_leaves_on_its_arguments_is_shown_but_not_a_difference(tmp_path):
+    # A constructor stores the callable itself instead of a lambda around it: the result (None) is the same, and what
+    # differs on the object is how it holds the callable, not what calling it does. Only the result is compared.
+    lib0 = 'class Wrap:\n    def __init__(self, fn):\n        self.call = lambda v: fn(v)\n'
+    lib1 = 'class Wrap:\n    def __init__(self, fn):\n        self.call = fn\n'
+    tests = 'from lib import Wrap\n\n\ndef test_wrap():\n    assert Wrap(abs).call(-1) == 1\n'
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1})
+    assert report['behaviour_differences'] == [], report['behaviour_differences']
+    assert report['side_by_side']['compared_calls'] == 1, report['side_by_side']
+
+
+def test_a_changed_default_is_compared_when_the_caller_left_it_out(tmp_path):
+    # The input includes every argument, defaults applied: a caller that leaves `code` out gets 302 before and 303 after,
+    # so the inputs never matched. A parameter whose default changed is held apart, and each side holding its own
+    # default counts as the same call.
+    lib0 = 'def redirect(location, code=302):\n    return (code, location)\n'
+    lib1 = 'def redirect(location, code=303):\n    return (code, location)\n'
+    tests = ('from lib import redirect\n\n\ndef test_default():\n    assert redirect("/a")[1] == "/a"\n\n\n'
+             'def test_explicit():\n    assert redirect("/a", 301)[0] == 301\n')
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1})
+    [row] = report['behaviour_differences']
+    assert row['test'] == 'tests/test_lib.py::test_default' and "code left at each side's default" in row['input'], row
+    assert row['before']['result'] == ['return', ['tuple', ['302', "'/a'"], 2]], row
+    assert row['after']['result'] == ['return', ['tuple', ['303', "'/a'"], 2]], row
+
+
+def test_where_each_side_runs_is_not_a_difference(tmp_path):
+    # The two sides run in different copies of the tree: a returned path holds a different directory on each.
+    lib0 = 'import os\n\n\ndef where(name):\n    return os.path.join(os.path.dirname(__file__), name)\n'
+    lib1 = lib0.replace('return os.path.join(', 'return os.path.join(  # same\n        ')
+    tests = 'from lib import where\n\n\ndef test_where():\n    assert where("x").endswith("x")\n'
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1})
+    assert report['side_by_side']['compared_calls'] == 1 and report['behaviour_differences'] == [], report['side_by_side']

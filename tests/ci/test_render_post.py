@@ -146,12 +146,17 @@ def test_the_check_is_informational_and_annotates_only_changed_files():
 
 def test_quiet_mode_folds_a_report_with_nothing_found_into_one_line():
     from amu.ci.render import render
-    quiet = dict(flips=0, predicted_failures=[], gaps=['20 call sites unresolved'], executed=dict(ran=4, candidates=4, runner='pytest'))
+    ran = [dict(path='lib.py', line=2, state='executed-both-sides', why='', tests=3, sample=[], function='f')]
+    quiet = dict(flips=0, predicted_failures=[], gaps=['20 call sites unresolved'], executed=dict(ran=4, candidates=4, runner='pytest'),
+                 hunks=ran)
     body = render(quiet, META, quiet=True)
     first, rest = body.split('\n', 1)
-    assert first.startswith('**AMU: no flip**') and rest.lstrip().startswith('<details>') and '### What ran' in rest
+    assert first.startswith('**AMU: 0 flips**') and rest.lstrip().startswith('<details>') and '### What ran' in rest
     loud = dict(quiet, flips=1, predicted_failures=[dict(id='t.py::test_a')])
     assert '<details><summary>What ran' not in render(loud, META, quiet=True)
+    # A hunk no test ran is never folded away.
+    unrun = dict(quiet, hunks=[dict(ran[0], state='executed-none', tests=0)])
+    assert '<details><summary>What ran' not in render(unrun, META, quiet=True)
 
 
 def test_behaviour_row_shows_where_the_two_outcomes_diverge_past_a_long_shared_prefix():
@@ -204,8 +209,8 @@ def test_a_run_the_wall_cap_stopped_shows_what_it_found_and_what_it_did_not_do()
     # Nothing found among what ran is still not folded away when the cap stopped the run.
     none = dict(report, flips=0, predicted_failures=[])
     body = render(none, dict(META, wall_cap=1200), quiet=True)
-    assert body.startswith('**AMU: no flip** at `abcdef1` among 40 tests run; whether any ran the changed code was not '
-                           'seen; stopped at the wall cap of 1200 s')
+    assert body.startswith('**AMU: 0 flips** at `abcdef1`, among 40 tests run; which tests ran the changed code was not '
+                           'recorded; stopped at the wall cap of 1200 s')
     assert '<details><summary>What ran' not in body and '### Gaps (2)' in body
     # A wall cap the artifact gives as anything but a count of seconds is not shown.
     assert render(report, dict(META, wall_cap='1200`')).splitlines()[0].endswith('; stopped at the wall cap before it finished')
@@ -265,52 +270,47 @@ def test_a_test_the_pull_request_edited_is_not_a_flip_and_never_counts_in_the_fi
 
 def test_when_no_test_ran_the_changed_code_the_first_line_says_so_and_is_never_folded():
     # Live case (b) and sympy #30515: "0 flips" over a change no test reached; the fact was a collapsed gap line.
-    report = dict(flips=0, predicted_failures=[], gaps=['g'], executed=dict(EXECUTED, ran=29, candidates=29),
-                  side_by_side=dict(compared_calls=0, functions_called=0, targets=1),
-                  changed_functions=[dict(file='amu/ci/counters.py', symbol='collect', lines='155-160')])
+    hunks = [dict(path='amu/ci/counters.py', line=155, state='executed-none', why='', tests=0, sample=[], function='collect'),
+             dict(path='amu/ci/counters.py', line=170, state='executed-both-sides', why='', tests=4, sample=[], function='other')]
+    report = dict(flips=0, predicted_failures=[], gaps=['g'], executed=dict(EXECUTED, ran=29, candidates=29), hunks=hunks)
     for quiet in (False, True):
         body = render(report, META, quiet=quiet)
         first = body.splitlines()[0]
-        assert first == '**AMU: no test ran the changed code in `amu/ci/counters.py`** at `abcdef1`; 29 tests run', first
+        assert first == ('**AMU: 0 flips** at `abcdef1`, among 29 tests run; 1 of 2 changed hunks ran in no test: '
+                         '`amu/ci/counters.py:155`'), first
         assert '<details><summary>What ran' not in body
-    own = dict(report, changed_functions=report['changed_functions'] + [dict(file='tests/test_c.py', symbol='test_c')])
-    assert ', apart from the 1 test this pull request adds or edits; ' in render(own, META).splitlines()[0]
-    cut = dict(report, side_by_side=dict(report['side_by_side'], stopped=True))
-    assert render(cut, META).splitlines()[0].endswith(
-        '29 tests run; side-by-side got to 0 of 1 changed functions before its time limit')
+        assert '- `amu/ci/counters.py:155` in `collect`: ran in no test' in body.splitlines(), body
 
 
-def test_zero_flips_appears_only_when_something_ran_the_changed_code():
-    base = dict(flips=0, predicted_failures=[], gaps=[], executed=EXECUTED,
-                changed_functions=[dict(file='lib.py', symbol='f', lines='1-2')])
-    called = render(dict(base, side_by_side=dict(compared_calls=3, functions_called=1, targets=1)), META)
-    assert called.startswith('**AMU: 0 flips** at `abcdef1`, among 40 tests run, some of them on the changed code')
-    unseen = render(base, META)  # no side-by-side (Python before 3.12), no evidence: not seen
-    assert '0 flips' not in unseen and unseen.startswith('**AMU: no flip** at `abcdef1` among 40 tests run; whether any '
-                                                          'ran the changed code was not seen')
+def test_every_hunk_on_both_sides_and_the_whole_suite_are_said_on_the_first_line():
+    hunks = [dict(path='lib.py', line=2, state='executed-both-sides', why='', tests=3, sample=[], function='f')]
+    base = dict(flips=0, predicted_failures=[], gaps=[], executed=EXECUTED, hunks=hunks)
+    assert render(base, META).splitlines()[0] == ('**AMU: 0 flips** at `abcdef1`, among 40 tests run; every changed hunk ran '
+                                                  'on both sides, in up to 3 tests')
+    whole = dict(base, selection_evidence=dict(mode='all of the suite', seconds=dict(before=4.0, after=4.1)))
+    assert render(whole, META).splitlines()[0].startswith('**AMU: 0 flips** at `abcdef1`, ran all 40 tests; ')
+    unrecorded = dict(base, hunks=[dict(hunks[0], state='not-recorded', tests=0)])
+    assert render(unrecorded, META).splitlines()[0].endswith('; which tests ran the changed code was not recorded')
 
 
-def test_the_first_line_does_not_count_the_pull_requests_own_tests_skipped_on_the_head():
-    # sympy #30477 re-scored on 0.4.0: "apart from the 3 tests this pull request adds or edits", all 3 skipped (no lark).
-    replayed = [dict(id=f'tests/t.py::test_{i}', head='skipped', base='skipped', verdict='none') for i in range(3)]
-    report = dict(flips=0, predicted_failures=[], gaps=[], executed=EXECUTED, replayed=replayed, change_evidence=[],
-                  side_by_side=dict(compared_calls=0, functions_called=0, targets=1),
-                  changed_functions=[dict(file='lib.py', symbol='f', lines='1-2')])
+def test_code_only_the_pull_requests_own_tests_ran_is_said_so():
+    # sympy #30477 re-scored on 0.4.0: only the change's own tests could reach the code.
+    hunks = [dict(path='lib.py', line=2, state='executed-head-only', why='', tests=1, sample=[], function='f')]
+    report = dict(flips=0, predicted_failures=[], gaps=[], executed=EXECUTED, hunks=hunks)
     first = render(report, META).splitlines()[0]
-    assert first == '**AMU: no test ran the changed code in `lib.py`** at `abcdef1`; 40 tests run', first
-    ran = dict(report, replayed=[dict(replayed[0], head='passed', base='failed', verdict='evidence'), *replayed[1:]])
-    assert ', apart from the 1 test this pull request adds or edits; ' in render(ran, META).splitlines()[0]
+    assert first == ("**AMU: 0 flips** at `abcdef1`, among 40 tests run; 1 of 1 changed hunk ran only in the pull "
+                     "request's own tests: `lib.py:2`"), first
 
 
 def test_side_by_side_at_its_time_limit_says_how_many_changed_functions_it_got_to():
     # Live trials (b) and (c) on 0.4.0: the time limit was named, not how far side-by-side got.
+    hunks = [dict(path='lib.py', line=2, state='executed-both-sides', why='', tests=2, sample=[], function='f')]
     report = dict(flips=0, predicted_failures=[], gaps=['side-by-side run stopped at its time limit; calls captured until '
                                                         'then are compared'], executed=EXECUTED,
-                  side_by_side=dict(compared_calls=4, functions_called=2, targets=5),
-                  changed_functions=[dict(file='lib.py', symbol='f', lines='1-2')])
+                  side_by_side=dict(compared_calls=4, functions_called=2, targets=5), hunks=hunks)
     first = render(report, META).splitlines()[0]
-    assert first == ('**AMU: 0 flips** at `abcdef1`, among 40 tests run, some of them on the changed code; '
-                     'side-by-side got to 2 of 5 changed functions before its time limit'), first
+    assert first == ('**AMU: 0 flips** at `abcdef1`, among 40 tests run; every changed hunk ran on both sides, in up to 2 '
+                     'tests; side-by-side got to 2 of 5 changed functions before its time limit'), first
     whole = dict(report, gaps=[])
     assert 'time limit' not in render(whole, META).splitlines()[0]
 
@@ -322,33 +322,30 @@ def test_a_change_that_only_adds_code_says_so_and_why_its_new_tests_fail_on_the_
                      why='ImportError on percent'),
                 dict(id='tests/t.py::test_ratio', head='passed', base='unloadable', verdict='new_code',
                      why='ImportError on ratio')]
-    report = dict(flips=0, predicted_failures=[], gaps=[], executed=EXECUTED, adds_only=True, replayed=replayed,
-                  change_evidence=[])
+    hunks = [dict(path='lib.py', line=9, state='new-code', why='', tests=0, sample=[], function='percent'),
+             dict(path='lib.py', line=2, state='not-code', why='', tests=0, sample=[], function='f')]
+    report = dict(flips=0, predicted_failures=[], gaps=[], executed=EXECUTED, replayed=replayed, change_evidence=[], hunks=hunks)
     first = render(report, META).splitlines()[0]
     assert first == ('**AMU: adds new code only** at `abcdef1`; its 2 new tests fail on the base with ImportError, '
                      'as expected'), first
-    assert render(dict(report, replayed=[]), META).splitlines()[0] == '**AMU: adds new code only** at `abcdef1`; no test of it ran'
+    assert render(dict(report, replayed=[]), META).splitlines()[0] == '**AMU: adds new code only** at `abcdef1`; no test ran it'
     flipped = dict(report, flips=1, predicted_failures=[flip('tests/t.py::test_old')])
     assert render(flipped, META).splitlines()[0].startswith('**AMU: 1 flip**')
+    # The old flag says nothing on its own: without hunk states the line does not claim new code.
+    assert 'new code' not in render(dict(report, hunks=None, adds_only=True), META).splitlines()[0]
 
 
 def test_a_change_to_docstrings_and_comments_only_says_so_on_the_first_line():
     # Django #22046 and sympy #30838 (performance test): a docstring edit read "no flip ... whether any ran the changed
     # code was not seen", which a reviewer cannot tell from an untested code change.
-    reason = 'only its docstring, comments or layout changed'
-    report = dict(flips=0, predicted_failures=[], gaps=[], executed=dict(EXECUTED, ran=3903, candidates=3971),
-                  side_by_side=dict(targets=0, compared_calls=0, functions_called=0,
-                                    not_compared={'django/contrib/contenttypes/models.py#ContentType.model_class': reason}),
-                  changed_symbols=['django/contrib/contenttypes/models.py#ContentType.model_class'],
-                  changed_functions=[dict(file='django/contrib/contenttypes/models.py', symbol='ContentType.model_class',
-                                          lines='166')])
+    hunks = [dict(path='django/contrib/contenttypes/models.py', line=166, state='not-code', why='', tests=0, sample=[],
+                  function='ContentType.model_class')]
+    report = dict(flips=0, predicted_failures=[], gaps=[], executed=dict(EXECUTED, ran=3903, candidates=3971), hunks=hunks)
     for quiet in (False, True):
         first = render(report, META, quiet=quiet).splitlines()[0]
-        assert first == '**AMU: docstring or comment changes only** at `abcdef1`; no flip among 3903 tests run', first
-    # Anything else changed in a production file (here a module-level dict), or one changed function whose code differs:
-    # not docstrings only, and the line stays as it was.
-    data = dict(report, changed_symbols=report['changed_symbols'] + ['django/contrib/contenttypes/models.py#TABLE'])
-    code = dict(report, changed_functions=report['changed_functions'] + [dict(file='django/utils/x.py', symbol='f')],
-                changed_symbols=report['changed_symbols'] + ['django/utils/x.py#f'])
-    for other in (data, code):
-        assert render(other, META).splitlines()[0].startswith('**AMU: no flip** at `abcdef1` among 3903 tests run'), other
+        assert first == '**AMU: docstring or comment changes only** at `abcdef1`; no flip, among 3903 tests run', first
+    # Any other hunk that is code: not docstrings only, and the worst hunk is what the line says.
+    code = dict(report, hunks=hunks + [dict(hunks[0], line=20, state='executed-none')])
+    assert render(code, META).splitlines()[0].endswith('1 of 1 changed hunk ran in no test: `django/contrib/contenttypes/models.py:20`')
+
+
