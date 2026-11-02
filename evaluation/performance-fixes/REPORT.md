@@ -76,3 +76,31 @@ The real rows went from 17 to 14. Fix 2 sets aside only AttributeError results, 
 - `<repo>/<number>.md`: the 47 comments as rendered.
 - `reports.tar.xz`: `report.json` and `done.json` for every pull request.
 - `compare.py`: the per-PR comparison against the v0.4.2 run.
+
+## Follow-up: the three leftovers fixed (#77–#79), 2026-11-02
+
+Each leftover defect above got its own PR with a test that fails on the code before it. The three pull requests they affect (Flask #5812, Django #22026, Django #22176) were re-run on all three together (engine `0b8312b`, `main` plus #78 and #79). The other 44 cannot change: none of them had a false row or a side-by-side start failure. `labels.json` holds the updated labels; the comments and reports are in `leftovers/`.
+
+| Fix | PR | What it changes |
+|---|---|---|
+| Attributes new per class | #77 | Constructor attributes count as new per class (and its subclasses in the same file), not per file. |
+| Uncopyable arguments put back | #78 | Arguments that copy neither way get their attributes put back after each run. As-changed failures inside a method of an object the old code built are set aside. |
+| Command line too long | #79 | Labels run in halves when the command line exceeds the system limit. There is no "none … was called" gap when the runner never started. |
+
+The `RuntimeError` rows on Flask #5812 were not what this report said above. They were not context state the old code set up. Tracing the run showed that `AppContext(app)` cannot be copied (the app holds a lock), so side-by-side ran the as-changed `AppContext.__init__` on the live context being built. That left `_request = None` and the other new attributes on it, and the test went on to push that half-rebuilt context. Every later as-changed function that read it failed. #78 puts such arguments back after each run.
+
+| | Before #77–#79 | After |
+|---|---:|---:|
+| Flask #5812 rows | 35 (14 real, 21 false) | 17 (16 real, 1 false) |
+| Flask #5812 calls set aside as built before the change | 66 | 91 |
+| Django #22026 side-by-side | did not start | 71 calls of 2 functions compared, 0 rows |
+| Django #22176 side-by-side | did not start | 28 calls of 2 functions compared, 0 rows |
+| All 47: behaviour rows | 52 (31 real, 21 false) | 34 (33 real, 1 false) |
+| All 47: adds noise | 3 | 2 (Django #22176 subTest evidence, sympy #29693 adds-only) |
+| All 47: first line correct | 40 | 40 |
+
+Django #22026 now also shows #71 on real code. `get_prefetcher` was compared on captured calls, and the 9 `NameError` rows of v0.4.2 do not come back.
+
+What is still false:
+- **Flask #5812, 1 row:** `make_default_options_response` raises `'NoneType' object has no attribute 'allowed_methods'`. The old context has no matched URL rule where the new code looks for one.
+- **Two noise PRs:** Django #22176 (subTest failure blocks not parsed) and sympy #29693 ("adds new code only" for a method found by name dispatch). Both are outside these fixes.
