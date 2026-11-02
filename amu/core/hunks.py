@@ -41,6 +41,44 @@ def _functions(text):
     return found
 
 
+def code_lines(text):
+    """Lines of ``text`` that have bytecode: the only lines a line event can fire on. None when it does not compile."""
+    try:
+        top = compile(text or '', '<hunk>', 'exec', dont_inherit=True)
+    except (SyntaxError, ValueError):
+        return None
+    found, pending = set(), [top]
+    while pending:
+        code = pending.pop()
+        found.update(line for _, _, line in code.co_lines() if line)
+        pending.extend(c for c in code.co_consts if hasattr(c, 'co_lines'))
+    return found
+
+
+def executable(text, lines):
+    """``lines`` as a line event can see them: a line without bytecode (an element of a literal spread over lines, a
+    name in a parenthesised import) stands for the lines of the innermost statement holding it that have some."""
+    have = code_lines(text)
+    if have is None:
+        return set(lines)
+    try:
+        statements = [n for n in ast.walk(ast.parse(text or '')) if isinstance(n, ast.stmt)]
+    except (SyntaxError, ValueError):
+        return set(lines)
+    out = set()
+    for line in lines:
+        if line in have:
+            out.add(line)
+            continue
+        holding = [s for s in statements if s.lineno <= line <= (s.end_lineno or s.lineno)]
+        if holding:
+            inner = min(holding, key=lambda s: (s.end_lineno or s.lineno) - s.lineno)
+            out.update(n for n in range(inner.lineno, (inner.end_lineno or inner.lineno) + 1) if n in have)
+        else:
+            out.add(line)
+    return out
+
+
 def innermost(functions, lines):
     """The narrowest function whose body holds every line in ``lines``, as (first, last, qual); None if none does."""
     lines = sorted(lines)
@@ -129,7 +167,8 @@ def split(path, edit, before, after):
             base = set(old_context)  # module or class level: the lines around the insertion run when it runs
         else:
             base = set()  # inside a function the code before the change does not have
-        head = set(added) if added else set(new_context)
+        head = executable(after, set(added) if added else set(new_context))
+        base = executable(before, base) if not old_function else base
         found.append(dict(path=path, index=index, rows=block['rows'], removed=removed, added=added, old_start=old_start, new_start=new_start,
                           old_function=old_function[2] if old_function else None,
                           new_function=new_function[2] if new_function else None,

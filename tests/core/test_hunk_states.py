@@ -89,3 +89,12 @@ def test_code_only_called_under_a_condition_false_here_cannot_run_here(tmp_path,
     [row] = report['hunks']
     assert row['state'] == 'not-executable-here' and row['why'] == reason, row
     assert body[0].endswith(f'; 1 of 1 changed hunk {reason}: `lib.py:11`'), body[0]
+
+
+def test_a_line_inside_a_literal_spread_over_lines_is_seen_through_its_statement(tmp_path):
+    # An element added to a multi-line __all__ or __slots__ has no bytecode of its own: no line event fires on it.
+    lib = LIB + '\n\n__all__ = [\n    "area",\n    "volume",\n    "x1",\n    "x2",\n]\n'
+    report, body = change(tmp_path, {'lib.py': lib, 'tests/test_lib.py': TESTS}, {'lib.py': lib.replace('    "x2",\n', '    "x2",\n    "x3",\n')})
+    [row] = report['hunks']
+    assert row['state'] == 'executed-both-sides', row
+    assert 'ran in no test' not in body[0], body[0]

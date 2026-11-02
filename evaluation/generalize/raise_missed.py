@@ -5,7 +5,7 @@ Usage: python raise_missed.py --head TREE --patch PATCH --report REPORT.json --p
        [--workers N]
 
 Each hunk's first changed statement on the head gets ``raise RuntimeError('AMU-RAISE <path>:<line>')`` in front of it,
-at its indentation; a statement that starts a definition gets it as the first line of its body instead, so it raises
+at its indentation, raised only while a test runs (a pytest call frame or a unittest case on the stack), not at import; a statement that starts a definition gets it as the first line of its body instead, so it raises
 when called. Statements at module or class level are not given one (a raise at import fails every test importing the
 module, which says nothing about one line); they are counted under ``not_injected``. Then the whole suite runs once on
 the head copy with every raise in place, and a test that fails with the marker in its failure text is a catcher. A raise
@@ -27,6 +27,9 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 MARK = 'AMU-RAISE'
+# Frames that only exist while a test runs: the line raises inside a test, never at import or collection.
+IN_TEST = "('_pytest/python.py', 'unittest/case.py', 'unittest\\\\case.py')"
+
 
 
 def hunks(patch):
@@ -79,7 +82,8 @@ def inject(text, lines, path):
             where.append(dict(line=line, at=None, why='module or class level'))
             continue
         indent = re.match(r'\s*', rows[node.lineno - 1])[0]
-        inserts[node.lineno] = f"{indent}raise RuntimeError('{MARK} {path}:{line}')\n"
+        inserts[node.lineno] = (f"{indent}if any(f.f_code.co_filename.endswith({IN_TEST}) for f, _ in __import__('traceback').walk_stack(None)):"
+                                f" raise RuntimeError('{MARK} {path}:{line}')\n")
         where.append(dict(line=line, at=node.lineno))
     for at in sorted(inserts, reverse=True):
         rows.insert(at - 1, inserts[at])
@@ -96,7 +100,11 @@ def catchers_pytest(python, tree, workers, report):
     command = [python, '-m', 'pytest', '-q', '-p', 'no:cacheprovider', '-p', 'no:randomly', f'--junitxml={report}']
     if workers > 1:
         command += ['-n', str(workers)]
-    subprocess.run(command, cwd=tree, capture_output=True, timeout=6 * 3600, env=environment(tree))
+    done = subprocess.run(command, cwd=tree, capture_output=True, text=True, timeout=6 * 3600, env=environment(tree))
+    if not Path(report).exists() and workers > 1:
+        return catchers_pytest(python, tree, 1, report)
+    if not Path(report).exists():
+        raise RuntimeError('pytest wrote no report: ' + (done.stdout + done.stderr)[-2000:])
     found = set()
     for case in ET.parse(report).getroot().iter('testcase'):
         said = ''.join((c.get('message') or '') + (c.text or '') for c in case if c.tag in ('failure', 'error'))
