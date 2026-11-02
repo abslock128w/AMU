@@ -1,6 +1,7 @@
 """Run the frozen pull requests one at a time as the v0.4.2 Action would, and save the comment and JSON per pull request.
 
 Usage: python evaluation/performance-v042/run.py [--only REPO#N ...]
+(AMU_PERF_ENGINE, AMU_PERF_REF and AMU_PERF_TAG choose another engine snapshot and output folders; the defaults are v0.4.2.)
 
 As the Action at v0.4.2: merge base against head, budget 300 s per side, wall cap 1200 s, recording off, no generated
 tests (no key), extras as released (none; rename labels are on by default), the fresh-job flip rerun (amu.ci.verify on
@@ -24,13 +25,15 @@ from run import worktree  # noqa: E402  the retrospective's helper
 from freeze import check  # noqa: E402
 
 ROOT = Path('/Users/Shared/amu-retro-2026-10-18')
-ENGINE = ROOT/'engine-v042'
+ENGINE = ROOT/os.environ.get('AMU_PERF_ENGINE', 'engine-v042')
+REF = os.environ.get('AMU_PERF_REF', 'v0.4.2')
+TAG = os.environ.get('AMU_PERF_TAG', 'v042')  # out-<TAG>, work-<TAG>, cache-<TAG>, tmp-<TAG>
 AMU_PY = str(ROOT/'amu-venv-16ccd49'/'bin'/'python')
 ORDER = ('django', 'sympy', 'flask')
 
 
 def environment():
-    tmp = ROOT/'tmp-v042'
+    tmp = ROOT/f'tmp-{TAG}'
     tmp.mkdir(exist_ok=True)
     return dict({k: v for k, v in os.environ.items() if not k.startswith('ANTHROPIC_')}, TMPDIR=str(tmp),
                 PYTHONPATH=str(ENGINE))
@@ -50,17 +53,17 @@ def environment_name(name, head):
 
 
 def one(name, pr):
-    out = ROOT/'out-v042'/name/str(pr['number'])
+    out = ROOT/f'out-{TAG}'/name/str(pr['number'])
     if (out/'done.json').exists():
         return json.loads((out/'done.json').read_text())
-    work = ROOT/'work-v042'/name/str(pr['number'])
+    work = ROOT/f'work-{TAG}'/name/str(pr['number'])
     head, base = work/'head', work/'base'
     clone = ROOT/'repos'/name
     worktree(clone, head, pr['head_sha'])
     worktree(clone, base, pr['merge_base'])
     shutil.rmtree(out, ignore_errors=True)
     out.mkdir(parents=True)
-    cache = ROOT/'cache-v042'/name/'index'
+    cache = ROOT/f'cache-{TAG}'/name/'index'
     if not cache.is_dir() and (ROOT/'cache'/name/'index').is_dir():
         shutil.copytree(ROOT/'cache'/name/'index', cache, symlinks=True)
     target = head/'.amu'/'index'
@@ -70,9 +73,9 @@ def one(name, pr):
     python = str(ROOT/'env'/environment_name(name, head)/'bin'/'python')
     env = environment()
     command = [AMU_PY, '-P', '-m', 'amu.ci.run', '--base', pr['base_sha'], '--head', pr['head_sha'], '--out', str(out),
-               '--python', python, '--pr', str(pr['number']), '--install-ok', 'true', '--amu-ref', 'v0.4.2',
+               '--python', python, '--pr', str(pr['number']), '--install-ok', 'true', '--amu-ref', REF,
                '--budget', '300', '--wall-cap', '1200', '--generate-dollars', '0']
-    timing = dict(repo=name, number=pr['number'], engine='v0.4.2', started=time.time(), cache_restored=cache.is_dir())
+    timing = dict(repo=name, number=pr['number'], engine=REF, started=time.time(), cache_restored=cache.is_dir())
     began = time.monotonic()
     done = subprocess.run(command, cwd=head, capture_output=True, text=True, env=env)
     timing['run_seconds'] = round(time.monotonic() - began, 1)
