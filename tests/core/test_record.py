@@ -125,7 +125,7 @@ def test_pairing_compares_only_equal_inputs():
     after = [call('t::a', 0, 'x', '9'), call('t::a', 1, 'Y', '2'), call('t::c', 0, 'z', '3')]
     rows, counts = record.pair(before, after)
     assert [(r['test'], r['n'], r['before'], r['after']) for r in rows] == [('t::a', 0, '1', '9')]
-    assert counts == dict(paired=2, compared=1, inputs_differ=1, unpaired=2, unreadable=0)
+    assert counts == dict(paired=2, compared=1, inputs_differ=1, unpaired=2, unreadable=0, differing_calls=1)
 
 
 def test_a_value_a_cached_property_holds_is_not_part_of_an_object(tmp_path):
@@ -166,3 +166,40 @@ def test_a_value_a_cached_property_holds_is_not_part_of_an_object(tmp_path):
     _, calls, _ = run(tmp_path, [sys.executable, '-m', 'pytest', '-q', '-p', 'no:cacheprovider', 'tests'], {}, [('m.py', 'describe')])
     assert len({c['input'] for c in calls}) == 1 and len({c['output'] for c in calls}) == 1, calls
     assert cached_property  # the decorator the project uses here
+
+
+def test_a_cache_behind_a_data_descriptor_is_not_part_of_an_object_either(tmp_path):
+    # A cached property that also defines __set__ (as some web frameworks' do) keeps its value in the instance dict.
+    (tmp_path/'m.py').write_text(textwrap.dedent('''\
+        class cached:
+            def __init__(self, fn):
+                self.fn, self.name = fn, fn.__name__
+
+            def __get__(self, obj, owner=None):
+                if obj is None:
+                    return self
+                if self.name not in obj.__dict__:
+                    obj.__dict__[self.name] = self.fn(obj)
+                return obj.__dict__[self.name]
+
+            def __set__(self, obj, value):
+                obj.__dict__[self.name] = value
+
+
+        class Req:
+            def __init__(self):
+                self.path = "/"
+
+            @cached
+            def cookies(self):
+                return {}
+
+
+        def describe(req):
+            return req
+        '''))
+    (tmp_path/'tests').mkdir()
+    (tmp_path/'tests/test_m.py').write_text('from m import Req, describe\n\n\ndef test_fresh():\n    describe(Req())\n\n\n'
+                                            'def test_read():\n    req = Req()\n    req.cookies\n    describe(req)\n')
+    _, calls, _ = run(tmp_path, [sys.executable, '-m', 'pytest', '-q', '-p', 'no:cacheprovider', 'tests'], {}, [('m.py', 'describe')])
+    assert len({c['input'] for c in calls}) == 1 and len({c['result'] for c in calls}) == 1, calls

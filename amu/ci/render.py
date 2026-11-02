@@ -315,7 +315,8 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
                 return ('…' if start else '') + text[start:start + 160] + ('…' if len(text) > start + 160 else '')
             where = f", from character {at + 1}" if start else ''
             return (f"{code(row.get('target', '?'), 120)} on {code(row.get('input', ''), 160)}: as it was {code(window(was), 170)}, "
-                    f"as changed {code(window(now), 170)} (differs in: {code(', '.join(differs), 60)}; shown: {field}{where})")
+                    f"as changed {code(window(now), 170)} (differs in: {code(', '.join(differs), 60)}; shown: {field}{where})"
+                    + (f"; {row['seen']} calls alike" if isinstance(row.get('seen'), int) and row['seen'] > 1 else ''))
         section += rows(behaviour, difference, listed) + ['']
         if behaviour and paired:
             out += [f'### Behaviour differs on the same input ({len(behaviour)})', '', *section]

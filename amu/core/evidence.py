@@ -104,7 +104,7 @@ def compare(execute, runner, python, trees, plan, scratch, deadline, parts, chun
     outputs differ on equal inputs is kept only if a second run of its test, on each side, gives the same two outputs:
     a difference neither side repeats is nondeterminism, counted and not shown."""
     rows, counts = record.pair([c for c in calls_b if c['function'] in both], [c for c in calls_a if c['function'] in both], moved)
-    tests = sorted({row['test'] for row in rows})
+    tests = sorted({row['test'] for row in rows})  # one representative test per distinct row
     kept, unstable = rows, 0
     if tests:
         again = {}
@@ -112,7 +112,7 @@ def compare(execute, runner, python, trees, plan, scratch, deadline, parts, chun
             folder = Path(scratch)/f'record-{side}-again'
             env = record.prepare(folder, trees[side], watch, targets)
             _chunks(execute, runner, python, trees[side], tests, scratch, f'{side}-again', RERUN, deadline, parts, env, chunk)
-            again[side] = {(c['test'], c['function'], c['n']): c['output'] for c in record.read(folder, trees[side],
+            again[side] = {(c['test'], c['function'], c['n']): c.get('result') or c['output'] for c in record.read(folder, trees[side],
                                                                                                 runner.cwd(trees[side]))[1]}
         kept = [row for row in rows if again['before'].get((row['test'], row['function'], row['n'])) == row['digest'][0]
                 and again['after'].get((row['test'], row['function'], row['n'])) == row['digest'][1]]

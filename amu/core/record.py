@@ -39,6 +39,7 @@ if _spec_path and _sys.version_info >= (3, 12):
         with open(_spec_path) as _h:
             _spec = json.load(_h)
         _root = _os.path.realpath(_spec["root"])
+        _prefixes = sorted({_root, _os.path.abspath(_spec["root"])}, key=len, reverse=True)
         _m = _sys.monitoring
         _tool = next(i for i in (5, 4, 3) if _m.get_tool(i) is None)
         _m.use_tool_id(_tool, "amu-record")
@@ -84,7 +85,13 @@ if _spec_path and _sys.version_info >= (3, 12):
             kind = type(value)
             if value is None or kind in (bool, int, float, complex):
                 return repr(value)
-            if kind in (str, bytes):
+            if kind is str:
+                # Each side runs in its own copy of the tree: where that copy is, is not what the code did.
+                for prefix in _prefixes:
+                    if prefix in value:
+                        value = value.replace(prefix, "<root>")
+                return repr(value) if len(value) <= 2000 else repr(value[:2000]) + "+%d" % len(value)
+            if kind is bytes:
                 return repr(value) if len(value) <= 2000 else repr(value[:2000]) + "+%d" % len(value)
             if depth > 4 or id(value) in seen:
                 return "<" + kind.__qualname__ + ">"
@@ -142,8 +149,9 @@ if _spec_path and _sys.version_info >= (3, 12):
             for klass in kind.__mro__:
                 attribute = klass.__dict__.get(name)
                 if attribute is not None:
-                    found = type(attribute)
-                    return (hasattr(found, "__get__") and not hasattr(found, "__set__")
+                    # Any descriptor serving that name (a cached property, with or without __set__): the instance
+                    # dict entry is its cache. Plain methods are not descriptors of state.
+                    return (hasattr(type(attribute), "__get__")
                             and not isinstance(attribute, (types.FunctionType, staticmethod, classmethod)))
             return False
 
@@ -476,12 +484,22 @@ def pair(before, after, defaults=None):
             counts['inputs_differ'] += 1
             continue
         counts['compared'] += 1
-        if old['output'] != new['output']:
-            # What differs: the result, or only the arguments as the call left them (self included).
-            differs = ['result'] if old.get('result') != new.get('result') else ['args_after']
+        # The output compared is the return value or the exception. The arguments as the call left them are shown, not
+        # compared: what a call leaves on its arguments is mostly lazy caches filled earlier or later on one side.
+        if (old.get('result') or old['output']) != (new.get('result') or new['output']):
+            differs = ['result']
             rows.append(dict(test=key[0], function=key[1], n=key[2], input=old['input_shown'] + (
                              f" [{', '.join(sorted(assumed))} left at each side's default]" if assumed else ''), differs=differs,
                              before=old['output_shown'], after=new['output_shown'],
                              before_args=old.get('after_shown', ''), after_args=new.get('after_shown', ''),
-                             digest=(old['output'], new['output'])))
-    return rows, counts
+                             digest=(old.get('result') or old['output'], new.get('result') or new['output'])))
+    # The same difference on the same input, seen in several tests or calls, is one row with its count.
+    unique = {}
+    for row in rows:
+        key = (row['function'], row['input'], row['digest'])
+        if key in unique:
+            unique[key]['seen'] += 1
+        else:
+            unique[key] = dict(row, seen=1)
+    counts['differing_calls'] = len(rows)
+    return list(unique.values()), counts

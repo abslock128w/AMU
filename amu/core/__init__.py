@@ -598,7 +598,8 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
             report['order'] = executed.get('order')
         if executed.get('side_by_side') is not None:
             # Changed functions run side by side on the inputs the tests called them with (sidebyside).
-            report['behaviour_differences'] = [{k: row[k] for k in ('target', 'input', 'differs', 'before', 'after', 'test', 'label')}
+            report['behaviour_differences'] = [{k: row[k] for k in ('target', 'input', 'differs', 'before', 'after', 'test', 'label', 'seen')
+                                                if k in row}
                                                for row in executed.get('behaviour', [])]
             report['side_by_side'] = {k: v for k, v in executed['side_by_side'].items() if k != 'skipped'}
             report['side_by_side']['not_compared'] = executed['side_by_side'].get('skipped', {})

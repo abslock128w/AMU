@@ -506,7 +506,7 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
             behaviour = [dict(target=row['function'], input=row['input'], differs=row.get('differs') or ['result'],
                               before=dict(result=_shown(row['before']), args_after=_shown(row.get('before_args'))),
                               after=dict(result=_shown(row['after']), args_after=_shown(row.get('after_args'))),
-                              test=row['test'], label=sidebyside.PAIRED) for row in paired_found['rows']]
+                              test=row['test'], label=sidebyside.PAIRED, seen=row.get('seen', 1)) for row in paired_found['rows']]
         elif functions and not aborted and _monitoring(python) and late(deadline) and legacy:
             if any(states['after'].get(i) in OUTCOMES for i in ids if i not in set(own)):
                 cut.append('side-by-side')
