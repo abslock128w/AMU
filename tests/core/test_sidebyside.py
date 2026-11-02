@@ -478,3 +478,15 @@ def test_a_parameter_inserted_or_moved_does_not_misbind_the_captured_call(tmp_pa
     report = change(tmp_path/'b', {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib2, 'tests/test_lib.py': tests})
     [row] = report['behaviour_differences']
     assert row['target'] == 'lib.py#span' and row['after']['result'] == ['return', '5'], row
+
+
+def test_a_changed_default_is_compared_for_a_call_that_left_it_out(tmp_path):
+    # Flask #5898 (performance test at v0.4.2): redirect()'s default code went from 302 to 303; arguments are captured
+    # after defaults are bound, so the as-changed run got code=302 too and no difference showed.
+    lib0 = 'def redirect(location, code=302):\n    return f"{code} {location}"\n'
+    lib1 = 'def redirect(location, code=303):\n    return f"{code} {location}"\n'
+    tests = 'from lib import redirect\n\n\ndef test_redirect():\n    assert redirect("/a")\n    assert redirect("/b", 307)\n'
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1, 'tests/test_lib.py': tests})
+    [row] = report['behaviour_differences']
+    assert row['before']['result'] == ['return', "'302 /a'"] and row['after']['result'] == ['return', "'303 /a'"], row
+    assert row['differs'] == ['result'] and 'code left at the new default' in row['input'], row
