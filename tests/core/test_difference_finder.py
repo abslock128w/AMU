@@ -246,6 +246,38 @@ def test_a_runner_limit_covers_the_splits_made_to_isolate_an_unknown_label(tmp_p
     assert found.get('tests/test_slow.py::test_a') == 'passed' and problem == 'timed out', (found, problem)
 
 
+def test_a_command_line_too_long_for_the_system_runs_the_labels_in_parts(tmp_path, monkeypatch):
+    # Django #22026 and #22176 (re-score after #71-#75): 17,539 and 15,742 labels made the side-by-side command longer
+    # than the system allows; the runner never started and side-by-side compared nothing.
+    import errno
+    import subprocess
+
+    from amu.core import runners, sidebyside
+    (tmp_path/'tests').mkdir()
+    (tmp_path/'tests'/'test_many.py').write_text(''.join(f'def test_{n}():\n    pass\n\n\n' for n in range(8)))
+    ids = [f'tests/test_many.py::test_{n}' for n in range(8)]
+    real, starts = subprocess.run, []
+
+    def limited(command, **kw):
+        labels = [part for part in command if '::' in part]
+        if len(labels) > 3:
+            raise OSError(errno.E2BIG, 'Argument list too long')
+        starts.append(len(labels))
+        return real(command, **kw)
+    monkeypatch.setattr(runners.subprocess, 'run', limited)
+    found, problem = runners.execute(runners.get(tmp_path, 'pytest'), sys.executable, tmp_path, ids, tmp_path/'r.xml', 60)
+    assert problem is None and found == {i: 'passed' for i in ids}, (found, problem)
+    assert sum(starts) == 8, starts
+    # A runner that never starts saw no calls: side-by-side does not also say none of the changed functions was called.
+    monkeypatch.setattr(sidebyside, 'support', lambda scratch, *a, **k: Path(scratch))
+    monkeypatch.setattr(runners, 'execute', lambda *a, **k: ({}, 'could not start the test runner: Argument list too long'))
+    from types import SimpleNamespace
+    (tmp_path/'s').mkdir()
+    _, _, gaps = sidebyside.run(SimpleNamespace(name='pytest'), sys.executable, tmp_path, ids, [dict(id='lib.py#f')], {},
+                                tmp_path/'s', 10)
+    assert gaps == ['side-by-side run (pytest): could not start the test runner: Argument list too long'], gaps
+
+
 def test_a_new_test_that_fails_before_only_after_another_one_broke_shared_state_is_not_evidence(tmp_path):
     # Flask #5928 (performance test at v0.4.2): the new test_robust_teardown failed on the code before the change and
     # left teardown broken; 13 tests after it in the same process errored there too, and the confirming rerun, run

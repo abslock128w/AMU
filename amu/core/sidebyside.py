@@ -861,7 +861,7 @@ def run(runner, python, before_tree, ids, spec_targets, skipped, scratch, timeou
         return dict(targets=0, skipped=skipped), [], gaps
     folder = support(scratch, before_tree, spec_targets, added, modules)
     env = dict(AMU_TRUST_PATH=str(folder/'hook'), AMU_SBS_SPEC=str(folder/'spec.json'), AMU_SBS_OUT=str(folder/'out'))
-    _, problem = runners.execute(runner, python, before_tree, ids, Path(scratch)/'side-by-side.xml', timeout, extra_env=env)
+    outcomes, problem = runners.execute(runner, python, before_tree, ids, Path(scratch)/'side-by-side.xml', timeout, extra_env=env)
     if problem and problem != 'timed out':
         gaps.append(f'side-by-side run ({runner.name}): {problem}')
     elif problem:
@@ -927,6 +927,8 @@ def run(runner, python, before_tree, ids, spec_targets, skipped, scratch, timeou
         info['captured_not_listed'] = len(results) - LISTED
     if stopped:
         info['stopped'] = True  # calls after the time limit were not seen: none captured does not mean none made
-    if not results:
+    # Only a run that read some test outcome can say no changed function was called: a runner that never started,
+    # or ran nothing, saw no calls at all (its own gap says why).
+    if not results and any(state != 'unrunnable' for state in outcomes.values()):
         gaps.append(f'side-by-side: none of the {len(spec_targets)} comparable changed function(s) was called by the tests run on the code before the change')
     return info, differences, gaps
