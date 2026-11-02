@@ -50,6 +50,18 @@ def innermost(functions, lines):
     return min(holding, key=lambda f: f[1] - f[0]) if holding else None
 
 
+def touched(functions, lines):
+    """Qualified names of the innermost functions whose bodies hold any of ``lines``, in order."""
+    found = []
+    for line in sorted(lines):
+        holding = [f for f in functions if f[0] <= line <= f[1]]
+        if holding:
+            qual = min(holding, key=lambda f: f[1] - f[0])[2]
+            if qual not in found:
+                found.append(qual)
+    return found
+
+
 def split(path, edit, before, after):
     """The hunks of one file's change, each a dict: path, index, removed and added line numbers, context lines on each
     side, the function holding it on each side, and the lines to watch on each side (``base``, ``head``)."""
@@ -76,10 +88,16 @@ def split(path, edit, before, after):
         new_here = added or [n for n in new_context if n < (new_context[-1] if new_context else 0)][-1:] or new_context[:1]
         old_function = innermost(old_functions, removed or old_here)
         new_function = innermost(new_functions, added or new_here)
+        old_touched = touched(old_functions, removed or old_here)
+        new_touched = touched(new_functions, added or new_here)
         if old_function:
             base = set(range(old_function[0], old_function[1] + 1))
         elif removed:
+            # A hunk across several definitions: the body of each function it changes, and its lines outside them.
             base = set(removed) | set(old_context)
+            for first, last, qual in old_functions:
+                if qual in old_touched:
+                    base |= set(range(first, last + 1))
         elif new_function is None:
             base = set(old_context)  # module or class level: the lines around the insertion run when it runs
         else:
@@ -88,6 +106,7 @@ def split(path, edit, before, after):
         found.append(dict(path=path, index=index, removed=removed, added=added, old_start=old_start, new_start=new_start,
                           old_function=old_function[2] if old_function else None,
                           new_function=new_function[2] if new_function else None,
+                          old_touched=old_touched, new_touched=new_touched,
                           base=sorted(base), head=sorted(head)))
     return found
 

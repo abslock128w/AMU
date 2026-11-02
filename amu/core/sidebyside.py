@@ -31,6 +31,7 @@ from pathlib import Path
 from . import replay, runners
 
 KIND = 'behaviour differs on captured input'
+PAIRED = 'behaviour differs on the same input, each side in its own run'
 CALLS = 5          # calls captured per argument shape of a changed function, per process
 SHAPES = 8         # argument shapes sampled per changed function, per process
 LISTED = 100       # captured calls named in the report

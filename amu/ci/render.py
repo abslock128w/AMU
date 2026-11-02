@@ -222,7 +222,9 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
         first += f"; {plural(len(evidence), 'test')} of the pull request's own fail on the merge base and pass on the head"
     behaviour = [row for row in report.get('behaviour_differences') or [] if isinstance(row, dict)]
     side = report.get('side_by_side') if isinstance(report.get('side_by_side'), dict) else None
-    if behaviour and side is not None and not report.get('error'):
+    if behaviour and side is not None and side.get('mode') == 'paired records' and not report.get('error'):
+        first += f"; {plural(len(behaviour), 'behaviour difference')} on the same input"
+    elif behaviour and side is not None and not report.get('error'):
         first += f"; {plural(len(behaviour), 'behaviour difference')} on captured input, collapsed at the end"
     out, collapsed = [first, ''], []
     if failures and not report.get('error'):
@@ -275,11 +277,20 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
                 'Pass on the merge base and fail on the head as they were before this pull request edited them; as edited, '
                 'they pass. The edit is in the diff, so they are not flips.', '']
         out += rows(updated, lambda row: code(failure_id(row)), listed) + ['']
+    paired = side is not None and side.get('mode') == 'paired records'
     if side is not None and not report.get('error'):
-        section = [f"Each changed function the tests called on the merge base ran there twice as it was and twice as changed, "
-                   f"on copies of the same arguments: {side.get('compared_calls', 0)} call(s) of "
-                   f"{side.get('functions_called', 0)} of {side.get('targets', 0)} comparable changed function(s). Only "
-                   'differences both versions repeat are listed.', '']
+        if paired:
+            section = [f"Each changed function was recorded in each side's own run of the same tests, on the objects that "
+                       f"side's code built. Calls are paired by test and by their order in it, and compared only where both "
+                       f"inputs are equal: {side.get('compared_calls', 0)} pair(s) compared, {side.get('inputs_differ', 0)} "
+                       f"not compared because the inputs differ, {side.get('unpaired', 0)} call(s) without a partner, of "
+                       f"{side.get('functions_called', 0)} of {side.get('targets', 0)} changed function(s). A difference is listed "
+                       f"only if a second run of its test on each side gave the same two outputs ({side.get('unstable', 0)} did not).", '']
+        else:
+            section = [f"Each changed function the tests called on the merge base ran there twice as it was and twice as changed, "
+                       f"on copies of the same arguments: {side.get('compared_calls', 0)} call(s) of "
+                       f"{side.get('functions_called', 0)} of {side.get('targets', 0)} comparable changed function(s). Only "
+                       'differences both versions repeat are listed.', '']
 
         def flat(side_result, field):
             value = side_result.get(field) if isinstance(side_result, dict) else None
@@ -301,11 +312,15 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
             return (f"{code(row.get('target', '?'), 120)} on {code(row.get('input', ''), 160)}: as it was {code(window(was), 170)}, "
                     f"as changed {code(window(now), 170)} (differs in: {code(', '.join(differs), 60)}; shown: {field}{where})")
         section += rows(behaviour, difference, listed) + ['']
-        if behaviour:
+        if behaviour and paired:
+            out += [f'### Behaviour differs on the same input ({len(behaviour)})', '', *section]
+        elif behaviour:
             collapsed = [f'<details><summary>Behaviour differs on captured input ({len(behaviour)})</summary>', '',
                          "Collapsed until side-by-side's false rows are fixed: of 18 such rows hand-labelled on Django and "
                          'sympy pull requests, 11 were real differences and 7 came from how side-by-side runs the changed code.',
                          '', *section, '</details>', '']
+        elif paired:
+            out += ['### Behaviour differs on the same input (0)', '', *section]
         else:
             out += ['### Behaviour differs on captured input (0)', '', *section]
     made = report.get('generated') if isinstance(report.get('generated'), dict) else None

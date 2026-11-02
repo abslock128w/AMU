@@ -17,7 +17,9 @@ def change(tmp_path, files_before, files_after):
     diff = ''.join(''.join(difflib.unified_diff(files_before.get(n, '').splitlines(True), files_after[n].splitlines(True),
                                                 'a/' + n if n in files_before else '/dev/null', 'b/' + n))
                    for n in files_after if files_before.get(n) != files_after[n])
-    return analyze(tmp_path, diff, full_evidence=True, index_dir=tmp_path/'.index', run=True, python=sys.executable)
+    # The old mode (behind extras=sidebyside-legacy; on by itself with the static selection): kept for comparison.
+    return analyze(tmp_path, diff, full_evidence=True, index_dir=tmp_path/'.index', run=True, python=sys.executable,
+                   extras=('static-select',))
 
 
 def test_a_behaviour_change_no_test_catches_is_reported_with_its_input(tmp_path):
