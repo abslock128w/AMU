@@ -504,6 +504,26 @@ def test_a_failure_inside_a_method_of_an_object_the_old_code_built_is_not_a_beha
     assert rows['lib.py#make']['after']['result'][:2] == ['raise', 'RuntimeError'], rows
 
 
+def test_a_run_on_arguments_that_cannot_be_copied_leaves_their_attributes_as_they_were(tmp_path):
+    # Flask #5812 (re-score after #71-#75): AppContext(app) cannot be copied (the app holds a lock), so the as-changed
+    # __init__ ran on the context being built and set _request = None on it; the test then pushed that context, and
+    # every as-changed function reading it raised "There is no request in this context" (15 rows).
+    lib0 = ('import threading\n\n\nclass App:\n    def __init__(self):\n        self.lock = threading.Lock()\n\n\n'
+            'class Ctx:\n    def __init__(self, app):\n        self.app = app\n        self.req = "r"\n\n\n'
+            'def describe(ctx):\n    return "ctx " + ctx.req\n')
+    lib1 = ('import threading\n\n\nclass App:\n    def __init__(self):\n        self.lock = threading.Lock()\n\n\n'
+            'class Ctx:\n    def __init__(self, app):\n        self.app = app\n        self._req = None\n\n'
+            '    def request(self):\n        if self._req is None:\n            raise RuntimeError("no request in this context")\n'
+            '        return self._req\n\n\n'
+            'def describe(ctx):\n    return "ctx " + ctx.request()\n')
+    tests = ('import lib\n\n\ndef test_describe():\n    ctx = lib.Ctx(lib.App())\n    assert ctx.req == "r"\n'
+             '    assert not hasattr(ctx, "_req")\n    assert lib.describe(ctx)\n')
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1, 'tests/test_lib.py': tests})
+    rows = [row for row in report['behaviour_differences'] if row['target'] == 'lib.py#describe']
+    assert rows == [], rows  # an old Ctx lacks _req: set aside, not a RuntimeError on a half-rebuilt one
+    assert report['side_by_side']['input_built_before_the_change'] >= 1, report['side_by_side']
+
+
 def test_a_parameter_inserted_or_moved_does_not_misbind_the_captured_call(tmp_path):
     # Flask #5818 (performance test at v0.4.2): dispatch methods gained a leading ctx parameter; the captured calls,
     # replayed by position, put the exception into ctx, and all 33 rows were artifacts.

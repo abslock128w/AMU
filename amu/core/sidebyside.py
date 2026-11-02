@@ -393,6 +393,30 @@ if _spec_path and _sys.version_info >= (3, 12):
 
         def _run(fn, blob, generator, changed=False, rebind=None):
             pos, kw = _thaw(blob)
+            kept = _keep(pos, kw) if blob[0] == "live" else ()
+            try:
+                return _run_once(fn, pos, kw, generator, changed, rebind)
+            finally:
+                for obj, state in kept:
+                    try:
+                        obj.__dict__.clear()
+                        obj.__dict__.update(state)
+                    except Exception:
+                        pass
+
+        def _keep(pos, kw):
+            # Arguments that copy neither way are run on as they are, and the program goes on using them: a run that
+            # changes their attributes (Flask #5812: the as-changed AppContext.__init__ on the context being built,
+            # which the test then pushed) would leave them changed for the test and for every later comparison.
+            # Their attributes are put back after each run.
+            kept = []
+            for obj in [*pos, *kw.values()]:
+                state = getattr(obj, "__dict__", None)
+                if isinstance(state, dict):
+                    kept.append((obj, dict(state)))
+            return kept
+
+        def _run_once(fn, pos, kw, generator, changed, rebind):
             if rebind is not None:
                 pos, kw = rebind(pos, kw)
             out = io.StringIO()
