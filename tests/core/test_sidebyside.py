@@ -441,3 +441,23 @@ def test_a_module_imported_after_the_first_comparison_still_gets_the_names_the_c
     assert not any(row['after']['result'][:2] == ['raise', 'NameError'] for row in rows), rows
     [row] = rows
     assert row['target'] == 'later.py#join' and row['after']['result'] == ['return', "'a|b'"], row
+
+
+def test_an_attribute_the_change_sets_at_construction_missing_on_an_old_object_is_not_a_behaviour_row(tmp_path):
+    # Flask #5812 (performance test at v0.4.2): as-changed methods read AppContext._request, which the change sets in
+    # __init__; the contexts the tests had built came from the code before the change. 44 of 77 rows were that.
+    lib0 = ('class Ctx:\n    def __init__(self, url):\n        self.url = url\n\n\n'
+            'def describe(ctx):\n    return "ctx " + ctx.url\n')
+    lib1 = ('class Ctx:\n    def __init__(self, url):\n        self.url = url\n        self._request = url.upper()\n\n\n'
+            'def describe(ctx):\n    return "ctx " + ctx._request\n')
+    tests = ('import lib\n\nCTX = lib.Ctx("a")\n\n\ndef test_describe():\n    assert lib.describe(CTX)\n')
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1, 'tests/test_lib.py': tests})
+    rows = report['behaviour_differences']
+    assert [row['target'] for row in rows] == ['lib.py#Ctx.__init__'], rows  # it now sets _request: a real difference
+    assert report['side_by_side']['input_built_before_the_change'] >= 1, report['side_by_side']
+    # An attribute only some other method sets is a real gap an object built after the change can hit too: still a row.
+    lib2 = ('class Ctx:\n    def __init__(self, url):\n        self.url = url\n\n    def prime(self):\n        self._request = 1\n\n\n'
+            'def describe(ctx):\n    return "ctx " + str(ctx._request)\n')
+    report = change(tmp_path/'b', {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib2, 'tests/test_lib.py': tests})
+    rows = [row for row in report['behaviour_differences'] if row['target'] == 'lib.py#describe']
+    assert [row['after']['result'][:2] for row in rows] == [['raise', 'AttributeError']], report['behaviour_differences']

@@ -466,9 +466,11 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
             from .index import module_name
             modules = [dict(name=module_name(path), file=path, source=after_src[path]) for path in edits
                        if path.endswith('.py') and not replay.is_test_file(path) and not before_src.get(path) and after_src.get(path)]
+            fresh = set().union(*(sidebyside.fresh_attributes(before_src.get(path) or '', after_src.get(path) or '')
+                                  for path in edits if path.endswith('.py') and not replay.is_test_file(path)))
             side, behaviour, more = sidebyside.run(runner, python, trees['before'], ran_ids, spec_targets, skipped, scratch,
                                                    within(max(min(budget, SIDE_BY_SIDE), CONFIRM), deadline), added, modules,
-                                                   prefer=prefer)
+                                                   prefer=prefer, fresh=fresh)
             side['seconds'] = round(time.perf_counter() - began, 1)
             gaps += more
             if late(deadline):
