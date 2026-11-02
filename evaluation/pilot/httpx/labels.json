@@ -1,0 +1,122 @@
+{
+ "httpx#3380": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "Fixes the extensions type annotation and copies the mapping into a dict: every hunk ran on both sides, up to 289 tests; no flip. Correct; the six moved helpers of 3389/3387 are labelled as moves, this is not a move.",
+  "number": 3380,
+  "repo": "httpx",
+  "rows": "-"
+ },
+ "httpx#3387": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "Moves the remaining utility functions: 7 definitions listed as moved; every hunk ran on both sides, up to 57 tests.",
+  "number": 3387,
+  "repo": "httpx",
+  "rows": "-"
+ },
+ "httpx#3389": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "Moves utility functions from _utils.py to _client.py: every hunk ran on both sides, and the 6 moved definitions are listed as renamed or moved. Correct; no more than the diff.",
+  "number": 3389,
+  "repo": "httpx",
+  "rows": "-"
+ },
+ "httpx#3394": {
+  "adds": "something",
+  "first_line_correct": true,
+  "note": "Graceful upgrade path for 0.28: 11 own tests fail on the merge base and pass on the head, and 1 of 63 hunks (create_ssl_context, _config.py:33) ran only in the PR's own tests.",
+  "number": 3394,
+  "repo": "httpx",
+  "rows": "-"
+ },
+ "httpx#3401": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "Imports ssl on demand: both hunks ran at import. Correct. A gap still says \"No existing test reaches the change within five source hops\", which contradicts the hunks (defect).",
+  "number": 3401,
+  "repo": "httpx",
+  "rows": "-"
+ },
+ "httpx#3412": {
+  "adds": "something",
+  "first_line_correct": true,
+  "note": "Empty zstd responses: the PR's own test fails on the merge base and passes on the head, so it reproduces the bug.",
+  "number": 3412,
+  "repo": "httpx",
+  "rows": "-"
+ },
+ "httpx#3418": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "verify given as a str now raises: the hunk ran in 1 test; no own test fails on the base.",
+  "number": 3418,
+  "repo": "httpx",
+  "rows": "-"
+ },
+ "httpx#3419": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "Release 0.28.0 removes deprecated parameters across 37 hunks; every hunk ran on both sides, up to 150 tests. Correct, no more than green CI.",
+  "number": 3419,
+  "repo": "httpx",
+  "rows": "-"
+ },
+ "httpx#3426": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "Docstring edit: \"docstring or comment changes only\".",
+  "number": 3426,
+  "repo": "httpx",
+  "rows": "-"
+ },
+ "httpx#3442": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "Fixes verify=False with cert=: every hunk ran, in at most 1 test; no own test fails on the base, so nothing beyond the diff.",
+  "number": 3442,
+  "repo": "httpx",
+  "rows": "-"
+ },
+ "httpx#3445": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "Version bump: the one hunk ran at import.",
+  "number": 3445,
+  "repo": "httpx",
+  "rows": "-"
+ },
+ "httpx#3519": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "Typo in an error message (\"an sync\" to \"a sync\"): the one behaviour row shows Response.close raising the old and the new text on the same input. Real and intended; the diff says as much.",
+  "number": 3519,
+  "repo": "httpx",
+  "rows": "rows 1, real 1"
+ },
+ "httpx#3571": {
+  "adds": "something",
+  "first_line_correct": true,
+  "note": "Adds the missing f prefix to an error message in a branch marked pragma: no cover. \"1 of 1 changed hunk ran in no test\" is right, and a reviewer cannot see from the diff that no test reaches the fix.",
+  "number": 3571,
+  "repo": "httpx",
+  "rows": "-"
+ },
+ "httpx#3651": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "Formatter upgrade: both hunks are layout only; \"docstring or comment changes only\" fits.",
+  "number": 3651,
+  "repo": "httpx",
+  "rows": "-"
+ },
+ "httpx#3699": {
+  "adds": "nothing",
+  "first_line_correct": true,
+  "note": "Adds FunctionAuth to __all__ in two modules: both hunks are module-level and ran at import on both sides. Correct, and no more than the diff.",
+  "number": 3699,
+  "repo": "httpx",
+  "rows": "-"
+ }
+}

@@ -1,0 +1,332 @@
+{
+ "rows": [
+  {
+   "upstream": 1636,
+   "fork_pr": 16,
+   "run": 41508846988,
+   "amu_job_s": 62,
+   "queue_s": 6,
+   "opened_to_comment_s": 88,
+   "posted": true,
+   "first": "**AMU: 0 flips** at `ce52bb2`, ran all 667 tests; every changed hunk ran on both sides, in up to 8 tests",
+   "ran": 667,
+   "candidates": 667,
+   "unrunnable": 0,
+   "mode": "all of the suite",
+   "behaviour_rows": 0,
+   "evidence": 0,
+   "raise_catchers": 8,
+   "raise_missed": 0,
+   "hunk_states": {
+    "executed-both-sides": 1
+   }
+  },
+  {
+   "upstream": 1625,
+   "fork_pr": 17,
+   "run": 41508853682,
+   "amu_job_s": 64,
+   "queue_s": 8,
+   "opened_to_comment_s": 90,
+   "posted": true,
+   "first": "**AMU: docstring or comment changes only** at `6483af0`; no flip, ran all 667 tests",
+   "ran": 667,
+   "candidates": 667,
+   "unrunnable": 0,
+   "mode": "all of the suite",
+   "behaviour_rows": 0,
+   "evidence": 0,
+   "raise_catchers": 2,
+   "raise_missed": 0,
+   "hunk_states": {
+    "not-code": 1
+   }
+  },
+  {
+   "upstream": 1606,
+   "fork_pr": 18,
+   "run": 41508856658,
+   "amu_job_s": 52,
+   "queue_s": 10,
+   "opened_to_comment_s": 82,
+   "posted": true,
+   "first": "**AMU: 0 flips** at `0bc217f`, ran all 667 tests; every changed hunk ran on both sides (at import)",
+   "ran": 667,
+   "candidates": 667,
+   "unrunnable": 0,
+   "mode": "all of the suite",
+   "behaviour_rows": 0,
+   "evidence": 0,
+   "raise_catchers": 2,
+   "raise_missed": 0,
+   "hunk_states": {
+    "executed-both-sides": 1
+   }
+  },
+  {
+   "upstream": 1603,
+   "fork_pr": 19,
+   "run": 41508860434,
+   "amu_job_s": 91,
+   "queue_s": 8,
+   "opened_to_comment_s": 119,
+   "posted": true,
+   "first": "**AMU: 0 flips** at `f0d3534`, ran all 666 tests; 1 of 11 changed hunks ran only in the pull request's own tests: `src/attr/_make.py:2675`",
+   "ran": 666,
+   "candidates": 666,
+   "unrunnable": 0,
+   "mode": "all of the suite",
+   "behaviour_rows": 0,
+   "evidence": 0,
+   "raise_catchers": 63,
+   "raise_missed": 0,
+   "hunk_states": {
+    "executed-both-sides": 10,
+    "executed-head-only": 1
+   }
+  },
+  {
+   "upstream": 1571,
+   "fork_pr": 20,
+   "run": 41508864206,
+   "amu_job_s": 67,
+   "queue_s": 7,
+   "opened_to_comment_s": 91,
+   "posted": true,
+   "first": "**AMU: 0 flips** at `325f349`, ran all 667 tests; every changed hunk that existed before ran on both sides; 1 add new code with no existing callers",
+   "ran": 667,
+   "candidates": 667,
+   "unrunnable": 0,
+   "mode": "all of the suite",
+   "behaviour_rows": 0,
+   "evidence": 0,
+   "raise_catchers": 11,
+   "raise_missed": 0,
+   "hunk_states": {
+    "executed-both-sides": 1,
+    "not-code": 6,
+    "new-code": 1
+   }
+  },
+  {
+   "upstream": 1592,
+   "fork_pr": 21,
+   "run": 41508869474,
+   "amu_job_s": 125,
+   "queue_s": 7,
+   "opened_to_comment_s": 150,
+   "posted": true,
+   "first": "**AMU: 0 flips** at `5efaf84`, ran all 667 tests; 3 of 9 changed hunks ran in no test: `typing-examples/baseline.py:10`, `typing-examples/baseline.py:133`, `typing-examples/baseline.py:152`; 8 tests of the pull request's own fail on the merge base and pass on the head",
+   "ran": 667,
+   "candidates": 667,
+   "unrunnable": 0,
+   "mode": "all of the suite",
+   "behaviour_rows": 0,
+   "evidence": 8,
+   "raise_catchers": 181,
+   "raise_missed": 0,
+   "hunk_states": {
+    "executed-both-sides": 6,
+    "not-code": 7,
+    "executed-none": 3
+   }
+  },
+  {
+   "upstream": 1593,
+   "fork_pr": 22,
+   "run": 41508872166,
+   "amu_job_s": 68,
+   "queue_s": 6,
+   "opened_to_comment_s": 90,
+   "posted": true,
+   "first": "**AMU: 0 flips** at `2e082f1`, ran all 656 tests; every changed hunk ran on both sides, in up to 62 tests; 1 test of the pull request's own fail on the merge base and pass on the head",
+   "ran": 656,
+   "candidates": 656,
+   "unrunnable": 0,
+   "mode": "all of the suite",
+   "behaviour_rows": 0,
+   "evidence": 1,
+   "raise_catchers": 49,
+   "raise_missed": 0,
+   "hunk_states": {
+    "executed-both-sides": 1
+   }
+  },
+  {
+   "upstream": 1600,
+   "fork_pr": 23,
+   "run": 41508878038,
+   "amu_job_s": 72,
+   "queue_s": 8,
+   "opened_to_comment_s": 99,
+   "posted": true,
+   "first": "**AMU: 0 flips** at `e685f6c`, ran all 655 tests; 1 of 20 changed hunks not executable on Python 3.12 here: `src/attr/_compat.py:23`",
+   "ran": 655,
+   "candidates": 655,
+   "unrunnable": 0,
+   "mode": "all of the suite",
+   "behaviour_rows": 0,
+   "evidence": 0,
+   "raise_catchers": 87,
+   "raise_missed": 0,
+   "hunk_states": {
+    "executed-both-sides": 17,
+    "new-code": 2,
+    "not-executable-here": 1
+   }
+  },
+  {
+   "upstream": 1541,
+   "fork_pr": 24,
+   "run": 41508879916,
+   "amu_job_s": 84,
+   "queue_s": 7,
+   "opened_to_comment_s": 112,
+   "posted": true,
+   "first": "**AMU: 0 flips** at `d54fd88`, ran all 653 tests; every changed hunk ran on both sides, in up to 317 tests; 3 tests of the pull request's own fail on the merge base and pass on the head",
+   "ran": 653,
+   "candidates": 653,
+   "unrunnable": 0,
+   "mode": "all of the suite",
+   "behaviour_rows": 0,
+   "evidence": 3,
+   "raise_catchers": 236,
+   "raise_missed": 0,
+   "hunk_states": {
+    "executed-both-sides": 5
+   }
+  },
+  {
+   "upstream": 1529,
+   "fork_pr": 25,
+   "run": 41508884882,
+   "amu_job_s": 64,
+   "queue_s": 7,
+   "opened_to_comment_s": 91,
+   "posted": true,
+   "first": "**AMU: 0 flips** at `b13a705`, ran all 650 tests; every changed hunk ran on both sides, in up to 128 tests; 2 tests of the pull request's own fail on the merge base and pass on the head",
+   "ran": 650,
+   "candidates": 650,
+   "unrunnable": 0,
+   "mode": "all of the suite",
+   "behaviour_rows": 0,
+   "evidence": 2,
+   "raise_catchers": 127,
+   "raise_missed": 0,
+   "hunk_states": {
+    "not-code": 3,
+    "executed-both-sides": 1
+   }
+  },
+  {
+   "upstream": 1513,
+   "fork_pr": 26,
+   "run": 41508891521,
+   "amu_job_s": 68,
+   "queue_s": 8,
+   "opened_to_comment_s": 94,
+   "posted": true,
+   "first": "**AMU: 0 flips** at `91f3695`, ran all 648 tests; every changed hunk ran on both sides, in up to 2 tests; 1 test of the pull request's own fail on the merge base and pass on the head",
+   "ran": 648,
+   "candidates": 648,
+   "unrunnable": 0,
+   "mode": "all of the suite",
+   "behaviour_rows": 0,
+   "evidence": 1,
+   "raise_catchers": 3,
+   "raise_missed": 0,
+   "hunk_states": {
+    "not-code": 1,
+    "executed-both-sides": 1
+   }
+  },
+  {
+   "upstream": 1509,
+   "fork_pr": 27,
+   "run": 41508892817,
+   "amu_job_s": 104,
+   "queue_s": 7,
+   "opened_to_comment_s": 131,
+   "posted": true,
+   "first": "**AMU: 0 flips** at `b0ef249`, ran all 647 tests; 1 of 10 changed hunks ran only in the pull request's own tests: `src/attr/_make.py:497`; 13 tests of the pull request's own fail on the merge base and pass on the head",
+   "ran": 647,
+   "candidates": 647,
+   "unrunnable": 0,
+   "mode": "all of the suite",
+   "behaviour_rows": 0,
+   "evidence": 13,
+   "raise_catchers": 165,
+   "raise_missed": 0,
+   "hunk_states": {
+    "executed-both-sides": 9,
+    "executed-head-only": 1,
+    "not-code": 2
+   }
+  },
+  {
+   "upstream": 1507,
+   "fork_pr": 28,
+   "run": 41508897082,
+   "amu_job_s": 69,
+   "queue_s": 7,
+   "opened_to_comment_s": 94,
+   "posted": true,
+   "first": "**AMU: 0 flips** at `85b9ac7`, ran all 638 tests; 1 of 3 changed hunks not executable on Python 3.12 here: `src/attr/_make.py:1099`",
+   "ran": 638,
+   "candidates": 638,
+   "unrunnable": 0,
+   "mode": "all of the suite",
+   "behaviour_rows": 0,
+   "evidence": 0,
+   "raise_catchers": 125,
+   "raise_missed": 0,
+   "hunk_states": {
+    "executed-both-sides": 2,
+    "not-executable-here": 1
+   }
+  },
+  {
+   "upstream": 1454,
+   "fork_pr": 29,
+   "run": 41508904544,
+   "amu_job_s": 74,
+   "queue_s": 8,
+   "opened_to_comment_s": 102,
+   "posted": true,
+   "first": "**AMU: 0 flips** at `5ff5807`, ran all 638 tests; 2 of 28 changed hunks ran in no test: `src/attr/_make.py:1436`, `typing-examples/baseline_examples.py:193`",
+   "ran": 638,
+   "candidates": 638,
+   "unrunnable": 0,
+   "mode": "all of the suite",
+   "behaviour_rows": 0,
+   "evidence": 0,
+   "raise_catchers": 121,
+   "raise_missed": 0,
+   "hunk_states": {
+    "executed-both-sides": 26,
+    "executed-none": 2
+   }
+  },
+  {
+   "upstream": 1469,
+   "fork_pr": 30,
+   "run": 41508908932,
+   "amu_job_s": 70,
+   "queue_s": 8,
+   "opened_to_comment_s": 99,
+   "posted": true,
+   "first": "**AMU: 0 flips** at `57ee5cf`, ran all 632 tests; every changed hunk ran on both sides, in up to 16 tests",
+   "ran": 632,
+   "candidates": 633,
+   "unrunnable": 1,
+   "mode": "all of the suite",
+   "behaviour_rows": 0,
+   "evidence": 0,
+   "raise_catchers": 17,
+   "raise_missed": 0,
+   "hunk_states": {
+    "executed-both-sides": 3
+   }
+  }
+ ]
+}

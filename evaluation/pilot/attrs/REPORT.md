@@ -198,3 +198,78 @@ in under 3 minutes, at 2 to 4 billed minutes per pull request. It counted no fal
 - set aside side-by-side failures caused by a slot or field the old class lacks.
 
 Both are engine changes, outside this pilot.
+
+## Re-run at v0.6.0 (2026-11-02): the same 15 pull requests, live on the fork
+
+v0.6.0 is the release with the three cause fixes: selection by execution (#87), behaviour differences from paired
+records (#88), and the first line from per-hunk evidence states (#89). The Action was pinned to v0.6.0 on
+abslock128w/attrs. The same 15 heads were opened as fork pull requests #16–#30 against new base branches (`amu6-base-*`:
+the merge base plus the v0.6.0 workflows). Python 3.12, as before. Files are in `v060/`: `data.json`, `labels.json`,
+`comments/` and `reports.tar.xz`.
+
+### Losses first
+
+- **Two first lines are wrong (13 of 15 right), and both are noise.** One defect behind both: how a changed line
+  without bytecode was mapped. #91 fixes it on main, after v0.6.0, so these comments still show it.
+  - attrs 1606: the changed `add_replace` runs only on Python 3.13+, yet the line says "every changed hunk ran on both
+    sides (at import)". The added comment stood for the whole function, whose `def` line runs at import.
+  - attrs 1454: "`src/attr/_make.py:1436` ran in no test". The hunk is a `nonlocal hash` line in a function nearly
+    every test runs. `nonlocal` has no bytecode, and its hunk was watched through no line at all.
+- **attrs 1592 leads with type-check examples.** Its first line lists 3 hunks in `typing-examples/` that ran in no
+  test. That is true, but it comes before the 8 evidence tests a reviewer would want first.
+- **One non-test counted as a test.** On 1469, `tests/typing_example.py::test` was a candidate. It is a mypy example
+  pytest never collects, so it is reported as unrunnable.
+- **The job is slower when the change is small.** The whole suite runs on both sides, so the job took 52–125 s, against
+  34–132 s at v0.5.1.
+
+### What changed
+
+| | v0.5.1 | v0.6.0 |
+|---|---:|---:|
+| Comment posted | 15 of 15 | 15 of 15 |
+| First line correct | 11 | 13 |
+| Adds something | 2 | 5 |
+| Adds noise | 2 | 2 |
+| False behaviour rows | 62 (attrs 1509) | 0 |
+| Real behaviour rows | 0 | 0 (on Python 3.12; see below) |
+| Suite run, AMU's test functions | 1 % to 99 %, median 73 % | 100 % (all runnable tests, every PR) |
+| Tests that would catch a raise, missed | 8 of 8 on attrs 1636 | 0 of 1,197 across the 15 |
+| AMU job | 34–132 s | 52–125 s |
+| Pull request opened → comment | 62–157 s | 82–150 s |
+
+- **Suite covered.** Each run measured the whole suite on the merge base inside its budget, then ran it whole on the
+  head: 632 to 667 test functions. "Suite run" for v0.5.1 is its candidates over the same count.
+- **Tests that would catch a raise.** For each pull request, the first changed statement of each hunk on the head was
+  made to raise, only while a test runs (`evaluation/generalize/raise_missed.py`). The whole suite then ran, and a
+  test failing with the marker counts as a catcher. The catchers were measured locally on Python 3.14, against each
+  live comment's candidates.
+- **Behaviour rows.**
+  - attrs 1509 went from 62 false rows to 0, with no set-aside rule. Each `Attribute` object is recorded on the side
+    that built it, so the two inputs differ (one has the new slot) and are not compared.
+  - On Python 3.12 no row appeared: the add_replace change behind attrs 1606 and 1507 runs only on 3.13+. Run locally
+    on 3.14, paired records show it on both (the class dictionary holds `evolve` itself before 1606 and a local proxy
+    after), and those rows are real.
+
+### Per pull request
+
+| attrs PR | v0.5.1 first line | v0.6.0 first line | Correct | Adds | False rows | Suite run | AMU job |
+|---|---|---|---|---|---|---|---|
+| 1636 | AMU: no test ran the changed code in `src/attr/_funcs.py` at `ce52bb2`; 10 tests run | AMU: 0 flips at `ce52bb2`, ran all 667 tests; every changed hunk ran on both sides, in up… | **no** → yes | noise → nothing | 0 → 0 | 1% → 100% | 37 → 62 s |
+| 1625 | AMU: adds new code only at `6483af0`; no test of it ran | AMU: docstring or comment changes only at `6483af0`; no flip, ran all 667 tests | **no** → yes | nothing → nothing | 0 → 0 | 70% → 100% | 34 → 64 s |
+| 1606 | AMU: no test ran the changed code in `src/attr/_make.py` at `0bc217f`; 473 tests run | AMU: 0 flips at `0bc217f`, ran all 667 tests; every changed hunk ran on both sides (at im… | yes → **no** | nothing → noise | 0 → 0 | 71% → 100% | 64 → 52 s |
+| 1603 | AMU: 0 flips at `f0d3534`, among 599 tests run, some of them on the changed code | AMU: 0 flips at `f0d3534`, ran all 666 tests; 1 of 11 changed hunks ran only in the pull … | yes → yes | nothing → nothing | 0 → 0 | 90% → 100% | 132 → 91 s |
+| 1571 | AMU: no flip at `325f349` among 648 tests run; whether any ran the changed code was not s… | AMU: 0 flips at `325f349`, ran all 667 tests; every changed hunk that existed before ran … | **no** → yes | nothing → nothing | 0 → 0 | 97% → 100% | 55 → 67 s |
+| 1592 | AMU: 0 flips at `5efaf84`, among 658 tests run, some of them on the changed code | AMU: 0 flips at `5efaf84`, ran all 667 tests; 3 of 9 changed hunks ran in no test: `typin… | yes → yes | nothing → nothing | 0 → 0 | 99% → 100% | 64 → 125 s |
+| 1593 | AMU: 0 flips at `2e082f1`, among 468 tests run, some of them on the changed code; 1 test … | AMU: 0 flips at `2e082f1`, ran all 656 tests; every changed hunk ran on both sides, in up… | yes → yes | something → something | 0 → 0 | 71% → 100% | 55 → 68 s |
+| 1600 | AMU: 0 flips at `e685f6c`, among 584 tests run, some of them on the changed code | AMU: 0 flips at `e685f6c`, ran all 655 tests; 1 of 20 changed hunks not executable on Pyt… | yes → yes | nothing → something | 0 → 0 | 89% → 100% | 59 → 72 s |
+| 1541 | AMU: 0 flips at `d54fd88`, among 473 tests run, some of them on the changed code; 3 tests… | AMU: 0 flips at `d54fd88`, ran all 653 tests; every changed hunk ran on both sides, in up… | yes → yes | nothing → nothing | 0 → 0 | 72% → 100% | 57 → 84 s |
+| 1529 | AMU: 0 flips at `b13a705`, among 584 tests run, some of them on the changed code; 2 tests… | AMU: 0 flips at `b13a705`, ran all 650 tests; every changed hunk ran on both sides, in up… | yes → yes | nothing → nothing | 0 → 0 | 90% → 100% | 68 → 64 s |
+| 1513 | AMU: 0 flips at `91f3695`, among 101 tests run, some of them on the changed code; 1 test … | AMU: 0 flips at `91f3695`, ran all 648 tests; every changed hunk ran on both sides, in up… | yes → yes | something → something | 0 → 0 | 16% → 100% | 34 → 68 s |
+| 1509 | AMU: 0 flips at `b0ef249`, among 484 tests run, some of them on the changed code; 13 test… | AMU: 0 flips at `b0ef249`, ran all 647 tests; 1 of 10 changed hunks ran only in the pull … | **no** → yes | noise → something | 62 → 0 | 75% → 100% | 92 → 104 s |
+| 1507 | AMU: 0 flips at `85b9ac7`, among 467 tests run, some of them on the changed code | AMU: 0 flips at `85b9ac7`, ran all 638 tests; 1 of 3 changed hunks not executable on Pyth… | yes → yes | nothing → something | 0 → 0 | 73% → 100% | 71 → 69 s |
+| 1454 | AMU: 0 flips at `5ff5807`, among 595 tests run, some of them on the changed code | AMU: 0 flips at `5ff5807`, ran all 638 tests; 2 of 28 changed hunks ran in no test: `src/… | yes → **no** | nothing → noise | 0 → 0 | 93% → 100% | 104 → 74 s |
+| 1469 | AMU: 0 flips at `57ee5cf`, among 63 tests run, some of them on the changed code | AMU: 0 flips at `57ee5cf`, ran all 632 tests; every changed hunk ran on both sides, in up… | yes → yes | nothing → nothing | 0 → 0 | 10% → 100% | 43 → 70 s |
+
+- **Labels:** `v060/labels.json`, same rubric as the v0.5.1 labels above.
+- **"Adds something" on 1600 and 1507:** the comment names a hunk that cannot run on this job's Python. On 1507 that
+  hunk is the change that started mutating `evolve`'s dunders.
