@@ -689,6 +689,9 @@ def compact(report, include_tests=False):
     # Untested rows are evidence for a reader, not a signal: scored on Django history, neither the static
     # rows nor the recording-backed ones were more likely to be fixed later than covered functions.
     out.pop('untested', None)
+    # Per-hunk states and candidate sources are for the comment and --full-evidence; the agent packet keeps its size.
+    for key in ('hunks', 'candidate_sources', 'selection_evidence'):
+        out.pop(key, None)
     if 'predicted_failures' in report:
         commands = {row['id']: row.get('run') for row in report['tests']}
         out['predicted_failures'] = [(row['id'] if native else commands.get(row['id']) or row['id']) for row in report['predicted_failures'][:12]]

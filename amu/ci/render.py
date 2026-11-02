@@ -143,7 +143,7 @@ def headline(report, head, ran):
     among = (f"ran all {plural(ran, 'test')}" if chosen.get('mode') == 'all of the suite'
              else f"among {plural(ran, 'test')} run")
     if not rows:
-        return f"**AMU: 0 flips** at {short(head)}, {among}"
+        return f"**AMU: 0 flips** at {short(head)}, {among}; which tests ran the changed code was not recorded"
     present = {row['state'] for row in rows}
     if present == {'not-code'}:
         return f"**AMU: docstring or comment changes only** at {short(head)}; no flip, {among}"
