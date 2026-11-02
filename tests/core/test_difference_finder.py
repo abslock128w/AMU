@@ -162,9 +162,10 @@ def test_a_second_run_against_the_same_base_takes_its_passes_from_the_cache(tmp_
     # Only passes are cached: a test the change adds that fails on the base would run there again, by design.
     tests = 'from lib import work\ndef test_work():\n    assert work() == 1\n'
     change = ({'lib.py': LIB0, 'tests/test_lib.py': tests}, {'lib.py': LIB1, 'tests/test_lib.py': tests})
-    first = run_change(tmp_path, *change)
+    first = run_change(tmp_path, *change, extras=('static-select',))  # the base pass cache serves the static selection
     assert first['executed']['base_cache']['ran'] >= 1 and first['executed']['base_cache']['stored'] >= 1, first['executed']
-    second = analyze(tmp_path, diff(*change), full_evidence=True, index_dir=tmp_path/'.index', run=True, python=sys.executable)
+    second = analyze(tmp_path, diff(*change), full_evidence=True, index_dir=tmp_path/'.index', run=True, python=sys.executable,
+                      extras=('static-select',))
     assert second['executed']['base_cache']['ran'] == 0 and second['executed']['base_cache']['answered'] >= 1, second['executed']
     assert second['flips'] == first['flips'] == 1
     from amu.ci.render import render

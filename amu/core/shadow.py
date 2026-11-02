@@ -19,7 +19,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from . import basecache, equivalence, generate, isolate, mutate, replay, runners, sidebyside, trust
+from . import basecache, equivalence, evidence, generate, isolate, mutate, record, replay, runners, sidebyside, trust
 from .git import _git, file_at
 from .patch import applied, candidate, original, renumber
 
@@ -111,6 +111,8 @@ def load_memo(memo, key):
     rates = data.get('rates') if isinstance(data.get('rates'), list) and data.get('rates') else [data.get('rate')]
     rates = [rate for rate in rates if isinstance(rate, (int, float)) and rate > 0][-RATES:]
     kept = dict(rate=_median(rates), rates=rates, durations=data.get('durations') or {}, flips=data.get('flips') or {})
+    if data.get('suite_seconds') is not None:
+        kept['suite_seconds'] = data['suite_seconds']  # the whole suite's last measured time (evidence), any key
     return dict(data, **kept) if data.get('key') == key else dict(key=key, before={}, **kept)
 
 
@@ -127,12 +129,16 @@ def history(memo):
     return data.get('flips') or {}, data.get('durations') or {}
 
 
-def execute(runner, python, tree, ids, scratch, name, timeout, parts):
+def execute(runner, python, tree, ids, scratch, name, timeout, parts, env=None):
     """runners.execute over ``parts`` processes side by side. Returns ({id: state}, [problems])."""
     slices = [ids[i::parts] for i in range(parts)] if parts > 1 else [ids]
     slices = [part for part in slices if part]
+    if not slices:
+        return {}, []
     with ThreadPoolExecutor(len(slices)) as pool:
-        results = list(pool.map(lambda pair: runners.execute(runner, python, tree, pair[1], Path(scratch)/f'{name}-{pair[0]}.xml', timeout),
+        extra = {'extra_env': env} if env else {}
+        results = list(pool.map(lambda pair: runners.execute(runner, python, tree, pair[1], Path(scratch)/f'{name}-{pair[0]}.xml', timeout,
+                                                             **extra),
                                 enumerate(slices)))
     found, problems = {}, []
     for got, problem in results:
@@ -153,7 +159,7 @@ def late(deadline):
 
 
 def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=(), base_cache=None, functions=(), generate_with=None,
-        merge_base=None, deadline=None, extras=(), prefer=()):
+        merge_base=None, deadline=None, extras=(), prefer=(), plan=None, cache_folder=None):
     """Outcomes of ``ids`` before and after the change. Returns (rows, info, gaps). ``prefer``: tests seen running a
     changed line, run first by side-by-side.
 
@@ -180,10 +186,16 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
 
     ``deadline`` (a time.monotonic() value: CI's wall cap, less time to report) cuts every run at it, and no step starts
     past it. The steps run in order of what they find: flips, the change's own tests, then isolation, side-by-side and
-    generated probes. What the deadline left undone or cut short goes to ``info['cut']``."""
+    generated probes. What the deadline left undone or cut short goes to ``info['cut']``.
+
+    ``plan`` (Python 3.12 and later) switches on execution-first selection (evidence module): both sides run, recorded,
+    and the candidates come from what the code before the change was seen to run. It holds ``static`` (the static
+    candidates, best first), ``everything`` (every test id), ``own`` and ``key`` (the commit the recording is kept
+    for, in ``cache_folder``). Without it, the candidates ``ids`` run on the changed code and only their failures on the
+    code before it."""
     python, gaps, started, cut = python or sys.executable, [], time.perf_counter(), []
     runner = runners.get(root, runner)
-    if not ids:
+    if not ids and not (plan and (plan.get('everything') or plan.get('own'))):
         return [], dict(ran=0, seconds=0.0, runner=runner.name), gaps
     if late(deadline):
         # Not even the copy of the tree: on a large project it takes seconds the report needs.
@@ -195,6 +207,9 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
     key = parent_key(root) if memo else None
     remembered = load_memo(memo, key) if key else dict(before={}, rate=None, rates=[], durations={}, flips={})
     rate = remembered.get('rate') or RATE
+    planned = None
+    if plan is not None and not record.supported(python):
+        plan = None  # no sys.monitoring: the static candidates, as given
     pool, ids = ids, ids[:max(CHUNK, int(rate * parts * budget * FILL))]
     with tempfile.TemporaryDirectory(prefix='amu-shadow-') as scratch:
         if MIRROR is not None:
@@ -247,7 +262,36 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
         left, done, aborted, measured, measured_seconds, pace = float(budget), 0, None, 0, 0.0, rate
         first_flip = None  # seconds into the run when the first flip was confirmed (time to first difference)
         stopped, struck = None, {}
-        while left > 1:
+        if plan is not None:
+            planned = evidence.run(execute, runner, python, trees, edits, before_src, after_src, plan, scratch, budget, deadline,
+                                   parts, CHUNK, remembered, cache_folder)
+            ids = pool = planned['ids']
+            cut += planned['cut']
+            states['before'].update(planned['before'])
+            states['after'].update(planned['after'])
+            context.update(planned['context'])
+            gaps += planned['gaps']
+            for side, said in planned['problems'].items():
+                for text in said:
+                    if text != 'timed out':
+                        gaps.append(f'shadow run ({"after" if side == "after" else "before"} the change, {runner.name}): {text}')
+            done = sum(i in states['after'] for i in ids)
+            measured = sum(states['after'].get(i) in OUTCOMES for i in ids)
+            measured_seconds = planned['seconds']['after']
+            left = max(0.0, budget - measured_seconds)
+            mine_now = set(own)
+            mine_list = [i for i in ids if i not in set(own)]
+            ran_head = sum(states['after'].get(i) in OUTCOMES for i in ids)
+            ran_base = sum(state in OUTCOMES for state in states['before'].values())
+            if mine_list and not ran_head and ran_base and any(i in states['after'] for i in ids):
+                # The runner ran tests on the code before the change and none on the changed code: the change stops it.
+                said = next((t for t in planned['problems']['after'] if t != 'timed out'), 'no outcomes read')
+                aborted = dict(error=said.removeprefix('no outcomes read: '), ran_before=ran_base, probed=len(mine_list))
+            if done < len(ids) and not planned['cut']:
+                stopped = f'shadow run stopped at its {budget} s budget: {done} of {len(ids)} candidates run on the changed code'
+            if any(_flip(states['before'].get(i), states['after'].get(i)) for i in ids if i not in mine_now):
+                first_flip = round(time.perf_counter() - started, 1)
+        while plan is None and left > 1:
             if done == len(ids):
                 # The planned candidates finished with time to spare: the next ones run a chunk at a time, as many as the
                 # last chunk's pace fits in what is left above the share kept for the checks after them. Candidates come
@@ -329,13 +373,13 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
             if first_flip is None and any(_flip(states['before'].get(i), states['after'].get(i)) for i in failing):
                 first_flip = round(time.perf_counter() - started, 1)
             done = start + len(chunk)
-        if len(ids) < len(pool):
+        if plan is None and len(ids) < len(pool):
             gaps.insert(0, f'{len(pool) - len(ids)} lower-ranked candidate(s) not run: about {rate:.0f} tests/s per process fit {len(ids)} in the {budget} s allowed')
         if stopped:
             gaps.append(stopped)
-        elif done < len(ids) and not aborted and late(deadline):
+        elif done < len(ids) and not aborted and late(deadline) and plan is None:
             cut.append(f'{len(ids) - done} of {len(ids)} candidate tests')
-        elif done < len(ids) and not aborted:
+        elif done < len(ids) and not aborted and plan is None:
             gaps.append(f'shadow run stopped at its {budget} s budget: {done} of {len(ids)} candidates run')
         # A test that an edited test file no longer defines (renamed or deleted) did not fail because of the change: it
         # is gone. Its original form is checked below like any other edited test.
@@ -574,7 +618,8 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
     other = [ident for ident in unrunnable if runner.group(ident) not in refused]
     if other:
         gaps.append(f'{len(other)} candidate(s) could not be run by {runner.name} and are not covered by this result')
-    info = dict(seconds_before_running=ready, ran=ran_after, candidates=len(ids), unrunnable=len(unrunnable), outcomes=states['after'], seconds=round(time.perf_counter() - started, 1), runner=runner.name)
+    info = dict(seconds_before_running=ready, ran=ran_after, candidates=len(ids), unrunnable=len(unrunnable), unrunnable_tests=unrunnable[:200],
+                outcomes=states['after'], seconds=round(time.perf_counter() - started, 1), runner=runner.name)
     if aborted:
         info['aborted'] = aborted
     if unstable:
@@ -598,6 +643,18 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
     if cut:
         info['cut'] = list(dict.fromkeys(cut))
     info['first_flip_seconds'] = first_flip
+    if planned is not None:
+        counts = {}
+        for ident in ids:
+            counts[planned['sources'].get(ident, evidence.STATIC)] = counts.get(planned['sources'].get(ident, evidence.STATIC), 0) + 1
+        info['selection_evidence'] = dict(mode=planned['mode'], sources=counts, base_complete=planned['base_complete'],
+                                          base_planned=planned['base_planned'], ran_before=sum(s in OUTCOMES for s in states['before'].values()),
+                                          seconds=planned['seconds'])
+        info['candidate_sources'] = {i: planned['sources'].get(i, evidence.STATIC) for i in ids}
+        info['hunks'] = [dict(h, base_tests=None if h['base_tests'] is None else h['base_tests'][:50],
+                              base_test_count=None if h['base_tests'] is None else len(h['base_tests']),
+                              head_tests=h['head_tests'][:50], head_test_count=len(h['head_tests'])) for h in planned['hunks']]
+        info['_recorded'] = planned  # in memory only: the comparison of calls reads it
     if mutation is not None:
         info['mutation'] = mutation
     if equivalent is not None:

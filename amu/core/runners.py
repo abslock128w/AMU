@@ -275,8 +275,8 @@ def detect(root):
     return 'unittest'
 
 
-PYTEST_CONFIGS = (('pytest.ini', '[pytest]'), ('pyproject.toml', '[tool.pytest.ini_options]'), ('tox.ini', '[pytest]'),
-                  ('setup.cfg', '[tool:pytest]'))
+PYTEST_CONFIGS = (('pytest.ini', '[pytest]'), ('pyproject.toml', '[tool.pytest.ini_options]'), ('pyproject.toml', '[tool.pytest]'),
+                  ('tox.ini', '[pytest]'), ('setup.cfg', '[tool:pytest]'))  # [tool.pytest]: pytest 9's native table
 
 
 def pytest_classes(root):
@@ -295,6 +295,24 @@ def pytest_classes(root):
             return tuple(p for p in re.split(r'[\s,]+', re.sub(r'[\[\]"\']', ' ', found.group(1))) if p) or ('Test',)
         return ('Test',)
     return ('Test',)
+
+
+def pytest_testpaths(root):
+    """The directories or files ``testpaths`` names, from the first configuration file with a pytest section; () when
+    it names none (pytest then collects from where it runs)."""
+    for name, section in PYTEST_CONFIGS:
+        try:
+            text = (Path(root)/name).read_text(errors='replace')
+        except OSError:
+            continue
+        if section not in text and not (name == 'pytest.ini' and text.strip()):
+            continue
+        body = text.split(section, 1)[-1].split('\n[', 1)[0]
+        found = re.search(r'^\s*testpaths\s*=\s*(.+(?:\n[ \t]+.+)*)', body, re.M)
+        if found:
+            return tuple(p.strip('/') for p in re.split(r'[\s,]+', re.sub(r'[\[\]"\']', ' ', found.group(1))) if p)
+        return ()
+    return ()
 
 
 def get(root, name=None):
@@ -392,7 +410,7 @@ def execute(runner, python, tree, ids, report, timeout, extra_env=None, extra_ar
     # no outcomes, so a batch that comes back short is split in two and retried until the labels that
     # cannot be run stand alone. Those are returned as 'unrunnable': never silently as "did not fail".
     # ``timeout`` bounds the whole call, splits included: each retry gets what is left, not the full limit again.
-    batches, splits, deadline = [[i for i in usable if i not in found]], 0, time.monotonic() + timeout
+    batches, splits, deadline, strikes = [[i for i in usable if i not in found]], 0, time.monotonic() + timeout, 0
     while batches:
         batch = batches.pop(0)
         if not batch:
@@ -456,12 +474,15 @@ def execute(runner, python, tree, ids, report, timeout, extra_env=None, extra_ar
             first_error = reason
         elif (not got and splits and len(batch) > 1 and not any(state != 'unrunnable' for state in found.values())
               and reason == first_error):
-            # Half a batch failing exactly as the whole batch did: the runner aborts before any test, whatever
-            # the labels. Splitting further only restarts it; every remaining candidate is unrunnable.
-            for ident in [*missing, *(i for rest in batches for i in rest)]:
-                found[ident] = 'unrunnable'
-            batches = []
-            continue
+            # A part of the batch failing exactly as the whole batch did. One part may just hold the label that aborts
+            # it; two parts failing alike, with nothing run anywhere, say the runner aborts before any test whatever the
+            # labels. Splitting further would only restart it; every remaining candidate is unrunnable.
+            strikes += 1
+            if strikes >= 2:
+                for ident in [*missing, *(i for rest in batches for i in rest)]:
+                    found[ident] = 'unrunnable'
+                batches = []
+                continue
         if len(missing) == 1 or splits >= MAX_SPLITS:
             for ident in missing:
                 found[ident] = 'unrunnable'
