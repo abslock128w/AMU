@@ -98,3 +98,25 @@ def test_a_line_inside_a_literal_spread_over_lines_is_seen_through_its_statement
     [row] = report['hunks']
     assert row['state'] == 'executed-both-sides', row
     assert 'ran in no test' not in body[0], body[0]
+
+
+def test_a_comment_added_above_new_code_in_a_function_counts_as_that_code(tmp_path):
+    # A comment has no bytecode; it stood for the whole enclosing function, whose def line runs at import, so a hunk
+    # in a function only a newer Python calls read "ran on both sides (at import)".
+    lib = ('import sys\nNEWER = sys.version_info[:2] >= (99, 0)\n\n\ndef build(x):\n    if NEWER:\n        return replace(x)\n'
+           '    return x\n\n\ndef replace(x):\n    return x * 2\n')
+    after = lib.replace('def replace(x):\n    return x * 2\n',
+                        'def replace(x):\n    # A local helper, so the module function is not changed in place.\n    def twice(v):\n'
+                        '        return v * 2\n\n    return twice(x)\n')
+    files = {'lib.py': lib, 'tests/test_lib.py': 'from lib import build\n\n\ndef test_build():\n    assert build(1)\n'}
+    report, body = change(tmp_path, files, {'lib.py': after})
+    assert [row['state'] for row in report['hunks']] == ['not-executable-here'], report['hunks']
+
+
+def test_a_nonlocal_line_counts_as_the_statement_after_it(tmp_path):
+    # `nonlocal` has no bytecode and holds no statement with any: it read "ran in no test" inside a function every test runs.
+    lib = 'def deco(f):\n    count = 0\n\n    def wrap(x):\n        return f(x)\n    return wrap\n'
+    after = lib.replace('    def wrap(x):\n        return f(x)\n', '    def wrap(x):\n        nonlocal count\n        count += 1\n        return f(x)\n')
+    tests = 'from lib import deco\n\n\ndef test_deco():\n    assert deco(abs)(-2) == 2\n'
+    report, body = change(tmp_path, {'lib.py': lib, 'tests/test_lib.py': tests}, {'lib.py': after})
+    assert [row['state'] for row in report['hunks']] == ['executed-both-sides'], report['hunks']

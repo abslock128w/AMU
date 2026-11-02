@@ -27,7 +27,10 @@ def _functions(text, with_headers=False):
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 qual = prefix + node.name
                 if node.body:
-                    found.append((node.body[0].lineno, node.end_lineno, qual))
+                    # The body starts after the signature: a comment above the first statement is in it.
+                    signature = [node.lineno, *(getattr(n, 'end_lineno', None) or node.lineno for n in ast.walk(node.args)),
+                                 *([node.returns.end_lineno] if node.returns is not None else [])]
+                    found.append((min(max(signature) + 1, node.body[0].lineno), node.end_lineno, qual))
                     headers.append((min([node.lineno, *(d.lineno for d in node.decorator_list)]), node.body[0].lineno - 1, qual))
                 walk(node.body, qual + '.<locals>.')
             elif isinstance(node, ast.ClassDef):
@@ -59,28 +62,63 @@ def code_lines(text):
 
 
 def executable(text, lines):
-    """``lines`` as a line event can see them: a line without bytecode (an element of a literal spread over lines, a
-    name in a parenthesised import) stands for the lines of the innermost statement holding it that have some."""
+    """``lines`` as a line event can see them. A line without bytecode stands for the lines that run when it would:
+
+    - a comment or blank line inside a body: the next statement of that body (the one before it at a body's end);
+    - a statement with no bytecode of its own (``nonlocal``, ``global``): the statement after it;
+    - any other line (an element of a literal spread over lines, a name in a parenthesised import, part of a
+      signature): the lines of the innermost statement holding it that have bytecode."""
     have = code_lines(text)
     if have is None:
         return set(lines)
     try:
-        statements = [n for n in ast.walk(ast.parse(text or '')) if isinstance(n, ast.stmt)]
+        tree = ast.parse(text or '')
     except (SyntaxError, ValueError):
         return set(lines)
+    rows = (text or '').splitlines()
+    parent = {}
+    for node in ast.walk(tree):
+        for child in ast.iter_child_nodes(node):
+            parent[child] = node
+    statements = [n for n in ast.walk(tree) if isinstance(n, ast.stmt)]
+
+    def first_code(statement):
+        found = [n for n in range(statement.lineno, (statement.end_lineno or statement.lineno) + 1) if n in have]
+        return found[0] if found else None
+
+    def beside(siblings, line):
+        after = sorted((s for s in siblings if s.lineno > line), key=lambda s: s.lineno)
+        before = sorted((s for s in siblings if (s.end_lineno or s.lineno) < line), key=lambda s: -s.lineno)
+        for statement in [*after, *before]:
+            found = first_code(statement)
+            if found:
+                return found
+        return None
+
     out = set()
     for line in lines:
         if line in have:
             out.add(line)
             continue
         holding = [s for s in statements if s.lineno <= line <= (s.end_lineno or s.lineno)]
-        if holding:
-            inner = min(holding, key=lambda s: (s.end_lineno or s.lineno) - s.lineno)
-            out.update(n for n in range(inner.lineno, (inner.end_lineno or inner.lineno) + 1) if n in have)
-        else:
+        if not holding:
             out.add(line)
+            continue
+        inner = min(holding, key=lambda s: (s.end_lineno or s.lineno) - s.lineno)
+        source = rows[line - 1].strip() if 0 < line <= len(rows) else ''
+        children = [s for s in statements if parent.get(s) is inner]
+        if (not source or source.startswith('#')) and children:
+            found = beside(children, line)
+            if found:
+                out.add(found)
+                continue
+        own = {n for n in range(inner.lineno, (inner.end_lineno or inner.lineno) + 1) if n in have}
+        if own:
+            out.update(own)
+            continue
+        found = beside([s for s in statements if parent.get(s) is parent.get(inner) and s is not inner], line)
+        out.add(found if found else line)
     return out
-
 
 def defaults(text, qual):
     """{parameter: its default expression dumped} of the function ``qual`` (dotted, <locals> for nested) in ``text``."""
