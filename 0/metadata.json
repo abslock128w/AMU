@@ -1,0 +1,50 @@
+{
+  "cli_version": "0.10.5",
+  "checkpoint_id": "01M6EPAF1D3VWQVR9RKFXE2PHQ",
+  "session_id": "b2f1bc66-3e20-4459-84e0-72c90221b63f",
+  "strategy": "manual-commit",
+  "created_at": "2026-11-02T17:53:42.363343Z",
+  "branch": "cause3/hunk-states",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "amu/core/record.py",
+    "tests/core/test_record.py"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-5-5",
+  "turn_id": "2140c5620cac",
+  "checkpoint_transcript_start": 2098,
+  "transcript_lines_at_start": 2098,
+  "compact_transcript_start": 305,
+  "token_usage": {
+    "input_tokens": 20,
+    "cache_creation_tokens": 15823,
+    "cache_read_tokens": 5944841,
+    "output_tokens": 10197,
+    "api_call_count": 9
+  },
+  "session_metrics": {
+    "turn_count": 3
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-11-02T17:53:42.05864Z",
+    "agent_lines": 655,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 655,
+    "total_lines_changed": 655,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}
