@@ -1,0 +1,137 @@
+{
+ "attrs#1454": {
+  "adds": "noise",
+  "engine": "v0.6.0",
+  "first_line_correct": false,
+  "note": "ClassProps: \"2 of 28 changed hunks ran in no test\" names _make.py:1436, a `nonlocal hash` line in a function nearly every test runs. nonlocal has no bytecode, and its hunk was watched through nothing (defect, fixed in #91).",
+  "number": 1454,
+  "repo": "attrs",
+  "rows": "-"
+ },
+ "attrs#1469": {
+  "adds": "nothing",
+  "engine": "v0.6.0",
+  "first_line_correct": true,
+  "note": "astuple common case: every hunk ran on both sides, up to 16 tests. One \"candidate\" could not run: tests/typing_example.py::test, a mypy example pytest never collects (minor defect: counted as a test).",
+  "number": 1469,
+  "repo": "attrs",
+  "rows": "-"
+ },
+ "attrs#1507": {
+  "adds": "something",
+  "engine": "v0.6.0",
+  "first_line_correct": true,
+  "note": "\"1 of 3 changed hunks not executable on Python 3.12 here: _make.py:1099\" (add_replace). This is the change that began mutating evolve's dunders, fixed later by 1606: the comment says where the job could not look.",
+  "number": 1507,
+  "repo": "attrs",
+  "rows": "-"
+ },
+ "attrs#1509": {
+  "adds": "something",
+  "engine": "v0.6.0",
+  "first_line_correct": true,
+  "note": "Aliases before field_transformer: 13 own tests are evidence and side-by-side has 0 rows (v0.5.1: 62, all false); 1 hunk ran only in the PR's own tests.",
+  "number": 1509,
+  "repo": "attrs",
+  "rows": "rows 0"
+ },
+ "attrs#1513": {
+  "adds": "something",
+  "engine": "v0.6.0",
+  "first_line_correct": true,
+  "note": "Nested disabled(): the new test reproduces the bug.",
+  "number": 1513,
+  "repo": "attrs",
+  "rows": "-"
+ },
+ "attrs#1529": {
+  "adds": "nothing",
+  "engine": "v0.6.0",
+  "first_line_correct": true,
+  "note": "fields() on instances (feature): 2 own tests are the feature's tests.",
+  "number": 1529,
+  "repo": "attrs",
+  "rows": "-"
+ },
+ "attrs#1541": {
+  "adds": "nothing",
+  "engine": "v0.6.0",
+  "first_line_correct": true,
+  "note": "Converter decorator (feature): 3 own tests fail on the base for want of the feature.",
+  "number": 1541,
+  "repo": "attrs",
+  "rows": "-"
+ },
+ "attrs#1571": {
+  "adds": "nothing",
+  "engine": "v0.6.0",
+  "first_line_correct": true,
+  "note": "New ne validator: the new function is new code with no existing callers; the docstring hunks are not code; the __all__ entry ran at import. Correct (v0.5.1 said \"not seen\").",
+  "number": 1571,
+  "repo": "attrs",
+  "rows": "-"
+ },
+ "attrs#1592": {
+  "adds": "nothing",
+  "engine": "v0.6.0",
+  "first_line_correct": true,
+  "note": "Generator on_setattr hooks: 8 own tests are evidence; the first line leads with 3 hunks in typing-examples/ that ran in no test. True (they are type-check examples no test runs), but it leads with them over the evidence.",
+  "number": 1592,
+  "repo": "attrs",
+  "rows": "-"
+ },
+ "attrs#1593": {
+  "adds": "something",
+  "engine": "v0.6.0",
+  "first_line_correct": true,
+  "note": "ClassVar forward references: the PR's own test fails on the merge base and passes on the head; every hunk ran on both sides.",
+  "number": 1593,
+  "repo": "attrs",
+  "rows": "-"
+ },
+ "attrs#1600": {
+  "adds": "something",
+  "engine": "v0.6.0",
+  "first_line_correct": true,
+  "note": "Deferred imports: \"1 of 20 changed hunks not executable on Python 3.12 here: _compat.py:23\" (an if PY_3_14_PLUS branch); 2 new module functions have no existing callers. A reviewer learns the 3.14 branch was not exercised.",
+  "number": 1600,
+  "repo": "attrs",
+  "rows": "-"
+ },
+ "attrs#1603": {
+  "adds": "nothing",
+  "engine": "v0.6.0",
+  "first_line_correct": true,
+  "note": "Drop Python 3.9: 10 of 11 hunks ran on both sides; the one in Attribute.__setstate__ (old-pickle branch) ran only in the PR's own test, which is right.",
+  "number": 1603,
+  "repo": "attrs",
+  "rows": "-"
+ },
+ "attrs#1606": {
+  "adds": "noise",
+  "engine": "v0.6.0",
+  "first_line_correct": false,
+  "note": "The changed add_replace runs only on Python 3.13+, and the job ran 3.12. The first line says \"every changed hunk ran on both sides (at import)\": the added comment stood for the whole function, whose def line runs at import (defect, fixed in #91).",
+  "number": 1606,
+  "repo": "attrs",
+  "rows": "-"
+ },
+ "attrs#1625": {
+  "adds": "nothing",
+  "engine": "v0.6.0",
+  "first_line_correct": true,
+  "note": "Comment typo: \"docstring or comment changes only\" (v0.5.1 said \"adds new code only\").",
+  "number": 1625,
+  "repo": "attrs",
+  "rows": "-"
+ },
+ "attrs#1636": {
+  "adds": "nothing",
+  "engine": "v0.6.0",
+  "first_line_correct": true,
+  "note": "The whole suite ran on both sides; the changed line ran in 8 tests (the TestAsTuple ones v0.5.1 missed); no flip.",
+  "number": 1636,
+  "repo": "attrs",
+  "rows": "-"
+ }
+}

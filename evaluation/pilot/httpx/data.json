@@ -1,0 +1,321 @@
+{
+ "rows": [
+  {
+   "upstream": 3699,
+   "fork_pr": 1,
+   "run": 41509855216,
+   "amu_job_s": 50,
+   "queue_s": 8,
+   "opened_to_comment_s": 77,
+   "posted": true,
+   "first": "**AMU: 0 flips** at `4b9f63e`, ran all 539 tests; every changed hunk ran on both sides (at import)",
+   "ran": 539,
+   "candidates": 539,
+   "unrunnable": 0,
+   "mode": "all of the suite",
+   "behaviour_rows": 0,
+   "evidence": 0,
+   "raise_catchers": 0,
+   "raise_missed": 0,
+   "hunk_states": {
+    "executed-both-sides": 2
+   }
+  },
+  {
+   "upstream": 3651,
+   "fork_pr": 2,
+   "run": 41509859971,
+   "amu_job_s": 66,
+   "queue_s": 7,
+   "opened_to_comment_s": 93,
+   "posted": true,
+   "first": "**AMU: docstring or comment changes only** at `927b5ac`; no flip, ran all 539 tests",
+   "ran": 539,
+   "candidates": 539,
+   "unrunnable": 0,
+   "mode": "all of the suite",
+   "behaviour_rows": 0,
+   "evidence": 0,
+   "raise_catchers": 6,
+   "raise_missed": 0,
+   "hunk_states": {
+    "not-code": 2
+   }
+  },
+  {
+   "upstream": 3571,
+   "fork_pr": 3,
+   "run": 41509863458,
+   "amu_job_s": 59,
+   "queue_s": 7,
+   "opened_to_comment_s": 87,
+   "posted": true,
+   "first": "**AMU: 0 flips** at `f7a257f`, ran all 539 tests; 1 of 1 changed hunk ran in no test: `httpx/_transports/default.py:358`",
+   "ran": 539,
+   "candidates": 539,
+   "unrunnable": 0,
+   "mode": "all of the suite",
+   "behaviour_rows": 0,
+   "evidence": 0,
+   "raise_catchers": 22,
+   "raise_missed": 0,
+   "hunk_states": {
+    "executed-none": 1
+   }
+  },
+  {
+   "upstream": 3519,
+   "fork_pr": 4,
+   "run": 41509867054,
+   "amu_job_s": 56,
+   "queue_s": 6,
+   "opened_to_comment_s": 84,
+   "posted": true,
+   "first": "**AMU: 0 flips** at `ac3408f`, ran all 539 tests; every changed hunk ran on both sides, in up to 1 test; 1 behaviour difference on the same input",
+   "ran": 539,
+   "candidates": 539,
+   "unrunnable": 0,
+   "mode": "all of the suite",
+   "behaviour_rows": 1,
+   "evidence": 0,
+   "raise_catchers": 65,
+   "raise_missed": 0,
+   "hunk_states": {
+    "executed-both-sides": 4
+   }
+  },
+  {
+   "upstream": 3445,
+   "fork_pr": 5,
+   "run": 41509872030,
+   "amu_job_s": 69,
+   "queue_s": 7,
+   "opened_to_comment_s": 94,
+   "posted": true,
+   "first": "**AMU: 0 flips** at `c2a5f81`, ran all 539 tests; every changed hunk ran on both sides (at import)",
+   "ran": 539,
+   "candidates": 539,
+   "unrunnable": 0,
+   "mode": "all of the suite",
+   "behaviour_rows": 0,
+   "evidence": 0,
+   "raise_catchers": 0,
+   "raise_missed": 0,
+   "hunk_states": {
+    "executed-both-sides": 1
+   }
+  },
+  {
+   "upstream": 3442,
+   "fork_pr": 6,
+   "run": 41509876894,
+   "amu_job_s": 89,
+   "queue_s": 7,
+   "opened_to_comment_s": 116,
+   "posted": true,
+   "first": "**AMU: 0 flips** at `9d5e734`, ran all 539 tests; every changed hunk ran on both sides, in up to 1 test",
+   "ran": 539,
+   "candidates": 539,
+   "unrunnable": 0,
+   "mode": "all of the suite",
+   "behaviour_rows": 0,
+   "evidence": 0,
+   "raise_catchers": 1,
+   "raise_missed": 0,
+   "hunk_states": {
+    "executed-both-sides": 1
+   }
+  },
+  {
+   "upstream": 3426,
+   "fork_pr": 7,
+   "run": 41509879512,
+   "amu_job_s": 62,
+   "queue_s": 7,
+   "opened_to_comment_s": 88,
+   "posted": true,
+   "first": "**AMU: docstring or comment changes only** at `3bf53fa`; no flip, ran all 538 tests",
+   "ran": 538,
+   "candidates": 538,
+   "unrunnable": 0,
+   "mode": "all of the suite",
+   "behaviour_rows": 0,
+   "evidence": 0,
+   "raise_catchers": 0,
+   "raise_missed": 0,
+   "hunk_states": {
+    "not-code": 1
+   }
+  },
+  {
+   "upstream": 3419,
+   "fork_pr": 8,
+   "run": 41509883776,
+   "amu_job_s": 87,
+   "queue_s": 7,
+   "opened_to_comment_s": 112,
+   "posted": true,
+   "first": "**AMU: 0 flips** at `5f8107b`, ran all 538 tests; every changed hunk ran on both sides, in up to 150 tests",
+   "ran": 538,
+   "candidates": 538,
+   "unrunnable": 0,
+   "mode": "all of the suite",
+   "behaviour_rows": 0,
+   "evidence": 0,
+   "raise_catchers": 199,
+   "raise_missed": 0,
+   "hunk_states": {
+    "executed-both-sides": 37
+   }
+  },
+  {
+   "upstream": 3380,
+   "fork_pr": 9,
+   "run": 41509887418,
+   "amu_job_s": 69,
+   "queue_s": 6,
+   "opened_to_comment_s": 92,
+   "posted": true,
+   "first": "**AMU: 0 flips** at `fdd2e91`, ran all 538 tests; every changed hunk ran on both sides, in up to 289 tests",
+   "ran": 538,
+   "candidates": 538,
+   "unrunnable": 0,
+   "mode": "all of the suite",
+   "behaviour_rows": 0,
+   "evidence": 0,
+   "raise_catchers": 334,
+   "raise_missed": 0,
+   "hunk_states": {
+    "executed-both-sides": 5
+   }
+  },
+  {
+   "upstream": 3418,
+   "fork_pr": 10,
+   "run": 41509892167,
+   "amu_job_s": 62,
+   "queue_s": 7,
+   "opened_to_comment_s": 86,
+   "posted": true,
+   "first": "**AMU: 0 flips** at `8a40ebc`, ran all 538 tests; every changed hunk ran on both sides, in up to 1 test",
+   "ran": 538,
+   "candidates": 538,
+   "unrunnable": 0,
+   "mode": "all of the suite",
+   "behaviour_rows": 0,
+   "evidence": 0,
+   "raise_catchers": 1,
+   "raise_missed": 0,
+   "hunk_states": {
+    "executed-both-sides": 1
+   }
+  },
+  {
+   "upstream": 3412,
+   "fork_pr": 11,
+   "run": 41509898598,
+   "amu_job_s": 73,
+   "queue_s": 10,
+   "opened_to_comment_s": 104,
+   "posted": true,
+   "first": "**AMU: 0 flips** at `3b9b2b3`, ran all 538 tests; every changed hunk ran on both sides, in up to 3 tests; 1 test of the pull request's own fail on the merge base and pass on the head",
+   "ran": 538,
+   "candidates": 538,
+   "unrunnable": 0,
+   "mode": "all of the suite",
+   "behaviour_rows": 0,
+   "evidence": 1,
+   "raise_catchers": 5,
+   "raise_missed": 0,
+   "hunk_states": {
+    "executed-both-sides": 4
+   }
+  },
+  {
+   "upstream": 3389,
+   "fork_pr": 12,
+   "run": 41509903535,
+   "amu_job_s": 63,
+   "queue_s": 8,
+   "opened_to_comment_s": 90,
+   "posted": true,
+   "first": "**AMU: 0 flips** at `433684f`, ran all 536 tests; every changed hunk ran on both sides, in up to 113 tests",
+   "ran": 536,
+   "candidates": 536,
+   "unrunnable": 0,
+   "mode": "all of the suite",
+   "behaviour_rows": 0,
+   "evidence": 0,
+   "raise_catchers": 35,
+   "raise_missed": 0,
+   "hunk_states": {
+    "executed-both-sides": 4
+   }
+  },
+  {
+   "upstream": 3401,
+   "fork_pr": 13,
+   "run": 41509906767,
+   "amu_job_s": 61,
+   "queue_s": 7,
+   "opened_to_comment_s": 86,
+   "posted": true,
+   "first": "**AMU: 0 flips** at `9acb535`, ran all 536 tests; every changed hunk ran on both sides (at import)",
+   "ran": 536,
+   "candidates": 536,
+   "unrunnable": 0,
+   "mode": "all of the suite",
+   "behaviour_rows": 0,
+   "evidence": 0,
+   "raise_catchers": 0,
+   "raise_missed": 0,
+   "hunk_states": {
+    "executed-both-sides": 2
+   }
+  },
+  {
+   "upstream": 3394,
+   "fork_pr": 14,
+   "run": 41509912951,
+   "amu_job_s": 109,
+   "queue_s": 13,
+   "opened_to_comment_s": 155,
+   "posted": true,
+   "first": "**AMU: 0 flips** at `0f9cd3f`, ran all 536 tests; 1 of 63 changed hunks ran only in the pull request's own tests: `httpx/_config.py:33`; 11 tests of the pull request's own fail on the merge base and pass on the head",
+   "ran": 536,
+   "candidates": 536,
+   "unrunnable": 0,
+   "mode": "all of the suite",
+   "behaviour_rows": 0,
+   "evidence": 11,
+   "raise_catchers": 199,
+   "raise_missed": 0,
+   "hunk_states": {
+    "executed-both-sides": 62,
+    "not-code": 3,
+    "executed-head-only": 1
+   }
+  },
+  {
+   "upstream": 3387,
+   "fork_pr": 15,
+   "run": 41509914019,
+   "amu_job_s": 70,
+   "queue_s": 6,
+   "opened_to_comment_s": 91,
+   "posted": true,
+   "first": "**AMU: 0 flips** at `81bb8d1`, ran all 538 tests; every changed hunk ran on both sides, in up to 57 tests",
+   "ran": 538,
+   "candidates": 538,
+   "unrunnable": 0,
+   "mode": "all of the suite",
+   "behaviour_rows": 0,
+   "evidence": 0,
+   "raise_catchers": 66,
+   "raise_missed": 0,
+   "hunk_states": {
+    "executed-both-sides": 11
+   }
+  }
+ ]
+}
