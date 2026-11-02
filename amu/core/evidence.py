@@ -95,6 +95,32 @@ def _chunks(execute, runner, python, tree, ids, scratch, name, budget, deadline,
     return found, problems, round(time.perf_counter() - began, 1), context
 
 
+RERUN = 60  # seconds at most for running again, on each side, the tests whose calls differed
+
+
+def compare(execute, runner, python, trees, plan, scratch, deadline, parts, chunk, calls_b, calls_a, both, base_watch,
+            head_watch):
+    """Calls of each changed function present on both sides, paired by test and call index (record.pair). A pair whose
+    outputs differ on equal inputs is kept only if a second run of its test, on each side, gives the same two outputs:
+    a difference neither side repeats is nondeterminism, counted and not shown."""
+    rows, counts = record.pair([c for c in calls_b if c['function'] in both], [c for c in calls_a if c['function'] in both])
+    tests = sorted({row['test'] for row in rows})
+    kept, unstable = rows, 0
+    if tests:
+        again = {}
+        for side, watch, targets in (('before', base_watch, plan['targets_before']), ('after', head_watch, plan['targets_after'])):
+            folder = Path(scratch)/f'record-{side}-again'
+            env = record.prepare(folder, trees[side], watch, targets)
+            _chunks(execute, runner, python, trees[side], tests, scratch, f'{side}-again', RERUN, deadline, parts, env, chunk)
+            again[side] = {(c['test'], c['function'], c['n']): c['output'] for c in record.read(folder, trees[side],
+                                                                                                runner.cwd(trees[side]))[1]}
+        kept = [row for row in rows if again['before'].get((row['test'], row['function'], row['n'])) == row['digest'][0]
+                and again['after'].get((row['test'], row['function'], row['n'])) == row['digest'][1]]
+        unstable = len(rows) - len(kept)
+    called = sorted({c['function'] for c in calls_b if c['function'] in both} | {c['function'] for c in calls_a if c['function'] in both})
+    return dict(rows=kept, counts=dict(counts, unstable=unstable), called=called, compared_functions=len(both))
+
+
 def plan_hunks(edits, before_src, after_src):
     """Every hunk of the changed production files (tests are the change's own tests, replayed apart)."""
     return [h for path, edit in edits.items() if path.endswith('.py') and not replay.is_test_file(path)
@@ -111,6 +137,10 @@ def run(execute, runner, python, trees, edits, before_src, after_src, plan, scra
     for h in hunks:
         base_watch.setdefault(h['path'], set()).update(h['base'])
         head_watch.setdefault(h['path'], set()).update(h['head'])
+    # Every function a hunk changes, on each side where it exists, is recorded in that side's own run (record).
+    targets_before = sorted({(h['path'], qual) for h in hunks for qual in h['old_touched']})
+    targets_after = sorted({(h['path'], qual) for h in hunks for qual in h['new_touched']})
+    plan = dict(plan, targets_before=targets_before, targets_after=targets_after)
     own = list(dict.fromkeys(plan.get('own') or []))
     mine = set(own)
     static = [i for i in plan.get('static') or [] if i not in mine]
@@ -196,6 +226,8 @@ def run(execute, runner, python, trees, edits, before_src, after_src, plan, scra
     for h in hunks:
         h['head_tests'] = sorted(t for t in record.tests_on(coverage_a, h['path'], h['head']) if t != record.IMPORT)
         h['head_at_import'] = record.IMPORT in record.tests_on(coverage_a, h['path'], h['head'])
+    paired = compare(execute, runner, python, trees, plan, scratch, deadline, parts, chunk, calls_b, calls_a,
+                     {f'{p}#{q}' for p, q in targets_before} & {f'{p}#{q}' for p, q in targets_after}, base_watch, head_watch)
     cut = []
     if 'wall cap' in problems_a or ('wall cap' in problems_b and not found_a):
         cut.append(f'{sum(i not in found_a for i in head_ids)} of {len(head_ids)} candidate tests')
@@ -210,4 +242,5 @@ def run(execute, runner, python, trees, edits, before_src, after_src, plan, scra
                 coverage=dict(before=coverage_b, after=coverage_a), calls=dict(before=calls_b, after=calls_a),
                 skipped={**skipped_b, **skipped_a}, seconds=dict(before=seconds_b, after=seconds_a),
                 problems=dict(before=problems_b, after=problems_a), base_complete=complete,
-                base_planned=len(base_ids) if base_ids is not None else 0, gaps=gaps, cut=cut)
+                base_planned=len(base_ids) if base_ids is not None else 0, gaps=gaps, cut=cut, paired=paired,
+                targets=dict(before=targets_before, after=targets_after))

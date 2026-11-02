@@ -494,10 +494,22 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
                 trust_seconds += time.perf_counter() - began
                 if found:
                     verdicts[ident]['isolated'] = found
-        if functions and not aborted and _monitoring(python) and late(deadline):
+        legacy = plan is None or 'sidebyside-legacy' in extras
+        if planned is not None and not aborted and not legacy:
+            paired_found = planned['paired']
+            counts = paired_found['counts']
+            side = dict(mode='paired records', targets=paired_found['compared_functions'], compared_calls=counts['compared'],
+                        functions_called=len(paired_found['called']), called=paired_found['called'], paired=counts['paired'],
+                        inputs_differ=counts['inputs_differ'], unpaired=counts['unpaired'], unreadable=counts['unreadable'],
+                        unstable=counts['unstable'], differences=len(paired_found['rows']),
+                        skipped=dict(planned.get('skipped') or {}))
+            behaviour = [dict(target=row['function'], input=row['input'], differs=['result'],
+                              before=dict(result=_shown(row['before'])), after=dict(result=_shown(row['after'])),
+                              test=row['test'], label=sidebyside.PAIRED) for row in paired_found['rows']]
+        elif functions and not aborted and _monitoring(python) and late(deadline) and legacy:
             if any(states['after'].get(i) in OUTCOMES for i in ids if i not in set(own)):
                 cut.append('side-by-side')
-        elif functions and not aborted and _monitoring(python):
+        elif functions and not aborted and _monitoring(python) and legacy:
             spec_targets, skipped = sidebyside.targets(functions, before_src, after_src)
             # Not the change's own tests: this run uses the tests as they were, where an added test does not exist and
             # an unknown label makes the runner reject the whole batch.
@@ -765,6 +777,14 @@ def _replay(runner, python, after_tree, other, edits, before_src, after_src, liv
         rows.append(row)
     return rows, gaps, unfinished
 OUTCOMES = ('passed', 'failed', 'skipped')
+
+
+def _shown(text):
+    """A recorded output as the report shows it: the JSON the recorder kept, or the text when it was cut short."""
+    try:
+        return json.loads(text)
+    except (TypeError, ValueError):
+        return text
 
 
 def _path(ident):
