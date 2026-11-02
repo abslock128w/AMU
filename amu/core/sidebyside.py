@@ -393,10 +393,35 @@ if _spec_path and _sys.version_info >= (3, 12):
 
         def _run(fn, blob, generator, changed=False, rebind=None):
             pos, kw = _thaw(blob)
+            kept = _keep(pos, kw) if blob[0] == "live" else ()
+            try:
+                return _run_once(fn, pos, kw, generator, changed, rebind)
+            finally:
+                for obj, state in kept:
+                    try:
+                        obj.__dict__.clear()
+                        obj.__dict__.update(state)
+                    except Exception:
+                        pass
+
+        def _keep(pos, kw):
+            # Arguments that copy neither way are run on as they are, and the program goes on using them: a run that
+            # changes their attributes (Flask #5812: the as-changed AppContext.__init__ on the context being built,
+            # which the test then pushed) would leave them changed for the test and for every later comparison.
+            # Their attributes are put back after each run.
+            kept = []
+            for obj in [*pos, *kw.values()]:
+                state = getattr(obj, "__dict__", None)
+                if isinstance(state, dict):
+                    kept.append((obj, dict(state)))
+            return kept
+
+        def _run_once(fn, pos, kw, generator, changed, rebind):
             if rebind is not None:
                 pos, kw = rebind(pos, kw)
             out = io.StringIO()
             _local.calls = []
+            old = None
             if changed:
                 _prepare_swaps()
                 _swapped(True)
@@ -409,6 +434,7 @@ if _spec_path and _sys.version_info >= (3, 12):
                         result = ["return", _fp(value)]
                     except BaseException as exc:
                         result = ["raise", type(exc).__qualname__, _ADDRESS.sub(" at 0x?", str(exc))[:500]]
+                        old = _old_object(exc) if changed else None
             finally:
                 if changed:
                     _swapped(False)
@@ -419,7 +445,33 @@ if _spec_path and _sys.version_info >= (3, 12):
                 layout = rebind.back(kw)  # passed by name: every value is in kw
             else:
                 layout = rebind.back((pos, kw))
-            return dict(result=result, args_after=_fp(layout), stdout=out.getvalue()[:2000], calls=calls)
+            ran = dict(result=result, args_after=_fp(layout), stdout=out.getvalue()[:2000], calls=calls)
+            if old:
+                ran["old_object"] = old
+            return ran
+
+        def _old_object(exc):
+            # The class of an object, met as ``self`` in a frame the exception went through, that lacks an attribute
+            # the change's constructor of that class always sets: the code before the change built it, so its state
+            # is in the old layout (Flask #5812: the new AppContext.request property on an AppContext the old code
+            # built and pushed raised "There is no request in this context").
+            fresh = _spec.get("fresh") or {}
+            if not fresh:
+                return None
+            tb = exc.__traceback__
+            while tb is not None:
+                try:
+                    obj = tb.tb_frame.f_locals.get("self")
+                    if obj is not None and hasattr(obj, "__dict__"):
+                        kinds = type(obj).__mro__
+                        for kind in kinds:
+                            for name in fresh.get(kind.__name__, ()):
+                                if name not in vars(obj) and not any(name in vars(k) for k in kinds):
+                                    return type(obj).__qualname__
+                except Exception:
+                    pass
+                tb = tb.tb_next
+            return None
 
         def _arguments(code, frame):
             names = code.co_varnames
@@ -813,7 +865,7 @@ def additions(before, after, path=''):
     return found
 
 
-def support(scratch, tree, spec_targets, added=(), modules=()):
+def support(scratch, tree, spec_targets, added=(), modules=(), fresh=()):
     folder = Path(scratch)/'side-by-side'
     (folder/'out').mkdir(parents=True, exist_ok=True)
     (folder/'hook').mkdir(exist_ok=True)
@@ -821,8 +873,11 @@ def support(scratch, tree, spec_targets, added=(), modules=()):
     rows = [dict(t, file=str(Path(tree)/t['file'])) for t in spec_targets]
     extra = [dict(a, file=str(Path(tree)/a['file'])) for a in added]
     new = [dict(m, file=str(Path(tree)/m['file'])) for m in modules]
+    classes = {}
+    for cls, attr in sorted(fresh):
+        classes.setdefault(cls, []).append(attr)
     (folder/'spec.json').write_text(json.dumps(dict(root=str(tree), targets=rows, additions=extra, modules=new, calls=CALLS,
-                                                    shapes=SHAPES)))
+                                                    shapes=SHAPES, fresh=classes)))
     return folder
 
 
@@ -873,7 +928,7 @@ def run(runner, python, before_tree, ids, spec_targets, skipped, scratch, timeou
     ids = sorted(ids, key=lambda i: not any(i == p or i.startswith(p + '::') for p in first)) if first else list(ids)
     if not spec_targets:
         return dict(targets=0, skipped=skipped), [], gaps
-    folder = support(scratch, before_tree, spec_targets, added, modules)
+    folder = support(scratch, before_tree, spec_targets, added, modules, fresh)
     env = dict(AMU_TRUST_PATH=str(folder/'hook'), AMU_SBS_SPEC=str(folder/'spec.json'), AMU_SBS_OUT=str(folder/'out'))
     outcomes, problem = runners.execute(runner, python, before_tree, ids, Path(scratch)/'side-by-side.xml', timeout, extra_env=env)
     if problem and problem != 'timed out':
@@ -915,6 +970,12 @@ def run(runner, python, before_tree, ids, spec_targets, skipped, scratch, timeou
         if (row['target'] in reshaped and after[0] == 'raise' and after[1] == 'TypeError'
                 and after[2].startswith(row['target'].rsplit('#', 1)[1] + '()') and 'argument' in after[2]):
             misfit += 1
+            continue
+        if row['stable'] and row['differs'] and after[0] == 'raise' and row['after'].get('old_object') \
+                and row['before']['result'][:2] != after[:2]:
+            # The as-changed code failed inside a method of an object the code before the change built (it lacks an
+            # attribute the new constructor always sets): the input's state, not the behaviour.
+            built_before += 1
             continue
         missing = ATTRIBUTE.search(after[2]) if after[0] == 'raise' and after[1] == 'AttributeError' else None
         if row['stable'] and row['differs'] and missing and (missing[1], missing[2]) in fresh and row['before']['result'][:2] != after[:2]:
