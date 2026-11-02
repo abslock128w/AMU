@@ -410,7 +410,7 @@ def execute(runner, python, tree, ids, report, timeout, extra_env=None, extra_ar
     # no outcomes, so a batch that comes back short is split in two and retried until the labels that
     # cannot be run stand alone. Those are returned as 'unrunnable': never silently as "did not fail".
     # ``timeout`` bounds the whole call, splits included: each retry gets what is left, not the full limit again.
-    batches, splits, deadline, strikes = [[i for i in usable if i not in found]], 0, time.monotonic() + timeout, 0
+    batches, splits, deadline, failed_parts = [[i for i in usable if i not in found]], 0, time.monotonic() + timeout, []
     while batches:
         batch = batches.pop(0)
         if not batch:
@@ -475,10 +475,13 @@ def execute(runner, python, tree, ids, report, timeout, extra_env=None, extra_ar
         elif (not got and splits and len(batch) > 1 and not any(state != 'unrunnable' for state in found.values())
               and reason == first_error):
             # A part of the batch failing exactly as the whole batch did. One part may just hold the label that aborts
-            # it; two parts failing alike, with nothing run anywhere, say the runner aborts before any test whatever the
-            # labels. Splitting further would only restart it; every remaining candidate is unrunnable.
-            strikes += 1
-            if strikes >= 2:
+            # it, and so may a part split from it; two parts with no test in common failing alike, with nothing run
+            # anywhere, say the runner aborts before any test whatever the labels. Splitting further would only restart
+            # it; every remaining candidate is unrunnable.
+            part = set(batch)
+            disjoint = bool(failed_parts) and all(not (part & other) for other in failed_parts)
+            failed_parts.append(part)
+            if disjoint:
                 for ident in [*missing, *(i for rest in batches for i in rest)]:
                     found[ident] = 'unrunnable'
                 batches = []

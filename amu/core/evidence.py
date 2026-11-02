@@ -170,7 +170,8 @@ def run(execute, runner, python, trees, edits, before_src, after_src, plan, scra
         found_b, problems_b, seconds_b, _ = _chunks(execute, runner, python, trees['before'], base_ids, scratch, 'before',
                                                    budget, deadline, parts, env, WHOLE if fits else chunk)
         coverage_b, calls_b, skipped_b = record.read(before_dir, trees['before'], runner.cwd(trees['before']))
-        complete = bool(base_ids) and all(i in found_b for i in base_ids)
+        complete = bool(base_ids) and all(i in found_b for i in base_ids) and any(
+            state in ('passed', 'failed', 'skipped') for state in found_b.values())
     else:
         found_b, problems_b, seconds_b, complete, skipped_b = {}, [], 0.0, False, {}
     mode = ALL if exploring and complete and seconds_b <= budget * FILL else COVERAGE

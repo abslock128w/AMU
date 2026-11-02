@@ -172,7 +172,8 @@ def headline(report, head, ran):
         return first + f"{len(picked)} of {plural(total, 'changed hunk')} ran only in the pull request's own tests: {places(picked)}"
     covered = max((row.get('tests') or 0 for row in rows if row['state'] == 'executed-both-sides'), default=0)
     fresh = [row for row in rows if row['state'] == 'new-code']
-    text = first + (f"every changed hunk ran on both sides, in up to {plural(covered, 'test')}" if not fresh else
+    reach = f", in up to {plural(covered, 'test')}" if covered else ' (at import)'
+    text = first + (f"every changed hunk ran on both sides{reach}" if not fresh else
                     f"every changed hunk that existed before ran on both sides; {len(fresh)} add new code with no existing callers")
     return text
 

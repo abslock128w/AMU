@@ -472,7 +472,8 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
             everything = list(dict.fromkeys(run_id for ident in sorted(tests) for run_id in run_ids(label_of(ident))
                                             if not where or any(run_id == p or run_id.startswith(p + '/') or run_id.startswith(p + '::')
                                                                 for p in where)))
-            plan = dict(static=[i for i in wide if i not in set(own)], everything=everything, own=own,
+            in_suite = [i for i in wide if not where or any(i == p or i.startswith(p + '/') or i.startswith(p + '::') for p in where)]
+            plan = dict(static=[i for i in in_suite if i not in set(own)], everything=everything, own=own,
                         key=merge_base or shadow.parent_key(root))
         prepared = time.perf_counter() - began
         flips, executed, run_gaps = shadow.run(root, edits, wide, python, budget, runner, memo=memo, own=own, base_cache=cache,
