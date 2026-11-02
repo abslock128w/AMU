@@ -483,6 +483,27 @@ def test_an_attribute_new_to_one_class_counts_as_fresh_when_another_class_of_the
     assert fresh_attributes(lib0 + sub, lib1 + sub) == {('Ctx', '_request'), ('Sub', '_request')}
 
 
+def test_a_failure_inside_a_method_of_an_object_the_old_code_built_is_not_a_behaviour_row(tmp_path):
+    # Flask #5812 (re-score after #71-#75): the new AppContext.request property, run on an AppContext the old code had
+    # built and pushed, raised "There is no request in this context"; 15 rows were that.
+    lib0 = ('class Ctx:\n    def __init__(self, url):\n        self.url = url\n\n\n'
+            'def describe(ctx):\n    return "ctx " + ctx.url\n\n\n'
+            'def make(url):\n    return Ctx(url).url\n')
+    lib1 = ('class Ctx:\n    def __init__(self, url):\n        self.url = url\n        self._req = None\n\n'
+            '    def request(self):\n        if getattr(self, "_req", None) is None:\n'
+            '            raise RuntimeError("no request in this context")\n        return self._req\n\n\n'
+            'def describe(ctx):\n    return "ctx " + ctx.request()\n\n\n'
+            'def make(url):\n    return Ctx(url).request()\n')
+    tests = ('import lib\n\nCTX = lib.Ctx("a")\n\n\ndef test_describe():\n    assert lib.describe(CTX)\n\n\n'
+             'def test_make():\n    assert lib.make("b")\n')
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1, 'tests/test_lib.py': tests})
+    rows = {row['target']: row for row in report['behaviour_differences']}
+    assert 'lib.py#describe' not in rows, rows
+    assert report['side_by_side']['input_built_before_the_change'] >= 1, report['side_by_side']
+    # An object the as-changed code builds itself has the new layout: its failure is behaviour, and stays a row.
+    assert rows['lib.py#make']['after']['result'][:2] == ['raise', 'RuntimeError'], rows
+
+
 def test_a_parameter_inserted_or_moved_does_not_misbind_the_captured_call(tmp_path):
     # Flask #5818 (performance test at v0.4.2): dispatch methods gained a leading ctx parameter; the captured calls,
     # replayed by position, put the exception into ctx, and all 33 rows were artifacts.
