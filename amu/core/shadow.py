@@ -503,8 +503,9 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
                         inputs_differ=counts['inputs_differ'], unpaired=counts['unpaired'], unreadable=counts['unreadable'],
                         unstable=counts['unstable'], differences=len(paired_found['rows']),
                         skipped={**sidebyside.targets(functions, before_src, after_src)[1], **(planned.get('skipped') or {})})
-            behaviour = [dict(target=row['function'], input=row['input'], differs=['result'],
-                              before=dict(result=_shown(row['before'])), after=dict(result=_shown(row['after'])),
+            behaviour = [dict(target=row['function'], input=row['input'], differs=row.get('differs') or ['result'],
+                              before=dict(result=_shown(row['before']), args_after=_shown(row.get('before_args'))),
+                              after=dict(result=_shown(row['after']), args_after=_shown(row.get('after_args'))),
                               test=row['test'], label=sidebyside.PAIRED) for row in paired_found['rows']]
         elif functions and not aborted and _monitoring(python) and late(deadline) and legacy:
             if any(states['after'].get(i) in OUTCOMES for i in ids if i not in set(own)):

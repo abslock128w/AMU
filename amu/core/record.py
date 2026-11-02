@@ -202,7 +202,8 @@ if _spec_path and _sys.version_info >= (3, 12):
             try:
                 after = _fp(record.pop("args")) if record.get("args") is not None else None
                 out, shown = _pack([result, after])
-                record.update(o=out, oshow=_pack(result)[1])
+                result_digest, result_shown = _pack(result)
+                record.update(o=out, oshow=result_shown, r=result_digest, ashow=_pack(after)[1])
             except Exception as exc:
                 record.pop("args", None)
                 record.update(o=None, oshow="<" + type(exc).__name__ + ">")
@@ -379,7 +380,8 @@ def read(folder, tree, cwd=None):
                     into.setdefault(path, set()).update(found)
             elif kind == 'call':
                 calls.append(dict(test=test, function=event['fn'], n=event['n'], input=event.get('i'),
-                                  output=event.get('o'), input_shown=event.get('ishow', ''), output_shown=event.get('oshow', '')))
+                                  output=event.get('o'), input_shown=event.get('ishow', ''), output_shown=event.get('oshow', ''),
+                                  result=event.get('r'), after_shown=event.get('ashow', '')))
             elif kind == 'skip':
                 skipped[event['fn']] = event['why']
     return coverage, calls, skipped
@@ -412,6 +414,10 @@ def pair(before, after):
             continue
         counts['compared'] += 1
         if old['output'] != new['output']:
-            rows.append(dict(test=key[0], function=key[1], n=key[2], input=old['input_shown'],
-                             before=old['output_shown'], after=new['output_shown'], digest=(old['output'], new['output'])))
+            # What differs: the result, or only the arguments as the call left them (self included).
+            differs = ['result'] if old.get('result') != new.get('result') else ['args_after']
+            rows.append(dict(test=key[0], function=key[1], n=key[2], input=old['input_shown'], differs=differs,
+                             before=old['output_shown'], after=new['output_shown'],
+                             before_args=old.get('after_shown', ''), after_args=new.get('after_shown', ''),
+                             digest=(old['output'], new['output'])))
     return rows, counts

@@ -100,3 +100,14 @@ def test_a_difference_neither_side_repeats_is_not_a_row(tmp_path):
     report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1})
     assert report['behaviour_differences'] == [], report['behaviour_differences']
     assert report['side_by_side']['unstable'] == 1, report['side_by_side']
+
+
+def test_a_difference_in_what_a_call_leaves_on_its_arguments_says_so(tmp_path):
+    # A constructor stores a different callable: the return value (None) is the same; the object is not.
+    lib0 = 'class Wrap:\n    def __init__(self, fn):\n        self.call = lambda v: fn(v)\n'
+    lib1 = 'class Wrap:\n    def __init__(self, fn):\n        self.call = fn\n'
+    tests = 'from lib import Wrap\n\n\ndef test_wrap():\n    assert Wrap(abs).call(-1) == 1\n'
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1})
+    [row] = report['behaviour_differences']
+    assert row['differs'] == ['args_after'] and row['before']['result'] == row['after']['result'] == ['return', 'None'], row
+    assert row['before']['args_after'] != row['after']['args_after'], row
