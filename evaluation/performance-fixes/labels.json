@@ -18,10 +18,10 @@
  "django#22026": {
   "adds": "something",
   "first_line_correct": true,
-  "note": "The 9 NameError rows are gone, but not through fix 1: side-by-side could not start (Argument list too long at 17,539 labels), so no call was compared. The 1 evidence test shows the real change (cached_property deprecation).",
+  "note": "After #79: side-by-side starts (labels run in parts) and compares 71 calls of 2 changed functions, 0 rows: the NameError rows of v0.4.2 do not come back, so #71 holds on real code. The 1 evidence test shows the real change (cached_property deprecation).",
   "number": 22026,
   "repo": "django",
-  "rows": "rows 0 (side-by-side did not start)"
+  "rows": "rows 0 (71 calls compared)"
  },
  "django#22046": {
   "adds": "nothing",
@@ -90,7 +90,7 @@
  "django#22176": {
   "adds": "noise",
   "first_line_correct": true,
-  "note": "Unchanged from v0.4.2: 2 of the 3 evidence tests only fail before because trim_value is new (subTest blocks not parsed). Side-by-side did not start this time (Argument list too long).",
+  "note": "Unchanged label: 2 of the 3 evidence tests only fail before because trim_value is new (subTest blocks not parsed; not in scope). After #79 side-by-side starts and compares 28 calls, 0 rows.",
   "number": 22176,
   "repo": "django",
   "rows": "-"
@@ -136,12 +136,12 @@
   "rows": "-"
  },
  "flask#5812": {
-  "adds": "noise",
+  "adds": "nothing",
   "first_line_correct": true,
-  "note": "Fix 2 set aside 66 calls (AttributeError on attributes the new AppContext.__init__ sets). Left: 14 real rows (request_context()/test_request_context() return AppContext); 21 artifacts: 15 RuntimeError 'no request in this context' and has_request_context True->False (as-changed code reading the old pushed RequestContext), 4 AttributeError '_after_request_functions' (missed because the old RequestContext.__init__ in the same file set that name: fresh names are per file, not per class), 1 NoneType.allowed_methods. 60% false, was 78%.",
+  "note": "After #77-#79: 17 rows, 16 real and intended (request_context()/test_request_context() return AppContext, as the PR describes); 1 false (make_default_options_response: 'NoneType' object has no attribute 'allowed_methods', the old context has no matched rule). 91 calls set aside as input built before the change. Was 35 rows, 21 false.",
   "number": 5812,
   "repo": "flask",
-  "rows": "rows 35, real 14, intended 14"
+  "rows": "rows 17, real 16, intended 16"
  },
  "flask#5818": {
   "adds": "something",
