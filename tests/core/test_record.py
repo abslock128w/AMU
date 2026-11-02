@@ -126,3 +126,43 @@ def test_pairing_compares_only_equal_inputs():
     rows, counts = record.pair(before, after)
     assert [(r['test'], r['n'], r['before'], r['after']) for r in rows] == [('t::a', 0, '1', '9')]
     assert counts == dict(paired=2, compared=1, inputs_differ=1, unpaired=2, unreadable=0)
+
+
+def test_a_value_a_cached_property_holds_is_not_part_of_an_object(tmp_path):
+    # Whether a lazy attribute was computed yet says when someone asked for it, not what the object is: the code before
+    # a change may read it earlier than the code after.
+    from functools import cached_property
+
+    (tmp_path/'m.py').write_text(textwrap.dedent('''\
+        import functools
+
+
+        class Req:
+            def __init__(self):
+                self.path = "/"
+
+            @functools.cached_property
+            def cookies(self):
+                return {}
+
+
+        def describe(req):
+            return req
+        '''))
+    (tmp_path/'tests').mkdir()
+    (tmp_path/'tests/test_m.py').write_text(textwrap.dedent('''\
+        from m import Req, describe
+
+
+        def test_fresh():
+            describe(Req())
+
+
+        def test_read():
+            req = Req()
+            req.cookies
+            describe(req)
+        '''))
+    _, calls, _ = run(tmp_path, [sys.executable, '-m', 'pytest', '-q', '-p', 'no:cacheprovider', 'tests'], {}, [('m.py', 'describe')])
+    assert len({c['input'] for c in calls}) == 1 and len({c['output'] for c in calls}) == 1, calls
+    assert cached_property  # the decorator the project uses here

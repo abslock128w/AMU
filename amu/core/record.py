@@ -96,6 +96,10 @@ if _spec_path and _sys.version_info >= (3, 12):
                 items = sorted((_fp(v, depth + 1, seen) for v in list(value)[:100]), key=repr)
                 return [kind.__name__, items, len(value)]
             if kind is dict:
+                named = value.get("__name__") if "__builtins__" in value else None
+                module = _sys.modules.get(named) if type(named) is str else None
+                if module is not None and getattr(module, "__dict__", None) is value:
+                    return "globals:" + named  # a module's namespace: its name, not everything defined in it
                 pairs = [[_fp(k, depth + 1, seen), _fp(v, depth + 1, seen)] for k, v in list(value.items())[:100]]
                 return ["dict", pairs, len(value)]
             if isinstance(value, type):
@@ -109,7 +113,9 @@ if _spec_path and _sys.version_info >= (3, 12):
             try:
                 found = object.__getattribute__(value, "__dict__")
                 if type(found) is dict:
-                    state = {k: v for k, v in found.items()}
+                    # A value cached under a name the class defines as a non-data descriptor (a cached property) is
+                    # derived state: whether it was computed yet says when it was asked for, not what the object is.
+                    state = {k: v for k, v in found.items() if not _cached(kind, k)}
             except Exception:
                 pass
             slots = []
@@ -131,6 +137,15 @@ if _spec_path and _sys.version_info >= (3, 12):
             except Exception as exc:
                 text = "<repr failed: " + type(exc).__name__ + ">"
             return name + ":" + _ADDRESS.sub(" at 0x?", text)[:2000]
+
+        def _cached(kind, name):
+            for klass in kind.__mro__:
+                attribute = klass.__dict__.get(name)
+                if attribute is not None:
+                    found = type(attribute)
+                    return (hasattr(found, "__get__") and not hasattr(found, "__set__")
+                            and not isinstance(attribute, (types.FunctionType, staticmethod, classmethod)))
+            return False
 
         def _pack(value):
             text = json.dumps(value, default=str)
@@ -202,10 +217,11 @@ if _spec_path and _sys.version_info >= (3, 12):
                     kept, held = args, None
                 digest, shown = _pack(_fp(kept))
             except Exception as exc:
-                args, digest, shown = None, None, "<" + type(exc).__name__ + ">"
+                args, kept, held, digest, shown = None, None, None, None, "<" + type(exc).__name__ + ">"
             finally:
                 _local.busy = False
-            stack.append((code, dict(k="call", t=_state["test"], fn=target, n=n, i=digest, ishow=shown, args=args,
+            # The arguments as the call leaves them, without those held apart (their value is the default itself).
+            stack.append((code, dict(k="call", t=_state["test"], fn=target, n=n, i=digest, ishow=shown, args=kept,
                                      **({"dp": held} if held else {}))))
             return None
 
