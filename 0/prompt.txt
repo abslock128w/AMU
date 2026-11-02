@@ -1,0 +1,177 @@
+Background (from the session that started this one):
+AMU (PyPI `anti-messup`, command `amu`, repo github.com/abslock128w/AMU, remote named `github`) is a Python change-impact tool that posts a PR comment: it selects candidate tests from a static/lexical/co-change graph plus coverage, runs them on the base and head trees, reports flips, replays the PR's own tests on base, and shows side-by-side behaviour differences of changed functions on captured arguments. Current release v0.5.1 (main after PRs #71-#85). Numbers on a frozen 47-PR set from Django/sympy/Flask: first line correct 42/47, false behaviour rows 1, noisy comments 2, useful 19, false flips 0. See `evaluation/STATUS.md`, `evaluation/performance-v042/REPORT.md` (protocol, labels.json rubric, freeze.py/run.py), and `evaluation/ci/INSTALL-NOTE.md` (two-workflow GitHub Action: untrusted PR run + privileged comment post). A sympy fork pilot was done earlier the same way (fork, replay PRs, let the Action run). The owner has decided: no engine changes, no new features; the next evidence needed is AMU on a fifth codebase with a different shape, run live through the Action on the owner's own fork, never touching the upstream community repo. Owner rules: never run an upstream repo's test suite without asking once per repository (attrs is approved for this task); never commit keys; use `gh` (already authenticated as abslock128w); the owner is away, so do not stop for questions, record blockers and continue; standing authority covers merging your own PRs to abslock128w/AMU when CI is green and deleting your own branches. This checkout `/Users/Abslock128/Documents/ChatGPT/AMU/fix-base` is a git worktree of the AMU repo on branch `docs/status`; create your own branch from `github/main` for the report, do not switch this worktree's branch, do not commit to `docs/status`. Local recording/site-hook tests can fail on this Mac under load; GitHub CI is the arbiter.
+
+Task:
+Run an AMU pilot on a fork of `python-attrs/attrs`, entirely on the owner's GitHub. Never open an issue, PR or comment on python-attrs.
+
+Steps:
+1. Fork python-attrs/attrs to abslock128w/attrs with `gh repo fork`. Install the AMU Action on the fork exactly per `evaluation/ci/INSTALL-NOTE.md` (two workflows; comment posting on the fork only), pinned to AMU v0.5.1. Commit that to the fork's default branch.
+2. Pick the last 15 merged upstream PRs that change Python under `src/attr/` or `src/attrs/` (skip docs-only, changelog-only, CI-only). For each, open a PR on the fork: base branch = a branch at the upstream merge-base commit (plus the AMU workflow commit), head = the PR's commits on top. Let the Action run live. Do not run anything locally that the Action should run.
+3. For each PR record: job time from queue to comment, whether the comment posted, first line text and whether it is correct, useful/nothing/noise by the rubric in `evaluation/performance-v042/labels.json`, false behaviour rows, false flips, and what fraction of the attrs suite the budget covered (attrs' full suite is ~1 minute, so it should be all of it; report if not).
+4. Measure two things not measured before: the per-PR cost of the Action on a small pure-Python project (job minutes), and whether side-by-side produces real rows on attrs' generated-class code.
+5. If the Action fails to run at all on the fork, diagnose only enough to say why (secrets, permissions, runner, workflow), record it, and if it is an install-note error, fix the note in your report PR. No engine changes. Any engine defect gets a one-paragraph record with a reproduction, not a fix.
+6. Write `evaluation/pilot/attrs/REPORT.md` with: the 15-row table, job-time range, budget coverage, the hand labels in `labels.json`, every defect, and a one-paragraph verdict on whether attrs is a fit for a maintainer ask. Open it as a PR to abslock128w/AMU on a branch from `github/main`, merge when CI is green.
+
+Done looks like: 15 PRs on abslock128w/attrs each with an AMU comment (or a recorded reason for none), the report merged on main, and your final message starting with the 15-row table, then job-time range, then the verdict. Losses first.
+
+Shared notes folder for this group of sessions (outside the repo; read siblings' notes there, leave hand-over notes or large findings there instead of pasting them into messages): /Users/Abslock128/Library/Application Support/Claude/side-session-notes/local_94829d25-ae8d-40df-a1a8-75a3ad1c3378
+
+---
+
+<task-notification>
+<task-id>bwp4bjhcq</task-id>
+<tool-use-id>toolu_012NkbuDixyDsFiTsnb7Tq6h</tool-use-id>
+<output-file>/private/tmp/claude-502/REDACTED/b2f1bc66-3e20-4459-84e0-72c90221b63f/tasks/bwp4bjhcq.output</output-file>
+<status>completed</status>
+<summary>Background command "Wait until all fork workflow runs complete" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+<pasted_content id="2bd4">
+Make AMU generalize beyond the three repos it was tuned on. Context: v0.5.1 scored 42/47 first lines, 1 false row on the frozen Django/sympy/Flask set, then fell on the attrs fork pilot (evaluation/pilot/attrs/REPORT.md, PR #86, merge it if open and green): first line 11/15, useful 2/15, 62 false side-by-side rows, 0.7-47% of a 4-second suite covered. The 47-set numbers were overfit. Three phases, report after each, losses first. Each fix is its own PR with a test that fails on the old code. Never edit engine code while a run is live. Never touch python-attrs or encode/httpx upstream.
+
+Phase 1: fix the six recorded attrs defects plus one recommendation.
+1. Selection misses tests that reach the changed function through a package __init__ re-export in a src/ layout (attrs 1636: 8 TestAsTuple tests not candidates, "1518 call sites unresolved"). Fix resolution through re-exports and `from pkg import name`; report unresolved call sites on attrs before and after.
+2. render.py checks adds_only before docs_only, so a comment typo reads "adds new code only" (attrs 1625). Fix the order; define docs_only per changed function.
+3. Side-by-side false rows when a slotted class gains a slot/field the old class lacks (attrs 1509, 62 rows): AttributeError/TypeError on an attribute absent from the old object is set aside as "old object lacks <attr>", never a behaviour row. #78 did not fire because input_built_before_the_change was 0.
+4. Docstring-only edits to existing functions beside a new function still read "adds new code only" (attrs 1571).
+5. Name every unrunnable candidate and its reason in the report and the comment details; a gap "no outcomes read: 1 error" carries the pytest error text.
+6. Code gated on a Python version the job does not run (attrs 1606/1507) is called out in the first line: "not executable on Python 3.12 here". INSTALL-NOTE gains the python-version and --group notes.
+7. When the suite's last measured duration fits the budget, run the whole suite on both sides and say "ran all 1,412 tests" in the first line instead of selecting.
+Re-render the frozen 47 reports; confirm no first line regresses, or say which and why. Release v0.6.0.
+
+Phase 2: re-run the same 15 attrs PRs on abslock128w/attrs with the Action pinned to v0.6.0. Same rubric and labels.json structure. Add a v0.5.1 vs v0.6.0 per-PR table to evaluation/pilot/attrs/REPORT.md. Target: first line 15/15, false rows 0, useful >= 2, suite covered 100%.
+
+Phase 3: sixth repo, untuned, no engine changes once it starts. Fork encode/httpx to abslock128w/httpx (test execution approved). Same protocol: Action pinned v0.6.0, last 15 merged upstream PRs changing Python under httpx/, replayed as fork PRs, live Action, hand labels. Write evaluation/pilot/httpx/REPORT.md: 15-row table, defects recorded with reproductions and NOT fixed, verdict on whether v0.6.0 held on an untuned repo or fell like attrs. Merge it.
+
+Final message: three lines of numbers (47-set regression check, attrs before/after, httpx), then httpx defects, then anything unfinished and why.
+</pasted_content id="2bd4">
+
+---
+
+<pasted_content id="2bd4">
+Stop patching per-repo symptoms. Three design causes are behind every defect recorded so far (Django/sympy/Flask 47-set, attrs pilot evaluation/pilot/attrs/REPORT.md). Fix the causes. No fix may reference attrs, Django, sympy or Flask by name or by their code shapes; tests use synthetic fixtures.
+
+Cause 1, selection: the static resolver is the primary selector, and every repo adds a case it misses (re-exports, src/ layout, name lookup, inheritance). Make execution evidence primary. Order: (a) if the suite's last measured duration fits the budget, run all of it on both sides, no selection; (b) else select from per-test coverage of changed lines (record it with the sys.monitoring tracer during the base-side run if absent; base-side cache keyed by commit); (c) the static graph only adds candidates for changed code with no coverage data, and the comment says which candidates came from which source. Measure: on attrs 1636's reproduction and on the 47 set, no test that fails when the changed line raises may be absent from candidates. Report that count as a number: "tests that would catch a raise, missed".
+
+Cause 2, side-by-side: calling the new function on objects the old code built is unsound; constructor attributes, lock state, slots, context state are all this one error. Replace it: record calls into changed functions on each side during that side's own test run (args by a stable digest, return/exception), pair records across sides by test id and call index, report a behaviour difference only where the paired inputs are equal and the outputs differ. Keep the old mode behind a flag for comparison. Measure: false rows on the 47 set and on attrs 1509 must be 0 without any set-aside rules; real rows retained vs the 33 we had.
+
+Cause 3, first line: a priority order of flags (adds_only, docs_only, reach, version gate) breaks whenever a case is added. Replace it with a per-hunk evidence state: executed-both-sides (N tests), executed-none, not-executable-here (reason: python version, missing env, platform), not-code (docstring/comment/layout), new-code (no existing callers by name). The first line reports the worst hunk; the details list each hunk's state. Delete the flag ordering. Measure: re-render all 47 + 15 attrs reports; label each first line; nothing may regress.
+
+Then release v0.6.0, re-run the 15 attrs PRs on abslock128w/attrs with the Action pinned to v0.6.0 (never touch python-attrs), and run a sixth untuned repo: fork encode/httpx to abslock128w/httpx (test execution approved), last 15 merged upstream PRs changing Python under httpx/, replayed as fork PRs, live Action, hand labels, defects recorded NOT fixed. Reports in evaluation/pilot/attrs/ (before/after table) and evaluation/pilot/httpx/REPORT.md.
+
+Rules: each cause is its own PR series; tests fail on the old code; never edit engine code during a live run; freeze before runs; losses first. Final message: three lines of numbers (47-set, attrs before/after, httpx), then "tests that would catch a raise, missed" and false rows per repo, then httpx defects, then unfinished work and why.
+</pasted_content id="2bd4">
+
+---
+
+<task-notification>
+<task-id>b3wzp392o</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-502/REDACTED/b2f1bc66-3e20-4459-84e0-72c90221b63f/tasks/b3wzp392o.output</output-file>
+<status>completed</status>
+<summary>Background command "Rebuild 47-set clones and environments" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>b332neoz1</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-502/REDACTED/b2f1bc66-3e20-4459-84e0-72c90221b63f/tasks/b332neoz1.output</output-file>
+<status>completed</status>
+<summary>Background command "Run core and ci tests with new default" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>b7hqwnikr</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-502/REDACTED/b2f1bc66-3e20-4459-84e0-72c90221b63f/tasks/b7hqwnikr.output</output-file>
+<status>completed</status>
+<summary>Background command "Run whole AMU test suite in parallel" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>bgjj4z1n4</task-id>
+<tool-use-id>toolu_01WEhjbHMynvadxeb4aGRRdR</tool-use-id>
+<output-file>/private/tmp/claude-502/REDACTED/b2f1bc66-3e20-4459-84e0-72c90221b63f/tasks/bgjj4z1n4.output</output-file>
+<status>completed</status>
+<summary>Background command "Full suite and ruff for cause 1" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+continue
+
+---
+
+<task-notification>
+<task-id>b7eez0x7b</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-502/REDACTED/b2f1bc66-3e20-4459-84e0-72c90221b63f/tasks/b7eez0x7b.output</output-file>
+<status>completed</status>
+<summary>Background command "Full suite on cause 2 branch" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>bsa35oocn</task-id>
+<tool-use-id>toolu_01NvyRCR6yKxiTcsRK7ME4fv</tool-use-id>
+<output-file>/private/tmp/claude-502/REDACTED/b2f1bc66-3e20-4459-84e0-72c90221b63f/tasks/bsa35oocn.output</output-file>
+<status>completed</status>
+<summary>Background command "Full suite on cause 3" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>b8ct87you</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-502/REDACTED/b2f1bc66-3e20-4459-84e0-72c90221b63f/tasks/b8ct87you.output</output-file>
+<status>completed</status>
+<summary>Background command "Wait for 22 results and summarize" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>bw2bwk2cw</task-id>
+<summary>Monitor event: "evaluation PR results (attrs, flask, django, sympy)"</summary>
+<event>[Monitor expired after 30m with no events delivered. Re-arm it if you still need the watch — and widen the filter if silence was unexpected.]</event>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>bkfihzgsg</task-id>
+<tool-use-id>toolu_01FtNt53yffgPX3MaQS2Db3A</tool-use-id>
+<output-file>/private/tmp/claude-502/REDACTED/b2f1bc66-3e20-4459-84e0-72c90221b63f/tasks/bkfihzgsg.output</output-file>
+<status>completed</status>
+<summary>Background command "Wait for attrs set to finish" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>bai5nb4jp</task-id>
+<tool-use-id>toolu_01XXvNudoxATpuXXtswujh6f</tool-use-id>
+<output-file>/private/tmp/claude-502/REDACTED/b2f1bc66-3e20-4459-84e0-72c90221b63f/tasks/bai5nb4jp.output</output-file>
+<status>completed</status>
+<summary>Background command "Block until attrs results are printed" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>b0x0pw2x0</task-id>
+<tool-use-id>toolu_018P1gDn1QZeLe6uRCFpjaqn</tool-use-id>
+<output-file>/private/tmp/claude-502/REDACTED/b2f1bc66-3e20-4459-84e0-72c90221b63f/tasks/b0x0pw2x0.output</output-file>
+<status>completed</status>
+<summary>Background command "Wait for attrs set results" completed (exit code 0)</summary>
+</task-notification>
