@@ -1,0 +1,44 @@
+{
+  "cli_version": "0.10.5",
+  "checkpoint_id": "01M6E934K4ZF2MVXVPQ2EETTF7",
+  "strategy": "manual-commit",
+  "branch": "eval/attrs-pilot",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "evaluation/pilot/attrs/REPORT.md",
+    "evaluation/pilot/attrs/comments/1454.md",
+    "evaluation/pilot/attrs/comments/1469.md",
+    "evaluation/pilot/attrs/comments/1507.md",
+    "evaluation/pilot/attrs/comments/1509.md",
+    "evaluation/pilot/attrs/comments/1513.md",
+    "evaluation/pilot/attrs/comments/1529.md",
+    "evaluation/pilot/attrs/comments/1541.md",
+    "evaluation/pilot/attrs/comments/1571.md",
+    "evaluation/pilot/attrs/comments/1592.md",
+    "evaluation/pilot/attrs/comments/1593.md",
+    "evaluation/pilot/attrs/comments/1600.md",
+    "evaluation/pilot/attrs/comments/1603.md",
+    "evaluation/pilot/attrs/comments/1606.md",
+    "evaluation/pilot/attrs/comments/1625.md",
+    "evaluation/pilot/attrs/comments/1636.md",
+    "evaluation/pilot/attrs/data.json",
+    "evaluation/pilot/attrs/labels.json",
+    "evaluation/pilot/attrs/reports.tar.xz"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 134,
+    "cache_creation_tokens": 149082,
+    "cache_read_tokens": 8489738,
+    "output_tokens": 52896,
+    "api_call_count": 66
+  }
+}
