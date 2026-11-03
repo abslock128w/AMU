@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.10.5",
+  "checkpoint_id": "01M6FS3P5GXERNM84R2YRGMQJJ",
+  "strategy": "manual-commit",
+  "branch": "fix/process-values",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "amu/core/evidence.py",
+    "amu/core/record.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 18,
+    "cache_creation_tokens": 13654,
+    "cache_read_tokens": 3080000,
+    "output_tokens": 9940,
+    "api_call_count": 9
+  }
+}
