@@ -1,0 +1,2119 @@
+[
+ {
+  "repo": "flask",
+  "number": 5812,
+  "mode": "all of the suite",
+  "base_complete": true,
+  "static_fallback": false,
+  "suite": null,
+  "sources": {
+   "the change's own test": 6,
+   "all of the suite": 365
+  },
+  "flips": 0,
+  "rows": 366,
+  "excluded_fields": 5,
+  "paired": {
+   "excluded": {
+    "src/flask/app.py#Flask.wsgi_app": [
+     "[*]/'HTTP_COOKIE'",
+     "[*]/'werkzeug.request'/'environ'/'HTTP_COOKIE'"
+    ],
+    "src/flask/app.py#Flask.request_context": [
+     "[*]/'HTTP_COOKIE'",
+     "[*]/'request'/'environ'/'HTTP_COOKIE'",
+     "[*]/'werkzeug.request'/'environ'/'HTTP_COOKIE'"
+    ]
+   },
+   "not_rerun": 0,
+   "rerun_tests": 200,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 244,
+  "raise_missed": 0,
+  "raise_injected": 37,
+  "unrunnable": 1,
+  "first": "**AMU: 0 flips** at `c2705ff`, ran all 370 tests; 7 of 67 changed hunks ran in no test: `src/flask/ctx.py:191`, `src/flask/ctx.py:235`, `src/flask/ctx.py:242` and 4 more; 4 tests of the pull request's own fail on the merge base and pass on the head; 366 behaviour differences on the same input",
+  "seconds": 133.7
+ },
+ {
+  "repo": "flask",
+  "number": 5818,
+  "mode": "all of the suite",
+  "base_complete": true,
+  "static_fallback": false,
+  "suite": null,
+  "sources": {
+   "the change's own test": 3,
+   "all of the suite": 368
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 5,
+  "paired": {
+   "excluded": {
+    "src/flask/app.py#Flask.wsgi_app": [
+     "[*]/'HTTP_COOKIE'",
+     "[*]/'werkzeug.request'/'environ'/'HTTP_COOKIE'"
+    ],
+    "src/flask/app.py#Flask.finalize_request": [
+     "[*]/'valid_methods'"
+    ],
+    "src/flask/app.py#Flask.handle_user_exception": [
+     "[*]/'valid_methods'"
+    ],
+    "src/flask/app.py#Flask.handle_http_exception": [
+     "[*]/'valid_methods'"
+    ]
+   },
+   "not_rerun": 0,
+   "rerun_tests": 200,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 221,
+  "raise_missed": 0,
+  "raise_injected": 26,
+  "unrunnable": 1,
+  "first": "**AMU: 0 flips** at `6a64969`, ran all 370 tests; 2 of 43 changed hunks ran in no test: `src/flask/app.py:79`, `src/flask/templating.py:194`; 2 tests of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 101.0
+ },
+ {
+  "repo": "flask",
+  "number": 5898,
+  "mode": "all of the suite",
+  "base_complete": true,
+  "static_fallback": false,
+  "suite": null,
+  "sources": {
+   "all of the suite": 371
+  },
+  "flips": 0,
+  "rows": 6,
+  "excluded_fields": 0,
+  "paired": {
+   "excluded": {},
+   "not_rerun": 0,
+   "rerun_tests": 3,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 5,
+  "raise_missed": 0,
+  "raise_injected": 4,
+  "unrunnable": 1,
+  "first": "**AMU: 0 flips** at `eca5fd1`, ran all 370 tests; every changed hunk ran on both sides, in up to 5 tests; 6 behaviour differences on the same input",
+  "seconds": 84.9
+ },
+ {
+  "repo": "flask",
+  "number": 5899,
+  "mode": "all of the suite",
+  "base_complete": true,
+  "static_fallback": false,
+  "suite": null,
+  "sources": {
+   "all of the suite": 371
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 2,
+  "paired": {
+   "excluded": {
+    "src/flask/app.py#Flask.wsgi_app": [
+     "[*]/'HTTP_COOKIE'",
+     "[*]/'werkzeug.request'/'environ'/'HTTP_COOKIE'"
+    ]
+   },
+   "not_rerun": 0,
+   "rerun_tests": 14,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 195,
+  "raise_missed": 0,
+  "raise_injected": 2,
+  "unrunnable": 1,
+  "first": "**AMU: 0 flips** at `c77a520`, ran all 370 tests; every changed hunk ran on both sides, in up to 195 tests",
+  "seconds": 74.9
+ },
+ {
+  "repo": "flask",
+  "number": 5917,
+  "mode": "all of the suite",
+  "base_complete": true,
+  "static_fallback": false,
+  "suite": null,
+  "sources": {
+   "the change's own test": 11,
+   "all of the suite": 364
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 3,
+  "paired": {
+   "excluded": {
+    "src/flask/sansio/app.py#App.add_url_rule": [
+     "[*]/'config'/'root_path'",
+     "[*]/'instance_path'",
+     "[*]/'root_path'"
+    ]
+   },
+   "not_rerun": 0,
+   "rerun_tests": 9,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 342,
+  "raise_missed": 0,
+  "raise_injected": 1,
+  "unrunnable": 1,
+  "first": "**AMU: 0 flips** at `e82db2c`, ran all 374 tests; every changed hunk ran on both sides, in up to 331 tests; 2 tests of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 168.5
+ },
+ {
+  "repo": "flask",
+  "number": 5928,
+  "mode": "all of the suite",
+  "base_complete": true,
+  "static_fallback": false,
+  "suite": null,
+  "sources": {
+   "the change's own test": 14,
+   "all of the suite": 362
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 0,
+  "paired": {
+   "excluded": {},
+   "not_rerun": 0,
+   "rerun_tests": 0,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 238,
+  "raise_missed": 0,
+  "raise_injected": 3,
+  "unrunnable": 1,
+  "first": "**AMU: 0 flips** at `fbb6f0b`, ran all 375 tests; 1 of 9 changed hunks not executable on Python 3.14 here (needs not sys.version_info >= (3, 11)): `src/flask/helpers.py:670`; 1 test of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 175.8
+ },
+ {
+  "repo": "flask",
+  "number": 6013,
+  "mode": "all of the suite",
+  "base_complete": true,
+  "static_fallback": false,
+  "suite": null,
+  "sources": {
+   "all of the suite": 372
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 0,
+  "paired": {
+   "excluded": {},
+   "not_rerun": 0,
+   "rerun_tests": 0,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 36,
+  "raise_missed": 0,
+  "raise_injected": 2,
+  "unrunnable": 1,
+  "first": "**AMU: 0 flips** at `9368fb3`, ran all 371 tests; every changed hunk ran on both sides, in up to 28 tests",
+  "seconds": 56.8
+ },
+ {
+  "repo": "flask",
+  "number": 6096,
+  "mode": "all of the suite",
+  "base_complete": true,
+  "static_fallback": false,
+  "suite": null,
+  "sources": {
+   "the change's own test": 2,
+   "all of the suite": 371
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 0,
+  "paired": {
+   "excluded": {},
+   "not_rerun": 0,
+   "rerun_tests": 0,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 204,
+  "raise_missed": 0,
+  "raise_injected": 4,
+  "unrunnable": 1,
+  "first": "**AMU: 0 flips** at `7203fea`, ran all 372 tests; 1 of 5 changed hunks ran only in the pull request's own tests: `src/flask/app.py:725`; 2 tests of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 168.0
+ },
+ {
+  "repo": "flask",
+  "number": 6133,
+  "mode": "all of the suite",
+  "base_complete": true,
+  "static_fallback": false,
+  "suite": null,
+  "sources": {
+   "the change's own test": 1,
+   "all of the suite": 372
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 0,
+  "paired": {
+   "excluded": {},
+   "not_rerun": 0,
+   "rerun_tests": 0,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 1,
+  "raise_missed": 0,
+  "raise_injected": 1,
+  "unrunnable": 1,
+  "first": "**AMU: 0 flips** at `8999295`, ran all 372 tests; every changed hunk ran on both sides (at import)",
+  "seconds": 105.2
+ },
+ {
+  "repo": "flask",
+  "number": 6168,
+  "mode": "all of the suite",
+  "base_complete": true,
+  "static_fallback": false,
+  "suite": null,
+  "sources": {
+   "the change's own test": 5,
+   "all of the suite": 368
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 1,
+  "paired": {
+   "excluded": {
+    "src/flask/sessions.py#SessionInterface.get_expiration_time": [
+     ""
+    ]
+   },
+   "not_rerun": 0,
+   "rerun_tests": 2,
+   "unstable": 9,
+   "recovered": null
+  },
+  "raise_catchers": 4,
+  "raise_missed": 0,
+  "raise_injected": 2,
+  "unrunnable": 1,
+  "first": "**AMU: 0 flips** at `7689f98`, ran all 372 tests; 1 of 3 changed hunks ran only in the pull request's own tests: `src/flask/helpers.py:679`",
+  "seconds": 92.7
+ },
+ {
+  "repo": "django",
+  "number": 21855,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "36920bb4766679f5b32445797dcc5d32b8ff5ad2",
+   "seconds": 695.5,
+   "complete": true,
+   "changed_since": 6
+  },
+  "sources": {
+   "the change's own test": 26,
+   "suite recording": 2281,
+   "test file changed since the recording": 114,
+   "static graph": 11615
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 37,
+  "paired": {
+   "excluded": {
+    "django/middleware/csrf.py#CsrfViewMiddleware.process_view": [
+     "[*]/'META'/'AMU_REC_SPEC'",
+     "[*]/'META'/'AMU_TRUST_PATH'",
+     "[*]/'META'/'CSRF_COOKIE'",
+     "[*]/'META'/'HTTP_COOKIE'",
+     "[*]/'META'/'HTTP_HOST'",
+     "[*]/'META'/'HTTP_USER_AGENT'",
+     "[*]/'META'/'PYTHONHASHSEED'",
+     "[*]/'META'/'PYTHONPATH'",
+     "[*]/'META'/'SERVER_PORT'",
+     "[*]/'environ'/'AMU_REC_SPEC'",
+     "[*]/'environ'/'AMU_TRUST_PATH'",
+     "[*]/'environ'/'CSRF_COOKIE'",
+     "[*]/'environ'/'HTTP_COOKIE'",
+     "[*]/'environ'/'HTTP_HOST'",
+     "[*]/'environ'/'HTTP_USER_AGENT'",
+     "[*]/'environ'/'PYTHONHASHSEED'",
+     "[*]/'environ'/'PYTHONPATH'",
+     "[*]/'environ'/'SERVER_PORT'",
+     "[*]/'session'/'_SessionBase__session_key'",
+     "[*]/'user'/'_django_version'"
+    ],
+    "django/contrib/admin/options.py#ModelAdmin.changeform_view": [
+     "[*]/'META'/'CSRF_COOKIE'",
+     "[*]/'META'/'HTTP_COOKIE'",
+     "[*]/'_request'/'META'/'CSRF_COOKIE'",
+     "[*]/'_request'/'META'/'HTTP_COOKIE'",
+     "[*]/'_request'/'environ'/'CSRF_COOKIE'",
+     "[*]/'_request'/'environ'/'HTTP_COOKIE'",
+     "[*]/'environ'/'CSRF_COOKIE'",
+     "[*]/'environ'/'HTTP_COOKIE'",
+     "[*]/'session'/'_SessionBase__session_key'",
+     "[*]/'user'/'_django_version'"
+    ],
+    "django/contrib/admin/options.py#ModelAdmin.delete_view": [
+     "[*]/'META'/'CSRF_COOKIE'",
+     "[*]/'META'/'HTTP_COOKIE'",
+     "[*]/'_request'/'META'/'HTTP_COOKIE'",
+     "[*]/'_request'/'environ'/'HTTP_COOKIE'",
+     "[*]/'environ'/'CSRF_COOKIE'",
+     "[*]/'environ'/'HTTP_COOKIE'",
+     "[*]/'session'/'_SessionBase__session_key'"
+    ]
+   },
+   "not_rerun": 0,
+   "rerun_tests": 200,
+   "unstable": 2,
+   "recovered": null
+  },
+  "raise_catchers": 0,
+  "raise_missed": 0,
+  "raise_injected": 11,
+  "unrunnable": 287,
+  "first": "**AMU: 0 flips** at `e85b3c0`, among 12192 tests run; every changed hunk ran on both sides, in up to 1672 tests; 4 tests of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 793.3
+ },
+ {
+  "repo": "django",
+  "number": 21887,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "5180f82f48b589f93cddc7be7896f654a9aec1ad",
+   "seconds": 562.4,
+   "complete": true,
+   "changed_since": 95
+  },
+  "sources": {
+   "the change's own test": 1,
+   "test file changed since the recording": 2777
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 0,
+  "paired": {
+   "excluded": {},
+   "not_rerun": 0,
+   "rerun_tests": 0,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 0,
+  "raise_missed": 0,
+  "raise_injected": 1,
+  "unrunnable": 24,
+  "first": "**AMU: 0 flips** at `b550194`, among 2754 tests run; 1 of 1 changed hunk ran in no test: `django/contrib/gis/db/backends/mysql/features.py:16`",
+  "seconds": 90.7
+ },
+ {
+  "repo": "django",
+  "number": 22026,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "8e4e95da9b5b751923cd80989d9ece4b6c6fb1a3",
+   "seconds": 684.5,
+   "complete": true,
+   "changed_since": 3
+  },
+  "sources": {
+   "the change's own test": 9,
+   "suite recording": 8923,
+   "test file changed since the recording": 47,
+   "static graph": 9193
+  },
+  "flips": 0,
+  "rows": 2,
+  "excluded_fields": 9,
+  "paired": {
+   "excluded": {
+    "django/db/models/expressions.py#BaseExpression.contains_aggregate": [
+     "[*]/'_constructor_args'",
+     "[*]/'rhs'",
+     "[*]/'rhs'.int",
+     "[*]/'rhs'[*].int"
+    ],
+    "django/db/models/expressions.py#BaseExpression.contains_over_clause": [
+     "[*]/'_constructor_args'",
+     "[*]/'rhs'",
+     "[*]/'rhs'.int",
+     "[*]/'rhs'[*].int"
+    ],
+    "django/db/models/sql/query.py#Query.base_table": [
+     "[*]/'values'"
+    ]
+   },
+   "not_rerun": 3577,
+   "rerun_tests": 200,
+   "unstable": 414,
+   "recovered": null
+  },
+  "raise_catchers": 0,
+  "raise_missed": 0,
+  "raise_injected": 29,
+  "unrunnable": 183,
+  "first": "**AMU: 0 flips** at `be3dd9e`, among 11657 tests run; 42 of 186 changed hunks ran in no test: `django/contrib/gis/db/backends/base/models.py:1`, `django/contrib/gis/db/backends/base/operations.py:1`, `django/contrib/gis/db/backends/base/operations.py:8` and 39 more; 1 test of the pull request's own fail on the merge base and pass on the head; 2 behaviour differences on the same input",
+  "seconds": 752.0
+ },
+ {
+  "repo": "django",
+  "number": 22046,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "11af25c0ae06c8275ebb8def8b8ca777a5660ed6",
+   "seconds": 607.3,
+   "complete": true,
+   "changed_since": 30
+  },
+  "sources": {
+   "suite recording": 110,
+   "test file changed since the recording": 131
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 0,
+  "paired": {
+   "excluded": {},
+   "not_rerun": 0,
+   "rerun_tests": 0,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 113,
+  "raise_missed": 4,
+  "raise_injected": 1,
+  "unrunnable": 0,
+  "first": "**AMU: docstring or comment changes only** at `1103845`; no flip, among 241 tests run",
+  "seconds": 48.3
+ },
+ {
+  "repo": "django",
+  "number": 22095,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "11af25c0ae06c8275ebb8def8b8ca777a5660ed6",
+   "seconds": 607.3,
+   "complete": true,
+   "changed_since": 30
+  },
+  "sources": {
+   "the change's own test": 5,
+   "suite recording": 341,
+   "test file changed since the recording": 131,
+   "static graph": 11970
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 11,
+  "paired": {
+   "excluded": {
+    "django/utils/_os.py#makedirs": [
+     ""
+    ],
+    "django/core/cache/backends/filebased.py#FileBasedCache._createdir": [
+     "[*]/'_dir'",
+     "[*]/'key_prefix'"
+    ],
+    "django/utils/_os.py#safe_makedirs": [
+     ""
+    ],
+    "django/core/files/storage/filesystem.py#FileSystemStorage._save": [
+     "",
+     "[*]/'_constructor_args'",
+     "[*]/'_constructor_args'[*]/'location'",
+     "[*]/'_location'",
+     "[*]/'_name'",
+     "[*]/'file'/'name'",
+     "[*]/'file'/'url'"
+    ]
+   },
+   "not_rerun": 0,
+   "rerun_tests": 200,
+   "unstable": 2,
+   "recovered": null
+  },
+  "raise_catchers": 157,
+  "raise_missed": 9,
+  "raise_injected": 3,
+  "unrunnable": 510,
+  "first": "**AMU: 0 flips** at `6ab7f90`, among 11933 tests run; 1 of 3 changed hunks not executable on Python 3.14 here (needs PY315): `django/utils/_os.py:61`; 4 tests of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 629.5
+ },
+ {
+  "repo": "django",
+  "number": 22102,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "08e4c0d8e7db6343567e7b02e25da8ea2226a7e0",
+   "seconds": 967.3000000000001,
+   "complete": true,
+   "changed_since": 30
+  },
+  "sources": {
+   "the change's own test": 1,
+   "suite recording": 8,
+   "test file changed since the recording": 411
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 0,
+  "paired": {
+   "excluded": {},
+   "not_rerun": 0,
+   "rerun_tests": 0,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 9,
+  "raise_missed": 0,
+  "raise_injected": 1,
+  "unrunnable": 148,
+  "first": "**AMU: 0 flips** at `610888b`, among 272 tests run; every changed hunk ran on both sides, in up to 8 tests; 1 test of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 52.1
+ },
+ {
+  "repo": "django",
+  "number": 22137,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "11af25c0ae06c8275ebb8def8b8ca777a5660ed6",
+   "seconds": 607.3,
+   "complete": true,
+   "changed_since": 0
+  },
+  "sources": {
+   "the change's own test": 2,
+   "suite recording": 59,
+   "static graph": 1092
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 11,
+  "paired": {
+   "excluded": {
+    "django/middleware/csp.py#ContentSecurityPolicyMiddleware.process_response": [
+     "[*]/'META'/'CSRF_COOKIE'",
+     "[*]/'META'/'HTTP_COOKIE'",
+     "[*]/'_container'",
+     "[*]/'_csp_nonce'/'_wrapped'",
+     "[*]/'_request'/'META'/'CSRF_COOKIE'",
+     "[*]/'_request'/'META'/'HTTP_COOKIE'",
+     "[*]/'_request'/'environ'/'CSRF_COOKIE'",
+     "[*]/'_request'/'environ'/'HTTP_COOKIE'",
+     "[*]/'environ'/'CSRF_COOKIE'",
+     "[*]/'environ'/'HTTP_COOKIE'",
+     "[*]/'session'/'_SessionBase__session_key'"
+    ]
+   },
+   "not_rerun": 0,
+   "rerun_tests": 30,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 23,
+  "raise_missed": 0,
+  "raise_injected": 2,
+  "unrunnable": 2,
+  "first": "**AMU: 0 flips** at `013eb3a`, among 1151 tests run; every changed hunk ran on both sides, in up to 17 tests; 1 test of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 110.7
+ },
+ {
+  "repo": "django",
+  "number": 22154,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "8e4e95da9b5b751923cd80989d9ece4b6c6fb1a3",
+   "seconds": 684.5,
+   "complete": true,
+   "changed_since": 109
+  },
+  "sources": {
+   "the change's own test": 2,
+   "suite recording": 57,
+   "test file changed since the recording": 337
+  },
+  "flips": 0,
+  "rows": 169,
+  "excluded_fields": 1,
+  "paired": {
+   "excluded": {
+    "django/contrib/contenttypes/fields.py#create_generic_related_manager.<locals>.GenericRelatedObjectManager._apply_rel_filters": [
+     "[*]/'instance'/'_django_version'"
+    ]
+   },
+   "not_rerun": 0,
+   "rerun_tests": 57,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 69,
+  "raise_missed": 11,
+  "raise_injected": 1,
+  "unrunnable": 53,
+  "first": "**AMU: 0 flips** at `3da22de`, among 343 tests run; every changed hunk ran on both sides, in up to 57 tests; 2 tests of the pull request's own fail on the merge base and pass on the head; 169 behaviour differences on the same input",
+  "seconds": 60.4
+ },
+ {
+  "repo": "django",
+  "number": 22158,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "11af25c0ae06c8275ebb8def8b8ca777a5660ed6",
+   "seconds": 607.3,
+   "complete": true,
+   "changed_since": 32
+  },
+  "sources": {
+   "the change's own test": 3,
+   "suite recording": 7,
+   "test file changed since the recording": 131,
+   "static graph": 1318
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 0,
+  "paired": {
+   "excluded": {},
+   "not_rerun": 0,
+   "rerun_tests": 0,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 2,
+  "raise_missed": 0,
+  "raise_injected": 1,
+  "unrunnable": 13,
+  "first": "**AMU: 0 flips** at `40224a0`, among 1446 tests run; 2 of 3 changed hunks not executable on Python 3.14 here; not executable on Python 3.14 here (needs PY315): `django/db/migrations/serializer.py:157`, `django/db/migrations/serializer.py:373`",
+  "seconds": 105.7
+ },
+ {
+  "repo": "django",
+  "number": 22169,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "d430084791a61b31cecec132bce3dca19194f7f2",
+   "seconds": 980.5,
+   "complete": true,
+   "changed_since": 0
+  },
+  "sources": {
+   "the change's own test": 2,
+   "suite recording": 5031,
+   "static graph": 6526
+  },
+  "flips": 0,
+  "rows": 2,
+  "excluded_fields": 0,
+  "paired": {
+   "excluded": {},
+   "not_rerun": 0,
+   "rerun_tests": 22,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 0,
+  "raise_missed": 0,
+  "raise_injected": 2,
+  "unrunnable": 294,
+  "first": "**AMU: 0 flips** at `4ea250d`, among 11264 tests run; every changed hunk ran on both sides, in up to 5016 tests; 2 tests of the pull request's own fail on the merge base and pass on the head; 2 behaviour differences on the same input",
+  "seconds": 516.6
+ },
+ {
+  "repo": "django",
+  "number": 22171,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "e9414948e9660ee4c167eebb187710ee3031d9d8",
+   "seconds": 859.2,
+   "complete": true,
+   "changed_since": 2
+  },
+  "sources": {
+   "the change's own test": 1,
+   "suite recording": 50,
+   "test file changed since the recording": 316
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 1,
+  "paired": {
+   "excluded": {
+    "django/db/models/query.py#QuerySet.select_for_update": [
+     "[*]/'_hints'/'instance'/'_django_version'"
+    ]
+   },
+   "not_rerun": 0,
+   "rerun_tests": 4,
+   "unstable": 4,
+   "recovered": null
+  },
+  "raise_catchers": 51,
+  "raise_missed": 0,
+  "raise_injected": 1,
+  "unrunnable": 0,
+  "first": "**AMU: 0 flips** at `62ed9ed`, among 367 tests run; every changed hunk ran on both sides, in up to 50 tests; 1 test of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 204.1
+ },
+ {
+  "repo": "django",
+  "number": 22176,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "79502d08405dbf24efa39e8731320f31035b9e9c",
+   "seconds": 455.0,
+   "complete": true,
+   "changed_since": 0
+  },
+  "sources": {
+   "the change's own test": 7,
+   "suite recording": 383,
+   "static graph": 15969
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 8,
+  "paired": {
+   "excluded": {
+    "django/views/debug.py#ExceptionReporter.get_traceback_data": [
+     "[*]/'django_version_info'",
+     "[*]/'frames'[*]/'id'",
+     "[*]/'frames'[*]/'vars'",
+     "[*]/'lastframe'/'id'",
+     "[*]/'lastframe'/'vars'",
+     "[*]/'request'/'_csp_nonce'/'_wrapped'",
+     "[*]/'server_time'",
+     "[*]/'sys_path'"
+    ]
+   },
+   "not_rerun": 0,
+   "rerun_tests": 106,
+   "unstable": 254,
+   "recovered": null
+  },
+  "raise_catchers": 0,
+  "raise_missed": 0,
+  "raise_injected": 4,
+  "unrunnable": 348,
+  "first": "**AMU: 0 flips** at `64cbef6`, among 12531 tests run; 2 of 7 changed hunks ran in no test: `django/contrib/gis/gdal/raster/source.py:33`, `django/contrib/gis/gdal/raster/source.py:258`; 3 tests of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 657.6
+ },
+ {
+  "repo": "django",
+  "number": 22179,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "79502d08405dbf24efa39e8731320f31035b9e9c",
+   "seconds": 455.0,
+   "complete": true,
+   "changed_since": 0
+  },
+  "sources": {
+   "the change's own test": 8,
+   "suite recording": 33
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 2,
+  "paired": {
+   "excluded": {
+    "django/utils/csp.py#build_policy": [
+     "",
+     "[*]/'_wrapped'"
+    ]
+   },
+   "not_rerun": 0,
+   "rerun_tests": 19,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 9,
+  "raise_missed": 0,
+  "raise_injected": 1,
+  "unrunnable": 0,
+  "first": "**AMU: 0 flips** at `bd2e265`, among 41 tests run; 1 of 1 changed hunk ran only in the pull request's own tests: `django/utils/csp.py:120`; 2 tests of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 37.1
+ },
+ {
+  "repo": "django",
+  "number": 22186,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "79502d08405dbf24efa39e8731320f31035b9e9c",
+   "seconds": 455.0,
+   "complete": true,
+   "changed_since": 22
+  },
+  "sources": {
+   "suite recording": 64,
+   "test file changed since the recording": 431
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 5,
+  "paired": {
+   "excluded": {
+    "django/core/management/commands/makemessages.py#Command.process_locale_dir": [
+     "",
+     "[*]/'default_locale_path'",
+     "[*]/'ignore_patterns'",
+     "[*]/'locale_paths'",
+     "[*][*]/'locale_dir'"
+    ]
+   },
+   "not_rerun": 0,
+   "rerun_tests": 63,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 62,
+  "raise_missed": 0,
+  "raise_injected": 1,
+  "unrunnable": 48,
+  "first": "**AMU: 0 flips** at `cf0752b`, among 447 tests run; 1 of 2 changed hunks not executable on darwin here (needs os.name == 'nt'): `django/core/management/commands/makemessages.py:670`",
+  "seconds": 86.0
+ },
+ {
+  "repo": "django",
+  "number": 22187,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "79502d08405dbf24efa39e8731320f31035b9e9c",
+   "seconds": 455.0,
+   "complete": true,
+   "changed_since": 22
+  },
+  "sources": {
+   "test file changed since the recording": 431,
+   "static graph": 3712
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 0,
+  "paired": {
+   "excluded": {},
+   "not_rerun": 0,
+   "rerun_tests": 0,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 0,
+  "raise_missed": 0,
+  "raise_injected": 0,
+  "unrunnable": 48,
+  "first": "**AMU: 0 flips** at `1b0f826`, among 4094 tests run; every changed hunk ran on both sides (at import)",
+  "seconds": 206.5
+ },
+ {
+  "repo": "django",
+  "number": 22189,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "8e4e95da9b5b751923cd80989d9ece4b6c6fb1a3",
+   "seconds": 684.5,
+   "complete": true,
+   "changed_since": 109
+  },
+  "sources": {
+   "the change's own test": 2,
+   "test file changed since the recording": 341,
+   "static graph": 7580
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 0,
+  "paired": {
+   "excluded": {},
+   "not_rerun": 0,
+   "rerun_tests": 0,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 0,
+  "raise_missed": 0,
+  "raise_injected": 0,
+  "unrunnable": 470,
+  "first": "**AMU: 0 flips** at `d13621c`, among 7452 tests run; every changed hunk ran on both sides (at import); 2 tests of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 290.7
+ },
+ {
+  "repo": "django",
+  "number": 22204,
+  "mode": null,
+  "base_complete": null,
+  "static_fallback": null,
+  "suite": null,
+  "sources": null,
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": null,
+  "paired": {
+   "excluded": null,
+   "not_rerun": null,
+   "rerun_tests": null,
+   "unstable": null,
+   "recovered": null
+  },
+  "raise_catchers": 0,
+  "raise_missed": 0,
+  "raise_injected": 1,
+  "unrunnable": null,
+  "first": "**AMU: no flip count** at `8b6119e`: `amu exited with status 1 and no report: RecursionError: maximum recursion depth exceeded`",
+  "seconds": 71.9
+ },
+ {
+  "repo": "sympy",
+  "number": 29693,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "de43dc8f59c49b26126337371728a70412269def",
+   "seconds": 4031.5,
+   "complete": true,
+   "changed_since": 1
+  },
+  "sources": {
+   "the change's own test": 1,
+   "suite recording": 1
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 0,
+  "paired": {
+   "excluded": {},
+   "not_rerun": 0,
+   "rerun_tests": 0,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 1,
+  "raise_missed": 0,
+  "raise_injected": 1,
+  "unrunnable": 0,
+  "first": "**AMU: adds new code only** at `f1a8fd9`; 1 test ran it; 1 test of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 100.3
+ },
+ {
+  "repo": "sympy",
+  "number": 29763,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "df9ff3cf4b95371c4f289fcaae9bfba45d2ef091",
+   "seconds": 3081.1,
+   "complete": true,
+   "changed_since": 2
+  },
+  "sources": {
+   "the change's own test": 3,
+   "suite recording": 4,
+   "test file changed since the recording": 26,
+   "static graph": 12579
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 0,
+  "paired": {
+   "excluded": {},
+   "not_rerun": 0,
+   "rerun_tests": 0,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 3,
+  "raise_missed": 0,
+  "raise_injected": 2,
+  "unrunnable": 0,
+  "first": "**AMU: adds new code only** at `7ef1993`; 3 tests ran it; 3 tests of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 678.7
+ },
+ {
+  "repo": "sympy",
+  "number": 30147,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "e8bc7f33fe363a9fd70d5d74c97469364e0b2c3f",
+   "seconds": 1948.9,
+   "complete": true,
+   "changed_since": 4
+  },
+  "sources": {
+   "the change's own test": 1,
+   "test file changed since the recording": 85,
+   "static graph": 7277
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 0,
+  "paired": {
+   "excluded": {},
+   "not_rerun": 0,
+   "rerun_tests": 0,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 0,
+  "raise_missed": 0,
+  "raise_injected": 0,
+  "unrunnable": 0,
+  "first": "**AMU: 0 flips** at `1c4db0a`, among 520 tests run; every changed hunk ran on both sides (at import); 1 test of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 655.9
+ },
+ {
+  "repo": "sympy",
+  "number": 30571,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "53abab863b374856c58653b29b7a9b54f3c4aa2c",
+   "seconds": 2137.8999999999996,
+   "complete": true,
+   "changed_since": 12
+  },
+  "sources": {
+   "the change's own test": 14,
+   "suite recording": 1,
+   "test file changed since the recording": 177
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 0,
+  "paired": {
+   "excluded": {},
+   "not_rerun": 0,
+   "rerun_tests": 0,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 0,
+  "raise_missed": 0,
+  "raise_injected": 12,
+  "unrunnable": 0,
+  "first": "**AMU: 0 flips** at `609fe85`, among 192 tests run; 29 of 38 changed hunks ran in no test: `sympy/parsing/latex/lark/latex_parser.py:81`, `sympy/parsing/latex/lark/latex_parser.py:85`, `sympy/parsing/latex/lark/latex_parser.py:100` and 26 more",
+  "seconds": 168.2
+ },
+ {
+  "repo": "sympy",
+  "number": 30646,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "3180f8e740edc2d646bc2992fc96cc9d167da753",
+   "seconds": 2074.3999999999996,
+   "complete": true,
+   "changed_since": 16
+  },
+  "sources": {
+   "the change's own test": 3,
+   "suite recording": 2,
+   "test file changed since the recording": 539
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 0,
+  "paired": {
+   "excluded": {},
+   "not_rerun": 0,
+   "rerun_tests": 0,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 5,
+  "raise_missed": 0,
+  "raise_injected": 6,
+  "unrunnable": 0,
+  "first": "**AMU: 0 flips** at `13bc927`, among 544 tests run; 3 of 7 changed hunks ran in no test: `sympy/solvers/ode/lie_group.py:797`, `sympy/solvers/ode/lie_group.py:944`, `sympy/solvers/ode/lie_group.py:951`",
+  "seconds": 200.5
+ },
+ {
+  "repo": "sympy",
+  "number": 30741,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "01f79a5f52d4ec14da9d028f4fe9a7f9627679c5",
+   "seconds": 2076.2,
+   "complete": true,
+   "changed_since": 3
+  },
+  "sources": {
+   "the change's own test": 36,
+   "suite recording": 347,
+   "static graph": 12824
+  },
+  "flips": 0,
+  "rows": 179,
+  "excluded_fields": 34,
+  "paired": {
+   "excluded": {
+    "sympy/matrices/determinant.py#_charpoly": [
+     "[*].gens[*]._mhash",
+     "[*].rep._rep[*].ex._mhash"
+    ],
+    "sympy/polys/domains/domain.py#Domain.alg_field_from_poly": [
+     "[*]._args[*]._mhash",
+     "[*]._args[*].dummy_index",
+     "[*].gens[*]._mhash",
+     "[*].gens[*].dummy_index",
+     "[*]/'ext'._args[*]._mhash",
+     "[*]/'ext'.root._mhash",
+     "[*]/'ext'.root.root._mhash",
+     "[*]/'gens'[*].root._mhash",
+     "[*]/'orig_ext'[*]._mhash",
+     "[*]/'orig_ext'[*].root._mhash",
+     "[*]/'symbols'[*].root._mhash"
+    ],
+    "sympy/matrices/matrixbase.py#MatrixBase.charpoly": [
+     "[*].gens[*]._mhash",
+     "[*].rep._rep[*].ex._mhash"
+    ],
+    "sympy/polys/matrices/dense.py#ddm_berk": [
+     "[*]/'ring'/'_hash'",
+     "[*]/'symbol'._mhash",
+     "[*]/'symbols'",
+     "[*]/'symbols'[*]._mhash",
+     "[*]/'symbols'[*].dummy_index",
+     "[*][*][*]._args",
+     "[*][*][*]._args[*]._mhash",
+     "[*][*][*]._mhash"
+    ],
+    "sympy/polys/polytools.py#PurePoly.__eq__": [
+     "[*].gens[*]._mhash",
+     "[*].gens[*].dummy_index"
+    ],
+    "sympy/polys/matrices/sdm.py#sdm_berk": [
+     "[*]/'ring'/'_hash'",
+     "[*]/'symbols'[*]._mhash",
+     "[*]/0/'ring'/'_hash'",
+     "[*]/1/'ring'/'_hash'",
+     "[*]/2._mhash",
+     "[*]/2/'ring'/'_hash'",
+     "[*]/3/'ring'/'_hash'",
+     "[*]/4/'ring'/'_hash'",
+     "[*]/5/'ring'/'_hash'"
+    ]
+   },
+   "not_rerun": 0,
+   "rerun_tests": 73,
+   "unstable": 1,
+   "recovered": null
+  },
+  "raise_catchers": 332,
+  "raise_missed": 0,
+  "raise_injected": 14,
+  "unrunnable": 0,
+  "first": "**AMU: 0 flips** at `8b3b314`, among 640 tests run; 3 of 17 changed hunks ran in no test: `sympy/matrices/matrices.py:72`, `sympy/matrices/matrices.py:561`, `sympy/matrices/matrixbase.py:3902`; 30 tests of the pull request's own fail on the merge base and pass on the head; 179 behaviour differences on the same input",
+  "seconds": 1024.8
+ },
+ {
+  "repo": "sympy",
+  "number": 30776,
+  "mode": null,
+  "base_complete": null,
+  "static_fallback": null,
+  "suite": null,
+  "sources": null,
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": null,
+  "paired": {
+   "excluded": null,
+   "not_rerun": null,
+   "rerun_tests": null,
+   "unstable": null,
+   "recovered": null
+  },
+  "raise_catchers": 1,
+  "raise_missed": 1,
+  "raise_injected": 1,
+  "unrunnable": null,
+  "first": "**AMU: no flip count** at `fa5f268`: `amu exited with status 1 and no report: RecursionError: maximum recursion depth exceeded`",
+  "seconds": 727.6
+ },
+ {
+  "repo": "sympy",
+  "number": 30779,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "50e68debd256f0ff52b1856bba54868e5499448e",
+   "seconds": 1969.9,
+   "complete": true,
+   "changed_since": 12
+  },
+  "sources": {
+   "the change's own test": 1,
+   "suite recording": 2,
+   "test file changed since the recording": 363
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 3,
+  "paired": {
+   "excluded": {
+    "sympy/geometry/plane.py#Plane.distance": [
+     "[*]._args[*]._args[*]._mhash",
+     "[*]._args[*]._mhash",
+     "[*]._mhash"
+    ]
+   },
+   "not_rerun": 0,
+   "rerun_tests": 1,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 2,
+  "raise_missed": 0,
+  "raise_injected": 1,
+  "unrunnable": 0,
+  "first": "**AMU: 0 flips** at `97623a0`, among 366 tests run; every changed hunk ran on both sides, in up to 1 test; 1 test of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 336.7
+ },
+ {
+  "repo": "sympy",
+  "number": 30780,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "50e68debd256f0ff52b1856bba54868e5499448e",
+   "seconds": 1969.9,
+   "complete": true,
+   "changed_since": 12
+  },
+  "sources": {
+   "the change's own test": 1,
+   "suite recording": 5,
+   "test file changed since the recording": 363
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 0,
+  "paired": {
+   "excluded": {},
+   "not_rerun": 0,
+   "rerun_tests": 0,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 6,
+  "raise_missed": 0,
+  "raise_injected": 1,
+  "unrunnable": 0,
+  "first": "**AMU: 0 flips** at `f7d25f0`, among 369 tests run; every changed hunk ran on both sides, in up to 5 tests; 1 test of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 238.7
+ },
+ {
+  "repo": "sympy",
+  "number": 30781,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "50e68debd256f0ff52b1856bba54868e5499448e",
+   "seconds": 1969.9,
+   "complete": true,
+   "changed_since": 12
+  },
+  "sources": {
+   "the change's own test": 7,
+   "suite recording": 5612,
+   "test file changed since the recording": 206,
+   "static graph": 7384
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 171,
+  "paired": {
+   "excluded": {
+    "sympy/core/basic.py#Basic.subs": [
+     "",
+     "[*]._args",
+     "[*]._args[*]._args",
+     "[*]._args[*]._args[*]._args",
+     "[*]._args[*]._args[*]._assumptions",
+     "[*]._args[*]._args[*]._assumptions0",
+     "[*]._args[*]._args[*]._assumptions_orig",
+     "[*]._args[*]._args[*]._mhash",
+     "[*]._args[*]._args[*]._mpf_",
+     "[*]._args[*]._args[*]._prec",
+     "[*]._args[*]._args[*].dummy_index",
+     "[*]._args[*]._args[*].is_commutative",
+     "[*]._args[*]._args[*].name",
+     "[*]._args[*]._args[*].p",
+     "[*]._args[*]._args[*].q",
+     "[*]._args[*]._assumptions",
+     "[*]._args[*]._assumptions/'_generator'",
+     "[*]._args[*]._assumptions/'rules'",
+     "[*]._args[*]._assumptions0",
+     "[*]._args[*]._assumptions_orig",
+     "[*]._args[*]._assumptions_orig/'commutative'",
+     "[*]._args[*]._assumptions_orig/'even'",
+     "[*]._args[*]._assumptions_orig/'extended_nonnegative'",
+     "[*]._args[*]._assumptions_orig/'extended_positive'",
+     "[*]._args[*]._assumptions_orig/'extended_real'",
+     "[*]._args[*]._assumptions_orig/'finite'",
+     "[*]._args[*]._assumptions_orig/'imaginary'",
+     "[*]._args[*]._assumptions_orig/'integer'",
+     "[*]._args[*]._assumptions_orig/'negative'",
+     "[*]._args[*]._assumptions_orig/'nonnegative'",
+     "[*]._args[*]._assumptions_orig/'positive'",
+     "[*]._args[*]._assumptions_orig/'prime'",
+     "[*]._args[*]._assumptions_orig/'rational'",
+     "[*]._args[*]._assumptions_orig/'real'",
+     "[*]._args[*]._mhash",
+     "[*]._args[*]._mpf_",
+     "[*]._args[*]._prec",
+     "[*]._args[*].dummy_index",
+     "[*]._args[*].exclude",
+     "[*]._args[*].is_commutative",
+     "[*]._args[*].name",
+     "[*]._args[*].p",
+     "[*]._args[*].properties",
+     "[*]._args[*].q",
+     "[*]._args[*]/'coord_sys'",
+     "[*]._args[*]/'nargs'",
+     "[*]._assumptions",
+     "[*]._assumptions/'_generator'",
+     "[*]._assumptions/'_generator'/'algebraic'",
+     "[*]._assumptions/'_generator'/'commutative'",
+     "[*]._assumptions/'_generator'/'complex'",
+     "[*]._assumptions/'_generator'/'even'",
+     "[*]._assumptions/'_generator'/'extended_nonnegative'",
+     "[*]._assumptions/'_generator'/'extended_positive'",
+     "[*]._assumptions/'_generator'/'extended_real'",
+     "[*]._assumptions/'_generator'/'finite'",
+     "[*]._assumptions/'_generator'/'imaginary'",
+     "[*]._assumptions/'_generator'/'infinite'",
+     "[*]._assumptions/'_generator'/'integer'",
+     "[*]._assumptions/'_generator'/'irrational'",
+     "[*]._assumptions/'_generator'/'negative'",
+     "[*]._assumptions/'_generator'/'nonnegative'",
+     "[*]._assumptions/'_generator'/'polar'",
+     "[*]._assumptions/'_generator'/'positive'",
+     "[*]._assumptions/'_generator'/'prime'",
+     "[*]._assumptions/'_generator'/'rational'",
+     "[*]._assumptions/'_generator'/'real'",
+     "[*]._assumptions/'_generator'/'transcendental'",
+     "[*]._assumptions/'_generator'/'zero'",
+     "[*]._assumptions/'rules'",
+     "[*]._assumptions0",
+     "[*]._assumptions_orig",
+     "[*]._assumptions_orig/'commutative'",
+     "[*]._assumptions_orig/'even'",
+     "[*]._assumptions_orig/'extended_nonnegative'",
+     "[*]._assumptions_orig/'extended_positive'",
+     "[*]._assumptions_orig/'extended_real'",
+     "[*]._assumptions_orig/'finite'",
+     "[*]._assumptions_orig/'imaginary'",
+     "[*]._assumptions_orig/'integer'",
+     "[*]._assumptions_orig/'negative'",
+     "[*]._assumptions_orig/'nonnegative'",
+     "[*]._assumptions_orig/'positive'",
+     "[*]._assumptions_orig/'prime'",
+     "[*]._assumptions_orig/'rational'",
+     "[*]._assumptions_orig/'real'",
+     "[*]._mhash",
+     "[*]._mpf_",
+     "[*]._prec",
+     "[*].dummy_index",
+     "[*].exclude[*]._mhash",
+     "[*].exclude[*].dummy_index",
+     "[*].is_commutative",
+     "[*].name",
+     "[*].p",
+     "[*].q",
+     "[*]/",
+     "[*]/'_args_set'[*]._mhash",
+     "[*]/'_argset'",
+     "[*]/'_argset'[*]._args",
+     "[*]/'_argset'[*]._assumptions",
+     "[*]/'_argset'[*]._mhash",
+     "[*]/'coord_sys'._args",
+     "[*]/'coord_sys'._args[*]._mhash",
+     "[*]/'coord_sys'._mhash",
+     "[*]/'coord_sys'/'_dummy'.dummy_index",
+     "[*]/'nargs'",
+     "[*]/'nargs'._args",
+     "[*]/'nargs'._args[*]._args",
+     "[*]/'nargs'._args[*]._assumptions",
+     "[*]/'nargs'._args[*]._mhash",
+     "[*]/'nargs'._args[*].p",
+     "[*]/'nargs'._args[*].q",
+     "[*]/'nargs'._assumptions",
+     "[*]/'nargs'._assumptions/'_generator'",
+     "[*]/'nargs'._assumptions/'rules'",
+     "[*]/'nargs'._mhash",
+     "[*]/'nargs'/'_args_set'",
+     "[*]/'simultaneous'",
+     "[*]/[*]._args",
+     "[*]/[*]._args[*]._args",
+     "[*]/[*]._args[*]._assumptions",
+     "[*]/[*]._args[*]._assumptions0",
+     "[*]/[*]._args[*]._assumptions_orig",
+     "[*]/[*]._args[*]._mhash",
+     "[*]/[*]._args[*].dummy_index",
+     "[*]/[*]._args[*].is_commutative",
+     "[*]/[*]._args[*].name",
+     "[*]/[*]._args[*].p",
+     "[*]/[*]._args[*].q",
+     "[*]/[*]._assumptions",
+     "[*]/[*]._assumptions/'_generator'",
+     "[*]/[*]._assumptions/'rules'",
+     "[*]/[*]._assumptions0",
+     "[*]/[*]._assumptions_orig",
+     "[*]/[*]._assumptions_orig/'commutative'",
+     "[*]/[*]._assumptions_orig/'polar'",
+     "[*]/[*]._mhash",
+     "[*]/[*].dummy_index",
+     "[*]/[*].is_commutative",
+     "[*]/[*].name",
+     "[*]/[*].p",
+     "[*]/[*].q",
+     "[*][*][*]._args",
+     "[*][*][*]._assumptions",
+     "[*][*][*]._assumptions0",
+     "[*][*][*]._assumptions_orig",
+     "[*][*][*]._assumptions_orig/'extended_nonnegative'",
+     "[*][*][*]._assumptions_orig/'extended_positive'",
+     "[*][*][*]._assumptions_orig/'extended_real'",
+     "[*][*][*]._assumptions_orig/'finite'",
+     "[*][*][*]._assumptions_orig/'integer'",
+     "[*][*][*]._assumptions_orig/'nonnegative'",
+     "[*][*][*]._assumptions_orig/'positive'",
+     "[*][*][*]._assumptions_orig/'rational'",
+     "[*][*][*]._assumptions_orig/'real'",
+     "[*][*][*]._mhash",
+     "[*][*][*].dummy_index",
+     "[*][*][*].is_commutative",
+     "[*][*][*].name"
+    ],
+    "sympy/core/basic.py#Basic.as_dummy": [
+     "",
+     "[*]._args[*]._args",
+     "[*]._args[*]._args[*]._mhash",
+     "[*]._args[*]._args[*].dummy_index",
+     "[*]._args[*]._mhash",
+     "[*]._assumptions/'_generator'",
+     "[*]._assumptions/'_generator'/'positive'",
+     "[*]._mhash",
+     "[*].p",
+     "[*]/'_args_set'[*]._args",
+     "[*]/'_args_set'[*]._mhash"
+    ]
+   },
+   "not_rerun": 0,
+   "rerun_tests": 200,
+   "unstable": 78,
+   "recovered": null
+  },
+  "raise_catchers": 4811,
+  "raise_missed": 0,
+  "raise_injected": 4,
+  "unrunnable": 0,
+  "first": "**AMU: 0 flips** at `3cef4d4`, among 1680 tests run; every changed hunk ran on both sides, in up to 1578 tests; 4 tests of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 830.3
+ },
+ {
+  "repo": "sympy",
+  "number": 30797,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "263f29e9332661e24628e39ba0d4bd1fd729d2f9",
+   "seconds": 1988.8,
+   "complete": true,
+   "changed_since": 33
+  },
+  "sources": {
+   "test file changed since the recording": 1379
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 0,
+  "paired": {
+   "excluded": {},
+   "not_rerun": 0,
+   "rerun_tests": 0,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 0,
+  "raise_missed": 0,
+  "raise_injected": 1,
+  "unrunnable": 0,
+  "first": "**AMU: 0 flips** at `8147a2f`, among 1379 tests run; 18 of 18 changed hunks ran in no test: `sympy/parsing/autolev/_listener_autolev_antlr.py:445`, `sympy/parsing/autolev/_parse_autolev_antlr.py:39`, `sympy/parsing/autolev/test-examples/pydy-example-repo/chaos_pendulum.py:3` and 15 more",
+  "seconds": 450.6
+ },
+ {
+  "repo": "sympy",
+  "number": 30803,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "263f29e9332661e24628e39ba0d4bd1fd729d2f9",
+   "seconds": 1988.8,
+   "complete": true,
+   "changed_since": 30
+  },
+  "sources": {
+   "the change's own test": 2,
+   "suite recording": 240,
+   "test file changed since the recording": 1301
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 44,
+  "paired": {
+   "excluded": {
+    "sympy/polys/fields.py#FracField._rebuild_expr.<locals>._rebuild": [
+     "",
+     "[*]._args[*]._mhash",
+     "[*]._args[*].dummy_index",
+     "[*]._args[*].name",
+     "[*]._assumptions/'_generator'",
+     "[*]._assumptions/'_generator'/'integer'",
+     "[*]._assumptions/'_generator'/'rational'",
+     "[*]._assumptions/'_generator'/'real'",
+     "[*]._assumptions0",
+     "[*]._assumptions_orig",
+     "[*]._mhash",
+     "[*].dummy_index",
+     "[*].name",
+     "[*].p",
+     "[*].q",
+     "[*]/'_hash'",
+     "[*]/'denom'",
+     "[*]/'denom'/'ring'",
+     "[*]/'field'",
+     "[*]/'field'/'Dummy_1185'",
+     "[*]/'field'/'Dummy_1241'",
+     "[*]/'field'/'Dummy_2524'",
+     "[*]/'field'/'Dummy_2538'",
+     "[*]/'field'/'Dummy_7420'",
+     "[*]/'field'/'Dummy_7421'",
+     "[*]/'field'/'Dummy_7428'",
+     "[*]/'field'/'Dummy_7429'",
+     "[*]/'field'/'_hash'",
+     "[*]/'field'/'_hash_tuple'",
+     "[*]/'field'/'a'",
+     "[*]/'field'/'b'",
+     "[*]/'field'/'domain'",
+     "[*]/'field'/'dtype'",
+     "[*]/'field'/'gens'",
+     "[*]/'field'/'ngens'",
+     "[*]/'field'/'one'",
+     "[*]/'field'/'order'",
+     "[*]/'field'/'ring'",
+     "[*]/'field'/'symbols'",
+     "[*]/'field'/'zero'",
+     "[*]/'numer'",
+     "[*]/'numer'/'_hash'",
+     "[*]/'numer'/'ring'",
+     "[*]/'ring'/'_hash'"
+    ]
+   },
+   "not_rerun": 274,
+   "rerun_tests": 200,
+   "unstable": 677,
+   "recovered": null
+  },
+  "raise_catchers": 222,
+  "raise_missed": 1,
+  "raise_injected": 1,
+  "unrunnable": 0,
+  "first": "**AMU: 0 flips** at `476ec0e`, among 1477 tests run; every changed hunk ran on both sides, in up to 233 tests; 1 test of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 865.0
+ },
+ {
+  "repo": "sympy",
+  "number": 30808,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "50e68debd256f0ff52b1856bba54868e5499448e",
+   "seconds": 1969.9,
+   "complete": true,
+   "changed_since": 6
+  },
+  "sources": {
+   "the change's own test": 1,
+   "suite recording": 4406,
+   "test file changed since the recording": 44,
+   "static graph": 8572
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 47,
+  "paired": {
+   "excluded": {
+    "sympy/core/mul.py#Mul._eval_real_imag": [
+     "",
+     "[*]._args",
+     "[*]._args[*]._args",
+     "[*]._args[*]._assumptions",
+     "[*]._args[*]._assumptions0",
+     "[*]._args[*]._assumptions_orig",
+     "[*]._args[*]._assumptions_orig/'commutative'",
+     "[*]._args[*]._assumptions_orig/'complex'",
+     "[*]._args[*]._assumptions_orig/'even'",
+     "[*]._args[*]._assumptions_orig/'extended_negative'",
+     "[*]._args[*]._assumptions_orig/'extended_nonnegative'",
+     "[*]._args[*]._assumptions_orig/'extended_positive'",
+     "[*]._args[*]._assumptions_orig/'extended_real'",
+     "[*]._args[*]._assumptions_orig/'finite'",
+     "[*]._args[*]._assumptions_orig/'imaginary'",
+     "[*]._args[*]._assumptions_orig/'infinite'",
+     "[*]._args[*]._assumptions_orig/'integer'",
+     "[*]._args[*]._assumptions_orig/'negative'",
+     "[*]._args[*]._assumptions_orig/'nonnegative'",
+     "[*]._args[*]._assumptions_orig/'nonpositive'",
+     "[*]._args[*]._assumptions_orig/'nonzero'",
+     "[*]._args[*]._assumptions_orig/'odd'",
+     "[*]._args[*]._assumptions_orig/'polar'",
+     "[*]._args[*]._assumptions_orig/'positive'",
+     "[*]._args[*]._assumptions_orig/'rational'",
+     "[*]._args[*]._assumptions_orig/'real'",
+     "[*]._args[*]._assumptions_orig/'zero'",
+     "[*]._args[*]._mhash",
+     "[*]._args[*]._mpf_",
+     "[*]._args[*]._prec",
+     "[*]._args[*].dummy_index",
+     "[*]._args[*].exclude",
+     "[*]._args[*].is_commutative",
+     "[*]._args[*].name",
+     "[*]._args[*].p",
+     "[*]._args[*].properties",
+     "[*]._args[*].q",
+     "[*]._args[*]/'_abbrev'",
+     "[*]._args[*]/'_ascii_repr'",
+     "[*]._args[*]/'_is_prefixed'",
+     "[*]._args[*]/'_latex_repr'",
+     "[*]._args[*]/'_mathml_repr'",
+     "[*]._args[*]/'_name'",
+     "[*]._args[*]/'_unicode_repr'",
+     "[*]._args[*]/'nargs'",
+     "[*]._mhash",
+     "[*].is_commutative"
+    ]
+   },
+   "not_rerun": 0,
+   "rerun_tests": 200,
+   "unstable": 1,
+   "recovered": null
+  },
+  "raise_catchers": 2803,
+  "raise_missed": 0,
+  "raise_injected": 1,
+  "unrunnable": 0,
+  "first": "**AMU: 0 flips** at `fbb6334`, among 1320 tests run; every changed hunk ran on both sides, in up to 1253 tests; 1 test of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 741.2
+ },
+ {
+  "repo": "sympy",
+  "number": 30809,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "3180f8e740edc2d646bc2992fc96cc9d167da753",
+   "seconds": 2074.3999999999996,
+   "complete": true,
+   "changed_since": 0
+  },
+  "sources": {
+   "the change's own test": 1,
+   "static graph": 47
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 0,
+  "paired": {
+   "excluded": {},
+   "not_rerun": 0,
+   "rerun_tests": 0,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 0,
+  "raise_missed": 0,
+  "raise_injected": 0,
+  "unrunnable": 0,
+  "first": "**AMU: 0 flips** at `9ba2802`, among 48 tests run; every changed hunk ran on both sides (at import)",
+  "seconds": 75.9
+ },
+ {
+  "repo": "sympy",
+  "number": 30815,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "3180f8e740edc2d646bc2992fc96cc9d167da753",
+   "seconds": 2074.3999999999996,
+   "complete": true,
+   "changed_since": 6
+  },
+  "sources": {
+   "the change's own test": 1,
+   "suite recording": 3186,
+   "test file changed since the recording": 130
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 74,
+  "paired": {
+   "excluded": {
+    "sympy/core/expr.py#Expr.as_terms": [
+     "",
+     "[*]._args",
+     "[*]._args[*]._args",
+     "[*]._args[*]._assumptions",
+     "[*]._args[*]._assumptions0",
+     "[*]._args[*]._assumptions_orig",
+     "[*]._args[*]._assumptions_orig/'extended_nonnegative'",
+     "[*]._args[*]._assumptions_orig/'extended_real'",
+     "[*]._args[*]._assumptions_orig/'finite'",
+     "[*]._args[*]._assumptions_orig/'integer'",
+     "[*]._args[*]._assumptions_orig/'nonnegative'",
+     "[*]._args[*]._assumptions_orig/'positive'",
+     "[*]._args[*]._assumptions_orig/'rational'",
+     "[*]._args[*]._assumptions_orig/'real'",
+     "[*]._args[*]._mhash",
+     "[*]._args[*]._mpf_",
+     "[*]._args[*]._prec",
+     "[*]._args[*].dummy_index",
+     "[*]._args[*].is_commutative",
+     "[*]._args[*].name",
+     "[*]._args[*].p",
+     "[*]._args[*].q",
+     "[*]._args[*]/'_expr'",
+     "[*]._mhash",
+     "[*][*][*]._args",
+     "[*][*][*]._args[*]._args",
+     "[*][*][*]._args[*]._assumptions",
+     "[*][*][*]._args[*]._assumptions0",
+     "[*][*][*]._args[*]._assumptions_orig",
+     "[*][*][*]._args[*]._mhash",
+     "[*][*][*]._args[*]._mpf_",
+     "[*][*][*]._args[*]._prec",
+     "[*][*][*]._args[*].dummy_index",
+     "[*][*][*]._args[*].is_commutative",
+     "[*][*][*]._args[*].name",
+     "[*][*][*]._args[*].p",
+     "[*][*][*]._args[*].q",
+     "[*][*][*]._assumptions",
+     "[*][*][*]._assumptions/'_generator'",
+     "[*][*][*]._assumptions/'rules'",
+     "[*][*][*]._assumptions0",
+     "[*][*][*]._assumptions_orig",
+     "[*][*][*]._assumptions_orig/'integer'",
+     "[*][*][*]._assumptions_orig/'positive'",
+     "[*][*][*]._assumptions_orig/'real'",
+     "[*][*][*]._mhash",
+     "[*][*][*].dummy_index",
+     "[*][*][*].exclude[*]._mhash",
+     "[*][*][*].exclude[*].dummy_index",
+     "[*][*][*].is_commutative",
+     "[*][*][*].name",
+     "[*][*][*]/'_expr'",
+     "[*][*][*]/'nargs'",
+     "[*][*][*][*]._args",
+     "[*][*][*][*]._assumptions",
+     "[*][*][*][*]._assumptions0",
+     "[*][*][*][*]._assumptions_orig",
+     "[*][*][*][*]._assumptions_orig/'extended_nonnegative'",
+     "[*][*][*][*]._assumptions_orig/'extended_real'",
+     "[*][*][*][*]._assumptions_orig/'finite'",
+     "[*][*][*][*]._assumptions_orig/'integer'",
+     "[*][*][*][*]._assumptions_orig/'nonnegative'",
+     "[*][*][*][*]._assumptions_orig/'positive'",
+     "[*][*][*][*]._assumptions_orig/'rational'",
+     "[*][*][*][*]._assumptions_orig/'real'",
+     "[*][*][*][*]._mhash",
+     "[*][*][*][*]._mpf_",
+     "[*][*][*][*]._prec",
+     "[*][*][*][*].dummy_index",
+     "[*][*][*][*].is_commutative",
+     "[*][*][*][*].name",
+     "[*][*][*][*].p",
+     "[*][*][*][*].q",
+     "[*][*][*][*]/'_expr'"
+    ]
+   },
+   "not_rerun": 0,
+   "rerun_tests": 200,
+   "unstable": 5,
+   "recovered": null
+  },
+  "raise_catchers": 3027,
+  "raise_missed": 77,
+  "raise_injected": 2,
+  "unrunnable": 10,
+  "first": "**AMU: 0 flips** at `3ad8ec3`, among 1190 tests run; every changed hunk ran on both sides, in up to 859 tests; 1 test of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 863.2
+ },
+ {
+  "repo": "sympy",
+  "number": 30825,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "f97cc7fc366ac93f872113512a60ad2c46807948",
+   "seconds": 2108.1,
+   "complete": true,
+   "changed_since": 0
+  },
+  "sources": {
+   "suite recording": 17
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 0,
+  "paired": {
+   "excluded": {},
+   "not_rerun": 0,
+   "rerun_tests": 0,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 17,
+  "raise_missed": 0,
+  "raise_injected": 1,
+  "unrunnable": 0,
+  "first": "**AMU: type annotations only** at `9830c37`; no flip, among 17 tests run",
+  "seconds": 74.8
+ },
+ {
+  "repo": "sympy",
+  "number": 30827,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "f97cc7fc366ac93f872113512a60ad2c46807948",
+   "seconds": 2108.1,
+   "complete": true,
+   "changed_since": 2
+  },
+  "sources": {
+   "the change's own test": 2,
+   "suite recording": 3,
+   "static graph": 12986
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 3,
+  "paired": {
+   "excluded": {
+    "sympy/geometry/plane.py#Plane.distance": [
+     "[*]._args[*]._args[*]._mhash",
+     "[*]._args[*]._mhash",
+     "[*]._mhash"
+    ]
+   },
+   "not_rerun": 0,
+   "rerun_tests": 1,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 5,
+  "raise_missed": 0,
+  "raise_injected": 2,
+  "unrunnable": 0,
+  "first": "**AMU: 0 flips** at `29ef543`, among 840 tests run; every changed hunk ran on both sides, in up to 2 tests; 1 test of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 699.4
+ },
+ {
+  "repo": "sympy",
+  "number": 30838,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "f97cc7fc366ac93f872113512a60ad2c46807948",
+   "seconds": 2108.1,
+   "complete": true,
+   "changed_since": 2
+  },
+  "sources": {
+   "suite recording": 2
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 0,
+  "paired": {
+   "excluded": {},
+   "not_rerun": 0,
+   "rerun_tests": 0,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 2,
+  "raise_missed": 0,
+  "raise_injected": 1,
+  "unrunnable": 0,
+  "first": "**AMU: docstring or comment changes only** at `16d8de2`; no flip, among 2 tests run",
+  "seconds": 64.8
+ },
+ {
+  "repo": "sympy",
+  "number": 30841,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "f97cc7fc366ac93f872113512a60ad2c46807948",
+   "seconds": 2108.1,
+   "complete": true,
+   "changed_since": 7
+  },
+  "sources": {
+   "the change's own test": 3,
+   "suite recording": 139,
+   "test file changed since the recording": 18
+  },
+  "flips": 0,
+  "rows": 2,
+  "excluded_fields": 28,
+  "paired": {
+   "excluded": {
+    "sympy/calculus/singularities.py#singularities": [
+     "",
+     "[*]._args",
+     "[*]._args[*]._args",
+     "[*]._args[*]._args[*]._mhash",
+     "[*]._args[*]._assumptions",
+     "[*]._args[*]._assumptions0",
+     "[*]._args[*]._assumptions_orig",
+     "[*]._args[*]._assumptions_orig/'extended_real'",
+     "[*]._args[*]._mhash",
+     "[*]._args[*].dummy_index",
+     "[*]._args[*].is_commutative",
+     "[*]._args[*].name",
+     "[*]._args[*].p",
+     "[*]._args[*].q",
+     "[*]._assumptions/'_generator'",
+     "[*]._assumptions/'_generator'/'commutative'",
+     "[*]._assumptions/'_generator'/'extended_real'",
+     "[*]._assumptions0",
+     "[*]._assumptions_orig",
+     "[*]._assumptions_orig/'extended_real'",
+     "[*]._mhash",
+     "[*].dummy_index",
+     "[*].is_commutative",
+     "[*].name",
+     "[*]/'_args_set'[*]._args",
+     "[*]/'_args_set'[*]._mhash",
+     "[*]/'_argset'",
+     "[*]/'_argset'[*]._mhash"
+    ]
+   },
+   "not_rerun": 0,
+   "rerun_tests": 123,
+   "unstable": 2,
+   "recovered": null
+  },
+  "raise_catchers": 2,
+  "raise_missed": 0,
+  "raise_injected": 1,
+  "unrunnable": 0,
+  "first": "**AMU: 0 flips** at `23a11c6`, among 160 tests run; every changed hunk ran on both sides, in up to 139 tests; 2 tests of the pull request's own fail on the merge base and pass on the head; 2 behaviour differences on the same input",
+  "seconds": 379.2
+ },
+ {
+  "repo": "sympy",
+  "number": 30851,
+  "mode": "coverage",
+  "base_complete": false,
+  "static_fallback": false,
+  "suite": {
+   "commit": "e9da6c344800913569eeece5f767794f4ad091a9",
+   "seconds": 2161.3999999999996,
+   "complete": true,
+   "changed_since": 6
+  },
+  "sources": {
+   "the change's own test": 1,
+   "suite recording": 5,
+   "test file changed since the recording": 18,
+   "static graph": 12964
+  },
+  "flips": 0,
+  "rows": 0,
+  "excluded_fields": 0,
+  "paired": {
+   "excluded": {},
+   "not_rerun": 0,
+   "rerun_tests": 0,
+   "unstable": 0,
+   "recovered": null
+  },
+  "raise_catchers": 1,
+  "raise_missed": 0,
+  "raise_injected": 1,
+  "unrunnable": 0,
+  "first": "**AMU: 0 flips** at `9b1263b`, among 2800 tests run; every changed hunk ran on both sides, in up to 4 tests; 1 test of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 618.2
+ }
+]

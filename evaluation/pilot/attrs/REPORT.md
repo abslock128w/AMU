@@ -273,3 +273,43 @@ the merge base plus the v0.6.0 workflows). Python 3.12, as before. Files are in 
 - **Labels:** `v060/labels.json`, same rubric as the v0.5.1 labels above.
 - **"Adds something" on 1600 and 1507:** the comment names a hunk that cannot run on this job's Python. On 1507 that
   hunk is the change that started mutating `evolve`'s dunders.
+
+## Re-run at v0.7.0 (2026-11-03): the same 15 pull requests, live on the fork
+
+v0.7.0 adds suite recordings made outside the pull request job (#95), base-vs-base field exclusion for behaviour rows
+(#94), and line states for annotations, guards and signature-only hunks (#96). The Action was pinned to v0.7.0 on
+abslock128w/attrs. The same 15 heads were opened as fork pull requests #31–#45 against new base branches (the merge
+base plus the v0.7.0 workflows). Python 3.12, as before. No engine code changed during the run. Files are in `v070/`:
+`data.json`, `labels.json`, `comments/` and `reports.tar.xz`.
+
+### Losses first
+
+- **attrs 1509 posts 650 behaviour rows of one difference.** They are real and intended: `Attribute` gains the
+  `alias_is_default` slot, so every `Attribute` that `from_counting_attr` builds differs. At v0.6.0 they were dropped
+  as unstable, because a class counter differed between the full run and the rerun. Base-vs-base exclusion now drops
+  only that counter, so the rows come back. They are correct, but a reviewer reads one fact 650 times. Grouping rows by
+  the field that differs is not done.
+- **The job is slower.** AMU job 63–146 s, median 84 s (v0.6.0: 52–125 s). Opened to comment 85–228 s, median 130 s
+  (v0.6.0: 82–150 s). The extra time is the base side's second paired run.
+- **attrs 1592 still leads with type-check examples.** Its first line lists 3 `typing-examples/` hunks that ran in no
+  test before the 8 tests of its own that fail on the merge base. That is true, but not what a reviewer wants first.
+- **The raise measure was not re-run.** Every pull request ran the whole suite on both sides, so no test was left
+  outside the candidates. The v0.6.0 measure (0 of 1,197 missed) stands for selection.
+
+### What changed
+
+| | v0.6.0 | v0.7.0 |
+|---|---:|---:|
+| Comment posted | 15 of 15 | 15 of 15 |
+| First line correct | 13 | 15 |
+| Adds something / nothing / noise | 5 / 8 / 2 | 6 / 9 / 0 |
+| Behaviour rows: real / false | 0 / 0 | 650 / 0 (all on 1509) |
+| Suite run | 100 % | 100 % (632–667 tests, 1 unrunnable on 1469) |
+| AMU job | 52–125 s | 63–146 s, median 84 s |
+| Pull request opened → comment | 82–150 s | 85–228 s, median 130 s |
+
+- **attrs 1606: fixed.** Now "1 of 1 changed hunk not executable on Python 3.12 here: `src/attr/_make.py:1111`". The
+  add_replace change runs only on 3.13+.
+- **attrs 1454: fixed.** The `nonlocal` line is watched (#91). The first line now names a type-check example no test
+  runs, which is true.
+- **attrs 1509: noise → something.** Its 13 own tests are evidence, and the rows are real (see above).
