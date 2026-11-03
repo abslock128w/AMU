@@ -1,0 +1,27 @@
+{
+ "injected": 2,
+ "not_injected": 1,
+ "catchers": 4,
+ "candidates": 373,
+ "missed": 0,
+ "missed_tests": [],
+ "placed": {
+  "src/flask/helpers.py": [
+   {
+    "line": 679,
+    "at": 679
+   }
+  ],
+  "src/flask/sessions.py": [
+   {
+    "line": 8,
+    "at": null,
+    "why": "module or class level"
+   },
+   {
+    "line": 230,
+    "at": 230
+   }
+  ]
+ }
+}

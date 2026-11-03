@@ -1,0 +1,3709 @@
+{
+ "flips": 0,
+ "predicted_failures": [],
+ "gaps": [
+  "1 candidate(s) could not be run by pytest and are not covered by this result",
+  "Skipped 5 non-Python file(s)"
+ ],
+ "summary": "EXECUTED 372 of 373 candidate tests after the change with pytest in 54.5 s, failures confirmed before it: 0 now fail. 384 tests reach the change. 127 test(s) from edited test files also run as they were before the edit. 5 test(s) the change adds or edits replayed on the code before it: 0 fail there and pass after (change evidence: the PR's own test).",
+ "changed_symbols": [
+  "src/flask/cli.py#SeparatedPathType.convert",
+  "src/flask/helpers.py#_CollectErrors.raise_any",
+  "src/flask/sessions.py#SessionInterface.get_expiration_time",
+  "tests/test_appctx.py#test_robust_teardown",
+  "tests/test_basic.py#test_session_expiration",
+  "tests/test_basic.py#test_session_special_types",
+  "tests/test_config.py#test_config_from_file_toml",
+  "tests/test_json_tag.py#test_dump_load_unchanged",
+  "src/flask/sessions.py",
+  "tests/test_appctx.py",
+  "tests/test_basic.py",
+  "tests/test_config.py",
+  "tests/test_json_tag.py"
+ ],
+ "untested": [
+  {
+   "symbol": "test_robust_teardown",
+   "file": "tests/test_appctx.py",
+   "lines": "247-257",
+   "basis": "static_only"
+  },
+  {
+   "symbol": "test_session_expiration",
+   "file": "tests/test_basic.py",
+   "lines": "441",
+   "basis": "static_only"
+  },
+  {
+   "symbol": "test_session_special_types",
+   "file": "tests/test_basic.py",
+   "lines": "471",
+   "basis": "static_only"
+  },
+  {
+   "symbol": "test_config_from_file_toml",
+   "file": "tests/test_config.py",
+   "lines": "40",
+   "basis": "static_only"
+  },
+  {
+   "symbol": "test_dump_load_unchanged",
+   "file": "tests/test_json_tag.py",
+   "lines": "24",
+   "basis": "static_only"
+  }
+ ],
+ "tests": [
+  {
+   "id": "tests/test_testing.py::test_session_transaction_ipv6",
+   "expect": "unchanged",
+   "why": "via FlaskClient.session_transaction > SecureCookieSessionInterface.save_session > SessionInterface.get_expiration_time (name: session)",
+   "confidence": "transitive",
+   "line": 174,
+   "score": 0.782,
+   "run": "python -m pytest tests/test_testing.py::test_session_transaction_ipv6"
+  },
+  {
+   "id": "tests/test_reqctx.py::test_teardown_on_pop",
+   "expect": "unchanged",
+   "why": "via AppContext.pop > _CollectErrors.raise_any",
+   "confidence": "transitive",
+   "line": 15,
+   "score": 0.613,
+   "run": "python -m pytest tests/test_reqctx.py::test_teardown_on_pop"
+  },
+  {
+   "id": "tests/test_testing.py::test_session_transaction_needs_cookies",
+   "expect": "unchanged",
+   "why": "via FlaskClient.session_transaction > SecureCookieSessionInterface.save_session > SessionInterface.get_expiration_time (name: session)",
+   "confidence": "transitive",
+   "line": 206,
+   "score": 0.459,
+   "run": "python -m pytest tests/test_testing.py::test_session_transaction_needs_cookies"
+  },
+  {
+   "id": "tests/test_reqctx.py::test_manual_context_binding",
+   "expect": "unchanged",
+   "why": "via AppContext.pop > _CollectErrors.raise_any",
+   "confidence": "transitive",
+   "line": 134,
+   "score": 0.35,
+   "run": "python -m pytest tests/test_reqctx.py::test_manual_context_binding"
+  },
+  {
+   "id": "tests/test_signals.py::test_flash_signal",
+   "expect": "unchanged",
+   "why": "via FlaskClient.session_transaction > SecureCookieSessionInterface.save_session > SessionInterface.get_expiration_time",
+   "confidence": "transitive",
+   "line": 139,
+   "score": 0.28,
+   "run": "python -m pytest tests/test_signals.py::test_flash_signal"
+  },
+  {
+   "id": "tests/test_reqctx.py::test_context_test",
+   "expect": "unchanged",
+   "why": "via AppContext.pop > _CollectErrors.raise_any",
+   "confidence": "transitive",
+   "line": 122,
+   "score": 0.226,
+   "run": "python -m pytest tests/test_reqctx.py::test_context_test"
+  },
+  {
+   "id": "tests/test_helpers.py::TestNoImports::test_name_with_import_error",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: error,helper)",
+   "confidence": "heuristic",
+   "line": 220,
+   "score": 0.176,
+   "run": "python -m pytest tests/test_helpers.py::TestNoImports::test_name_with_import_error"
+  },
+  {
+   "id": "tests/test_testing.py::test_session_transactions_no_null_sessions",
+   "expect": "unchanged",
+   "why": "via FlaskClient.session_transaction > SecureCookieSessionInterface.save_session > SessionInterface.get_expiration_time (name: session)",
+   "confidence": "heuristic",
+   "line": 188,
+   "score": 0.158,
+   "run": "python -m pytest tests/test_testing.py::test_session_transactions_no_null_sessions"
+  },
+  {
+   "id": "tests/test_testing.py::test_session_transactions",
+   "expect": "unchanged",
+   "why": "via FlaskClient.session_transaction > SecureCookieSessionInterface.save_session > SessionInterface.get_expiration_time (name: session)",
+   "confidence": "heuristic",
+   "line": 157,
+   "score": 0.144,
+   "run": "python -m pytest tests/test_testing.py::test_session_transactions"
+  },
+  {
+   "id": "tests/test_testing.py::test_session_transactions_keep_context",
+   "expect": "unchanged",
+   "why": "via FlaskClient.session_transaction > SecureCookieSessionInterface.save_session > SessionInterface.get_expiration_time (name: session)",
+   "confidence": "heuristic",
+   "line": 198,
+   "score": 0.134,
+   "run": "python -m pytest tests/test_testing.py::test_session_transactions_keep_context"
+  },
+  {
+   "id": "tests/test_user_error_handler.py::test_error_handler_no_match",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: error)",
+   "confidence": "heuristic",
+   "line": 10,
+   "score": 0.121,
+   "run": "python -m pytest tests/test_user_error_handler.py::test_error_handler_no_match"
+  },
+  {
+   "id": "tests/test_cli.py::test_no_command_echo_loading_error",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: error)",
+   "confidence": "heuristic",
+   "line": 397,
+   "score": 0.113,
+   "run": "python -m pytest tests/test_cli.py::test_no_command_echo_loading_error"
+  },
+  {
+   "id": "tests/test_logging.py::test_wsgi_errors_stream",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: error)",
+   "confidence": "heuristic",
+   "line": 54,
+   "score": 0.109,
+   "run": "python -m pytest tests/test_logging.py::test_wsgi_errors_stream"
+  },
+  {
+   "id": "tests/test_cli.py::test_help_echo_loading_error",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: error)",
+   "confidence": "heuristic",
+   "line": 412,
+   "score": 0.107,
+   "run": "python -m pytest tests/test_cli.py::test_help_echo_loading_error"
+  },
+  {
+   "id": "tests/test_basic.py::test_trap_bad_request_key_error",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: error)",
+   "confidence": "heuristic",
+   "line": 1054,
+   "score": 0.106,
+   "run": "python -m pytest tests/test_basic.py::test_trap_bad_request_key_error"
+  },
+  {
+   "id": "tests/test_helpers.py::test_abort_no_app",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: helper)",
+   "confidence": "heuristic",
+   "line": 180,
+   "score": 0.104,
+   "run": "python -m pytest tests/test_helpers.py::test_abort_no_app"
+  },
+  {
+   "id": "tests/test_helpers.py::test_abort_with_app",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: helper)",
+   "confidence": "heuristic",
+   "line": 199,
+   "score": 0.104,
+   "run": "python -m pytest tests/test_helpers.py::test_abort_with_app"
+  },
+  {
+   "id": "tests/test_helpers.py::test_open_resource_exceptions",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: helper)",
+   "confidence": "heuristic",
+   "line": 363,
+   "score": 0.103,
+   "run": "python -m pytest tests/test_helpers.py::test_open_resource_exceptions"
+  },
+  {
+   "id": "tests/test_basic.py::test_teardown_request_handler_error",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: error)",
+   "confidence": "heuristic",
+   "line": 813,
+   "score": 0.1,
+   "run": "python -m pytest tests/test_basic.py::test_teardown_request_handler_error"
+  },
+  {
+   "id": "tests/test_basic.py::test_user_error_handling",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: error)",
+   "confidence": "heuristic",
+   "line": 973,
+   "score": 0.1,
+   "run": "python -m pytest tests/test_basic.py::test_user_error_handling"
+  },
+  {
+   "id": "tests/test_basic.py::test_werkzeug_passthrough_errors",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: error)",
+   "confidence": "heuristic",
+   "line": 1627,
+   "score": 0.1,
+   "run": "python -m pytest tests/test_basic.py::test_werkzeug_passthrough_errors"
+  },
+  {
+   "id": "tests/test_blueprints.py::test_blueprint_specific_user_error_handling",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: error)",
+   "confidence": "heuristic",
+   "line": 45,
+   "score": 0.1,
+   "run": "python -m pytest tests/test_blueprints.py::test_blueprint_specific_user_error_handling"
+  },
+  {
+   "id": "tests/test_reqctx.py::test_session_error_pops_context",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: error)",
+   "confidence": "heuristic",
+   "line": 177,
+   "score": 0.1,
+   "run": "python -m pytest tests/test_reqctx.py::test_session_error_pops_context"
+  },
+  {
+   "id": "tests/test_user_error_handler.py::TestGenericHandlers::test_handle_generic",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: error)",
+   "confidence": "heuristic",
+   "line": 283,
+   "score": 0.1,
+   "run": "python -m pytest tests/test_user_error_handler.py::TestGenericHandlers::test_handle_generic"
+  },
+  {
+   "id": "tests/test_user_error_handler.py::TestGenericHandlers::test_handle_generic_http",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: error)",
+   "confidence": "heuristic",
+   "line": 269,
+   "score": 0.1,
+   "run": "python -m pytest tests/test_user_error_handler.py::TestGenericHandlers::test_handle_generic_http"
+  },
+  {
+   "id": "tests/test_user_error_handler.py::test_default_error_handler",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: error)",
+   "confidence": "heuristic",
+   "line": 163,
+   "score": 0.1,
+   "run": "python -m pytest tests/test_user_error_handler.py::test_default_error_handler"
+  },
+  {
+   "id": "tests/test_user_error_handler.py::test_error_handler_subclass",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: error)",
+   "confidence": "heuristic",
+   "line": 61,
+   "score": 0.1,
+   "run": "python -m pytest tests/test_user_error_handler.py::test_error_handler_subclass"
+  },
+  {
+   "id": "tests/test_helpers.py::test_app_aborter_class",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: helper)",
+   "confidence": "heuristic",
+   "line": 188,
+   "score": 0.098,
+   "run": "python -m pytest tests/test_helpers.py::test_app_aborter_class"
+  },
+  {
+   "id": "tests/test_basic.py::test_enctype_debug_helper",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: helper)",
+   "confidence": "heuristic",
+   "line": 1129,
+   "score": 0.096,
+   "run": "python -m pytest tests/test_basic.py::test_enctype_debug_helper"
+  },
+  {
+   "id": "tests/test_helpers.py::TestUrlFor::test_url_for_with_scheme_not_external",
+   "expect": "unchanged",
+   "why": "via App.add_url_rule > AppContext.pop > _CollectErrors.raise_any (name: helper)",
+   "confidence": "heuristic",
+   "line": 112,
+   "score": 0.096,
+   "run": "python -m pytest tests/test_helpers.py::TestUrlFor::test_url_for_with_scheme_not_external"
+  },
+  {
+   "id": "tests/test_helpers.py::test_redirect_with_app",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: helper)",
+   "confidence": "heuristic",
+   "line": 170,
+   "score": 0.096,
+   "run": "python -m pytest tests/test_helpers.py::test_redirect_with_app"
+  },
+  {
+   "id": "tests/test_async.py::test_async_error_handler",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: error)",
+   "confidence": "heuristic",
+   "line": 90,
+   "score": 0.093,
+   "run": "python -m pytest tests/test_async.py::test_async_error_handler"
+  },
+  {
+   "id": "tests/test_basic.py::test_baseexception_error_handling",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: error)",
+   "confidence": "heuristic",
+   "line": 948,
+   "score": 0.093,
+   "run": "python -m pytest tests/test_basic.py::test_baseexception_error_handling"
+  },
+  {
+   "id": "tests/test_basic.py::test_before_request_and_routing_errors",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: error)",
+   "confidence": "heuristic",
+   "line": 959,
+   "score": 0.093,
+   "run": "python -m pytest tests/test_basic.py::test_before_request_and_routing_errors"
+  },
+  {
+   "id": "tests/test_basic.py::test_build_error_handler",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: error)",
+   "confidence": "heuristic",
+   "line": 1373,
+   "score": 0.093,
+   "run": "python -m pytest tests/test_basic.py::test_build_error_handler"
+  },
+  {
+   "id": "tests/test_basic.py::test_build_error_handler_reraise",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: error)",
+   "confidence": "heuristic",
+   "line": 1399,
+   "score": 0.093,
+   "run": "python -m pytest tests/test_basic.py::test_build_error_handler_reraise"
+  },
+  {
+   "id": "tests/test_basic.py::test_error_handler_after_processor_error",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: error)",
+   "confidence": "heuristic",
+   "line": 1100,
+   "score": 0.093,
+   "run": "python -m pytest tests/test_basic.py::test_error_handler_after_processor_error"
+  },
+  {
+   "id": "tests/test_basic.py::test_error_handling",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: error)",
+   "confidence": "heuristic",
+   "line": 889,
+   "score": 0.093,
+   "run": "python -m pytest tests/test_basic.py::test_error_handling"
+  },
+  {
+   "id": "tests/test_basic.py::test_error_handling_processing",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: error)",
+   "confidence": "heuristic",
+   "line": 927,
+   "score": 0.093,
+   "run": "python -m pytest tests/test_basic.py::test_error_handling_processing"
+  },
+  {
+   "id": "tests/test_basic.py::test_http_error_subclass_handling",
+   "expect": "unchanged",
+   "why": "via leak_detector > AppContext.pop > _CollectErrors.raise_any (name: error)",
+   "confidence": "heuristic",
+   "line": 989,
+   "score": 0.093,
+   "run": "python -m pytest tests/test_basic.py::test_http_error_subclass_handling"
+  }
+ ],
+ "consequences": [
+  {
+   "from": "SessionInterface.get_expiration_time return changed",
+   "to": "1 caller(s) use the result",
+   "path": [
+    "src/flask/sessions.py:230 return",
+    "src/flask/sessions.py:372 SecureCookieSessionInterface.save_session uses the result"
+   ],
+   "evidence": "static source path"
+  }
+ ],
+ "impacted": [
+  {
+   "symbol": "src/flask/app.py#Flask.do_teardown_appcontext",
+   "depth": 1,
+   "via": "_CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/app.py#Flask.do_teardown_request",
+   "depth": 1,
+   "via": "_CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/ctx.py#AppContext.pop",
+   "depth": 1,
+   "via": "_CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sessions.py#SecureCookieSessionInterface.save_session",
+   "depth": 1,
+   "via": "SessionInterface.get_expiration_time"
+  },
+  {
+   "symbol": "src/flask/app.py#Flask.process_response",
+   "depth": 2,
+   "via": "SecureCookieSessionInterface.save_session > SessionInterface.get_expiration_time"
+  },
+  {
+   "symbol": "src/flask/app.py#Flask.wsgi_app",
+   "depth": 2,
+   "via": "AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/ctx.py#AppContext.__exit__",
+   "depth": 2,
+   "via": "AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/testing.py#FlaskClient.session_transaction",
+   "depth": 2,
+   "via": "SecureCookieSessionInterface.save_session > SessionInterface.get_expiration_time"
+  },
+  {
+   "symbol": "examples/tutorial/flaskr/db.py#close_db",
+   "depth": 2,
+   "via": "AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/cli.py#AppGroup.command",
+   "depth": 2,
+   "via": "AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/cli.py#FlaskGroup.__init__",
+   "depth": 2,
+   "via": "AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/ctx.py#_AppCtxGlobals.pop",
+   "depth": 2,
+   "via": "AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/helpers.py#get_flashed_messages",
+   "depth": 2,
+   "via": "AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/app.py#App.add_url_rule",
+   "depth": 2,
+   "via": "AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/blueprints.py#BlueprintSetupState.add_url_rule",
+   "depth": 2,
+   "via": "AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/scaffold.py#Scaffold.route",
+   "depth": 2,
+   "via": "Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/scaffold.py#Scaffold.route.decorator",
+   "depth": 2,
+   "via": "AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/conftest.py#leak_detector",
+   "depth": 2,
+   "via": "AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/conftest.py#purge_module",
+   "depth": 2,
+   "via": "purge_module.inner > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/conftest.py#purge_module.inner",
+   "depth": 2,
+   "via": "AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_session_using_session_settings.clear",
+   "depth": 2,
+   "via": "AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_url_processors.pull_lang_code",
+   "depth": 2,
+   "via": "AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_app_url_processors.pull_lang_code",
+   "depth": 2,
+   "via": "AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_blueprint_url_processors.pull_lang_code",
+   "depth": 2,
+   "via": "AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_nested_callback_order.app_teardown1",
+   "depth": 2,
+   "via": "AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_nested_callback_order.app_teardown2",
+   "depth": 2,
+   "via": "AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_nested_callback_order.child_teardown1",
+   "depth": 2,
+   "via": "AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_nested_callback_order.child_teardown2",
+   "depth": 2,
+   "via": "AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_nested_callback_order.parent_teardown1",
+   "depth": 2,
+   "via": "AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_nested_callback_order.parent_teardown2",
+   "depth": 2,
+   "via": "AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/app.py#Flask.__init_subclass__",
+   "depth": 2,
+   "via": "Flask.do_teardown_request > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/app.py#Flask.__call__",
+   "depth": 3,
+   "via": "Flask.wsgi_app > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/app.py#Flask.finalize_request",
+   "depth": 3,
+   "via": "Flask.process_response > SecureCookieSessionInterface.save_session > SessionInterface.get_expiration_time"
+  },
+  {
+   "symbol": "examples/celery/src/task_app/__init__.py#create_app.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "examples/javascript/js_example/views.py#add",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "examples/javascript/js_example/views.py#index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "examples/tutorial/flaskr/__init__.py#create_app",
+   "depth": 3,
+   "via": "App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "examples/tutorial/flaskr/__init__.py#create_app.hello",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "examples/tutorial/flaskr/auth.py#login",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "examples/tutorial/flaskr/auth.py#logout",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "examples/tutorial/flaskr/auth.py#register",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "examples/tutorial/flaskr/blog.py#create",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "examples/tutorial/flaskr/blog.py#delete",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "examples/tutorial/flaskr/blog.py#index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "examples/tutorial/flaskr/blog.py#update",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "examples/tutorial/flaskr/db.py#init_db_command",
+   "depth": 3,
+   "via": "AppGroup.command > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/app.py#Flask.__init__",
+   "depth": 3,
+   "via": "App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/cli.py#AppGroup.command.decorator",
+   "depth": 3,
+   "via": "AppGroup.command > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/cli.py#cli",
+   "depth": 3,
+   "via": "FlaskGroup.__init__ > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/cli.py#routes_command",
+   "depth": 3,
+   "via": "AppGroup.command > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/cli.py#run_command",
+   "depth": 3,
+   "via": "AppGroup.command > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/cli.py#shell_command",
+   "depth": 3,
+   "via": "AppGroup.command > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/blueprints.py#Blueprint.add_url_rule",
+   "depth": 3,
+   "via": "App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/blueprints.py#Blueprint.register",
+   "depth": 3,
+   "via": "BlueprintSetupState.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/scaffold.py#Scaffold._method_route",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/conftest.py#_standard_os_environ",
+   "depth": 3,
+   "via": "leak_detector > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/conftest.py#app",
+   "depth": 3,
+   "via": "leak_detector > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/conftest.py#app_ctx",
+   "depth": 3,
+   "via": "leak_detector > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/conftest.py#client",
+   "depth": 3,
+   "via": "leak_detector > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/conftest.py#modules_tmp_path",
+   "depth": 3,
+   "via": "leak_detector > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/conftest.py#modules_tmp_path_prefix",
+   "depth": 3,
+   "via": "leak_detector > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/conftest.py#req_ctx",
+   "depth": 3,
+   "via": "leak_detector > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/conftest.py#site_packages",
+   "depth": 3,
+   "via": "leak_detector > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_appctx.py#test_app_tearing_down_with_handled_exception_by_app_handler.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_appctx.py#test_app_tearing_down_with_unhandled_exception.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_appctx.py#test_basic_url_generation.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_appctx.py#test_context_refcounts.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_apps/blueprintapp/apps/admin/__init__.py#index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_apps/blueprintapp/apps/admin/__init__.py#index2",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_apps/blueprintapp/apps/frontend/__init__.py#index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_apps/blueprintapp/apps/frontend/__init__.py#missing_template",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_apps/helloworld/hello.py#hello",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_async.py#_async_app",
+   "depth": 3,
+   "via": "App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_async.py#_async_app.bp_error",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_async.py#_async_app.bp_index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_async.py#_async_app.error",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_async.py#_async_app.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_async.py#test_async_before_after_request.bp_index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_async.py#test_async_before_after_request.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_after_request_processing.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_baseexception_error_handling.broken_func",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_before_after_request_order.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_enctype_debug_helper.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_error_handler_after_processor_error.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_error_handling.error",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_error_handling.error2",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_error_handling.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_error_handling_processing.broken_func",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_errorhandler_precedence.raise_e1",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_errorhandler_precedence.raise_e3",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_exception_propagation.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_extended_flashing.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_extended_flashing.test",
+   "depth": 3,
+   "via": "get_flashed_messages > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_extended_flashing.test_filter",
+   "depth": 3,
+   "via": "get_flashed_messages > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_extended_flashing.test_filters",
+   "depth": 3,
+   "via": "get_flashed_messages > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_extended_flashing.test_filters2",
+   "depth": 3,
+   "via": "get_flashed_messages > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_extended_flashing.test_with_categories",
+   "depth": 3,
+   "via": "get_flashed_messages > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_http_error_subclass_handling.index1",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_http_error_subclass_handling.index2",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_http_error_subclass_handling.index3",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_inject_blueprint_url_defaults.view",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_max_cookie_size.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_multi_route_class_views.View.__init__",
+   "depth": 3,
+   "via": "App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_multi_route_rules.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_no_setup_after_first_request.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_nonascii_pathinfo.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_options_on_multiple_rules.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_options_on_multiple_rules.index_put",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_options_work.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_provide_automatic_options_method_disable.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_request_dispatching.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_request_dispatching.more",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_request_preprocessing_early_return.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_request_processing.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_response_type_errors.from_bad_type",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_response_type_errors.from_bad_wsgi",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_response_type_errors.from_large_tuple",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_response_type_errors.from_none",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_response_type_errors.from_small_tuple",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_response_types.from_bytes",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_response_types.from_dict",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_response_types.from_full_tuple",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_response_types.from_list",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_response_types.from_response_headers",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_response_types.from_response_status",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_response_types.from_text",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_response_types.from_text_headers",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_response_types.from_text_status",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_response_types.from_wsgi",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_route_decorator_custom_endpoint.foo",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_route_decorator_custom_endpoint.for_bar",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_route_decorator_custom_endpoint.for_bar_foo",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_routing_redirect_debugging.user",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_server_name_matching.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_server_name_subdomain.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_server_name_subdomain.subdomain",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_session_cookie_setting.bump",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_session_cookie_setting.read",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_session_expiration.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_session_expiration.test",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_session_path.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_session_special_types.dump_session_contents",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_session_stored_last.dump_session_contents",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_session_using_application_root.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_session_using_samesite_attribute.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_session_using_session_settings.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_session_vary_cookie.clear",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_session_vary_cookie.get",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_session_vary_cookie.getitem",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_session_vary_cookie.no_vary_header",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_session_vary_cookie.set_session",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_session_vary_cookie.setdefault",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_session_vary_cookie.vary_cookie_header_set",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_session_vary_cookie.vary_header_set",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_static_folder_with_ending_slash.catch_all",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_subdomain_basic_support.normal_index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_subdomain_basic_support.test_index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_subdomain_matching.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_subdomain_matching_other_name.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_subdomain_matching_with_ports.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_teardown_request_handler.root",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_teardown_request_handler_debug_mode.root",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_teardown_request_handler_error.fails",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_trap_bad_request_key_error.allow_abort",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_trap_bad_request_key_error.fail",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_trapping_of_all_http_exceptions.fail",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_url_generation.hello",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_url_processors.about",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_url_processors.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_url_processors.something_else",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_user_error_handling.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_add_template_filter_with_name_and_template.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_add_template_filter_with_template.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_add_template_test_with_name_and_template.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_add_template_test_with_template.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_app_request_processing.bp_endpoint",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_app_url_processors.about",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_app_url_processors.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_blueprint_app_error_handling.app_forbidden",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_blueprint_app_error_handling.bp_forbidden",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_blueprint_prefix_slash.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_blueprint_specific_error_handling.backend_no",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_blueprint_specific_error_handling.frontend_no",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_blueprint_specific_error_handling.sideend_no",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_blueprint_specific_user_error_handling.blue_deco_test",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_blueprint_specific_user_error_handling.blue_func_test",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_blueprint_url_defaults.bar",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_blueprint_url_defaults.foo",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_blueprint_url_processors.about",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_blueprint_url_processors.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_child_and_parent_subdomain.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_context_processing.app_page",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_context_processing.bp_page",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_dotted_names_from_app.app_index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_dotted_names_from_app.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_empty_url_defaults.something",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_nested_blueprint.child_index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_nested_blueprint.child_no",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_nested_blueprint.grandchild_index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_nested_blueprint.grandchild_no",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_nested_blueprint.parent_index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_nested_blueprint.parent_no",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_nested_callback_order.a",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_nested_callback_order.b",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_nesting_subdomains.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_nesting_url_prefixes.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_request_processing.bp_endpoint",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_route_decorator_custom_endpoint.bar_foo",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_route_decorator_custom_endpoint.foo",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_route_decorator_custom_endpoint.foo_bar",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_route_decorator_custom_endpoint.foo_bar_foo",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_route_decorator_custom_endpoint.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_template_filter_after_route_with_template.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_template_filter_with_name_and_template.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_template_filter_with_template.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_template_test_after_route_with_template.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_template_test_with_name_and_template.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_template_test_with_template.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_cli.py#TestRoutes.app",
+   "depth": 3,
+   "via": "App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_cli.py#TestRoutes.invoke",
+   "depth": 3,
+   "via": "FlaskGroup.__init__ > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_cli.py#runner",
+   "depth": 3,
+   "via": "leak_detector > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_cli.py#test_app_cli_has_app_context.check",
+   "depth": 3,
+   "via": "AppGroup.command > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_cli.py#test_appgroup_app_context.test",
+   "depth": 3,
+   "via": "AppGroup.command > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_cli.py#test_appgroup_app_context.test2",
+   "depth": 3,
+   "via": "AppGroup.command > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_cli.py#test_cli_blueprints.custom_command",
+   "depth": 3,
+   "via": "AppGroup.command > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_cli.py#test_cli_blueprints.late_command",
+   "depth": 3,
+   "via": "AppGroup.command > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_cli.py#test_cli_blueprints.merged_command",
+   "depth": 3,
+   "via": "AppGroup.command > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_cli.py#test_cli_blueprints.nested_command",
+   "depth": 3,
+   "via": "AppGroup.command > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_cli.py#test_flaskgroup_app_context.test",
+   "depth": 3,
+   "via": "AppGroup.command > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_cli.py#test_flaskgroup_debug.test",
+   "depth": 3,
+   "via": "AppGroup.command > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_cli.py#test_flaskgroup_nested.show",
+   "depth": 3,
+   "via": "AppGroup.command > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_cli.py#test_with_appcontext.testcmd",
+   "depth": 3,
+   "via": "AppGroup.command > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_converters.py#test_custom_converters.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_helpers.py#TestStreaming.test_async_view.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_helpers.py#TestStreaming.test_stream_keeps_session.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_helpers.py#TestStreaming.test_streaming_with_context.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_helpers.py#TestStreaming.test_streaming_with_context_and_custom_close.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_helpers.py#TestStreaming.test_streaming_with_context_as_decorator.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_helpers.py#TestUrlFor.test_url_for_with_alternating_schemes.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_helpers.py#TestUrlFor.test_url_for_with_anchor.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_helpers.py#TestUrlFor.test_url_for_with_scheme.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_helpers.py#TestUrlFor.test_url_for_with_self.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_json.py#test_bad_request_debug_message.post_json",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_json.py#test_json_attr.add",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_json.py#test_json_bad_requests.return_json",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_json.py#test_json_custom_mimetypes.return_json",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_json.py#test_json_customization.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_json.py#test_json_key_sorting.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_json.py#test_jsonify_arrays.return_args_unpack",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_json.py#test_jsonify_arrays.return_array",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_json.py#test_jsonify_datetime.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_json.py#test_jsonify_dicts.return_dict",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_json.py#test_jsonify_dicts.return_kwargs",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_logging.py#reset_logging",
+   "depth": 3,
+   "via": "leak_detector > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_logging.py#test_log_view_exception.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_logging.py#test_wsgi_errors_stream.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_regression.py#test_aborting.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_regression.py#test_aborting.test",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_reqctx.py#test_context_binding.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_reqctx.py#test_context_binding.meh",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_reqctx.py#test_copy_context_thread.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_reqctx.py#test_manual_context_binding.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_reqctx.py#test_proper_test_request_context.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_reqctx.py#test_proper_test_request_context.sub",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_reqctx.py#test_session_dynamic_cookie_name.get",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_reqctx.py#test_session_dynamic_cookie_name.get_dynamic_cookie",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_reqctx.py#test_session_dynamic_cookie_name.set",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_reqctx.py#test_session_dynamic_cookie_name.set_dynamic_cookie",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_reqctx.py#test_session_error_pops_context.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_signals.py#test_appcontext_signals.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_signals.py#test_appcontext_tearing_down_signal.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_signals.py#test_before_render_template.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_signals.py#test_flash_signal.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_signals.py#test_request_exception_signal.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_signals.py#test_request_signals.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_signals.py#test_template_rendered.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_subclassing.py#test_suppressed_exception_logging.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_templating.py#test_add_template_filter_with_name_and_template.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_templating.py#test_add_template_filter_with_template.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_templating.py#test_add_template_test_with_name_and_template.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_templating.py#test_add_template_test_with_template.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_templating.py#test_context_processing.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_templating.py#test_custom_template_loader.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_templating.py#test_escaping.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_templating.py#test_iterable_loader.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_templating.py#test_no_escaping.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_templating.py#test_original_win.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_templating.py#test_simple_stream.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_templating.py#test_standard_context.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_templating.py#test_template_filter_with_name_and_template.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_templating.py#test_template_filter_with_template.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_templating.py#test_template_test_with_name_and_template.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_templating.py#test_template_test_with_template.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_testing.py#test_blueprint_with_subdomain.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_testing.py#test_cli_custom_obj.hello_command",
+   "depth": 3,
+   "via": "AppGroup.command > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_testing.py#test_cli_invoke.hello_command",
+   "depth": 3,
+   "via": "AppGroup.command > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_testing.py#test_client_json_no_app_context.hello",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_testing.py#test_client_open_environ.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_testing.py#test_client_pop_all_preserved.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_testing.py#test_environ_base_default.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_testing.py#test_environ_base_modified.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_testing.py#test_environ_defaults.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_testing.py#test_environ_defaults_from_config.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_testing.py#test_full_url_request.action",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_testing.py#test_json_request_and_response.echo",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_testing.py#test_nosubdomain.view",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_testing.py#test_redirect_session.get_session",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_testing.py#test_redirect_session.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_testing.py#test_session_transactions.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_testing.py#test_specify_url_scheme.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_testing.py#test_subdomain.view",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_testing.py#test_test_client_context_binding.index",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_testing.py#test_test_client_context_binding.other",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#TestGenericHandlers.app",
+   "depth": 3,
+   "via": "leak_detector > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#TestGenericHandlers.app.do_abort",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#TestGenericHandlers.app.do_custom",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#TestGenericHandlers.app.do_error",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#TestGenericHandlers.app.do_raise",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#test_default_error_handler.bp_forbidden_test",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#test_default_error_handler.bp_registered_test",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#test_default_error_handler.forbidden",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#test_default_error_handler.slash",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#test_error_handler_blueprint.app_test",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#test_error_handler_blueprint.bp_test",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#test_error_handler_http_subclass.forbidden_test",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#test_error_handler_http_subclass.registered_test",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#test_error_handler_http_subclass.unregistered_test",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#test_error_handler_no_match.custom_test",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#test_error_handler_no_match.do_abort",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#test_error_handler_no_match.key_error",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#test_error_handler_subclass.parent_test",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#test_error_handler_subclass.registered_test",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#test_error_handler_subclass.unregistered_test",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/type_check/typing_route.py#async_route",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/type_check/typing_route.py#hello_bytes",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/type_check/typing_route.py#hello_generator",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/type_check/typing_route.py#hello_generator_expression",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/type_check/typing_route.py#hello_iterator",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/type_check/typing_route.py#hello_json",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/type_check/typing_route.py#hello_json_dict",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/type_check/typing_route.py#hello_json_list",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/type_check/typing_route.py#hello_str",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/type_check/typing_route.py#return_template",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/type_check/typing_route.py#return_template_stream",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/type_check/typing_route.py#tuple_headers",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/type_check/typing_route.py#tuple_status",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/type_check/typing_route.py#tuple_status_enum",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/type_check/typing_route.py#typed_dict",
+   "depth": 3,
+   "via": "Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "examples/tutorial/flaskr/db.py#init_app",
+   "depth": 3,
+   "via": "close_db > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/app.py#Flask.create_jinja_environment",
+   "depth": 3,
+   "via": "get_flashed_messages > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/views.py#MethodView.__init_subclass__",
+   "depth": 3,
+   "via": "Flask.__init_subclass__ > Flask.do_teardown_request > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/app.py#Flask.full_dispatch_request",
+   "depth": 4,
+   "via": "Flask.finalize_request > Flask.process_response > SecureCookieSessionInterface.save_session > SessionInterface.get_expiration_time"
+  },
+  {
+   "symbol": "src/flask/app.py#Flask.handle_exception",
+   "depth": 4,
+   "via": "Flask.finalize_request > Flask.process_response > SecureCookieSessionInterface.save_session > SessionInterface.get_expiration_time"
+  },
+  {
+   "symbol": "examples/celery/src/task_app/__init__.py#create_app",
+   "depth": 4,
+   "via": "Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "examples/javascript/js_example/__init__.py#app",
+   "depth": 4,
+   "via": "Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/app.py#Flask.test_cli_runner",
+   "depth": 4,
+   "via": "Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/app.py#Flask.test_client",
+   "depth": 4,
+   "via": "Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/cli.py#with_appcontext",
+   "depth": 4,
+   "via": "with_appcontext.decorator > TestRoutes.invoke > FlaskGroup.__init__ > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/cli.py#with_appcontext.decorator",
+   "depth": 4,
+   "via": "TestRoutes.invoke > FlaskGroup.__init__ > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/app.py#App.register_blueprint",
+   "depth": 4,
+   "via": "Blueprint.register > BlueprintSetupState.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/scaffold.py#Scaffold.delete",
+   "depth": 4,
+   "via": "Scaffold._method_route > Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/scaffold.py#Scaffold.get",
+   "depth": 4,
+   "via": "Scaffold._method_route > Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/scaffold.py#Scaffold.patch",
+   "depth": 4,
+   "via": "Scaffold._method_route > Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/scaffold.py#Scaffold.post",
+   "depth": 4,
+   "via": "Scaffold._method_route > Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/scaffold.py#Scaffold.put",
+   "depth": 4,
+   "via": "Scaffold._method_route > Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/scaffold.py#Scaffold.query",
+   "depth": 4,
+   "via": "Scaffold._method_route > Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/testing.py#FlaskCliRunner.invoke",
+   "depth": 4,
+   "via": "TestRoutes.invoke > FlaskGroup.__init__ > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_apps/blueprintapp/__init__.py#app",
+   "depth": 4,
+   "via": "Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_apps/cliapp/app.py#testapp",
+   "depth": 4,
+   "via": "Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_apps/cliapp/factory.py#create_app",
+   "depth": 4,
+   "via": "Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_apps/cliapp/factory.py#create_app2",
+   "depth": 4,
+   "via": "Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_apps/cliapp/importerrorapp.py#testapp",
+   "depth": 4,
+   "via": "Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_apps/cliapp/inner1/__init__.py#application",
+   "depth": 4,
+   "via": "Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_apps/cliapp/inner1/inner2/flask.py#app",
+   "depth": 4,
+   "via": "Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_apps/cliapp/multiapp.py#app1",
+   "depth": 4,
+   "via": "Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_apps/cliapp/multiapp.py#app2",
+   "depth": 4,
+   "via": "Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_apps/helloworld/hello.py#app",
+   "depth": 4,
+   "via": "Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_session_using_application_root.PrefixPathMiddleware.__call__",
+   "depth": 4,
+   "via": "Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_cli.py#test_find_best_app.Module.app",
+   "depth": 4,
+   "via": "Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_cli.py#test_find_best_app.Module.application",
+   "depth": 4,
+   "via": "Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_cli.py#test_find_best_app.Module.create_app",
+   "depth": 4,
+   "via": "Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_cli.py#test_find_best_app.Module.make_app",
+   "depth": 4,
+   "via": "Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_cli.py#test_find_best_app.Module.myapp",
+   "depth": 4,
+   "via": "Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_cli.py#test_find_best_app.Module.myapp1",
+   "depth": 4,
+   "via": "Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_cli.py#test_find_best_app.Module.myapp2",
+   "depth": 4,
+   "via": "Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_cli.py#test_flaskgroup_app_context.create_app",
+   "depth": 4,
+   "via": "Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_cli.py#test_flaskgroup_debug.create_app",
+   "depth": 4,
+   "via": "Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_cli.py#test_scriptinfo.create_app",
+   "depth": 4,
+   "via": "Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/type_check/typing_app_decorators.py#app",
+   "depth": 4,
+   "via": "Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/type_check/typing_error_handler.py#app",
+   "depth": 4,
+   "via": "Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/type_check/typing_route.py#app",
+   "depth": 4,
+   "via": "Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "docs/conf.py#github_link",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/cli.py#main",
+   "depth": 4,
+   "via": "cli > FlaskGroup.__init__ > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/ctx.py#AppContext.__repr__",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/ctx.py#AppContext._get_session",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/ctx.py#AppContext.copy",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/ctx.py#AppContext.push",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/ctx.py#_AppCtxGlobals.__repr__",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/ctx.py#copy_current_request_context",
+   "depth": 4,
+   "via": "copy_current_request_context.wrapper > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/ctx.py#copy_current_request_context.wrapper",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/helpers.py#_prepare_send_file_kwargs",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/helpers.py#abort",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/helpers.py#redirect",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/app.py#App.jinja_env",
+   "depth": 4,
+   "via": "Flask.create_jinja_environment > get_flashed_messages > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/blueprints.py#Blueprint.add_app_template_filter",
+   "depth": 4,
+   "via": "Blueprint.add_app_template_filter.register_template_filter > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/blueprints.py#Blueprint.add_app_template_filter.register_template_filter",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/blueprints.py#Blueprint.add_app_template_global",
+   "depth": 4,
+   "via": "Blueprint.add_app_template_global.register_template_global > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/blueprints.py#Blueprint.add_app_template_global.register_template_global",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/blueprints.py#Blueprint.add_app_template_test",
+   "depth": 4,
+   "via": "Blueprint.add_app_template_test.register_template_test > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/blueprints.py#Blueprint.add_app_template_test.register_template_test",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/blueprints.py#Blueprint.after_app_request",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/blueprints.py#Blueprint.app_context_processor",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/blueprints.py#Blueprint.app_errorhandler",
+   "depth": 4,
+   "via": "Blueprint.app_errorhandler.decorator > Blueprint.app_errorhandler.decorator.from_blueprint > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/blueprints.py#Blueprint.app_errorhandler.decorator",
+   "depth": 4,
+   "via": "Blueprint.app_errorhandler.decorator.from_blueprint > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/blueprints.py#Blueprint.app_errorhandler.decorator.from_blueprint",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/blueprints.py#Blueprint.app_url_defaults",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/blueprints.py#Blueprint.app_url_value_preprocessor",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/blueprints.py#Blueprint.before_app_request",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/blueprints.py#Blueprint.teardown_app_request",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/templating.py#DispatchingJinjaLoader._get_source_explained",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/templating.py#DispatchingJinjaLoader._iter_loaders",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/templating.py#DispatchingJinjaLoader.get_source",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/templating.py#DispatchingJinjaLoader.list_templates",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/templating.py#_render",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/templating.py#_stream",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/templating.py#render_template",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/templating.py#render_template_string",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/templating.py#stream_template",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/templating.py#stream_template_string",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/testing.py#EnvironBuilder.json_dumps",
+   "depth": 4,
+   "via": "TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#TestGenericHandlers.test_handle_class_or_code.handle_500",
+   "depth": 4,
+   "via": "TestGenericHandlers.app > leak_detector > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#TestGenericHandlers.test_handle_generic.handle_exception",
+   "depth": 4,
+   "via": "TestGenericHandlers.app > leak_detector > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#TestGenericHandlers.test_handle_generic_http.handle_http",
+   "depth": 4,
+   "via": "TestGenericHandlers.app > leak_detector > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#test_error_handler_blueprint.app_exception_handler",
+   "depth": 4,
+   "via": "TestGenericHandlers.app > leak_detector > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#test_error_handler_http_subclass.code_exception_handler",
+   "depth": 4,
+   "via": "TestGenericHandlers.app > leak_detector > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#test_error_handler_http_subclass.subclass_exception_handler",
+   "depth": 4,
+   "via": "TestGenericHandlers.app > leak_detector > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#test_error_handler_no_match.custom_exception_handler",
+   "depth": 4,
+   "via": "TestGenericHandlers.app > leak_detector > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#test_error_handler_no_match.handle_500",
+   "depth": 4,
+   "via": "TestGenericHandlers.app > leak_detector > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#test_error_handler_subclass.child_exception_handler",
+   "depth": 4,
+   "via": "TestGenericHandlers.app > leak_detector > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_user_error_handler.py#test_error_handler_subclass.parent_exception_handler",
+   "depth": 4,
+   "via": "TestGenericHandlers.app > leak_detector > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "examples/celery/src/task_app/views.py#add",
+   "depth": 5,
+   "via": "Scaffold.post > Scaffold._method_route > Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "examples/celery/src/task_app/views.py#block",
+   "depth": 5,
+   "via": "Scaffold.post > Scaffold._method_route > Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "examples/celery/src/task_app/views.py#process",
+   "depth": 5,
+   "via": "Scaffold.post > Scaffold._method_route > Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "examples/celery/src/task_app/views.py#result",
+   "depth": 5,
+   "via": "Scaffold.get > Scaffold._method_route > Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "examples/javascript/tests/conftest.py#client",
+   "depth": 5,
+   "via": "Flask.test_client > Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "examples/tutorial/tests/conftest.py#AuthActions.login",
+   "depth": 5,
+   "via": "Scaffold.post > Scaffold._method_route > Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "examples/tutorial/tests/conftest.py#client",
+   "depth": 5,
+   "via": "Flask.test_client > Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "examples/tutorial/tests/conftest.py#runner",
+   "depth": 5,
+   "via": "Flask.test_cli_runner > Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/cli.py#ScriptInfo.load_app",
+   "depth": 5,
+   "via": "test_find_best_app.Module.create_app > Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_appctx.py#test_robust_teardown.index",
+   "depth": 5,
+   "via": "Scaffold.get > Scaffold._method_route > Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_provide_automatic_options_arg_disable.index",
+   "depth": 5,
+   "via": "Scaffold.get > Scaffold._method_route > Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_session_accessed.do_get",
+   "depth": 5,
+   "via": "Scaffold.get > Scaffold._method_route > Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_session_accessed.do_nothing",
+   "depth": 5,
+   "via": "Scaffold.get > Scaffold._method_route > Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_session_accessed.do_set",
+   "depth": 5,
+   "via": "Scaffold.post > Scaffold._method_route > Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_session_cookie_setting.run_test",
+   "depth": 5,
+   "via": "Flask.test_client > Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_session_refresh_vary.ignored",
+   "depth": 5,
+   "via": "Scaffold.get > Scaffold._method_route > Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_session_refresh_vary.login",
+   "depth": 5,
+   "via": "Scaffold.get > Scaffold._method_route > Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_session_secret_key_fallbacks.get_session",
+   "depth": 5,
+   "via": "Scaffold.get > Scaffold._method_route > Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_basic.py#test_session_secret_key_fallbacks.set_session",
+   "depth": 5,
+   "via": "Scaffold.post > Scaffold._method_route > Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_blueprint_renaming.error",
+   "depth": 5,
+   "via": "Scaffold.get > Scaffold._method_route > Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_blueprint_renaming.index",
+   "depth": 5,
+   "via": "Scaffold.get > Scaffold._method_route > Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_blueprint_renaming.index2",
+   "depth": 5,
+   "via": "Scaffold.get > Scaffold._method_route > Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_converters.py#test_context_available.index",
+   "depth": 5,
+   "via": "Scaffold.get > Scaffold._method_route > Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_request.py#test_max_content_length.index",
+   "depth": 5,
+   "via": "Scaffold.post > Scaffold._method_route > Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_request.py#test_trusted_hosts_config.index",
+   "depth": 5,
+   "via": "Scaffold.get > Scaffold._method_route > Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_session_interface.py#test_open_session_with_endpoint.index",
+   "depth": 5,
+   "via": "Scaffold.get > Scaffold._method_route > Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_testing.py#test_session_transaction_ipv6.index",
+   "depth": 5,
+   "via": "Scaffold.get > Scaffold._method_route > Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_views.py#common_test",
+   "depth": 5,
+   "via": "Flask.test_client > Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "docs/conf.py#setup",
+   "depth": 5,
+   "via": "github_link > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "examples/tutorial/flaskr/auth.py#load_logged_in_user",
+   "depth": 5,
+   "via": "Blueprint.before_app_request > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "examples/tutorial/flaskr/auth.py#login_required",
+   "depth": 5,
+   "via": "login_required.wrapped_view > redirect > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "examples/tutorial/flaskr/auth.py#login_required.wrapped_view",
+   "depth": 5,
+   "via": "redirect > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/app.py#Flask.update_template_context",
+   "depth": 5,
+   "via": "AppContext.copy > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/cli.py#FlaskGroup.make_context",
+   "depth": 5,
+   "via": "test_find_best_app.Module.create_app > Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/config.py#Config.__repr__",
+   "depth": 5,
+   "via": "_AppCtxGlobals.__repr__ > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/ctx.py#AppContext.__enter__",
+   "depth": 5,
+   "via": "AppContext.push > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/ctx.py#AppContext.session",
+   "depth": 5,
+   "via": "AppContext._get_session > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/helpers.py#get_template_attribute",
+   "depth": 5,
+   "via": "App.jinja_env > Flask.create_jinja_environment > get_flashed_messages > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/helpers.py#send_file",
+   "depth": 5,
+   "via": "_prepare_send_file_kwargs > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/helpers.py#send_from_directory",
+   "depth": 5,
+   "via": "_prepare_send_file_kwargs > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/app.py#App.add_template_filter",
+   "depth": 5,
+   "via": "App.jinja_env > Flask.create_jinja_environment > get_flashed_messages > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/app.py#App.add_template_global",
+   "depth": 5,
+   "via": "App.jinja_env > Flask.create_jinja_environment > get_flashed_messages > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/app.py#App.add_template_test",
+   "depth": 5,
+   "via": "App.jinja_env > Flask.create_jinja_environment > get_flashed_messages > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/app.py#App.debug",
+   "depth": 5,
+   "via": "App.jinja_env > Flask.create_jinja_environment > get_flashed_messages > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/blueprints.py#Blueprint.app_template_filter",
+   "depth": 5,
+   "via": "Blueprint.add_app_template_filter > Blueprint.add_app_template_filter.register_template_filter > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/blueprints.py#Blueprint.app_template_filter.decorator",
+   "depth": 5,
+   "via": "Blueprint.add_app_template_filter > Blueprint.add_app_template_filter.register_template_filter > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/blueprints.py#Blueprint.app_template_global",
+   "depth": 5,
+   "via": "Blueprint.add_app_template_global > Blueprint.add_app_template_global.register_template_global > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/blueprints.py#Blueprint.app_template_global.decorator",
+   "depth": 5,
+   "via": "Blueprint.add_app_template_global > Blueprint.add_app_template_global.register_template_global > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/blueprints.py#Blueprint.app_template_test",
+   "depth": 5,
+   "via": "Blueprint.add_app_template_test > Blueprint.add_app_template_test.register_template_test > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/sansio/blueprints.py#Blueprint.app_template_test.decorator",
+   "depth": 5,
+   "via": "Blueprint.add_app_template_test > Blueprint.add_app_template_test.register_template_test > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/templating.py#DispatchingJinjaLoader._get_source_fast",
+   "depth": 5,
+   "via": "DispatchingJinjaLoader.get_source > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "src/flask/testing.py#EnvironBuilder.__init__",
+   "depth": 5,
+   "via": "Scaffold.query > Scaffold._method_route > Scaffold.route > Scaffold.route.decorator > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_app_request_processing.after_app",
+   "depth": 5,
+   "via": "Blueprint.after_app_request > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_app_request_processing.before_app",
+   "depth": 5,
+   "via": "Blueprint.before_app_request > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_app_request_processing.teardown_app",
+   "depth": 5,
+   "via": "Blueprint.teardown_app_request > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_app_url_processors.add_language_code",
+   "depth": 5,
+   "via": "Blueprint.app_url_defaults > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_blueprint_app_error_handling.forbidden_handler",
+   "depth": 5,
+   "via": "Blueprint.app_errorhandler > Blueprint.app_errorhandler.decorator > Blueprint.app_errorhandler.decorator.from_blueprint > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_context_processing.not_answer_context_processor",
+   "depth": 5,
+   "via": "Blueprint.app_context_processor > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_blueprints.py#test_context_processing.template_string",
+   "depth": 5,
+   "via": "render_template_string > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_cli.py#test_flaskgroup_app_context.cli",
+   "depth": 5,
+   "via": "test_flaskgroup_app_context.create_app > Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_cli.py#test_flaskgroup_debug.cli",
+   "depth": 5,
+   "via": "test_flaskgroup_debug.create_app > Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/test_reqctx.py#test_copy_context_thread.index.work",
+   "depth": 5,
+   "via": "copy_current_request_context > copy_current_request_context.wrapper > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/type_check/typing_app_decorators.py#after_async",
+   "depth": 5,
+   "via": "app > Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/type_check/typing_app_decorators.py#after_sync",
+   "depth": 5,
+   "via": "app > Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/type_check/typing_app_decorators.py#before_async",
+   "depth": 5,
+   "via": "app > Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/type_check/typing_app_decorators.py#before_sync",
+   "depth": 5,
+   "via": "app > Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/type_check/typing_app_decorators.py#teardown_async",
+   "depth": 5,
+   "via": "app > Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/type_check/typing_app_decorators.py#teardown_sync",
+   "depth": 5,
+   "via": "app > Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/type_check/typing_error_handler.py#handle_400",
+   "depth": 5,
+   "via": "app > Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/type_check/typing_error_handler.py#handle_accept_base",
+   "depth": 5,
+   "via": "app > Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/type_check/typing_error_handler.py#handle_custom",
+   "depth": 5,
+   "via": "app > Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/type_check/typing_error_handler.py#handle_multiple",
+   "depth": 5,
+   "via": "app > Flask.__init__ > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  },
+  {
+   "symbol": "tests/type_check/typing_route.py#RenderTemplateView.dispatch_request",
+   "depth": 5,
+   "via": "render_template > TestRoutes.app > App.add_url_rule > AppContext.pop > _CollectErrors.raise_any"
+  }
+ ],
+ "caveats": "Static unless a row says observed. Not proof.",
+ "runner": "pytest",
+ "behaviour_differences": [],
+ "side_by_side": {
+  "mode": "paired records",
+  "targets": 3,
+  "compared_calls": 1507,
+  "functions_called": 3,
+  "called": [
+   "src/flask/cli.py#SeparatedPathType.convert",
+   "src/flask/helpers.py#_CollectErrors.raise_any",
+   "src/flask/sessions.py#SessionInterface.get_expiration_time"
+  ],
+  "paired": 1507,
+  "inputs_differ": 0,
+  "unpaired": 22,
+  "unreadable": 0,
+  "unstable": 9,
+  "differences": 0,
+  "excluded_fields": 1,
+  "excluded": {
+   "src/flask/sessions.py#SessionInterface.get_expiration_time": [
+    ""
+   ]
+  },
+  "not_rerun": 0,
+  "rerun_tests": 2,
+  "not_compared": {
+   "src/flask/cli.py#SeparatedPathType.convert": "only its docstring, comments or layout changed",
+   "tests/test_appctx.py#test_robust_teardown": "in a test file",
+   "tests/test_basic.py#test_session_expiration": "in a test file",
+   "tests/test_basic.py#test_session_special_types": "in a test file",
+   "tests/test_config.py#test_config_from_file_toml": "in a test file",
+   "tests/test_json_tag.py#test_dump_load_unchanged": "in a test file"
+  }
+ },
+ "change_evidence": [],
+ "replayed": [
+  {
+   "id": "tests/test_appctx.py::test_robust_teardown",
+   "head": "passed",
+   "base": "passed",
+   "verdict": "none"
+  },
+  {
+   "id": "tests/test_basic.py::test_session_expiration",
+   "head": "passed",
+   "base": "passed",
+   "verdict": "none"
+  },
+  {
+   "id": "tests/test_basic.py::test_session_special_types",
+   "head": "passed",
+   "base": "passed",
+   "verdict": "none"
+  },
+  {
+   "id": "tests/test_config.py::test_config_from_file_toml",
+   "head": "passed",
+   "base": "passed",
+   "verdict": "none"
+  },
+  {
+   "id": "tests/test_json_tag.py::test_dump_load_unchanged",
+   "head": "passed",
+   "base": "passed",
+   "verdict": "none"
+  }
+ ],
+ "original_tests": {
+  "tests/test_appctx.py::test_robust_teardown": "passed",
+  "tests/test_basic.py::test_session_expiration": "passed",
+  "tests/test_basic.py::test_session_special_types": "passed",
+  "tests/test_config.py::test_config_from_file_toml": "passed",
+  "tests/test_json_tag.py::test_dump_load_unchanged": "passed",
+  "tests/test_basic.py::test_trap_bad_request_key_error": "passed",
+  "tests/test_basic.py::test_teardown_request_handler_error": "passed",
+  "tests/test_basic.py::test_user_error_handling": "passed",
+  "tests/test_basic.py::test_werkzeug_passthrough_errors": "passed",
+  "tests/test_basic.py::test_enctype_debug_helper": "passed",
+  "tests/test_basic.py::test_baseexception_error_handling": "passed",
+  "tests/test_basic.py::test_before_request_and_routing_errors": "passed",
+  "tests/test_basic.py::test_build_error_handler": "passed",
+  "tests/test_basic.py::test_build_error_handler_reraise": "passed",
+  "tests/test_basic.py::test_error_handler_after_processor_error": "passed",
+  "tests/test_basic.py::test_error_handling": "passed",
+  "tests/test_basic.py::test_error_handling_processing": "passed",
+  "tests/test_basic.py::test_http_error_subclass_handling": "passed",
+  "tests/test_basic.py::test_response_type_errors": "passed",
+  "tests/test_basic.py::test_url_for_passes_special_values_to_build_error_handler": "passed",
+  "tests/test_basic.py::test_max_cookie_size": "passed",
+  "tests/test_appctx.py::test_app_ctx_globals_methods": "passed",
+  "tests/test_basic.py::test_missing_session": "passed",
+  "tests/test_basic.py::test_no_setup_after_first_request": "passed",
+  "tests/test_basic.py::test_routing_redirect_debugging": "passed",
+  "tests/test_basic.py::test_extended_flashing": "passed",
+  "tests/test_appctx.py::test_app_tearing_down_with_unhandled_exception": "passed",
+  "tests/test_basic.py::test_exception_propagation": "passed",
+  "tests/test_config.py::test_config_from_class": "passed",
+  "tests/test_basic.py::test_flashes": "passed",
+  "tests/test_appctx.py::test_app_tearing_down": "passed",
+  "tests/test_appctx.py::test_app_tearing_down_with_handled_exception_by_app_handler": "passed",
+  "tests/test_appctx.py::test_app_tearing_down_with_handled_exception_by_except_block": "passed",
+  "tests/test_appctx.py::test_app_tearing_down_with_previous_exception": "passed",
+  "tests/test_basic.py::test_errorhandler_precedence": "passed",
+  "tests/test_basic.py::test_trapping_of_all_http_exceptions": "passed",
+  "tests/test_appctx.py::test_clean_pop": "passed",
+  "tests/test_appctx.py::test_url_generation_requires_server_name": "passed",
+  "tests/test_appctx.py::test_url_generation_without_context_fails": "passed",
+  "tests/test_basic.py::test_disallow_string_for_allowed_methods": "passed",
+  "tests/test_basic.py::test_jsonify_args_and_kwargs_check": "passed",
+  "tests/test_basic.py::test_method_route_no_methods": "passed",
+  "tests/test_basic.py::test_session_using_samesite_attribute": "passed",
+  "tests/test_basic.py::test_static_route_with_host_matching": "passed",
+  "tests/test_config.py::test_config_from_envvar": "passed",
+  "tests/test_config.py::test_config_from_envvar_missing": "passed",
+  "tests/test_config.py::test_config_from_mapping": "passed",
+  "tests/test_config.py::test_config_missing": "passed",
+  "tests/test_config.py::test_config_missing_file": "passed",
+  "tests/test_json_tag.py::test_duplicate_tag": "passed",
+  "tests/test_json_tag.py::test_tag_interface": "passed",
+  "tests/test_appctx.py::test_app_context_provides_current_app": "passed",
+  "tests/test_appctx.py::test_basic_url_generation": "passed",
+  "tests/test_appctx.py::test_context_refcounts": "passed",
+  "tests/test_appctx.py::test_custom_app_ctx_globals_class": "passed",
+  "tests/test_appctx.py::test_request_context_means_app_context": "passed",
+  "tests/test_basic.py::test_after_request_processing": "passed",
+  "tests/test_basic.py::test_app_freed_on_zero_refcount": "passed",
+  "tests/test_basic.py::test_before_after_request_order": "passed",
+  "tests/test_basic.py::test_endpoint_decorator": "passed",
+  "tests/test_basic.py::test_g_iteration_protocol": "passed",
+  "tests/test_basic.py::test_get_method_on_g": "passed",
+  "tests/test_basic.py::test_inject_blueprint_url_defaults": "passed",
+  "tests/test_basic.py::test_json_dump_dataclass": "passed",
+  "tests/test_basic.py::test_jsonify_mimetype": "passed",
+  "tests/test_basic.py::test_jsonify_no_prettyprint": "passed",
+  "tests/test_basic.py::test_make_response": "passed",
+  "tests/test_basic.py::test_make_response_with_response_instance": "passed",
+  "tests/test_basic.py::test_method_route": "passed",
+  "tests/test_basic.py::test_multi_route_class_views": "passed",
+  "tests/test_basic.py::test_multi_route_rules": "passed",
+  "tests/test_basic.py::test_nonascii_pathinfo": "passed",
+  "tests/test_basic.py::test_options_on_multiple_rules": "passed",
+  "tests/test_basic.py::test_options_work": "passed",
+  "tests/test_basic.py::test_provide_automatic_options_arg_disable": "passed",
+  "tests/test_basic.py::test_provide_automatic_options_attr_disable": "passed",
+  "tests/test_basic.py::test_provide_automatic_options_attr_enable": "passed",
+  "tests/test_basic.py::test_provide_automatic_options_method_disable": "passed",
+  "tests/test_basic.py::test_request_dispatching": "passed",
+  "tests/test_basic.py::test_request_locals": "passed",
+  "tests/test_basic.py::test_request_preprocessing_early_return": "passed",
+  "tests/test_basic.py::test_request_processing": "passed",
+  "tests/test_basic.py::test_response_types": "passed",
+  "tests/test_basic.py::test_route_decorator_custom_endpoint": "passed",
+  "tests/test_basic.py::test_run_defaults": "passed",
+  "tests/test_basic.py::test_run_from_config": "passed",
+  "tests/test_basic.py::test_run_server_port": "passed",
+  "tests/test_basic.py::test_server_name_matching": "passed",
+  "tests/test_basic.py::test_server_name_subdomain": "passed",
+  "tests/test_basic.py::test_session_accessed": "passed",
+  "tests/test_basic.py::test_session_cookie_setting": "passed",
+  "tests/test_basic.py::test_session_path": "passed",
+  "tests/test_basic.py::test_session_refresh_vary": "passed",
+  "tests/test_basic.py::test_session_secret_key_fallbacks": "passed",
+  "tests/test_basic.py::test_session_stored_last": "passed",
+  "tests/test_basic.py::test_session_using_application_root": "passed",
+  "tests/test_basic.py::test_session_using_session_settings": "passed",
+  "tests/test_basic.py::test_session_vary_cookie": "passed",
+  "tests/test_basic.py::test_static_files": "passed",
+  "tests/test_basic.py::test_static_folder_with_ending_slash": "passed",
+  "tests/test_basic.py::test_static_folder_with_pathlib_path": "passed",
+  "tests/test_basic.py::test_static_url_empty_path": "passed",
+  "tests/test_basic.py::test_static_url_empty_path_default": "passed",
+  "tests/test_basic.py::test_static_url_path": "passed",
+  "tests/test_basic.py::test_static_url_path_with_ending_slash": "passed",
+  "tests/test_basic.py::test_subdomain_basic_support": "passed",
+  "tests/test_basic.py::test_subdomain_matching": "passed",
+  "tests/test_basic.py::test_subdomain_matching_other_name": "passed",
+  "tests/test_basic.py::test_subdomain_matching_with_ports": "passed",
+  "tests/test_basic.py::test_teardown_request_handler": "passed",
+  "tests/test_basic.py::test_teardown_request_handler_debug_mode": "passed",
+  "tests/test_basic.py::test_url_generation": "passed",
+  "tests/test_basic.py::test_url_mapping": "passed",
+  "tests/test_basic.py::test_url_processors": "passed",
+  "tests/test_basic.py::test_werkzeug_routing": "passed",
+  "tests/test_config.py::test_config_from_file_json": "passed",
+  "tests/test_config.py::test_config_from_object": "passed",
+  "tests/test_config.py::test_config_from_pyfile": "passed",
+  "tests/test_config.py::test_custom_config_class": "passed",
+  "tests/test_config.py::test_from_prefixed_env": "passed",
+  "tests/test_config.py::test_from_prefixed_env_custom_prefix": "passed",
+  "tests/test_config.py::test_from_prefixed_env_nested": "passed",
+  "tests/test_config.py::test_from_pyfile_weird_encoding": "passed",
+  "tests/test_config.py::test_get_namespace": "passed",
+  "tests/test_config.py::test_session_lifetime": "passed",
+  "tests/test_json_tag.py::test_custom_tag": "passed",
+  "tests/test_json_tag.py::test_tag_order": "passed"
+ },
+ "selection_evidence": {
+  "mode": "all of the suite",
+  "sources": {
+   "the change's own test": 5,
+   "all of the suite": 368
+  },
+  "base_complete": true,
+  "base_planned": 368,
+  "ran_before": 367,
+  "seconds": {
+   "before": 21.0,
+   "after": 23.4
+  },
+  "static_fallback": false,
+  "suite": null
+ },
+ "candidate_sources": {
+  "tests/test_appctx.py::test_robust_teardown": "the change's own test",
+  "tests/test_basic.py::test_session_expiration": "the change's own test",
+  "tests/test_basic.py::test_session_special_types": "the change's own test",
+  "tests/test_config.py::test_config_from_file_toml": "the change's own test",
+  "tests/test_json_tag.py::test_dump_load_unchanged": "the change's own test",
+  "tests/test_testing.py::test_session_transaction_ipv6": "all of the suite",
+  "tests/test_reqctx.py::test_teardown_on_pop": "all of the suite",
+  "tests/test_testing.py::test_session_transaction_needs_cookies": "all of the suite",
+  "tests/test_reqctx.py::test_manual_context_binding": "all of the suite",
+  "tests/test_signals.py::test_flash_signal": "all of the suite",
+  "tests/test_reqctx.py::test_context_test": "all of the suite",
+  "tests/test_helpers.py::TestNoImports::test_name_with_import_error": "all of the suite",
+  "tests/test_testing.py::test_session_transactions_no_null_sessions": "all of the suite",
+  "tests/test_testing.py::test_session_transactions": "all of the suite",
+  "tests/test_testing.py::test_session_transactions_keep_context": "all of the suite",
+  "tests/test_user_error_handler.py::test_error_handler_no_match": "all of the suite",
+  "tests/test_cli.py::test_no_command_echo_loading_error": "all of the suite",
+  "tests/test_logging.py::test_wsgi_errors_stream": "all of the suite",
+  "tests/test_cli.py::test_help_echo_loading_error": "all of the suite",
+  "tests/test_basic.py::test_trap_bad_request_key_error": "all of the suite",
+  "tests/test_helpers.py::test_abort_no_app": "all of the suite",
+  "tests/test_helpers.py::test_abort_with_app": "all of the suite",
+  "tests/test_helpers.py::test_open_resource_exceptions": "all of the suite",
+  "tests/test_basic.py::test_teardown_request_handler_error": "all of the suite",
+  "tests/test_basic.py::test_user_error_handling": "all of the suite",
+  "tests/test_basic.py::test_werkzeug_passthrough_errors": "all of the suite",
+  "tests/test_blueprints.py::test_blueprint_specific_user_error_handling": "all of the suite",
+  "tests/test_reqctx.py::test_session_error_pops_context": "all of the suite",
+  "tests/test_user_error_handler.py::TestGenericHandlers::test_handle_generic": "all of the suite",
+  "tests/test_user_error_handler.py::TestGenericHandlers::test_handle_generic_http": "all of the suite",
+  "tests/test_user_error_handler.py::test_default_error_handler": "all of the suite",
+  "tests/test_user_error_handler.py::test_error_handler_subclass": "all of the suite",
+  "tests/test_helpers.py::test_app_aborter_class": "all of the suite",
+  "tests/test_basic.py::test_enctype_debug_helper": "all of the suite",
+  "tests/test_helpers.py::TestUrlFor::test_url_for_with_scheme_not_external": "all of the suite",
+  "tests/test_helpers.py::test_redirect_with_app": "all of the suite",
+  "tests/test_async.py::test_async_error_handler": "all of the suite",
+  "tests/test_basic.py::test_baseexception_error_handling": "all of the suite",
+  "tests/test_basic.py::test_before_request_and_routing_errors": "all of the suite",
+  "tests/test_basic.py::test_build_error_handler": "all of the suite",
+  "tests/test_basic.py::test_build_error_handler_reraise": "all of the suite",
+  "tests/test_basic.py::test_error_handler_after_processor_error": "all of the suite",
+  "tests/test_basic.py::test_error_handling": "all of the suite",
+  "tests/test_basic.py::test_error_handling_processing": "all of the suite",
+  "tests/test_basic.py::test_http_error_subclass_handling": "all of the suite",
+  "tests/test_basic.py::test_response_type_errors": "all of the suite",
+  "tests/test_basic.py::test_url_for_passes_special_values_to_build_error_handler": "all of the suite",
+  "tests/test_blueprints.py::test_blueprint_app_error_handling": "all of the suite",
+  "tests/test_blueprints.py::test_blueprint_specific_error_handling": "all of the suite",
+  "tests/test_user_error_handler.py::TestGenericHandlers::test_handle_class_or_code": "all of the suite",
+  "tests/test_user_error_handler.py::test_error_handler_blueprint": "all of the suite",
+  "tests/test_user_error_handler.py::test_error_handler_http_subclass": "all of the suite",
+  "tests/conftest.py::test_apps": "all of the suite",
+  "tests/test_helpers.py::TestHelpers::test_get_debug_flag": "all of the suite",
+  "tests/test_helpers.py::TestHelpers::test_make_response": "all of the suite",
+  "tests/test_helpers.py::TestSendfile::test_send_file": "all of the suite",
+  "tests/test_helpers.py::TestSendfile::test_send_from_directory": "all of the suite",
+  "tests/test_helpers.py::TestSendfile::test_static_file": "all of the suite",
+  "tests/test_helpers.py::TestStreaming::test_async_view": "all of the suite",
+  "tests/test_helpers.py::TestStreaming::test_stream_keeps_session": "all of the suite",
+  "tests/test_helpers.py::TestStreaming::test_streaming_with_context": "all of the suite",
+  "tests/test_helpers.py::TestStreaming::test_streaming_with_context_and_custom_close": "all of the suite",
+  "tests/test_helpers.py::TestStreaming::test_streaming_with_context_as_decorator": "all of the suite",
+  "tests/test_helpers.py::TestUrlFor::test_url_for_with_alternating_schemes": "all of the suite",
+  "tests/test_helpers.py::TestUrlFor::test_url_for_with_anchor": "all of the suite",
+  "tests/test_helpers.py::TestUrlFor::test_url_for_with_scheme": "all of the suite",
+  "tests/test_helpers.py::TestUrlFor::test_url_for_with_self": "all of the suite",
+  "tests/test_helpers.py::TestUrlFor::test_url_with_method": "all of the suite",
+  "tests/test_helpers.py::test_open_resource": "all of the suite",
+  "tests/test_helpers.py::test_open_resource_with_encoding": "all of the suite",
+  "tests/test_helpers.py::test_redirect_no_app": "all of the suite",
+  "tests/test_basic.py::test_max_cookie_size": "all of the suite",
+  "tests/test_appctx.py::test_app_ctx_globals_methods": "all of the suite",
+  "tests/test_testing.py::test_environ_base_default": "all of the suite",
+  "tests/test_basic.py::test_missing_session": "all of the suite",
+  "tests/test_cli.py::test_prepare_import": "all of the suite",
+  "tests/test_json.py::test_json_key_sorting": "all of the suite",
+  "tests/test_cli.py::test_help_echo_exception": "all of the suite",
+  "tests/test_cli.py::test_appgroup_app_context": "all of the suite",
+  "tests/test_cli.py::test_scriptinfo": "all of the suite",
+  "tests/test_cli.py::test_locate_app_raises": "all of the suite",
+  "tests/test_basic.py::test_no_setup_after_first_request": "all of the suite",
+  "tests/test_basic.py::test_routing_redirect_debugging": "all of the suite",
+  "tests/test_basic.py::test_extended_flashing": "all of the suite",
+  "tests/test_json.py::test_bad_request_debug_message": "all of the suite",
+  "tests/test_cli.py::test_get_version": "all of the suite",
+  "tests/test_appctx.py::test_app_tearing_down_with_unhandled_exception": "all of the suite",
+  "tests/test_basic.py::test_exception_propagation": "all of the suite",
+  "tests/test_blueprints.py::test_blueprint_renaming": "all of the suite",
+  "tests/test_cli.py::test_find_best_app": "all of the suite",
+  "tests/test_signals.py::test_request_exception_signal": "all of the suite",
+  "tests/test_cli.py::test_dotenv_optional": "all of the suite",
+  "tests/test_cli.py::test_run_cert_adhoc": "all of the suite",
+  "tests/test_cli.py::test_run_cert_import": "all of the suite",
+  "tests/test_cli.py::test_run_cert_no_ssl": "all of the suite",
+  "tests/test_config.py::test_config_from_class": "all of the suite",
+  "tests/test_converters.py::test_context_available": "all of the suite",
+  "tests/test_converters.py::test_custom_converters": "all of the suite",
+  "tests/test_testing.py::test_client_open_environ": "all of the suite",
+  "tests/test_testing.py::test_environ_base_modified": "all of the suite",
+  "tests/test_views.py::test_methods_var_inheritance": "all of the suite",
+  "tests/test_cli.py::test_with_appcontext": "all of the suite",
+  "tests/test_testing.py::test_cli_custom_obj": "all of the suite",
+  "tests/test_basic.py::test_flashes": "all of the suite",
+  "tests/test_cli.py::TestRoutes::test_host": "all of the suite",
+  "tests/test_cli.py::TestRoutes::test_no_routes": "all of the suite",
+  "tests/test_cli.py::TestRoutes::test_subdomain": "all of the suite",
+  "tests/test_cli.py::test_app_cli_has_app_context": "all of the suite",
+  "tests/test_cli.py::test_cli_empty": "all of the suite",
+  "tests/test_cli.py::test_disable_dotenv_from_env": "all of the suite",
+  "tests/test_cli.py::test_flaskgroup_app_context": "all of the suite",
+  "tests/test_cli.py::test_flaskgroup_debug": "all of the suite",
+  "tests/test_cli.py::test_flaskgroup_nested": "all of the suite",
+  "tests/test_appctx.py::test_app_tearing_down": "all of the suite",
+  "tests/test_appctx.py::test_app_tearing_down_with_handled_exception_by_app_handler": "all of the suite",
+  "tests/test_appctx.py::test_app_tearing_down_with_handled_exception_by_except_block": "all of the suite",
+  "tests/test_appctx.py::test_app_tearing_down_with_previous_exception": "all of the suite",
+  "tests/test_basic.py::test_errorhandler_precedence": "all of the suite",
+  "tests/test_basic.py::test_trapping_of_all_http_exceptions": "all of the suite",
+  "tests/test_cli.py::test_locate_app_suppress_raise": "all of the suite",
+  "tests/test_logging.py::test_log_view_exception": "all of the suite",
+  "tests/test_regression.py::test_aborting": "all of the suite",
+  "tests/test_reqctx.py::test_teardown_with_handled_exception": "all of the suite",
+  "tests/test_reqctx.py::test_teardown_with_previous_exception": "all of the suite",
+  "tests/test_subclassing.py::test_suppressed_exception_logging": "all of the suite",
+  "tests/test_appctx.py::test_clean_pop": "all of the suite",
+  "tests/test_appctx.py::test_url_generation_requires_server_name": "all of the suite",
+  "tests/test_appctx.py::test_url_generation_without_context_fails": "all of the suite",
+  "tests/test_basic.py::test_disallow_string_for_allowed_methods": "all of the suite",
+  "tests/test_basic.py::test_jsonify_args_and_kwargs_check": "all of the suite",
+  "tests/test_basic.py::test_method_route_no_methods": "all of the suite",
+  "tests/test_basic.py::test_session_using_samesite_attribute": "all of the suite",
+  "tests/test_basic.py::test_static_route_with_host_matching": "all of the suite",
+  "tests/test_blueprints.py::test_dotted_name_not_allowed": "all of the suite",
+  "tests/test_blueprints.py::test_empty_name_not_allowed": "all of the suite",
+  "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots": "all of the suite",
+  "tests/test_blueprints.py::test_self_registration": "all of the suite",
+  "tests/test_blueprints.py::test_unique_blueprint_names": "all of the suite",
+  "tests/test_config.py::test_config_from_envvar": "all of the suite",
+  "tests/test_config.py::test_config_from_envvar_missing": "all of the suite",
+  "tests/test_config.py::test_config_from_mapping": "all of the suite",
+  "tests/test_config.py::test_config_missing": "all of the suite",
+  "tests/test_config.py::test_config_missing_file": "all of the suite",
+  "tests/test_instance_config.py::test_explicit_instance_paths": "all of the suite",
+  "tests/test_json_tag.py::test_duplicate_tag": "all of the suite",
+  "tests/test_json_tag.py::test_tag_interface": "all of the suite",
+  "tests/test_logging.py::test_has_level_handler": "all of the suite",
+  "tests/test_request.py::test_max_content_length": "all of the suite",
+  "tests/test_signals.py::test_appcontext_tearing_down_signal": "all of the suite",
+  "tests/test_templating.py::test_template_loader_debugging": "all of the suite",
+  "tests/test_testing.py::test_test_client_context_binding": "all of the suite",
+  "tests/test_views.py::test_endpoint_override": "all of the suite",
+  "tests/test_views.py::test_view_patching": "all of the suite",
+  "tests/test_appctx.py::test_app_context_provides_current_app": "all of the suite",
+  "tests/test_appctx.py::test_basic_url_generation": "all of the suite",
+  "tests/test_appctx.py::test_context_refcounts": "all of the suite",
+  "tests/test_appctx.py::test_custom_app_ctx_globals_class": "all of the suite",
+  "tests/test_appctx.py::test_request_context_means_app_context": "all of the suite",
+  "tests/test_async.py::test_async_before_after_request": "all of the suite",
+  "tests/test_async.py::test_async_route": "all of the suite",
+  "tests/test_basic.py::test_after_request_processing": "all of the suite",
+  "tests/test_basic.py::test_app_freed_on_zero_refcount": "all of the suite",
+  "tests/test_basic.py::test_before_after_request_order": "all of the suite",
+  "tests/test_basic.py::test_endpoint_decorator": "all of the suite",
+  "tests/test_basic.py::test_g_iteration_protocol": "all of the suite",
+  "tests/test_basic.py::test_get_method_on_g": "all of the suite",
+  "tests/test_basic.py::test_inject_blueprint_url_defaults": "all of the suite",
+  "tests/test_basic.py::test_json_dump_dataclass": "all of the suite",
+  "tests/test_basic.py::test_jsonify_mimetype": "all of the suite",
+  "tests/test_basic.py::test_jsonify_no_prettyprint": "all of the suite",
+  "tests/test_basic.py::test_make_response": "all of the suite",
+  "tests/test_basic.py::test_make_response_with_response_instance": "all of the suite",
+  "tests/test_basic.py::test_method_route": "all of the suite",
+  "tests/test_basic.py::test_multi_route_class_views": "all of the suite",
+  "tests/test_basic.py::test_multi_route_rules": "all of the suite",
+  "tests/test_basic.py::test_nonascii_pathinfo": "all of the suite",
+  "tests/test_basic.py::test_options_on_multiple_rules": "all of the suite",
+  "tests/test_basic.py::test_options_work": "all of the suite",
+  "tests/test_basic.py::test_provide_automatic_options_arg_disable": "all of the suite",
+  "tests/test_basic.py::test_provide_automatic_options_attr_disable": "all of the suite",
+  "tests/test_basic.py::test_provide_automatic_options_attr_enable": "all of the suite",
+  "tests/test_basic.py::test_provide_automatic_options_method_disable": "all of the suite",
+  "tests/test_basic.py::test_request_dispatching": "all of the suite",
+  "tests/test_basic.py::test_request_locals": "all of the suite",
+  "tests/test_basic.py::test_request_preprocessing_early_return": "all of the suite",
+  "tests/test_basic.py::test_request_processing": "all of the suite",
+  "tests/test_basic.py::test_response_types": "all of the suite",
+  "tests/test_basic.py::test_route_decorator_custom_endpoint": "all of the suite",
+  "tests/test_basic.py::test_run_defaults": "all of the suite",
+  "tests/test_basic.py::test_run_from_config": "all of the suite",
+  "tests/test_basic.py::test_run_server_port": "all of the suite",
+  "tests/test_basic.py::test_server_name_matching": "all of the suite",
+  "tests/test_basic.py::test_server_name_subdomain": "all of the suite",
+  "tests/test_basic.py::test_session_accessed": "all of the suite",
+  "tests/test_basic.py::test_session_cookie_setting": "all of the suite",
+  "tests/test_basic.py::test_session_path": "all of the suite",
+  "tests/test_basic.py::test_session_refresh_vary": "all of the suite",
+  "tests/test_basic.py::test_session_secret_key_fallbacks": "all of the suite",
+  "tests/test_basic.py::test_session_stored_last": "all of the suite",
+  "tests/test_basic.py::test_session_using_application_root": "all of the suite",
+  "tests/test_basic.py::test_session_using_session_settings": "all of the suite",
+  "tests/test_basic.py::test_session_vary_cookie": "all of the suite",
+  "tests/test_basic.py::test_static_files": "all of the suite",
+  "tests/test_basic.py::test_static_folder_with_ending_slash": "all of the suite",
+  "tests/test_basic.py::test_static_folder_with_pathlib_path": "all of the suite",
+  "tests/test_basic.py::test_static_url_empty_path": "all of the suite",
+  "tests/test_basic.py::test_static_url_empty_path_default": "all of the suite",
+  "tests/test_basic.py::test_static_url_path": "all of the suite",
+  "tests/test_basic.py::test_static_url_path_with_ending_slash": "all of the suite",
+  "tests/test_basic.py::test_subdomain_basic_support": "all of the suite",
+  "tests/test_basic.py::test_subdomain_matching": "all of the suite",
+  "tests/test_basic.py::test_subdomain_matching_other_name": "all of the suite",
+  "tests/test_basic.py::test_subdomain_matching_with_ports": "all of the suite",
+  "tests/test_basic.py::test_teardown_request_handler": "all of the suite",
+  "tests/test_basic.py::test_teardown_request_handler_debug_mode": "all of the suite",
+  "tests/test_basic.py::test_url_generation": "all of the suite",
+  "tests/test_basic.py::test_url_mapping": "all of the suite",
+  "tests/test_basic.py::test_url_processors": "all of the suite",
+  "tests/test_basic.py::test_werkzeug_routing": "all of the suite",
+  "tests/test_blueprints.py::test_add_template_filter": "all of the suite",
+  "tests/test_blueprints.py::test_add_template_filter_with_name": "all of the suite",
+  "tests/test_blueprints.py::test_add_template_filter_with_name_and_template": "all of the suite",
+  "tests/test_blueprints.py::test_add_template_filter_with_template": "all of the suite",
+  "tests/test_blueprints.py::test_add_template_test": "all of the suite",
+  "tests/test_blueprints.py::test_add_template_test_with_name": "all of the suite",
+  "tests/test_blueprints.py::test_add_template_test_with_name_and_template": "all of the suite",
+  "tests/test_blueprints.py::test_add_template_test_with_template": "all of the suite",
+  "tests/test_blueprints.py::test_app_request_processing": "all of the suite",
+  "tests/test_blueprints.py::test_app_url_processors": "all of the suite",
+  "tests/test_blueprints.py::test_blueprint_prefix_slash": "all of the suite",
+  "tests/test_blueprints.py::test_blueprint_url_defaults": "all of the suite",
+  "tests/test_blueprints.py::test_blueprint_url_processors": "all of the suite",
+  "tests/test_blueprints.py::test_child_and_parent_subdomain": "all of the suite",
+  "tests/test_blueprints.py::test_context_processing": "all of the suite",
+  "tests/test_blueprints.py::test_default_static_max_age": "all of the suite",
+  "tests/test_blueprints.py::test_dotted_names_from_app": "all of the suite",
+  "tests/test_blueprints.py::test_empty_url_defaults": "all of the suite",
+  "tests/test_blueprints.py::test_endpoint_decorator": "all of the suite",
+  "tests/test_blueprints.py::test_nested_blueprint": "all of the suite",
+  "tests/test_blueprints.py::test_nested_callback_order": "all of the suite",
+  "tests/test_blueprints.py::test_nesting_subdomains": "all of the suite",
+  "tests/test_blueprints.py::test_nesting_url_prefixes": "all of the suite",
+  "tests/test_blueprints.py::test_request_processing": "all of the suite",
+  "tests/test_blueprints.py::test_route_decorator_custom_endpoint": "all of the suite",
+  "tests/test_blueprints.py::test_template_filter": "all of the suite",
+  "tests/test_blueprints.py::test_template_filter_after_route_with_template": "all of the suite",
+  "tests/test_blueprints.py::test_template_filter_with_name": "all of the suite",
+  "tests/test_blueprints.py::test_template_filter_with_name_and_template": "all of the suite",
+  "tests/test_blueprints.py::test_template_filter_with_template": "all of the suite",
+  "tests/test_blueprints.py::test_template_global": "all of the suite",
+  "tests/test_blueprints.py::test_template_test": "all of the suite",
+  "tests/test_blueprints.py::test_template_test_after_route_with_template": "all of the suite",
+  "tests/test_blueprints.py::test_template_test_with_name": "all of the suite",
+  "tests/test_blueprints.py::test_template_test_with_name_and_template": "all of the suite",
+  "tests/test_blueprints.py::test_template_test_with_template": "all of the suite",
+  "tests/test_blueprints.py::test_templates_and_static": "all of the suite",
+  "tests/test_blueprints.py::test_templates_list": "all of the suite",
+  "tests/test_cli.py::TestRoutes::test_all_methods": "all of the suite",
+  "tests/test_cli.py::TestRoutes::test_simple": "all of the suite",
+  "tests/test_cli.py::TestRoutes::test_sort": "all of the suite",
+  "tests/test_cli.py::test_cli_blueprints": "all of the suite",
+  "tests/test_cli.py::test_cli_name": "all of the suite",
+  "tests/test_cli.py::test_dotenv_path": "all of the suite",
+  "tests/test_cli.py::test_load_dotenv": "all of the suite",
+  "tests/test_cli.py::test_locate_app": "all of the suite",
+  "tests/test_cli.py::test_run_cert_path": "all of the suite",
+  "tests/test_cli.py::test_run_exclude_patterns": "all of the suite",
+  "tests/test_config.py::test_config_from_file_json": "all of the suite",
+  "tests/test_config.py::test_config_from_object": "all of the suite",
+  "tests/test_config.py::test_config_from_pyfile": "all of the suite",
+  "tests/test_config.py::test_custom_config_class": "all of the suite",
+  "tests/test_config.py::test_from_prefixed_env": "all of the suite",
+  "tests/test_config.py::test_from_prefixed_env_custom_prefix": "all of the suite",
+  "tests/test_config.py::test_from_prefixed_env_nested": "all of the suite",
+  "tests/test_config.py::test_from_pyfile_weird_encoding": "all of the suite",
+  "tests/test_config.py::test_get_namespace": "all of the suite",
+  "tests/test_config.py::test_session_lifetime": "all of the suite",
+  "tests/test_instance_config.py::test_installed_module_paths": "all of the suite",
+  "tests/test_instance_config.py::test_installed_package_paths": "all of the suite",
+  "tests/test_instance_config.py::test_prefix_package_paths": "all of the suite",
+  "tests/test_instance_config.py::test_uninstalled_module_paths": "all of the suite",
+  "tests/test_instance_config.py::test_uninstalled_namespace_paths": "all of the suite",
+  "tests/test_instance_config.py::test_uninstalled_package_paths": "all of the suite",
+  "tests/test_json.py::test_html_method": "all of the suite",
+  "tests/test_json.py::test_json_as_unicode": "all of the suite",
+  "tests/test_json.py::test_json_attr": "all of the suite",
+  "tests/test_json.py::test_json_bad_requests": "all of the suite",
+  "tests/test_json.py::test_json_custom_mimetypes": "all of the suite",
+  "tests/test_json.py::test_json_customization": "all of the suite",
+  "tests/test_json.py::test_json_decimal": "all of the suite",
+  "tests/test_json.py::test_json_dump_to_file": "all of the suite",
+  "tests/test_json.py::test_jsonify_arrays": "all of the suite",
+  "tests/test_json.py::test_jsonify_aware_datetimes": "all of the suite",
+  "tests/test_json.py::test_jsonify_basic_types": "all of the suite",
+  "tests/test_json.py::test_jsonify_datetime": "all of the suite",
+  "tests/test_json.py::test_jsonify_dicts": "all of the suite",
+  "tests/test_json.py::test_jsonify_uuid_types": "all of the suite",
+  "tests/test_json.py::test_tojson_filter": "all of the suite",
+  "tests/test_json_tag.py::test_custom_tag": "all of the suite",
+  "tests/test_json_tag.py::test_tag_order": "all of the suite",
+  "tests/test_logging.py::test_existing_handler": "all of the suite",
+  "tests/test_logging.py::test_logger": "all of the suite",
+  "tests/test_logging.py::test_logger_debug": "all of the suite",
+  "tests/test_reqctx.py::test_context_binding": "all of the suite",
+  "tests/test_reqctx.py::test_copy_context_thread": "all of the suite",
+  "tests/test_reqctx.py::test_proper_test_request_context": "all of the suite",
+  "tests/test_reqctx.py::test_session_dynamic_cookie_name": "all of the suite",
+  "tests/test_request.py::test_limit_config": "all of the suite",
+  "tests/test_request.py::test_trusted_hosts_config": "all of the suite",
+  "tests/test_session_interface.py::test_open_session_with_endpoint": "all of the suite",
+  "tests/test_signals.py::test_appcontext_signals": "all of the suite",
+  "tests/test_signals.py::test_before_render_template": "all of the suite",
+  "tests/test_signals.py::test_request_signals": "all of the suite",
+  "tests/test_signals.py::test_template_rendered": "all of the suite",
+  "tests/test_templating.py::test_add_template_filter": "all of the suite",
+  "tests/test_templating.py::test_add_template_filter_with_name": "all of the suite",
+  "tests/test_templating.py::test_add_template_filter_with_name_and_template": "all of the suite",
+  "tests/test_templating.py::test_add_template_filter_with_template": "all of the suite",
+  "tests/test_templating.py::test_add_template_global": "all of the suite",
+  "tests/test_templating.py::test_add_template_test": "all of the suite",
+  "tests/test_templating.py::test_add_template_test_with_name": "all of the suite",
+  "tests/test_templating.py::test_add_template_test_with_name_and_template": "all of the suite",
+  "tests/test_templating.py::test_add_template_test_with_template": "all of the suite",
+  "tests/test_templating.py::test_context_processing": "all of the suite",
+  "tests/test_templating.py::test_custom_jinja_env": "all of the suite",
+  "tests/test_templating.py::test_custom_template_loader": "all of the suite",
+  "tests/test_templating.py::test_escaping": "all of the suite",
+  "tests/test_templating.py::test_escaping_without_template_filename": "all of the suite",
+  "tests/test_templating.py::test_iterable_loader": "all of the suite",
+  "tests/test_templating.py::test_macros": "all of the suite",
+  "tests/test_templating.py::test_no_escaping": "all of the suite",
+  "tests/test_templating.py::test_original_win": "all of the suite",
+  "tests/test_templating.py::test_request_less_rendering": "all of the suite",
+  "tests/test_templating.py::test_simple_stream": "all of the suite",
+  "tests/test_templating.py::test_standard_context": "all of the suite",
+  "tests/test_templating.py::test_template_filter": "all of the suite",
+  "tests/test_templating.py::test_template_filter_with_name": "all of the suite",
+  "tests/test_templating.py::test_template_filter_with_name_and_template": "all of the suite",
+  "tests/test_templating.py::test_template_filter_with_template": "all of the suite",
+  "tests/test_templating.py::test_template_test": "all of the suite",
+  "tests/test_templating.py::test_template_test_with_name": "all of the suite",
+  "tests/test_templating.py::test_template_test_with_name_and_template": "all of the suite",
+  "tests/test_templating.py::test_template_test_with_template": "all of the suite",
+  "tests/test_templating.py::test_templates_auto_reload": "all of the suite",
+  "tests/test_templating.py::test_templates_auto_reload_debug_run": "all of the suite",
+  "tests/test_testing.py::test_blueprint_with_subdomain": "all of the suite",
+  "tests/test_testing.py::test_cli_invoke": "all of the suite",
+  "tests/test_testing.py::test_cli_runner_class": "all of the suite",
+  "tests/test_testing.py::test_client_json_no_app_context": "all of the suite",
+  "tests/test_testing.py::test_client_pop_all_preserved": "all of the suite",
+  "tests/test_testing.py::test_environ_defaults": "all of the suite",
+  "tests/test_testing.py::test_environ_defaults_from_config": "all of the suite",
+  "tests/test_testing.py::test_environbuilder_json_dumps": "all of the suite",
+  "tests/test_testing.py::test_full_url_request": "all of the suite",
+  "tests/test_testing.py::test_json_request_and_response": "all of the suite",
+  "tests/test_testing.py::test_nosubdomain": "all of the suite",
+  "tests/test_testing.py::test_path_is_url": "all of the suite",
+  "tests/test_testing.py::test_redirect_session": "all of the suite",
+  "tests/test_testing.py::test_reuse_client": "all of the suite",
+  "tests/test_testing.py::test_specify_url_scheme": "all of the suite",
+  "tests/test_testing.py::test_subdomain": "all of the suite",
+  "tests/test_views.py::test_basic_view": "all of the suite",
+  "tests/test_views.py::test_explicit_head": "all of the suite",
+  "tests/test_views.py::test_implicit_head": "all of the suite",
+  "tests/test_views.py::test_init_once": "all of the suite",
+  "tests/test_views.py::test_method_based_view": "all of the suite",
+  "tests/test_views.py::test_multiple_inheritance": "all of the suite",
+  "tests/test_views.py::test_provide_automatic_options_method_disable": "all of the suite",
+  "tests/test_views.py::test_remove_method_from_parent": "all of the suite",
+  "tests/test_views.py::test_view_decorators": "all of the suite",
+  "tests/test_views.py::test_view_inheritance": "all of the suite",
+  "tests/test_views.py::test_view_provide_automatic_options_attr_disable": "all of the suite",
+  "tests/test_views.py::test_view_provide_automatic_options_attr_enable": "all of the suite"
+ },
+ "seconds_before_running": 3.08,
+ "hunks": [
+  {
+   "path": "src/flask/cli.py",
+   "line": 877,
+   "state": "not-code",
+   "why": "",
+   "tests": 0,
+   "sample": [],
+   "base_tests": 1,
+   "function": "SeparatedPathType.convert"
+  },
+  {
+   "path": "src/flask/helpers.py",
+   "line": 679,
+   "state": "executed-head-only",
+   "why": "",
+   "tests": 1,
+   "sample": [
+    "tests/test_appctx.py::test_robust_teardown"
+   ],
+   "base_tests": 265,
+   "function": "_CollectErrors.raise_any"
+  },
+  {
+   "path": "src/flask/sessions.py",
+   "line": 8,
+   "state": "executed-both-sides",
+   "why": "at import",
+   "tests": 0,
+   "sample": [],
+   "base_tests": 0,
+   "function": null
+  },
+  {
+   "path": "src/flask/sessions.py",
+   "line": 230,
+   "state": "executed-both-sides",
+   "why": "",
+   "tests": 2,
+   "sample": [
+    "tests/test_basic.py::test_session_cookie_setting",
+    "tests/test_basic.py::test_session_refresh_vary"
+   ],
+   "base_tests": 20,
+   "function": "SessionInterface.get_expiration_time"
+  }
+ ],
+ "refactors": [],
+ "refactor_seconds": 0.14,
+ "report_hash": "432c516e38a4",
+ "index": {
+  "parsed_files": 83,
+  "files": 83
+ },
+ "executed": {
+  "ran": 372,
+  "candidates": 373,
+  "unrunnable": 1,
+  "unrunnable_tests": [
+   "tests/conftest.py::test_apps"
+  ],
+  "seconds": 54.5,
+  "runner": "pytest",
+  "budget": 300,
+  "replayed": 5,
+  "selection": {
+   "closure_files": 69,
+   "closure_tests": 380,
+   "hubs": 0,
+   "hubs_reached": [],
+   "observed": 0,
+   "static_only": 8,
+   "depth_cap": 10,
+   "candidates": 388
+  },
+  "base_cache": {
+   "answered": 0,
+   "ran": 5,
+   "stored": 5
+  }
+ },
+ "changed_functions": [
+  {
+   "symbol": "SeparatedPathType.convert",
+   "file": "src/flask/cli.py",
+   "lines": "877"
+  },
+  {
+   "symbol": "_CollectErrors.raise_any",
+   "file": "src/flask/helpers.py",
+   "lines": "679"
+  },
+  {
+   "symbol": "SessionInterface.get_expiration_time",
+   "file": "src/flask/sessions.py",
+   "lines": "230"
+  },
+  {
+   "symbol": "test_robust_teardown",
+   "file": "tests/test_appctx.py",
+   "lines": "247-257"
+  },
+  {
+   "symbol": "test_session_expiration",
+   "file": "tests/test_basic.py",
+   "lines": "441"
+  },
+  {
+   "symbol": "test_session_special_types",
+   "file": "tests/test_basic.py",
+   "lines": "471"
+  },
+  {
+   "symbol": "test_config_from_file_toml",
+   "file": "tests/test_config.py",
+   "lines": "40"
+  },
+  {
+   "symbol": "test_dump_load_unchanged",
+   "file": "tests/test_json_tag.py",
+   "lines": "24"
+  }
+ ]
+}
