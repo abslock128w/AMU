@@ -135,3 +135,70 @@ def test_where_each_side_runs_is_not_a_difference(tmp_path):
     tests = 'from lib import where\n\n\ndef test_where():\n    assert where("x").endswith("x")\n'
     report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1})
     assert report['side_by_side']['compared_calls'] == 1 and report['behaviour_differences'] == [], report['side_by_side']
+
+
+# Values that belong to the process or the checkout, not to what the code does. The merge base runs the tests behind a
+# difference twice, the second time in another checkout made the way the head's was made; a field that differs between
+# those two runs is left out of the comparison. No rule names a kind of value.
+KEY = textwrap.dedent('''\
+    import os
+
+
+    class Key:
+        __slots__ = ("name", "size", "_h", "owner")
+
+        def __init__(self, name, size=0, eager=False):
+            self.name = name
+            self.size = size
+            self._h = hash(name) if eager else None
+            self.owner = os.getpid() if eager else None
+
+        def __hash__(self):
+            if self._h is None:
+                self._h = hash(self.name)
+            return self._h
+    ''')
+
+
+def test_a_cache_filled_with_a_process_value_is_not_a_difference(tmp_path):
+    lib0 = KEY + '\n\ndef make(name):\n    key = Key(name)\n    hash(key)\n    return key\n'
+    lib1 = KEY + '\n\ndef make(name):\n    key = Key(name)\n    return key\n'
+    tests = 'from lib import make\n\n\ndef test_make():\n    assert make("a").name == "a"\n'
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1})
+    assert report['behaviour_differences'] == [], report['behaviour_differences']
+    assert report['side_by_side']['excluded_fields'] >= 1, report['side_by_side']
+
+
+def test_where_and_how_the_checkout_was_made_is_not_a_difference(tmp_path):
+    lib0 = textwrap.dedent('''\
+        import os
+        from pathlib import Path
+
+
+        def where():
+            here = Path(__file__).resolve().parent
+            return {"parts": list(here.parts), "repository": os.path.isdir(os.path.join(here, ".git")), "n": 1}
+        ''')
+    lib1 = lib0.replace('"n": 1}', '"n": 2 - 1}')
+    tests = 'from lib import where\n\n\ndef test_where():\n    assert where()["n"] == 1\n'
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1})
+    assert report['behaviour_differences'] == [], report['behaviour_differences']
+    assert report['side_by_side']['excluded_fields'] >= 2, report['side_by_side']
+
+
+def test_a_real_difference_beside_a_process_value_is_a_row(tmp_path):
+    lib0 = KEY + '\n\ndef make(name):\n    return Key(name, len(name), eager=True)\n'
+    lib1 = KEY + '\n\ndef make(name):\n    return Key(name, len(name) + 1, eager=True)\n'
+    tests = 'from lib import make\n\n\ndef test_make():\n    assert make("ab").name == "ab"\n'
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1})
+    [row] = report['behaviour_differences']
+    assert row['target'] == 'lib.py#make', row
+
+
+def test_inputs_that_differ_only_in_a_process_value_are_compared(tmp_path):
+    lib0 = KEY + '\n\ndef label(key):\n    return key.name.upper()\n'
+    lib1 = KEY + '\n\ndef label(key):\n    return key.name.lower()\n'
+    tests = 'from lib import Key, label\n\n\ndef test_label():\n    assert label(Key("Ab", eager=True))\n'
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1})
+    [row] = report['behaviour_differences']
+    assert row['target'] == 'lib.py#label' and row['before']['result'] == ['return', "'AB'"], row

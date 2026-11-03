@@ -95,30 +95,58 @@ def _chunks(execute, runner, python, tree, ids, scratch, name, budget, deadline,
     return found, problems, round(time.perf_counter() - began, 1), context
 
 
-RERUN = 60  # seconds at most for running again, on each side, the tests whose calls differed
+RERUN = 60  # seconds at most for each run again of the tests whose calls differed
+SECOND_SEED = '7919'  # the hash seed of the second run of the code before the change (the others use 0)
+AGAIN = 200  # tests at most run again: those with a differing result first, then those whose inputs differed
 
 
 def compare(execute, runner, python, trees, plan, scratch, deadline, parts, chunk, calls_b, calls_a, both, base_watch,
-            head_watch, moved=None):
-    """Calls of each changed function present on both sides, paired by test and call index (record.pair). A pair whose
-    outputs differ on equal inputs is kept only if a second run of its test, on each side, gives the same two outputs:
-    a difference neither side repeats is nondeterminism, counted and not shown."""
-    rows, counts = record.pair([c for c in calls_b if c['function'] in both], [c for c in calls_a if c['function'] in both], moved)
-    tests = sorted({row['test'] for row in rows})  # one representative test per distinct row
-    kept, unstable = rows, 0
+            head_watch, moved=None, second=None):
+    """Calls of each changed function present on both sides, paired by test and call index (record.pair).
+
+    The tests behind a difference (a result that differs on an equal input, or inputs that differ) run three times more,
+    each call recorded field by field: on the code before the change, in its own tree and in a second tree made the way
+    the tree after the change was made (``second``: a callable giving its path, or None to use the same tree), and on
+    the code after the change. The second run before the change also has another hash seed. A field that differs between the two runs of the code before the change belongs to the
+    process or the checkout, not to what the code does: it is left out of both sides' inputs and results for that
+    function, and the pairs are compared again. Only these runs give rows; a difference whose test did not run again
+    is counted (``not_rerun``), not shown."""
+    differ = set()
+    rows, counts = record.pair([c for c in calls_b if c['function'] in both], [c for c in calls_a if c['function'] in both], moved,
+                               differ)
+    tests = sorted({row['test'] for row in rows})
+    tests += [t for t in sorted(differ) if t not in set(tests)]
+    tests = tests[:AGAIN]
+    kept, extra = rows, dict(unstable=0, excluded_fields=0, not_rerun=0, rerun_tests=0)
     if tests:
-        again = {}
-        for side, watch, targets in (('before', base_watch, plan['targets_before']), ('after', head_watch, plan['targets_after'])):
-            folder = Path(scratch)/f'record-{side}-again'
-            env = record.prepare(folder, trees[side], watch, targets)
-            _chunks(execute, runner, python, trees[side], tests, scratch, f'{side}-again', RERUN, deadline, parts, env, chunk)
-            again[side] = {(c['test'], c['function'], c['n']): c.get('result') or c['output'] for c in record.read(folder, trees[side],
-                                                                                                runner.cwd(trees[side]))[1]}
-        kept = [row for row in rows if again['before'].get((row['test'], row['function'], row['n'])) == row['digest'][0]
-                and again['after'].get((row['test'], row['function'], row['n'])) == row['digest'][1]]
-        unstable = len(rows) - len(kept)
+        runs = {}
+        where = None
+        if second is not None:
+            try:
+                where = second()
+            except Exception:
+                where = None
+        for name, tree, watch, targets in (('before', trees['before'], base_watch, plan['targets_before']),
+                                           ('before-2', where or trees['before'], base_watch, plan['targets_before']),
+                                           ('after', trees['after'], head_watch, plan['targets_after'])):
+            folder = Path(scratch)/f'record-{name}-again'
+            env = record.prepare(folder, tree, watch, targets, fields=True)
+            if name == 'before-2':
+                env['PYTHONHASHSEED'] = SECOND_SEED  # what the process fixes arbitrarily differs too
+            _chunks(execute, runner, python, tree, tests, scratch, f'{name}-again', RERUN, deadline, parts, env, chunk)
+            runs[name] = [c for c in record.read(folder, tree, runner.cwd(tree))[1] if c['function'] in both]
+        noisy = record.unstable_fields(runs['before'], runs['before-2'])
+        again, again_counts = record.pair(record.without(runs['before'], noisy), record.without(runs['after'], noisy), moved)
+        ran = {c['test'] for c in runs['before']} & {c['test'] for c in runs['after']}
+        kept = again
+        extra = dict(unstable=sum(1 for row in rows if row['test'] in ran and not any(
+                         r['function'] == row['function'] and r['test'] == row['test'] for r in again)),
+                     excluded_fields=sum(len(v['in'] | v['out']) for v in noisy.values()),
+                     excluded={f: sorted(v['in'] | v['out']) for f, v in noisy.items()},
+                     not_rerun=sum(1 for row in rows if row['test'] not in ran), rerun_tests=len(tests),
+                     recovered=again_counts['compared'])
     called = sorted({c['function'] for c in calls_b if c['function'] in both} | {c['function'] for c in calls_a if c['function'] in both})
-    return dict(rows=kept, counts=dict(counts, unstable=unstable), called=called, compared_functions=len(both))
+    return dict(rows=kept, counts=dict(counts, **extra), called=called, compared_functions=len(both))
 
 
 def plan_hunks(edits, before_src, after_src):
@@ -128,7 +156,7 @@ def plan_hunks(edits, before_src, after_src):
 
 
 def run(execute, runner, python, trees, edits, before_src, after_src, plan, scratch, budget, deadline, parts, chunk,
-        remembered, cache_folder):
+        remembered, cache_folder, second=None):
     """Both sides of the change, chosen and run as the module says. Returns a dict: ids (the candidates run on the code
     after the change, in order), before/after ({id: state}), context, sources ({id: where it came from}), mode, hunks
     (each with the tests that ran it on each side), recorded coverage and calls per side, seconds, problems."""
@@ -237,7 +265,7 @@ def run(execute, runner, python, trees, edits, before_src, after_src, plan, scra
         h['head_at_import'] = record.IMPORT in record.tests_on(coverage_a, h['path'], h['head'])
     paired = compare(execute, runner, python, trees, plan, scratch, deadline, parts, chunk, calls_b, calls_a,
                      {f'{t[0]}#{t[1]}' for t in targets_before} & {f'{t[0]}#{t[1]}' for t in targets_after}, base_watch,
-                     head_watch, moved)
+                     head_watch, moved, second)
     cut = []
     if 'wall cap' in problems_a or ('wall cap' in problems_b and not found_a):
         cut.append(f'{sum(i not in found_a for i in head_ids)} of {len(head_ids)} candidate tests')

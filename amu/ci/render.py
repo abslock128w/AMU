@@ -289,8 +289,12 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
                        f"side's code built. Calls are paired by test and by their order in it, and compared only where both "
                        f"inputs are equal: {side.get('compared_calls', 0)} pair(s) compared, {side.get('inputs_differ', 0)} "
                        f"not compared because the inputs differ, {side.get('unpaired', 0)} call(s) without a partner, of "
-                       f"{side.get('functions_called', 0)} of {side.get('targets', 0)} changed function(s). A difference is listed "
-                       f"only if a second run of its test on each side gave the same two outputs ({side.get('unstable', 0)} did not).", '']
+                       f"{side.get('functions_called', 0)} of {side.get('targets', 0)} changed function(s). The tests behind a "
+                       f"difference ran again on each side, and the merge base's twice, the second time in another checkout: "
+                       f"{plural(side.get('excluded_fields', 0), 'field')} differed between the merge base's two runs, so they "
+                       f"belong to the process or checkout and are left out of the comparison"
+                       + (f"; {side.get('not_rerun')} difference(s) whose test did not run again are not listed" if side.get('not_rerun') else '')
+                       + '.', '']
         else:
             section = [f"Each changed function the tests called on the merge base ran there twice as it was and twice as changed, "
                        f"on copies of the same arguments: {side.get('compared_calls', 0)} call(s) of "

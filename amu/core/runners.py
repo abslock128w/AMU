@@ -365,7 +365,8 @@ def environment(tree, extra_env=None, autoload=True):
         extra.setdefault('PYTEST_DISABLE_PLUGIN_AUTOLOAD', '1')
     # The project's tests never see AMU's model credentials: the change under test is someone else's code.
     inherited = {k: v for k, v in os.environ.items() if not k.startswith(SECRETS)}
-    return dict(inherited, PYTHONDONTWRITEBYTECODE='1', PYTHONHASHSEED='0', **extra,
+    # A run may set its own seed (evidence: the second run of the code before the change varies what the process fixes).
+    return dict(inherited, PYTHONDONTWRITEBYTECODE='1', **{'PYTHONHASHSEED': '0', **extra},
                 PYTHONPATH=os.pathsep.join(filter(None, [first, str(tree/'src'), str(tree), os.environ.get('PYTHONPATH')])))
 
 

@@ -13,6 +13,7 @@ import os
 import re
 import shutil
 import statistics
+import subprocess
 import sys
 import tempfile
 import time
@@ -263,8 +264,11 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
         first_flip = None  # seconds into the run when the first flip was confirmed (time to first difference)
         stopped, struck = None, {}
         if plan is not None:
+            def second():
+                return second_tree(root, Path(scratch)/'tree-again', live_is_after, before_src)
+
             planned = evidence.run(execute, runner, python, trees, edits, before_src, after_src, plan, scratch, budget, deadline,
-                                   parts, CHUNK, remembered, cache_folder)
+                                   parts, CHUNK, remembered, cache_folder, second)
             ids = pool = planned['ids']
             cut += planned['cut']
             states['before'].update(planned['before'])
@@ -502,6 +506,8 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
                         functions_called=len(paired_found['called']), called=paired_found['called'], paired=counts['paired'],
                         inputs_differ=counts['inputs_differ'], unpaired=counts['unpaired'], unreadable=counts['unreadable'],
                         unstable=counts['unstable'], differences=len(paired_found['rows']),
+                        excluded_fields=counts.get('excluded_fields', 0), excluded=counts.get('excluded') or {},
+                        not_rerun=counts.get('not_rerun', 0), rerun_tests=counts.get('rerun_tests', 0),
                         skipped={**sidebyside.targets(functions, before_src, after_src)[1], **(planned.get('skipped') or {})})
             behaviour = [dict(target=row['function'], input=row['input'], differs=row.get('differs') or ['result'],
                               before=dict(result=_shown(row['before']), args_after=_shown(row.get('before_args'))),
@@ -678,6 +684,36 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
 
 EDITED = 'test edited, not fixed'
 ALONE = 25  # tests of the change's own whose failure on the code before it is rerun each in a process of its own
+
+
+def second_tree(root, where, live_is_after, before_src):
+    """A second tree holding the code before the change, made the way the tree after the change was made, at another
+    place: what differs between two runs of the same code in the two trees belongs to the checkout, not the code.
+
+    When the working tree is the code after the change, that is a copy of it with its own git repository at the same
+    commit (objects shared with the original, which is not written to), and the files before the change written in.
+    Otherwise the code after the change runs in a plain copy, so this is a plain copy too."""
+    where = Path(where)
+    if where.exists():
+        return where
+    shutil.copytree(root, where, ignore=shutil.ignore_patterns(*IGNORED), symlinks=True)
+    for path, text in before_src.items():
+        (where/path).parent.mkdir(parents=True, exist_ok=True)
+        (where/path).write_text(text)
+    if live_is_after and (Path(root)/'.git').exists():
+        try:
+            head = _git(root, 'rev-parse', 'HEAD').strip()
+            clone = where.parent/'tree-again-git'
+            subprocess.run(['git', 'clone', '-q', '--shared', '--no-checkout', str(root), str(clone)], check=True,
+                           capture_output=True, timeout=120)
+            (clone/'.git').rename(where/'.git')
+            shutil.rmtree(clone, ignore_errors=True)
+            subprocess.run(['git', '-C', str(where), 'update-ref', '--no-deref', 'HEAD', head], check=True, capture_output=True,
+                           timeout=60)
+            subprocess.run(['git', '-C', str(where), 'reset', '-q'], check=True, capture_output=True, timeout=120)
+        except (OSError, subprocess.SubprocessError):
+            shutil.rmtree(where/'.git', ignore_errors=True)
+    return where
 
 
 def _monitoring(python):
