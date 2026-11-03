@@ -1,0 +1,46 @@
+# Collect the live fork pilots (collect.py) and run the raise measure, per evaluation/v071-tools/pilot-plan.json.
+# Output goes to branch eval-out/<tag>/pilot-<repo>.
+name: pilot-collect
+on:
+  push:
+    branches: [eval/v071-run]
+    paths: [evaluation/v071-tools/pilot-plan.json]
+permissions:
+  contents: write
+  actions: read
+env:
+  AMU_EVAL_WORK: ${{ github.workspace }}/w
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      forks: ${{ steps.p.outputs.forks }}
+      engine: ${{ steps.p.outputs.engine }}
+      tag: ${{ steps.p.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: p
+        run: |
+          f=evaluation/v071-tools/pilot-plan.json
+          echo "forks=$(jq -c .forks $f)" >> "$GITHUB_OUTPUT"
+          echo "engine=$(jq -r .engine $f)" >> "$GITHUB_OUTPUT"
+          echo "tag=$(jq -r .tag $f)" >> "$GITHUB_OUTPUT"
+  collect:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.forks) }}
+    env:
+      ENGINE_REF: ${{ needs.plan.outputs.engine }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '${{ matrix.python }}'}
+      - run: evaluation/v071-tools/pilot-collect.sh "${{ matrix.fork }}" "${{ matrix.opened }}" "${{ matrix.install }}" pilot-out
+      - if: always()
+        env: {GITHUB_TOKEN: '${{ github.token }}'}
+        run: evaluation/v071-tools/push-out.sh pilot-out "eval-out/${{ needs.plan.outputs.tag }}/pilot-${{ matrix.repo }}"
