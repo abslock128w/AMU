@@ -25,6 +25,8 @@ from . import record, replay
 FILL = 0.8  # share of the budget a whole-suite run may take and still be run on the other side too
 WHOLE = 400  # tests per process in one chunk of a whole-suite run: fewer runner starts; a chunk the budget stops is lost
 ALL, COVERAGE, STATIC, OWN = 'all of the suite', 'coverage', 'static graph', "the change's own test"
+RECORDED, CHANGED = 'suite recording', 'test file changed since the recording'
+CUT = 'seen before the recording was cut off'
 
 
 def _sha(text):
@@ -183,14 +185,26 @@ def run(execute, runner, python, trees, edits, before_src, after_src, plan, scra
     everything = [i for i in plan.get('everything') or [] if i not in mine]
     durations = remembered.get('durations') or {}
     kept = Coverage(cache_folder, plan.get('key'))
+    whole = plan.get('suite')  # suite.Recording of the nearest ancestor of the merge base, made outside this job
     suite = remembered.get('suite_seconds')
+    if suite is None and whole is not None and whole.complete and whole.seconds is not None:
+        suite = whole.seconds
     fits = suite is None or suite <= budget * FILL
     # What a kept recording of this commit already says about each hunk; None where it cannot speak.
     known = {(h['path'], h['index']): kept.tests(h['path'], before_src.get(h['path']), h['base']) if h['base'] else None
              for h in hunks}
-    # A recording runs unless the suite is known not to fit and this commit's kept recording speaks for every hunk with
-    # code before the change.
-    exploring = fits or any(h['base'] and known[h['path'], h['index']] is None for h in hunks)
+    from_whole = set()
+    if whole is not None:
+        for h in hunks:
+            key = (h['path'], h['index'])
+            if h['base'] and known[key] is None:
+                known[key] = whole.tests(h['path'], before_src.get(h['path']), h['base'])
+                if known[key] is not None:
+                    from_whole.add(key)
+    # The whole suite runs here, recorded, when it fits. Otherwise a suite recording, when there is one, chooses; this
+    # job never records the suite to choose. Without one, the run below records what it can in the budget, unless this
+    # commit's kept recording already speaks for every hunk with code before the change.
+    exploring = fits or (whole is None and any(h['base'] and known[h['path'], h['index']] is None for h in hunks))
     if exploring:
         # Static candidates first, so a run the budget stops still has their outcomes; then the rest, quickest first.
         first = set(static)
@@ -203,11 +217,13 @@ def run(execute, runner, python, trees, edits, before_src, after_src, plan, scra
     env = record.prepare(before_dir, trees['before'], base_watch, plan.get('targets_before') or [])
     coverage_b, calls_b = {}, []
     if base_ids is not None:
-        found_b, problems_b, seconds_b, _ = _chunks(execute, runner, python, trees['before'], base_ids, scratch, 'before',
-                                                   budget, deadline, parts, env, WHOLE if fits else chunk)
+        found_b, problems_b, seconds_b, tried = _chunks(execute, runner, python, trees['before'], base_ids, scratch, 'before',
+                                                       budget, deadline, parts, env, WHOLE if fits else chunk)
         coverage_b, calls_b, skipped_b = record.read(before_dir, trees['before'], runner.cwd(trees['before']))
-        complete = bool(base_ids) and all(i in found_b for i in base_ids) and any(
-            state in ('passed', 'failed', 'skipped') for state in found_b.values())
+        # Complete: every test was given to the runner and no budget stopped it. A test the runner never reports (one
+        # that cannot load here) does not make a run incomplete.
+        complete = bool(base_ids) and all(i in tried for i in base_ids) and not {'timed out', 'wall cap'} & set(problems_b) \
+            and any(state in ('passed', 'failed', 'skipped') for state in found_b.values())
     else:
         found_b, problems_b, seconds_b, complete, skipped_b = {}, [], 0.0, False, {}
     mode = ALL if exploring and complete and seconds_b <= budget * FILL else COVERAGE
@@ -219,23 +235,38 @@ def run(execute, runner, python, trees, edits, before_src, after_src, plan, scra
         remembered['suite_seconds'] = max(seconds_b, budget)
     for h in hunks:
         key = (h['path'], h['index'])
+        h['seen_before_cut'] = []
         if complete or not exploring:
             ran = record.tests_on(coverage_b, h['path'], h['base']) if exploring else known.get(key)
+        elif whole is not None and known.get(key) is not None:
+            ran = known[key]  # this run was cut off; the suite recording speaks for the hunk
+            from_whole.add(key)
         else:
             ran = None
+            # A recording cut off by the budget still saw some tests run this hunk: they are candidates too.
+            h['seen_before_cut'] = sorted(t for t in record.tests_on(coverage_b, h['path'], h['base']) if t != record.IMPORT)
         h['base_tests'] = sorted(t for t in (ran or ()) if t != record.IMPORT) if ran is not None else None
         h['at_import'] = bool(ran and record.IMPORT in ran)
+    used_static = False
     if mode == ALL:
         head_ids = [*own, *base_ids]
         sources.update({i: ALL for i in base_ids})
     else:
-        chosen = []
+        chosen, used_static = [], False
         for h in hunks:
+            label = RECORDED if (h['path'], h['index']) in from_whole else COVERAGE
             if h['base_tests'] is not None and not (h['at_import'] and not h['base_tests']):
                 chosen += [t for t in h['base_tests'] if t not in mine]
-                sources.update({t: COVERAGE for t in h['base_tests'] if t not in mine and t not in sources})
+                sources.update({t: label for t in h['base_tests'] if t not in mine and t not in sources})
+            chosen += [t for t in h['seen_before_cut'] if t not in mine]
+            sources.update({t: CUT for t in h['seen_before_cut'] if t not in mine and t not in sources})
+        if whole is not None:
+            changed = [t for t in whole.changed_tests(everything) if t not in mine]
+            chosen += changed
+            sources.update({t: CHANGED for t in changed if t not in sources})
         if any(h['base_tests'] is None or (h['at_import'] and not h['base_tests']) for h in hunks) or not hunks:
             chosen += static
+            used_static = bool(static)
             for t in static:
                 sources.setdefault(t, STATIC)
         head_ids = list(dict.fromkeys([*own, *chosen]))
@@ -276,9 +307,12 @@ def run(execute, runner, python, trees, edits, before_src, after_src, plan, scra
     if exploring and not complete and not cut:
         gaps.append(f"the code before the change ran {len(found_b)} of {len(base_ids)} tests in its {budget} s: not the "
                     f"whole suite, so the static graph adds candidates for every hunk")
+    static_fallback = mode != ALL and whole is None and used_static
     return dict(ids=head_ids, before=found_b, after=found_a, context=context, sources=sources, mode=mode, hunks=hunks,
                 coverage=dict(before=coverage_b, after=coverage_a), calls=dict(before=calls_b, after=calls_a),
                 skipped={**skipped_b, **skipped_a}, seconds=dict(before=seconds_b, after=seconds_a),
                 problems=dict(before=problems_b, after=problems_a), base_complete=complete,
                 base_planned=len(base_ids) if base_ids is not None else 0, gaps=gaps, cut=cut, paired=paired,
-                targets=dict(before=targets_before, after=targets_after))
+                targets=dict(before=targets_before, after=targets_after), static_fallback=static_fallback,
+                suite=dict(commit=whole.sha, seconds=whole.seconds, complete=whole.complete,
+                           changed_since=len(whole.changed or ())) if whole is not None else None)

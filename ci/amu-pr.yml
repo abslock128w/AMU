@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: read
+  actions: read  # to find the suite recording ci/amu-record.yml saved (a cache); nothing is written
 
 concurrency:
   group: amu-pr-${{ github.event.pull_request.number }}

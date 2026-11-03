@@ -48,7 +48,9 @@ if _spec_path and _sys.version_info >= (3, 12):
         _targets = {(_os.path.realpath(_os.path.join(_root, t[0])), t[1]): t[0] + "#" + t[1] for t in _spec["targets"]}
         # Parameters whose default the change alters: left out of the input digest, kept apart (pair decides).
         _apart = {t[0] + "#" + t[1]: set(t[2]) for t in _spec["targets"] if len(t) > 2 and t[2]}
-        _files = set(_lines) | {k[0] for k in _targets}
+        # A whole-suite recording (suite module) watches every line of these files.
+        _everything = {_os.path.realpath(_os.path.join(_root, f)) for f in _spec.get("all_files", [])}
+        _files = set(_lines) | {k[0] for k in _targets} | _everything
         _rel = {p: _os.path.relpath(p, _root) for p in _files}
         _limit, _per = _spec.get("calls", 20), _spec.get("per_function", 4000)
         _keep = _spec.get("preview", 300)
@@ -224,7 +226,9 @@ if _spec_path and _sys.version_info >= (3, 12):
                 if path not in _files:
                     known = False
                 else:
-                    own = {line for _, _, line in code.co_lines() if line} & _lines.get(path, set())
+                    own = {line for _, _, line in code.co_lines() if line}
+                    if path not in _everything:
+                        own &= _lines.get(path, set())
                     target = _targets.get((path, code.co_qualname))
                     if target and code.co_flags & _GEN:
                         _buffer.append(json.dumps(dict(k="skip", fn=target, why="generator or coroutine")))
@@ -318,7 +322,7 @@ if _spec_path and _sys.version_info >= (3, 12):
 
         def _line(code, line):
             known = _codes.get(code)
-            if known and line in _lines.get(known[0], ()):
+            if known and (known[0] in _everything or line in _lines.get(known[0], ())):
                 _hits.setdefault(known[0], set()).add(line)
             return _m.DISABLE
 
@@ -409,11 +413,11 @@ def supported(python):
     return done.stdout.strip() == 'True'
 
 
-def prepare(folder, tree, lines, targets, extra_plugins=None, fields=False):
+def prepare(folder, tree, lines, targets, extra_plugins=None, fields=False, all_files=()):
     """Write the hook, its plugin and the spec into ``folder``. ``lines``: {path: [line, ...]} relative to ``tree``;
     ``targets``: [(path, qualified name)]. ``fields``: each call also keeps every field of its input and result
     (``fields_in``/``fields_out``: {path: short digest}), for comparing two runs field by field. Returns the environment
-    a run needs."""
+    a run needs. ``all_files``: files whose every line is watched (a whole-suite recording)."""
     import os
     extra_plugins = os.environ.get('PYTEST_PLUGINS') if extra_plugins is None else extra_plugins
     folder = Path(folder)
@@ -423,7 +427,8 @@ def prepare(folder, tree, lines, targets, extra_plugins=None, fields=False):
     (folder/'hook'/'amu_record_plugin.py').write_text(PLUGIN)
     spec = dict(root=str(tree), lines={p: sorted(set(v)) for p, v in lines.items()},
                 targets=[[t[0], t[1], sorted(t[2])] if len(t) > 2 else list(t) for t in targets],
-                out=str(folder/'out'), calls=CALLS, per_function=PER_FUNCTION, preview=PREVIEW, fields=bool(fields))
+                out=str(folder/'out'), calls=CALLS, per_function=PER_FUNCTION, preview=PREVIEW, fields=bool(fields),
+                all_files=sorted(all_files))
     (folder/'spec.json').write_text(json.dumps(spec))
     plugins = ','.join(filter(None, [extra_plugins, 'amu_record_plugin']))
     return dict(AMU_TRUST_PATH=str(folder/'hook'), AMU_REC_SPEC=str(folder/'spec.json'), AMU_REC_ROOT=str(tree),
