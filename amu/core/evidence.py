@@ -111,9 +111,11 @@ def compare(execute, runner, python, trees, plan, scratch, deadline, parts, chun
     process or the checkout, not to what the code does: it is left out of both sides' inputs and results for that
     function, and the pairs are compared again. Only these runs give rows; a difference whose test did not run again
     is counted (``not_rerun``), not shown."""
-    rows, counts = record.pair([c for c in calls_b if c['function'] in both], [c for c in calls_a if c['function'] in both], moved)
+    differ = set()
+    rows, counts = record.pair([c for c in calls_b if c['function'] in both], [c for c in calls_a if c['function'] in both], moved,
+                               differ)
     tests = sorted({row['test'] for row in rows})
-    tests += [t for t in counts.pop('input_tests', []) if t not in set(tests)]
+    tests += [t for t in sorted(differ) if t not in set(tests)]
     tests = tests[:AGAIN]
     kept, extra = rows, dict(unstable=0, excluded_fields=0, not_rerun=0, rerun_tests=0)
     if tests:
@@ -135,7 +137,6 @@ def compare(execute, runner, python, trees, plan, scratch, deadline, parts, chun
             runs[name] = [c for c in record.read(folder, tree, runner.cwd(tree))[1] if c['function'] in both]
         noisy = record.unstable_fields(runs['before'], runs['before-2'])
         again, again_counts = record.pair(record.without(runs['before'], noisy), record.without(runs['after'], noisy), moved)
-        again_counts.pop('input_tests', None)
         ran = {c['test'] for c in runs['before']} & {c['test'] for c in runs['after']}
         kept = again
         extra = dict(unstable=sum(1 for row in rows if row['test'] in ran and not any(
