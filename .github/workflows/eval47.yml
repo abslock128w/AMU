@@ -10,6 +10,7 @@ permissions:
   contents: write
 env:
   AMU_EVAL_WORK: ${{ github.workspace }}/w
+  AMU_EVAL_FREEZE: ${{ github.workspace }}/evaluation/performance-v042/freeze.json
   PYTHONUNBUFFERED: '1'
 jobs:
   plan:
