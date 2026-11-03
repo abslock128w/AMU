@@ -1,0 +1,58 @@
+Obtaining file:///home/runner/work/jinja/jinja
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Getting requirements to build editable: started
+  Getting requirements to build editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Collecting pytest
+  Downloading pytest-9.2.0-py3-none-any.whl.metadata (7.9 kB)
+Collecting trio
+  Downloading trio-0.35.0-py3-none-any.whl.metadata (8.5 kB)
+Collecting MarkupSafe>=2.0 (from Jinja2==3.1.5.dev0)
+  Downloading markupsafe-3.0.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.7 kB)
+Collecting iniconfig>=2 (from pytest)
+  Downloading iniconfig-2.3.1-py3-none-any.whl.metadata (2.8 kB)
+Collecting packaging>=24 (from pytest)
+  Downloading packaging-26.3-py3-none-any.whl.metadata (3.5 kB)
+Collecting pluggy<2,>=1.6 (from pytest)
+  Downloading pluggy-1.7.0-py3-none-any.whl.metadata (5.0 kB)
+Collecting pygments>=2.15 (from pytest)
+  Downloading pygments-2.21.0-py3-none-any.whl.metadata (2.5 kB)
+Collecting attrs>=23.2.0 (from trio)
+  Downloading attrs-26.1.0-py3-none-any.whl.metadata (8.8 kB)
+Collecting sortedcontainers (from trio)
+  Downloading sortedcontainers-2.4.0-py2.py3-none-any.whl.metadata (10 kB)
+Collecting idna (from trio)
+  Downloading idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+Collecting outcome (from trio)
+  Downloading outcome-1.3.0.post0-py2.py3-none-any.whl.metadata (2.6 kB)
+Collecting sniffio>=1.3.0 (from trio)
+  Downloading sniffio-1.3.1-py3-none-any.whl.metadata (3.9 kB)
+Downloading pytest-9.2.0-py3-none-any.whl (411 kB)
+Downloading pluggy-1.7.0-py3-none-any.whl (27 kB)
+Downloading trio-0.35.0-py3-none-any.whl (513 kB)
+Downloading attrs-26.1.0-py3-none-any.whl (67 kB)
+Downloading iniconfig-2.3.1-py3-none-any.whl (7.6 kB)
+Downloading markupsafe-3.0.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (22 kB)
+Downloading packaging-26.3-py3-none-any.whl (129 kB)
+Downloading pygments-2.21.0-py3-none-any.whl (1.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 140.4 MB/s  0:00:00
+Downloading sniffio-1.3.1-py3-none-any.whl (10 kB)
+Downloading idna-3.20-py3-none-any.whl (69 kB)
+Downloading outcome-1.3.0.post0-py2.py3-none-any.whl (10 kB)
+Downloading sortedcontainers-2.4.0-py2.py3-none-any.whl (29 kB)
+Building wheels for collected packages: Jinja2
+  Building editable for Jinja2 (pyproject.toml): started
+  Building editable for Jinja2 (pyproject.toml): finished with status 'done'
+  Created wheel for Jinja2: filename=jinja2-3.1.5.dev0-py3-none-any.whl size=3415 sha256=236ab7f44d6b2279d2878c366d71ea829c7ebe6b4a841df60b1bd60ce76662b7
+  Stored in directory: /tmp/pip-ephem-wheel-cache-zgknwhnv/wheels/d6/67/dc/162ebcea7ca6ad6721800c8d3b13f2e38e6b7413c0105a625c
+Successfully built Jinja2
+Installing collected packages: sortedcontainers, sniffio, pygments, pluggy, packaging, MarkupSafe, iniconfig, idna, attrs, pytest, outcome, Jinja2, trio
+
+Successfully installed Jinja2-3.1.5.dev0 MarkupSafe-3.0.4 attrs-26.1.0 idna-3.20 iniconfig-2.3.1 outcome-1.3.0.post0 packaging-26.3 pluggy-1.7.0 pygments-2.21.0 pytest-9.2.0 sniffio-1.3.1 sortedcontainers-2.4.0 trio-0.35.0
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
