@@ -1,0 +1,37 @@
+{
+  "cli_version": "0.10.5",
+  "checkpoint_id": "01M6FRZZ6WR6KK782JAV1DWGQ3",
+  "strategy": "manual-commit",
+  "branch": "fix/suite-recording",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "action.yml",
+    "amu/ci/record_suite.py",
+    "amu/ci/render.py",
+    "amu/core/__init__.py",
+    "amu/core/evidence.py",
+    "amu/core/record.py",
+    "amu/core/shadow.py",
+    "amu/core/suite.py",
+    "ci/amu-pr.yml",
+    "ci/amu-record.yml",
+    "evaluation/ci/INSTALL-NOTE.md",
+    "tests/core/test_suite_recording.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 76,
+    "cache_creation_tokens": 81073,
+    "cache_read_tokens": 11124338,
+    "output_tokens": 45861,
+    "api_call_count": 38
+  }
+}
