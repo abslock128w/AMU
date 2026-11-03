@@ -38,6 +38,10 @@ PLAIN_BASES = {'object', 'ABC', 'Generic', 'Protocol'}  # bases that add no test
 RUN_CANDIDATES = 150  # inheriting copies of failing base-class tests run at most
 
 
+UNRESOLVED = ' call sites unresolved repo-wide; dynamic dispatch may reach more'
+STATIC_GUESSES = ('No existing test reaches the change within five source hops',)
+
+
 def encoded(value):
     return json.dumps(value, ensure_ascii=False, separators=(',', ':')).encode()
 
@@ -546,9 +550,9 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
                                     confidence='executed', line=0, score=0.0))
     unresolved = graph.unresolved_count + graph.ambiguous
     if unresolved:
-        gaps.append(f'{unresolved} call sites unresolved repo-wide; dynamic dispatch may reach more')
+        gaps.append(f'{unresolved}{UNRESOLVED}')
     if not rows:
-        gaps.append('No existing test reaches the change within five source hops')
+        gaps.append(STATIC_GUESSES[0])
     listed = [dict(symbol=ident, depth=position[0], via=label(graph, path))
               for ident, (position, path) in sorted(impacted.items(), key=lambda item: (item[1][0], item[0]))]
     fails = sum(row['expect'] == 'likely_fail' for row in rows)
@@ -656,6 +660,9 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
                                               own=(executed or {}).get('own') or [])
         except (OSError, ValueError, SyntaxError) as exc:
             report.setdefault('gaps', []).append(f'hunk states not read: {type(exc).__name__}')
+        if report.get('hunks') and all(row['state'] != 'not-recorded' for row in report['hunks']):
+            # What ran each hunk was recorded: the static graph's guesses about reach are not gaps any more.
+            report['gaps'] = [g for g in report.get('gaps') or [] if g not in STATIC_GUESSES and not g.endswith(UNRESOLVED)]
     if renamed is None and edits and refactor.adds_only({path: (original(root, path, edit), candidate(root, path, edit))
                                                          for path, edit in edits.items()}):
         report['adds_only'] = True  # only new definitions outside the tests: nothing that ran before has changed

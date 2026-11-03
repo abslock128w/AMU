@@ -260,6 +260,16 @@ def split(path, edit, before, after):
             base = set()  # inside a function the code before the change does not have
         head = executable(after, set(added) if added else set(new_context))
         base = executable(before, base) if not old_function else base
+        # A change to a signature or a decorator only: its lines run at import, so the first statement of the body
+        # tells which tests called the function.
+        heads = [h for h in new_headers if any(h[0] <= n <= h[1] for n in added)]
+        if added and heads and not any(f[0] <= n <= f[1] for f in new_functions for n in added):
+            have = code_lines(after) or set()
+            for first, last, qual in new_functions:
+                if any(h[2] == qual for h in heads):
+                    entry = next((n for n in range(first, last + 1) if n in have), None)
+                    if entry:
+                        head.add(entry)
         found.append(dict(path=path, index=index, rows=block['rows'], removed=removed, added=added, old_start=old_start, new_start=new_start,
                           old_function=old_function[2] if old_function else None,
                           new_function=new_function[2] if new_function else None,
