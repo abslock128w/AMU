@@ -294,6 +294,12 @@ def run(execute, runner, python, trees, edits, before_src, after_src, plan, scra
     for h in hunks:
         h['head_tests'] = sorted(t for t in record.tests_on(coverage_a, h['path'], h['head']) if t != record.IMPORT)
         h['head_at_import'] = record.IMPORT in record.tests_on(coverage_a, h['path'], h['head'])
+        # Which of the hunk's lines a test ran, and which ran only at import (states: a body no test entered).
+        watched, in_tests = set(h['head']), set()
+        for test, files in coverage_a.items():
+            if test != record.IMPORT:
+                in_tests |= files.get(h['path'], set()) & watched
+        h['head_ran_lines'] = sorted(in_tests)
     paired = compare(execute, runner, python, trees, plan, scratch, deadline, parts, chunk, calls_b, calls_a,
                      {f'{t[0]}#{t[1]}' for t in targets_before} & {f'{t[0]}#{t[1]}' for t in targets_after}, base_watch,
                      head_watch, moved, second)

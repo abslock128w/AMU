@@ -117,10 +117,11 @@ def extras(report, listed=LISTED):
 
 # Hunk states (amu/core/states.py), worst first: the first one any hunk has is what the first line reports.
 WORST = ('executed-none', 'not-executable-here', 'not-recorded', 'executed-head-only', 'new-code', 'executed-both-sides',
-         'not-code')
+         'annotations-only', 'not-code')
 STATE_TEXT = {'executed-none': 'ran in no test', 'not-executable-here': 'cannot run here', 'not-recorded': 'not recorded',
               'executed-head-only': "ran only in the pull request's own tests", 'new-code': 'new code, no existing callers',
-              'executed-both-sides': 'ran on both sides', 'not-code': 'docstring, comment or layout only'}
+              'executed-both-sides': 'ran on both sides', 'annotations-only': 'type annotations only',
+              'not-code': 'docstring, comment or layout only'}
 
 
 def hunk_rows(report):
@@ -150,7 +151,9 @@ def headline(report, head, ran):
     present = {row['state'] for row in rows}
     if present == {'not-code'}:
         return f"**AMU: docstring or comment changes only** at {short(head)}; no flip, {among}"
-    if present <= {'new-code', 'not-code'}:
+    if present <= {'annotations-only', 'not-code'}:
+        return f"**AMU: type annotations only** at {short(head)}; no flip, {among}"
+    if present <= {'new-code', 'not-code', 'annotations-only'}:
         replayed = [row for row in report.get('replayed') or [] if isinstance(row, dict)]
         made = [row for row in replayed if row.get('verdict') == 'new_code']
         text = f'**AMU: adds new code only** at {short(head)}'
