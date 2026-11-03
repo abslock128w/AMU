@@ -90,7 +90,7 @@ def test_a_real_difference_on_an_equal_input_is_a_row(tmp_path):
     from amu.ci.render import render
     body = render(report, dict(head='a' * 40, merge_base='b' * 40))
     assert body.splitlines()[0].endswith('; 1 behaviour difference on the same input'), body
-    assert '### Behaviour differs on the same input (1)' in body, body
+    assert '### Behaviour differs on the same input (1 change, 1 call)' in body, body
 
 
 def test_a_difference_neither_side_repeats_is_not_a_row(tmp_path):
