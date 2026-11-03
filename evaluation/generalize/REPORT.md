@@ -1,5 +1,7 @@
 # The three causes, measured on the 47 set (2026-11-03)
 
+The v0.7.0 re-run of the same 47 pull requests (causes 4 and 5) is in `REPORT-v070.md`.
+
 The 47 set was re-run locally on engine `43d8b82`, the code released as v0.6.0. It is the same 47 pull requests from
 Django (17), sympy (20) and Flask (10) as `evaluation/performance-v042` and `evaluation/performance-fixes`: Python 3.14, a
 300 s budget per side and a 1,200 s wall cap. Each pull request also got the raise measure (`raise_missed.py`). A

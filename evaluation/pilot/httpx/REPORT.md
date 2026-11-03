@@ -108,3 +108,40 @@ the whole suite did not fit and selection fell back to the static graph.
 
 What AMU adds on httpx is modest: 3 useful comments out of 15, each from change evidence or an unrun hunk the diff
 does not show.
+
+## Re-run at v0.7.0 (2026-11-03): the same 15 pull requests, live on the fork
+
+The Action was pinned to v0.7.0 on abslock128w/httpx. The same 15 heads were opened as fork pull requests #16–#30
+against new base branches (the merge base plus the v0.7.0 workflows). Python 3.12. No engine code changed during the
+run. Files are in `v070/`: `data.json`, `labels.json`, `comments/` and `reports.tar.xz`.
+
+### Losses first
+
+- **Pull request opened → comment is slower: 78–234 s, median 217 s (v0.6.0: 77–155 s, median 91 s).** The AMU job
+  itself is about the same, 45–155 s with a median of 61 s (v0.6.0: 50–109 s, median 66 s). The difference is runner
+  queueing: the 15 were opened together while the jinja fork's 15 were running.
+- **Still useful on 3 of 15 only** (3571, 3412, 3394). For the rest the comment confirms what a green CI run would.
+- **The raise measure was not re-run.** The whole suite ran on both sides on every pull request. The v0.6.0 measure
+  (0 of 933 missed) stands.
+
+### What changed
+
+| | v0.6.0 | v0.7.0 |
+|---|---:|---:|
+| First line correct | 15 | 15 |
+| Adds something / nothing / noise | 3 / 12 / 0 | 3 / 12 / 0 |
+| Behaviour rows: real / false | 1 / 0 | 1 / 0 (3519; 3 fields excluded as differing between the two merge base runs) |
+| Suite run | 100 % | 100 % (536–539 tests) |
+
+The three httpx defects are fixed:
+
+- **Defect 1: static gaps after a whole-suite run.** These are gone on all 15. On 3401 the "No existing test reaches
+  the change" gap no longer contradicts the hunk list.
+- **Defect 2: signature-only hunks read "(at import)".** On 3419 and 3394 they now count the tests that called the
+  function: "in up to 150 tests".
+- **Defect 3: annotation lines counted as code.** v0.7.0 has an `annotations-only` line state. None of these 15 shows
+  it: the `httpx/_types.py` hunks on 3380 are module-level alias assignments (`RequestExtensions = Mapping[str, Any]`),
+  which run at import, so "at import" is right there. On jinja, two annotation-only hunks of 2096 still read as code,
+  through a different defect (`evaluation/pilot/jinja/REPORT.md`, defect 3).
+
+3394's first line now leads with the new `URL.raw` property (`pragma: nocover`) that no test runs, which is true.
