@@ -1,0 +1,38 @@
+{
+  "cli_version": "0.10.5",
+  "checkpoint_id": "01M6H4VXZ2KHPZ7BW0HXANC5NN",
+  "strategy": "manual-commit",
+  "branch": "eval/v071-tools",
+  "checkpoints_count": 3,
+  "files_touched": [
+    "evaluation/v071-tools/attrs15.json",
+    "evaluation/v071-tools/attrs15.tsv",
+    "evaluation/v071-tools/collect.py",
+    "evaluation/v071-tools/django-only.txt",
+    "evaluation/v071-tools/gather.py",
+    "evaluation/v071-tools/httpx15.tsv",
+    "evaluation/v071-tools/jinja15.tsv",
+    "evaluation/v071-tools/labels47.py",
+    "evaluation/v071-tools/record47.py",
+    "evaluation/v071-tools/release070.py",
+    "evaluation/v071-tools/replay.py",
+    "evaluation/v071-tools/requests15.tsv",
+    "evaluation/v071-tools/run47.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 4,
+    "cache_creation_tokens": 2758,
+    "cache_read_tokens": 784295,
+    "output_tokens": 2761,
+    "api_call_count": 2
+  }
+}
