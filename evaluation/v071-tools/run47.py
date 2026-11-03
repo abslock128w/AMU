@@ -12,9 +12,9 @@ import sys
 import time
 from pathlib import Path
 
-W = Path(__file__).resolve().parent
-FREEZE = Path('/Users/Abslock128/Documents/ChatGPT/AMU/fix-base/evaluation/performance-v042/freeze.json')
-AMU_PY = str(W/'amuvenv'/'bin'/'python')
+W = Path(os.environ.get('AMU_EVAL_WORK') or Path(__file__).resolve().parent)
+FREEZE = Path(os.environ.get('AMU_EVAL_FREEZE') or Path(__file__).resolve().parents[1]/'performance-v042'/'freeze.json')
+AMU_PY = os.environ.get('AMU_EVAL_PY') or str(W/'amuvenv'/'bin'/'python')
 WORKERS = {'django': 4, 'sympy': 4, 'flask': 3, 'attrs': 3}
 
 

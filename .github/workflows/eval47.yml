@@ -1,0 +1,97 @@
+# The 47 set (Django 17, sympy 20, Flask 10) on an AMU release, in GitHub Actions: the nightly suite recordings
+# (record47.py, 4 shards each), then each pull request (run47.py: 300 s per side, 1,200 s wall cap, raise measure).
+# Each job's output is pushed to a branch eval-out/<tag>/... ; evaluation/v071-tools/ci-plan.json says what runs.
+name: eval47
+on:
+  push:
+    branches: [eval/v071-run]
+    paths: [evaluation/v071-tools/ci-plan.json]
+permissions:
+  contents: write
+env:
+  AMU_EVAL_WORK: ${{ github.workspace }}/w
+  PYTHONUNBUFFERED: '1'
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      rec: ${{ steps.p.outputs.rec }}
+      runs: ${{ steps.p.outputs.runs }}
+      has_rec: ${{ steps.p.outputs.has_rec }}
+      engine: ${{ steps.p.outputs.engine }}
+      tag: ${{ steps.p.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.14'}
+      - id: p
+        run: |
+          mkdir -p w/repos
+          git clone -q --filter=blob:none https://github.com/django/django w/repos/django
+          git clone -q --filter=blob:none https://github.com/sympy/sympy w/repos/sympy
+          python evaluation/v071-tools/plan47.py evaluation/v071-tools/ci-plan.json
+          echo "engine=$(jq -r .engine evaluation/v071-tools/ci-plan.json)" >> "$GITHUB_OUTPUT"
+          echo "tag=$(jq -r .tag evaluation/v071-tools/ci-plan.json)" >> "$GITHUB_OUTPUT"
+  record:
+    needs: plan
+    if: needs.plan.outputs.has_rec == 'yes'
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.rec) }}
+    env:
+      ENGINE_REF: ${{ needs.plan.outputs.engine }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.14'}
+      - run: evaluation/v071-tools/ci-setup.sh ${{ matrix.repo }}
+      - run: |
+          cp evaluation/v071-tools/*.py w/
+          nproc; python w/record47.py --engine w/engine --repos ${{ matrix.repo }} --only ${{ matrix.prs }} --shards 4
+          ls -la w/suites/${{ matrix.repo }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: suite-${{ matrix.repo }}-${{ matrix.commit }}
+          path: w/suites/${{ matrix.repo }}/*.json.gz
+          retention-days: 14
+      - if: always()
+        env: {GITHUB_TOKEN: '${{ github.token }}'}
+        run: |
+          mkdir -p rec-out && cp w/suites/${{ matrix.repo }}/log.jsonl rec-out/ 2>/dev/null || true
+          evaluation/v071-tools/push-out.sh rec-out "eval-out/${{ needs.plan.outputs.tag }}/rec-${{ matrix.repo }}-${{ matrix.commit }}"
+  run:
+    needs: [plan, record]
+    if: always() && needs.plan.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.runs) }}
+    env:
+      ENGINE_REF: ${{ needs.plan.outputs.engine }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.14'}
+      - run: evaluation/v071-tools/ci-setup.sh ${{ matrix.repo }}
+      - if: matrix.repo != 'flask'
+        uses: actions/download-artifact@v4
+        with:
+          pattern: suite-${{ matrix.repo }}-*
+          path: w/suites/${{ matrix.repo }}
+          merge-multiple: true
+      - run: |
+          cp evaluation/v071-tools/*.py w/
+          ls w/suites/${{ matrix.repo }} 2>/dev/null || true
+          python w/run47.py --engine w/engine --tag ${{ needs.plan.outputs.tag }} --only ${{ matrix.repo }}#${{ matrix.n }}
+      - if: always()
+        env: {GITHUB_TOKEN: '${{ github.token }}'}
+        run: |
+          d=w/out-${{ needs.plan.outputs.tag }}/${{ matrix.repo }}/${{ matrix.n }}
+          mkdir -p "$d"; ls -la "$d"
+          evaluation/v071-tools/push-out.sh "$d" "eval-out/${{ needs.plan.outputs.tag }}/${{ matrix.repo }}-${{ matrix.n }}"

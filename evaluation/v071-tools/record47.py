@@ -12,8 +12,9 @@ import sys
 import time
 from pathlib import Path
 
-W = Path(__file__).resolve().parent
-AMU_PY = str(W/'amuvenv'/'bin'/'python')
+W = Path(os.environ.get('AMU_EVAL_WORK') or Path(__file__).resolve().parent)
+FREEZE = Path(os.environ.get('AMU_EVAL_FREEZE') or Path(__file__).resolve().parents[1]/'performance-v042'/'freeze.json')
+AMU_PY = os.environ.get('AMU_EVAL_PY') or str(W/'amuvenv'/'bin'/'python')
 
 
 def git(repo, *args):
@@ -40,11 +41,10 @@ def main():
         out = W/'suites'/repo
         out.mkdir(parents=True, exist_ok=True)
         wanted = []
-        for meta in sorted((W/'out-e43d8b82'/repo).glob('*/meta.json')):
-            m = json.loads(meta.read_text())
-            if a.only and m['pr'] not in a.only:
+        for pr in sorted(json.loads(FREEZE.read_text())['prs'][repo], key=lambda pr: pr['number']):
+            if a.only and pr['number'] not in a.only:
                 continue
-            wanted.append((m['pr'], m['merge_base']))
+            wanted.append((pr['number'], pr['merge_base']))  # the freeze's merge base (was the v0.7.0 run's meta.json)
         commits = {}
         for pr, merge_base in wanted:
             commits.setdefault(nightly(clone, merge_base), []).append(pr)
