@@ -205,17 +205,30 @@ def blocks(edit):
             if sign in '-+':
                 if current is None:
                     current = dict(rows=[], removed=[], added=[], old_start=old_line, new_start=new_line,
-                                   old_context=[c[0] for c in context[-CONTEXT:]], new_context=[c[1] for c in context[-CONTEXT:]], after=0)
+                                   old_context=[c[0] for c in context[-CONTEXT:]], new_context=[c[1] for c in context[-CONTEXT:]], after=0,
+                                   body=[], runs=[], pending=[])
                     found.append(current)
+                if current['pending'] or not current['runs']:
+                    # Unchanged lines between two changes of one block belong to its body; each change between them is
+                    # a run of its own (a docstring edit and a code edit a line apart are two runs).
+                    current['body'] += current['pending']
+                    current['pending'] = []
+                    current['runs'].append(dict(rows=[], removed=[], added=[], old_start=old_line, new_start=new_line))
+                run = current['runs'][-1]
                 current['rows'].append(row)
+                current['body'].append(row)
+                run['rows'].append(row)
                 if sign == '-':
                     current['removed'].append(old_line)
+                    run['removed'].append(old_line)
                     old_line += 1
                 else:
                     current['added'].append(new_line)
+                    run['added'].append(new_line)
                     new_line += 1
             else:
                 if current is not None:
+                    current['pending'].append(' ' + row[1:] if row[:1] == ' ' else row)
                     if current['after'] < CONTEXT:
                         current['old_context'].append(old_line)
                         current['new_context'].append(new_line)
@@ -227,6 +240,7 @@ def blocks(edit):
                 new_line += 1
     for block in found:
         block.pop('after', None)
+        block.pop('pending', None)
     return found
 
 
@@ -270,7 +284,8 @@ def split(path, edit, before, after):
                     entry = next((n for n in range(first, last + 1) if n in have), None)
                     if entry:
                         head.add(entry)
-        found.append(dict(path=path, index=index, rows=block['rows'], removed=removed, added=added, old_start=old_start, new_start=new_start,
+        found.append(dict(path=path, index=index, rows=block['rows'], body=block['body'], runs=block['runs'],
+                          removed=removed, added=added, old_start=old_start, new_start=new_start,
                           old_function=old_function[2] if old_function else None,
                           new_function=new_function[2] if new_function else None,
                           old_touched=old_touched, new_touched=new_touched,
