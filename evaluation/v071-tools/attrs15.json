@@ -1,0 +1,107 @@
+[
+ {
+  "number": 1636,
+  "head_sha": "ce52bb2e1332f861f30c2c23d5e772c563832116",
+  "merge_base": "0a08cee06960e415f735dec4cf2fb91d669e2433",
+  "base_sha": "0a08cee06960e415f735dec4cf2fb91d669e2433",
+  "title": "Improve astuple performance for nested atomic sequences"
+ },
+ {
+  "number": 1625,
+  "head_sha": "6483af066ea2706eee075ef48449da5a173d7658",
+  "merge_base": "bf47028ae4ec31975de7dfd389148756f15ee525",
+  "base_sha": "bf47028ae4ec31975de7dfd389148756f15ee525",
+  "title": "docs/fix: remove duplicated words in docs and source comment"
+ },
+ {
+  "number": 1606,
+  "head_sha": "0bc217f8f4cdf0477da96b5ffec4a137d1e3489a",
+  "merge_base": "f38b8a3f1625060aa4245930822c34c11c252f83",
+  "base_sha": "f38b8a3f1625060aa4245930822c34c11c252f83",
+  "title": "Stop evolve dunders from being modified"
+ },
+ {
+  "number": 1603,
+  "head_sha": "f0d353453557043b89ecf29630dff6057e893706",
+  "merge_base": "c1c1e0e25f855be68caf1d1a1dfa832a25acbf58",
+  "base_sha": "c1c1e0e25f855be68caf1d1a1dfa832a25acbf58",
+  "title": "Drop Python 3.9"
+ },
+ {
+  "number": 1571,
+  "head_sha": "325f3494d13d0f491157d139ed56b5ae5e07b80b",
+  "merge_base": "f616f732c6c5f87a8f7a762176422baed250a6be",
+  "base_sha": "f616f732c6c5f87a8f7a762176422baed250a6be",
+  "title": "Add `ne` validator"
+ },
+ {
+  "number": 1592,
+  "head_sha": "5efaf84c7bbe8eba5619137766a6ee7c17f4c2ac",
+  "merge_base": "79fb1645a17118666144ead131a88fdc8d8cd59f",
+  "base_sha": "79fb1645a17118666144ead131a88fdc8d8cd59f",
+  "title": "Make on_setattr hooks accept generators"
+ },
+ {
+  "number": 1593,
+  "head_sha": "2e082f1c1efb019885fbdb601b32f8464dbe5d47",
+  "merge_base": "6851ab593cd25f3c14393e9355d57d22bec2a074",
+  "base_sha": "6851ab593cd25f3c14393e9355d57d22bec2a074",
+  "title": "Fix ClassVar forward reference detection"
+ },
+ {
+  "number": 1600,
+  "head_sha": "e685f6c6cabf43df2e11feee6d9c2653cd92fd02",
+  "merge_base": "ca0f04585d3fb132c6e2f6baa9d7d966d8036760",
+  "base_sha": "ca0f04585d3fb132c6e2f6baa9d7d966d8036760",
+  "title": "Defer imports on the cold import path"
+ },
+ {
+  "number": 1541,
+  "head_sha": "d54fd888d0cc774ddd8a91a1a1b12842cd72da58",
+  "merge_base": "57b314c0dc8e0b80c0ed8f61c0be81965137ea41",
+  "base_sha": "57b314c0dc8e0b80c0ed8f61c0be81965137ea41",
+  "title": "Expose converter as a decorator"
+ },
+ {
+  "number": 1529,
+  "head_sha": "b13a7056c5f407abbd9f3e572ee48ad65afce91c",
+  "merge_base": "3a68d4913221abc6f8ad3be50937f7ae49300a98",
+  "base_sha": "3a68d4913221abc6f8ad3be50937f7ae49300a98",
+  "title": "Add instance support to attrs.fields()"
+ },
+ {
+  "number": 1513,
+  "head_sha": "91f3695fe70a6d58c95660addd5ef8d46bfebd61",
+  "merge_base": "ab7f8b2f4c0f747d5b1575247ce35e5adaad182e",
+  "base_sha": "ab7f8b2f4c0f747d5b1575247ce35e5adaad182e",
+  "title": "Fix validators.disabled() to save/restore state on nesting"
+ },
+ {
+  "number": 1509,
+  "head_sha": "b0ef2491e7583e3620d4d77e4568fbbc0df123ed",
+  "merge_base": "f3bcc37c3d2dc3199715f825a86b748c3b3805f9",
+  "base_sha": "f3bcc37c3d2dc3199715f825a86b748c3b3805f9",
+  "title": "Resolve field aliases before calling field_transformer"
+ },
+ {
+  "number": 1507,
+  "head_sha": "85b9ac714ef634d62f59edd404f153ae5f01e2dc",
+  "merge_base": "e140354a11de334f14d5345b1ebbde4157e69def",
+  "base_sha": "e140354a11de334f14d5345b1ebbde4157e69def",
+  "title": "update dev"
+ },
+ {
+  "number": 1454,
+  "head_sha": "5ff58070fb599a352dc67da62cea8935540033d0",
+  "merge_base": "4737f0e6c77f2bd4501322b1b5d1e265181849b9",
+  "base_sha": "4737f0e6c77f2bd4501322b1b5d1e265181849b9",
+  "title": "Expose effective class construction properties"
+ },
+ {
+  "number": 1469,
+  "head_sha": "57ee5cf0bd6e1f510655b16d6f8beac164156197",
+  "merge_base": "6ef8d73dd728cdebf939b3a2cd694af57d1f6b5d",
+  "base_sha": "6ef8d73dd728cdebf939b3a2cd694af57d1f6b5d",
+  "title": "Improve performance of attr.astuple"
+ }
+]
