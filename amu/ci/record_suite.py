@@ -17,6 +17,11 @@ from pathlib import Path
 from ..core import suite
 
 
+def partial(out):
+    """Where a shard writes before its final name is known: beside it, one per output, so shards can share a folder."""
+    return Path(out).with_name('.' + Path(out).name.replace('{commit}', 'commit') + '.partial')
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(prog='python -m amu.ci.record_suite')
     p.add_argument('--repo', default='.')
@@ -35,11 +40,11 @@ def main(argv=None):
             number, count = (int(x) for x in a.shard.split('/'))
             shard = (number, count)
         python = str(Path(a.python).absolute()) if a.python and '/' in a.python else a.python  # the runner may change folder
-        data = suite.record(a.repo, Path(a.out).with_name('.amu-partial.json.gz'), python=python, runner=a.runner,
+        data = suite.record(a.repo, partial(a.out), python=python, runner=a.runner,
                             shard=shard, budget=a.budget)
     out = Path(a.out.replace('{commit}', data.get('commit') or 'unknown'))
     suite.write(data, out)
-    Path(a.out).with_name('.amu-partial.json.gz').unlink(missing_ok=True)
+    partial(a.out).unlink(missing_ok=True)
     print(json.dumps(dict(commit=data.get('commit'), tests=len(data['tests']), planned=data.get('planned'),
                           ran=data.get('ran'), seconds=data.get('seconds'), complete=data.get('complete'),
                           bytes=out.stat().st_size, out=str(out))))
