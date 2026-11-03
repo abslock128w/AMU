@@ -157,6 +157,27 @@ def plan_hunks(edits, before_src, after_src):
             for h in hunk_split.split(path, edit, before_src.get(path) or '', after_src.get(path) or '')]
 
 
+def order_dependent(whole, hunks, before_src, coverage):
+    """Tests the suite recording knows that ran a watched line of the code before the change in this job, where the
+    recording says they did not: what a test runs depends on what ran before it (a cache shared across tests)."""
+    if whole is None:
+        return []
+    changed = set(whole.changed or ())
+    # A test whose file changed since the recording may run something else now: not a disagreement.
+    knows = {t for t in whole.data.get('tests') or [] if t.split('::')[0] not in changed}
+    found = set()
+    for h in hunks:
+        watched = set(h['base'])
+        ran = {t: files.get(h['path'], set()) & watched for t, files in coverage.items() if t in knows}
+        ran = {t: lines for t, lines in ran.items() if lines}
+        for line in sorted({n for lines in ran.values() for n in lines}):
+            said = whole.tests(h['path'], before_src.get(h['path']), [line])
+            if said is None:
+                continue
+            found |= {t for t, lines in ran.items() if line in lines and t not in said}
+    return sorted(found)
+
+
 def run(execute, runner, python, trees, edits, before_src, after_src, plan, scratch, budget, deadline, parts, chunk,
         remembered, cache_folder, second=None):
     """Both sides of the change, chosen and run as the module says. Returns a dict: ids (the candidates run on the code
@@ -314,6 +335,11 @@ def run(execute, runner, python, trees, edits, before_src, after_src, plan, scra
         gaps.append(f"the code before the change ran {len(found_b)} of {len(base_ids)} tests in its {budget} s: not the "
                     f"whole suite, so the static graph adds candidates for every hunk")
     static_fallback = mode != ALL and whole is None and used_static
+    disagree = order_dependent(whole, hunks, before_src, coverage_b)
+    if disagree:
+        gaps.append(f"coverage is order-dependent in this suite: {len(disagree)} test(s) ran changed code here that the suite "
+                    f"recording did not see them run (first: {disagree[0]}); a test that would catch a change there can be "
+                    "missing from the candidates")
     return dict(ids=head_ids, before=found_b, after=found_a, context=context, sources=sources, mode=mode, hunks=hunks,
                 coverage=dict(before=coverage_b, after=coverage_a), calls=dict(before=calls_b, after=calls_a),
                 skipped={**skipped_b, **skipped_a}, seconds=dict(before=seconds_b, after=seconds_a),

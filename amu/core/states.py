@@ -439,7 +439,7 @@ def gate(guards, hunk, files, new_classes=None):
     return gated[0] if calls and gated else None
 
 
-def classify(root, edits, before_src, after_src, recorded, ran_before=(), python=None, production=None, own=()):
+def classify(root, edits, before_src, after_src, recorded, ran_before=(), python=None, production=None, own=(), incomplete=None):
     """Every hunk of the changed production files with its state. ``recorded``: the hunks evidence returned (with the
     tests that ran each on each side), or None when nothing was recorded. ``ran_before``: tests with an outcome on the
     code before the change. ``production``: the production .py files of the tree, for finding names and callers."""
@@ -496,6 +496,9 @@ def classify(root, edits, before_src, after_src, recorded, ran_before=(), python
             kind = gate(guards, h, production, new_classes)
             if kind:
                 state, why = 'not-executable-here', f'not executable on {_reason(kind, guards.facts)} here'
+            elif incomplete:
+                # Some candidate tests gave no outcome: one of them may run this hunk. Not seen is not "ran in no test".
+                state, why = 'not-recorded', incomplete
             else:
                 state = 'executed-none'
         if state in ('executed-both-sides', 'executed-head-only', 'executed-none', 'new-code'):
