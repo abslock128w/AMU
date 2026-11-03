@@ -277,7 +277,7 @@ def record(root, out, python=None, runner=None, shard=None, budget=None, index_d
     root = Path(root).resolve()
     python = python or runners.interpreter(root)
     chosen = runners.get(root, runner)
-    ids = list(ids) if ids is not None else suite_ids(root, runner=runner, index_dir=index_dir)
+    ids = list(ids) if ids is not None else suite_ids(root, runner=runner, index_dir=index_dir, python=python)
     if shard:
         number, count = shard
         ids = ids[number::count]

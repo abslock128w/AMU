@@ -34,6 +34,7 @@ from .sitehooks import sweep
 LIMIT = 2000
 MAX_TESTS = 40
 MIXIN_COPIES = 6  # concrete subclasses run for a test method that lives on a mixin
+COLLECT_SECONDS = 600  # the most the runner's own test listing may take
 PLAIN_BASES = {'object', 'ABC', 'Generic', 'Protocol'}  # bases that add no test a runner collects
 RUN_CANDIDATES = 150  # inheriting copies of failing base-class tests run at most
 
@@ -368,8 +369,35 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     def label_of(ident):
         return tests[ident]['path'] + '::' + tests[ident]['qual'].replace('.', '::')
 
+    listed = {}
+
     def everything_of():
-        # The suite as the project defines it: under pytest's ``testpaths`` when it names some.
+        # The suite as the runner itself collects it: inherited and generated test methods included. Reading the source
+        # is the fallback when the runner cannot list its tests, and that is said.
+        if 'ids' not in listed:
+            # Within the job's deadline: a quarter of what is left, so a suite that hangs on import leaves time to run.
+            left = None if deadline is None else (deadline - time.monotonic()) / 4
+            if 'static-listing' in extras:
+                ids, why = None, 'static-listing set'
+            elif left is not None and left < 1:
+                ids, why = None, 'no time left before the deadline'
+            else:
+                errored = []
+                ids, why = runners.collect(runners.get(root, runner), python or runners.interpreter(root), root,
+                                           timeout=COLLECT_SECONDS if left is None else min(COLLECT_SECONDS, left),
+                                           errors=errored)
+                if ids is not None and errored:
+                    # A test file that does not import lists nothing: its tests from the source stay in the suite, so
+                    # the run names them as tests that cannot run.
+                    ids = list(dict.fromkeys([*ids, *(i for i in static_suite() if i.split('::')[0] in set(errored))]))
+            listed['ids'] = ids
+            if ids is None:
+                gaps.append(f'the suite was listed from the source, not by {chosen.name}: {why}; tests a class inherits '
+                            'or generates at import may be missing')
+        return listed['ids'] if listed['ids'] is not None else static_suite()
+
+    def static_suite():
+        # The suite read from the source, under pytest's ``testpaths`` when it names some.
         where = runners.pytest_testpaths(root) if chosen.name == 'pytest' else ()
         return list(dict.fromkeys(run_id for ident in sorted(tests) for run_id in run_ids(label_of(ident))
                                   if not where or any(run_id == p or run_id.startswith(p + '/') or run_id.startswith(p + '::')
@@ -500,7 +528,8 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         ranked = {label_of(ident) for ident in picked}
         copies = sorted({copy for flip in flips if flip['after'] == 'failed' and flip['id'] in ranked
                          and trust.counted(flip.get('trust', trust.CONFIRMED))
-                         for copy in inheritors(flip['id'])} - set(wide))[:RUN_CANDIDATES]
+                         for copy in inheritors(flip['id'])} - set(wide) - {flip['id'] for flip in flips}
+                        - set(executed.get('outcomes') or {}))[:RUN_CANDIDATES]
         if copies and shadow.late(deadline):
             cut.append(f'failing tests in the subclasses that inherit them ({len(copies)})')
         elif copies:
@@ -767,6 +796,6 @@ def compact(report, include_tests=False):
     return out
 
 
-def suite_ids(root, runner=None, index_dir=None):
-    """Every test id of the project's suite, as a runner can execute them (what a whole-suite run or recording runs)."""
-    return analyze(root, '', run=False, runner=runner, index_dir=index_dir, suite_only=True)
+def suite_ids(root, runner=None, index_dir=None, python=None):
+    """Every test id of the project's suite, as the runner collects them (what a whole-suite run or recording runs)."""
+    return analyze(root, '', run=False, runner=runner, index_dir=index_dir, suite_only=True, python=python)
