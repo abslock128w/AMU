@@ -184,9 +184,37 @@ def test_code_reachable_only_through_a_conditional_expression_false_here_cannot_
         ''')
     tests = 'from lib import KINDS\n\n\ndef test_kinds():\n    assert KINDS[int]().show() == "base"\n'
     report, body = change(tmp_path, {'compat.py': compat, 'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1})
-    assert [row['state'] for row in report['hunks']] == ['not-executable-here'] * 2, report['hunks']
-    assert report['hunks'][1]['line'] == 21 and report['hunks'][1]['why'].endswith('(needs NEWER)'), report['hunks']
-    assert '2 of 2 changed hunks not executable on' in body[0], body[0]
+    # The class is used only inside the branch not taken here; the KINDS line itself runs at import, so it ran.
+    assert [row['state'] for row in report['hunks']] == ['not-executable-here', 'executed-both-sides'], report['hunks']
+    assert '1 of 2 changed hunks not executable on' in body[0], body[0]
+
+
+# A chained comparison as a guard: evaluated pair by pair when it can be told, unknown (never gated) when not.
+@pytest.mark.parametrize('condition,gated', [('(99, 0) <= sys.version_info < (100, 0)', True),
+                                             ('(21,) <= self.connection.version < (23,)', False),
+                                             ('not -n <= len(parts) < n', False)])
+def test_a_chained_comparison_guard_is_evaluated_or_unknown_never_a_crash(tmp_path, condition, gated):
+    lib0 = 'import sys\n\n\nclass Joiner:\n    def join(self, parts, n=9):\n        joined = "/".join(parts)\n        return joined\n'
+    lib1 = (f'import sys\n\n\nclass Joiner:\n    def join(self, parts, n=9):\n        if {condition}:\n'
+            '            joined = "\\\\".join(parts)\n        else:\n            joined = "/".join(parts)\n        return joined\n')
+    tests = 'from lib import Joiner\n\n\ndef test_join():\n    assert Joiner().join(["a", "b"]) == "a/b"\n'
+    report, body = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1})
+    assert 'error' not in report, report.get('error')
+    [row] = report['hunks']
+    assert (row['state'] == 'not-executable-here') is gated, row
+
+
+# Only one operand of the conditional expression is gated; the line itself ran in a test, so it is executed.
+def test_a_gated_operand_on_a_line_that_ran_is_executed(tmp_path):
+    lib0 = 'import os\n\n\ndef make(path):\n    maker = os.makedirs\n    maker(path, exist_ok=True)\n    return path\n'
+    lib1 = ('import os\nimport sys\n\n\ndef make(path):\n    maker = os.mkdir if sys.version_info >= (99, 0) else os.makedirs\n'
+            '    maker(path, exist_ok=True)\n    return path\n')
+    tests = 'from lib import make\n\n\ndef test_make(tmp_path):\n    assert make(str(tmp_path / "a" / "b"))\n'
+    report, body = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1})
+    states = {row['line']: row['state'] for row in report['hunks']}
+    assert 'not-executable-here' not in states.values(), report['hunks']
+    assert states.get(6) == 'executed-both-sides', report['hunks']
+    assert 'not executable' not in body[0], body[0]
 
 
 def test_a_signature_change_says_which_tests_called_the_function(tmp_path):

@@ -132,6 +132,9 @@ def _definitions(text):
     return found
 
 
+MAX_DEPTH = 12  # how deep a guard's names and operands are followed before it is unknown
+
+
 class Guards:
     """Whether code runs in this job, from the conditions of ``if`` statements: a three-valued evaluation (True, False,
     None for unknown) of version, platform and import-availability tests, following module-level names through their
@@ -254,12 +257,19 @@ class Guards:
         if isinstance(node, ast.Name):
             return self.name(path, node.id, depth + 1)
         if isinstance(node, (ast.Compare, ast.BoolOp)) or (isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not)):
-            return self.truth(path, node, depth)
+            return self.truth(path, node, depth + 1)
         return None
 
     def truth(self, path, node, depth=0):
         """(kind, bool) for a condition this job decides, kind one of 'version', 'platform', ('missing', module);
         True/False for a plain constant; None when it cannot be told."""
+        if depth > MAX_DEPTH:
+            return None
+        if isinstance(node, ast.Compare) and len(node.ops) > 1:
+            # a < b < c is a < b and b < c, each operand evaluated once.
+            operands = [node.left, *node.comparators]
+            pairs = [ast.Compare(left, [op], [right]) for left, op, right in zip(operands, node.ops, operands[1:])]
+            return self.truth(path, ast.BoolOp(ast.And(), pairs), depth + 1)
         if isinstance(node, ast.BoolOp):
             parts = [self.truth(path, v, depth) for v in node.values]
             known = [p for p in parts if p is not None]
@@ -312,16 +322,23 @@ class Guards:
             return value
         return None
 
-    def blocking(self, path, line):
-        """The first enclosing ``if`` (or else-branch) condition that keeps ``line`` of ``path`` from running in this job,
-        as a kind; None when none does or it cannot be told."""
+    def blocking(self, path, line, col=None):
+        """The first enclosing ``if`` (or else-branch) condition that keeps ``line`` of ``path`` (or, with ``col``, the
+        expression starting there) from running in this job, as a kind; None when none does or it cannot be told."""
         tree = self.tree(path)
         if tree is None:
             return None
-        found = self.condition(path, line)
+        found = self.condition(path, line, col)
         return found[0] if found else None
 
-    def condition(self, path, line):
+    def condition(self, path, line, col=None):
+        """See _condition. Unknown (None) when the evaluation fails in any way: unknown never gates."""
+        try:
+            return self._condition(path, line, col)
+        except Exception:  # noqa: BLE001 - a guard this job cannot read is unknown, not a crash
+            return None
+
+    def _condition(self, path, line, col=None):
         """(kind, the condition as written, whether the line needs it true) for the first ``if`` or conditional expression
         that keeps ``line`` from running in this job; None when none does. A conditional expression on one line counts
         when the branch it does not take holds code (not an empty literal)."""
@@ -330,8 +347,10 @@ class Guards:
             return None
         for node in ast.walk(tree):
             if isinstance(node, ast.If):
-                in_body = node.body and node.body[0].lineno <= line <= node.body[-1].end_lineno
-                in_else = node.orelse and node.orelse[0].lineno <= line <= node.orelse[-1].end_lineno
+                # A branch on the condition's own line (``if x: y``) shares a line that runs: never gated.
+                tested = node.test.end_lineno or node.lineno
+                in_body = node.body and tested < node.body[0].lineno <= line <= node.body[-1].end_lineno
+                in_else = node.orelse and tested < node.orelse[0].lineno <= line <= node.orelse[-1].end_lineno
                 if not (in_body or in_else):
                     continue
                 found = self.truth(path, node.test)
@@ -346,7 +365,16 @@ class Guards:
                 skipped = node.body if found[1] is False else node.orelse
                 if _empty(skipped):
                     continue
-                if skipped.lineno <= line <= (skipped.end_lineno or skipped.lineno):
+                if col is not None:
+                    # One expression (a use, a call): gated when it sits inside the skipped branch.
+                    inside = (skipped.lineno, skipped.col_offset) <= (line, col) <= (skipped.end_lineno, skipped.end_col_offset)
+                else:
+                    # A whole line: gated only when it holds nothing but the skipped branch; a line that also holds the
+                    # test or the branch taken runs.
+                    taken = node.orelse if skipped is node.body else node.body
+                    shares = any(part.lineno <= line <= (part.end_lineno or part.lineno) for part in (node.test, taken))
+                    inside = not shares and skipped.lineno <= line <= (skipped.end_lineno or skipped.lineno)
+                if inside:
                     return found[0], ast.unparse(node.test), found[1] is False
         return None
 
@@ -396,7 +424,7 @@ def _uses(guards, files, name, skip_path=None, skip=()):
         for node in ast.walk(tree):
             used = node.id if isinstance(node, ast.Name) else node.attr if isinstance(node, ast.Attribute) else None
             if used == name and not (path == skip_path and any(a <= node.lineno <= b for a, b in skip)):
-                found.append((path, node.lineno))
+                found.append((path, node.lineno, node.col_offset))
     return found
 
 
@@ -412,7 +440,7 @@ def gate(guards, hunk, files, new_classes=None):
     for top, (first, last) in (new_classes or {}).items():
         if any(first <= n <= last for n in hunk['added']):
             uses = _uses(guards, files, top, hunk['path'], [(first, last)])
-            kinds = [guards.blocking(path, at) for path, at in uses]
+            kinds = [guards.blocking(path, at, col) for path, at, col in uses]
             if uses and all(kinds):
                 return kinds[0]
     holder = hunk.get('new_function')
@@ -432,7 +460,7 @@ def gate(guards, hunk, files, new_classes=None):
             if isinstance(node, ast.Call) and ((isinstance(node.func, ast.Name) and node.func.id == name)
                                                or (isinstance(node.func, ast.Attribute) and node.func.attr == name)):
                 calls += 1
-                found = guards.blocking(path, node.lineno)
+                found = guards.blocking(path, node.lineno, node.col_offset)
                 if not found:
                     return None
                 gated.append(found)
@@ -500,7 +528,10 @@ def classify(root, edits, before_src, after_src, recorded, ran_before=(), python
                 state = 'executed-none'
         if state in ('executed-both-sides', 'executed-head-only', 'executed-none', 'new-code'):
             # A changed line under a condition false here did not run, though others of the hunk may have: named.
+            ran_lines = set(h.get('head_ran_lines') or ())
             for n in h['added']:
+                if n in ran_lines:
+                    continue  # it ran: whatever a guard on it says, it is executable here
                 found = guards.condition(path, n)
                 if found:
                     state, line = 'not-executable-here', n
