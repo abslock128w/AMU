@@ -501,7 +501,7 @@ def literal(value):
     return json.dumps(repr(value))
 
 
-def pair(before, after, defaults=None):
+def pair(before, after, defaults=None, differ=None):
     """Calls recorded on each side, paired by (test, function, call index). Returns (rows, counts): a row for each pair
     whose inputs are equal and whose outputs differ. A call with no partner, or whose inputs differ, is counted, never
     compared.
@@ -509,10 +509,12 @@ def pair(before, after, defaults=None):
     ``defaults``: {function: {parameter: (its default before, after)}} for parameters whose default the change alters
     (``literal`` forms, None when not a plain value). Such a parameter is outside the input digest; the inputs count as
     equal when it holds the same value on both sides, or when each side holds its own default (the caller left it out),
-    and the row says which parameters it assumed so."""
+    and the row says which parameters it assumed so. ``differ``: a set that receives the tests of pairs whose inputs
+    differ."""
     left = {(c['test'], c['function'], c['n']): c for c in before if c['test'] != IMPORT}
     right = {(c['test'], c['function'], c['n']): c for c in after if c['test'] != IMPORT}
-    rows, counts, differ = [], dict(paired=0, compared=0, inputs_differ=0, unpaired=0, unreadable=0), set()
+    rows, counts = [], dict(paired=0, compared=0, inputs_differ=0, unpaired=0, unreadable=0)
+    differ = set() if differ is None else differ
     for key in sorted(set(left) | set(right)):
         old, new = left.get(key), right.get(key)
         if old is None or new is None:
@@ -560,7 +562,6 @@ def pair(before, after, defaults=None):
         else:
             unique[key] = dict(row, seen=1)
     counts['differing_calls'] = len(rows)
-    counts['input_tests'] = sorted(differ)
     return list(unique.values()), counts
 
 
