@@ -52,6 +52,7 @@ if _spec_path and _sys.version_info >= (3, 12):
         _rel = {p: _os.path.relpath(p, _root) for p in _files}
         _limit, _per = _spec.get("calls", 20), _spec.get("per_function", 4000)
         _keep = _spec.get("preview", 300)
+        _with_fields = bool(_spec.get("fields"))
         _out = _os.path.join(_spec["out"], "%d.jsonl" % _os.getpid())
         _state = {"test": _os.environ.get("AMU_TEST_CONTEXT") or "<import>", "pytest": False}
         _codes = {}
@@ -155,6 +156,42 @@ if _spec_path and _sys.version_info >= (3, 12):
                             and not isinstance(attribute, (types.FunctionType, staticmethod, classmethod)))
             return False
 
+        _CONTAINERS = ("list", "tuple", "set", "frozenset")
+
+        def _flat(value, path, out):
+            # Every leaf of a fingerprint under its path: container items by index, dict entries by key, object state by
+            # attribute name. Two runs of the same side are compared field by field (pair).
+            if len(out) >= 4000:
+                return
+            if isinstance(value, list) and len(value) == 3 and value[0] in _CONTAINERS and isinstance(value[1], list):
+                out[path + "#len"] = str(value[2])
+                for i, item in enumerate(value[1]):
+                    _flat(item, "%s[%d]" % (path, i), out)
+            elif isinstance(value, list) and len(value) == 3 and value[0] == "dict" and isinstance(value[1], list):
+                out[path + "#len"] = str(value[2])
+                for i, pair in enumerate(value[1]):
+                    key = pair[0] if isinstance(pair[0], str) else "[%d]" % i
+                    _flat(pair[1], path + "/" + key, out)
+            elif (isinstance(value, list) and len(value) == 3 and isinstance(value[0], str)
+                  and (value[1] is None or isinstance(value[1], list)) and isinstance(value[2], list)):
+                out[path + "@"] = value[0]
+                if value[1] is not None:
+                    _flat(value[1], path, out)
+                for slot in value[2]:
+                    if isinstance(slot, list) and len(slot) == 2:
+                        _flat(slot[1], path + "." + str(slot[0]), out)
+            elif isinstance(value, list):
+                for i, item in enumerate(value):
+                    _flat(item, "%s[%d]" % (path, i), out)
+            else:
+                out[path] = value if isinstance(value, str) and len(value) <= 40 else hashlib.sha1(
+                    json.dumps(value, default=str).encode()).hexdigest()[:12]
+
+        def _fields(value):
+            out = {}
+            _flat(value, "", out)
+            return out
+
         def _pack(value):
             text = json.dumps(value, default=str)
             return hashlib.sha1(text.encode()).hexdigest()[:16], text[:_keep]
@@ -229,8 +266,17 @@ if _spec_path and _sys.version_info >= (3, 12):
             finally:
                 _local.busy = False
             # The arguments as the call leaves them, without those held apart (their value is the default itself).
-            stack.append((code, dict(k="call", t=_state["test"], fn=target, n=n, i=digest, ishow=shown, args=kept,
-                                     **({"dp": held} if held else {}))))
+            entry = dict(k="call", t=_state["test"], fn=target, n=n, i=digest, ishow=shown, args=kept,
+                         **({"dp": held} if held else {}))
+            if _with_fields and kept is not None:
+                _local.busy = True
+                try:
+                    entry["fi"] = _fields(_fp(kept))
+                except Exception:
+                    pass
+                finally:
+                    _local.busy = False
+            stack.append((code, entry))
             return None
 
         def _end(code, result):
@@ -249,6 +295,8 @@ if _spec_path and _sys.version_info >= (3, 12):
                 out, shown = _pack([result, after])
                 result_digest, result_shown = _pack(result)
                 record.update(o=out, oshow=result_shown, r=result_digest, ashow=_pack(after)[1])
+                if _with_fields:
+                    record["fr"] = _fields(result)
             except Exception as exc:
                 record.pop("args", None)
                 record.update(o=None, oshow="<" + type(exc).__name__ + ">")
@@ -361,11 +409,13 @@ def supported(python):
     return done.stdout.strip() == 'True'
 
 
-def prepare(folder, tree, lines, targets, extra_plugins=None):
+def prepare(folder, tree, lines, targets, extra_plugins=None, fields=False):
+    """Write the hook, its plugin and the spec into ``folder``. ``lines``: {path: [line, ...]} relative to ``tree``;
+    ``targets``: [(path, qualified name)]. ``fields``: each call also keeps every field of its input and result
+    (``fields_in``/``fields_out``: {path: short digest}), for comparing two runs field by field. Returns the environment
+    a run needs."""
     import os
     extra_plugins = os.environ.get('PYTEST_PLUGINS') if extra_plugins is None else extra_plugins
-    """Write the hook, its plugin and the spec into ``folder``. ``lines``: {path: [line, ...]} relative to ``tree``;
-    ``targets``: [(path, qualified name)]. Returns the environment a run needs."""
     folder = Path(folder)
     (folder/'hook').mkdir(parents=True, exist_ok=True)
     (folder/'out').mkdir(exist_ok=True)
@@ -373,7 +423,7 @@ def prepare(folder, tree, lines, targets, extra_plugins=None):
     (folder/'hook'/'amu_record_plugin.py').write_text(PLUGIN)
     spec = dict(root=str(tree), lines={p: sorted(set(v)) for p, v in lines.items()},
                 targets=[[t[0], t[1], sorted(t[2])] if len(t) > 2 else list(t) for t in targets],
-                out=str(folder/'out'), calls=CALLS, per_function=PER_FUNCTION, preview=PREVIEW)
+                out=str(folder/'out'), calls=CALLS, per_function=PER_FUNCTION, preview=PREVIEW, fields=bool(fields))
     (folder/'spec.json').write_text(json.dumps(spec))
     plugins = ','.join(filter(None, [extra_plugins, 'amu_record_plugin']))
     return dict(AMU_TRUST_PATH=str(folder/'hook'), AMU_REC_SPEC=str(folder/'spec.json'), AMU_REC_ROOT=str(tree),
@@ -427,7 +477,9 @@ def read(folder, tree, cwd=None):
             elif kind == 'call':
                 calls.append(dict(test=test, function=event['fn'], n=event['n'], input=event.get('i'),
                                   output=event.get('o'), input_shown=event.get('ishow', ''), output_shown=event.get('oshow', ''),
-                                  result=event.get('r'), after_shown=event.get('ashow', ''), held=event.get('dp') or {}))
+                                  result=event.get('r'), after_shown=event.get('ashow', ''), held=event.get('dp') or {},
+                                  **({'fields_in': event['fi']} if 'fi' in event else {}),
+                                  **({'fields_out': event['fr']} if 'fr' in event else {})))
             elif kind == 'skip':
                 skipped[event['fn']] = event['why']
     return coverage, calls, skipped
@@ -455,7 +507,7 @@ def pair(before, after, defaults=None):
     and the row says which parameters it assumed so."""
     left = {(c['test'], c['function'], c['n']): c for c in before if c['test'] != IMPORT}
     right = {(c['test'], c['function'], c['n']): c for c in after if c['test'] != IMPORT}
-    rows, counts = [], dict(paired=0, compared=0, inputs_differ=0, unpaired=0, unreadable=0)
+    rows, counts, differ = [], dict(paired=0, compared=0, inputs_differ=0, unpaired=0, unreadable=0), set()
     for key in sorted(set(left) | set(right)):
         old, new = left.get(key), right.get(key)
         if old is None or new is None:
@@ -467,6 +519,7 @@ def pair(before, after, defaults=None):
             continue
         if old['input'] != new['input']:
             counts['inputs_differ'] += 1
+            differ.add(key[0])
             continue
         assumed = []
         changed = (defaults or {}).get(key[1], {})
@@ -502,4 +555,69 @@ def pair(before, after, defaults=None):
         else:
             unique[key] = dict(row, seen=1)
     counts['differing_calls'] = len(rows)
+    counts['input_tests'] = sorted(differ)
     return list(unique.values()), counts
+
+
+INDEX = re.compile(r'\[\d+\]')
+
+
+def pattern(path):
+    """A field's path with its item positions left out: the same attribute of every item counts as one field."""
+    return INDEX.sub('[*]', path)
+
+
+def _field(path):
+    """The field a differing leaf belongs to: an item of a sequence stands for the whole sequence (its length too)."""
+    found = pattern(path)
+    for tail in ('#len', '@'):
+        found = found.removesuffix(tail)
+    while found.endswith('[*]'):
+        found = found[:-3]
+    return found
+
+
+def _within(path, fields):
+    found = pattern(path)
+    return any(found == f or (found.startswith(f) and found[len(f)] in '[/.#@') for f in fields)
+
+
+def unstable_fields(first, second):
+    """Fields that differ between two runs of the same code on the same tests: {function: {'in': {pattern}, 'out':
+    {pattern}}}. Calls are paired by (test, function, call index); a field present in one run's call and not the other's
+    differs too. Only calls recorded with fields count."""
+    one = {(c['test'], c['function'], c['n']): c for c in first if 'fields_out' in c and c['test'] != IMPORT}
+    two = {(c['test'], c['function'], c['n']): c for c in second if 'fields_out' in c and c['test'] != IMPORT}
+    found = {}
+    for key in set(one) & set(two):
+        a, b = one[key], two[key]
+        for side, name in (('in', 'fields_in'), ('out', 'fields_out')):
+            x, y = a.get(name) or {}, b.get(name) or {}
+            for path in set(x) | set(y):
+                if x.get(path) != y.get(path):
+                    found.setdefault(key[1], {'in': set(), 'out': set()})[side].add(_field(path))
+    return found
+
+
+def _masked(fields, drop):
+    import hashlib
+    kept = sorted((path, value) for path, value in fields.items() if not _within(path, drop))
+    return hashlib.sha1(json.dumps(kept).encode()).hexdigest()[:16]
+
+
+def without(calls, unstable):
+    """``calls`` with each input and result digest taken again without the fields ``unstable`` names for its function
+    (unstable_fields). A call recorded without fields is left as it is."""
+    out = []
+    for c in calls:
+        drop = unstable.get(c['function'])
+        if drop is None or 'fields_out' not in c:
+            out.append(c)
+            continue
+        c = dict(c)
+        if c.get('fields_in') is not None and c.get('input'):
+            c['input'] = _masked(c['fields_in'], drop['in'])
+        if c.get('output') is not None:
+            c['result'] = c['output'] = _masked(c['fields_out'], drop['out'])
+        out.append(c)
+    return out
