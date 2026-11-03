@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.10.5",
+  "checkpoint_id": "01M6FRFZTV8MQJHY2603Q6XJTY",
+  "strategy": "manual-commit",
+  "branch": "fix/process-values",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "amu/ci/render.py",
+    "amu/core/evidence.py",
+    "amu/core/record.py",
+    "amu/core/runners.py",
+    "amu/core/shadow.py",
+    "tests/core/test_paired.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 90,
+    "cache_creation_tokens": 211612,
+    "cache_read_tokens": 9262667,
+    "output_tokens": 49261,
+    "api_call_count": 43
+  }
+}
