@@ -19,7 +19,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  AMU_REF: v0.6.0
+  AMU_REF: v0.7.0
   PYTHON: '3.12'  # the python-version your amu-pr.yml uses: the recording is kept per version
 
 jobs:
