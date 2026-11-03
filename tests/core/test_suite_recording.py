@@ -176,3 +176,20 @@ def test_tests_a_cut_off_recording_saw_are_candidates(tmp_path):
     assert not found['base_complete'], found
     assert found['sources'].get('tests/test_shape.py::test_flat') == evidence.CUT, found['sources']
     assert found['static_fallback'], found
+
+
+def test_a_test_the_runner_never_reports_does_not_make_a_run_incomplete(tmp_path):
+    # One id cannot load here and gets no outcome; every test was still given to the runner inside the budget, so the
+    # run is the whole suite: no static fallback.
+    project(tmp_path)
+    diff = ''.join(difflib.unified_diff(IMPL.splitlines(True), BROKEN.splitlines(True), 'a/lib.py', 'b/lib.py'))
+    edits, _ = changes(tmp_path, diff)
+
+    def execute(runner, python, tree, ids, scratch, name, timeout, parts, env=None):
+        return {i: 'passed' for i in ids if 'cannot_load' not in i}, []
+
+    everything = ['tests/test_shape.py::test_nested', 'tests/test_shape.py::test_flat', 'tests/test_gone.py::test_cannot_load']
+    plan = dict(static=[], everything=everything, own=[], key=None, suite=None)
+    found = evidence.run(execute, Runner(), sys.executable, dict(before=tmp_path, after=tmp_path), edits, {'lib.py': IMPL},
+                         {'lib.py': BROKEN}, plan, tmp_path/'scratch', 60, None, 1, 10, {}, None)
+    assert found['base_complete'] and found['mode'] == evidence.ALL and not found['static_fallback'], found

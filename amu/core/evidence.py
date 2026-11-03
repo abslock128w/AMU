@@ -217,11 +217,13 @@ def run(execute, runner, python, trees, edits, before_src, after_src, plan, scra
     env = record.prepare(before_dir, trees['before'], base_watch, plan.get('targets_before') or [])
     coverage_b, calls_b = {}, []
     if base_ids is not None:
-        found_b, problems_b, seconds_b, _ = _chunks(execute, runner, python, trees['before'], base_ids, scratch, 'before',
-                                                   budget, deadline, parts, env, WHOLE if fits else chunk)
+        found_b, problems_b, seconds_b, tried = _chunks(execute, runner, python, trees['before'], base_ids, scratch, 'before',
+                                                       budget, deadline, parts, env, WHOLE if fits else chunk)
         coverage_b, calls_b, skipped_b = record.read(before_dir, trees['before'], runner.cwd(trees['before']))
-        complete = bool(base_ids) and all(i in found_b for i in base_ids) and any(
-            state in ('passed', 'failed', 'skipped') for state in found_b.values())
+        # Complete: every test was given to the runner and no budget stopped it. A test the runner never reports (one
+        # that cannot load here) does not make a run incomplete.
+        complete = bool(base_ids) and all(i in tried for i in base_ids) and not {'timed out', 'wall cap'} & set(problems_b) \
+            and any(state in ('passed', 'failed', 'skipped') for state in found_b.values())
     else:
         found_b, problems_b, seconds_b, complete, skipped_b = {}, [], 0.0, False, {}
     mode = ALL if exploring and complete and seconds_b <= budget * FILL else COVERAGE
@@ -236,6 +238,9 @@ def run(execute, runner, python, trees, edits, before_src, after_src, plan, scra
         h['seen_before_cut'] = []
         if complete or not exploring:
             ran = record.tests_on(coverage_b, h['path'], h['base']) if exploring else known.get(key)
+        elif whole is not None and known.get(key) is not None:
+            ran = known[key]  # this run was cut off; the suite recording speaks for the hunk
+            from_whole.add(key)
         else:
             ran = None
             # A recording cut off by the budget still saw some tests run this hunk: they are candidates too.

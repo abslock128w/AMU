@@ -288,12 +288,12 @@ def record(root, out, python=None, runner=None, shard=None, budget=None, index_d
     with tempfile.TemporaryDirectory(prefix='amu-suite-') as scratch:
         env = hook.prepare(Path(scratch)/'record', root, {}, [], all_files=files)
         began = time.perf_counter()
-        found, problems, seconds, _ = evidence._chunks(shadow.execute, chosen, python, root, ids, scratch, 'suite',
+        found, problems, seconds, tried = evidence._chunks(shadow.execute, chosen, python, root, ids, scratch, 'suite',
                                                        budget or 7 * 24 * 3600.0, None, parts, env, evidence.WHOLE)
         data = compact(Path(scratch)/'record'/'out', root, files, len(ids), chosen.cwd(root))
     data.update(commit=_git(root, 'rev-parse', 'HEAD'), seconds=round(time.perf_counter() - began, 1),
                 ran=sum(state in ('passed', 'failed', 'skipped') for state in found.values()),
-                complete=all(i in found for i in ids), problems=problems, shard=list(shard) if shard else None,
+                complete=all(i in tried for i in ids) and not {'timed out', 'wall cap'} & set(problems), problems=problems, shard=list(shard) if shard else None,
                 runner=chosen.name)
     write(data, out)
     return data
