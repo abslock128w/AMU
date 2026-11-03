@@ -142,6 +142,9 @@ def headline(report, head, ran):
     chosen = report.get('selection_evidence') if isinstance(report.get('selection_evidence'), dict) else {}
     among = (f"ran all {plural(ran, 'test')}" if chosen.get('mode') == 'all of the suite'
              else f"among {plural(ran, 'test')} run")
+    if chosen.get('static_fallback'):
+        among += '; no suite recording for base; selected statically'
+
     if not rows:
         return f"**AMU: 0 flips** at {short(head)}, {among}; which tests ran the changed code was not recorded"
     present = {row['state'] for row in rows}
@@ -448,12 +451,22 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
                        f"merge base and {took.get('after', '?')} s on the head with "
                        f"{code(executed.get('runner') or report.get('runner') or '?')}{budget}.")
         elif ran and chosen:
+            whole = chosen.get('suite') if isinstance(chosen.get('suite'), dict) else None
             parts = [f"{sources[name]} {label}" for name, label in (
+                ('suite recording', f"the suite recording of {short(whole.get('commit') or '')} saw running the code the change "
+                                    f"touches ({whole.get('changed_since', 0)} file(s) changed since that commit)" if whole else ''),
+                ('test file changed since the recording', 'in test files changed since that recording'),
+                ('seen before the recording was cut off', "the merge base's own recording saw running the changed code before "
+                                                          'its budget cut it off'),
                 ('coverage', 'the merge base was seen running in the code the change touches'),
                 ('static graph', 'from the static graph, for changed code no recording covers'),
                 ("the change's own test", 'the pull request adds or edits')) if sources.get(name)]
             seen = (f"the merge base ran {chosen.get('ran_before', '?')} tests with the recorder"
-                    + (', the whole suite' if chosen.get('base_complete') else ', not the whole suite in its budget'))
+                    + (', the whole suite' if chosen.get('base_complete') else
+                       ', chosen from the suite recording' if whole else ', not the whole suite in its budget'))
+            if chosen.get('static_fallback'):
+                seen += ('; no suite recording exists for the merge base or an ancestor (see the scheduled recording workflow '
+                         'in the install note), so the static graph chose')
             out.append(f"{executed.get('ran')} of {executed.get('candidates', '?')} candidate tests on the head and on the merge "
                        f"base, {took.get('after', '?')} s with {code(executed.get('runner') or report.get('runner') or '?')}"
                        f"{budget}. Candidates: {', '.join(parts) or 'none'}; {seen}. Tests outside the candidates were not run.")

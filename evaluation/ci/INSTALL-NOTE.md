@@ -7,7 +7,7 @@ For the owner's introductions to maintainers of Python repositories with slow su
 AMU runs tests on both sides of a pull request, the merge base and the head, and posts one comment listing the tests
 that flip from passing to failing. When the suite fits its budget it runs the whole suite on both sides; otherwise it
 runs the tests it saw running the changed code on the merge base, and the static graph only for code no run covered. It edits that comment on every push, and it
-never blocks a merge. To try it, copy two workflow files from
+never blocks a merge. To try it, copy two workflow files (three for a suite larger than the budget) from
 [github.com/abslock128w/AMU/tree/v0.6.0/ci](https://github.com/abslock128w/AMU/tree/v0.6.0/ci) into
 `.github/workflows/` on your default branch. In `amu-pr.yml`, set both `install:` lines (the AMU job's and the optional
 verify job's) to the command that installs your project and its test dependencies, test runner included: for sympy,
@@ -25,11 +25,23 @@ needs pip 25.1 or later: for attrs, `python -m pip install -U pip && python -m p
   version the change is for.
 - It caches its index, and what it recorded on the merge base, keyed on the merge base. A cache saved by one pull request's job is visible only to that pull
   request's later pushes: a second pull request on the same merge base starts without it.
+- **A suite that does not fit the budget needs a third file, `amu-record.yml`.** It runs nightly and on every push to
+  the default branch, never on pull request code. It runs the whole suite at that commit with a line recorder, split
+  over a job matrix (four shards by default; add shards for a larger suite), and saves which tests ran each line as a
+  cache of the default branch, keyed `amu-suite-<os>-py<version>-<commit>`. Set its `install` step and `PYTHON` to
+  the same values as in `amu-pr.yml`. The pull request job, which needs `actions: read` for this, takes the recording
+  of the nearest ancestor of its merge base and reads it through the diff since then: lines unchanged since the
+  recording keep their tests, changed lines take every test that ran their file, and tests in test files changed since
+  then are added. It never records the suite itself. Without a recording it chooses as before, and the comment's
+  first line says "no suite recording for base; selected statically".
+- **Size and retention of a recording.** Lines run by the same tests share one entry, so a recording is a few
+  megabytes: SIZES. GitHub evicts a cache unused for 7 days and keeps at most 10 GB per repository, so the nightly run
+  keeps one fresh.
 - With `counters: 'true'` it also keeps per-push counts and SHAs (never source or test names) in a hidden part of its
   own comment. Those let us measure whether its flips are real and whether they get fixed before merge. Nothing is
   sent anywhere else.
 
-Remove the two files to uninstall.
+Remove the files to uninstall.
 
 ## Sample comment
 

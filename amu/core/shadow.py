@@ -668,7 +668,8 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
             counts[planned['sources'].get(ident, evidence.STATIC)] = counts.get(planned['sources'].get(ident, evidence.STATIC), 0) + 1
         info['selection_evidence'] = dict(mode=planned['mode'], sources=counts, base_complete=planned['base_complete'],
                                           base_planned=planned['base_planned'], ran_before=sum(s in OUTCOMES for s in states['before'].values()),
-                                          seconds=planned['seconds'])
+                                          seconds=planned['seconds'], static_fallback=planned['static_fallback'],
+                                          suite=planned['suite'])
         info['candidate_sources'] = {i: planned['sources'].get(i, evidence.STATIC) for i in ids}
         info['hunks'] = [dict(h, base_tests=None if h['base_tests'] is None else h['base_tests'][:50],
                               base_test_count=None if h['base_tests'] is None else len(h['base_tests']),

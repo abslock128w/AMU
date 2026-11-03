@@ -1,0 +1,86 @@
+# AMU suite recording: which tests run each line of your code, for the whole suite, at a commit of your default branch.
+# Copy to .github/workflows/amu-record.yml. When your suite does not fit a pull request job's budget, that job reads the
+# recording of the nearest ancestor of its merge base (through the diff since that commit) to choose its tests, instead
+# of the static graph. It never records the suite itself. Nothing here runs pull request code.
+name: AMU suite recording
+
+on:
+  push:
+    branches: [main]  # your default branch
+  schedule:
+    - cron: '23 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: amu-record-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  AMU_REF: v0.6.0
+  PYTHON: '3.12'  # the python-version your amu-pr.yml uses: the recording is kept per version
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        # More shards for a larger suite: each runs every n-th test.
+        shard: [0, 1, 2, 3]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON }}
+      # The command that installs your project and its test dependencies (the same as in amu-pr.yml).
+      - name: Install the project
+        run: python -m pip install -e .
+      - name: Install AMU
+        run: |
+          python -m venv "$RUNNER_TEMP/amu-venv"
+          "$RUNNER_TEMP/amu-venv/bin/python" -m pip install --quiet --disable-pip-version-check \
+            "anti-messup @ git+https://github.com/abslock128w/AMU@${AMU_REF}"
+      - name: Record this shard
+        env:
+          SHARD: ${{ matrix.shard }}
+          SHARDS: ${{ strategy.job-total }}
+        run: |
+          "$RUNNER_TEMP/amu-venv/bin/python" -P -m amu.ci.record_suite --repo . --python "$(python -c 'import sys; print(sys.executable)')" \
+            --shard "$SHARD/$SHARDS" --out "$RUNNER_TEMP/shard-$SHARD.json.gz"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: amu-suite-shard-${{ matrix.shard }}
+          path: ${{ runner.temp }}/shard-${{ matrix.shard }}.json.gz
+          retention-days: 1
+
+  store:
+    needs: record
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: amu-suite-shard-*
+          merge-multiple: true
+          path: shards
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON }}
+      - name: Merge the shards
+        run: |
+          python -m venv "$RUNNER_TEMP/amu-venv"
+          "$RUNNER_TEMP/amu-venv/bin/python" -m pip install --quiet --disable-pip-version-check \
+            "anti-messup @ git+https://github.com/abslock128w/AMU@${AMU_REF}"
+          "$RUNNER_TEMP/amu-venv/bin/python" -P -m amu.ci.record_suite --merge shards/*.json.gz \
+            --out ".amu/suite/${GITHUB_SHA}.json.gz"
+      # Kept as a cache of the default branch, which every pull request job can read. GitHub evicts a cache not used for
+      # 7 days and keeps at most 10 GB per repository, oldest first.
+      - uses: actions/cache/save@v4
+        with:
+          path: .amu/suite
+          key: amu-suite-${{ runner.os }}-py${{ env.PYTHON }}-${{ github.sha }}

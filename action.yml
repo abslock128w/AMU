@@ -52,6 +52,11 @@ inputs:
     description: "'true' records the suite under coverage on the merge base when the cache has no recording."
     required: false
     default: 'false'
+  suite-recording:
+    description: "'true' restores the whole-suite recording of the nearest ancestor of the merge base that the scheduled
+      workflow (ci/amu-record.yml) saved, when there is one. Needs `actions: read`. This job never records the suite."
+    required: false
+    default: 'true'
   cache:
     description: "'false' turns off caching of .amu/index (index and recording), keyed on the merge base."
     required: false
@@ -129,6 +134,35 @@ runs:
           found=$(git merge-base "$AMU_BASE" "$head" 2> /dev/null) || found=""
         }
         echo "sha=$found" >> "$GITHUB_OUTPUT"
+
+    # The whole-suite recording of the nearest ancestor of the merge base, saved by ci/amu-record.yml under
+    # amu-suite-<os>-py<version>-<commit>. Listed and restored only: a missing permission or no recording leaves the
+    # selection as without one, and the comment says so.
+    - name: Find the nearest suite recording
+      id: suite
+      if: inputs.mode != 'verify' && inputs.suite-recording == 'true' && steps.base.outputs.sha != ''
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        AMU_MERGE_BASE: ${{ steps.base.outputs.sha }}
+        AMU_PREFIX: amu-suite-${{ runner.os }}-py${{ inputs.python-version }}-
+      run: |
+        keys=$(gh api "repos/${GITHUB_REPOSITORY}/actions/caches?key=${AMU_PREFIX}&per_page=100" \
+          --jq '.actions_caches[].key' 2> /dev/null) || keys=""
+        best=""; best_n=""
+        for key in $keys; do
+          sha="${key#"$AMU_PREFIX"}"
+          git merge-base --is-ancestor "$sha" "$AMU_MERGE_BASE" 2> /dev/null || continue
+          n=$(git rev-list --count "$sha..$AMU_MERGE_BASE")
+          if [ -z "$best_n" ] || [ "$n" -lt "$best_n" ]; then best="$key"; best_n="$n"; fi
+        done
+        echo "key=$best" >> "$GITHUB_OUTPUT"
+
+    - uses: actions/cache/restore@v4
+      if: inputs.mode != 'verify' && steps.suite.outputs.key != ''
+      with:
+        path: .amu/suite
+        key: ${{ steps.suite.outputs.key }}
 
     # Caches written by a pull request are visible only to that pull request; the base branch's are shared.
     # Only .amu/index (index and recording): a repository may track other files under .amu.

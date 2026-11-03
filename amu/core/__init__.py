@@ -114,7 +114,7 @@ def after_facts(root, facts, edits, gaps):
 
 def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, index_dir=None, run=None, python=None,
             budget=60, include_tests=False, runner=None, only=None, also=None, generate=None, merge_base=None, deadline=None,
-            extras=()):
+            extras=(), suite_only=False):
     """What a change reaches, which existing tests to run first, and what could not be seen.
 
     ``patch`` is unified-diff text, applied or not yet applied to ``root``. Without one,
@@ -364,6 +364,16 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
     def label_of(ident):
         return tests[ident]['path'] + '::' + tests[ident]['qual'].replace('.', '::')
 
+    def everything_of():
+        # The suite as the project defines it: under pytest's ``testpaths`` when it names some.
+        where = runners.pytest_testpaths(root) if chosen.name == 'pytest' else ()
+        return list(dict.fromkeys(run_id for ident in sorted(tests) for run_id in run_ids(label_of(ident))
+                                  if not where or any(run_id == p or run_id.startswith(p + '/') or run_id.startswith(p + '::')
+                                                      for p in where)))
+
+    if suite_only:
+        return everything_of()
+
     inherited = {ident: copies for ident in likely if (copies := inheritors(label_of(ident)))}
     for ident in likely:
         # A test found only by what it says still belongs in the list.
@@ -467,14 +477,13 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         # the static candidates only where no recording speaks. ``static-select`` keeps the static selection alone.
         plan = None
         if 'static-select' not in extras and not only:
-            # The suite as the project defines it: under pytest's ``testpaths`` when it names some.
             where = runners.pytest_testpaths(root) if chosen.name == 'pytest' else ()
-            everything = list(dict.fromkeys(run_id for ident in sorted(tests) for run_id in run_ids(label_of(ident))
-                                            if not where or any(run_id == p or run_id.startswith(p + '/') or run_id.startswith(p + '::')
-                                                                for p in where)))
+            everything = everything_of()
             in_suite = [i for i in wide if not where or any(i == p or i.startswith(p + '/') or i.startswith(p + '::') for p in where)]
+            from . import suite as whole_suite
+            base_commit = merge_base or whole_suite._git(root, 'rev-parse', 'HEAD')
             plan = dict(static=[i for i in in_suite if i not in set(own)], everything=everything, own=own,
-                        key=merge_base or shadow.parent_key(root))
+                        key=merge_base or shadow.parent_key(root), suite=whole_suite.load(root, base_commit))
         prepared = time.perf_counter() - began
         flips, executed, run_gaps = shadow.run(root, edits, wide, python, budget, runner, memo=memo, own=own, base_cache=cache,
                                                functions=functions, generate_with=generate, merge_base=merge_base, deadline=deadline,
@@ -749,3 +758,8 @@ def compact(report, include_tests=False):
         if not any(step() for step in steps):
             break
     return out
+
+
+def suite_ids(root, runner=None, index_dir=None):
+    """Every test id of the project's suite, as a runner can execute them (what a whole-suite run or recording runs)."""
+    return analyze(root, '', run=False, runner=runner, index_dir=index_dir, suite_only=True)
