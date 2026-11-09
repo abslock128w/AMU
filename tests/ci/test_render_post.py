@@ -349,3 +349,27 @@ def test_a_change_to_docstrings_and_comments_only_says_so_on_the_first_line():
     assert render(code, META).splitlines()[0].endswith('1 of 1 changed hunk ran in no test: `django/contrib/contenttypes/models.py:20`')
 
 
+
+
+# jinja 2099: the whole suite was the plan, but 400 of its 679 tests gave no outcome when a chunk's report was lost.
+def test_ran_all_only_when_every_test_of_the_suite_gave_an_outcome():
+    hunks = [dict(path='lib.py', line=2, state='executed-both-sides', why='', tests=3, sample=[], function='f')]
+    lost = "shadow run (after the change, pytest): no outcomes read: AttributeError: 'NoneType' object has no attribute 'get'"
+    report = dict(flips=0, predicted_failures=[], gaps=[lost], hunks=hunks,
+                  executed=dict(EXECUTED, ran=279, candidates=679, unrunnable=400),
+                  selection_evidence=dict(mode='all of the suite', seconds=dict(before=4.0, after=4.1)))
+    first = render(report, META).splitlines()[0]
+    assert 'ran all' not in first, first
+    assert first.startswith("**AMU: 0 flips** at `abcdef1`, ran 279 of 679 tests, 400 gave no outcome: "
+                            "`AttributeError: 'NoneType' object has no attribute 'get'`"), first
+
+
+def test_a_hunk_not_recorded_after_a_cut_off_run_says_why():
+    hunks = [dict(path='lib.py', line=72, state='not-recorded', why='the run stopped after 640 of 13207 candidate tests',
+                  tests=0, sample=[], function='f'),
+             dict(path='lib.py', line=9, state='executed-both-sides', why='', tests=3, sample=[], function='g')]
+    report = dict(flips=0, predicted_failures=[], gaps=[], executed=dict(EXECUTED, ran=640, candidates=13207), hunks=hunks)
+    first = render(report, META).splitlines()[0]
+    assert first.endswith('1 of 2 changed hunks not recorded (the run stopped after 640 of 13207 candidate tests): '
+                          '`lib.py:72`'), first
+    assert 'ran in no test' not in first

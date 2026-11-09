@@ -686,7 +686,8 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
             report['hunks'] = states.classify(root, edits, before_src, after_src, recorded.get('hunks'),
                                               ran_before=[i for i, v in (recorded.get('before') or {}).items() if v in ('passed', 'failed', 'skipped')],
                                               python=python if run else None, production=production,
-                                              own=(executed or {}).get('own') or [])
+                                              own=(executed or {}).get('own') or [],
+                                              incomplete=incomplete(executed or {}, report.get('gaps') or []))
         except (OSError, ValueError, SyntaxError) as exc:
             report.setdefault('gaps', []).append(f'hunk states not read: {type(exc).__name__}')
         if report.get('hunks') and all(row['state'] != 'not-recorded' for row in report['hunks']):
@@ -794,6 +795,19 @@ def compact(report, include_tests=False):
         if not any(step() for step in steps):
             break
     return out
+
+
+def incomplete(executed, gaps):
+    """Why the run on the changed code did not give every candidate test an outcome, or None when it did (a test the
+    runner does not collect, unrunnable anywhere, is not missing). A hunk no run test reached is then not recorded,
+    not "ran in no test"."""
+    ran, total = executed.get('ran') or 0, executed.get('candidates') or 0
+    lost = next((g for g in gaps if 'no outcomes read' in g), None)
+    if lost and total > ran:
+        return f'{total - ran} of {total} candidate tests gave no outcome'
+    if total and ran + (executed.get('unrunnable') or 0) < total:
+        return f'the run stopped after {ran} of {total} candidate tests'
+    return None
 
 
 def suite_ids(root, runner=None, index_dir=None, python=None):
