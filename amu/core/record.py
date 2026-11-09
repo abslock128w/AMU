@@ -64,6 +64,7 @@ if _spec_path and _sys.version_info >= (3, 12):
         _buffer = []
         _local = threading.local()
         _ADDRESS = re.compile(r" at 0x[0-9a-fA-F]+")
+        _CUT = re.compile(r"['\"]\+(\d+)$")
         _GEN = 0x20 | 0x80 | 0x100 | 0x200
 
         def _flush():
@@ -188,6 +189,11 @@ if _spec_path and _sys.version_info >= (3, 12):
             else:
                 out[path] = value if isinstance(value, str) and len(value) <= 40 else hashlib.sha1(
                     json.dumps(value, default=str).encode()).hexdigest()[:12]
+                if isinstance(value, str) and len(value) > 40:
+                    # How long a long text is, apart from what it holds: a text holding a value new in every run can
+                    # still be told from a longer one (unstable_fields, without).
+                    cut = _CUT.search(value)
+                    out[path + "~size"] = cut.group(1) if cut else str(len(value))
 
         def _fields(value):
             out = {}
@@ -554,11 +560,17 @@ def pair(before, after, defaults=None, differ=None):
         # compared: what a call leaves on its arguments is mostly lazy caches filled earlier or later on one side.
         if (old.get('result') or old['output']) != (new.get('result') or new['output']):
             differs = ['result']
+            # Where the two results part, field by field: the text kept of a long result can end before that place.
+            was, now = (side.get('fields_kept', side.get('fields_out')) for side in (old, new))
+            where = [] if was is None or now is None else [
+                dict(path=path, before=was.get(path), after=now.get(path))
+                for path in sorted(set(was) | set(now), key=lambda f: (f.endswith(SIZE), f)) if was.get(path) != now.get(path)]
             rows.append(dict(test=key[0], function=key[1], n=key[2], input=old['input_shown'] + (
                              f" [{', '.join(sorted(assumed))} left at each side's default]" if assumed else ''), differs=differs,
                              before=old['output_shown'], after=new['output_shown'],
                              before_args=old.get('after_shown', ''), after_args=new.get('after_shown', ''),
-                             digest=(old.get('result') or old['output'], new.get('result') or new['output'])))
+                             digest=(old.get('result') or old['output'], new.get('result') or new['output']),
+                             where=where[:WHERE]))
     # The same difference on the same input, seen in several tests or calls, is one row with its count.
     unique = {}
     for row in rows:
@@ -572,6 +584,8 @@ def pair(before, after, defaults=None, differ=None):
 
 
 INDEX = re.compile(r'\[\d+\]')
+WHERE = 3  # differing fields a row names
+SIZE = '~size'  # the entry holding how long a long text field is (the recorder's _flat)
 
 
 def pattern(path):
@@ -607,13 +621,25 @@ def unstable_fields(first, second):
             x, y = a.get(name) or {}, b.get(name) or {}
             for path in set(x) | set(y):
                 if x.get(path) != y.get(path):
-                    found.setdefault(key[1], {'in': set(), 'out': set()})[side].add(_field(path))
+                    entry = found.setdefault(key[1], {'in': set(), 'out': set(), 'sizes': set()})
+                    if path.endswith(SIZE):
+                        if side == 'in':
+                            entry['sizes'].add(pattern(path))
+                    else:
+                        entry[side].add(_field(path))
     return found
 
 
-def _masked(fields, drop):
+def _masked(fields, drop, sizes=None):
+    """The digest of ``fields`` without those under ``drop``. ``sizes`` (inputs only): the size entries that differed
+    between the two runs. The size of a text whose content is left out stays in the digest unless it differed too:
+    two inputs that differ in length are not the same input, whatever per-run value they both hold."""
     import hashlib
-    kept = sorted((path, value) for path, value in fields.items() if not _within(path, drop))
+    def stays(path):
+        if path.endswith(SIZE):
+            return sizes is not None and _within(path[:-len(SIZE)], drop) and pattern(path) not in sizes
+        return not _within(path, drop)
+    kept = sorted((path, value) for path, value in fields.items() if stays(path))
     return hashlib.sha1(json.dumps(kept).encode()).hexdigest()[:16]
 
 
@@ -628,8 +654,9 @@ def without(calls, unstable):
             continue
         c = dict(c)
         if c.get('fields_in') is not None and c.get('input'):
-            c['input'] = _masked(c['fields_in'], drop['in'])
+            c['input'] = _masked(c['fields_in'], drop['in'], drop.get('sizes') or set())
         if c.get('output') is not None:
             c['result'] = c['output'] = _masked(c['fields_out'], drop['out'])
+            c['fields_kept'] = {path: value for path, value in c['fields_out'].items() if not _within(path, drop['out'])}
         out.append(c)
     return out

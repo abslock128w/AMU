@@ -232,3 +232,31 @@ def test_a_nested_function_is_compared_with_its_closure_as_input(tmp_path):
     report = change(tmp_path, {'lib.py': NESTED0, 'tests/test_lib.py': NESTED_TESTS}, {'lib.py': NESTED1})
     rows = [row for row in report['behaviour_differences'] if row['target'].endswith('show')]
     assert rows == [], rows
+
+
+def test_an_input_whose_size_differs_under_a_process_value_is_not_the_same_input(tmp_path):
+    # The argument starts with a value new in every run, so its content differs between the merge base's two runs and
+    # is left out; the rest of it is a file the change edits, so the two sides do not pass the same input. Its size,
+    # equal in the merge base's two runs, says so.
+    lib0 = 'def size(blob):\n    return len(blob)\n'
+    lib1 = 'def size(blob):\n    return len(blob) + 0\n'
+    tests0 = 'import uuid\n\nfrom lib import size\n\n\ndef test_size():\n    assert size(uuid.uuid4().hex + open(__file__).read()) > 0\n'
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests0}, {'lib.py': lib1, 'tests/test_lib.py': tests0 + '# edited\n'})
+    assert report['behaviour_differences'] == [], report['behaviour_differences']
+
+
+# Django 22026: two results alike in the 300 characters kept of each, differing further on, read as the same text on
+# both sides. The row names the field they part at instead.
+def test_results_that_part_past_the_text_kept_name_the_field_they_part_at(tmp_path):
+    lib0 = 'def names(n):\n    return ["item-%03d" % i for i in range(n)] + ["old"]\n'
+    lib1 = 'def names(n):\n    return ["item-%03d" % i for i in range(n)] + ["new"]\n'
+    tests = 'from lib import names\n\n\ndef test_names():\n    assert len(names(60)) == 61\n'
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1})
+    [row] = report['behaviour_differences']
+    assert row['before']['result'] == row['after']['result'], row
+    assert row['where'] == [dict(path='[1][60]', before="'old'", after="'new'")], row
+    from amu.ci.render import render
+    body = render(report, dict(head='a' * 40, merge_base='b' * 40))
+    [line] = [text for text in body.splitlines() if text.startswith('- `lib.py#names`')]
+    assert 'the results differ past the' in line and "as it was `'old'`, as changed `'new'`" in line, line
+    assert 'from character' not in line, line

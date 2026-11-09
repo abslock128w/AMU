@@ -125,6 +125,7 @@ STATE_TEXT = {'executed-none': 'ran in no test', 'not-executable-here': 'cannot 
               'not-code': 'docstring, comment or layout only', 'not-production': 'outside the production code'}
 
 
+INDEX = re.compile(r'\[\d+\]')
 TOKEN = re.compile(r'"(?:[^"\\]|\\.)*"|\'(?:[^\'\\]|\\.)*\'|[^\s,\[\]{}():]+|[\[\]{}(),:]')
 
 
@@ -140,7 +141,10 @@ def change_of(row):
     was = TOKEN.findall(_shown((row.get('before') or {}).get(field) if isinstance(row.get('before'), dict) else None))
     now = TOKEN.findall(_shown((row.get('after') or {}).get(field) if isinstance(row.get('after'), dict) else None))
     ops = difflib.SequenceMatcher(None, was, now, autojunk=False).get_opcodes()
-    return field, tuple((' '.join(was[a:b]), ' '.join(now[c:d])) for tag, a, b, c, d in ops if tag != 'equal')
+    change = tuple((' '.join(was[a:b]), ' '.join(now[c:d])) for tag, a, b, c, d in ops if tag != 'equal')
+    # Results alike in the text kept part further on: the fields they part at tell one such change from another.
+    return field, change or tuple((INDEX.sub('[*]', str(w.get('path'))), str(w.get('before')), str(w.get('after')))
+                                  for w in row.get('where') or [] if isinstance(w, dict))
 
 
 def kinds(behaviour):
@@ -360,6 +364,19 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
             text = '?' if value is None else value if isinstance(value, str) else json.dumps(value, ensure_ascii=False)
             return re.sub(r'\s+', ' ', text).replace('`', "'").strip()
 
+        def shown_field(w):
+            path = str(w.get('path') or '')
+            return ('length of result' + path[:-len('~size')]) if path.endswith('~size') else 'result' + path
+
+        def part(w):
+            # A field holds its text when short, else a digest of it: a digest says only that the value changed.
+            was, now = w.get('before'), w.get('after')
+            if was is None or now is None:
+                return f"{code(shown_field(w), 80)}, {'absent as it was' if was is None else 'absent as changed'}"
+            if any(re.fullmatch(r'[0-9a-f]{12}', str(v)) for v in (was, now)):
+                return f"{code(shown_field(w), 80)}, a long value"
+            return f"{code(shown_field(w), 80)}: as it was {code(str(was), 60)}, as changed {code(str(now), 60)}"
+
         def difference(row):
             differs = [str(f) for f in row.get('differs') or []]
             # Show the first field that differs, cut to a window around where the two versions part: outcomes that
@@ -372,6 +389,14 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
             def window(text):
                 return ('…' if start else '') + text[start:start + 160] + ('…' if len(text) > start + 160 else '')
             where = f", from character {at + 1}" if start else ''
+            if was == now:
+                # The text kept of each result ends before the two part: name the fields they part at instead.
+                fields = [w for w in row.get('where') or [] if isinstance(w, dict)]
+                parts = '; '.join(part(w) for w in fields)
+                return (f"{code(row.get('target', '?'), 120)} on {code(row.get('input', ''), 160)}: the results differ past "
+                        f"the {len(was)} characters kept of each"
+                        + (f", at {parts}" if parts else '') + f" (differs in: {code(', '.join(differs), 60)})"
+                        + (f"; {row['seen']} calls alike" if isinstance(row.get('seen'), int) and row['seen'] > 1 else ''))
             return (f"{code(row.get('target', '?'), 120)} on {code(row.get('input', ''), 160)}: as it was {code(window(was), 170)}, "
                     f"as changed {code(window(now), 170)} (differs in: {code(', '.join(differs), 60)}; shown: {field}{where})"
                     + (f"; {row['seen']} calls alike" if isinstance(row.get('seen'), int) and row['seen'] > 1 else ''))
