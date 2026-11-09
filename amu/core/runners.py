@@ -522,3 +522,110 @@ def interpreter(root):
         if Path(candidate).is_file():
             return str(candidate)
     return sys.executable
+
+
+# The unittest-style runners have no collect-only flag: this hook, loaded as sitecustomize, makes the runner's own
+# test runner write the ids of the suite it built instead of running it, and skips Django's test databases.
+COLLECT_ERROR = re.compile(r'^ERROR(?: collecting)? (\S+\.py)\b')
+COLLECT_HOOK = r'''
+import os as _os, sys as _sys
+_where = _os.environ.get("AMU_COLLECT_OUT")
+if _where:
+    import unittest as _unittest
+
+    def _ids(suite):
+        for test in suite:
+            if isinstance(test, _unittest.TestSuite):
+                yield from _ids(test)
+            elif hasattr(test, "subsuites"):
+                for part in test.subsuites:
+                    yield from _ids(part)
+            else:
+                yield test.id()
+
+    def _run(self, test):
+        with open(_where, "w") as handle:
+            handle.write("\n".join(_ids(test)) + "\n")
+        return _unittest.TestResult()
+    _unittest.TextTestRunner.run = _run
+
+    import importlib.abc as _abc, importlib.machinery as _machinery
+
+    class _Patch(_abc.MetaPathFinder):
+        def find_spec(self, name, path=None, target=None):
+            if name != "django.test.runner":
+                return None
+            _sys.meta_path.remove(self)
+            try:
+                spec = _machinery.PathFinder.find_spec(name, path)
+            finally:
+                _sys.meta_path.insert(0, self)
+            if spec is None or spec.loader is None:
+                return None
+            run = spec.loader.exec_module
+
+            def exec_module(module):
+                run(module)
+                runner = getattr(module, "DiscoverRunner", None)
+                if runner is not None:
+                    runner.setup_databases = lambda self, **kw: None
+                    runner.teardown_databases = lambda self, old_config, **kw: None
+                    runner.run_checks = lambda self, databases: None
+            spec.loader.exec_module = exec_module
+            return spec
+    _sys.meta_path.insert(0, _Patch())
+_here = _os.path.dirname(_os.path.abspath(__file__))
+_kept = list(_sys.path)
+_self = _sys.modules.get("sitecustomize")
+try:
+    _sys.path[:] = [p for p in _sys.path if _os.path.abspath(p or ".") != _here]
+    del _sys.modules["sitecustomize"]
+    import sitecustomize  # noqa: F401  the environment's own, if any
+except Exception:
+    pass
+finally:
+    _sys.path[:] = _kept
+    if "sitecustomize" not in _sys.modules and _self is not None:
+        _sys.modules["sitecustomize"] = _self
+'''
+
+
+def collect(runner, python, tree, timeout=1200, errors=None):
+    """Every test id the runner itself collects in ``tree``, as path::Class::test: inherited and generated test methods
+    included, which reading the source misses. Returns (ids, None), or (None, why) when the runner cannot say.
+    ``errors``, a list when given, gets the test files the runner could not import (their tests are not listed)."""
+    import tempfile
+
+    from .record import PARAMS, identity
+    tree = Path(tree)
+    try:
+        if runner.name == 'pytest':
+            done = subprocess.run([python, '-m', 'pytest', '--collect-only', '-q', '-p', 'no:cacheprovider',
+                                   '--continue-on-collection-errors', *runner.extra],
+                                  cwd=runner.cwd(tree), env=environment(tree), capture_output=True, timeout=timeout,
+                                  stdin=subprocess.DEVNULL)
+            lines = done.stdout.decode(errors='replace').splitlines()
+            if errors is not None:
+                errors.extend(dict.fromkeys(m[1] for line in lines for m in [COLLECT_ERROR.match(line.strip())] if m))
+            named = (PARAMS.sub('', line.strip()) for line in lines)
+            ids = list(dict.fromkeys(n for n in named if '::' in n and ' ' not in n))
+            if not ids:
+                tail = (done.stdout + done.stderr).decode(errors='replace').strip().splitlines()[-1:] or ['no output']
+                return None, f'pytest --collect-only found no test: {tail[0][:200]}'
+            return ids, None
+        with tempfile.TemporaryDirectory(prefix='amu-collect-') as scratch:
+            Path(scratch, 'sitecustomize.py').write_text(COLLECT_HOOK)
+            out = Path(scratch)/'ids.txt'
+            env = environment(tree, dict(AMU_COLLECT_OUT=str(out)))
+            env['PYTHONPATH'] = os.pathsep.join([scratch, env['PYTHONPATH']])
+            done = subprocess.run(runner.command(python, [], None), cwd=runner.cwd(tree), env=env, capture_output=True,
+                                  timeout=timeout, stdin=subprocess.DEVNULL)
+            if not out.is_file():
+                tail = (done.stderr or done.stdout).decode(errors='replace').strip().splitlines()[-1:] or ['no output']
+                return None, f'{runner.name} built no suite to list: {tail[0][:200]}'
+            raw = [line.strip() for line in out.read_text().splitlines() if line.strip()]
+    except (subprocess.TimeoutExpired, OSError) as error:
+        return None, f'{runner.name} did not list its tests: {type(error).__name__}'
+    ids = [identity(r, tree, runner.cwd(tree)) for r in raw if '_FailedTest' not in r and not r.startswith('unittest.')]
+    ids = list(dict.fromkeys(i for i in ids if '::' in i))
+    return (ids, None) if ids else (None, f'{runner.name} listed no test')
