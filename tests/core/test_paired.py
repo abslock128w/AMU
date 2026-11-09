@@ -202,3 +202,33 @@ def test_inputs_that_differ_only_in_a_process_value_are_compared(tmp_path):
     report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1})
     [row] = report['behaviour_differences']
     assert row['target'] == 'lib.py#label' and row['before']['result'] == ['return', "'AB'"], row
+
+
+# A nested function without arguments reads its state from the enclosing call (its closure). The change reorders the
+# calls without changing what the nested function returns for a given state: compared by call order, every pair would
+# differ; compared on equal inputs, with the closure part of the input, none does.
+NESTED0 = textwrap.dedent('''\
+    def labels(words):
+        out = []
+        for word in words:
+            def show():
+                return word.upper()
+            out.append(show())
+        return out
+    ''')
+NESTED1 = textwrap.dedent('''\
+    def labels(words):
+        out = []
+        for word in sorted(words):
+            def show():
+                return str.upper(word)
+            out.append(show())
+        return out
+    ''')
+NESTED_TESTS = 'from lib import labels\n\n\ndef test_labels():\n    assert set(labels(["b", "a", "c"])) == {"A", "B", "C"}\n'
+
+
+def test_a_nested_function_is_compared_with_its_closure_as_input(tmp_path):
+    report = change(tmp_path, {'lib.py': NESTED0, 'tests/test_lib.py': NESTED_TESTS}, {'lib.py': NESTED1})
+    rows = [row for row in report['behaviour_differences'] if row['target'].endswith('show')]
+    assert rows == [], rows
