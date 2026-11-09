@@ -285,3 +285,40 @@ def test_a_script_the_package_does_not_import_is_not_production(tmp_path):
     states = {row['path']: row['state'] for row in report['hunks']}
     assert states == {'lib.py': 'executed-both-sides', 'scripts/gen.py': 'not-production'}, report['hunks']
     assert 'scripts/gen.py' not in body[0] and body[0].endswith('every changed hunk ran on both sides, in up to 1 test'), body[0]
+
+
+TYPED = 'from typing import TYPE_CHECKING\n\nif TYPE_CHECKING:\n    from collections.abc import Mapping\n\n    Box = Mapping[str, int]\nelse:\n    Box = dict\n\n' + LIB
+
+
+def test_a_change_under_type_checking_is_typing_only_not_unrun_code(tmp_path):
+    """An alias or import under ``if TYPE_CHECKING:`` never runs: it is typing, not a hunk no test reached. Added, edited
+    and deleted lines alike; the else branch does run and is not touched by this."""
+    edited = TYPED.replace('Mapping[str, int]', 'Mapping[str, float]')
+    report, body = change(tmp_path, {'lib.py': TYPED, 'tests/test_lib.py': TESTS}, {'lib.py': edited})
+    assert [row['state'] for row in report['hunks']] == ['annotations-only'], report['hunks']
+    assert 'TYPE_CHECKING' in report['hunks'][0]['why'] and body[0].startswith('**AMU: type annotations only**'), body[0]
+
+
+def test_a_deleted_import_under_type_checking_is_typing_only(tmp_path):
+    before = TYPED.replace('    from collections.abc import Mapping\n', '    from collections.abc import Mapping\n    from os import PathLike\n')
+    report, body = change(tmp_path, {'lib.py': before, 'tests/test_lib.py': TESTS}, {'lib.py': TYPED})
+    assert [row['state'] for row in report['hunks']] == ['annotations-only'], report['hunks']
+    assert 'ran in no test' not in body[0], body[0]
+
+
+def test_the_else_of_type_checking_is_code(tmp_path):
+    report, body = change(tmp_path, {'lib.py': TYPED, 'tests/test_lib.py': TESTS}, {'lib.py': TYPED.replace('Box = dict\n', 'Box = list\n')})
+    assert [row['state'] for row in report['hunks']] == ['executed-both-sides'], report['hunks']
+
+
+def test_a_new_function_only_the_changes_own_test_calls_ran_only_there_not_at_import(tmp_path):
+    # Existing code names the new function, so it is not "new code only"; its def line runs at import, and its body
+    # runs in the test the change adds and in no other.
+    other = 'import lib\n\n\ndef outline(w, h):\n    return lib.perimeter(w, h)\n'
+    after = LIB + '\n\ndef perimeter(w, h):\n    return 2 * (w + h)\n'
+    tests = TESTS + '\n\ndef test_perimeter():\n    from lib import perimeter\n    assert perimeter(1, 2) == 6\n'
+    report, body = change(tmp_path, {'lib.py': LIB, 'other.py': 'import lib\n', 'tests/test_lib.py': TESTS},
+                          {'lib.py': after, 'other.py': other, 'tests/test_lib.py': tests})
+    row = next(r for r in report['hunks'] if r['path'] == 'lib.py')
+    assert row['state'] == 'executed-head-only' and row['tests'] == 1 and row['why'] == '', row
+    assert "ran only in the pull request's own tests: `lib.py:" in body[0], body[0]
