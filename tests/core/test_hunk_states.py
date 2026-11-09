@@ -309,3 +309,16 @@ def test_a_deleted_import_under_type_checking_is_typing_only(tmp_path):
 def test_the_else_of_type_checking_is_code(tmp_path):
     report, body = change(tmp_path, {'lib.py': TYPED, 'tests/test_lib.py': TESTS}, {'lib.py': TYPED.replace('Box = dict\n', 'Box = list\n')})
     assert [row['state'] for row in report['hunks']] == ['executed-both-sides'], report['hunks']
+
+
+def test_a_new_function_only_the_changes_own_test_calls_ran_only_there_not_at_import(tmp_path):
+    # Existing code names the new function, so it is not "new code only"; its def line runs at import, and its body
+    # runs in the test the change adds and in no other.
+    other = 'import lib\n\n\ndef outline(w, h):\n    return lib.perimeter(w, h)\n'
+    after = LIB + '\n\ndef perimeter(w, h):\n    return 2 * (w + h)\n'
+    tests = TESTS + '\n\ndef test_perimeter():\n    from lib import perimeter\n    assert perimeter(1, 2) == 6\n'
+    report, body = change(tmp_path, {'lib.py': LIB, 'other.py': 'import lib\n', 'tests/test_lib.py': TESTS},
+                          {'lib.py': after, 'other.py': other, 'tests/test_lib.py': tests})
+    row = next(r for r in report['hunks'] if r['path'] == 'lib.py')
+    assert row['state'] == 'executed-head-only' and row['tests'] == 1 and row['why'] == '', row
+    assert "ran only in the pull request's own tests: `lib.py:" in body[0], body[0]

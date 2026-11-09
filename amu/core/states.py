@@ -555,7 +555,10 @@ def classify(root, edits, before_src, after_src, recorded, ran_before=(), python
             state = 'not-recorded'
         if state is None and (head or h.get('head_at_import')):
             both = [t for t in head if t in ran_before]
-            if both or h.get('head_at_import'):
+            # Lines a test ran, when no test with an outcome before the change is among them, ran in the change's own
+            # tests: the def line running at import on the way does not make that "at import".
+            called = bool(h.get('head_ran_lines')) and bool(head)
+            if both or (h.get('head_at_import') and not called):
                 state, tests = 'executed-both-sides', both
                 why = 'at import' if h.get('head_at_import') and not both else ''
             else:
