@@ -285,3 +285,27 @@ def test_a_script_the_package_does_not_import_is_not_production(tmp_path):
     states = {row['path']: row['state'] for row in report['hunks']}
     assert states == {'lib.py': 'executed-both-sides', 'scripts/gen.py': 'not-production'}, report['hunks']
     assert 'scripts/gen.py' not in body[0] and body[0].endswith('every changed hunk ran on both sides, in up to 1 test'), body[0]
+
+
+TYPED = 'from typing import TYPE_CHECKING\n\nif TYPE_CHECKING:\n    from collections.abc import Mapping\n\n    Box = Mapping[str, int]\nelse:\n    Box = dict\n\n' + LIB
+
+
+def test_a_change_under_type_checking_is_typing_only_not_unrun_code(tmp_path):
+    """An alias or import under ``if TYPE_CHECKING:`` never runs: it is typing, not a hunk no test reached. Added, edited
+    and deleted lines alike; the else branch does run and is not touched by this."""
+    edited = TYPED.replace('Mapping[str, int]', 'Mapping[str, float]')
+    report, body = change(tmp_path, {'lib.py': TYPED, 'tests/test_lib.py': TESTS}, {'lib.py': edited})
+    assert [row['state'] for row in report['hunks']] == ['annotations-only'], report['hunks']
+    assert 'TYPE_CHECKING' in report['hunks'][0]['why'] and body[0].startswith('**AMU: type annotations only**'), body[0]
+
+
+def test_a_deleted_import_under_type_checking_is_typing_only(tmp_path):
+    before = TYPED.replace('    from collections.abc import Mapping\n', '    from collections.abc import Mapping\n    from os import PathLike\n')
+    report, body = change(tmp_path, {'lib.py': before, 'tests/test_lib.py': TESTS}, {'lib.py': TYPED})
+    assert [row['state'] for row in report['hunks']] == ['annotations-only'], report['hunks']
+    assert 'ran in no test' not in body[0], body[0]
+
+
+def test_the_else_of_type_checking_is_code(tmp_path):
+    report, body = change(tmp_path, {'lib.py': TYPED, 'tests/test_lib.py': TESTS}, {'lib.py': TYPED.replace('Box = dict\n', 'Box = list\n')})
+    assert [row['state'] for row in report['hunks']] == ['executed-both-sides'], report['hunks']

@@ -104,6 +104,26 @@ def _same_code(before, after):
         return False
 
 
+def _typing_only(before, after, hunk):
+    """Whether every changed line of the hunk sits in the body of an ``if TYPE_CHECKING:`` (added lines on the new side,
+    removed lines on the old): code a type checker reads and no run executes, like an annotation."""
+    def guarded(text, numbers):
+        lines = text.splitlines()
+        numbers = [n for n in numbers if n <= len(lines) and lines[n - 1].strip()]
+        if not numbers:
+            return None
+        try:
+            tree = ast.parse(text)
+        except (SyntaxError, ValueError):
+            return False
+        spans = [(node.body[0].lineno, node.body[-1].end_lineno) for node in ast.walk(tree) if isinstance(node, ast.If) and node.body
+                 and (node.test.id if isinstance(node.test, ast.Name) else node.test.attr if isinstance(node.test, ast.Attribute) else '') == 'TYPE_CHECKING'
+                 and node.body[0].lineno > (node.test.end_lineno or node.lineno)]
+        return all(any(a <= n <= b for a, b in spans) for n in numbers)
+    sides = [guarded(after, hunk.get('added') or []), guarded(before, hunk.get('removed') or [])]
+    return False not in sides and True in sides
+
+
 def _one_hunk(before, hunk_rows, old_start):
     """``before`` with one block of a hunk applied: its rows (removed, added, and the unchanged lines between them, when
     the block holds several changes) from ``old_start`` on."""
@@ -505,6 +525,8 @@ def classify(root, edits, before_src, after_src, recorded, ran_before=(), python
             state = 'not-code'
         elif before and _same_without_annotations(before, applied):
             state, why = 'annotations-only', 'type annotations only'
+        elif _typing_only(before, after, h):
+            state, why = 'annotations-only', 'under `if TYPE_CHECKING:`, read by type checkers only'
         elif before and len(h.get('runs') or []) > 1:
             # A block that mixes a docstring or comment edit with a code edit: the quiet part is not code, and the code
             # part gets its own state below.
