@@ -216,7 +216,13 @@ if _spec_path and _sys.version_info >= (3, 12):
                 count += 1
             if code.co_flags & 0x08:
                 names.append(code.co_varnames[count])
-            return [frame.f_locals.get(n) for n in names]
+            values = [frame.f_locals.get(n) for n in names]
+            # A nested function also reads its free variables: they are input as much as its arguments are, so two
+            # calls with different closure state are not the same input. ``__class__`` (zero-argument super) is not.
+            free = [n for n in code.co_freevars if n != "__class__"]
+            if free:
+                values.append({"<closure>": {n: frame.f_locals.get(n) for n in free}})
+            return values
 
         def _start(code, offset):
             known = _codes.get(code)
