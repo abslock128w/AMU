@@ -1,0 +1,254 @@
+diff --git a/.mailmap b/.mailmap
+index <sha>..<sha> 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -1733,6 +1733,7 @@ Uwe L. Korn <uwelk@xhochy.com>
+ V1krant <<sha>+V1krant@users.noreply.github.com>
+ Vaibhav Bhat <vaibhav.bhat2097@gmail.com> VBhat97 <vaibhav.bhat2097@gmail.com>
+ Vaishnav Damani <vaishnavdamani3496@gmail.com>
++Vaishnavi Mishra <mishravaishnavi136@gmail.com> VaishnaviMishra9 <mishravaishnavi136@gmail.com>
+ Valeriia Gladkova <valeriia.gladkova@gmail.com>
+ Vamshikrishna Ramasamy <<sha>+vamshikrishnaramasamy@users.noreply.github.com> Vamshikrishna Ramasamy <vamshikrishnaramasamy@Vamshikrishnas-MacBook-Air-3.local>
+ Varenyam Bhardwaj <varenyambhardwaj123@gmail.com>
+diff --git a/doc/src/explanation/modules/physics/mechanics/autolev_parser.rst b/doc/src/explanation/modules/physics/mechanics/autolev_parser.rst
+index <sha>..<sha> 100644
+--- a/doc/src/explanation/modules/physics/mechanics/autolev_parser.rst
++++ b/doc/src/explanation/modules/physics/mechanics/autolev_parser.rst
+@@ -87,7 +87,6 @@ The parser can be used as follows::
+     >>> print(sympy_code)
+     import sympy.physics.mechanics as me
+     import sympy as sm
+-    import math as m
+     import numpy as np
+ 
+     q1, q2, u1, u2 = me.dynamicsymbols('q1 q2 u1 u2')
+diff --git a/sympy/parsing/autolev/__init__.py b/sympy/parsing/autolev/__init__.py
+index <sha>..<sha> 100644
+--- a/sympy/parsing/autolev/__init__.py
++++ b/sympy/parsing/autolev/__init__.py
+@@ -50,7 +50,6 @@ def parse_autolev(autolev_code, include_numeric=False):
+     >>> print(parse_autolev(my_al_text, include_numeric=True))
+     import sympy.physics.mechanics as _me
+     import sympy as _sm
+-    import math as m
+     import numpy as _np
+     <BLANKLINE>
+     q1, q2, u1, u2 = _me.dynamicsymbols('q1 q2 u1 u2')
+diff --git a/sympy/parsing/autolev/_listener_autolev_antlr.py b/sympy/parsing/autolev/_listener_autolev_antlr.py
+index <sha>..<sha> 100644
+--- a/sympy/parsing/autolev/_listener_autolev_antlr.py
++++ b/sympy/parsing/autolev/_listener_autolev_antlr.py
+@@ -442,8 +442,6 @@ def __init__(self, include_numeric=False):
+             # Write code to import common dependencies.
+             self.output_code.append("import sympy.physics.mechanics as _me\n")
+             self.output_code.append("import sympy as _sm\n")
+-            self.output_code.append("import math as m\n")
+-            self.output_code.append("import numpy as _np\n")
+             self.output_code.append("\n")
+ 
+             # Just a store for the max degree variable in a line.
+diff --git a/sympy/parsing/autolev/_parse_autolev_antlr.py b/sympy/parsing/autolev/_parse_autolev_antlr.py
+index <sha>..<sha> 100644
+--- a/sympy/parsing/autolev/_parse_autolev_antlr.py
++++ b/sympy/parsing/autolev/_parse_autolev_antlr.py
+@@ -36,4 +36,11 @@ def parse_autolev(autolev_code, include_numeric):
+         my_listener = MyListener(include_numeric)
+         walker = antlr4.ParseTreeWalker()
+         walker.walk(my_listener, tree)
+-        return "".join(my_listener.output_code)
++        code = "".join(my_listener.output_code)
++        if "_np." in code:
++            code = code.replace(
++                "import sympy as _sm\n",
++                "import sympy as _sm\nimport numpy as _np\n",
++                1,
++            )
++        return code
+diff --git a/sympy/parsing/autolev/test-examples/pydy-example-repo/chaos_pendulum.py b/sympy/parsing/autolev/test-examples/pydy-example-repo/chaos_pendulum.py
+index <sha>..<sha> 100644
+--- a/sympy/parsing/autolev/test-examples/pydy-example-repo/chaos_pendulum.py
++++ b/sympy/parsing/autolev/test-examples/pydy-example-repo/chaos_pendulum.py
+@@ -1,6 +1,5 @@
+ import sympy.physics.mechanics as _me
+ import sympy as _sm
+-import math as m
+ import numpy as _np
+ 
+ g, lb, w, h = _sm.symbols('g lb w h', real=True)
+diff --git a/sympy/parsing/autolev/test-examples/pydy-example-repo/double_pendulum.py b/sympy/parsing/autolev/test-examples/pydy-example-repo/double_pendulum.py
+index <sha>..<sha> 100644
+--- a/sympy/parsing/autolev/test-examples/pydy-example-repo/double_pendulum.py
++++ b/sympy/parsing/autolev/test-examples/pydy-example-repo/double_pendulum.py
+@@ -1,6 +1,5 @@
+ import sympy.physics.mechanics as _me
+ import sympy as _sm
+-import math as m
+ import numpy as _np
+ 
+ q1, q2, u1, u2 = _me.dynamicsymbols('q1 q2 u1 u2')
+diff --git a/sympy/parsing/autolev/test-examples/pydy-example-repo/mass_spring_damper.py b/sympy/parsing/autolev/test-examples/pydy-example-repo/mass_spring_damper.py
+index <sha>..<sha> 100644
+--- a/sympy/parsing/autolev/test-examples/pydy-example-repo/mass_spring_damper.py
++++ b/sympy/parsing/autolev/test-examples/pydy-example-repo/mass_spring_damper.py
+@@ -1,6 +1,5 @@
+ import sympy.physics.mechanics as _me
+ import sympy as _sm
+-import math as m
+ import numpy as _np
+ 
+ m, k, b, g = _sm.symbols('m k b g', real=True)
+diff --git a/sympy/parsing/autolev/test-examples/pydy-example-repo/non_min_pendulum.py b/sympy/parsing/autolev/test-examples/pydy-example-repo/non_min_pendulum.py
+index <sha>..<sha> 100644
+--- a/sympy/parsing/autolev/test-examples/pydy-example-repo/non_min_pendulum.py
++++ b/sympy/parsing/autolev/test-examples/pydy-example-repo/non_min_pendulum.py
+@@ -1,7 +1,5 @@
+ import sympy.physics.mechanics as _me
+ import sympy as _sm
+-import math as m
+-import numpy as _np
+ 
+ q1, q2 = _me.dynamicsymbols('q1 q2')
+ q1_d, q2_d = _me.dynamicsymbols('q1_ q2_', 1)
+diff --git a/sympy/parsing/autolev/test-examples/ruletest1.py b/sympy/parsing/autolev/test-examples/ruletest1.py
+index <sha>..<sha> 100644
+--- a/sympy/parsing/autolev/test-examples/ruletest1.py
++++ b/sympy/parsing/autolev/test-examples/ruletest1.py
+@@ -1,7 +1,5 @@
+ import sympy.physics.mechanics as _me
+ import sympy as _sm
+-import math as m
+-import numpy as _np
+ 
+ f = _sm.S(3)
+ g = _sm.S(9.81)
+diff --git a/sympy/parsing/autolev/test-examples/ruletest10.py b/sympy/parsing/autolev/test-examples/ruletest10.py
+index <sha>..<sha> 100644
+--- a/sympy/parsing/autolev/test-examples/ruletest10.py
++++ b/sympy/parsing/autolev/test-examples/ruletest10.py
+@@ -1,7 +1,5 @@
+ import sympy.physics.mechanics as _me
+ import sympy as _sm
+-import math as m
+-import numpy as _np
+ 
+ x, y = _me.dynamicsymbols('x y')
+ a, b = _sm.symbols('a b', real=True)
+diff --git a/sympy/parsing/autolev/test-examples/ruletest11.py b/sympy/parsing/autolev/test-examples/ruletest11.py
+index <sha>..<sha> 100644
+--- a/sympy/parsing/autolev/test-examples/ruletest11.py
++++ b/sympy/parsing/autolev/test-examples/ruletest11.py
+@@ -1,7 +1,5 @@
+ import sympy.physics.mechanics as _me
+ import sympy as _sm
+-import math as m
+-import numpy as _np
+ 
+ x, y = _me.dynamicsymbols('x y')
+ a11, a12, a21, a22, b1, b2 = _sm.symbols('a11 a12 a21 a22 b1 b2', real=True)
+diff --git a/sympy/parsing/autolev/test-examples/ruletest12.py b/sympy/parsing/autolev/test-examples/ruletest12.py
+index <sha>..<sha> 100644
+--- a/sympy/parsing/autolev/test-examples/ruletest12.py
++++ b/sympy/parsing/autolev/test-examples/ruletest12.py
+@@ -1,6 +1,5 @@
+ import sympy.physics.mechanics as _me
+ import sympy as _sm
+-import math as m
+ import numpy as _np
+ 
+ x, y = _me.dynamicsymbols('x y')
+diff --git a/sympy/parsing/autolev/test-examples/ruletest2.py b/sympy/parsing/autolev/test-examples/ruletest2.py
+index <sha>..<sha> 100644
+--- a/sympy/parsing/autolev/test-examples/ruletest2.py
++++ b/sympy/parsing/autolev/test-examples/ruletest2.py
+@@ -1,7 +1,5 @@
+ import sympy.physics.mechanics as _me
+ import sympy as _sm
+-import math as m
+-import numpy as _np
+ 
+ x1, x2 = _me.dynamicsymbols('x1 x2')
+ f1 = x1*x2+3*x1**2
+diff --git a/sympy/parsing/autolev/test-examples/ruletest3.py b/sympy/parsing/autolev/test-examples/ruletest3.py
+index <sha>..<sha> 100644
+--- a/sympy/parsing/autolev/test-examples/ruletest3.py
++++ b/sympy/parsing/autolev/test-examples/ruletest3.py
+@@ -1,7 +1,5 @@
+ import sympy.physics.mechanics as _me
+ import sympy as _sm
+-import math as m
+-import numpy as _np
+ 
+ frame_a = _me.ReferenceFrame('a')
+ frame_b = _me.ReferenceFrame('b')
+diff --git a/sympy/parsing/autolev/test-examples/ruletest4.py b/sympy/parsing/autolev/test-examples/ruletest4.py
+index <sha>..<sha> 100644
+--- a/sympy/parsing/autolev/test-examples/ruletest4.py
++++ b/sympy/parsing/autolev/test-examples/ruletest4.py
+@@ -1,7 +1,5 @@
+ import sympy.physics.mechanics as _me
+ import sympy as _sm
+-import math as m
+-import numpy as _np
+ 
+ frame_a = _me.ReferenceFrame('a')
+ frame_b = _me.ReferenceFrame('b')
+diff --git a/sympy/parsing/autolev/test-examples/ruletest5.py b/sympy/parsing/autolev/test-examples/ruletest5.py
+index <sha>..<sha> 100644
+--- a/sympy/parsing/autolev/test-examples/ruletest5.py
++++ b/sympy/parsing/autolev/test-examples/ruletest5.py
+@@ -1,7 +1,5 @@
+ import sympy.physics.mechanics as _me
+ import sympy as _sm
+-import math as m
+-import numpy as _np
+ 
+ x, y = _me.dynamicsymbols('x y')
+ x_d, y_d = _me.dynamicsymbols('x_ y_', 1)
+diff --git a/sympy/parsing/autolev/test-examples/ruletest6.py b/sympy/parsing/autolev/test-examples/ruletest6.py
+index <sha>..<sha> 100644
+--- a/sympy/parsing/autolev/test-examples/ruletest6.py
++++ b/sympy/parsing/autolev/test-examples/ruletest6.py
+@@ -1,7 +1,5 @@
+ import sympy.physics.mechanics as _me
+ import sympy as _sm
+-import math as m
+-import numpy as _np
+ 
+ q1, q2 = _me.dynamicsymbols('q1 q2')
+ x, y, z = _me.dynamicsymbols('x y z')
+diff --git a/sympy/parsing/autolev/test-examples/ruletest7.py b/sympy/parsing/autolev/test-examples/ruletest7.py
+index <sha>..<sha> 100644
+--- a/sympy/parsing/autolev/test-examples/ruletest7.py
++++ b/sympy/parsing/autolev/test-examples/ruletest7.py
+@@ -1,7 +1,5 @@
+ import sympy.physics.mechanics as _me
+ import sympy as _sm
+-import math as m
+-import numpy as _np
+ 
+ x, y = _me.dynamicsymbols('x y')
+ x_d, y_d = _me.dynamicsymbols('x_ y_', 1)
+diff --git a/sympy/parsing/autolev/test-examples/ruletest8.py b/sympy/parsing/autolev/test-examples/ruletest8.py
+index <sha>..<sha> 100644
+--- a/sympy/parsing/autolev/test-examples/ruletest8.py
++++ b/sympy/parsing/autolev/test-examples/ruletest8.py
+@@ -1,7 +1,5 @@
+ import sympy.physics.mechanics as _me
+ import sympy as _sm
+-import math as m
+-import numpy as _np
+ 
+ frame_a = _me.ReferenceFrame('a')
+ c1, c2, c3 = _sm.symbols('c1 c2 c3', real=True)
+diff --git a/sympy/parsing/autolev/test-examples/ruletest9.py b/sympy/parsing/autolev/test-examples/ruletest9.py
+index <sha>..<sha> 100644
+--- a/sympy/parsing/autolev/test-examples/ruletest9.py
++++ b/sympy/parsing/autolev/test-examples/ruletest9.py
+@@ -1,7 +1,5 @@
+ import sympy.physics.mechanics as _me
+ import sympy as _sm
+-import math as m
+-import numpy as _np
+ 
+ frame_n = _me.ReferenceFrame('n')
+ frame_a = _me.ReferenceFrame('a')

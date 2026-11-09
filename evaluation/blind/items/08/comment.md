@@ -1,0 +1,100 @@
+**AMU: 0 flips** at `<sha>`, ran all 638 tests; 1 of 28 changed hunks ran in no test: `typing-examples/baseline_examples.py:193`
+
+### Tests this pull request updated (10)
+
+Pass on the merge base and fail on the head as they were before this pull request edited them; as edited, they pass. The edit is in the diff, so they are not flips.
+
+- `tests/test_make.py::TestTransformAttrs::test_no_modifications`
+- `tests/test_make.py::TestTransformAttrs::test_normal`
+- `tests/test_make.py::TestTransformAttrs::test_empty`
+- `tests/test_make.py::TestTransformAttrs::test_transforms_to_attribute`
+- `tests/test_make.py::TestTransformAttrs::test_conflicting_defaults`
+- `tests/test_make.py::TestTransformAttrs::test_kw_only`
+- `tests/test_make.py::TestTransformAttrs::test_these`
+- `tests/test_make.py::TestClassBuilder::test_repr`
+- `tests/test_make.py::TestClassBuilder::test_returns_self`
+- `tests/test_make.py::TestClassBuilder::test_handles_missing_meta_on_class`
+
+### Behaviour differs on the same input (0)
+
+Each changed function was recorded in each side's own run of the same tests, on the objects that side's code built. Calls are paired by test and by their order in it, and compared only where both inputs are equal: 971 pair(s) compared, 2863 not compared because the inputs differ, 53 call(s) without a partner, of 4 of 4 changed function(s). The tests behind a difference ran again on each side, and the merge base's twice, the second time in another checkout: 1 field differed between the merge base's two runs, so they belong to the process or checkout and are left out of the comparison.
+
+### Change evidence: the pull request's own tests (0)
+
+The 17 tests this pull request adds or edits ran on the head and on the merge base `<sha>` with the tests as the pull request leaves them.
+
+### New tests for new code (15)
+
+Fail on the merge base only because what they use is not there yet (an ImportError, AttributeError or NameError on a name this pull request adds), and pass on the head. They show the new code exists, not what it does, so they are not counted as change evidence.
+
+- `tests/test_make.py::TestTransformAttrs::test_no_modifications` (`ImportError on ClassProps`)
+- `tests/test_make.py::TestTransformAttrs::test_normal` (`ImportError on ClassProps`)
+- `tests/test_make.py::TestTransformAttrs::test_empty` (`ImportError on ClassProps`)
+- `tests/test_make.py::TestTransformAttrs::test_transforms_to_attribute` (`ImportError on ClassProps`)
+- `tests/test_make.py::TestTransformAttrs::test_conflicting_defaults` (`ImportError on ClassProps`)
+- `tests/test_make.py::TestTransformAttrs::test_kw_only` (`ImportError on ClassProps`)
+- `tests/test_make.py::TestTransformAttrs::test_these` (`ImportError on ClassProps`)
+- `tests/test_make.py::TestAttributes::test_sets_attrs_props` (`ImportError on ClassProps`)
+- `tests/test_make.py::TestAttributes::test_sets_attrs_props_defaults` (`ImportError on ClassProps`)
+- `tests/test_make.py::TestClassBuilder::test_repr` (`ImportError on ClassProps`)
+- `tests/test_make.py::TestClassBuilder::test_returns_self` (`ImportError on ClassProps`)
+- `tests/test_make.py::TestClassBuilder::test_handles_missing_meta_on_class` (`ImportError on ClassProps`)
+- `tests/test_next_gen.py::TestProps::test_define_props_custom` (`ImportError on ClassProps`)
+- `tests/test_next_gen.py::TestProps::test_define_props_defaults` (`ImportError on ClassProps`)
+- `tests/test_next_gen.py::test_inspect_not_attrs_class` (`ImportError on ClassProps`)
+
+1 test do not load on the merge base for a reason AMU did not read, and pass on the head: not counted as change evidence.
+
+### Renamed or moved, nothing else (1)
+
+The same code under a new name or in a new place: refactor, behaviour preserved if tests pass.
+
+- `tests/test_slots.py#test_slots_cached_property_works_on_frozen_isntances` -> `tests/test_slots.py#test_slots_cached_property_works_on_frozen_instances` (rename)
+
+### Changed hunks (28)
+
+What ran each hunk of the change, from each side's own run:
+
+- `src/attr/_make.py:15`: ran on both sides (`at import`)
+- `src/attr/_make.py:384`: ran on both sides (325 tests)
+- `src/attr/_make.py:440` in `_transform_attrs`: ran on both sides (323 tests)
+- `src/attr/_make.py:460` in `_transform_attrs`: ran on both sides (322 tests)
+- `src/attr/_make.py:670`: ran on both sides (325 tests)
+- `src/attr/_make.py:678` in `_ClassBuilder.__init__`: ran on both sides (325 tests)
+- `src/attr/_make.py:684` in `_ClassBuilder.__init__`: ran on both sides (321 tests)
+- `src/attr/_make.py:689` in `_ClassBuilder.__init__`: ran on both sides (321 tests)
+- `src/attr/_make.py:705` in `_ClassBuilder.__init__`: ran on both sides (321 tests)
+- `src/attr/_make.py:712` in `_ClassBuilder.__init__`: ran on both sides (321 tests)
+- `src/attr/_make.py:719` in `_ClassBuilder.__init__`: ran on both sides (311 tests)
+- `src/attr/_make.py:735` in `_ClassBuilder.__init__`: ran on both sides (45 tests)
+- `src/attr/_make.py:746` in `_ClassBuilder.__init__`: ran on both sides (321 tests)
+- `src/attr/_make.py:797` in `_ClassBuilder.build_class`: ran on both sides (161 tests)
+- `src/attr/_make.py:1436` in `attrs.<locals>.wrap`: ran on both sides (328 tests)
+- `src/attr/_make.py:1447` in `attrs.<locals>.wrap`: ran on both sides (327 tests)
+- `src/attr/_make.py:1517` in `attrs.<locals>.wrap`: ran on both sides (326 tests)
+- `src/attr/_make.py:1536` in `attrs.<locals>.wrap`: ran on both sides (321 tests)
+- `src/attr/_make.py:1541` in `attrs.<locals>.wrap`: ran on both sides (319 tests)
+- `src/attr/_make.py:1547` in `attrs.<locals>.wrap`: ran on both sides (318 tests)
+- `src/attr/_make.py:1552` in `attrs.<locals>.wrap`: ran on both sides (318 tests)
+- `src/attr/_make.py:2801`: ran on both sides (326 tests)
+- `src/attr/_next_gen.py:20`: ran on both sides (`at import`)
+- `src/attr/_next_gen.py:649` in `astuple`: ran on both sides (`at import`)
+- `src/attrs/__init__.py:25`: ran on both sides (`at import`)
+- `src/attrs/__init__.py:35`: ran on both sides (`at import`)
+- `src/attrs/__init__.py:63`: ran on both sides (`at import`)
+- `typing-examples/baseline_examples.py:193` in `accessing_from_attrs`: ran in no test
+
+### Gaps (2)
+
+Not run or not seen:
+
+- `Skipped 3 non-Python file(s)`
+- `replaying the change's own tests (before the change, pytest): no outcomes read: ImportError: cannot import name 'ClassProps' from 'attr._make' (/tmp/amu-shadow-7oflg7k1/tree/src/attr/_make.py)`
+
+### What ran
+
+All 638 tests of the suite on both sides, no selection: 10.6 s on the merge base and 12.2 s on the head with `pytest`, budget 300 s per side.
+
+<sub>AMU `0.7.0` from `v0.7.0`, report `<sha>`. Full JSON is in the workflow run's artifact.</sub>
+
+<!-- amu-ci-comment v1 -->

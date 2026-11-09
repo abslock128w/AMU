@@ -36,6 +36,8 @@ posted comments), `reports.tar.xz` (each job's report.json and meta.json, and th
 
 ## Numbers
 
+Labels: rubric v3 (rubric in `evaluation/PROTOCOL.md`).
+
 | | jinja, v0.7.0 |
 |---|---:|
 | Comments posted | 15 of 15 |
@@ -52,6 +54,8 @@ merge base and passes on the head, so it reproduces the bug or the missing behav
 are also real and intended: `TemplateNotFound` now names the search path.
 
 ## Per pull request
+
+Labels: rubric v3 (rubric in `evaluation/PROTOCOL.md`).
 
 | Fork PR | Upstream | Job | Open to comment | First line right | Adds | False rows | Real rows | Raise missed / catchers | Tests with an outcome / suite |
 |---|---|---:|---:|---|---|---:|---:|---:|---:|

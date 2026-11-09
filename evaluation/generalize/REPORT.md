@@ -60,6 +60,8 @@ mode, candidate sources, rows, raise catchers and misses, first line, seconds), 
 
 ## Numbers
 
+Labels: rubric Before: v1; v0.6.0: v2 (rubric in `evaluation/PROTOCOL.md`).
+
 | | Before (performance-fixes, v0.5.0 + #77–#79, #83) | v0.6.0 (`43d8b82`) |
 |---|---:|---:|
 | First line right | 42 of 47 | 43 of 47 (4 fixed, 3 regressed) |
@@ -76,6 +78,8 @@ own input now, instead of one row per kind. The 16 rows of before are all among 
 (`make_default_options_response`) is gone.
 
 First lines changed against the prior labels:
+
+Labels: rubric Before: v1; Now: v2 (rubric in `evaluation/PROTOCOL.md`).
 
 | PR | Before | Now |
 |---|---|---|

@@ -1,0 +1,27 @@
+**AMU: adds new code only** at `<sha>`; 1 test ran it; 1 test of the pull request's own fail on the merge base and pass on the head
+
+### Behaviour differs on the same input (0)
+
+Each changed function was recorded in each side's own run of the same tests, on the objects that side's code built. Calls are paired by test and by their order in it, and compared only where both inputs are equal: 0 pair(s) compared, 0 not compared because the inputs differ, 0 call(s) without a partner, of 0 of 0 changed function(s). The tests behind a difference ran again on each side, and the merge base's twice, the second time in another checkout: 0 fields differed between the merge base's two runs, so they belong to the process or checkout and are left out of the comparison.
+
+### Change evidence: the pull request's own tests (1)
+
+The 1 test this pull request adds or edits ran on the head and on the merge base `<sha>` with the tests as the pull request leaves them.
+
+Fail on the merge base and pass on the head, so the change does what they check. Each failure on the merge base repeated in a fresh process.
+
+- `sympy/printing/tests/test_latex.py::test_latex_ordinals`
+
+### Changed hunks (1)
+
+What ran each hunk of the change, from each side's own run:
+
+- `sympy/printing/latex.py:2541`: new code, no existing callers (1 test)
+
+### What ran
+
+2 of 2 candidate tests on the head and on the merge base, 3.0 s with `pytest`, budget 300 s per side. Candidates: 1 the suite recording of `<sha>` saw running the code the change touches (1 file(s) changed since that commit), 1 the pull request adds or edits; the merge base ran 1 tests with the recorder, chosen from the suite recording. Tests outside the candidates were not run.
+
+<sub>AMU `0.7.0` from `<sha>`, report `<sha>`. Full JSON is in the workflow run's artifact.</sub>
+
+<!-- amu-ci-comment v1 -->

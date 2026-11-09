@@ -69,6 +69,8 @@ mode, candidate sources, suite recording, rows, excluded fields, raise catchers 
 
 ## Numbers
 
+Labels: rubric v0.6.0: v2, except "41 with the same rubric", which is v3; v0.7.0: v3 (rubric in `evaluation/PROTOCOL.md`).
+
 | | v0.6.0 (`43d8b82`) | v0.7.0 (`43bcd672`) |
 |---|---:|---:|
 | First line right | 43 of 47 (41 with the same rubric) | 40 of 47 (3 fixed, 6 wrong) |
@@ -101,6 +103,8 @@ None of the exclusion is a per-value rule. The excluded fields are those that di
 base, one of them under another hash seed.
 
 First lines changed against v0.6.0 (all in `labels.json`):
+
+Labels: rubric v0.6.0: v2; v0.7.0: v3 (rubric in `evaluation/PROTOCOL.md`).
 
 | PR | v0.6.0 | v0.7.0 |
 |---|---|---|

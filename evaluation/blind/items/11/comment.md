@@ -1,0 +1,39 @@
+**AMU: 0 flips** at `<sha>`, among 41 tests run; 1 of 1 changed hunk ran only in the pull request's own tests: `django/utils/csp.py:120`; 2 tests of the pull request's own fail on the merge base and pass on the head
+
+### Behaviour differs on the same input (0)
+
+Each changed function was recorded in each side's own run of the same tests, on the objects that side's code built. Calls are paired by test and by their order in it, and compared only where both inputs are equal: 14 pair(s) compared, 28 not compared because the inputs differ, 8 call(s) without a partner, of 1 of 1 changed function(s). The tests behind a difference ran again on each side, and the merge base's twice, the second time in another checkout: 2 fields differed between the merge base's two runs, so they belong to the process or checkout and are left out of the comparison.
+
+### Change evidence: the pull request's own tests (2)
+
+The 8 tests this pull request adds or edits ran on the head and on the merge base `<sha>` with the tests as the pull request leaves them.
+
+Fail on the merge base and pass on the head, so the change does what they check. Each failure on the merge base repeated in a fresh process.
+
+- `tests/utils_tests/test_csp.py::CSPBuildPolicyTest::test_config_with_nonce_only_directive_without_nonce`
+- `tests/utils_tests/test_csp.py::CSPBuildPolicyTest::test_config_with_nonce_only_directive_as_string`
+
+2 tests pass on the merge base too, so they show nothing about the change.
+
+### Changed hunks (1)
+
+What ran each hunk of the change, from each side's own run:
+
+- `django/utils/csp.py:120` in `build_policy`: ran only in the pull request's own tests (3 tests)
+
+### Gaps (4)
+
+Not run or not seen:
+
+- `1 test(s) the change adds or edits pass on the code before it and fail after it: tests/middleware/test_csp.py::CSPMiddlewareTest::test_csp_mixed_directive_omits_unused_nonce`
+- `3 test(s) the change adds or edits fail before and after it: tests/middleware/test_csp.py::CSPMiddlewareTest::test_csp_nonce_only_directive_emits_none, tests/middleware/test_csp.py::CSPMiddlewareTest::test_csp_nonce_only_directive_as_string_emits_none, tests/middleware/test_csp.py::CSPMiddlewareTes…`
+- `Skipped 2 non-Python file(s)`
+- `tests/test_runner_apps/tagged/tests_syntax_error.py: SyntaxError`
+
+### What ran
+
+41 of 41 candidate tests on the head and on the merge base, 1.2 s with `django-runtests`, budget 300 s per side. Candidates: 33 the suite recording of `<sha>` saw running the code the change touches (0 file(s) changed since that commit), 8 the pull request adds or edits; the merge base ran 33 tests with the recorder, chosen from the suite recording. Tests outside the candidates were not run.
+
+<sub>AMU `0.7.0` from `<sha>`, report `<sha>`. Full JSON is in the workflow run's artifact.</sub>
+
+<!-- amu-ci-comment v1 -->

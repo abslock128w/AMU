@@ -24,6 +24,8 @@ Two workflow files run on every push to a pull request, and AMU edits one commen
 
 The set is 17 Django, 20 sympy and 10 Flask pull requests merged after the earlier evaluation windows (`performance-v042/freeze.json`). Each comment was hand-labelled (`performance-fixes/labels.json`).
 
+Labels: rubric v1 (rubric in `evaluation/PROTOCOL.md`).
+
 | | v0.4.2 | v0.5.1 |
 |---|---:|---:|
 | First line correct | 37 of 47 | 42 of 47 |
@@ -36,6 +38,8 @@ The set is 17 Django, 20 sympy and 10 Flask pull requests merged after the earli
 Every "adds something" case is change evidence: the pull request's own test fails on the base and passes on the head, which project CI never shows, or a behaviour row the description does not mention. No pull request in the set broke an existing test, so the flip count, AMU's main signal, was never tested here. The earlier 100-PR retrospective found 0 false flips among 30 counted (`retrospective/REPORT.md`).
 
 ## The five pull requests where the first line is still wrong
+
+Labels: rubric v1 (rubric in `evaluation/PROTOCOL.md`).
 
 | PR | Cause |
 |---|---|

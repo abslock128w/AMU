@@ -1,0 +1,95 @@
+{
+ "labeler": "blind",
+ "rubric": "v3",
+ "items": 20,
+ "fields": {
+  "first_line_correct": {
+   "agree": 19,
+   "of": 20,
+   "kappa": 0.64
+  },
+  "adds": {
+   "agree": 16,
+   "of": 20,
+   "kappa": 0.6
+  },
+  "false_rows": {
+   "agree": 19,
+   "of": 20,
+   "kappa": null
+  },
+  "real_rows": {
+   "agree": 19,
+   "of": 20,
+   "kappa": null
+  },
+  "any_false_row": {
+   "agree": 19,
+   "of": 20,
+   "kappa": 0.0
+  },
+  "any_real_row": {
+   "agree": 20,
+   "of": 20,
+   "kappa": null
+  }
+ },
+ "disagreements": [
+  {
+   "item": "04",
+   "source": "47:sympy#30797",
+   "fields": {
+    "adds": {
+     "existing": "nothing",
+     "blind": "something"
+    }
+   },
+   "note": "Ran-in-no-test is plausible for the antlr-dependent parser and example files; it shows the real parser change is untested here, which the diff does not show."
+  },
+  {
+   "item": "06",
+   "source": "47:flask#5812",
+   "fields": {
+    "adds": {
+     "existing": "nothing",
+     "blind": "noise"
+    },
+    "false_rows": {
+     "existing": 0,
+     "blind": 13
+    },
+    "real_rows": {
+     "existing": 366,
+     "blind": 353
+    }
+   },
+   "note": "Named no-test hunks ctx.py:235/242/251 are the has_app_context docstring rewrite interleaved with deleted AppContext code that ran on base; 366 mostly intended rows (request_context returns AppContext) bury the report, and the app_context rows show equal previews in the app's view_functions and cannot be traced."
+  },
+  {
+   "item": "14",
+   "source": "47:sympy#29693",
+   "fields": {
+    "first_line_correct": {
+     "existing": true,
+     "blind": false
+    },
+    "adds": {
+     "existing": "something",
+     "blind": "nothing"
+    }
+   },
+   "note": "'adds new code only' is wrong: _print_OrdinalZero is found by name dispatch and changes latex(OrdinalZero()) output; the test's base failure is evident from the diff."
+  },
+  {
+   "item": "20",
+   "source": "httpx:httpx#3571",
+   "fields": {
+    "adds": {
+     "existing": "something",
+     "blind": "nothing"
+    }
+   },
+   "note": "The f-string fix sits in a 'pragma: no cover' branch, so the diff already shows it is unreached."
+  }
+ ]
+}

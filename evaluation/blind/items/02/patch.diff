@@ -1,0 +1,252 @@
+diff --git a/django/core/checks/security/base.py b/django/core/checks/security/base.py
+index <sha>..<sha> 100644
+--- a/django/core/checks/security/base.py
++++ b/django/core/checks/security/base.py
+@@ -1,7 +1,7 @@
+ from django.conf import settings
+ from django.core.checks import Error, Tags, Warning, register
+ from django.core.exceptions import ImproperlyConfigured
+-from django.utils.csp import CSP
++from django.utils.csp import _csp_policy_contains_nonce
+ 
+ CROSS_ORIGIN_OPENER_POLICY_VALUES = {
+     "same-origin",
+@@ -176,20 +176,6 @@ def _csp_middleware():
+     )
+ 
+ 
+-def _csp_policy_contains_nonce(policy):
+-    try:
+-        policy_values = policy.values()
+-    except AttributeError:
+-        return False
+-    for values in policy_values:
+-        try:
+-            if values == CSP.NONCE or CSP.NONCE in values:
+-                return True
+-        except TypeError:
+-            pass
+-    return False
+-
+-
+ def _csp_context_processor_configured():
+     context_processor = "django.template.context_processors.csp"
+     return any(
+diff --git a/django/middleware/csp.py b/django/middleware/csp.py
+index <sha>..<sha> 100644
+--- a/django/middleware/csp.py
++++ b/django/middleware/csp.py
+@@ -1,6 +1,6 @@
+ from django.conf import settings
+ from django.middleware import MiddlewareMixin
+-from django.utils.csp import CSP, LazyNonce, build_policy
++from django.utils.csp import CSP, LazyNonce, _csp_policy_contains_nonce, build_policy
+ 
+ 
+ def get_nonce(request):
+@@ -30,6 +30,15 @@ class ContentSecurityPolicyMiddleware(MiddlewareMixin):
+             # This allows for views to set their own CSP headers as needed.
+             # An empty config means CSP headers are not added to the response.
+             if config and header not in response:
++                if (
++                    response.streaming
++                    and nonce is not None
++                    and _csp_policy_contains_nonce(config)
++                ):
++                    # Streaming content may first access the lazy nonce after
++                    # the CSP header is built. Generate it now so the header
++                    # includes the nonce used in the body.
++                    str(nonce)
+                 response.headers[str(header)] = build_policy(config, nonce)
+ 
+         return response
+diff --git a/django/utils/csp.py b/django/utils/csp.py
+index <sha>..<sha> 100644
+--- a/django/utils/csp.py
++++ b/django/utils/csp.py
+@@ -126,3 +126,17 @@ def build_policy(config, nonce=None):
+         policy.append(f"{directive} {rendered_value}".rstrip())
+ 
+     return "; ".join(policy)
++
++
++def _csp_policy_contains_nonce(policy):
++    try:
++        policy_values = policy.values()
++    except AttributeError:
++        return False
++    for values in policy_values:
++        try:
++            if values == CSP.NONCE or CSP.NONCE in values:
++                return True
++        except TypeError:
++            pass
++    return False
+diff --git a/docs/ref/csp.txt b/docs/ref/csp.txt
+index <sha>..<sha> 100644
+--- a/docs/ref/csp.txt
++++ b/docs/ref/csp.txt
+@@ -136,7 +136,8 @@ with the CSP specification.
+ 
+       Represents ``'unsafe-inline'``. Allows execution of inline scripts,
+       styles, and ``javascript:`` URLs. Generally discouraged, especially for
+-      scripts.
++      scripts. Ignored by browsers when the same directive contains a nonce or
++      hash source. See :ref:`csp-nonce-generation` for details.
+ 
+    .. attribute:: WASM_UNSAFE_EVAL
+ 
+@@ -300,15 +301,43 @@ but the header will lack the required source expression. In this case, the
+ browser will block the inline script or style (or report it for report-only
+ configurations).
+ 
+-Nonce generation and caching
+-----------------------------
++.. _csp-nonce-generation:
+ 
+-Django's nonce generation is **lazy**: the middleware only generates a nonce if
+-``{{ csp_nonce }}`` is accessed during template rendering. This avoids
+-unnecessary work for pages that do not use nonces.
++Nonce generation
++----------------
+ 
+-However, because nonces must be unique per request, extra care is needed when
+-using full-page caching (e.g., Django's cache middleware, CDN caching). Serving
++Django's nonce generation is **lazy** for non-streaming responses: the
++middleware generates a nonce when it is accessed while constructing the
++response, for example by ``{{ csp_nonce }}`` or :ttag:`csp_nonce_attr`.
++
++For streaming responses (:class:`~django.http.StreamingHttpResponse` and
++:class:`~django.http.FileResponse`), the middleware generates a nonce before
++adding a CSP header for a policy configured with
++:attr:`~django.utils.csp.CSP.NONCE`. The response body may access the nonce
++after the header has been sent, so the header will include a nonce even if the
++body never uses it.
++
++.. admonition:: Using ``UNSAFE_INLINE`` with ``NONCE`` in streaming responses
++
++    For streaming responses, Django includes a nonce in the CSP header even if
++    the response body does not use it. Browsers ignore ``'unsafe-inline'`` in
++    ``script-src`` and ``style-src`` directives containing a nonce, which may
++    block inline scripts, styles, and event handlers.
++
++    To allow style attributes or inline event handlers while using nonces for
++    ``<style>`` or ``<script>`` elements, configure ``style-src-attr`` or
++    ``script-src-attr``, respectively.
++
++.. versionchanged:: 6.2
++
++    CSP nonces are now generated before headers are added to streaming
++    responses, even if the response body never uses the nonce.
++
++Nonce and caching
++-----------------
++
++Because nonces must be unique per request, extra care is needed when using
++full-page caching (e.g., Django's cache middleware, CDN caching). Serving
+ cached responses with previously generated nonces may result in reuse across
+ users and requests. Although such responses may still appear to work (since the
+ nonce in the CSP header and HTML content match), reuse defeats the purpose of
+diff --git a/docs/releases/6.2.txt b/docs/releases/6.2.txt
+index <sha>..<sha> 100644
+--- a/docs/releases/6.2.txt
++++ b/docs/releases/6.2.txt
+@@ -343,6 +343,11 @@ Requests and responses
+   ``django.contrib.admindocs.middleware.XViewMiddleware`` affected, as they did
+   not implement ``process_request()`` or ``process_response()``.
+ 
++* Streaming responses now include configured CSP nonces in their headers, even
++  if those nonces are unused in the response body. Previously allowed inline
++  scripts or styles without a matching nonce may be blocked or trigger
++  violation reports. See :ref:`csp-nonce-generation` for details.
++
+ Tests
+ -----
+ 
+diff --git a/tests/middleware/test_csp.py b/tests/middleware/test_csp.py
+index <sha>..<sha> 100644
+--- a/tests/middleware/test_csp.py
++++ b/tests/middleware/test_csp.py
+@@ -1,8 +1,14 @@
++from io import BytesIO
++
+ from playwright_tests import PlaywrightTestCase
+ from utils_tests.test_csp import basic_config, basic_policy
+ 
+ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+-from django.test import SimpleTestCase
++from django.http import FileResponse, HttpResponse, StreamingHttpResponse
++from django.middleware.csp import ContentSecurityPolicyMiddleware
++from django.template import Context, Template
++from django.template.context_processors import csp
++from django.test import RequestFactory, SimpleTestCase
+ from django.test.utils import modify_settings, override_settings
+ from django.utils.csp import CSP
+ 
+@@ -173,6 +179,66 @@ class CSPMiddlewareWithDecoratedViewsTest(SimpleTestCase):
+         )
+ 
+ 
++class CSPStreamingTests(SimpleTestCase):
++    def test_nonce_generated_during_streaming_is_in_header(self):
++        request = RequestFactory().get("/")
++        template = Template('<script nonce="{{ csp_nonce }}"></script>')
++
++        def view(request):
++            def content():
++                yield template.render(Context(csp(request)))
++
++            return StreamingHttpResponse(content())
++
++        csp_setting = {
++            "default-src": [CSP.SELF],
++            "script-src": [CSP.NONCE],
++        }
++        for csp_header, setting in [
++            (CSP.HEADER_ENFORCE, {"SECURE_CSP": csp_setting}),
++            (CSP.HEADER_REPORT_ONLY, {"SECURE_CSP_REPORT_ONLY": csp_setting}),
++        ]:
++            with self.subTest(csp_header=csp_header):
++                with override_settings(**setting):
++                    response = ContentSecurityPolicyMiddleware(view)(request)
++                    body = b"".join(response.streaming_content).decode()
++                    nonce = body.split('nonce="', 1)[1].split('"', 1)[0]
++                    self.assertTrue(nonce)
++                    self.assertIn(f"'nonce-{nonce}'", response[csp_header])
++
++    @override_settings(
++        SECURE_CSP={
++            "style-src": [CSP.SELF, CSP.UNSAFE_INLINE, CSP.NONCE],
++        }
++    )
++    def test_unused_nonce_with_unsafe_inline(self):
++        body = b'<div style="color: red">Hello</div>'
++        responses = (
++            HttpResponse(body),
++            StreamingHttpResponse(iter([body])),
++            FileResponse(BytesIO(body), content_type="text/html"),
++        )
++
++        for response in responses:
++            with self.subTest(response=type(response).__name__):
++                request = RequestFactory().get("/")
++                try:
++                    response = ContentSecurityPolicyMiddleware(
++                        lambda request: response
++                    )(request)
++                    header = response[CSP.HEADER_ENFORCE]
++                    self.assertIn("'unsafe-inline'", header)
++                    if response.streaming:
++                        self.assertRegex(
++                            header,
++                            r"^style-src 'self' 'unsafe-inline' 'nonce-[^']+'$",
++                        )
++                    else:
++                        self.assertEqual(header, "style-src 'self' 'unsafe-inline'")
++                finally:
++                    response.close()
++
++
+ @override_settings(
+     ROOT_URLCONF="middleware.urls",
+ )

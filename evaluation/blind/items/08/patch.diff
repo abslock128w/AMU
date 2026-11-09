@@ -1,0 +1,1164 @@
+diff --git a/changelog.d/1454.change.md b/changelog.d/1454.change.md
+new file mode 100644
+index <sha>..<sha>
+--- /dev/null
++++ b/changelog.d/1454.change.md
+@@ -0,0 +1,5 @@
++Added a new **experimental** way to inspect classes:
++
++`attrs.inspect(cls)` returns the _effective_ class-wide parameters that were used by *attrs* to construct the class.
++
++The returned class is the same data structure that *attrs* uses internally to decide how to construct the final class.
+diff --git a/docs/api.rst b/docs/api.rst
+index <sha>..<sha> 100644
+--- a/docs/api.rst
++++ b/docs/api.rst
+@@ -190,6 +190,24 @@ Helpers
+       >>> attrs.has(object)
+       False
+ 
++.. autofunction:: attrs.inspect
++
++   For example:
++
++   .. doctest::
++
++      >>> @define
++      ... class CInspect:
++      ...     pass
++      >>> attrs.inspect(CInspect)  # doctest: +ELLIPSIS
++      ClassProps(is_exception=False, is_slotted=True, has_weakref_slot=True, is_frozen=False, kw_only=<KeywordOnly.NO: 'no'>, collected_fields_by_mro=True, added_init=True, added_repr=True, added_eq=True, added_ordering=False, hashability=<Hashability.UNHASHABLE: 'unhashable'>, added_match_args=True, added_str=False, added_pickling=True, on_setattr_hook=<function pipe.<locals>.wrapped_pipe at ...>, field_transformer=None)
++
++.. autoclass:: attrs.ClassProps
++.. autoclass:: attrs.ClassProps.Hashability
++   :members: HASHABLE, HASHABLE_CACHED, UNHASHABLE, LEAVE_ALONE
++.. autoclass:: attrs.ClassProps.KeywordOnly
++   :members: NO, YES, FORCE
++
+ .. autofunction:: attrs.resolve_types
+ 
+     For example:
+diff --git a/docs/how-does-it-work.md b/docs/how-does-it-work.md
+index <sha>..<sha> 100644
+--- a/docs/how-does-it-work.md
++++ b/docs/how-does-it-work.md
+@@ -39,7 +39,7 @@ No magic, no meta programming, no expensive introspection at runtime.
+ Everything until this point happens exactly *once* when the class is defined.
+ As soon as a class is done, it's done.
+ And it's just a regular Python class like any other, except for a single `__attrs_attrs__` attribute that *attrs* uses internally.
+-Much of the information is accessible via {func}`attrs.fields` and other functions which can be used for introspection or for writing your own tools and decorators on top of *attrs* (like {func}`attrs.asdict`).
++Much of the information is accessible via {func}`attrs.inspect`, {func}`attrs.fields` and other functions which can be used for introspection or for writing your own tools and decorators on top of *attrs* (like {func}`attrs.asdict`).
+ 
+ And once you start instantiating your classes, *attrs* is out of your way completely.
+ 
+diff --git a/src/attr/_make.py b/src/attr/_make.py
+index <sha>..<sha> 100644
+--- a/src/attr/_make.py
++++ b/src/attr/_make.py
+@@ -12,6 +12,7 @@ import linecache
+ import sys
+ import types
+ import unicodedata
++import weakref
+ 
+ from collections.abc import Callable, Mapping
+ from functools import cached_property
+@@ -380,7 +381,6 @@ def _transform_attrs(
+     these,
+     auto_attribs,
+     kw_only,
+-    force_kw_only,
+     collect_by_mro,
+     field_transformer,
+ ) -> _Attributes:
+@@ -437,8 +437,14 @@ def _transform_attrs(
+         )
+ 
+     fca = Attribute.from_counting_attr
++    no = ClassProps.KeywordOnly.NO
+     own_attrs = [
+-        fca(attr_name, ca, kw_only, anns.get(attr_name))
++        fca(
++            attr_name,
++            ca,
++            kw_only is not no,
++            anns.get(attr_name),
++        )
+         for attr_name, ca in ca_list
+     ]
+ 
+@@ -451,7 +457,7 @@ def _transform_attrs(
+             cls, {a.name for a in own_attrs}
+         )
+ 
+-    if kw_only and force_kw_only:
++    if kw_only is ClassProps.KeywordOnly.FORCE:
+         own_attrs = [a.evolve(kw_only=True) for a in own_attrs]
+         base_attrs = [a.evolve(kw_only=True) for a in base_attrs]
+ 
+@@ -661,40 +667,31 @@ class _ClassBuilder:
+         self,
+         cls: type,
+         these,
+-        slots,
+-        frozen,
+-        weakref_slot,
+-        getstate_setstate,
+-        auto_attribs,
+-        kw_only,
+-        force_kw_only,
+-        cache_hash,
+-        is_exc,
+-        collect_by_mro,
+-        on_setattr,
+-        has_custom_setattr,
+-        field_transformer,
++        auto_attribs: bool,
++        props: ClassProps,
++        has_custom_setattr: bool,
+     ):
+         attrs, base_attrs, base_map = _transform_attrs(
+             cls,
+             these,
+             auto_attribs,
+-            kw_only,
+-            force_kw_only,
+-            collect_by_mro,
+-            field_transformer,
++            props.kw_only,
++            props.collected_fields_by_mro,
++            props.field_transformer,
+         )
+ 
+         self._cls = cls
+-        self._cls_dict = dict(cls.__dict__) if slots else {}
++        self._cls_dict = dict(cls.__dict__) if props.is_slotted else {}
+         self._attrs = attrs
+         self._base_names = {a.name for a in base_attrs}
+         self._base_attr_map = base_map
+         self._attr_names = tuple(a.name for a in attrs)
+-        self._slots = slots
+-        self._frozen = frozen
+-        self._weakref_slot = weakref_slot
+-        self._cache_hash = cache_hash
++        self._slots = props.is_slotted
++        self._frozen = props.is_frozen
++        self._weakref_slot = props.has_weakref_slot
++        self._cache_hash = (
++            props.hashability is ClassProps.Hashability.HASHABLE_CACHED
++        )
+         self._has_pre_init = bool(getattr(cls, "__attrs_pre_init__", False))
+         self._pre_init_has_args = False
+         if self._has_pre_init:
+@@ -705,20 +702,21 @@ class _ClassBuilder:
+             self._pre_init_has_args = len(pre_init_signature.parameters) > 1
+         self._has_post_init = bool(getattr(cls, "__attrs_post_init__", False))
+         self._delete_attribs = not bool(these)
+-        self._is_exc = is_exc
+-        self._on_setattr = on_setattr
++        self._is_exc = props.is_exception
++        self._on_setattr = props.on_setattr_hook
+ 
+         self._has_custom_setattr = has_custom_setattr
+         self._wrote_own_setattr = False
+ 
+         self._cls_dict["__attrs_attrs__"] = self._attrs
++        self._cls_dict["__attrs_props__"] = props
+ 
+-        if frozen:
++        if props.is_frozen:
+             self._cls_dict["__setattr__"] = _frozen_setattrs
+             self._cls_dict["__delattr__"] = _frozen_delattrs
+ 
+             self._wrote_own_setattr = True
+-        elif on_setattr in (
++        elif self._on_setattr in (
+             _DEFAULT_ON_SETATTR,
+             setters.validate,
+             setters.convert,
+@@ -734,18 +732,18 @@ class _ClassBuilder:
+                     break
+             if (
+                 (
+-                    on_setattr == _DEFAULT_ON_SETATTR
++                    self._on_setattr == _DEFAULT_ON_SETATTR
+                     and not (has_validator or has_converter)
+                 )
+-                or (on_setattr == setters.validate and not has_validator)
+-                or (on_setattr == setters.convert and not has_converter)
++                or (self._on_setattr == setters.validate and not has_validator)
++                or (self._on_setattr == setters.convert and not has_converter)
+             ):
+                 # If class-level on_setattr is set to convert + validate, but
+                 # there's no field to convert or validate, pretend like there's
+                 # no on_setattr.
+                 self._on_setattr = None
+ 
+-        if getstate_setstate:
++        if props.added_pickling:
+             (
+                 self._cls_dict["__getstate__"],
+                 self._cls_dict["__setstate__"],
+@@ -796,6 +794,7 @@ class _ClassBuilder:
+         self._eval_snippets()
+         if self._slots is True:
+             cls = self._create_slots_class()
++            self._cls.__attrs_base_of_slotted__ = weakref.ref(cls)
+         else:
+             cls = self._patch_original_class()
+             if PY_3_10_PLUS:
+@@ -1434,6 +1433,7 @@ def attrs(
+         on_setattr = setters.pipe(*on_setattr)
+ 
+     def wrap(cls):
++        nonlocal hash
+         is_frozen = frozen or _has_frozen_base_class(cls)
+         is_exc = auto_exc is True and issubclass(cls, BaseException)
+         has_own_setattr = auto_detect and _has_own_attribute(
+@@ -1444,85 +1444,112 @@ def attrs(
+             msg = "Can't freeze a class with a custom __setattr__."
+             raise ValueError(msg)
+ 
+-        builder = _ClassBuilder(
+-            cls,
+-            these,
+-            slots,
+-            is_frozen,
+-            weakref_slot,
+-            _determine_whether_to_implement(
++        eq = not is_exc and _determine_whether_to_implement(
++            cls, eq_, auto_detect, ("__eq__", "__ne__")
++        )
++
++        Hashability = ClassProps.Hashability
++
++        if is_exc:
++            hashability = Hashability.LEAVE_ALONE
++        elif hash is True:
++            hashability = (
++                Hashability.HASHABLE_CACHED
++                if cache_hash
++                else Hashability.HASHABLE
++            )
++        elif hash is False:
++            hashability = Hashability.LEAVE_ALONE
++        elif hash is None:
++            if auto_detect is True and _has_own_attribute(cls, "__hash__"):
++                hashability = Hashability.LEAVE_ALONE
++            elif eq is True and is_frozen is True:
++                hashability = (
++                    Hashability.HASHABLE_CACHED
++                    if cache_hash
++                    else Hashability.HASHABLE
++                )
++            elif eq is False:
++                hashability = Hashability.LEAVE_ALONE
++            else:
++                hashability = Hashability.UNHASHABLE
++        else:
++            msg = "Invalid value for hash.  Must be True, False, or None."
++            raise TypeError(msg)
++
++        KeywordOnly = ClassProps.KeywordOnly
++        if kw_only:
++            kwo = KeywordOnly.FORCE if force_kw_only else KeywordOnly.YES
++        else:
++            kwo = KeywordOnly.NO
++
++        props = ClassProps(
++            is_exception=is_exc,
++            is_frozen=is_frozen,
++            is_slotted=slots,
++            collected_fields_by_mro=collect_by_mro,
++            added_init=_determine_whether_to_implement(
++                cls, init, auto_detect, ("__init__",)
++            ),
++            added_repr=_determine_whether_to_implement(
++                cls, repr, auto_detect, ("__repr__",)
++            ),
++            added_eq=eq,
++            added_ordering=not is_exc
++            and _determine_whether_to_implement(
++                cls,
++                order_,
++                auto_detect,
++                ("__lt__", "__le__", "__gt__", "__ge__"),
++            ),
++            hashability=hashability,
++            added_match_args=match_args,
++            kw_only=kwo,
++            has_weakref_slot=weakref_slot,
++            added_str=str,
++            added_pickling=_determine_whether_to_implement(
+                 cls,
+                 getstate_setstate,
+                 auto_detect,
+                 ("__getstate__", "__setstate__"),
+                 default=slots,
+             ),
+-            auto_attribs,
+-            kw_only,
+-            force_kw_only,
+-            cache_hash,
+-            is_exc,
+-            collect_by_mro,
+-            on_setattr,
+-            has_own_setattr,
+-            field_transformer,
++            on_setattr_hook=on_setattr,
++            field_transformer=field_transformer,
+         )
+ 
+-        if _determine_whether_to_implement(
+-            cls, repr, auto_detect, ("__repr__",)
+-        ):
++        if not props.is_hashable and cache_hash:
++            msg = "Invalid value for cache_hash.  To use hash caching, hashing must be either explicitly or implicitly enabled."
++            raise TypeError(msg)
++
++        builder = _ClassBuilder(
++            cls,
++            these,
++            auto_attribs=auto_attribs,
++            props=props,
++            has_custom_setattr=has_own_setattr,
++        )
++
++        if props.added_repr:
+             builder.add_repr(repr_ns)
+ 
+-        if str is True:
++        if props.added_str:
+             builder.add_str()
+ 
+-        eq = _determine_whether_to_implement(
+-            cls, eq_, auto_detect, ("__eq__", "__ne__")
+-        )
+-        if not is_exc and eq is True:
++        if props.added_eq:
+             builder.add_eq()
+-        if not is_exc and _determine_whether_to_implement(
+-            cls, order_, auto_detect, ("__lt__", "__le__", "__gt__", "__ge__")
+-        ):
++        if props.added_ordering:
+             builder.add_order()
+ 
+         if not frozen:
+             builder.add_setattr()
+ 
+-        nonlocal hash
+-        if (
+-            hash is None
+-            and auto_detect is True
+-            and _has_own_attribute(cls, "__hash__")
+-        ):
+-            hash = False
+-
+-        if hash is not True and hash is not False and hash is not None:
+-            # Can't use `hash in` because 1 == True for example.
+-            msg = "Invalid value for hash.  Must be True, False, or None."
+-            raise TypeError(msg)
+-
+-        if hash is False or (hash is None and eq is False) or is_exc:
+-            # Don't do anything. Should fall back to __object__'s __hash__
+-            # which is by id.
+-            if cache_hash:
+-                msg = "Invalid value for cache_hash.  To use hash caching, hashing must be either explicitly or implicitly enabled."
+-                raise TypeError(msg)
+-        elif hash is True or (
+-            hash is None and eq is True and is_frozen is True
+-        ):
+-            # Build a __hash__ if told so, or if it's safe.
++        if props.is_hashable:
+             builder.add_hash()
+-        else:
+-            # Raise TypeError on attempts to hash.
+-            if cache_hash:
+-                msg = "Invalid value for cache_hash.  To use hash caching, hashing must be either explicitly or implicitly enabled."
+-                raise TypeError(msg)
++        elif props.hashability is Hashability.UNHASHABLE:
+             builder.make_unhashable()
+ 
+-        if _determine_whether_to_implement(
+-            cls, init, auto_detect, ("__init__",)
+-        ):
++        if props.added_init:
+             builder.add_init()
+         else:
+             builder.add_attrs_init()
+@@ -2771,6 +2798,188 @@ class _CountingAttr:
+ _CountingAttr = _add_eq(_add_repr(_CountingAttr))
+ 
+ 
++class ClassProps:
++    """
++    Effective class properties as derived from parameters to `attr.s()` or
++    `define()` decorators.
++
++    This is the same data structure that *attrs* uses internally to decide how
++    to construct the final class.
++
++    Warning:
++
++        This feature is currently **experimental** and is not covered by our
++        strict backwards-compatibility guarantees.
++
++
++    Attributes:
++        is_exception (bool):
++            Whether the class is treated as an exception class.
++
++        is_slotted (bool):
++            Whether the class is `slotted <slotted classes>`.
++
++        has_weakref_slot (bool):
++            Whether the class has a slot for weak references.
++
++        is_frozen (bool):
++            Whether the class is frozen.
++
++        kw_only (KeywordOnly):
++            Whether / how the class enforces keyword-only arguments on the
++            ``__init__`` method.
++
++        collected_fields_by_mro (bool):
++            Whether the class fields were collected by method resolution order.
++            That is, correctly but unlike `dataclasses`.
++
++        added_init (bool):
++            Whether the class has an *attrs*-generated ``__init__`` method.
++
++        added_repr (bool):
++            Whether the class has an *attrs*-generated ``__repr__`` method.
++
++        added_eq (bool):
++            Whether the class has *attrs*-generated equality methods.
++
++        added_ordering (bool):
++            Whether the class has *attrs*-generated ordering methods.
++
++        hashability (Hashability): How `hashable <hashing>` the class is.
++
++        added_match_args (bool):
++            Whether the class supports positional `match <match>` over its
++            fields.
++
++        added_str (bool):
++            Whether the class has an *attrs*-generated ``__str__`` method.
++
++        added_pickling (bool):
++            Whether the class has *attrs*-generated ``__getstate__`` and
++            ``__setstate__`` methods for `pickle`.
++
++        on_setattr_hook (Callable[[Any, Attribute[Any], Any], Any] | None):
++            The class's ``__setattr__`` hook.
++
++        field_transformer (Callable[[Attribute[Any]], Attribute[Any]] | None):
++            The class's `field transformers <transform-fields>`.
++
++    .. versionadded:: 25.4.0
++    """
++
++    class Hashability(enum.Enum):
++        """
++        The hashability of a class.
++
++        .. versionadded:: 25.4.0
++        """
++
++        HASHABLE = "hashable"
++        """Write a ``__hash__``."""
++        HASHABLE_CACHED = "hashable_cache"
++        """Write a ``__hash__`` and cache the hash."""
++        UNHASHABLE = "unhashable"
++        """Set ``__hash__`` to ``None``."""
++        LEAVE_ALONE = "leave_alone"
++        """Don't touch ``__hash__``."""
++
++    class KeywordOnly(enum.Enum):
++        """
++        How attributes should be treated regarding keyword-only parameters.
++
++        .. versionadded:: 25.4.0
++        """
++
++        NO = "no"
++        """Attributes are not keyword-only."""
++        YES = "yes"
++        """Attributes in current class without kw_only=False are keyword-only."""
++        FORCE = "force"
++        """All attributes are keyword-only."""
++
++    __slots__ = (  # noqa: RUF023 -- order matters for __init__
++        "is_exception",
++        "is_slotted",
++        "has_weakref_slot",
++        "is_frozen",
++        "kw_only",
++        "collected_fields_by_mro",
++        "added_init",
++        "added_repr",
++        "added_eq",
++        "added_ordering",
++        "hashability",
++        "added_match_args",
++        "added_str",
++        "added_pickling",
++        "on_setattr_hook",
++        "field_transformer",
++    )
++
++    def __init__(
++        self,
++        is_exception,
++        is_slotted,
++        has_weakref_slot,
++        is_frozen,
++        kw_only,
++        collected_fields_by_mro,
++        added_init,
++        added_repr,
++        added_eq,
++        added_ordering,
++        hashability,
++        added_match_args,
++        added_str,
++        added_pickling,
++        on_setattr_hook,
++        field_transformer,
++    ):
++        self.is_exception = is_exception
++        self.is_slotted = is_slotted
++        self.has_weakref_slot = has_weakref_slot
++        self.is_frozen = is_frozen
++        self.kw_only = kw_only
++        self.collected_fields_by_mro = collected_fields_by_mro
++        self.added_init = added_init
++        self.added_repr = added_repr
++        self.added_eq = added_eq
++        self.added_ordering = added_ordering
++        self.hashability = hashability
++        self.added_match_args = added_match_args
++        self.added_str = added_str
++        self.added_pickling = added_pickling
++        self.on_setattr_hook = on_setattr_hook
++        self.field_transformer = field_transformer
++
++    @property
++    def is_hashable(self):
++        return (
++            self.hashability is ClassProps.Hashability.HASHABLE
++            or self.hashability is ClassProps.Hashability.HASHABLE_CACHED
++        )
++
++
++_cas = [
++    Attribute(
++        name=name,
++        default=NOTHING,
++        validator=None,
++        repr=True,
++        cmp=None,
++        eq=True,
++        order=False,
++        hash=True,
++        init=True,
++        inherited=False,
++        alias=_default_init_alias_for(name),
++    )
++    for name in ClassProps.__slots__
++]
++
++ClassProps = _add_eq(_add_repr(ClassProps, attrs=_cas), attrs=_cas)
++
++
+ class Factory:
+     """
+     Stores a factory callable.
+diff --git a/src/attr/_next_gen.py b/src/attr/_next_gen.py
+index <sha>..<sha> 100644
+--- a/src/attr/_next_gen.py
++++ b/src/attr/_next_gen.py
+@@ -17,7 +17,7 @@ from ._make import (
+     attrib,
+     attrs,
+ )
+-from .exceptions import UnannotatedAttributeError
++from .exceptions import NotAnAttrsClassError, UnannotatedAttributeError
+ 
+ 
+ def define(
+@@ -646,3 +646,29 @@ def astuple(inst, *, recurse=True, filter=None):
+     return _astuple(
+         inst=inst, recurse=recurse, filter=filter, retain_collection_types=True
+     )
++
++
++def inspect(cls):
++    """
++    Inspect the class and return its effective build parameters.
++
++    Warning:
++        This feature is currently **experimental** and is not covered by our
++        strict backwards-compatibility guarantees.
++
++    Args:
++        cls: The *attrs*-decorated class to inspect.
++
++    Returns:
++        The effective build parameters of the class.
++
++    Raises:
++        NotAnAttrsClassError: If the class is not an *attrs*-decorated class.
++
++    .. versionadded:: 25.4.0
++    """
++    try:
++        return cls.__dict__["__attrs_props__"]
++    except KeyError:
++        msg = f"{cls!r} is not an attrs-decorated class."
++        raise NotAnAttrsClassError(msg) from None
+diff --git a/src/attrs/__init__.py b/src/attrs/__init__.py
+index <sha>..<sha> 100644
+--- a/src/attrs/__init__.py
++++ b/src/attrs/__init__.py
+@@ -22,7 +22,8 @@ from attr import (
+     resolve_types,
+     validate,
+ )
+-from attr._next_gen import asdict, astuple
++from attr._make import ClassProps
++from attr._next_gen import asdict, astuple, inspect
+ 
+ from . import converters, exceptions, filters, setters, validators
+ 
+@@ -31,6 +32,7 @@ __all__ = [
+     "NOTHING",
+     "Attribute",
+     "AttrsInstance",
++    "ClassProps",
+     "Converter",
+     "Factory",
+     "NothingType",
+@@ -58,6 +60,7 @@ __all__ = [
+     "filters",
+     "frozen",
+     "has",
++    "inspect",
+     "make_class",
+     "mutable",
+     "resolve_types",
+diff --git a/src/attrs/__init__.pyi b/src/attrs/__init__.pyi
+index <sha>..<sha> 100644
+--- a/src/attrs/__init__.pyi
++++ b/src/attrs/__init__.pyi
+@@ -261,3 +261,54 @@ def frozen(
+     field_transformer: _FieldTransformer | None = ...,
+     match_args: bool = ...,
+ ) -> Callable[[_C], _C]: ...
++
++class ClassProps:
++    # XXX: somehow when defining/using enums Mypy starts looking at our own
++    # (untyped) code and causes tons of errors.
++    Hashability: Any
++    KeywordOnly: Any
++
++    is_exception: bool
++    is_slotted: bool
++    has_weakref_slot: bool
++    is_frozen: bool
++    # kw_only: ClassProps.KeywordOnly
++    kw_only: Any
++    collected_fields_by_mro: bool
++    added_init: bool
++    added_repr: bool
++    added_eq: bool
++    added_ordering: bool
++    # hashability: ClassProps.Hashability
++    hashability: Any
++    added_match_args: bool
++    added_str: bool
++    added_pickling: bool
++    on_setattr_hook: _OnSetAttrType | None
++    field_transformer: Callable[[Attribute[Any]], Attribute[Any]] | None
++
++    def __init__(
++        self,
++        is_exception: bool,
++        is_slotted: bool,
++        has_weakref_slot: bool,
++        is_frozen: bool,
++        # kw_only: ClassProps.KeywordOnly
++        kw_only: Any,
++        collected_fields_by_mro: bool,
++        added_init: bool,
++        added_repr: bool,
++        added_eq: bool,
++        added_ordering: bool,
++        # hashability: ClassProps.Hashability
++        hashability: Any,
++        added_match_args: bool,
++        added_str: bool,
++        added_pickling: bool,
++        on_setattr_hook: _OnSetAttrType,
++        field_transformer: Callable[[Attribute[Any]], Attribute[Any]],
++    ) -> None: ...
++    @property
++    def is_hashable(self) -> bool: ...
++
++def inspect(cls: type) -> ClassProps: ...
+diff --git a/tests/test_make.py b/tests/test_make.py
+index <sha>..<sha> 100644
+--- a/tests/test_make.py
++++ b/tests/test_make.py
+@@ -21,11 +21,13 @@ from hypothesis import assume, given
+ from hypothesis.strategies import booleans, integers, lists, sampled_from, text
+ 
+ import attr
++import attrs
+ 
+ from attr import _config
+ from attr._compat import PY_3_10_PLUS
+ from attr._make import (
+     Attribute,
++    ClassProps,
+     Factory,
+     _AndValidator,
+     _Attributes,
+@@ -181,7 +183,7 @@ class TestTransformAttrs:
+         Does not attach __attrs_attrs__ to the class.
+         """
+         C = make_tc()
+-        _transform_attrs(C, None, False, False, False, True, None)
++        _transform_attrs(C, None, False, ClassProps.KeywordOnly.NO, True, None)
+ 
+         assert None is getattr(C, "__attrs_attrs__", None)
+ 
+@@ -191,7 +193,7 @@ class TestTransformAttrs:
+         """
+         C = make_tc()
+         attrs, _, _ = _transform_attrs(
+-            C, None, False, False, False, True, None
++            C, None, False, ClassProps.KeywordOnly.NO, True, None
+         )
+ 
+         assert ["z", "y", "x"] == [a.name for a in attrs]
+@@ -206,7 +208,7 @@ class TestTransformAttrs:
+             pass
+ 
+         assert _Attributes((), [], {}) == _transform_attrs(
+-            C, None, False, False, False, True, None
++            C, None, False, ClassProps.KeywordOnly.NO, True, None
+         )
+ 
+     def test_transforms_to_attribute(self):
+@@ -215,7 +217,7 @@ class TestTransformAttrs:
+         """
+         C = make_tc()
+         attrs, base_attrs, _ = _transform_attrs(
+-            C, None, False, False, False, True, None
++            C, None, False, ClassProps.KeywordOnly.NO, True, None
+         )
+ 
+         assert [] == base_attrs
+@@ -233,7 +235,9 @@ class TestTransformAttrs:
+             y = attr.ib()
+ 
+         with pytest.raises(ValueError) as e:
+-            _transform_attrs(C, None, False, False, False, True, None)
++            _transform_attrs(
++                C, None, False, ClassProps.KeywordOnly.NO, True, None
++            )
+         assert (
+             "No mandatory attributes allowed after an attribute with a "
+             "default value or factory.  Attribute in question: Attribute"
+@@ -262,7 +266,7 @@ class TestTransformAttrs:
+             y = attr.ib()
+ 
+         attrs, base_attrs, _ = _transform_attrs(
+-            C, None, False, True, False, True, None
++            C, None, False, ClassProps.KeywordOnly.YES, True, None
+         )
+ 
+         assert len(attrs) == 3
+@@ -278,8 +282,7 @@ class TestTransformAttrs:
+             C,
+             None,
+             False,
+-            True,
+-            True,  # force kw-only
++            ClassProps.KeywordOnly.FORCE,
+             True,
+             None,
+         )
+@@ -305,7 +308,7 @@ class TestTransformAttrs:
+             y = attr.ib()
+ 
+         attrs, base_attrs, _ = _transform_attrs(
+-            C, {"x": attr.ib()}, False, False, False, True, None
++            C, {"x": attr.ib()}, False, ClassProps.KeywordOnly.NO, True, None
+         )
+ 
+         assert [] == base_attrs
+@@ -506,6 +509,77 @@ class TestAttributes:
+         assert "x" == C.__attrs_attrs__[0].name
+         assert all(isinstance(a, Attribute) for a in C.__attrs_attrs__)
+ 
++    def test_sets_attrs_props(self):
++        """
++        Sets the `__attrs_props__` class attribute with the effective decorator
++        properties.
++        """
++
++        @attr.s(
++            slots=True,
++            frozen=True,
++            repr=True,
++            eq=True,
++            order=True,
++            unsafe_hash=True,
++            init=True,
++            match_args=False,
++            kw_only=True,
++            auto_attribs=True,
++            cache_hash=True,
++            str=True,
++        )
++        class C:
++            x: int = attr.ib()
++
++        assert ClassProps(
++            is_exception=False,
++            is_slotted=True,
++            is_frozen=True,
++            added_init=True,
++            added_repr=True,
++            added_eq=True,
++            added_ordering=True,
++            hashability=ClassProps.Hashability.HASHABLE_CACHED,
++            added_match_args=False,
++            kw_only=ClassProps.KeywordOnly.FORCE,
++            has_weakref_slot=True,
++            collected_fields_by_mro=False,
++            added_str=True,
++            added_pickling=True,
++            on_setattr_hook=None,
++            field_transformer=None,
++        ) == attrs.inspect(C)
++
++    def test_sets_attrs_props_defaults(self):
++        """
++        Default values are derived in `__attrs_props__` when not specified in
++        the decorator.
++        """
++
++        @attr.s
++        class CDef:
++            x = attr.ib()
++
++        assert ClassProps(
++            is_exception=False,
++            is_slotted=False,
++            is_frozen=False,
++            added_init=True,
++            added_repr=True,
++            added_eq=True,
++            added_ordering=True,
++            hashability=ClassProps.Hashability.UNHASHABLE,
++            added_match_args=True,
++            kw_only=ClassProps.KeywordOnly.NO,
++            has_weakref_slot=True,
++            collected_fields_by_mro=False,
++            added_str=False,
++            added_pickling=False,
++            on_setattr_hook=None,
++            field_transformer=None,
++        ) == attrs.inspect(CDef)
++
+     def test_empty(self):
+         """
+         No attributes, no problems.
+@@ -1929,18 +2003,25 @@ class TestClassBuilder:
+             C,
+             None,
+             True,
+-            True,
+-            False,
+-            False,
+-            False,
+-            False,
+-            False,
+-            False,
+-            False,
+-            True,
+-            None,
+-            False,
+-            None,
++            ClassProps(
++                is_exception=False,
++                is_slotted=True,
++                is_frozen=True,
++                added_init=True,
++                added_repr=True,
++                added_eq=True,
++                added_ordering=False,
++                hashability=ClassProps.Hashability.UNHASHABLE,
++                added_match_args=True,
++                kw_only=ClassProps.KeywordOnly.NO,
++                has_weakref_slot=False,
++                collected_fields_by_mro=True,
++                added_str=False,
++                added_pickling=True,
++                on_setattr_hook=None,
++                field_transformer=None,
++            ),
++            has_custom_setattr=False,
+         )
+ 
+         assert "<_ClassBuilder(cls=C)>" == repr(b)
+@@ -1956,19 +2037,26 @@ class TestClassBuilder:
+         b = _ClassBuilder(
+             C,
+             None,
+-            True,
+-            True,
+-            False,
+-            False,
+-            False,
+-            False,
+-            False,
+-            False,
+-            False,
+-            True,
+-            None,
+             False,
+-            None,
++            ClassProps(
++                is_exception=False,
++                is_slotted=True,
++                is_frozen=True,
++                added_init=True,
++                added_repr=True,
++                added_eq=True,
++                added_ordering=False,
++                hashability=ClassProps.Hashability.UNHASHABLE,
++                added_match_args=True,
++                kw_only=ClassProps.KeywordOnly.NO,
++                has_weakref_slot=False,
++                collected_fields_by_mro=True,
++                added_str=False,
++                added_pickling=True,
++                on_setattr_hook=None,
++                field_transformer=None,
++            ),
++            has_custom_setattr=False,
+         )
+ 
+         cls = (
+@@ -2050,19 +2138,26 @@ class TestClassBuilder:
+         b = _ClassBuilder(
+             C,
+             these=None,
+-            slots=False,
+-            frozen=False,
+-            weakref_slot=True,
+-            getstate_setstate=False,
+             auto_attribs=False,
+-            is_exc=False,
+-            kw_only=False,
+-            force_kw_only=False,
+-            cache_hash=False,
+-            collect_by_mro=True,
+-            on_setattr=None,
++            props=ClassProps(
++                is_exception=False,
++                is_slotted=False,
++                is_frozen=False,
++                added_init=True,
++                added_repr=True,
++                added_eq=True,
++                added_ordering=False,
++                hashability=ClassProps.Hashability.UNHASHABLE,
++                added_match_args=True,
++                kw_only=ClassProps.KeywordOnly.NO,
++                has_weakref_slot=True,
++                collected_fields_by_mro=True,
++                added_str=False,
++                added_pickling=True,
++                on_setattr_hook=None,
++                field_transformer=None,
++            ),
+             has_custom_setattr=False,
+-            field_transformer=None,
+         )
+ 
+         def fake_meth(self):
+diff --git a/tests/test_next_gen.py b/tests/test_next_gen.py
+index <sha>..<sha> 100644
+--- a/tests/test_next_gen.py
++++ b/tests/test_next_gen.py
+@@ -15,6 +15,7 @@ import attr as _attr  # don't use it by accident
+ import attrs
+ 
+ from attr._compat import PY_3_11_PLUS
++from attr._make import ClassProps
+ 
+ 
+ @attrs.define
+@@ -448,6 +449,86 @@ class TestAsDict:
+         )
+ 
+ 
++class TestProps:
++    """
++    Tests for __attrs_props__ in define-style classes.
++    """
++
++    def test_define_props_custom(self):
++        """
++        define() sets __attrs_props__ with custom parameters.
++        """
++
++        @attrs.define(
++            slots=False,
++            frozen=True,
++            order=True,
++            unsafe_hash=True,
++            init=True,
++            repr=True,
++            eq=True,
++            match_args=False,
++            kw_only=True,
++            cache_hash=True,
++            str=True,
++        )
++        class C:
++            x: int
++
++        assert (
++            ClassProps(
++                is_exception=False,
++                is_slotted=False,
++                is_frozen=True,
++                kw_only=ClassProps.KeywordOnly.YES,
++                added_init=True,
++                added_repr=True,
++                added_eq=True,
++                added_ordering=True,
++                hashability=ClassProps.Hashability.HASHABLE_CACHED,
++                added_match_args=False,
++                has_weakref_slot=True,
++                collected_fields_by_mro=True,
++                added_str=True,
++                added_pickling=False,  # because slots=False
++                on_setattr_hook=None,
++                field_transformer=None,
++            )
++            == C.__attrs_props__
++        )
++
++    def test_define_props_defaults(self):
++        """
++        frozen() sets default __attrs_props__ values.
++        """
++
++        @attrs.frozen
++        class C:
++            x: int
++
++        assert (
++            ClassProps(
++                is_exception=False,
++                is_slotted=True,
++                is_frozen=True,
++                added_init=True,
++                added_repr=True,
++                added_eq=True,
++                added_ordering=False,
++                hashability=ClassProps.Hashability.HASHABLE,  # b/c frozen
++                added_match_args=True,
++                kw_only=ClassProps.KeywordOnly.NO,
++                has_weakref_slot=True,
++                collected_fields_by_mro=True,
++                added_str=False,
++                added_pickling=True,
++                on_setattr_hook=None,
++                field_transformer=None,
++            )
++            == C.__attrs_props__
++        )
++
++
+ class TestImports:
+     """
+     Verify our re-imports and mirroring works.
+@@ -492,3 +573,11 @@ class TestImports:
+         from attrs.validators import and_
+ 
+         assert and_ is _attr.validators.and_
++
++
++def test_inspect_not_attrs_class():
++    """
++    inspect() raises an error if the class is not an attrs class.
++    """
++    with pytest.raises(attrs.exceptions.NotAnAttrsClassError):
++        attrs.inspect(object)
+diff --git a/tests/test_slots.py b/tests/test_slots.py
+index <sha>..<sha> 100644
+--- a/tests/test_slots.py
++++ b/tests/test_slots.py
+@@ -104,6 +104,20 @@ def test_slots_being_used():
+     assert attr.asdict(slot_instance) == attr.asdict(non_slot_instance)
+ 
+ 
++def test_slots_base_of_slotted():
++    """
++    The (hopefully gc'ed) temporary base class of a slotted class contains a
++    reference to the slotted class.
++    """
++
++    class Base:
++        pass
++
++    Slotted = attr.s(slots=True)(Base)
++
++    assert Slotted is Base.__attrs_base_of_slotted__()
++
++
+ def test_basic_attr_funcs():
+     """
+     Comparison, `__eq__`, `__hash__`, `__repr__`, `attrs.asdict` work.
+@@ -755,7 +769,7 @@ def test_slots_cached_property_class_does_not_have__dict__():
+     assert "__dict__" not in dir(A)
+ 
+ 
+-def test_slots_cached_property_works_on_frozen_isntances():
++def test_slots_cached_property_works_on_frozen_instances():
+     """
+     Infers type of cached property.
+     """
+diff --git a/typing-examples/baseline_examples.py b/typing-examples/baseline_examples.py
+index <sha>..<sha> 100644
+--- a/typing-examples/baseline_examples.py
++++ b/typing-examples/baseline_examples.py
+@@ -190,3 +190,19 @@ def accessing_from_attrs() -> None:
+     attrs.setters.frozen
+     attrs.validators.and_
+     attrs.cmp_using
++
++
++@attrs.define(unsafe_hash=True)
++class Hashable:
++    pass
++
++
++cp: attrs.ClassProps = attrs.inspect(Hashable)
++cp.added_init
++if cp.hashability is attrs.ClassProps.Hashability.UNHASHABLE:
++    cp.is_slotted
++
++
++def test(cls: type) -> None:
++    if attrs.has(cls):
++        attrs.resolve_types(cls)

@@ -1,0 +1,34 @@
+**AMU: 0 flips** at `<sha>`, ran all 648 tests; every changed hunk ran on both sides, in up to 2 tests; 1 test of the pull request's own fail on the merge base and pass on the head
+
+### Behaviour differs on the same input (0)
+
+Each changed function was recorded in each side's own run of the same tests, on the objects that side's code built. Calls are paired by test and by their order in it, and compared only where both inputs are equal: 0 pair(s) compared, 0 not compared because the inputs differ, 0 call(s) without a partner, of 0 of 1 changed function(s). The tests behind a difference ran again on each side, and the merge base's twice, the second time in another checkout: 0 fields differed between the merge base's two runs, so they belong to the process or checkout and are left out of the comparison.
+
+### Change evidence: the pull request's own tests (1)
+
+The 1 test this pull request adds or edits ran on the head and on the merge base `<sha>` with the tests as the pull request leaves them.
+
+Fail on the merge base and pass on the head, so the change does what they check. Each failure on the merge base repeated in a fresh process.
+
+- `tests/test_validators.py::TestDisableValidators::test_disabled_ctx_nested`
+
+### Changed hunks (2)
+
+What ran each hunk of the change, from each side's own run:
+
+- `src/attr/validators.py:82` in `disabled`: docstring, comment or layout only
+- `src/attr/validators.py:89` in `disabled`: ran on both sides (2 tests)
+
+### Gaps (1)
+
+Not run or not seen:
+
+- `Skipped 1 non-Python file(s)`
+
+### What ran
+
+All 648 tests of the suite on both sides, no selection: 14.9 s on the merge base and 14.8 s on the head with `pytest`, budget 300 s per side.
+
+<sub>AMU `0.7.0` from `v0.7.0`, report `<sha>`. Full JSON is in the workflow run's artifact.</sub>
+
+<!-- amu-ci-comment v1 -->
