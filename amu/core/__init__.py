@@ -511,6 +511,16 @@ def analyze(root, patch=None, *, full_evidence=False, coverage_evidence=None, in
         if 'static-select' not in extras and not only:
             where = runners.pytest_testpaths(root) if chosen.name == 'pytest' else ()
             everything = everything_of()
+            if listed['ids'] is not None:
+                # A test-named function the runner does not collect (a fixture or helper called test_*) is not a test:
+                # the source names candidates, the runner's own collection says which of them are tests.
+                # A test a caller names (an earlier failure, perhaps since renamed away) stays: its absence is the news.
+                known = set(listed['ids']) | {run_id for test in (also or ()) for run_id in run_ids(test)}
+                stray = [i for i in wide if i not in known]
+                if stray:
+                    wide, own = [i for i in wide if i in known], [i for i in own if i in known]
+                    gaps.append(f'{len(stray)} test-named function(s) {chosen.name} does not collect (fixtures or helpers), '
+                                'not run: ' + ', '.join(stray[:3]) + (f' and {len(stray) - 3} more' if len(stray) > 3 else ''))
             in_suite = [i for i in wide if not where or any(i == p or i.startswith(p + '/') or i.startswith(p + '::') for p in where)]
             from . import suite as whole_suite
             base_commit = merge_base or whole_suite._git(root, 'rev-parse', 'HEAD')
