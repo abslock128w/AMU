@@ -1,0 +1,29 @@
+{
+  "cli_version": "0.10.5",
+  "checkpoint_id": "01M70MN5FWQGJWNNW1S3NVMVJ8",
+  "strategy": "manual-commit",
+  "branch": "fix/honest-counts",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "amu/core/__init__.py",
+    "amu/core/runners.py",
+    "amu/core/suite.py",
+    "tests/core/test_collect.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 34,
+    "cache_creation_tokens": 51285,
+    "cache_read_tokens": 1446721,
+    "output_tokens": 5694,
+    "api_call_count": 17
+  }
+}
