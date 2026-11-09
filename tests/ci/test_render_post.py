@@ -373,3 +373,32 @@ def test_a_hunk_not_recorded_after_a_cut_off_run_says_why():
     assert first.endswith('1 of 2 changed hunks not recorded (the run stopped after 640 of 13207 candidate tests): '
                           '`lib.py:72`'), first
     assert 'ran in no test' not in first
+
+
+# Django 22158: the reason with its condition and the same reason without it are one sentence, not two.
+def test_the_version_gate_sentence_is_printed_once():
+    hunks = [dict(path='s.py', line=157, state='not-executable-here', why='not executable on Python 3.14 here', tests=0,
+                  sample=[], function=None),
+             dict(path='s.py', line=373, state='not-executable-here', why='not executable on Python 3.14 here (needs PY315)',
+                  tests=0, sample=[], function=None)]
+    report = dict(flips=0, predicted_failures=[], gaps=[], executed=EXECUTED, hunks=hunks)
+    first = render(report, META).splitlines()[0]
+    assert first.count('not executable on Python 3.14 here') == 1, first
+    assert first.endswith('2 of 2 changed hunks not executable on Python 3.14 here (needs PY315): `s.py:157`, `s.py:373`'), first
+
+
+# attrs 1509: 650 calls that all show the same change (a new slot on every Attribute) are one line with a count.
+def test_rows_showing_the_same_change_are_one_line_with_a_count():
+    def row(target, name):
+        return dict(target=target, input=f'["{name}"]', differs=['result'], test='t', label='paired', seen=1,
+                    before=dict(result=f'[["name", "{name}"], ["alias", "{name}"]]'),
+                    after=dict(result=f'[["name", "{name}"], ["alias", "{name}"], ["alias_is_default", "True"]]'))
+    behaviour = [row('a.py#f', 'x'), row('a.py#f', 'y'), row('a.py#g', 'z'),
+                 dict(row('a.py#h', 'w'), after=dict(result='[["name", "w"]]'))]
+    hunks = [dict(path='a.py', line=2, state='executed-both-sides', why='', tests=3, sample=[], function='f')]
+    report = dict(flips=0, predicted_failures=[], gaps=[], executed=EXECUTED, hunks=hunks, behaviour_differences=behaviour,
+                  side_by_side=dict(mode='paired records', compared_calls=4, targets=3, functions_called=3))
+    body = render(report, META).splitlines()
+    assert body[0].endswith('; 2 behaviour differences on the same input (4 calls)'), body[0]
+    assert '### Behaviour differs on the same input (2 changes, 4 calls)' in body
+    assert any(line.endswith('3 calls show this change in 2 functions') for line in body), body
