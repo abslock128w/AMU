@@ -252,3 +252,36 @@ def test_reach_guesses_of_the_static_graph_are_not_gaps_once_the_hunks_were_reco
     report, body = change(tmp_path, {'lib.py': lib, 'tests/test_lib.py': tests}, {'lib.py': lib.replace('return 1', 'return 2')})
     assert [row['state'] for row in report['hunks']] == ['executed-both-sides'], report['hunks']
     assert not any('five source hops' in g or 'call sites unresolved' in g for g in report.get('gaps') or []), report['gaps']
+
+
+# Flask 5812, jinja 2099: unchanged lines inside one block of changes are part of it when it is re-applied.
+def test_comments_removed_around_an_unchanged_line_are_not_code(tmp_path):
+    lib0 = 'def area(w, h):\n    # width\n    x = w\n    # height\n    return x * h\n'
+    lib1 = 'def area(w, h):\n    x = w\n    return x * h\n'
+    tests = 'from lib import area\n\n\ndef test_area():\n    assert area(2, 3) == 6\n'
+    report, body = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1})
+    assert [row['state'] for row in report['hunks']] == ['not-code'], report['hunks']
+    assert body[0].startswith('**AMU: docstring or comment changes only**'), body[0]
+
+
+# A docstring edit and a code edit a line apart share a diff block: the docstring part is not code, the code part has
+# its own state.
+def test_a_block_mixing_a_docstring_edit_and_a_code_edit_is_split(tmp_path):
+    lib0 = 'def area(w, h):\n    """Area of a box."""\n    x = w\n    return x * h\n\n\ndef unused():\n    return 1\n'
+    lib1 = 'def area(w, h):\n    """Area of a w by h box."""\n    x = w\n    return h * x\n\n\ndef unused():\n    return 1\n'
+    tests = 'from lib import area\n\n\ndef test_area():\n    assert area(2, 3) == 6\n'
+    report, body = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1})
+    states = sorted((row['line'], row['state']) for row in report['hunks'])
+    assert states == [(2, 'not-code'), (4, 'executed-both-sides')], report['hunks']
+    assert body[0].endswith('every changed hunk ran on both sides, in up to 1 test'), body[0]
+
+
+# jinja 2099: a generator script in a top-level scripts/ folder that the package does not import is not production.
+def test_a_script_the_package_does_not_import_is_not_production(tmp_path):
+    lib = LIB
+    script = 'def build():\n    return 1\n\n\nif __name__ == "__main__":\n    print(build())\n'
+    report, body = change(tmp_path, {'lib.py': lib, 'scripts/gen.py': script, 'tests/test_lib.py': TESTS},
+                          {'lib.py': lib.replace('* d', '* d * 1'), 'scripts/gen.py': script.replace('return 1', 'return 2')})
+    states = {row['path']: row['state'] for row in report['hunks']}
+    assert states == {'lib.py': 'executed-both-sides', 'scripts/gen.py': 'not-production'}, report['hunks']
+    assert 'scripts/gen.py' not in body[0] and body[0].endswith('every changed hunk ran on both sides, in up to 1 test'), body[0]

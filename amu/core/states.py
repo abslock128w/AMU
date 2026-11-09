@@ -105,12 +105,13 @@ def _same_code(before, after):
 
 
 def _one_hunk(before, hunk_rows, old_start):
-    """``before`` with one block of a hunk applied: its removed lines replaced by its added lines."""
+    """``before`` with one block of a hunk applied: its rows (removed, added, and the unchanged lines between them, when
+    the block holds several changes) from ``old_start`` on."""
     lines = before.splitlines(True)
-    old = [row[1:] for row in hunk_rows if row[:1] == '-']
-    new = [row[1:] for row in hunk_rows if row[:1] == '+']
+    old = [row[1:] for row in hunk_rows if row[:1] in '- ']
+    new = [row[1:] for row in hunk_rows if row[:1] in '+ ']
     start = max(old_start - 1, 0)
-    return ''.join(lines[:start] + new + lines[start + len(old):])
+    return ''.join(lines[:start] + [n if n.endswith('\n') else n + '\n' for n in new] + lines[start + len(old):])
 
 
 def _definitions(text):
@@ -467,6 +468,18 @@ def gate(guards, hunk, files, new_classes=None):
     return gated[0] if calls and gated else None
 
 
+OUTSIDE = ('scripts', 'examples')  # top-level folders that hold tools and samples, not the code a project ships
+
+
+def _outside(guards, path, production):
+    """Whether ``path`` sits in a top-level scripts/ or examples/ folder that no production module imports."""
+    top = path.split('/', 1)[0]
+    if top not in OUTSIDE or '/' not in path:
+        return False
+    pattern = re.compile(r'^\s*(?:from|import)\s+' + re.escape(top) + r'\b', re.M)
+    return not any(pattern.search(guards.text(p) or '') for p in production if p.split('/', 1)[0] not in OUTSIDE)
+
+
 def classify(root, edits, before_src, after_src, recorded, ran_before=(), python=None, production=None, own=(), incomplete=None):
     """Every hunk of the changed production files with its state. ``recorded``: the hunks evidence returned (with the
     tests that ran each on each side), or None when nothing was recorded. ``ran_before``: tests with an outcome on the
@@ -481,14 +494,28 @@ def classify(root, edits, before_src, after_src, recorded, ran_before=(), python
     for h in rows:
         path = h['path']
         before, after = before_src.get(path) or '', after_src.get(path) or ''
-        body = h.get('rows') or []
+        body = h.get('body') or h.get('rows') or []
         state, why, tests = None, '', []
         head = [t for t in (h.get('head_tests') or [])]
         existing = [t for t in head if t not in own]
-        if before and _same_code(before, _one_hunk(before, body, h['old_start'])):
+        applied = _one_hunk(before, body, h['old_start']) if before else ''
+        if _outside(guards, path, production):
+            state, why = 'not-production', f"in {path.split('/', 1)[0]}/, which the package does not import"
+        elif before and _same_code(before, applied):
             state = 'not-code'
-        elif before and _same_without_annotations(before, _one_hunk(before, body, h['old_start'])):
+        elif before and _same_without_annotations(before, applied):
             state, why = 'annotations-only', 'type annotations only'
+        elif before and len(h.get('runs') or []) > 1:
+            # A block that mixes a docstring or comment edit with a code edit: the quiet part is not code, and the code
+            # part gets its own state below.
+            runs = h['runs']
+            quiet = [r for r in runs if _same_code(before, _one_hunk(before, r['rows'], r['old_start']))]
+            if quiet and len(quiet) < len(runs):
+                out.append(dict(path=path, line=(quiet[0]['added'] or [quiet[0]['new_start']])[0], state='not-code', why='',
+                                tests=0, sample=[], base_tests=None, function=h.get('new_function') or h.get('old_function')))
+                loud = [r for r in runs if r not in quiet]
+                h = dict(h, added=[n for r in loud for n in r['added']], removed=[n for r in loud for n in r['removed']],
+                         new_start=loud[0]['new_start'])
         if state is None and not [n for n in h['removed'] if (before.splitlines()[n - 1].strip() if n <= len(before.splitlines()) else '')]:
             old_defs, new_defs = _definitions(before), _definitions(after)
             added = [n for n in h['added'] if n <= len(after.splitlines()) and after.splitlines()[n - 1].strip()]
