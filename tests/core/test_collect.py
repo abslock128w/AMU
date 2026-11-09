@@ -129,3 +129,30 @@ def test_recording_holds_generated_tests(tmp_path):
     recording = suite.Recording(tmp_path, data['commit'], data, data['commit'])
     ran = recording.tests('lib.py', (tmp_path/'lib.py').read_text(), [2])
     assert WANT <= ran
+
+
+# Flask's conftest.py has a fixture named test_apps and jinja's test modules one named test_env: test-named functions
+# the runner never collects. They are not tests, so they are never candidates and never "gave no outcome".
+FIXTURES = {
+    'lib.py': LIB,
+    'tests/__init__.py': '',
+    'tests/conftest.py': 'import pytest\n\n\n@pytest.fixture\ndef test_apps():\n    return 2\n',
+    'tests/test_lib.py': ('import pytest\n\nfrom lib import double\n\n\n@pytest.fixture\ndef test_env():\n    return 3\n\n\n'
+                          'def test_double(test_apps, test_env):\n    assert double(test_apps) == 4 and double(test_env) == 6\n'),
+}
+
+
+def test_a_fixture_named_test_something_is_not_a_candidate(tmp_path):
+    import difflib
+
+    from amu.core import analyze
+    write(tmp_path, FIXTURES)
+    changed = LIB.replace('2 * x', 'x + x')
+    (tmp_path/'lib.py').write_text(changed)
+    diff = ''.join(difflib.unified_diff(LIB.splitlines(True), changed.splitlines(True), 'a/lib.py', 'b/lib.py'))
+    report = analyze(tmp_path, diff, full_evidence=True, index_dir=tmp_path/'.index', run=True, python=sys.executable,
+                     runner='pytest')
+    executed = report['executed']
+    assert executed['ran'] == executed['candidates'] == 1, executed
+    assert not executed.get('unrunnable') and not executed.get('unrunnable_tests'), executed
+    assert not any('could not be run' in gap for gap in report['gaps']), report['gaps']
