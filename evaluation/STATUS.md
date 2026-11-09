@@ -59,3 +59,14 @@ After a month on at least one real repository with `counters: 'true'` (per-push 
 4. **The misses matter there.** A class of the five misses above shows up in at least 3 of their pull requests before it is worth an engine change.
 
 If flips stay at zero for the month, the flip path is still unmeasured. The question then is whether change evidence alone earns the job time: a median of 2 to 5 minutes on Django and sympy, and under 20 s on Flask.
+
+## Known limit: coverage that depends on test order
+
+Some suites share state across tests, sympy's cache for one. Whether a test reaches a line then depends on which tests
+ran before it, and a suite recording made in one order can miss a test that reaches the changed code when it runs in
+another. On the 47 set at v0.7.0 this hid 77 of 3,027 tests that would catch a raise on sympy 30815. Recorded on their
+own, 2 of the 3 tried did reach the changed lines.
+
+This is not fixed. When a test that this job ran on the merge base reaches a changed line the recording says it did not,
+the comment says "coverage is order-dependent in this suite" and names the first such test. The candidates may then miss
+a test that would catch the change.

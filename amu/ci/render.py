@@ -136,13 +136,23 @@ def places(rows, limit=3):
     return ', '.join(place(row) for row in rows[:limit]) + (f' and {len(rows) - limit} more' if len(rows) > limit else '')
 
 
+def counted(report, ran):
+    """'ran all N tests' only when every test of the suite gave an outcome; else how many did not, and why."""
+    executed = report.get('executed') or {}
+    total = executed.get('candidates') or ran
+    if ran >= total:
+        return f"ran all {plural(ran, 'test')}"
+    why = next((g.split('no outcomes read: ', 1)[1] for g in report.get('gaps') or [] if 'no outcomes read: ' in g), None)
+    why = why or next((g for g in report.get('gaps') or [] if 'stopped at' in g or 'could not be run' in g), 'see the gaps')
+    return f"ran {ran} of {plural(total, 'test')}, {total - ran} gave no outcome: {code(why, 160)}"
+
+
 def headline(report, head, ran):
     """The first line when tests ran and none flipped: what the worst hunk's evidence says. Without hunk states (a report
     from an older engine), only that nothing flipped."""
     rows = hunk_rows(report)
     chosen = report.get('selection_evidence') if isinstance(report.get('selection_evidence'), dict) else {}
-    among = (f"ran all {plural(ran, 'test')}" if chosen.get('mode') == 'all of the suite'
-             else f"among {plural(ran, 'test')} run")
+    among = (counted(report, ran) if chosen.get('mode') == 'all of the suite' else f"among {plural(ran, 'test')} run")
     if chosen.get('static_fallback'):
         among += '; no suite recording for base; selected statically'
 
@@ -173,7 +183,10 @@ def headline(report, head, ran):
         reasons = sorted({row.get('why') or 'not executable here' for row in picked})
         return first + f"{len(picked)} of {plural(total, 'changed hunk')} {'; '.join(reasons)}: {places(picked)}"
     if worst == 'not-recorded':
-        return first + 'which tests ran the changed code was not recorded'
+        reasons = sorted({row.get('why') for row in picked if row.get('why')})
+        if not reasons:
+            return first + 'which tests ran the changed code was not recorded'
+        return first + f"{len(picked)} of {plural(total, 'changed hunk')} not recorded ({'; '.join(reasons)}): {places(picked)}"
     if worst == 'executed-head-only':
         return first + f"{len(picked)} of {plural(total, 'changed hunk')} ran only in the pull request's own tests: {places(picked)}"
     covered = max((row.get('tests') or 0 for row in rows if row['state'] == 'executed-both-sides'), default=0)
