@@ -601,8 +601,17 @@ WHERE = 3  # differing fields a row names
 SIZE = '~size'  # the entry holding how long a long text field is (the recorder's _flat)
 
 
+TOP = re.compile(r'(\[\d+\])((?:\[\d+\])*)(#len|@|~size)?')
+
+
 def pattern(path):
-    """A field's path with its item positions left out: the same attribute of every item counts as one field."""
+    """A field's path with its item positions left out: the same attribute of every item counts as one field, and of
+    every argument too (the same kind of object in two arguments holds the same per-run attribute). A path made of
+    positions alone keeps its first: at the top that is one argument of a call (or the kind of result and its value),
+    and a per-run value passed as one argument says nothing of the others."""
+    top = TOP.fullmatch(path)
+    if top:
+        return top.group(1) + INDEX.sub('[*]', top.group(2)) + (top.group(3) or '')
     return INDEX.sub('[*]', path)
 
 
@@ -617,8 +626,10 @@ def _field(path):
 
 
 def _within(path, fields):
-    found = pattern(path)
-    return any(found == f or (found.startswith(f) and found[len(f)] in '[/.#@') for f in fields)
+    """Whether ``path`` is ``fields``' to leave out. A field that names one argument holds everything under it."""
+    whole = INDEX.sub('[*]', path)
+    return any(text == f or (text.startswith(f) and text[len(f)] in '[/.#@')
+               for f in fields for text in (path if INDEX.fullmatch(f) else whole,))
 
 
 def unstable_fields(first, second):

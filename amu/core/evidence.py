@@ -99,6 +99,7 @@ def _chunks(execute, runner, python, tree, ids, scratch, name, budget, deadline,
 
 RERUN = 60  # seconds at most for each run again of the tests whose calls differed
 SECOND_SEED = '7919'  # the hash seed of the second run of the code before the change (the others use 0)
+THIRD_SEED = '104729'  # the hash seed of the runs that confirm the rows left
 AGAIN = 200  # tests at most run again: those with a differing result first, then those whose inputs differed
 
 
@@ -111,7 +112,8 @@ def compare(execute, runner, python, trees, plan, scratch, deadline, parts, chun
     the tree after the change was made (``second``: a callable giving its path, or None to use the same tree), and on
     the code after the change. The second run before the change also has another hash seed. A field that differs between the two runs of the code before the change belongs to the
     process or the checkout, not to what the code does: it is left out of both sides' inputs and results for that
-    function, and the pairs are compared again. Only these runs give rows; a difference whose test did not run again
+    function, and the pairs are compared again. The tests behind the rows then left run once more on each side, and a
+    field that differs from that side's earlier run is left out too. Only these runs give rows; a difference whose test did not run again
     is counted (``not_rerun``), not shown."""
     differ = set()
     rows, counts = record.pair([c for c in calls_b if c['function'] in both], [c for c in calls_a if c['function'] in both], moved,
@@ -139,6 +141,24 @@ def compare(execute, runner, python, trees, plan, scratch, deadline, parts, chun
             runs[name] = [c for c in record.read(folder, tree, runner.cwd(tree))[1] if c['function'] in both]
         noisy = record.unstable_fields(runs['before'], runs['before-2'])
         again, again_counts = record.pair(record.without(runs['before'], noisy), record.without(runs['after'], noisy), moved)
+        confirm = sorted({row['test'] for row in again})[:AGAIN]
+        if confirm:
+            # Two runs alike do not make a field stable: a result that follows a per-run value (a response's size
+            # under a port, a guess on random bytes) often agrees twice. The tests behind the rows left run once more
+            # on each side; a field that differs from that side's earlier run is left out as well.
+            for name, earlier, tree, watch, targets in (
+                    ('before-3', 'before', trees['before'], base_watch, plan['targets_before']),
+                    ('after-2', 'after', trees['after'], head_watch, plan['targets_after'])):
+                folder = Path(scratch)/f'record-{name}-again'
+                env = record.prepare(folder, tree, watch, targets, fields=True)
+                env['PYTHONHASHSEED'] = THIRD_SEED
+                _chunks(execute, runner, python, tree, confirm, scratch, f'{name}-again', RERUN, deadline, parts, env, chunk)
+                seen = [c for c in record.read(folder, tree, runner.cwd(tree))[1] if c['function'] in both]
+                for function, found in record.unstable_fields(runs[earlier], seen).items():
+                    entry = noisy.setdefault(function, {'in': set(), 'out': set(), 'sizes': set()})
+                    for side in entry:
+                        entry[side] |= found.get(side, set())
+            again, again_counts = record.pair(record.without(runs['before'], noisy), record.without(runs['after'], noisy), moved)
         ran = {c['test'] for c in runs['before']} & {c['test'] for c in runs['after']}
         kept = again
         extra = dict(unstable=sum(1 for row in rows if row['test'] in ran and not any(

@@ -281,3 +281,28 @@ def test_an_open_file_alike_on_both_sides_is_the_same_input(tmp_path):
     report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1})
     [row] = report['behaviour_differences']
     assert row['target'] == 'lib.py#read', row
+
+
+# requests 7272: the first argument held a port new in every run, and that left every argument out of the input, so a
+# call given a different file on each side read as the same input with a different result.
+def test_a_process_value_in_one_argument_does_not_hide_the_others(tmp_path):
+    lib0 = 'def send(where, what):\n    return what\n'
+    lib1 = 'def send(where, what):\n    return what + 0\n'
+    tests0 = ('import uuid\n\nfrom lib import send\n\n\ndef test_send():\n'
+              '    assert send(uuid.uuid4().hex, open(__file__).read().count("\\n"))\n')
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests0}, {'lib.py': lib1, 'tests/test_lib.py': tests0 + '# edited\n'})
+    assert report['side_by_side']['inputs_differ'] == 1, report['side_by_side']
+    assert report['behaviour_differences'] == [], report['behaviour_differences']
+
+
+# requests 7272 again: a result that follows a per-run value (a response's size under a port) agreed in the two runs
+# of the code before the change and differed after it.
+def test_a_result_alike_in_two_runs_and_not_in_a_third_is_not_a_row(tmp_path):
+    count = tmp_path.parent/(tmp_path.name + '-count')
+    lib0 = ('def flaky():\n    with open(%r, "a") as out:\n        out.write("x")\n'
+            '    seen = len(open(%r).read())\n    return seen in (2, 5) or seen > 5\n') % (str(count), str(count))
+    lib1 = lib0.replace('seen > 5', 'seen > 5 or False')
+    tests = 'from lib import flaky\n\n\ndef test_flaky():\n    flaky()\n'
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1})
+    assert report['behaviour_differences'] == [], (report['behaviour_differences'], count.read_text())
+    assert report['side_by_side']['unstable'] == 1, (report['side_by_side'], count.read_text())
