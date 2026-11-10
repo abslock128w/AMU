@@ -72,9 +72,12 @@ the 47, and on 60 of 60 across four pilot repositories; 3 false rows; 0 counted 
 - **One labeller, checked once.** A second, blind labelling of 20 comments agreed on the first line for 19 (kappa
   0.64) and on "adds something / nothing / noise" for 16 (kappa 0.6). Treat a difference of one or two pull requests
   between versions as within the labelling error.
-- **Run-to-run stability: pending.** The whole set is being run two more times at the tag. Until that is in, a row
-  count is one run's count. One sympy pull request (30841) showed 2 rows, then 0, then 2 on the same engine. Traced, both rows were false,
-  and had been labelled real for two versions: a label can be wrong where the row reads plausibly.
+- **Run-to-run stability: measured on 10 pull requests, three runs each** (`generalize/v071-47/stability.json`).
+  The first line was word for word the same on 6, the same apart from test counts on 9, and differently worded on 1
+  (Django 22176: two runs hit the time budget and said "not recorded", the third finished and said "ran in no test").
+  Row counts were the same on all 10, but all 10 have 0 rows, so this sample says nothing about rows. The one known
+  case is against: sympy 30841 showed 2 rows, then 0, then 2 on the same engine. Traced, both rows were false, and
+  had been labelled real for two versions. A label can be wrong where the row reads plausibly.
 - **Real regressions: 1 of 20 caught** (`regressions/REPORT.md`). A pull request that breaks something no existing
   test checks gets "0 flips", and that line is true. It is not evidence the change is harmless.
 - **Seven repositories, all pure-Python libraries with pytest or Django's runner.** Nothing here says how AMU does on

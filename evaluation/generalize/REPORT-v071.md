@@ -23,7 +23,6 @@ httpx, jinja and requests. Settings as before: Python 3.14, 300 s per side, a 1,
   both times. The run on the second hash seed reorders calls inside a test, the whole first argument then read as a
   per-run field and was left out, and the two indexes paired as "the same input". The same rows were labelled real at
   v0.7.0. The first line states them, so it is counted wrong. Fixed after the tag by #110: 0 rows in every run since.
-  Stability over three runs of the whole set is still being measured and is not in this report.
 - **requests #7272 showed false rows at the tag: 10.** 7 on `super_len` (an open file's size was not in the input)
   and 3 on `api.post`. Fixed after the tag by #108 and #110. The replay now shows 0 rows.
 - **A container subclass's items are still not part of the input.** An `OrderedDict` or a list subclass is recorded
@@ -46,6 +45,21 @@ httpx, jinja and requests. Settings as before: Python 3.14, 300 s per side, a 1,
 
 The 47 set: first line right on 44 of 47 (v0.7.0: 40, or 39 with sympy 30841 relabelled). The sympy "was" column is as
 labelled then; with 30841 relabelled it is 17 right and 2 false rows. Counted flips: 0 everywhere.
+
+## Stability
+
+10 of the 47 (Django 4, Flask 2, sympy 4) were run three times (`v071-47/stability.json`). The whole set was planned;
+the time ran out.
+
+| | of 10 |
+|---|---:|
+| First line word for word the same in all three runs | 6 |
+| The same apart from test counts | 9 |
+| Differently worded | 1 |
+| Row count the same | 10 |
+
+The one reworded line is Django 22176: two runs hit the time budget ("2 of 7 changed hunks not recorded"), the third
+finished ("ran in no test"). All 10 have 0 rows, so the sample does not measure row stability.
 
 ## What changed the numbers
 
