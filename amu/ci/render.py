@@ -27,6 +27,7 @@ MARKER = '<!-- amu-ci-comment v1 -->'
 LIMIT = 60_000      # GitHub rejects comment bodies over 65,536 characters
 FIELD = 300         # characters kept from any one untrusted string
 LISTED = 50         # rows shown per list before "and N more"
+PROBE_ROWS = 10     # generated-test rows shown: the engine orders them one per function first
 
 
 def code(text, limit=FIELD):
@@ -429,7 +430,7 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
         spent = (f"through {code(str(made.get('backend')), 20)}, at a cost of Claude plan usage, within "
                  f"{float(made.get('minutes_cap') or 0):g} min" if made.get('cost_basis') == 'plan usage' else
                  f"at ${float(made.get('cost') or 0):.3f} of a ${float(made.get('dollars_cap') or 0):.2f} cap")
-        out += [f"For changed functions no test called, {code(made.get('model', '?'), 40)} proposed "
+        out += [f"For the changed functions, {code(made.get('model', '?'), 40)} proposed "
                 f"{made.get('proposed', 0)} probe(s) for {made.get('functions', 0)} function(s), {spent}. Each was kept only if it "
                 f"compiled ({made.get('compiled', 0)}), ran on the head ({made.get('ran', 0)}), gave the same outcome five times "
                 f"there ({made.get('stable', 0)}), ran a changed line ({made.get('reached', 0)}), and gave one stable, different "
@@ -443,7 +444,7 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
             body = str(row.get('test', ''))[:1500].replace('`', "'")
             return text + ('\n  <details><summary>generated test</summary>\n\n  ```python\n'
                            + textwrap.indent(body, '  ') + '  ```\n  </details>' if body else '')
-        out += rows(produced, shown, listed) + ['']
+        out += rows(produced, shown, min(listed, PROBE_ROWS)) + ['']
     replayed = [row for row in report.get('replayed') or [] if isinstance(row, dict)]
     if replayed and not report.get('error'):
         out += [f"### Change evidence: the pull request's own tests ({len(evidence)})", '',

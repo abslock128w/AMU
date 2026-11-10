@@ -31,6 +31,7 @@ from __future__ import annotations
 import ast
 import json
 import os
+import re
 import shutil
 import signal
 import subprocess
@@ -39,7 +40,7 @@ import textwrap
 import time
 from pathlib import Path
 
-from . import runners, trust
+from . import replay, runners, sidebyside, trust
 
 KIND = 'generated test shows a difference'
 MODEL = 'claude-opus-5-5'
@@ -49,8 +50,8 @@ PRICES = {  # dollars per million input / output tokens
 }
 FALLBACK_MODELS = ('claude-opus-5-5', 'claude-opus-5', 'claude-fable-5-1', 'claude-sonnet-5-5')
 MAX_FUNCTIONS = 5   # changed functions per request
-PROBES = 3          # probes asked for per function
-KEEP = 5            # probes kept per function from one reply
+MAX_TARGETS = 40    # changed functions probed in one run, the most changed first
+KEEP = 8            # probes kept per function from one reply
 REPEATS = 5         # runs on the changed code a probe must repeat in
 EFFORT = 'low'      # a short, well-specified task under a cents-sized budget
 
@@ -75,6 +76,90 @@ SYSTEM = (
     "falsy or None value, a boundary value, an argument left out, a value in an older or alternative format. Prefer "
     "inputs on which the old code returned normally. Use only names importable from the project; import what you use "
     "in the setup. Keep each probe deterministic: no time, randomness, network, or files outside a temporary directory.")
+
+
+def probes_per_function(count):
+    """How many probes to ask for per function: more when the change is in few functions."""
+    return 8 if count <= 2 else 5 if count <= 6 else 3
+
+
+class _Unannotated(ast.NodeTransformer):
+    """A def statement as it runs when nothing reads its annotations."""
+
+    def visit_arg(self, node):
+        node.annotation = None
+        return node
+
+    def visit_FunctionDef(self, node):
+        node.returns = None
+        return self.generic_visit(node)
+    visit_AsyncFunctionDef = visit_FunctionDef
+
+    def visit_AnnAssign(self, node):
+        if node.value is None:
+            return ast.Pass()
+        return self.generic_visit(ast.Assign(targets=[node.target], value=node.value))
+
+
+def _weight(old, new):
+    """How much of a function's running code the change alters: lines of its syntax tree, annotations, decorators
+    and docstring set aside, that are on one side only. 0 when only those changed."""
+    import copy
+    import difflib
+
+    def lines(node):
+        node = _Unannotated().visit(copy.deepcopy(node))
+        node.decorator_list = []
+        if ast.get_docstring(node, clean=False) is not None:
+            node.body = node.body[1:] or [ast.Pass()]
+        return ast.dump(node, indent=0).splitlines()
+    a, b = lines(old), lines(new)
+    return sum(1 for row in difflib.ndiff(a, b) if row[:1] in '+-')
+
+
+def targets(functions, before_src, after_src):
+    """The functions to probe, the most changed first, and {id: reason} for changed functions left out. ``functions``
+    are analyze's changed_functions rows (file, symbol).
+
+    A probe is a call from outside, so the target need not be comparable call by call as side-by-side needs: a
+    function nested in another is probed through the one that holds it, and a generator, or a function that became
+    one, is a target like any other. Left out: a function in a test file, one that is not on both sides, a
+    coroutine, and one whose running code is the same (only annotations, decorators, docstring or layout changed)."""
+    found, skipped = {}, {}
+    for row in functions:
+        path, qual = row['file'], row['symbol']
+        ident = f'{path}#{qual}'
+        if replay.is_test_file(path):
+            skipped[ident] = 'in a test file'
+            continue
+        before, after = before_src.get(path), after_src.get(path)
+        parts = [part for part in qual.split('.') if part != '<locals>']
+        old = new = None
+        while parts and before and after:
+            old, new = sidebyside._node(before, '.'.join(parts)), sidebyside._node(after, '.'.join(parts))
+            if old is not None and new is not None:
+                break
+            old = new = None
+            parts.pop()
+        if old is None or new is None:
+            skipped[ident] = 'not on both sides (new or removed)'
+            continue
+        holder = f"{path}#{'.'.join(parts)}"
+        if holder in found:
+            continue
+        if isinstance(old, ast.AsyncFunctionDef) or isinstance(new, ast.AsyncFunctionDef):
+            skipped[ident] = 'coroutine'
+            continue
+        weight = _weight(old, new)
+        if not weight:
+            skipped[ident] = 'only its annotations, decorators, docstring or layout changed'
+            continue
+        found[holder] = dict(id=holder, file=path, qual='.'.join(parts), name=parts[-1], weight=weight,
+                             before=sidebyside._source(before, old), after=sidebyside._source(after, new))
+    ranked = sorted(found.values(), key=lambda t: -t['weight'])
+    for t in ranked[MAX_TARGETS:]:
+        skipped[t['id']] = f'more than {MAX_TARGETS} changed functions: the {MAX_TARGETS} most changed were probed'
+    return ranked[:MAX_TARGETS], skipped
 
 
 def client():
@@ -108,7 +193,7 @@ def backend(cli=False):
     return client()
 
 
-def ask_cli(cli, model, targets, examples, seconds):
+def ask_cli(cli, model, targets, examples, seconds, probes=3):
     """One request through ``claude -p``. Returns (probes, 0.0, problem or None): its cost is plan usage."""
     command = [cli.command, '-p', '--output-format', 'json', '--model', model, '--system-prompt', SYSTEM,
                '--json-schema', json.dumps(SCHEMA), '--tools', '', '--no-session-persistence', '--strict-mcp-config',
@@ -122,7 +207,7 @@ def ask_cli(cli, model, targets, examples, seconds):
         except OSError as exc:
             return [], 0.0, f'claude -p could not start: {exc.strerror or exc}'
         try:
-            stdout, stderr = process.communicate(prompt(targets, examples), timeout=max(1, seconds))
+            stdout, stderr = process.communicate(prompt(targets, examples, probes), timeout=max(1, seconds))
         except subprocess.TimeoutExpired:
             try:
                 os.killpg(process.pid, signal.SIGKILL)
@@ -169,20 +254,21 @@ def cost(model, usage):
     return (tokens_in * price_in + tokens_out * price_out) / 1_000_000
 
 
-def prompt(targets, examples):
+def prompt(targets, examples, probes=3):
     parts = ['Changed functions, as they were and as changed:\n']
     for t in targets:
         parts.append(f"## {t['id']}\n### before\n```python\n{t['before']}```\n### after\n```python\n{t['after']}```\n")
     if examples:
         parts.append('An existing test from this project, for how its tests import and set things up:\n```python\n'
                      + examples[:3000] + '\n```\n')
-    parts.append(f'Write up to {PROBES} probes per function. In "function" give the function id as written above.')
+    parts.append(f'Write up to {probes} probes per function, each with a different kind of input. In "function" give '
+                 'the function id as written above.')
     return '\n'.join(parts)
 
 
-def ask(api, model, targets, examples, dollars_left):
+def ask(api, model, targets, examples, dollars_left, probes=3):
     """One request. Returns (probes, dollars spent, problem or None)."""
-    text = prompt(targets, examples)
+    text = prompt(targets, examples, probes)
     price_in, price_out = PRICES.get(model, PRICES[MODEL])
     tokens_in = len(SYSTEM + text) / 3 + 200  # a generous estimate; the bill uses the real count
     room = dollars_left - tokens_in * price_in / 1_000_000
@@ -247,23 +333,44 @@ def _body(index, probe):
             f'    _amu_record({index}, "raise", _amu_exc)', 'else:', f'    _amu_record({index}, "return", _amu_value)']
 
 
-def test_file(runner_name, probes):
-    """(relative path, source, {probe index: test id}) for the runner, or None when it cannot host generated tests."""
+def _host(tree, probe):
+    """The Django test app a probe imports from, if any. runtests.py installs only the apps its labels name, so a probe
+    using an app's models has to be a test of that app: hosted anywhere else, the import itself raises."""
+    try:
+        nodes = ast.walk(ast.parse(textwrap.dedent(probe['setup'] or '')))
+    except (SyntaxError, ValueError):
+        return None
+    for node in nodes:
+        names = ([node.module] if isinstance(node, ast.ImportFrom) and node.module and not node.level else
+                 [alias.name for alias in node.names] if isinstance(node, ast.Import) else [])
+        for name in names:
+            top = name.split('.')[0]
+            if top.isidentifier() and (Path(tree)/'tests'/top/'__init__.py').is_file():
+                return top
+    return None
+
+
+def test_file(runner_name, probes, tree=None):
+    """({relative path: source}, {probe index: test id}) for the runner, or None when it cannot host generated tests."""
     if runner_name == 'pytest':
         path, ids, out = 'test_amu_generated.py', {}, [RECORDER]
         for i, probe in probes:
             out.append(f'\n\ndef test_amu_probe_{i}():\n' + textwrap.indent('\n'.join(_body(i, probe)), '    '))
             ids[i] = f'{path}::test_amu_probe_{i}'
-        return path, '\n'.join(out) + '\n', ids
+        return {path: '\n'.join(out) + '\n'}, ids
     if runner_name in ('unittest', 'django-runtests'):
-        base = 'django.test.TestCase' if runner_name == 'django-runtests' else 'unittest.TestCase'
+        django = runner_name == 'django-runtests'
+        base = 'django.test.TestCase' if django else 'unittest.TestCase'
         module = base.rsplit('.', 1)[0]
-        path = 'tests/amu_generated/tests.py' if runner_name == 'django-runtests' else 'test_amu_generated.py'
-        out, ids = [RECORDER, f'import {module}', '', f'class AmuGeneratedTests({base}):'], {}
+        default = 'tests/amu_generated/tests.py' if django else 'test_amu_generated.py'
+        files, ids = {}, {}
         for i, probe in probes:
+            app = _host(tree, probe) if django and tree is not None else None
+            path = f'tests/{app}/test_amu_generated.py' if app else default
+            out = files.setdefault(path, [RECORDER, f'import {module}', '', f'class AmuGeneratedTests({base}):'])
             out.append(f'    def test_amu_probe_{i}(self):\n' + textwrap.indent('\n'.join(_body(i, probe)), '        '))
             ids[i] = f'{path}::AmuGeneratedTests::test_amu_probe_{i}'
-        return path, '\n'.join(out) + '\n', ids
+        return {path: '\n'.join(out) + '\n' for path, out in files.items()}, ids
     return None
 
 
@@ -282,14 +389,16 @@ def _outcomes(path):
     return found
 
 
-def _install(tree, rel, source):
-    target = Path(tree)/rel
-    target.parent.mkdir(parents=True, exist_ok=True)
-    made = [target]
-    if rel.startswith('tests/amu_generated/') and not (target.parent/'__init__.py').exists():
-        (target.parent/'__init__.py').write_text('')
-        made.append(target.parent/'__init__.py')
-    target.write_text(source)
+def _install(tree, files):
+    made = []
+    for rel, source in files.items():
+        target = Path(tree)/rel
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if rel.startswith('tests/amu_generated/') and not (target.parent/'__init__.py').exists():
+            (target.parent/'__init__.py').write_text('')
+            made.append(target.parent/'__init__.py')
+        target.write_text(source)
+        made.append(target)
     return made
 
 
@@ -314,11 +423,15 @@ def _spellings(tree):
     return sorted((name for name in names if name.strip(os.sep)), key=len, reverse=True)
 
 
-def _run(runner, python, tree, ids, scratch, name, timeout, extra=None):
+def _run(runner, python, tree, ids, scratch, name, timeout, extra=None, said=None):
+    """``said``, a list when given, gets what the runner reported: its problem, then its text per test that did not pass."""
     out = Path(scratch)/f'c1-{name}.jsonl'
     out.unlink(missing_ok=True)
-    runners.execute(runner, python, tree, ids, Path(scratch)/f'c1-{name}.xml', timeout,
-                    extra_env=dict(extra or {}, AMU_C1_OUT=str(out), AMU_C1_TREE=json.dumps(_spellings(tree))))
+    texts = {} if said is not None else None
+    _, problem = runners.execute(runner, python, tree, ids, Path(scratch)/f'c1-{name}.xml', timeout, texts=texts,
+                                 extra_env=dict(extra or {}, AMU_C1_OUT=str(out), AMU_C1_TREE=json.dumps(_spellings(tree))))
+    if said is not None:
+        said += ([str(problem)] if problem else []) + [str(row.get('text', '')) for row in texts.values() if row.get('text')]
     return _outcomes(out)
 
 
@@ -349,15 +462,15 @@ def run(runner, python, after_tree, before_tree, targets, changed, examples, scr
 
     def left():
         return minutes * 60 - (time.monotonic() - started)
-    probes = []
+    probes, per = [], probes_per_function(len(targets))
     for start in range(0, len(targets), MAX_FUNCTIONS):
         if not subscription and dollars - info['cost'] <= 0 or left() < 30:
             gaps.append('generated tests: the dollar or minute cap was reached before every changed function had probes')
             break
         if subscription:
-            found, spent, problem = ask_cli(api, model, targets[start:start + MAX_FUNCTIONS], examples, min(CLI_SECONDS, left()))
+            found, spent, problem = ask_cli(api, model, targets[start:start + MAX_FUNCTIONS], examples, min(CLI_SECONDS, left()), per)
         else:
-            found, spent, problem = ask(api, model, targets[start:start + MAX_FUNCTIONS], examples, dollars - info['cost'])
+            found, spent, problem = ask(api, model, targets[start:start + MAX_FUNCTIONS], examples, dollars - info['cost'], per)
         info['requests'] += 1 if spent or not problem else 0
         info['cost'] = round(info['cost'] + spent, 5)
         probes += found
@@ -370,14 +483,16 @@ def run(runner, python, after_tree, before_tree, targets, changed, examples, scr
     info['compiled'] = len(numbered)
     if not numbered or left() < 10:
         return info, differences, gaps
-    rel, source, ids = test_file(runner.name, numbered)
+    files, ids = test_file(runner.name, numbered, after_tree)
     head, elsewhere = Path(scratch)/'c1-head', Path(scratch)/'c1-elsewhere'/'head'
     shutil.rmtree(head, ignore_errors=True)
     shutil.rmtree(elsewhere.parent, ignore_errors=True)
     shutil.copytree(after_tree, head, symlinks=True, ignore=shutil.ignore_patterns('.git', '.amu', '__pycache__'))
-    _install(head, rel, source)
+    _install(head, files)
     timeout = max(10, min(left(), 120))
-    runs = [_run(runner, python, head, list(ids.values()), scratch, f'head-{n}', timeout) for n in range(REPEATS - 1)]
+    said = []
+    runs = [_run(runner, python, head, list(ids.values()), scratch, f'head-{n}', timeout, said=said if n == 0 else None)
+            for n in range(REPEATS - 1)]
     # The last run is from a folder of another name and depth: an outcome that changes with where the tree lives is
     # not stable. The tree stays there for the reach runs.
     elsewhere.parent.mkdir(parents=True)
@@ -386,6 +501,12 @@ def run(runner, python, after_tree, before_tree, targets, changed, examples, scr
     first = runs[0]
     ran = [i for i, _ in numbered if len(first.get(i, [])) == 1]
     info['ran'] = len(ran)
+    if len(ran) < len(numbered):
+        # A probe that recorded nothing never got to its call: the reader is told what the runner said, not left with a zero.
+        lines = [line.strip().removeprefix('E ').strip() for line in (said[0] if said else '').splitlines() if line.strip()]
+        last = [line for line in lines if re.match(r'[\w.]*(Error|Exception|Warning)\b.*: ', line)][-1:] or lines[-1:]
+        gaps.append(f'generated tests: {len(numbered) - len(ran)} of {len(numbered)} probes did not run on the head'
+                    + (f' ({last[0][:200]})' if last else ''))
     stable = [i for i in ran if all(r.get(i) == first[i] for r in runs[1:])]
     info['stable'] = len(stable)
     reached = []
@@ -406,7 +527,7 @@ def run(runner, python, after_tree, before_tree, targets, changed, examples, scr
         shutil.rmtree(copy, ignore_errors=True)
         shutil.copytree(before_tree, copy, symlinks=True, ignore=shutil.ignore_patterns('.git', '.amu', '__pycache__'))
         before_tree = copy
-        made = _install(before_tree, rel, source)
+        made = _install(before_tree, files)
         try:
             base = [_run(runner, python, before_tree, [ids[i] for i in reached], scratch, f'base-{n}', timeout) for n in range(2)]
         finally:
@@ -418,12 +539,25 @@ def run(runner, python, after_tree, before_tree, targets, changed, examples, scr
                 differences.append(dict(label=KIND, target=probe['function'], setup=probe['setup'], call=probe['call'],
                                         why=probe.get('why', ''), before=before_outcome[0], after=first[i][0],
                                         test=written_test(probe, first[i][0])))
+        differences[:] = ordered(differences)
         info['differed'] = len(differences)
     info['accepted'] = len(differences)
     info['seconds'] = round(time.monotonic() - started, 1)
     shutil.rmtree(elsewhere.parent, ignore_errors=True)
     shutil.rmtree(Path(scratch)/'c1-head', ignore_errors=True)
     return info, differences, gaps
+
+
+def ordered(differences):
+    """The rows in the order a reader with room for a few should get them: every function's first row before any
+    function's second, and within that a call that returned on the merge base and raises on the head first."""
+    def broke(row):
+        return row['before'][0] == 'return' and row['after'][0] == 'raise'
+    turn, seen = [], {}
+    for index, row in enumerate(sorted(differences, key=lambda row: not broke(row))):
+        nth = seen[row['target']] = seen.get(row['target'], -1) + 1
+        turn.append((nth, not broke(row), index, row))
+    return [row for *_, row in sorted(turn, key=lambda item: item[:3])]
 
 
 def written_test(probe, outcome):
