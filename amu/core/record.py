@@ -632,15 +632,24 @@ def _within(path, fields):
                for f in fields for text in (path if INDEX.fullmatch(f) else whole,))
 
 
+def _kinds(fields):
+    """The type recorded for each whole argument of a call's input."""
+    return {path: value for path, value in fields.items() if path.endswith('@') and INDEX.fullmatch(path[:-1])}
+
+
 def unstable_fields(first, second):
     """Fields that differ between two runs of the same code on the same tests: {function: {'in': {pattern}, 'out':
     {pattern}}}. Calls are paired by (test, function, call index); a field present in one run's call and not the other's
-    differs too. Only calls recorded with fields count."""
+    differs too. Only calls recorded with fields count, and only pairs whose arguments are the same kinds of object."""
     one = {(c['test'], c['function'], c['n']): c for c in first if 'fields_out' in c and c['test'] != IMPORT}
     two = {(c['test'], c['function'], c['n']): c for c in second if 'fields_out' in c and c['test'] != IMPORT}
     found = {}
     for key in set(one) & set(two):
         a, b = one[key], two[key]
+        if _kinds(a.get('fields_in') or {}) != _kinds(b.get('fields_in') or {}):
+            # Another kind of object in an argument: the two runs did not make the same call at this index (calls in
+            # another order under another hash seed). What differs between them says nothing about any field.
+            continue
         for side, name in (('in', 'fields_in'), ('out', 'fields_out')):
             x, y = a.get(name) or {}, b.get(name) or {}
             for path in set(x) | set(y):

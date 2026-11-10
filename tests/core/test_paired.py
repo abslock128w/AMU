@@ -6,7 +6,7 @@ import textwrap
 
 import pytest
 
-from amu.core import analyze
+from amu.core import analyze, record
 
 pytestmark = pytest.mark.skipif(sys.version_info < (3, 12), reason='sys.monitoring needs Python 3.12')
 
@@ -306,3 +306,17 @@ def test_a_result_alike_in_two_runs_and_not_in_a_third_is_not_a_row(tmp_path):
     report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1})
     assert report['behaviour_differences'] == [], (report['behaviour_differences'], count.read_text())
     assert report['side_by_side']['unstable'] == 1, (report['side_by_side'], count.read_text())
+
+
+# sympy 30841: under another hash seed a test made its calls in another order, so call 4 held an atan in one run and
+# an Add in the other. The whole first argument read as a per-run field, every input then matched, and two calls the
+# change only moved showed as rows.
+def test_two_runs_that_made_different_calls_at_an_index_name_no_field():
+    def call(n, kind, value):
+        return dict(test='t.py::test_it', function='m.py#f', n=n,
+                    fields_in={'[0]@': kind, '[0].value': value, '[1]': 'same'}, fields_out={'[0]': 'return', '[1]': value})
+    first = [call(0, 'm.A', '1'), call(1, 'm.B', '2')]
+    moved = [call(0, 'm.B', '2'), call(1, 'm.A', '1')]
+    assert record.unstable_fields(first, moved) == {}
+    again = [call(0, 'm.A', '7'), call(1, 'm.B', '2')]
+    assert record.unstable_fields(first, again) == {'m.py#f': {'in': {'[*].value'}, 'out': {'[1]'}, 'sizes': set()}}
