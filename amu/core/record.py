@@ -35,7 +35,7 @@ import os as _os, sys as _sys
 _spec_path = _os.environ.get("AMU_REC_SPEC")
 if _spec_path and _sys.version_info >= (3, 12):
     try:
-        import atexit, hashlib, json, re, threading, types
+        import atexit, hashlib, io, json, re, stat, threading, types
         with open(_spec_path) as _h:
             _spec = json.load(_h)
         _root = _os.path.realpath(_spec["root"])
@@ -97,6 +97,19 @@ if _spec_path and _sys.version_info >= (3, 12):
                 return repr(value) if len(value) <= 2000 else repr(value[:2000]) + "+%d" % len(value)
             if kind is bytes:
                 return repr(value) if len(value) <= 2000 else repr(value[:2000]) + "+%d" % len(value)
+            if isinstance(value, io.IOBase):
+                # An open file is input the object does not hold: what the call reads comes from the disk. Its size
+                # stands for its content, so the same call on a file the change edits is not the same input.
+                try:
+                    found = _os.fstat(value.fileno())
+                    if stat.S_ISREG(found.st_mode):
+                        # Three scalars, written out here: however deep the file sits in the input, they are kept.
+                        about = [[repr(k), _fp(v if type(v) in (str, bytes, int) else None)]
+                                 for k, v in (("name", getattr(value, "name", None)), ("mode", getattr(value, "mode", None)),
+                                              ("size", found.st_size))]
+                        return [getattr(kind, "__module__", "?") + "." + kind.__qualname__, ["dict", about, 3], []]
+                except Exception:
+                    pass
             if depth > 4 or id(value) in seen:
                 return "<" + kind.__qualname__ + ">"
             seen = (*seen, id(value))
@@ -588,8 +601,17 @@ WHERE = 3  # differing fields a row names
 SIZE = '~size'  # the entry holding how long a long text field is (the recorder's _flat)
 
 
+TOP = re.compile(r'(\[\d+\])((?:\[\d+\])*)(#len|@|~size)?')
+
+
 def pattern(path):
-    """A field's path with its item positions left out: the same attribute of every item counts as one field."""
+    """A field's path with its item positions left out: the same attribute of every item counts as one field, and of
+    every argument too (the same kind of object in two arguments holds the same per-run attribute). A path made of
+    positions alone keeps its first: at the top that is one argument of a call (or the kind of result and its value),
+    and a per-run value passed as one argument says nothing of the others."""
+    top = TOP.fullmatch(path)
+    if top:
+        return top.group(1) + INDEX.sub('[*]', top.group(2)) + (top.group(3) or '')
     return INDEX.sub('[*]', path)
 
 
@@ -604,19 +626,30 @@ def _field(path):
 
 
 def _within(path, fields):
-    found = pattern(path)
-    return any(found == f or (found.startswith(f) and found[len(f)] in '[/.#@') for f in fields)
+    """Whether ``path`` is ``fields``' to leave out. A field that names one argument holds everything under it."""
+    whole = INDEX.sub('[*]', path)
+    return any(text == f or (text.startswith(f) and text[len(f)] in '[/.#@')
+               for f in fields for text in (path if INDEX.fullmatch(f) else whole,))
+
+
+def _kinds(fields):
+    """The type recorded for each whole argument of a call's input."""
+    return {path: value for path, value in fields.items() if path.endswith('@') and INDEX.fullmatch(path[:-1])}
 
 
 def unstable_fields(first, second):
     """Fields that differ between two runs of the same code on the same tests: {function: {'in': {pattern}, 'out':
     {pattern}}}. Calls are paired by (test, function, call index); a field present in one run's call and not the other's
-    differs too. Only calls recorded with fields count."""
+    differs too. Only calls recorded with fields count, and only pairs whose arguments are the same kinds of object."""
     one = {(c['test'], c['function'], c['n']): c for c in first if 'fields_out' in c and c['test'] != IMPORT}
     two = {(c['test'], c['function'], c['n']): c for c in second if 'fields_out' in c and c['test'] != IMPORT}
     found = {}
     for key in set(one) & set(two):
         a, b = one[key], two[key]
+        if _kinds(a.get('fields_in') or {}) != _kinds(b.get('fields_in') or {}):
+            # Another kind of object in an argument: the two runs did not make the same call at this index (calls in
+            # another order under another hash seed). What differs between them says nothing about any field.
+            continue
         for side, name in (('in', 'fields_in'), ('out', 'fields_out')):
             x, y = a.get(name) or {}, b.get(name) or {}
             for path in set(x) | set(y):

@@ -6,7 +6,7 @@ import textwrap
 
 import pytest
 
-from amu.core import analyze
+from amu.core import analyze, record
 
 pytestmark = pytest.mark.skipif(sys.version_info < (3, 12), reason='sys.monitoring needs Python 3.12')
 
@@ -260,3 +260,63 @@ def test_results_that_part_past_the_text_kept_name_the_field_they_part_at(tmp_pa
     [line] = [text for text in body.splitlines() if text.startswith('- `lib.py#names`')]
     assert 'the results differ past the' in line and "as it was `'old'`, as changed `'new'`" in line, line
     assert 'from character' not in line, line
+
+
+# requests 7272: the tests upload their own file, which the change edits. The open file was the same on both sides to
+# the fingerprint, so the two responses echoing its content read as a difference on the same input.
+def test_an_open_file_the_change_edits_is_not_the_same_input(tmp_path):
+    # The file sits as deep as in the requests case: in a tuple, in a dict, in a dict of keyword arguments.
+    lib0 = 'def read(box):\n    return box["a"]["b"][0].read()\n'
+    lib1 = 'def read(box):\n    return box["a"]["b"][0].read() + ""\n'
+    tests0 = ('from lib import read\n\n\ndef test_read():\n    with open(__file__) as handle:\n'
+              '        assert read({"a": {"b": (handle, 1)}})\n')
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests0}, {'lib.py': lib1, 'tests/test_lib.py': tests0 + '# edited\n'})
+    assert report['behaviour_differences'] == [], report['behaviour_differences']
+
+
+def test_an_open_file_alike_on_both_sides_is_the_same_input(tmp_path):
+    lib0 = 'def read(handle):\n    return handle.read()\n'
+    lib1 = 'def read(handle):\n    return handle.read().upper()\n'
+    tests = 'from lib import read\n\n\ndef test_read():\n    with open(__file__) as handle:\n        assert read(handle)\n'
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1})
+    [row] = report['behaviour_differences']
+    assert row['target'] == 'lib.py#read', row
+
+
+# requests 7272: the first argument held a port new in every run, and that left every argument out of the input, so a
+# call given a different file on each side read as the same input with a different result.
+def test_a_process_value_in_one_argument_does_not_hide_the_others(tmp_path):
+    lib0 = 'def send(where, what):\n    return what\n'
+    lib1 = 'def send(where, what):\n    return what + 0\n'
+    tests0 = ('import uuid\n\nfrom lib import send\n\n\ndef test_send():\n'
+              '    assert send(uuid.uuid4().hex, open(__file__).read().count("\\n"))\n')
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests0}, {'lib.py': lib1, 'tests/test_lib.py': tests0 + '# edited\n'})
+    assert report['side_by_side']['inputs_differ'] == 1, report['side_by_side']
+    assert report['behaviour_differences'] == [], report['behaviour_differences']
+
+
+# requests 7272 again: a result that follows a per-run value (a response's size under a port) agreed in the two runs
+# of the code before the change and differed after it.
+def test_a_result_alike_in_two_runs_and_not_in_a_third_is_not_a_row(tmp_path):
+    count = tmp_path.parent/(tmp_path.name + '-count')
+    lib0 = ('def flaky():\n    with open(%r, "a") as out:\n        out.write("x")\n'
+            '    seen = len(open(%r).read())\n    return seen in (2, 5) or seen > 5\n') % (str(count), str(count))
+    lib1 = lib0.replace('seen > 5', 'seen > 5 or False')
+    tests = 'from lib import flaky\n\n\ndef test_flaky():\n    flaky()\n'
+    report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1})
+    assert report['behaviour_differences'] == [], (report['behaviour_differences'], count.read_text())
+    assert report['side_by_side']['unstable'] == 1, (report['side_by_side'], count.read_text())
+
+
+# sympy 30841: under another hash seed a test made its calls in another order, so call 4 held an atan in one run and
+# an Add in the other. The whole first argument read as a per-run field, every input then matched, and two calls the
+# change only moved showed as rows.
+def test_two_runs_that_made_different_calls_at_an_index_name_no_field():
+    def call(n, kind, value):
+        return dict(test='t.py::test_it', function='m.py#f', n=n,
+                    fields_in={'[0]@': kind, '[0].value': value, '[1]': 'same'}, fields_out={'[0]': 'return', '[1]': value})
+    first = [call(0, 'm.A', '1'), call(1, 'm.B', '2')]
+    moved = [call(0, 'm.B', '2'), call(1, 'm.A', '1')]
+    assert record.unstable_fields(first, moved) == {}
+    again = [call(0, 'm.A', '7'), call(1, 'm.B', '2')]
+    assert record.unstable_fields(first, again) == {'m.py#f': {'in': {'[*].value'}, 'out': {'[1]'}, 'sizes': set()}}
