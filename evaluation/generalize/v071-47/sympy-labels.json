@@ -218,14 +218,14 @@
  "sympy#30841": {
   "first": "**AMU: 0 flips** at `23a11c6`, among 160 tests run; every changed hunk ran on both sides, in up to 139 tests; 2 tests of the pull request's own fail on the merge base and pass on the head; 2 behaviour differences on the same input",
   "engine": "candidate b81e2fa",
-  "first_line_correct": true,
+  "first_line_correct": false,
   "adds": "something",
-  "real": 2,
-  "false": 0,
+  "real": 0,
+  "false": 2,
   "raise_catchers": 2,
   "raise_missed": 0,
   "seconds": 508.1,
-  "note": "Same first line as v0.7.0, test counts apart."
+  "note": "Relabelled 2026-11-10 after tracing: the 2 rows on singularities are false. The change moves a call (an atan at call 4 before, call 5 after; same result both times); with the whole first argument left out as unstable the two indexes paired. They were labelled real at v0.7.0 and at first here. Fixed after the tag by PR #110: 0 rows."
  },
  "sympy#30851": {
   "first": "**AMU: 0 flips** at `9b1263b`, among 2560 tests run; every changed hunk ran on both sides, in up to 4 tests; 1 test of the pull request's own fail on the merge base and pass on the head",

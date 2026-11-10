@@ -18,10 +18,12 @@ httpx, jinja and requests. Settings as before: Python 3.14, 300 s per side, a 1,
 - **sympy: 73 raise catchers missed** (30815: 72, 30803: 1). Was 79. The cause on 30815 is unchanged: coverage that
   depends on test order. The comment now says so. It is not bounded.
 - **Django: 1 false row remains** (22026, `get_context_data`), not traced. Two Django comments still add noise.
-- **Rows are not stable from run to run on sympy.** 30841 has 2 real rows on `singularities`. One run of the same
-  engine showed 2, the next 0, the next 2. The run on the second hash seed reorders the calls inside a test, so the
-  whole first argument reads as unstable and is left out. What is compared after that depends on how the calls line up.
-  Stability over three runs of the whole set is being measured and is not in this report.
+- **sympy 30841: 2 false rows, labelled real until now.** The rows on `singularities` showed in one run and not the
+  next, so they were traced. The change moves a call: an `atan` is call 4 before and call 5 after, with the same result
+  both times. The run on the second hash seed reorders calls inside a test, the whole first argument then read as a
+  per-run field and was left out, and the two indexes paired as "the same input". The same rows were labelled real at
+  v0.7.0. The first line states them, so it is counted wrong. Fixed after the tag by #110: 0 rows in every run since.
+  Stability over three runs of the whole set is still being measured and is not in this report.
 - **requests #7272 showed false rows at the tag: 10.** 7 on `super_len` (an open file's size was not in the input)
   and 3 on `api.post`. Fixed after the tag by #108 and #110. The replay now shows 0 rows.
 - **A container subclass's items are still not part of the input.** An `OrderedDict` or a list subclass is recorded
@@ -35,14 +37,15 @@ httpx, jinja and requests. Settings as before: Python 3.14, 300 s per side, a 1,
 | Repo | PRs | First line right | was (v0.7.0) | False rows | was | Raise missed | was | Adds something / nothing / noise | Median s |
 |---|---:|---:|---:|---:|---:|---:|---:|---|---:|
 | Django | 17 | 17 | 14 | 1 | 2 | 0 of 495 | 24 | 6 / 9 / 2 | 110.9 |
-| sympy | 20 | 20 | 18 | 0 | 0 | 73 of 11,239 | 79 | 11 / 9 / 0 | 474.3 |
+| sympy | 20 | 19 | 18 | 2 | 0 | 73 of 11,239 | 79 | 11 / 9 / 0 | 474.3 |
 | Flask | 10 | 8 | 8 | 0 | 0 | not measured | | 5 / 5 / 0 | 18.2 |
 | attrs (pilot) | 15 | 15 | 15 | 0 | 0 | | | 6 / 9 / 0 | 72 |
 | httpx (pilot) | 15 | 15 | 15 | 0 | 0 | | | 3 / 12 / 0 | 65 |
 | jinja (pilot) | 15 | 15 | 13 | 0 | 121 | 0 | | 7 / 8 / 0 | 20.5 |
 | requests (pilot, new) | 15 | 15 | | 0 | | | | 3 / 12 / 0 | 188 |
 
-The 47 set: first line right on 45 of 47 (v0.7.0: 40). Counted flips: 0 everywhere.
+The 47 set: first line right on 44 of 47 (v0.7.0: 40, or 39 with sympy 30841 relabelled). The sympy "was" column is as
+labelled then; with 30841 relabelled it is 17 right and 2 false rows. Counted flips: 0 everywhere.
 
 ## What changed the numbers
 
@@ -61,7 +64,7 @@ The 47 set: first line right on 45 of 47 (v0.7.0: 40). Counted flips: 0 everywhe
 | #107 | TYPE_CHECKING blocks are typing; a body that ran only in the pull request's own test is not "(at import)" |
 | #108 | An input's length survives masking; a row names the field where results part |
 | #109 | Diffs line up on lines that occur once, so a rewritten docstring is its own hunk |
-| #110 | An open file's size is part of the input; a per-run value in one argument no longer hides the others; a row is confirmed by one more run on each side |
+| #110 | An open file's size is part of the input; a per-run value in one argument no longer hides the others; a row is confirmed by one more run on each side; two runs that made different calls at an index name no unstable field |
 
 ## Measurement trust
 
