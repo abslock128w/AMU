@@ -33,6 +33,7 @@ from pathlib import Path
 from .. import __version__
 from ..core import edges as core_edges
 from ..core import sitehooks
+from ..core.git import ALIGN
 from ..core.index import cache_dir
 from ..core.shadow import EDITED, SIDE_BY_SIDE
 
@@ -204,7 +205,7 @@ def run(repo, base, head, out, python=None, runner=None, pr=None, budget=None, i
             report = dict(error=f'no merge base between {base} and {head}; fetch the history (fetch-depth: 0)')
         else:
             meta['merge_base'] = found
-            diff = git(repo, 'diff', '--no-color', '--no-ext-diff', found, head or 'HEAD')
+            diff = git(repo, 'diff', '--no-color', '--no-ext-diff', ALIGN, found, head or 'HEAD')
             patch = out/'patch.diff'
             patch.write_text((diff + '\n') if diff else '')
             if not diff:
