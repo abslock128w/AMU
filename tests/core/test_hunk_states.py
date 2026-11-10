@@ -322,3 +322,87 @@ def test_a_new_function_only_the_changes_own_test_calls_ran_only_there_not_at_im
     row = next(r for r in report['hunks'] if r['path'] == 'lib.py')
     assert row['state'] == 'executed-head-only' and row['tests'] == 1 and row['why'] == '', row
     assert "ran only in the pull request's own tests: `lib.py:" in body[0], body[0]
+
+
+_STEPS = ''.join(f'''
+    def step_{n}(self, value):
+        """Step {n}."""
+        self.seen.append(({n}, value))
+        return value + {n}
+''' for n in range(8))
+_MERGE_BEFORE = '''def active():
+    """Works like the other one.
+
+    .. versionadded:: 0.9
+    """
+    return CURRENT.get(None) is not None
+
+
+class App:
+    """The app side."""
+
+    def __init__(self, app):
+        self.app = app
+        self.tokens = []
+
+    def push(self):
+        """Binds it."""
+        self.tokens.append(CURRENT.set(self))
+
+
+class Request:
+    """The request side."""
+
+    def __init__(self, app, environ):
+        self.app = app
+        self.environ = environ
+        self.seen = []
+''' + _STEPS
+_MERGE_AFTER = '''def active():
+    """Test if one is active.
+
+    It can be true outside a request.
+
+        if active():
+            cached = ...
+
+    If one is active the proxies are there.
+
+        if proxy:
+            cached = ...
+
+    .. versionadded:: 0.9
+    """
+    return CURRENT.get(None) is not None
+
+
+class App:
+    """Both sides in one."""
+
+    def __init__(self, app, environ=None):
+        self.app = app
+        self.environ = environ
+        self.seen = []
+''' + _STEPS
+
+
+def test_a_docstring_rewritten_beside_a_rewritten_class_is_not_read_as_code(tmp_path):
+    """Two classes merged into one below a function whose docstring grows: lined up by blank lines and quote marks, the
+    new docstring lands against the removed class and reads as a code change in a function no test ran. Lined up on the
+    lines that occur once, the docstring is its own hunk."""
+    from amu.core import git as core_git
+    from amu.core import patch as core_patch
+    from amu.core import states
+
+    def git(*args):
+        subprocess.run(['git', '-C', str(tmp_path), '-c', 'user.name=a', '-c', 'user.email=a@b.c', *args], check=True, capture_output=True)
+
+    git('init', '-q')
+    (tmp_path/'m.py').write_text(_MERGE_BEFORE)
+    git('add', '.')
+    git('commit', '-qm', 'before')
+    (tmp_path/'m.py').write_text(_MERGE_AFTER)
+    diff, _ = core_git.working_diff(tmp_path)
+    edits, _ = core_patch.changes(tmp_path, diff)
+    rows = states.classify(tmp_path, edits, {'m.py': _MERGE_BEFORE}, {'m.py': _MERGE_AFTER}, None)
+    assert [row['state'] for row in rows if row['function'] == 'active'] == ['not-code']
