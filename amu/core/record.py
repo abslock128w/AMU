@@ -35,7 +35,7 @@ import os as _os, sys as _sys
 _spec_path = _os.environ.get("AMU_REC_SPEC")
 if _spec_path and _sys.version_info >= (3, 12):
     try:
-        import atexit, hashlib, json, re, threading, types
+        import atexit, hashlib, io, json, re, stat, threading, types
         with open(_spec_path) as _h:
             _spec = json.load(_h)
         _root = _os.path.realpath(_spec["root"])
@@ -120,6 +120,16 @@ if _spec_path and _sys.version_info >= (3, 12):
             if isinstance(value, types.ModuleType):
                 return "module:" + value.__name__
             name = getattr(kind, "__module__", "?") + "." + kind.__qualname__
+            if isinstance(value, io.IOBase):
+                # An open file is input the object does not hold: what the call reads comes from the disk. Its size
+                # stands for its content, so the same call on a file the change edits is not the same input.
+                try:
+                    found = _os.fstat(value.fileno())
+                    if stat.S_ISREG(found.st_mode):
+                        about = {"name": getattr(value, "name", None), "mode": getattr(value, "mode", None), "size": found.st_size}
+                        return [name, _fp(about, depth + 1, seen), []]
+                except Exception:
+                    pass
             state = None
             try:
                 found = object.__getattribute__(value, "__dict__")
