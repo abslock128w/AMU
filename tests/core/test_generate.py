@@ -68,7 +68,9 @@ def test_only_probes_that_pass_every_filter_are_kept_and_their_outcomes_come_fro
     assert made['cost'] == round((4000 * 4 + 1500 * 20) / 1e6, 5)
     from amu.ci.render import render
     body = render(report, dict(head='a' * 40, merge_base='b' * 40))
-    assert '### Generated tests showing a difference (1)' in body and '`scale(50)`' in body and '<details>' in body, body
+    # A changed return value is not a new failure: it is listed, collapsed, under the heading that counts new failures.
+    assert "### Generated tests: calls that worked before and now fail in the project's code (0)" in body, body
+    assert 'Other generated tests whose outcome differs (1)' in body and '`scale(50)`' in body, body
 
 
 @pytest.mark.parametrize('on_disk', [True, False], ids=['change-on-disk', 'code-before-on-disk'])
@@ -222,3 +224,19 @@ def test_rows_are_ordered_one_per_function_first_and_newly_raising_calls_before_
     got = generate.ordered([row('a', 'a(1)', 'return', 'return'), row('a', 'a(2)', 'return', 'raise'),
                             row('a', 'a(3)', 'raise', 'return'), row('b', 'b(1)', 'raise', 'raise'), row('c', 'c(1)', 'return', 'raise')])
     assert [r['call'] for r in got] == ['a(2)', 'c(1)', 'b(1)', 'a(1)', 'a(3)']
+
+
+def test_a_call_that_now_fails_at_a_statement_that_is_not_a_raise_is_a_crash_row(tmp_path, monkeypatch):
+    monkeypatch.setattr(sys.modules[__name__], 'LIB1', 'def tested(x):\n    return x + 0\n\n\ndef scale(x):\n'
+                        '    if x == 7:\n        raise ValueError("seven")\n    return x.real * 2\n')
+    probes = [dict(function='lib.py#scale', setup='from lib import scale', call="scale('ab')", why='a string'),
+              dict(function='lib.py#scale', setup='from lib import scale', call="scale('cd')", why='another string'),
+              dict(function='lib.py#scale', setup='from lib import scale', call='scale(7)', why='the refused value')]
+    report, _ = run(tmp_path, probes, monkeypatch)
+    rows = {row['call']: row for row in report['generated_differences']}
+    assert {call: (row.get('origin'), row.get('at')) for call, row in rows.items()} == {
+        "scale('ab')": ('crash', ['lib.py', 8]), "scale('cd')": ('crash', ['lib.py', 8]), 'scale(7)': ('raised', ['lib.py', 7])}, rows
+    from amu.ci.render import render
+    body = render(report, dict(head='a' * 40, merge_base='b' * 40))
+    # Two calls that fail at the same statement are one row; the refusal the change wrote is not a crash.
+    assert "now fail in the project's code (1)" in body and 'Other generated tests whose outcome differs (1)' in body, body

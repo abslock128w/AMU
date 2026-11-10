@@ -426,7 +426,16 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
     made = report.get('generated') if isinstance(report.get('generated'), dict) else None
     produced = [row for row in report.get('generated_differences') or [] if isinstance(row, dict)]
     if made is not None and not report.get('error') and made.get('proposed'):
-        out += [f"### Generated tests showing a difference ({len(produced)})", '']
+        # A call that returned on the merge base and, on the head, fails at a statement of the project that is not a
+        # raise: the one kind of generated row that was more often a regression than an intended change when measured.
+        crashes, failing_at = [], set()
+        for row in produced:
+            spot = (row.get('target'), json.dumps(row.get('at')))
+            if row.get('origin') == 'crash' and spot not in failing_at:
+                failing_at.add(spot)
+                crashes.append(row)
+        rest = [row for row in produced if row.get('origin') != 'crash']
+        out += [f"### Generated tests: calls that worked before and now fail in the project's code ({len(crashes)})", '']
         spent = (f"through {code(str(made.get('backend')), 20)}, at a cost of Claude plan usage, within "
                  f"{float(made.get('minutes_cap') or 0):g} min" if made.get('cost_basis') == 'plan usage' else
                  f"at ${float(made.get('cost') or 0):.3f} of a ${float(made.get('dollars_cap') or 0):.2f} cap")
@@ -444,7 +453,14 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
             body = str(row.get('test', ''))[:1500].replace('`', "'")
             return text + ('\n  <details><summary>generated test</summary>\n\n  ```python\n'
                            + textwrap.indent(body, '  ') + '  ```\n  </details>' if body else '')
-        out += rows(produced, shown, min(listed, PROBE_ROWS)) + ['']
+        if crashes:
+            out += ['Each call below returned on the merge base. On the head it raises, and the exception comes from a '
+                    'statement that is not a `raise`: nothing in the change says this failure was meant.', '']
+            out += rows(crashes, shown, min(listed, PROBE_ROWS)) + ['']
+        if rest:
+            out += [f'<details><summary>Other generated tests whose outcome differs ({len(rest)}): on replayed regressions, '
+                    'about 4 in 5 of these showed the intended change</summary>', '',
+                    *rows(rest, shown, min(listed, PROBE_ROWS)), '', '</details>', '']
     replayed = [row for row in report.get('replayed') or [] if isinstance(row, dict)]
     if replayed and not report.get('error'):
         out += [f"### Change evidence: the pull request's own tests ({len(evidence)})", '',

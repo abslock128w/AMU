@@ -313,8 +313,18 @@ def _amu_record(probe, kind, value):
     for spelling in _AMU_TREE:  # longest first, and before the cut, so both sides are cut at the same place
         shown = shown.replace(spelling, "<tree>")
     outcome = [kind, type(value).__qualname__, shown[:2000]]
+    at = None
+    if kind == "raise":  # the deepest frame in the tree the exception passed through: where the project's code let it out
+        step = value.__traceback__
+        while step is not None:
+            name = _amu_os.path.realpath(step.tb_frame.f_code.co_filename)
+            for spelling in _AMU_TREE:
+                if name.startswith(spelling + _amu_os.sep) and "site-packages" not in name:
+                    at = [name[len(spelling) + 1:], step.tb_lineno]
+                    break
+            step = step.tb_next
     with open(_amu_os.environ["AMU_C1_OUT"], "a") as handle:
-        handle.write(_amu_json.dumps(dict(probe=probe, outcome=outcome)) + "\\n")
+        handle.write(_amu_json.dumps(dict(probe=probe, outcome=outcome, at=at)) + "\\n")
 '''
 
 
@@ -374,7 +384,7 @@ def test_file(runner_name, probes, tree=None):
     return None
 
 
-def _outcomes(path):
+def _outcomes(path, origins=None):
     found = {}
     try:
         lines = Path(path).read_text().splitlines()
@@ -386,6 +396,8 @@ def _outcomes(path):
         except ValueError:
             continue
         found.setdefault(row['probe'], []).append(row['outcome'])
+        if origins is not None and row.get('at'):
+            origins[row['probe']] = row['at']
     return found
 
 
@@ -423,7 +435,7 @@ def _spellings(tree):
     return sorted((name for name in names if name.strip(os.sep)), key=len, reverse=True)
 
 
-def _run(runner, python, tree, ids, scratch, name, timeout, extra=None, said=None):
+def _run(runner, python, tree, ids, scratch, name, timeout, extra=None, said=None, origins=None):
     """``said``, a list when given, gets what the runner reported: its problem, then its text per test that did not pass."""
     out = Path(scratch)/f'c1-{name}.jsonl'
     out.unlink(missing_ok=True)
@@ -432,7 +444,7 @@ def _run(runner, python, tree, ids, scratch, name, timeout, extra=None, said=Non
                                  extra_env=dict(extra or {}, AMU_C1_OUT=str(out), AMU_C1_TREE=json.dumps(_spellings(tree))))
     if said is not None:
         said += ([str(problem)] if problem else []) + [str(row.get('text', '')) for row in texts.values() if row.get('text')]
-    return _outcomes(out)
+    return _outcomes(out, origins)
 
 
 def run(runner, python, after_tree, before_tree, targets, changed, examples, scratch, dollars, minutes, model=MODEL, api=None,
@@ -490,8 +502,9 @@ def run(runner, python, after_tree, before_tree, targets, changed, examples, scr
     shutil.copytree(after_tree, head, symlinks=True, ignore=shutil.ignore_patterns('.git', '.amu', '__pycache__'))
     _install(head, files)
     timeout = max(10, min(left(), 120))
-    said = []
-    runs = [_run(runner, python, head, list(ids.values()), scratch, f'head-{n}', timeout, said=said if n == 0 else None)
+    said, origins = [], {}
+    runs = [_run(runner, python, head, list(ids.values()), scratch, f'head-{n}', timeout, said=said if n == 0 else None,
+                 origins=origins if n == 0 else None)
             for n in range(REPEATS - 1)]
     # The last run is from a folder of another name and depth: an outcome that changes with where the tree lives is
     # not stable. The tree stays there for the reach runs.
@@ -539,6 +552,9 @@ def run(runner, python, after_tree, before_tree, targets, changed, examples, scr
                 differences.append(dict(label=KIND, target=probe['function'], setup=probe['setup'], call=probe['call'],
                                         why=probe.get('why', ''), before=before_outcome[0], after=first[i][0],
                                         test=written_test(probe, first[i][0])))
+                if before_outcome[0][0] == 'return' and first[i][0][0] == 'raise':
+                    differences[-1]['origin'] = origin(after_tree, origins.get(i), set(files))
+                    differences[-1]['at'] = origins.get(i)
         differences[:] = ordered(differences)
         info['differed'] = len(differences)
     info['accepted'] = len(differences)
@@ -546,6 +562,24 @@ def run(runner, python, after_tree, before_tree, targets, changed, examples, scr
     shutil.rmtree(elsewhere.parent, ignore_errors=True)
     shutil.rmtree(Path(scratch)/'c1-head', ignore_errors=True)
     return info, differences, gaps
+
+
+def origin(tree, at, hosts):
+    """Why a call that returned on the merge base raises on the head, from where the exception left the project's code:
+    'raised' by a raise statement there, 'call' when it never got past the probe's own call (the arguments no longer
+    fit, or code outside the project refused them), else 'crash': a statement that is not a raise let it out."""
+    if not at or at[0] in hosts:
+        return 'call'
+    try:
+        tree = ast.parse((Path(tree)/at[0]).read_text())
+    except (OSError, SyntaxError, ValueError):
+        return 'crash'
+    inner = None
+    for node in ast.walk(tree):
+        if isinstance(node, ast.stmt) and node.lineno <= at[1] <= (node.end_lineno or node.lineno):
+            if inner is None or node.lineno >= inner.lineno:
+                inner = node
+    return 'raised' if isinstance(inner, ast.Raise) else 'crash'
 
 
 def ordered(differences):
