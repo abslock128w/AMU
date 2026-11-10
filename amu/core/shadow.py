@@ -545,7 +545,9 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
         elif functions and not aborted and wanted:
             spec_targets, left_out = sidebyside.targets(functions, before_src, after_src)
             called = set((side or {}).get('called') or ())
-            uncalled = [t for t in spec_targets if t['id'] not in called]
+            # Every changed function gets probes, those no test called first: a function the tests call is still
+            # only compared on the inputs they pass, and a regression is an input they do not pass.
+            uncalled = sorted(spec_targets, key=lambda t: t['id'] in called)
             example = next((_read(Path(trees['after'])/_path(i)) for i in ids if _path(i).endswith('.py')), '')
             changed = {path: _after_lines(path, edit) for path, edit in edits.items()
                        if path.endswith('.py') and not replay.is_test_file(path)}

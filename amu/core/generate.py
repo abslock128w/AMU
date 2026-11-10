@@ -65,12 +65,16 @@ SCHEMA = {
 }
 
 SYSTEM = (
-    "You write probes that show how a changed Python function behaves differently after a change. A probe is a few "
-    "setup statements and one call expression of the changed function (or of public code that reaches it). Do not "
-    "write assertions or expected values: the probe is executed on the code before and after the change, and its "
-    "outcomes are compared by the harness. Choose inputs that reach the changed lines and make the two versions "
-    "differ, if they can. Use only names importable from the project; import what you use in the setup. Keep each "
-    "probe deterministic: no time, randomness, network, or files outside a temporary directory.")
+    "You write probes that look for inputs a change to a Python function may have broken. A probe is a few setup "
+    "statements and one call expression of the changed function (or of public code that reaches it). Do not write "
+    "assertions or expected values: the probe is executed on the code before and after the change, and its outcomes "
+    "are compared by the harness. The project's own tests already pass on both versions, so the ordinary inputs are "
+    "covered. Choose inputs a caller could legitimately have passed to the code before the change, that reach the "
+    "changed lines, and that the change may treat differently without meaning to: another type the old code accepted "
+    "(a tuple, a generator, a subclass, a lazy or proxy object, an object that only has the needed method), an empty, "
+    "falsy or None value, a boundary value, an argument left out, a value in an older or alternative format. Prefer "
+    "inputs on which the old code returned normally. Use only names importable from the project; import what you use "
+    "in the setup. Keep each probe deterministic: no time, randomness, network, or files outside a temporary directory.")
 
 
 def client():
