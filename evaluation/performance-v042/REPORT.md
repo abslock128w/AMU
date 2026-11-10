@@ -6,6 +6,8 @@ description and diff.
 
 ## Results
 
+Labels: rubric v1 (rubric in `evaluation/PROTOCOL.md`).
+
 | | Django | sympy | Flask | All |
 |---|---:|---:|---:|---:|
 | Pull requests | 17 | 20 | 10 | 47 |
@@ -63,6 +65,8 @@ could have been known:
 - Django #22187: one entry in a data dict.
 
 ## What the reviewer already had: project CI on the 15 pull requests where AMU added something
+
+Labels: rubric v1 (rubric in `evaluation/PROTOCOL.md`).
 
 | PR | What AMU added | Project CI on the PR's head | Would CI have shown it? |
 |---|---|---|---|
@@ -149,6 +153,8 @@ could have been known:
   - Upstream CI conclusions: `ci.json`.
 
 ## All 47
+
+Labels: rubric v1 (rubric in `evaluation/PROTOCOL.md`).
 
 | PR | Title | First line (as posted) | First line correct | Adds | Rows | Job s | Why |
 |---|---|---|---|---|---|---:|---|

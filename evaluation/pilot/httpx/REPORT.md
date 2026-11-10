@@ -22,6 +22,8 @@ Nothing was opened, commented or pushed on encode/httpx.
 
 ## Results
 
+Labels: rubric v2 (rubric in `evaluation/PROTOCOL.md`).
+
 | Fork PR | httpx PR | AMU job | Open → comment | Posted | First line | Correct | Adds | False rows | Raise catchers missed | Suite run |
 |---|---|---:|---:|---|---|---|---|---:|---:|---:|
 | [#1](https://github.com/abslock128w/httpx/pull/1) | 3699 Expose `FunctionAuth` in `__all__` | 50 s | 77 s | yes | AMU: 0 flips at `4b9f63e`, ran all 539 tests; every changed hunk ran on both sides (at import) | yes | nothing | 0 | 0 of 0 | all 539 |
@@ -39,6 +41,8 @@ Nothing was opened, commented or pushed on encode/httpx.
 | [#13](https://github.com/abslock128w/httpx/pull/13) | 3401 Import ssl on demand | 61 s | 86 s | yes | AMU: 0 flips at `9acb535`, ran all 536 tests; every changed hunk ran on both sides (at import) | yes | nothing | 0 | 0 of 0 | all 536 |
 | [#14](https://github.com/abslock128w/httpx/pull/14) | 3394 Graceful upgrade path for 0.28. | 109 s | 155 s | yes | AMU: 0 flips at `0f9cd3f`, ran all 536 tests; 1 of 63 changed hunks ran only in the pull request's own tests:… | yes | something | 0 | 0 of 199 | all 536 |
 | [#15](https://github.com/abslock128w/httpx/pull/15) | 3387 Move remaining utility functions from _… | 70 s | 91 s | yes | AMU: 0 flips at `81bb8d1`, ran all 538 tests; every changed hunk ran on both sides, in up to 57 tests | yes | nothing | 0 | 0 of 66 | all 538 |
+
+Labels: rubric v2 (rubric in `evaluation/PROTOCOL.md`).
 
 | | httpx (15) |
 |---|---:|
@@ -125,6 +129,8 @@ run. Files are in `v070/`: `data.json`, `labels.json`, `comments/` and `reports.
   (0 of 933 missed) stands.
 
 ### What changed
+
+Labels: rubric v0.6.0: v2; v0.7.0: v3 (rubric in `evaluation/PROTOCOL.md`).
 
 | | v0.6.0 | v0.7.0 |
 |---|---:|---:|

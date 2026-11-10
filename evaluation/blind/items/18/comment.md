@@ -1,0 +1,36 @@
+**AMU: 0 flips** at `<sha>`, among 1477 tests run; every changed hunk ran on both sides, in up to 233 tests; 1 test of the pull request's own fail on the merge base and pass on the head
+
+### Behaviour differs on the same input (0)
+
+Each changed function was recorded in each side's own run of the same tests, on the objects that side's code built. Calls are paired by test and by their order in it, and compared only where both inputs are equal: 2843 pair(s) compared, 61 not compared because the inputs differ, 5 call(s) without a partner, of 1 of 1 changed function(s). The tests behind a difference ran again on each side, and the merge base's twice, the second time in another checkout: 44 fields differed between the merge base's two runs, so they belong to the process or checkout and are left out of the comparison; 274 difference(s) whose test did not run again are not listed.
+
+### Change evidence: the pull request's own tests (1)
+
+The 2 tests this pull request adds or edits ran on the head and on the merge base `<sha>` with the tests as the pull request leaves them.
+
+Fail on the merge base and pass on the head, so the change does what they check. Each failure on the merge base repeated in a fresh process.
+
+- `sympy/polys/tests/test_fields.py::test_FracField_from_expr_EXRAW`
+
+1 test pass on the merge base too, so they show nothing about the change.
+
+### Changed hunks (1)
+
+What ran each hunk of the change, from each side's own run:
+
+- `sympy/polys/fields.py:300` in `FracField._rebuild_expr.<locals>._rebuild`: ran on both sides (233 tests)
+
+### Gaps (2)
+
+Not run or not seen:
+
+- `Skipped 1 non-Python file(s)`
+- `shadow run stopped at its 300 s budget: 1477 of 1543 candidates run on the changed code`
+
+### What ran
+
+1477 of 1543 candidate tests on the head and on the merge base, 300.9 s with `pytest`, budget 300 s per side. Candidates: 240 the suite recording of `<sha>` saw running the code the change touches (30 file(s) changed since that commit), 1301 in test files changed since that recording, 2 the pull request adds or edits; the merge base ran 1475 tests with the recorder, chosen from the suite recording. Tests outside the candidates were not run.
+
+<sub>AMU `0.7.0` from `<sha>`, report `<sha>`. Full JSON is in the workflow run's artifact.</sub>
+
+<!-- amu-ci-comment v1 -->

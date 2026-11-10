@@ -1,0 +1,45 @@
+diff --git a/django/contrib/gis/db/backends/mysql/features.py b/django/contrib/gis/db/backends/mysql/features.py
+index <sha>..<sha> 100644
+--- a/django/contrib/gis/db/backends/mysql/features.py
++++ b/django/contrib/gis/db/backends/mysql/features.py
+@@ -13,7 +13,12 @@ class DatabaseFeatures(BaseSpatialFeatures, MySQLDatabaseFeatures):
+     supports_transform = False
+     supports_null_geometries = False
+     supports_num_points_poly = False
+-    unsupported_geojson_options = {"crs"}
++
++    @cached_property
++    def unsupported_geojson_options(self):
++        if self.connection.mysql_is_mariadb or self.connection.mysql_version < (9, 5):
++            return {"crs"}
++        return set()
+ 
+     @cached_property
+     def supports_geometry_field_unique_index(self):
+diff --git a/docs/ref/contrib/gis/functions.txt b/docs/ref/contrib/gis/functions.txt
+index <sha>..<sha> 100644
+--- a/docs/ref/contrib/gis/functions.txt
++++ b/docs/ref/contrib/gis/functions.txt
+@@ -456,7 +456,7 @@ Keyword Argument       Description
+ 
+ ``crs``                Set this to ``True`` if you want the coordinate
+                        reference system to be included in the returned
+-                       GeoJSON. Ignored on MySQL and Oracle.
++                       GeoJSON. Ignored on MySQL < 9.5, MariaDB, and Oracle.
+ 
+ ``precision``          It may be used to specify the number of significant
+                        digits for the coordinates in the GeoJSON
+diff --git a/tests/gis_tests/geoapp/test_functions.py b/tests/gis_tests/geoapp/test_functions.py
+index <sha>..<sha> 100644
+--- a/tests/gis_tests/geoapp/test_functions.py
++++ b/tests/gis_tests/geoapp/test_functions.py
+@@ -66,6 +66,9 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
+         if "crs" in connection.features.unsupported_geojson_options:
+             del houston_json["crs"]
+             del chicago_json["crs"]
++        elif connection.ops.mysql:
++            for expected_json in (houston_json, chicago_json):
++                expected_json["crs"]["properties"]["name"] = "MySQL:0"
+         if "bbox" in connection.features.unsupported_geojson_options:
+             del chicago_json["bbox"]
+             del victoria_json["bbox"]

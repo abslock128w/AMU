@@ -1,0 +1,35 @@
+**AMU: 0 flips** at `<sha>`, among 48 tests run; every changed hunk ran on both sides (at import)
+
+### Behaviour differs on the same input (0)
+
+Each changed function was recorded in each side's own run of the same tests, on the objects that side's code built. Calls are paired by test and by their order in it, and compared only where both inputs are equal: 0 pair(s) compared, 0 not compared because the inputs differ, 0 call(s) without a partner, of 0 of 0 changed function(s). The tests behind a difference ran again on each side, and the merge base's twice, the second time in another checkout: 0 fields differed between the merge base's two runs, so they belong to the process or checkout and are left out of the comparison.
+
+### Change evidence: the pull request's own tests (0)
+
+The 1 test this pull request adds or edits ran on the head and on the merge base `<sha>` with the tests as the pull request leaves them.
+
+### New tests for new code (1)
+
+Fail on the merge base only because what they use is not there yet (an ImportError, AttributeError or NameError on a name this pull request adds), and pass on the head. They show the new code exists, not what it does, so they are not counted as change evidence.
+
+- `sympy/utilities/tests/test_iterables.py::test_iterable` (`AttributeError on __slots__`)
+
+### Changed hunks (1)
+
+What ran each hunk of the change, from each side's own run:
+
+- `sympy/utilities/iterables.py:3099`: ran on both sides (`at import`)
+
+### Gaps (1)
+
+Not run or not seen:
+
+- `Skipped 1 non-Python file(s)`
+
+### What ran
+
+48 of 48 candidate tests on the head and on the merge base, 3.3 s with `pytest`, budget 300 s per side. Candidates: 47 from the static graph, for changed code no recording covers, 1 the pull request adds or edits; the merge base ran 47 tests with the recorder, chosen from the suite recording. Tests outside the candidates were not run.
+
+<sub>AMU `0.7.0` from `<sha>`, report `<sha>`. Full JSON is in the workflow run's artifact.</sub>
+
+<!-- amu-ci-comment v1 -->

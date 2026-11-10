@@ -14,6 +14,8 @@ Same 47 pull requests (`../performance-v042/freeze.json`), same driver (`../perf
 
 ## Results
 
+Labels: rubric v1 (rubric in `evaluation/PROTOCOL.md`).
+
 | | Django | sympy | Flask | All |
 |---|---:|---:|---:|---:|
 | First line correct | 12 → 13 of 17 | 17 → 17 of 20 | 8 → 10 of 10 | 37 → 40 of 47 |
@@ -33,6 +35,8 @@ Same 47 pull requests (`../performance-v042/freeze.json`), same driver (`../perf
 False rows fell from 102 to 21. All 21 left are on one pull request, Flask #5812 (see below). The 13 false evidence tests are gone.
 
 ## Per pull request
+
+Labels: rubric v1 (rubric in `evaluation/PROTOCOL.md`).
 
 | PR | Before (v0.4.2) | After | Fix |
 |---|---|---|---|
@@ -88,6 +92,8 @@ Each leftover defect above got its own PR with a test that fails on the code bef
 | Command line too long | #79 | Labels run in halves when the command line exceeds the system limit. There is no "none … was called" gap when the runner never started. |
 
 The `RuntimeError` rows on Flask #5812 were not what this report said above. They were not context state the old code set up. Tracing the run showed that `AppContext(app)` cannot be copied (the app holds a lock), so side-by-side ran the as-changed `AppContext.__init__` on the live context being built. That left `_request = None` and the other new attributes on it, and the test went on to push that half-rebuilt context. Every later as-changed function that read it failed. #78 puts such arguments back after each run.
+
+Labels: rubric v1 (rubric in `evaluation/PROTOCOL.md`).
 
 | | Before #77–#79 | After |
 |---|---:|---:|

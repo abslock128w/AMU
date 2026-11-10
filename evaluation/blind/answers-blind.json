@@ -1,0 +1,142 @@
+{
+ "01": {
+  "adds": "nothing",
+  "false_rows": 0,
+  "first_line_correct": true,
+  "note": "All clauses true (one-line .lower() change ran in 28 tests); says nothing beyond the diff and green CI.",
+  "real_rows": 0
+ },
+ "02": {
+  "adds": "something",
+  "false_rows": 0,
+  "first_line_correct": true,
+  "note": "Hunks ran on both sides; the streaming-nonce bug-fix test fails on base and passes on head, which reproduces the bug.",
+  "real_rows": 0
+ },
+ "03": {
+  "adds": "nothing",
+  "false_rows": 0,
+  "first_line_correct": true,
+  "note": "dict() copy and annotation hunks all ran; nothing beyond the diff.",
+  "real_rows": 0
+ },
+ "04": {
+  "adds": "something",
+  "false_rows": 0,
+  "first_line_correct": true,
+  "note": "Ran-in-no-test is plausible for the antlr-dependent parser and example files; it shows the real parser change is untested here, which the diff does not show.",
+  "real_rows": 0
+ },
+ "05": {
+  "adds": "something",
+  "false_rows": 0,
+  "first_line_correct": true,
+  "note": "Regression test for the if/elif/else set bug fails on base and passes on head; hunks ran in 72 tests.",
+  "real_rows": 0
+ },
+ "06": {
+  "adds": "noise",
+  "false_rows": 13,
+  "first_line_correct": false,
+  "note": "Named no-test hunks ctx.py:235/242/251 are the has_app_context docstring rewrite interleaved with deleted AppContext code that ran on base; 366 mostly intended rows (request_context returns AppContext) bury the report, and the app_context rows show equal previews in the app's view_functions and cannot be traced.",
+  "real_rows": 353
+ },
+ "07": {
+  "adds": "nothing",
+  "false_rows": 0,
+  "first_line_correct": true,
+  "note": "New ne() validator plus docstring edits; new-code classification is right, nothing beyond the diff.",
+  "real_rows": 0
+ },
+ "08": {
+  "adds": "nothing",
+  "false_rows": 0,
+  "first_line_correct": true,
+  "note": "Only the typing-examples hunk ran in no test (true, low value); the evidence tests fail on base because the code is new.",
+  "real_rows": 0
+ },
+ "09": {
+  "adds": "nothing",
+  "false_rows": 0,
+  "first_line_correct": true,
+  "note": "The GIS MySQL hunk ran in no test because there is no GIS backend; a reviewer knows that code doesn't run here.",
+  "real_rows": 0
+ },
+ "10": {
+  "adds": "something",
+  "false_rows": 0,
+  "first_line_correct": true,
+  "note": "add_replace runs only on Python 3.13+, so the fix is not executable on 3.12; the diff does not show that gate.",
+  "real_rows": 0
+ },
+ "11": {
+  "adds": "something",
+  "false_rows": 0,
+  "first_line_correct": true,
+  "note": "build_policy hunk ran only in new tests; 2 bug-fix tests fail on base; Gaps also show the PR's middleware tests failing on head.",
+  "real_rows": 0
+ },
+ "12": {
+  "adds": "nothing",
+  "false_rows": 0,
+  "first_line_correct": true,
+  "note": "Python 3.10 drop cleanup; the raise_any hunk is reached only by the edited test_robust_teardown, which is plausible; nothing new.",
+  "real_rows": 0
+ },
+ "13": {
+  "adds": "nothing",
+  "false_rows": 0,
+  "first_line_correct": true,
+  "note": "Pure move of helpers into _models; all hunks ran; the moves are visible in the diff.",
+  "real_rows": 0
+ },
+ "14": {
+  "adds": "nothing",
+  "false_rows": 0,
+  "first_line_correct": false,
+  "note": "'adds new code only' is wrong: _print_OrdinalZero is found by name dispatch and changes latex(OrdinalZero()) output; the test's base failure is evident from the diff.",
+  "real_rows": 0
+ },
+ "15": {
+  "adds": "nothing",
+  "false_rows": 0,
+  "first_line_correct": true,
+  "note": "Deprecation hunks all ran; the class-attribute hunk is correctly marked at import; nothing beyond the diff.",
+  "real_rows": 0
+ },
+ "16": {
+  "adds": "nothing",
+  "false_rows": 0,
+  "first_line_correct": true,
+  "note": "__slots__ line runs at import; the test's base failure is evident from the diff.",
+  "real_rows": 0
+ },
+ "17": {
+  "adds": "nothing",
+  "false_rows": 0,
+  "first_line_correct": true,
+  "note": "Annotation-only change plus a TYPE_CHECKING import; 'at import' holds; nothing new.",
+  "real_rows": 0
+ },
+ "18": {
+  "adds": "something",
+  "false_rows": 0,
+  "first_line_correct": true,
+  "note": "Hunk ran in 233 tests; the EXRAW recursion bug-fix test fails on base and passes on head.",
+  "real_rows": 0
+ },
+ "19": {
+  "adds": "something",
+  "false_rows": 0,
+  "first_line_correct": true,
+  "note": "Nested disabled() bug-fix test fails on base and passes on head; the hunk ran in 2 tests.",
+  "real_rows": 0
+ },
+ "20": {
+  "adds": "nothing",
+  "false_rows": 0,
+  "first_line_correct": true,
+  "note": "The f-string fix sits in a 'pragma: no cover' branch, so the diff already shows it is unreached.",
+  "real_rows": 0
+ }
+}

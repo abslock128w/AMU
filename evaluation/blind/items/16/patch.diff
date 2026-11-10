@@ -1,0 +1,49 @@
+diff --git a/.mailmap b/.mailmap
+index <sha>..<sha> 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -498,6 +498,7 @@ Charles Harris <erdos4d@gmail.com> Charles Harris <<sha>+erdos4d@users.norepl
+ Charles Harris <erdos4d@gmail.com> cbh <cbharris@andeswebdesign.com>
+ Charles Weiss <charles.weiss@augie.edu> Charles Weiss <<sha>+weisscharlesj@users.noreply.github.com>
+ Charlie Lam <888lamcharlie@gmail.com>
++Chauhan Mitesh Vijaybhai <miteshchauhan1843@gmail.com> Mitesh-V-Chauhan <miteshchauhan1843@gmail.com>
+ Chetan Choudhary <<sha>@gmail.com> Chetan Choudhary <<sha>+amMistic@users.noreply.github.com>
+ Chetan Choudhary <<sha>@gmail.com> ChetanChoudhary007 <<sha>@gmail.com>
+ Chetna Gupta <cheta.gup@gmail.com>
+diff --git a/sympy/utilities/iterables.py b/sympy/utilities/iterables.py
+index <sha>..<sha> 100644
+--- a/sympy/utilities/iterables.py
++++ b/sympy/utilities/iterables.py
+@@ -3096,7 +3096,7 @@ class NotIterable:
+     calling list() on the instance, for example, would result in
+     an infinite loop.
+     """
+-    pass
++    __slots__ = ()
+ 
+ 
+ def iterable(i, exclude=(str, dict, NotIterable)):
+diff --git a/sympy/utilities/tests/test_iterables.py b/sympy/utilities/tests/test_iterables.py
+index <sha>..<sha> 100644
+--- a/sympy/utilities/tests/test_iterables.py
++++ b/sympy/utilities/tests/test_iterables.py
+@@ -867,6 +867,20 @@ class Test2(NotIterable):
+ 
+     assert iterable(Test2()) is True
+ 
++    # Test that NotIterable properly defines __slots__ so subclasses
++    # with __slots__ do not acquire an unwanted __dict__ (issue 24272)
++    assert NotIterable.__slots__ == ()
++    assert hasattr(NotIterable(), '__dict__') is False
++
++    class TestSlots(NotIterable):
++        __slots__ = ('x',)
++
++    ts = TestSlots()
++    ts.x = 1
++    assert ts.x == 1
++    assert hasattr(ts, '__dict__') is False
++    assert iterable(ts) is False
++
+     class Test3:
+         pass

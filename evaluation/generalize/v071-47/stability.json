@@ -1,0 +1,262 @@
+[
+ {
+  "pr": "django#21855",
+  "runs": [
+   {
+    "tag": "v071",
+    "first": "**AMU: 0 flips**, among 11357 tests run; every changed hunk ran on both sides, in up to 1796 tests; 4 tests of the pull request's own fail on the merge base and pass on the head",
+    "differences": 0,
+    "seconds": 800.1
+   },
+   {
+    "tag": "v071-t2",
+    "first": "**AMU: 0 flips**, among 13731 tests run; every changed hunk ran on both sides, in up to 1796 tests; 4 tests of the pull request's own fail on the merge base and pass on the head",
+    "differences": 0,
+    "seconds": 584.3
+   },
+   {
+    "tag": "v071-t3",
+    "first": "**AMU: 0 flips**, among 13731 tests run; every changed hunk ran on both sides, in up to 1796 tests; 4 tests of the pull request's own fail on the merge base and pass on the head",
+    "differences": 0,
+    "seconds": 672.7
+   }
+  ],
+  "first_identical": false,
+  "first_same_but_counts": true,
+  "rows_identical": true
+ },
+ {
+  "pr": "django#22046",
+  "runs": [
+   {
+    "tag": "eb81e2fa",
+    "first": "**AMU: docstring or comment changes only**; no flip, among 127 tests run",
+    "differences": 0,
+    "seconds": 48.6
+   },
+   {
+    "tag": "v071-t2",
+    "first": "**AMU: docstring or comment changes only**; no flip, among 127 tests run",
+    "differences": 0,
+    "seconds": 28.8
+   },
+   {
+    "tag": "v071-t3",
+    "first": "**AMU: docstring or comment changes only**; no flip, among 127 tests run",
+    "differences": 0,
+    "seconds": 31.8
+   }
+  ],
+  "first_identical": true,
+  "first_same_but_counts": true,
+  "rows_identical": true
+ },
+ {
+  "pr": "django#22158",
+  "runs": [
+   {
+    "tag": "eb81e2fa",
+    "first": "**AMU: 0 flips**, among 1328 tests run; 1 of 3 changed hunks not executable on Python 3.14 here: `django/db/migrations/serializer.py:157`",
+    "differences": 0,
+    "seconds": 109.7
+   },
+   {
+    "tag": "v071-t2",
+    "first": "**AMU: 0 flips**, among 1328 tests run; 1 of 3 changed hunks not executable on Python 3.14 here: `django/db/migrations/serializer.py:157`",
+    "differences": 0,
+    "seconds": 59.0
+   },
+   {
+    "tag": "v071-t3",
+    "first": "**AMU: 0 flips**, among 1328 tests run; 1 of 3 changed hunks not executable on Python 3.14 here: `django/db/migrations/serializer.py:157`",
+    "differences": 0,
+    "seconds": 72.0
+   }
+  ],
+  "first_identical": true,
+  "first_same_but_counts": true,
+  "rows_identical": true
+ },
+ {
+  "pr": "django#22176",
+  "runs": [
+   {
+    "tag": "v071",
+    "first": "**AMU: 0 flips**, among 10878 tests run; 2 of 7 changed hunks not recorded (the run stopped after 10878 of 15746 candidate tests): `django/contrib/gis/gdal/raster/source.py:33`, `django/contrib/gis/gdal/raster/source.py:258`; 3 tests of the pull request's own fail on the merge base and pass on the head",
+    "differences": 0,
+    "seconds": 648.9
+   },
+   {
+    "tag": "v071-t2",
+    "first": "**AMU: 0 flips**, among 13438 tests run; 2 of 7 changed hunks not recorded (the run stopped after 13438 of 15746 candidate tests): `django/contrib/gis/gdal/raster/source.py:33`, `django/contrib/gis/gdal/raster/source.py:258`; 3 tests of the pull request's own fail on the merge base and pass on the head",
+    "differences": 0,
+    "seconds": 601.3
+   },
+   {
+    "tag": "v071-t3",
+    "first": "**AMU: 0 flips**, among 15742 tests run; 2 of 7 changed hunks ran in no test: `django/contrib/gis/gdal/raster/source.py:33`, `django/contrib/gis/gdal/raster/source.py:258`; 3 tests of the pull request's own fail on the merge base and pass on the head",
+    "differences": 0,
+    "seconds": 610.6
+   }
+  ],
+  "first_identical": false,
+  "first_same_but_counts": false,
+  "rows_identical": true
+ },
+ {
+  "pr": "flask#5818",
+  "runs": [
+   {
+    "tag": "v071",
+    "first": "**AMU: 0 flips**, ran all 370 tests; 2 of 43 changed hunks ran in no test: `src/flask/app.py:79`, `src/flask/templating.py:194`; 2 tests of the pull request's own fail on the merge base and pass on the head",
+    "differences": 0,
+    "seconds": 43.7
+   },
+   {
+    "tag": "v071-t2",
+    "first": "**AMU: 0 flips**, ran all 370 tests; 2 of 43 changed hunks ran in no test: `src/flask/app.py:79`, `src/flask/templating.py:194`; 2 tests of the pull request's own fail on the merge base and pass on the head",
+    "differences": 0,
+    "seconds": 20.4
+   },
+   {
+    "tag": "v071-t3",
+    "first": "**AMU: 0 flips**, ran all 370 tests; 2 of 43 changed hunks ran in no test: `src/flask/app.py:79`, `src/flask/templating.py:194`; 2 tests of the pull request's own fail on the merge base and pass on the head",
+    "differences": 0,
+    "seconds": 25.0
+   }
+  ],
+  "first_identical": true,
+  "first_same_but_counts": true,
+  "rows_identical": true
+ },
+ {
+  "pr": "flask#6013",
+  "runs": [
+   {
+    "tag": "v071",
+    "first": "**AMU: 0 flips**, ran all 371 tests; every changed hunk ran on both sides, in up to 28 tests",
+    "differences": 0,
+    "seconds": 9.7
+   },
+   {
+    "tag": "v071-t2",
+    "first": "**AMU: 0 flips**, ran all 371 tests; every changed hunk ran on both sides, in up to 28 tests",
+    "differences": 0,
+    "seconds": 3.7
+   },
+   {
+    "tag": "v071-t3",
+    "first": "**AMU: 0 flips**, ran all 371 tests; every changed hunk ran on both sides, in up to 28 tests",
+    "differences": 0,
+    "seconds": 4.6
+   }
+  ],
+  "first_identical": true,
+  "first_same_but_counts": true,
+  "rows_identical": true
+ },
+ {
+  "pr": "sympy#29693",
+  "runs": [
+   {
+    "tag": "eb81e2fa",
+    "first": "**AMU: adds new code only**; 1 test ran it; 1 test of the pull request's own fail on the merge base and pass on the head",
+    "differences": 0,
+    "seconds": 102.6
+   },
+   {
+    "tag": "v071-t2",
+    "first": "**AMU: adds new code only**; 1 test ran it; 1 test of the pull request's own fail on the merge base and pass on the head",
+    "differences": 0,
+    "seconds": 122.3
+   },
+   {
+    "tag": "v071-t3",
+    "first": "**AMU: adds new code only**; 1 test ran it; 1 test of the pull request's own fail on the merge base and pass on the head",
+    "differences": 0,
+    "seconds": 97.9
+   }
+  ],
+  "first_identical": true,
+  "first_same_but_counts": true,
+  "rows_identical": true
+ },
+ {
+  "pr": "sympy#30646",
+  "runs": [
+   {
+    "tag": "eb81e2fa",
+    "first": "**AMU: 0 flips**, among 539 tests run; 3 of 7 changed hunks ran in no test: `sympy/solvers/ode/lie_group.py:797`, `sympy/solvers/ode/lie_group.py:944`, `sympy/solvers/ode/lie_group.py:951`",
+    "differences": 0,
+    "seconds": 339.8
+   },
+   {
+    "tag": "v071-t2",
+    "first": "**AMU: 0 flips**, among 539 tests run; 3 of 7 changed hunks ran in no test: `sympy/solvers/ode/lie_group.py:797`, `sympy/solvers/ode/lie_group.py:944`, `sympy/solvers/ode/lie_group.py:951`",
+    "differences": 0,
+    "seconds": 306.7
+   },
+   {
+    "tag": "v071-t3",
+    "first": "**AMU: 0 flips**, among 539 tests run; 3 of 7 changed hunks ran in no test: `sympy/solvers/ode/lie_group.py:797`, `sympy/solvers/ode/lie_group.py:944`, `sympy/solvers/ode/lie_group.py:951`",
+    "differences": 0,
+    "seconds": 182.3
+   }
+  ],
+  "first_identical": true,
+  "first_same_but_counts": true,
+  "rows_identical": true
+ },
+ {
+  "pr": "sympy#30808",
+  "runs": [
+   {
+    "tag": "eb81e2fa",
+    "first": "**AMU: 0 flips**, among 1960 tests run; every changed hunk ran on both sides, in up to 1841 tests; 1 test of the pull request's own fail on the merge base and pass on the head",
+    "differences": 0,
+    "seconds": 816.9
+   },
+   {
+    "tag": "v071-t2",
+    "first": "**AMU: 0 flips**, among 1720 tests run; every changed hunk ran on both sides, in up to 1632 tests; 1 test of the pull request's own fail on the merge base and pass on the head",
+    "differences": 0,
+    "seconds": 814.5
+   },
+   {
+    "tag": "v071-t3",
+    "first": "**AMU: 0 flips**, among 2560 tests run; every changed hunk ran on both sides, in up to 2377 tests; 1 test of the pull request's own fail on the merge base and pass on the head",
+    "differences": 0,
+    "seconds": 768.2
+   }
+  ],
+  "first_identical": false,
+  "first_same_but_counts": true,
+  "rows_identical": true
+ },
+ {
+  "pr": "sympy#30851",
+  "runs": [
+   {
+    "tag": "eb81e2fa",
+    "first": "**AMU: 0 flips**, among 2560 tests run; every changed hunk ran on both sides, in up to 4 tests; 1 test of the pull request's own fail on the merge base and pass on the head",
+    "differences": 0,
+    "seconds": 754.9
+   },
+   {
+    "tag": "v071-t2",
+    "first": "**AMU: 0 flips**, among 4120 tests run; every changed hunk ran on both sides, in up to 4 tests; 1 test of the pull request's own fail on the merge base and pass on the head",
+    "differences": 0,
+    "seconds": 732.3
+   },
+   {
+    "tag": "v071-t3",
+    "first": "**AMU: 0 flips**, among 4360 tests run; every changed hunk ran on both sides, in up to 4 tests; 1 test of the pull request's own fail on the merge base and pass on the head",
+    "differences": 0,
+    "seconds": 695.0
+   }
+  ],
+  "first_identical": false,
+  "first_same_but_counts": true,
+  "rows_identical": true
+ }
+]

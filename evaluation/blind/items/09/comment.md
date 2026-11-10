@@ -1,0 +1,29 @@
+**AMU: 0 flips** at `<sha>`, among 2754 tests run; 1 of 1 changed hunk ran in no test: `django/contrib/gis/db/backends/mysql/features.py:16`
+
+### Behaviour differs on the same input (0)
+
+Each changed function was recorded in each side's own run of the same tests, on the objects that side's code built. Calls are paired by test and by their order in it, and compared only where both inputs are equal: 0 pair(s) compared, 0 not compared because the inputs differ, 0 call(s) without a partner, of 0 of 0 changed function(s). The tests behind a difference ran again on each side, and the merge base's twice, the second time in another checkout: 0 fields differed between the merge base's two runs, so they belong to the process or checkout and are left out of the comparison.
+
+### Changed hunks (1)
+
+What ran each hunk of the change, from each side's own run:
+
+- `django/contrib/gis/db/backends/mysql/features.py:16`: ran in no test
+
+### Gaps (5)
+
+Not run or not seen:
+
+- `24 candidate(s) in gis_tests not run: django-runtests refuses them before any test runs: Aborting: A GIS database backend is required to run gis_tests.`
+- `Skipped 1 non-Python file(s)`
+- `replaying the change's own tests (after the change, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.`
+- `shadow run (original tests on the changed code, django-runtests): no outcomes read: Aborting: A GIS database backend is required to run gis_tests.`
+- `tests/test_runner_apps/tagged/tests_syntax_error.py: SyntaxError`
+
+### What ran
+
+2754 of 2778 candidate tests on the head and on the merge base, 30.8 s with `django-runtests`, budget 300 s per side. Candidates: 2777 in test files changed since that recording, 1 the pull request adds or edits; the merge base ran 2754 tests with the recorder, chosen from the suite recording. Tests outside the candidates were not run.
+
+<sub>AMU `0.7.0` from `<sha>`, report `<sha>`. Full JSON is in the workflow run's artifact.</sub>
+
+<!-- amu-ci-comment v1 -->

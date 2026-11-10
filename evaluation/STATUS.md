@@ -24,6 +24,8 @@ Two workflow files run on every push to a pull request, and AMU edits one commen
 
 The set is 17 Django, 20 sympy and 10 Flask pull requests merged after the earlier evaluation windows (`performance-v042/freeze.json`). Each comment was hand-labelled (`performance-fixes/labels.json`).
 
+Labels: rubric v1 (rubric in `evaluation/PROTOCOL.md`).
+
 | | v0.4.2 | v0.5.1 |
 |---|---:|---:|
 | First line correct | 37 of 47 | 42 of 47 |
@@ -36,6 +38,8 @@ The set is 17 Django, 20 sympy and 10 Flask pull requests merged after the earli
 Every "adds something" case is change evidence: the pull request's own test fails on the base and passes on the head, which project CI never shows, or a behaviour row the description does not mention. No pull request in the set broke an existing test, so the flip count, AMU's main signal, was never tested here. The earlier 100-PR retrospective found 0 false flips among 30 counted (`retrospective/REPORT.md`).
 
 ## The five pull requests where the first line is still wrong
+
+Labels: rubric v1 (rubric in `evaluation/PROTOCOL.md`).
 
 | PR | Cause |
 |---|---|
@@ -59,6 +63,25 @@ After a month on at least one real repository with `counters: 'true'` (per-push 
 4. **The misses matter there.** A class of the five misses above shows up in at least 3 of their pull requests before it is worth an engine change.
 
 If flips stay at zero for the month, the flip path is still unmeasured. The question then is whether change evidence alone earns the job time: a median of 2 to 5 minutes on Django and sympy, and under 20 s on Flask.
+
+## How much to trust these numbers (added 2026-11-10, v0.7.1)
+
+The tables above are from v0.5.1. The current figures are in `generalize/REPORT-v071.md`: first line right on 44 of
+the 47, and on 60 of 60 across four pilot repositories; 3 false rows; 0 counted flips.
+
+- **One labeller, checked once.** A second, blind labelling of 20 comments agreed on the first line for 19 (kappa
+  0.64) and on "adds something / nothing / noise" for 16 (kappa 0.6). Treat a difference of one or two pull requests
+  between versions as within the labelling error.
+- **Run-to-run stability: measured on 10 pull requests, three runs each** (`generalize/v071-47/stability.json`).
+  The first line was word for word the same on 6, the same apart from test counts on 9, and differently worded on 1
+  (Django 22176: two runs hit the time budget and said "not recorded", the third finished and said "ran in no test").
+  Row counts were the same on all 10, but all 10 have 0 rows, so this sample says nothing about rows. The one known
+  case is against: sympy 30841 showed 2 rows, then 0, then 2 on the same engine. Traced, both rows were false, and
+  had been labelled real for two versions. A label can be wrong where the row reads plausibly.
+- **Real regressions: 1 of 20 caught** (`regressions/REPORT.md`). A pull request that breaks something no existing
+  test checks gets "0 flips", and that line is true. It is not evidence the change is harmless.
+- **Seven repositories, all pure-Python libraries with pytest or Django's runner.** Nothing here says how AMU does on
+  applications, compiled extensions, or suites that need services.
 
 ## Known limit: coverage that depends on test order
 

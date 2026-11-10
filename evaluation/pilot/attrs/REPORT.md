@@ -23,6 +23,8 @@ builds classes at run time. No engine change and no new feature. Everything ran 
 
 ## Results
 
+Labels: rubric v1 (rubric in `evaluation/PROTOCOL.md`).
+
 | Fork PR | attrs PR | AMU job | Open → comment | Posted | First line (shortened) | Correct | Adds | False rows | False flips | Ran / suite |
 |---|---|---:|---:|---|---|---|---|---:|---:|---:|
 | [#1](https://github.com/abslock128w/attrs/pull/1) | 1636 astuple nested atomics | 37 s | 62 s | yes | no test ran the changed code in `_funcs.py`; 10 tests run | **no** | **noise** | 0 | 0 | 10 / 1413 |
@@ -42,6 +44,8 @@ builds classes at run time. No engine change and no new feature. Everything ran 
 | [#15](https://github.com/abslock128w/attrs/pull/15) | 1469 astuple common case | 43 s | 72 s | yes | 0 flips among 63, some on the changed code | yes | nothing | 0 | 0 | 63 / 1366 |
 
 Totals:
+
+Labels: rubric v1 (rubric in `evaluation/PROTOCOL.md`).
 
 | | attrs (15) | v0.4.2 set (47) |
 |---|---:|---:|
@@ -224,6 +228,8 @@ the merge base plus the v0.6.0 workflows). Python 3.12, as before. Files are in 
 
 ### What changed
 
+Labels: rubric v0.5.1: v1; v0.6.0: v2 (rubric in `evaluation/PROTOCOL.md`).
+
 | | v0.5.1 | v0.6.0 |
 |---|---:|---:|
 | Comment posted | 15 of 15 | 15 of 15 |
@@ -251,6 +257,8 @@ the merge base plus the v0.6.0 workflows). Python 3.12, as before. Files are in 
     after), and those rows are real.
 
 ### Per pull request
+
+Labels: rubric v0.5.1: v1; v0.6.0: v2 (rubric in `evaluation/PROTOCOL.md`).
 
 | attrs PR | v0.5.1 first line | v0.6.0 first line | Correct | Adds | False rows | Suite run | AMU job |
 |---|---|---|---|---|---|---|---|
@@ -297,6 +305,8 @@ base plus the v0.7.0 workflows). Python 3.12, as before. No engine code changed 
   outside the candidates. The v0.6.0 measure (0 of 1,197 missed) stands for selection.
 
 ### What changed
+
+Labels: rubric v0.6.0: v2; v0.7.0: v3 (rubric in `evaluation/PROTOCOL.md`).
 
 | | v0.6.0 | v0.7.0 |
 |---|---:|---:|

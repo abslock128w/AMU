@@ -1,0 +1,1519 @@
+[
+  {
+    "repo": "django",
+    "culprit_sha": "0eec2a163a4b2ea4e82c53ae1d7b71bf43ac911d",
+    "culprit_pr": 20080,
+    "base": "a1ce852e52f45da7528446cef3a1f02416531771",
+    "head": "d808813bb6eb18f1389f8a092b4184c56c0b66a9",
+    "head_source": "pr-api",
+    "fix_sha": "817df1c4d6d38f416460d7d9354d7deab9d35139",
+    "fix_pr": 22209,
+    "tests": [
+      "forms_tests.tests.test_forms.FormsTestCase.test_legend_has_required_css_class_multiple_render"
+    ],
+    "regressed": [
+      "django/forms/boundfield.py#BoundField.label_tag"
+    ],
+    "evidence": "Fixed #37463 -- Fixed attrs mutation in legend_tag(). | Regression in 0eec2a163a4b2ea4e82c53ae1d7b71bf43ac911d.",
+    "confidence": "high",
+    "notes": "culprit committed 2025-11-13, fix committed 2026-10-29"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "1a9fba7a6c2a0acead19bbb45c25ceb0fdcca7c8",
+    "culprit_pr": 22039,
+    "base": "b33bab33709bbd74f4dfc376786ba0b3912c3f53",
+    "head": "8dd0670301b53752638575c410fba05117378223",
+    "head_source": "pr-api",
+    "fix_sha": "45fe4636d8d147b87040170a6cee4ab036ed2324",
+    "fix_pr": 22189,
+    "tests": [
+      "template_tests.syntax_tests.test_comment.CommentSyntaxTests.test_tags_without_spaces",
+      "template_tests.syntax_tests.test_verbatim.VerbatimTagTests.test_tags_without_spaces"
+    ],
+    "regressed": [],
+    "evidence": "Fixed #37450 -- Fixed parsing of comment and verbatim tags without spaces. | Regression in 1a9fba7a6c2a0acead19bbb45c25ceb0fdcca7c8.",
+    "confidence": "medium",
+    "notes": "regressed = functions changed by the fix (no overlap with functions changed by culprit); culprit committed 2026-10-13, fix committed 2026-10-26"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "bdbda29c3e126754c3ae04ceb5c5d35d49aae01c",
+    "culprit_pr": 21254,
+    "base": "b34b834378adc590a771cccd44b9fb0b953cdca2",
+    "head": "72f9147aa6834584d049406c19f9473c1a03d0df",
+    "head_source": "pr-api",
+    "fix_sha": "93d7e82b6a67aa56a2d9dababfefb8bda543786e",
+    "fix_pr": 22064,
+    "tests": [
+      "handlers.tests.TransactionsPerRequestTests.test_no_auto_transaction_async"
+    ],
+    "regressed": [
+      "django/db/transaction.py#_non_atomic_requests"
+    ],
+    "evidence": "Fixed #37382, Refs #29303 -- Made @non_atomic_requests recognize async views. | Regression in bdbda29c3e126754c3ae04ceb5c5d35d49aae01c.",
+    "confidence": "medium",
+    "notes": "regressed = functions changed by the fix (no overlap with functions changed by culprit); fix also changes test-support files: tests/handlers/urls.py, tests/handlers/views.py; culprit committed 2026-07-13, fix committed 2026-10-09"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "9b8e4c6d7d47f7b2e96817ba334e9fd53c10a0df",
+    "culprit_pr": 20009,
+    "base": "e726254a380f2a35a2fcf71143e96cb5987d8102",
+    "head": "e732971cc8a125776362d1b357b3bab452043a39",
+    "head_source": "pr-api",
+    "fix_sha": "fabce94374e166e80e2643db8b85d1e3442427bf",
+    "fix_pr": 22051,
+    "tests": [
+      "model_fields.test_jsonfield.TestQuerying.test_in_value_without_explicit_output_field",
+      "model_fields.test_jsonfield.TestQuerying.test_in_value_explicit_output_field",
+      "model_fields.test_jsonfield.TestQuerying.test_in_json_whitespace"
+    ],
+    "regressed": [
+      "django/db/models/fields/json.py#JSONIn.resolve_expression_parameter"
+    ],
+    "evidence": "Fixed #37377 -- Fixed JSONField __in crash/wrong result for Value() primitives. | Refs #36689. 9b8e4c6d7d wrapped every Value() rhs param of a JSONIn lookup | in JSON_EXTRACT()/JSON_VALUE() assuming it was already JSON-serialized. | That only holds for Value(..., JSONField()); a bare Value(\"primitive\") gets | an inferred non-JSON output_field (e.g. CharField), so its compiled param | was a raw pri",
+    "confidence": "high",
+    "notes": "culprit commit 9b8e4c6d7d differs from PR merge_commit_sha 7b54ddd5e6; culprit committed 2025-12-10, fix committed 2026-10-05"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "7142667340f78403cbbcaa8f33703c494282b7b7",
+    "culprit_pr": 21055,
+    "base": "3b161e60964aff99eddcd2627a486d81c1836b3a",
+    "head": "70d4e50431eac22023e1768f4e81880f67fdc3fd",
+    "head_source": "pr-api",
+    "fix_sha": "a269574f1bcf4716502b9ba8c3492abf15dc93eb",
+    "fix_pr": 22096,
+    "tests": [
+      "serializers.test_yaml.YamlSerializerTestCase.test_sort_keys_option"
+    ],
+    "regressed": [
+      "django/core/serializers/pyyaml.py#Serializer.end_serialization"
+    ],
+    "evidence": "Fixed #37405 -- Fixed crash if sort_keys option is used with YAML serializer. | Regression in 7142667340f78403cbbcaa8f33703c494282b7b7.",
+    "confidence": "high",
+    "notes": "needs PyYAML installed; culprit committed 2026-04-19, fix committed 2026-10-06"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "bc03f1064e10fa247a46d4e8a98ba9b26aa4790d",
+    "culprit_pr": 19492,
+    "base": "a545eb0c1ad5dcbb4e4cf22ce6cf486224c0ba8a",
+    "head": "8fca228b91da8894780e413cb8bf2bc66d24cbbc",
+    "head_source": "pr-api",
+    "fix_sha": "479ba6d2812bb0613d1646d445be43f7c6ab7bc7",
+    "fix_pr": 22054,
+    "tests": [
+      "admin_docs.test_views.TestModelIndexView.test_model_index_breadcrumbs"
+    ],
+    "regressed": [],
+    "evidence": "Fixed #37378 -- Removed extra empty breadcrumb in admindocs model index. | Regression in bc03f1064e10fa247a46d4e8a98ba9b26aa4790d.",
+    "confidence": "medium",
+    "notes": "admin_docs tests need docutils installed; regressed = functions changed by the fix (no overlap with functions changed by culprit); culprit committed 2025-10-14, fix committed 2026-09-30"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "7b54ddd5e64c96c641b70bb5f0e958a9e2035fb2",
+    "culprit_pr": 20009,
+    "base": "e726254a380f2a35a2fcf71143e96cb5987d8102",
+    "head": "e732971cc8a125776362d1b357b3bab452043a39",
+    "head_source": "pr-api",
+    "fix_sha": "0751d5fed159fd9ff7edba522ece13c8c9d2a0d0",
+    "fix_pr": 21864,
+    "tests": [
+      "lookup.tests.LookupTests.test_in_iterator_rhs",
+      "lookup.tests.LookupTests.test_range_iterator_rhs"
+    ],
+    "regressed": [
+      "django/db/models/lookups.py#FieldGetDbPrepValueIterableMixin.get_prep_lookup"
+    ],
+    "evidence": "Fixed #37311 -- Prevented consumption of rhs iterators in annotation lookups. | Regression in 7b54ddd5e64c96c641b70bb5f0e958a9e2035fb2. | Thank you Oleksandr Tatarinov for the report and Clifford Gama for the review.",
+    "confidence": "high",
+    "notes": "culprit committed 2025-12-10, fix committed 2026-09-02"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "821619aa8771ef211c4c4922001efdf914201ca3",
+    "culprit_pr": 17554,
+    "base": "bee64561a6e8cd22995c2b1254bab66dae892a6d",
+    "head": "f52490c7f1dadde5a8186734ac3a16274f291a5c",
+    "head_source": "pr-api",
+    "fix_sha": "60a17fccf4f2fa31b823b0f938005897f2f3ef16",
+    "fix_pr": 21834,
+    "tests": [
+      "prefetch_related.tests.MultiDbTests.test_forward_fk_prefetch_custom_queryset_uses_parent_database",
+      "prefetch_related.tests.MultiDbTests.test_reverse_o2o_prefetch_custom_queryset_uses_parent_database"
+    ],
+    "regressed": [
+      "django/db/models/fields/related_descriptors.py#ForwardManyToOneDescriptor.get_prefetch_querysets",
+      "django/db/models/fields/related_descriptors.py#ReverseOneToOneDescriptor.get_prefetch_querysets"
+    ],
+    "evidence": "Fixed #37300 -- Preserved parent instance hints on custom Prefetch querysets. | Regression in 821619aa8771ef211c4c4922001efdf914201ca3.",
+    "confidence": "high",
+    "notes": "culprit commit 821619aa87 differs from PR merge_commit_sha e244d8bbb7; culprit committed 2025-10-16, fix committed 2026-08-31"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "4cecf3039586ea738afafb9a28c946bff42c37c1",
+    "culprit_pr": 20538,
+    "base": "f87c2055b45356378a7c2a020eb872352d20f85e",
+    "head": "12157a328fdb9801fbc99ff549630040baf2d089",
+    "head_source": "pr-api",
+    "fix_sha": "fe81969e83d03b61e587a28ddebb92b9fca2b441",
+    "fix_pr": 21754,
+    "tests": [
+      "admin_changelist.tests.ChangeListTests.test_exact_boolean_lookup_is_case_insensitive",
+      "admin_changelist.tests.ChangeListTests.test_exact_boolean_lookup_explicit_none",
+      "admin_changelist.tests.ChangeListTests.test_exact_lookup_for_choices_field",
+      "admin_changelist.tests.ChangeListTests.test_exact_lookup_for_choices_field_changelist_view",
+      "admin_changelist.tests.ChangeListTests.test_exact_lookup_for_boolean_field",
+      "admin_changelist.tests.ChangeListTests.test_exact_lookup_for_null_boolean_field"
+    ],
+    "regressed": [
+      "django/contrib/admin/formfields.py#StrictBooleanField.to_python",
+      "django/contrib/admin/formfields.py#StrictNullBooleanField.to_python",
+      "django/contrib/admin/options.py#ModelAdmin.get_search_results"
+    ],
+    "evidence": "Fixed #37263 -- Fixed changelist __exact search crashes and over-matching. | Search terms for non-text `__exact` `search_fields` entries were validated | with the model field's `formfield().to_python()`, which failed to reject | invalid terms for two kinds of fields: | - Fields with choices use `TypedChoiceField`, whose `to_python()` returns | the raw string unvalidated, so any non-matching search",
+    "confidence": "medium",
+    "notes": "regressed = functions changed by the fix (no overlap with functions changed by culprit); fix also changes test-support files: tests/admin_changelist/admin.py, tests/admin_changelist/models.py; culprit committed 2026-01-30, fix committed 2026-08-31"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "e097e8a12f21a4e92594830f1ad1942b31916d0f",
+    "culprit_pr": 17554,
+    "base": "bee64561a6e8cd22995c2b1254bab66dae892a6d",
+    "head": "f52490c7f1dadde5a8186734ac3a16274f291a5c",
+    "head_source": "pr-api",
+    "fix_sha": "d992705f9eb56199dc474b77af16474e5ce3d2ab",
+    "fix_pr": 21749,
+    "tests": [
+      "basic.tests.ModelFromDbTests.test_old_signature_iteration",
+      "basic.tests.ModelFromDbTests.test_old_signature_get",
+      "basic.tests.ModelFromDbTests.test_old_signature_select_related",
+      "basic.tests.ModelFromDbTests.test_old_signature_raw"
+    ],
+    "regressed": [
+      "django/db/models/query.py#ModelIterable.__iter__",
+      "django/db/models/query.py#RawModelIterable.__iter__"
+    ],
+    "evidence": "Fixed #37259 -- Restored support for old-signature Model.from_db() overrides. | The fetch modes feature made all query iteration paths (ModelIterable, | RawModelIterable, and RelatedPopulator) call Model.from_db() with a | fetch_mode keyword argument. This crashed with a TypeError for models | overriding from_db() with the previously documented signature | from_db(cls, db, field_names, values). | ",
+    "confidence": "high",
+    "notes": "culprit commit e097e8a12f differs from PR merge_commit_sha e244d8bbb7; fix also changes test-support files: tests/basic/models.py; culprit committed 2025-10-16, fix committed 2026-08-18"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "8096b5251090bf7539c59956e398b027c7525529",
+    "culprit_pr": 21239,
+    "base": "8f0abd228750f2146749260d607279eb96a88c25",
+    "head": "7ac7a6cfa242cbb8ea56a7d2b7171117691d47df",
+    "head_source": "pr-api",
+    "fix_sha": "99d56e5cf15839995f62f24294584f1e2976b1ea",
+    "fix_pr": 21752,
+    "tests": [
+      "forms_tests.tests.test_media.FormsMediaTestCase.test_html_safe_string_js",
+      "forms_tests.tests.test_media.FormsMediaTestCase.test_html_safe_string_css",
+      "forms_tests.tests.test_media.FormsMediaTestCase.test_html_safe_string_deduplication",
+      "forms_tests.tests.test_media.FormsMediaTestCase.test_html_safe_string_merging"
+    ],
+    "regressed": [
+      "django/forms/widgets.py#Media._normalize_js",
+      "django/forms/widgets.py#Media._normalize_css"
+    ],
+    "evidence": "Fixed #37262 -- Restored rendering of html-safe strings in form media. | `Media.__init__()` normalized every string js/css entry into `Script` or | `Stylesheet` objects. `SafeString` is a `str` subclass, so html-safe strings | such as `mark_safe(\"<script defer src=...></script>\")`, a previously-documented | idiom for including complete asset tags, were treated as asset paths, | run through `static",
+    "confidence": "medium",
+    "notes": "regressed = functions changed by the fix (no overlap with functions changed by culprit); culprit committed 2026-05-07, fix committed 2026-08-14"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "5d911f2d2fecc703be91b2b9b28acc59d34b35f3",
+    "culprit_pr": 19534,
+    "base": "017d7f6f12e597e6179de7ffdf330a52c2b22053",
+    "head": "628c6dab82d779506d3ba38c12243441dadd0d1c",
+    "head_source": "pr-api",
+    "fix_sha": "b5388a3a80cafcce2e34196d8e81cf5b48eb33bb",
+    "fix_pr": 21747,
+    "tests": [
+      "template_tests.syntax_tests.test_basic.BasicSyntaxTests.test_double_dot_in_literal"
+    ],
+    "regressed": [
+      "django/template/base.py#Parser.parse"
+    ],
+    "evidence": "Fixed #37257, Refs #35738 -- Prevented double-dot deprecation warnings for template literals. | The deprecation warning for double-dot variable lookups checked | str(filter_expression.var), which for constants is the resolved literal | value rather than a variable lookup. Templates containing string or translated | string literals with two consecutive dots, such as {{ \"a..b\" }} or | {{ 'a..b'|uppe",
+    "confidence": "high",
+    "notes": "culprit committed 2026-04-28, fix committed 2026-08-10"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "7d9aab8da0a06787d649762a702e1a518d843a63",
+    "culprit_pr": 19277,
+    "base": "9608678704a5f89b4c946eea93e90a0f6eb8e3ef",
+    "head": "5f6736d8479f89dda97b8b5e4f06b1eb912d1f10",
+    "head_source": "pr-api",
+    "fix_sha": "c9ff757a55392b1f50968eb89fe775f6155168d8",
+    "fix_pr": 21677,
+    "tests": [
+      "bulk_create.tests.BulkCreateTests.test_pk_from_related_instance_saved_after_init"
+    ],
+    "regressed": [
+      "django/db/models/query.py#QuerySet._prepare_for_bulk_create"
+    ],
+    "evidence": "Fixed #37234 -- Fixed bulk_create() for late-saved related primary keys. | Objects with a primary key supplied by a late-saved related instance | were partitioned before their related fields were prepared. This | caused an assertion failure on backends returning rows from bulk | inserts. | Regression in 7d9aab8da0a06787d649762a702e1a518d843a63.",
+    "confidence": "high",
+    "notes": "culprit committed 2025-03-26, fix committed 2026-07-29"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "78fac1b0473ed8960ecd2a30aca4fa8420d150b8",
+    "culprit_pr": 19626,
+    "base": "e767bd6838d40893b001c1ad6ba2ab9293527532",
+    "head": "3b290b0ea43f71d55ec0dc52b1567a330e288823",
+    "head_source": "pr-api",
+    "fix_sha": "356e5b0f5ddb473eec3ed96d8ad9a37f3f8585eb",
+    "fix_pr": 21552,
+    "tests": [
+      "auth_tests.test_hashers.TestUtilsHashPass.test_password_and_salt_in_str_and_bytes"
+    ],
+    "regressed": [
+      "django/contrib/auth/hashers.py#PBKDF2PasswordHasher.encode",
+      "django/contrib/auth/hashers.py#MD5PasswordHasher.encode"
+    ],
+    "evidence": "Fixed #37184 -- Allowed non-UTF-8 bytes passwords in the PBKDF2 and MD5 password hashers. | An unnecessary force_str() call in the PBKDF2 hasher raised | UnicodeDecodeError on perfectly valid password values. | The MD5 hasher had a similar issue, however the same commit that | introduced the bug also happened to allow bytes in general, so preserve | the support while removing the constraint on UTF",
+    "confidence": "high",
+    "notes": "argon2/bcrypt variants of the changed test omitted (need optional libs); fix modifies an existing test; check the modified assertion targets the regression; culprit committed 2025-07-22, fix committed 2026-06-26"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "087bb9e8f3478d53f12b1737af865992af17c5f2",
+    "culprit_pr": 20458,
+    "base": "6f8b2d1c6dfaab4b18a2b10bca4e54bdbabc10d8",
+    "head": "6c62cb1676f15f6d6b3cae92735fe53b64d40204",
+    "head_source": "pr-api",
+    "fix_sha": "0e1d950fbb44878f6972a0e5730f69f98caf468e",
+    "fix_pr": 21277,
+    "tests": [
+      "queries.test_qs_combinators.QuerySetSetOperationTests.test_double_union_in_with_default_ordering"
+    ],
+    "regressed": [
+      "django/db/models/sql/query.py#Query.clear_ordering"
+    ],
+    "evidence": "Fixed #37097 -- Made Query.clear_ordering() clear ordering on combined queries also. | Regression in 087bb9e8f3478d53f12b1737af865992af17c5f2. | (That commit drove more traffic into an error that would have been | reachable only with an explicit order_by() after each union().)",
+    "confidence": "medium",
+    "notes": "culprit commit 087bb9e8f3 differs from PR merge_commit_sha 6380e3f01e; regressed = functions changed by the fix (no overlap with functions changed by culprit); culprit committed 2026-02-06, fix committed 2026-05-18"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "31a43c571f4d036827d4fd7a5f615591637dc1be",
+    "culprit_pr": 19709,
+    "base": "0bff53b4138d8c6009e9040dbb8916a1271a68d7",
+    "head": "ba7c90c64c8377c2ed61d4d2b8a665b7cf2df557",
+    "head_source": "pr-api",
+    "fix_sha": "a32c7075cf634aee1f4f3deecd27f194097ec0c2",
+    "fix_pr": 21045,
+    "tests": [
+      "auth_tests.test_middleware.TestAsyncLoginLogoutAfterSyncMiddleware.test_user_after_alogin",
+      "auth_tests.test_middleware.TestAsyncLoginLogoutAfterSyncMiddleware.test_user_after_alogout"
+    ],
+    "regressed": [
+      "django/contrib/auth/__init__.py#alogin",
+      "django/contrib/auth/__init__.py#alogout"
+    ],
+    "evidence": "Fixed #37017 -- Fixed setting or clearing of request.user after alogin/alogout(). | Regression in 31a43c571f4d036827d4fd7a5f615591637dc1be.",
+    "confidence": "high",
+    "notes": "culprit committed 2025-08-08, fix committed 2026-04-02"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "94680437a45a71c70ca8bd2e68b72aa1e2eff337",
+    "culprit_pr": null,
+    "base": "55a0073b3beb9de8f7c1f7c44a7d0bc10126c841",
+    "head": "94680437a45a71c70ca8bd2e68b72aa1e2eff337",
+    "head_source": "culprit-parent",
+    "fix_sha": "fe189dc43ab3eddbbceefb6834893b73ca60d5ed",
+    "fix_pr": 20586,
+    "tests": [
+      "model_fields.test_filefield.FileFieldTests.test_upload_to_callable_sees_auto_now_add_field_value"
+    ],
+    "regressed": [
+      "django/db/models/base.py#Model._save_table"
+    ],
+    "evidence": "Fixed #36847 -- Ensured auto_now_add fields are set on pre_save(). | Regression in 94680437a45a71c70ca8bd2e68b72aa1e2eff337. Refs #27222. | During INSERT operations, `field.pre_save()` is called to prepare values | for db insertion. The `add` param must be `True` for `auto_now_add` | fields to be populated. The regression commit passed `False`, causing | `auto_now_add` fields to remain `None` when",
+    "confidence": "high",
+    "notes": "fix also changes test-support files: tests/model_fields/models.py; culprit committed 2025-09-14, fix committed 2026-01-29"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "f920937c8a63df6bea220e4386f59cdb45b2e355",
+    "culprit_pr": 18270,
+    "base": "8be0c0d6901669661fca578f474cd51cd284d35a",
+    "head": "07897da05099484dcf7f1b7b88f2657b4af506af",
+    "head_source": "pr-api",
+    "fix_sha": "7bf3ac3ee255bcfe329e3203c7a2555b1275d506",
+    "fix_pr": 20459,
+    "tests": [
+      "urlpatterns.test_resolvers.RoutePatternTests.test_match_lazy_route_without_converters",
+      "urlpatterns.test_resolvers.RoutePatternTests.test_match_lazy_route_endpoint",
+      "urlpatterns.test_resolvers.RoutePatternTests.test_match_lazy_route_with_converters",
+      "urlpatterns.test_resolvers.ResolverLazyIncludeTests.test_lazy_route_resolves"
+    ],
+    "regressed": [
+      "django/urls/resolvers.py#RoutePattern.match"
+    ],
+    "evidence": "Fixed #36796 -- Handled lazy routes correctly in RoutePattern.match(). | Coerce lazy route values to `str` at match time to support prefix and | endpoint matching when using `gettext_lazy()` route paths. | Regression in f920937c8a63df6bea220e4386f59cdb45b2e355. | Walls for reviews.",
+    "confidence": "high",
+    "notes": "fix also changes test-support files: tests/urlpatterns/lazy_path_urls.py; culprit committed 2025-05-13, fix committed 2025-12-26"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "f9a44cc0fac653f8e0c2ab1cdfb12b2cc5c63fc2",
+    "culprit_pr": 19602,
+    "base": "7528979153355faa49c3e49ba3ea233f998a7583",
+    "head": "8600580e462a2ef790f9bd23da1894474e898d56",
+    "head_source": "pr-api",
+    "fix_sha": "6cc1231285a20b11058143f8cb0a6b4b3999b23a",
+    "fix_pr": 20411,
+    "tests": [
+      "schema.tests.SchemaTests.test_m2m_rename"
+    ],
+    "regressed": [
+      "django/db/backends/base/schema.py#BaseDatabaseSchemaEditor._field_should_be_altered"
+    ],
+    "evidence": "Fixed #36800 -- Restored ManyToManyField renaming in BaseDatabaseSchemaEditor.alter_field(). | Regression in f9a44cc0fac653f8e0c2ab1cdfb12b2cc5c63fc2. | Now that ManyToManyField is no longer concrete the decision of whether or not | it should be altered, which is also relied on by field renaming, should take | into consideration name changes even if it doesn't have a column associated | with it, a",
+    "confidence": "high",
+    "notes": "culprit committed 2025-09-22, fix committed 2025-12-16"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "b8e5a8a9a2a767f584cbe89a878a42363706f939",
+    "culprit_pr": 19494,
+    "base": "d2732c30af28381f5a2ff1b08f754eeb7a6dfeca",
+    "head": "406c2427c978e7edf3f5d60ba4fab2ed9527e3e4",
+    "head_source": "pr-api",
+    "fix_sha": "2a6e0bd72d4a69725b957d6748a4b834f21b12b5",
+    "fix_pr": 20303,
+    "tests": [
+      "aggregation.test_filter_argument.FilteredAggregateTests.test_empty_filtered_aggregates_with_annotation",
+      "expressions.tests.SimpleExpressionTests.test_replace_expressions_falsey"
+    ],
+    "regressed": [
+      "django/db/models/expressions.py#BaseExpression.replace_expressions"
+    ],
+    "evidence": "Fixed #36751 -- Fixed empty filtered aggregation crash over annotated queryset. | Regression in b8e5a8a9a2a767f584cbe89a878a42363706f939. | Refs #36404. | The replace_expressions method was innapropriately dealing with falsey | but not None source expressions causing them to also be potentially | evaluated when __bool__ was invoked (e.g. QuerySet.__bool__ evaluates | the queryset). | The changes i",
+    "confidence": "medium",
+    "notes": "regressed = functions changed by the fix (no overlap with functions changed by culprit); culprit committed 2025-05-23, fix committed 2025-11-24"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "e44e8327d3d88d86895735c0e427102063ff5b55",
+    "culprit_pr": 19246,
+    "base": "de1117ea8eabe0ee0aa048e5a4e249eab7c4245e",
+    "head": "a8e39397326524a8d81eea1587f04022e432cca6",
+    "head_source": "pr-api",
+    "fix_sha": "abfa4619fb818ff694c22e962a280673e085239e",
+    "fix_pr": 20087,
+    "tests": [
+      "model_forms.tests.ConstraintValidationTests.test_check_constraint_refs_excluded_field_attname"
+    ],
+    "regressed": [
+      "django/db/models/constraints.py#BaseConstraint._expression_refs_exclude"
+    ],
+    "evidence": "Fixed #36730 -- Fixed constraint validation crash for excluded FK attnames. | Regression in e44e8327d3d88d86895735c0e427102063ff5b55.",
+    "confidence": "medium",
+    "notes": "regressed = functions changed by the fix (no overlap with functions changed by culprit); fix also changes test-support files: tests/model_forms/models.py; culprit committed 2025-03-10, fix committed 2025-11-13"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "a9fe98d5bd4212d069afe8316101984aadecfbb2",
+    "culprit_pr": 19781,
+    "base": "43e4d0a1422d87cc804097f7eb127b6ffa07e840",
+    "head": "7caed338d069db2d0587a01b76827a7f523e393e",
+    "head_source": "pr-api",
+    "fix_sha": "125b63ca745bace1e098ed3c7362d59136f68a8b",
+    "fix_pr": 20060,
+    "tests": [
+      "utils_tests.test_html.TestUtilsHtml.test_urlize"
+    ],
+    "regressed": [],
+    "evidence": "Fixed #36710 -- Fixed a regression in urlize for multipart domain names. | Regression in a9fe98d5bd4212d069afe8316101984aadecfbb2.",
+    "confidence": "medium",
+    "notes": "fix modifies an existing test; check the modified assertion targets the regression; some tests are modified existing tests: utils_tests.test_html.TestUtilsHtml.test_urlize; regressed = functions changed by the fix (no overlap with functions changed by culprit); culprit committed 2025-08-28, fix committed 2025-11-05"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "8638d8bf74c1a58302c97d4436ad2eb08438145b",
+    "culprit_pr": 19395,
+    "base": "f5197be818dfcb0d58d6e5f7cc44ec5343010b58",
+    "head": "ba519a747513f77eef7abb831db4a78225def3d4",
+    "head_source": "pr-api",
+    "fix_sha": "edde2891c355103ba455f3fea95cff962e40962c",
+    "fix_pr": 19945,
+    "tests": [
+      "invalid_models_tests.test_models.IndexesTests.test_pointing_to_desc_field"
+    ],
+    "regressed": [
+      "django/db/models/indexes.py#Index.check"
+    ],
+    "evidence": "Fixed #36660 -- Fixed a regression in descending Index local field checks. | Regression in 8638d8bf74c1a58302c97d4436ad2eb08438145b. | Refs #36273.",
+    "confidence": "high",
+    "notes": "culprit committed 2025-05-14, fix committed 2025-10-13"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "f02b49d2f3bf84f5225de920ca510149f1f9f1da",
+    "culprit_pr": 19405,
+    "base": "fda3c1712a1eb7b20dfc91e6c9abae32bd64d081",
+    "head": "538c5564e21d02fa76046f75b1f8dac58241c4f1",
+    "head_source": "pr-api",
+    "fix_sha": "6e89271a8507fe272d11814975500a1b40303a04",
+    "fix_pr": 19862,
+    "tests": [
+      "auth_tests.test_management.PermissionRenameOperationsTests.test_permission_rename_other_db"
+    ],
+    "regressed": [
+      "django/contrib/auth/management/__init__.py#RenamePermission._rename"
+    ],
+    "evidence": "Refs #27489 -- Made RenamePermission() operation respect database. | Regression in f02b49d2f3bf84f5225de920ca510149f1f9f1da.",
+    "confidence": "high",
+    "notes": "culprit committed 2025-08-19, fix committed 2025-09-15"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "c1fa3fdd040718356e5a3b9a0fe699d73f47a940",
+    "culprit_pr": 19503,
+    "base": "957951755259b412d5113333b32bf85871d29814",
+    "head": "47e5bb3f818dda4fd7dc84e35e0ca64db977089d",
+    "head_source": "pr-api",
+    "fix_sha": "104cbfd44b9eff010daf0ef0e1ce434385855b13",
+    "fix_pr": 19555,
+    "tests": [
+      "expressions.tests.BasicExpressionsTests.test_update_jsonfield_case_when_key_is_null"
+    ],
+    "regressed": [
+      "django/db/models/expressions.py#When.resolve_expression"
+    ],
+    "evidence": "Fixed #36453 -- Made When.condition resolve with for_save=False. | Value(None, JSONField()) when used in When.condition incorrectly resolved with | for_save=True, resulting in the value being serialized as SQL NULL instead of | JSON null. | Regression in c1fa3fdd040718356e5a3b9a0fe699d73f47a940. | for the review.",
+    "confidence": "medium",
+    "notes": "regressed = functions changed by the fix (no overlap with functions changed by culprit); culprit committed 2025-06-06, fix committed 2025-06-16"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "00c690efbc0b10f67924687f24a7b30397bf47d9",
+    "culprit_pr": 19073,
+    "base": "5244ecbd2259365ecd6bbf96747285a673b2ee69",
+    "head": "7ea3269804ec1bc3775e0307f35ac18588ca9ecd",
+    "head_source": "pr-api",
+    "fix_sha": "c1fa3fdd040718356e5a3b9a0fe699d73f47a940",
+    "fix_pr": 19503,
+    "tests": [
+      "queries.test_bulk_update.BulkUpdateTests.test_json_field_sql_null"
+    ],
+    "regressed": [
+      "django/db/models/expressions.py#BaseExpression.resolve_expression"
+    ],
+    "evidence": "Fixed #36419 -- Ensured for_save was propagated when resolving expressions. | The for_save flag wasn't properly propagated when resolving expressions, which | prevented get_db_prep_save() from being called in some cases. This affected | fields like JSONField where None would be saved as JSON null instead of SQL NULL. | Regression in 00c690efbc0b10f67924687f24a7b30397bf47d9.",
+    "confidence": "medium",
+    "notes": "regressed = functions changed by the fix (no overlap with functions changed by culprit); culprit committed 2025-01-22, fix committed 2025-06-06"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "c075508b4de8edf9db553b409f8a8ed2f26ecead",
+    "culprit_pr": 19507,
+    "base": "26313bc21932d0d3af278ab387549d63b1f64575",
+    "head": "a8a32552d49406550b7a6957367b017aa8c88d1d",
+    "head_source": "pr-api",
+    "fix_sha": "cf5f36bf903a2854f5e395149cee707115b83744",
+    "fix_pr": 19548,
+    "tests": [
+      "requests_tests.test_accept_header.MediaTypeTests.test_str",
+      "requests_tests.test_accept_header.MediaTypeTests.test_match",
+      "requests_tests.test_accept_header.MediaTypeTests.test_no_match",
+      "requests_tests.test_accept_header.MediaTypeTests.test_params"
+    ],
+    "regressed": [
+      "django/http/request.py#MediaType.__init__",
+      "django/http/request.py#MediaType.__str__",
+      "django/http/request.py#MediaType.match",
+      "django/http/request.py#MediaType.quality",
+      "django/http/request.py#MediaType.specificity"
+    ],
+    "evidence": "Fixed #36446 -- Restored \"q\" in internal MediaType.params property. | The \"q\" key was removed while addressing ticket #36411. Despite | `MediaType.params` is undocumented and considered internal, it was used | in third-party projects (Zulip reported breakage), so this work restored | the `q` key in `params`. | Regression in c075508b4de8edf9db553b409f8a8ed2f26ecead.",
+    "confidence": "high",
+    "notes": "fix modifies an existing test; check the modified assertion targets the regression; some tests are modified existing tests: requests_tests.test_accept_header.MediaTypeTests.test_str, requests_tests.test_accept_header.MediaTypeTests.test_match, requests_tests.test_accept_header.MediaTypeTests.test_no_match; culprit committed 2025-06-03, fix committed 2025-06-09"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "626d77e52a3f247358514bcf51c761283968099c",
+    "culprit_pr": 19072,
+    "base": "c28f821c9067050ba0d099349a4dfea2b29faf99",
+    "head": "7f974e6c18f83f356d05bfaa65c3627c2e72aceb",
+    "head_source": "pr-api",
+    "fix_sha": "08187c94ed02c45ad40a32244dedeaa7ac71ca87",
+    "fix_pr": 19523,
+    "tests": [
+      "prefetch_related.tests.PrefetchRelatedTests.test_prefetch_queryset_child_class"
+    ],
+    "regressed": [
+      "django/db/models/fields/related_descriptors.py#ForwardManyToOneDescriptor.get_prefetch_querysets"
+    ],
+    "evidence": "Fixed #36432 -- Fixed a prefetch_related crash on related target subclass queryset. | Regression in 626d77e52a3f247358514bcf51c761283968099c. | Refs #36116.",
+    "confidence": "high",
+    "notes": "fix also changes test-support files: tests/prefetch_related/models.py; culprit committed 2025-01-21, fix committed 2025-06-04"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "a76035e925ff4e6d8676c65cb135c74b993b1039",
+    "culprit_pr": 19073,
+    "base": "5244ecbd2259365ecd6bbf96747285a673b2ee69",
+    "head": "7ea3269804ec1bc3775e0307f35ac18588ca9ecd",
+    "head_source": "pr-api",
+    "fix_sha": "b8e5a8a9a2a767f584cbe89a878a42363706f939",
+    "fix_pr": 19494,
+    "tests": [
+      "aggregation.test_filter_argument.FilteredAggregateTests.test_empty_filtered_aggregates",
+      "aggregation.test_filter_argument.FilteredAggregateTests.test_filtered_aggregrate_ref_in_subquery_annotation"
+    ],
+    "regressed": [
+      "django/db/models/aggregates.py#Aggregate.__init__",
+      "django/db/models/aggregates.py#Aggregate.resolve_expression"
+    ],
+    "evidence": "Fixed #36404 -- Fixed Aggregate.filter using OuterRef. | Regression in a76035e925ff4e6d8676c65cb135c74b993b1039. | Thank you to Simon Charette for the review. | co-authored-by: Simon Charette <charette.s@gmail.com>",
+    "confidence": "medium",
+    "notes": "culprit commit a76035e925 differs from PR merge_commit_sha 00c690efbc; regressed = functions changed by the fix (no overlap with functions changed by culprit); culprit committed 2025-01-22, fix committed 2025-05-23"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "9cb8baa0c4fa2c10789c5c8b65f4465932d4d172",
+    "culprit_pr": 18314,
+    "base": "c6d1f98d2685f34e009e0fffdcff4ad275e55879",
+    "head": "62e2204bac8b2e26443ce91578d236e3a0c1ba8a",
+    "head_source": "pr-api",
+    "fix_sha": "802baf5da5b8d8b44990a8214a43b951e7ab8b39",
+    "fix_pr": 19472,
+    "tests": [
+      "queries.test_qs_combinators.QuerySetSetOperationTests.test_union_empty_slice"
+    ],
+    "regressed": [
+      "django/db/models/query.py#QuerySet.union"
+    ],
+    "evidence": "Fixed #36388 -- Made QuerySet.union() return self when called with no arguments. | Regression in 9cb8baa0c4fa2c10789c5c8b65f4465932d4d172. | Thank you to Antoine Humeau for the report and Simon Charette for the review.",
+    "confidence": "medium",
+    "notes": "culprit from 2024 Django dev cycle; Python 3.14 compatibility of that tree unverified; regressed = functions changed by the fix (no overlap with functions changed by culprit); culprit committed 2024-07-19, fix committed 2025-05-19"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "65ad4ade74dc9208b9d686a451cd6045df0c9c3a",
+    "culprit_pr": 16703,
+    "base": "aa74c4083e047473ac385753e047e075e8f04890",
+    "head": "ebc9f1c827e3c5e2dfea3609402a750008e577b4",
+    "head_source": "pr-api",
+    "fix_sha": "8ef4e0bd423ac3764004c73c3d1098e7a51a2945",
+    "fix_pr": null,
+    "tests": [
+      "update.tests.AdvancedTests.test_update_values_annotation"
+    ],
+    "regressed": [
+      "django/db/models/query.py#QuerySet.update"
+    ],
+    "evidence": "Fixed #36360 -- Fixed QuerySet.update() crash when referring annotations through values(). | The issue was only manifesting itself when also filtering againt a related | model as that forces the usage of a subquery because SQLUpdateCompiler doesn't | support the UPDATE FROM syntax yet. | Regression in 65ad4ade74dc9208b9d686a451cd6045df0c9c3a. | Refs #28900.",
+    "confidence": "medium",
+    "notes": "culprit from 2024 Django dev cycle; Python 3.14 compatibility of that tree unverified; culprit commit 65ad4ade74 differs from PR merge_commit_sha 0e65abd2d9; regressed = functions changed by the fix (no overlap with functions changed by culprit); culprit committed 2024-07-03, fix committed 2025-04-30"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "65ad4ade74dc9208b9d686a451cd6045df0c9c3a",
+    "culprit_pr": 16703,
+    "base": "aa74c4083e047473ac385753e047e075e8f04890",
+    "head": "ebc9f1c827e3c5e2dfea3609402a750008e577b4",
+    "head_source": "pr-api",
+    "fix_sha": "12b771a1ec4bbfe82405176f5601e6441855a303",
+    "fix_pr": 19342,
+    "tests": [
+      "annotations.tests.AliasTests.test_alias_after_values"
+    ],
+    "regressed": [
+      "django/db/models/sql/query.py#Query.add_annotation"
+    ],
+    "evidence": "Fixed #36299 -- Prevented field selection on QuerySet.alias() after values(). | Regression in 65ad4ade74dc9208b9d686a451cd6045df0c9c3a. | Refs #28900. | Co-Authored-By: OutOfFocus4 <jeff.iadarola@gmail.com>",
+    "confidence": "high",
+    "notes": "culprit from 2024 Django dev cycle; Python 3.14 compatibility of that tree unverified; culprit commit 65ad4ade74 differs from PR merge_commit_sha 0e65abd2d9; culprit committed 2024-07-03, fix committed 2025-04-05"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "55d89e25f4115c5674cdd9b9bcba2bb2bb6d820b",
+    "culprit_pr": null,
+    "base": "9a729fb61add16d89a4b42b491aec2d22f1ae69a",
+    "head": "55d89e25f4115c5674cdd9b9bcba2bb2bb6d820b",
+    "head_source": "culprit-parent",
+    "fix_sha": "1e9db35836d42a3c72f3d1015c2f302eb6fee046",
+    "fix_pr": 19404,
+    "tests": [
+      "template_tests.filter_tests.test_wordwrap.FunctionTests.test_wrap_preserve_newlines",
+      "template_tests.filter_tests.test_wordwrap.FunctionTests.test_wrap_preserve_whitespace"
+    ],
+    "regressed": [
+      "django/utils/text.py#wrap"
+    ],
+    "evidence": "Fixed #36341 -- Preserved whitespaces in wordwrap template filter. | Regression in 55d89e25f4115c5674cdd9b9bcba2bb2bb6d820b. | This work improves the django.utils.text.wrap() function to ensure that | empty lines and lines with whitespace only are kept instead of being | dropped.",
+    "confidence": "high",
+    "notes": "culprit committed 2025-03-06, fix committed 2025-04-23"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "ec7d69035a408b357f1803ca05a7c991cc358cfa",
+    "culprit_pr": 18620,
+    "base": "80c3697e96f5a0cbeac043dd5a67f26c076a4279",
+    "head": "73a108c360fce5971ba66542fc73a69790405d0f",
+    "head_source": "pr-api",
+    "fix_sha": "d469db978ea6a705549b9519313d9adc198e4232",
+    "fix_pr": 19372,
+    "tests": [
+      "auth_tests.test_validators.MinimumLengthValidatorTest.test_validate",
+      "auth_tests.test_validators.MinimumLengthValidatorTest.test_l10n"
+    ],
+    "regressed": [
+      "django/contrib/auth/password_validation.py#MinimumLengthValidator.validate",
+      "django/contrib/auth/password_validation.py#MinimumLengthValidator.get_error_message"
+    ],
+    "evidence": "Fixed #36314 -- Fixed MinimumLengthValidator error message translation. | Regression in ec7d69035a408b357f1803ca05a7c991cc358cfa. | Thank you Gabriel Trouv\u00e9 for the report and Claude Paroz for the review.",
+    "confidence": "high",
+    "notes": "fix modifies an existing test; check the modified assertion targets the regression; culprit from 2024 Django dev cycle; Python 3.14 compatibility of that tree unverified; some tests are modified existing tests: auth_tests.test_validators.MinimumLengthValidatorTest.test_validate; culprit committed 2024-10-15, fix committed 2025-04-17"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "c09bceef68e5abb79accedd12dade16aa6577a09",
+    "culprit_pr": 19214,
+    "base": "1759c1dbd1e3cd4c9fcd345269e0d25796468f7f",
+    "head": "0ef82adaecb9a519e7de66a0533c11490fddf0f0",
+    "head_source": "pr-api",
+    "fix_sha": "27b68bcadf1ab2e9f7fd223aed42db352ccdc62d",
+    "fix_pr": 19233,
+    "tests": [
+      "admin_utils.test_logentry.LogEntryTests.test_log_actions",
+      "admin_utils.test_logentry.LogEntryTests.test_log_actions_single_object_param"
+    ],
+    "regressed": [
+      "django/contrib/admin/models.py#LogEntryManager.log_actions",
+      "django/contrib/admin/options.py#ModelAdmin.log_addition",
+      "django/contrib/admin/options.py#ModelAdmin.log_change"
+    ],
+    "evidence": "Fixed #36234 -- Restored single_object argument to LogEntry.objects.log_actions(). | Thank you Adam Johnson for the report and fix. Thank you Sarah Boyce for | your spot on analysis. | Regression in c09bceef68e5abb79accedd12dade16aa6577a09, which is | partially reverted in this branch.",
+    "confidence": "high",
+    "notes": "fix modifies an existing test; check the modified assertion targets the regression; some tests are modified existing tests: admin_utils.test_logentry.LogEntryTests.test_log_actions; culprit committed 2025-03-04, fix committed 2025-03-12"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "ca2be7724e1244a4cb723de40a070f873c6e94bf",
+    "culprit_pr": null,
+    "base": "9a2dd9789a2edeed7344a8ec0d17142ad27443a1",
+    "head": "ca2be7724e1244a4cb723de40a070f873c6e94bf",
+    "head_source": "culprit-parent",
+    "fix_sha": "b3c5830769d8a5dbf2f974da7116fe503c9454d9",
+    "fix_pr": 19047,
+    "tests": [
+      "utils_tests.test_ipv6.TestUtilsIPv6.test_validates_correct_with_ipv6_instance",
+      "utils_tests.test_ipv6.TestUtilsIPv6.test_validates_incorrect_with_non_string"
+    ],
+    "regressed": [
+      "django/utils/ipv6.py#is_valid_ipv6_address"
+    ],
+    "evidence": "Fixed #36098 -- Fixed validate_ipv6_address()/validate_ipv46_address() crash for non-string values. | Regression in ca2be7724e1244a4cb723de40a070f873c6e94bf.",
+    "confidence": "high",
+    "notes": "fix also changes test-support files: tests/validators/tests.py; culprit committed 2025-01-14, fix committed 2025-01-15"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "bf7b17d16d3978b2e1cee4a0f7ce8840bd1a8dc4",
+    "culprit_pr": 19018,
+    "base": "9fa4d07ce0729850661a31a6b37c6b48f13d2266",
+    "head": "147bb741f18c3aaad88d724038ebfc481614398e",
+    "head_source": "pr-api",
+    "fix_sha": "4bfec242b488b174f7d386ab5bbd3363751cdb93",
+    "fix_pr": 19040,
+    "tests": [
+      "model_inheritance.tests.ModelInheritanceTests.test_full_clean"
+    ],
+    "regressed": [
+      "django/db/models/base.py#Model._perform_unique_checks"
+    ],
+    "evidence": "Fixed #36093 -- Adjusted unique checks to account for inherited primary keys. | Regression in bf7b17d16d3978b2e1cee4a0f7ce8840bd1a8dc4 refs #36075.",
+    "confidence": "high",
+    "notes": "culprit committed 2025-01-13, fix committed 2025-01-14"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "9e9792228a6bb5d6402a5d645bc3be4cf364aefb",
+    "culprit_pr": null,
+    "base": "fe4a0bbe2088d0c2b331216dad21ccd0bb3ee80d",
+    "head": "9e9792228a6bb5d6402a5d645bc3be4cf364aefb",
+    "head_source": "culprit-parent",
+    "fix_sha": "0e94f292cda632153f2b3d9a9037eb0141ae9c2e",
+    "fix_pr": 18403,
+    "tests": [
+      "i18n.tests.MiscTests.test_get_supported_language_variant_real",
+      "i18n.tests.MiscTests.test_get_language_from_path_real",
+      "i18n.tests.CountrySpecificLanguageTests.test_get_language_from_request_code_too_long"
+    ],
+    "regressed": [
+      "django/utils/translation/trans_real.py#get_supported_language_variant"
+    ],
+    "evidence": "Fixed #35627 -- Raised a LookupError rather than an unhandled ValueError in get_supported_language_variant(). | LocaleMiddleware didn't handle the ValueError raised by | get_supported_language_variant() when language codes were | over 500 characters. | Regression in 9e9792228a6bb5d6402a5d645bc3be4cf364aefb.",
+    "confidence": "high",
+    "notes": "fix modifies an existing test; check the modified assertion targets the regression; culprit from 2024 Django dev cycle; Python 3.14 compatibility of that tree unverified; some tests are modified existing tests: i18n.tests.MiscTests.test_get_supported_language_variant_real, i18n.tests.MiscTests.test_get_language_from_path_real; culprit committed 2024-07-09, fix committed 2024-07-25"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "5183f7c287a9a5d61ca1103b55166cda52d9c647",
+    "culprit_pr": 19213,
+    "base": "9120a19c4ecb643111b073dd1069e6b410a03c23",
+    "head": "9d02de1eaa7d8674efa985d58393e3fb55333d97",
+    "head_source": "pr-api",
+    "fix_sha": "22506b2c162b34c4c45f748cf11ede75824a40cd",
+    "fix_pr": 19567,
+    "tests": [
+      "template_tests.test_base.VariableTests.test_nonliterals",
+      "template_tests.test_parser.ParserTests.test_variable_parsing",
+      "template_tests.test_parser.ParserTests.test_filter_numeric_argument_parsing"
+    ],
+    "regressed": [
+      "django/template/base.py#Variable.__init__"
+    ],
+    "evidence": "Fixed #36465, Refs #35816 -- Disallowed '+' and '-' characters in template variable names. | Regression in 5183f7c287a9a5d61ca1103b55166cda52d9c647. | Thank you to Jon Banafato and Baptiste Mispelon for the report.",
+    "confidence": "medium",
+    "notes": "fix modifies an existing test; check the modified assertion targets the regression; some tests are modified existing tests: template_tests.test_base.VariableTests.test_nonliterals, template_tests.test_parser.ParserTests.test_variable_parsing, template_tests.test_parser.ParserTests.test_filter_numeric_argument_parsing; regressed = functions changed by the fix (no overlap with functions changed by culprit); culprit committed 2025-03-11, fix committed 2025-06-18"
+  },
+  {
+    "repo": "django",
+    "culprit_sha": "2ce5cb0f7a4618dfdc5f5c10e53e2e9b9543d298",
+    "culprit_pr": 20374,
+    "base": "e95468ed97b1c250939da316218c39dad577ba32",
+    "head": "9b86ba05c0a74e8a6dac671d6f83c96ac35e4f95",
+    "head_source": "pr-api",
+    "fix_sha": "a284a49153f005f2a7af087025e5112ba06cbd5f",
+    "fix_pr": 21121,
+    "tests": [
+      "aggregation_regress.tests.AggregationTests.test_count_preserve_group_by"
+    ],
+    "regressed": [
+      "django/db/models/sql/query.py#Query.orderby_issubset_groupby"
+    ],
+    "evidence": "Fixed #37047 -- Fixed crash in Query.orderby_issubset_groupby for descending and random order_by strings. | Run this example: | ```python | User.objects.values(\"is_staff\").annotate(latest=Max(\"date_joined\")).order_by(\"-latest\").count() | ``` | You should see the following exception: | ``` | django.core.exceptions.FieldError: Cannot resolve keyword '-latest' into field. | ``` | Regression in 2ce5cb",
+    "confidence": "high",
+    "notes": "fix modifies an existing test; check the modified assertion targets the regression; some tests are modified existing tests: aggregation_regress.tests.AggregationTests.test_count_preserve_group_by; culprit committed 2025-12-15, fix committed 2026-04-19"
+  },
+  {
+    "repo": "sympy",
+    "culprit_sha": "ccf7f5732b145de0da03db190d1f957aaefb8f9a",
+    "culprit_pr": 30882,
+    "base": "5b861e4c4a06d56bac4b3f1398985416ae6ec6c7",
+    "head": "dc68b2d4567c7d1a93ea06f45a3b7915ccfd473b",
+    "head_source": "pr-api",
+    "fix_sha": "ceb4071329f097a1d39302e0acc8185cda44d6b7",
+    "fix_pr": 30986,
+    "tests": [
+      "sympy/core/tests/test_exprtools.py::test_monotonic_sign",
+      "sympy/core/tests/test_exprtools.py::test_monotonic_sign_discontinuous_integer_domain",
+      "sympy/core/tests/test_exprtools.py::test_monotonic_sign_safe_functions",
+      "sympy/core/tests/test_exprtools.py::test_linear_coeffs"
+    ],
+    "regressed": [
+      "sympy/core/exprtools.py#_monotonic_sign"
+    ],
+    "evidence": "Issue gh-30976 'Regression: sign inference makes Abs and sqrt return negative values' cross-refs PR #30882 (merged 2026-10-29); fix PR #30986 title 'fix regression in `monotonic_sign`'.",
+    "confidence": "high",
+    "notes": "some tests are modified existing tests: sympy/core/tests/test_exprtools.py::test_monotonic_sign; fix also changes test-support files: sympy/solvers/tests/test_solveset.py; culprit committed 2026-10-29, fix committed 2026-11-09"
+  },
+  {
+    "repo": "sympy",
+    "culprit_sha": "aa54a252165881dbb6405423369092465d6746d7",
+    "culprit_pr": 27693,
+    "base": "a193b301550286b45a3c6860b1e4b3edd988edc5",
+    "head": "29b12a274115383dcb3be85ee95d14dee9e365df",
+    "head_source": "pr-api",
+    "fix_sha": "5a4a2cff21b7da6d3b023ddc2dd4ac5926d5ef37",
+    "fix_pr": 29200,
+    "tests": [
+      "sympy/assumptions/tests/test_query.py::test_real_pow"
+    ],
+    "regressed": [
+      "sympy/assumptions/handlers/sets.py#_[RealPredicate.register(Pow)]"
+    ],
+    "evidence": "Issue gh-28142 'Regression in ask from sympy 1.13.3 to 1.14.0': oscarbenjamin 'Bisected to aa54a252165881dbb6405423369092465d6746d7 from gh-27693'. Fix PR #29200 'Fix: ask(Q.real(sqrt(x)), Q.real(x)) should return None'.",
+    "confidence": "high",
+    "notes": "some tests are modified existing tests: sympy/assumptions/tests/test_query.py::test_real_pow; culprit committed 2025-03-05, fix committed 2026-02-20"
+  },
+  {
+    "repo": "sympy",
+    "culprit_sha": "f69336192d65fe51d38d60da1b8fe5815baa9de4",
+    "culprit_pr": 25902,
+    "base": "2f7528bee55cb958f518000f3384bf31b87bbf6e",
+    "head": "83058c5142879f11c0899621365f3a47e87f5606",
+    "head_source": "pr-api",
+    "fix_sha": "ee3c38aea07e53d42808dd89f1bf6fe5823ec6b8",
+    "fix_pr": 27664,
+    "tests": [
+      "sympy/matrices/tests/test_repmatrix.py::test_matrix_inv_mod",
+      "sympy/polys/domains/tests/test_domains.py::test_Domain_is_field",
+      "sympy/polys/matrices/tests/test_domainmatrix.py::test_DomainMatrix_inv"
+    ],
+    "regressed": [
+      "sympy/matrices/repmatrix.py#RepMatrix.inv_mod"
+    ],
+    "evidence": "Issue gh-27663 'Regression in inv_mod()': oscarbenjamin 'This is due to https://github.com/sympy/sympy/pull/25902 ... For now the regression here is fixed in gh-27664.'",
+    "confidence": "high",
+    "notes": "some tests are modified existing tests: sympy/matrices/tests/test_repmatrix.py::test_matrix_inv_mod, sympy/polys/matrices/tests/test_domainmatrix.py::test_DomainMatrix_inv; culprit committed 2023-11-13, fix committed 2025-02-26"
+  },
+  {
+    "repo": "sympy",
+    "culprit_sha": "3bb2ebdac639c9e977397ee3e38e5a3cc2b34897",
+    "culprit_pr": 25753,
+    "base": "0cff299b7c0568360cb9e53320bbc2d333a8001b",
+    "head": "61e3dc2ca848ca8393fef3c3fe24fb698659a5eb",
+    "head_source": "pr-api",
+    "fix_sha": "17639a46b648f265c968ea86b78725258024f715",
+    "fix_pr": 26429,
+    "tests": [
+      "sympy/algebras/tests/test_quaternion.py::test_quaternion_subs"
+    ],
+    "regressed": [
+      "sympy/algebras/quaternion.py#Quaternion._eval_subs"
+    ],
+    "evidence": "Issue gh-26425 'Regression in Quaternion.subs()' cross-references PR #25753 'Remove all cases of catching AttributeError'; Oscar's proposed fix guards `norm is not None` in Quaternion._eval_subs; fix PR #26429.",
+    "confidence": "medium",
+    "notes": "culprit inferred from issue cross-reference, not an explicit bisect; some tests are modified existing tests: sympy/algebras/tests/test_quaternion.py::test_to_euler, sympy/algebras/tests/test_quaternion.py::test_to_euler_options; dropped test_to_euler* (only marked slow by the fix); culprit committed 2023-10-06, fix committed 2024-03-30"
+  },
+  {
+    "repo": "sympy",
+    "culprit_sha": "978de3ace373818c3e7cdbdae8cf9d8b42417f9f",
+    "culprit_pr": 24303,
+    "base": "ba5b3310bffc45c24efb6f474fd76693613544fc",
+    "head": "ef0542aa067ee7b2e075d8fa273470639a662862",
+    "head_source": "pr-api",
+    "fix_sha": "9977815e9845a92aec7c1a225d6f7c71495d127d",
+    "fix_pr": 24826,
+    "tests": [
+      "sympy/simplify/tests/test_cse.py::test_cse_unevaluated"
+    ],
+    "regressed": [
+      "sympy/simplify/cse_main.py#opt_cse._find_opts"
+    ],
+    "evidence": "Issue gh-24818 'Regression: RecursionError in cse since gh-24303' with a git-checkout session identifying 978de3ace373 (Merge PR #24303) as the point of regression; fix PR #24826.",
+    "confidence": "high",
+    "notes": "culprit merged 2022-11; older tree; regressed = functions changed by the fix (no overlap with functions changed by culprit); culprit committed 2022-11-24, fix committed 2023-03-02"
+  },
+  {
+    "repo": "sympy",
+    "culprit_sha": "cc3ed4af252a55c74bbdaa49baad42be32d561e6",
+    "culprit_pr": 27373,
+    "base": "afe8935530a61ae5bd7a90400fa60c0d2c8c18a4",
+    "head": "d53b58a165c3e70040de58b02566c8800c3b0f3d",
+    "head_source": "pr-api",
+    "fix_sha": "9cb23e233bfe9625aa956251674fe23d2ef0dc06",
+    "fix_pr": 30930,
+    "tests": [
+      "sympy/matrices/tests/test_matrixbase.py::test_matrix_norm"
+    ],
+    "regressed": [
+      "sympy/matrices/matrixbase.py#MatrixBase.norm"
+    ],
+    "evidence": "Fix PR #30930 body: 'Restores behaviour of norm after a regression introduced in gh-27373 ... This was changed unintentionally in gh-27373.'",
+    "confidence": "high",
+    "notes": "some tests are modified existing tests: sympy/matrices/tests/test_matrixbase.py::test_matrix_norm; culprit committed 2025-06-29, fix committed 2026-11-03"
+  },
+  {
+    "repo": "sympy",
+    "culprit_sha": "b4b30c276093345697da9ade1e94c39e76dc6b38",
+    "culprit_pr": 28189,
+    "base": "afe8935530a61ae5bd7a90400fa60c0d2c8c18a4",
+    "head": "e3c690f613cf70a4e77954cc0e1f604d37b84b53",
+    "head_source": "pr-api",
+    "fix_sha": "44521b8f6cfee37d0bfb3de989fdb41450527ebe",
+    "fix_pr": 28660,
+    "tests": [
+      "sympy/integrals/tests/test_rationaltools.py::test_issue_28186"
+    ],
+    "regressed": [
+      "sympy/integrals/rationaltools.py#_roots_real_complex"
+    ],
+    "evidence": "Fix PR #28660 body: 'Fixes gh-28657 which arises from a bug introduced in gh-28189.'",
+    "confidence": "high",
+    "notes": "some tests are modified existing tests: sympy/integrals/tests/test_rationaltools.py::test_issue_28186; culprit committed 2025-07-10, fix committed 2025-11-26"
+  },
+  {
+    "repo": "sympy",
+    "culprit_sha": "2da41b9ecd918ca233fcbc28494022698c013dc7",
+    "culprit_pr": 21952,
+    "base": "63b8665369344ed7a63e3a9f9b41f27ed76fa809",
+    "head": "7cc883ca13749f19c334d9a2125f9c81020d9a66",
+    "head_source": "pr-api",
+    "fix_sha": "a8299470d018f12be72f3d043ce19ff2e06fb5ae",
+    "fix_pr": 28442,
+    "tests": [
+      "sympy/core/tests/test_arit.py::test_Pow_is_integer"
+    ],
+    "regressed": [
+      "sympy/core/mul.py#Mul._eval_is_integer"
+    ],
+    "evidence": "Fix PR #28442 body: 'Fixes a bug introduced in #21952'.",
+    "confidence": "medium",
+    "notes": "culprit merged 2021-08; older tree; some tests are modified existing tests: sympy/core/tests/test_arit.py::test_Pow_is_integer; culprit committed 2021-08-26, fix committed 2025-10-01"
+  },
+  {
+    "repo": "sympy",
+    "culprit_sha": "4cc0be9f5533ea5ffb9c50c5ccb96af810d70417",
+    "culprit_pr": 25452,
+    "base": "368eb0f483f2b4cd84dc0de3edc7abdc876d3d46",
+    "head": "d42e206aa9229750cb76195ddc5d58a26f039c42",
+    "head_source": "pr-api",
+    "fix_sha": "24792d5f4fbf8fe4365101e53b735c6c1f140e0f",
+    "fix_pr": 26274,
+    "tests": [
+      "sympy/polys/matrices/tests/test_inverse.py::test_inverse_inexact"
+    ],
+    "regressed": [
+      "sympy/polys/matrices/sdm.py#sdm_rref_den"
+    ],
+    "evidence": "Fix PR #26274 body: 'This is fixing a regression since `Matrix.inv()` started using DomainMatrix in gh-25452.' (issue gh-26271 'Regression: inverse of matrix of floats and symbols fails')",
+    "confidence": "high",
+    "notes": "regressed = functions changed by the fix (no overlap with functions changed by culprit); culprit committed 2023-10-21, fix committed 2024-02-26"
+  },
+  {
+    "repo": "sympy",
+    "culprit_sha": "b04c196674465ff717dfb4c7b25a735991f7f250",
+    "culprit_pr": 29106,
+    "base": "8137cc82cee436b91b86349408b7edc086d2690e",
+    "head": "317f5a6dfb1a9d0b83d044f8696da5dc15769d2a",
+    "head_source": "pr-api",
+    "fix_sha": "f501cb2fe23e074e98e7858e4e6b483959c5ba4f",
+    "fix_pr": 29685,
+    "tests": [
+      "sympy/combinatorics/tests/test_homomorphisms.py::test_homomorphism"
+    ],
+    "regressed": [
+      "sympy/combinatorics/homomorphisms.py#GroupHomomorphism.invert"
+    ],
+    "evidence": "Fix PR #29685 body: 'This regression was introduced in #29106.'",
+    "confidence": "high",
+    "notes": "some tests are modified existing tests: sympy/combinatorics/tests/test_homomorphisms.py::test_homomorphism; regressed = functions changed by the fix (no overlap with functions changed by culprit); culprit committed 2026-02-05, fix committed 2026-04-14"
+  },
+  {
+    "repo": "sympy",
+    "culprit_sha": "13f2aa63503e27984fde581fcc7bfad31795d17d",
+    "culprit_pr": 30132,
+    "base": "de9a0e4f913f80623cac12c8e5563732b7545046",
+    "head": "fb2e2948000491832f2b58712a8590bfe30d9d98",
+    "head_source": "pr-api",
+    "fix_sha": "43c4ae7fd5777b48762642c07cb3b49fb41d52a7",
+    "fix_pr": 30396,
+    "tests": [
+      "sympy/printing/tests/test_numpy.py::test_issue_30395_scalar_assignment",
+      "sympy/printing/tests/test_pycode.py::test_array_printer",
+      "sympy/printing/tests/test_tensorflow.py::test_tensorflow_elementwise_apply_func",
+      "sympy/tensor/array/expressions/tests/test_convert_indexed_to_array.py::test_convert_indexed_to_array_scalars_stay_scalars"
+    ],
+    "regressed": [
+      "sympy/tensor/array/expressions/from_indexed_to_array.py#_convert_indexed_to_array"
+    ],
+    "evidence": "Fix PR #30396 body: 'Fixes #30395. Regression from #30132.'",
+    "confidence": "high",
+    "notes": "some tests are modified existing tests: sympy/printing/tests/test_pycode.py::test_array_printer; culprit committed 2026-09-02, fix committed 2026-09-27"
+  },
+  {
+    "repo": "sympy",
+    "culprit_sha": "7868f75a310644e792f95dbbb0ce0e2bc3713b6c",
+    "culprit_pr": 25614,
+    "base": "bdc95a90491fdb8f9e64877f7059a05210bdf49a",
+    "head": "ce5bf0ff2b595c9f4f308e0faa5fb1fe7d6cdb41",
+    "head_source": "pr-api",
+    "fix_sha": "5628125c48b1f2f58c240074c75e2d333b889796",
+    "fix_pr": 27965,
+    "tests": [
+      "sympy/vector/tests/test_vector.py::test_vector"
+    ],
+    "regressed": [
+      "sympy/vector/basisdependent.py#BasisDependentMul._new"
+    ],
+    "evidence": "Issue gh-27963: oscarbenjamin 'I bisected it to 7868f75a310644e792f95dbbb0ce0e2bc3713b6c from https://github.com/sympy/sympy/pull/25614'; fix PR #27965.",
+    "confidence": "high",
+    "notes": "some tests are modified existing tests: sympy/vector/tests/test_vector.py::test_vector; regressed = functions changed by the fix (no overlap with functions changed by culprit); culprit committed 2023-09-09, fix committed 2025-04-19"
+  },
+  {
+    "repo": "sympy",
+    "culprit_sha": "83ca9d981f5c610d3e087b045691410f2c4250a7",
+    "culprit_pr": 26358,
+    "base": "2ce089415a59b7659c4b30d395381e0a92797e74",
+    "head": "ca87484306b35cf3514024ae73dc2d291378e72c",
+    "head_source": "pr-api",
+    "fix_sha": "240a6ad728f742c2ad1594d1bd28e5d8bb9eada7",
+    "fix_pr": 26935,
+    "tests": [
+      "sympy/integrals/tests/test_heurisch.py::test_heurisch_complex_erf_issue_26338",
+      "sympy/integrals/tests/test_heurisch.py::test_heurisch_issue_26930",
+      "sympy/integrals/tests/test_heurisch.py::test_heurisch_issue_26922",
+      "sympy/integrals/tests/test_integrals.py::test_issue_3940"
+    ],
+    "regressed": [
+      "sympy/integrals/heurisch.py#heurisch"
+    ],
+    "evidence": "Issues gh-26930/gh-26922: oscarbenjamin 'Bisected to 83ca9d981f5c610d3e087b045691410f2c4250a7 from gh-26358'; fix PR #26935 (master; #26940 is the 1.13 backport) 'fixes permutation of types in heurisch'.",
+    "confidence": "high",
+    "notes": "some tests are modified existing tests: sympy/integrals/tests/test_heurisch.py::test_heurisch_complex_erf_issue_26338, sympy/integrals/tests/test_integrals.py::test_issue_3940; culprit committed 2024-03-15, fix committed 2024-08-09"
+  },
+  {
+    "repo": "sympy",
+    "culprit_sha": "8935af27128f49143d4b5822232c0e1097964945",
+    "culprit_pr": 25753,
+    "base": "0cff299b7c0568360cb9e53320bbc2d333a8001b",
+    "head": "61e3dc2ca848ca8393fef3c3fe24fb698659a5eb",
+    "head_source": "pr-api",
+    "fix_sha": "7b8262c168001364a6a56f777e8dacdc6ad3c775",
+    "fix_pr": 26733,
+    "tests": [
+      "sympy/physics/vector/tests/test_printing.py::test_vector_pretty_print"
+    ],
+    "regressed": [
+      "sympy/physics/vector/vector.py#Vector._pretty"
+    ],
+    "evidence": "Issue gh-26731: oscarbenjamin 'Bisected to 8935af27128f49143d4b5822232c0e1097964945 from gh-25753'; fix PR #26733 'fix(vector): fix printing of negative scalars'.",
+    "confidence": "high",
+    "notes": "some tests are modified existing tests: sympy/physics/vector/tests/test_printing.py::test_vector_pretty_print; regressed = functions changed by the fix (no overlap with functions changed by culprit); culprit committed 2023-10-04, fix committed 2024-06-23"
+  },
+  {
+    "repo": "sympy",
+    "culprit_sha": "82f80c0b59fdc0743073fcbebe8c374259148d81",
+    "culprit_pr": 25913,
+    "base": "69d3af720c7449a9dcddf17b7e2a4e8724caf15a",
+    "head": "36d2e6e866eb27aa877ee195aa8650ba7c8e8b01",
+    "head_source": "pr-api",
+    "fix_sha": "94be2243918382506427a3a8f10c94b21a631d40",
+    "fix_pr": 26713,
+    "tests": [
+      "sympy/utilities/tests/test_lambdify.py::test_lambdify__arguments_with_invalid_python_identifiers"
+    ],
+    "regressed": [
+      "sympy/utilities/lambdify.py#_EvaluatorPrinter._preprocess"
+    ],
+    "evidence": "Issue gh-26690: oscarbenjamin 'I bisected the regression here to 82f80c0b59fdc0743073fcbebe8c374259148d81 from gh-25913'; master fix PR #26713 (1.13 backport #26714 titled 'Fix gh-26690 (1.13 branch)').",
+    "confidence": "medium",
+    "notes": "fix PR #26713 does not name the issue in its title; link via backport #26714; regressed = functions changed by the fix (no overlap with functions changed by culprit); culprit committed 2023-11-21, fix committed 2024-06-16"
+  },
+  {
+    "repo": "sympy",
+    "culprit_sha": "3dae580d4df6991fa2962efe11dfec8ec786c55f",
+    "culprit_pr": 22751,
+    "base": "6632ed8b1d0ad351a1c8dbf65c8bb57bdc78fd4b",
+    "head": "9bb195cb7e7be848df803e303430779d3ba6d041",
+    "head_source": "pr-api",
+    "fix_sha": "69f98fb2b0d845e76874067a381dba37b577e8c5",
+    "fix_pr": 25605,
+    "tests": [
+      "sympy/functions/elementary/tests/test_piecewise.py::test_piecewise_simplify",
+      "sympy/functions/elementary/tests/test_piecewise.py::test_piecewise_simplify_xfail_redundant_inequality"
+    ],
+    "regressed": [
+      "sympy/functions/elementary/piecewise.py#piecewise_simplify_arguments"
+    ],
+    "evidence": "Issue gh-25603: oscarbenjamin 'This is a regression that I have bisected to 3dae580d4df6991fa2962efe11dfec8ec786c55f from gh-22751'; fix PR #25605.",
+    "confidence": "medium",
+    "notes": "culprit merged 2021-12; older tree; some tests are modified existing tests: sympy/functions/elementary/tests/test_piecewise.py::test_piecewise_simplify; culprit committed 2021-12-24, fix committed 2023-08-31"
+  },
+  {
+    "repo": "sympy",
+    "culprit_sha": "030101630865b039d239f84bc4151cf1c895c6ef",
+    "culprit_pr": 25452,
+    "base": "368eb0f483f2b4cd84dc0de3edc7abdc876d3d46",
+    "head": "d42e206aa9229750cb76195ddc5d58a26f039c42",
+    "head_source": "pr-api",
+    "fix_sha": "b65c687588bab22db54c7984231cf72be115fb34",
+    "fix_pr": 26822,
+    "tests": [
+      "sympy/matrices/tests/test_matrixbase.py::test_inverse_symbolic_float_issue_26821",
+      "sympy/matrices/tests/test_matrixbase.py::test_matrix_exponential_issue_26821"
+    ],
+    "regressed": [
+      "sympy/matrices/inverse.py#_inv_DM"
+    ],
+    "evidence": "Issue gh-26821: oscarbenjamin 'Bisected to 030101630865b039d239f84bc4151cf1c895c6ef from gh-25452'; fix PR #26822 'fix(matrices): Use QQ[x,y] for Matrix.inv over RR[x,y]'.",
+    "confidence": "high",
+    "notes": "same culprit PR as the #26274 candidate; culprit committed 2023-10-08, fix committed 2024-07-19"
+  },
+  {
+    "repo": "jinja",
+    "culprit_sha": "60293416db69782fd048a7820667afa4ae7c423b",
+    "culprit_pr": 1136,
+    "base": "0c75d4805889ca97948d727917dbf8f301981956",
+    "head": "27a5c4e0e343e8da47a921b59701ae9e983da764",
+    "head_source": "pr-api",
+    "fix_sha": "6aa096a67470f92c791353d4cf235cad270df1ed",
+    "fix_pr": 1522,
+    "tests": [
+      "tests/test_nodes.py::test_template_hash"
+    ],
+    "regressed": [
+      "src/jinja2/nodes.py#Node.__hash__"
+    ],
+    "evidence": "Issue #1521: 'I've looked into a regression in https://github.com/pallets/jinja/commit/60293416db69782fd048a7820667afa4ae7c423b where the Node.__hash__ method was changed'; fix PR #1522 body: 'This fixes a regression in commit 60293416db69782fd048a7820667afa4ae7c423b'; CHANGES 3.0.3: 'Revert change to hash(Node) behavior.'",
+    "confidence": "high",
+    "notes": "culprit 2020-01 (pre-3.0 dev tree); regressed = functions changed by the fix (no overlap with functions changed by culprit); culprit committed 2020-02-05, fix committed 2021-11-09"
+  },
+  {
+    "repo": "jinja",
+    "culprit_sha": "609bcb08312a844e88ff3239a0810c1ad36460d3",
+    "culprit_pr": 1204,
+    "base": "fd001b216a80a40cdc5c9afc6c863ed763095470",
+    "head": "609bcb08312a844e88ff3239a0810c1ad36460d3",
+    "head_source": "pr-api",
+    "fix_sha": "531145d28b2207f9f7886eebdc2171b13e681018",
+    "fix_pr": 1455,
+    "tests": [
+      "tests/test_api.py::TestUndefined::test_default_undefined"
+    ],
+    "regressed": [
+      "src/jinja2/runtime.py#Undefined.__contains__"
+    ],
+    "evidence": "Issue #1448 (containment should only fail for StrictUndefined); fix commit d5f49f5c 'Fixes #1448: Revert Undefined.__contains__ to 2.x behaviour'; CHANGES 3.0.2: 'Revert an unintended change that caused Undefined to act like StrictUndefined for the in operator.' Culprit 609bcb08 'Undefined.__contains__ raises UndefinedError' found with git log -S'__contains__' -- src/jinja2/runtime.py.",
+    "confidence": "high",
+    "notes": "culprit located by pickaxe search, not named in the fix text; some tests are modified existing tests: tests/test_api.py::TestUndefined::test_default_undefined, tests/test_api.py::TestUndefined::test_strict_undefined; regressed = functions changed by the fix (no overlap with functions changed by culprit); culprit committed 2021-04-05, fix committed 2021-08-09"
+  },
+  {
+    "repo": "jinja",
+    "culprit_sha": "f524bcce0cf295941fe665cbcb6846e7e9f39df5",
+    "culprit_pr": 1242,
+    "base": "94ccd028ef1f3cd9eaec862d6a1d646d02a242bc",
+    "head": "f524bcce0cf295941fe665cbcb6846e7e9f39df5",
+    "head_source": "pr-api",
+    "fix_sha": "02071b3e5933560f070e3a898f8aa82622d2001e",
+    "fix_pr": 1449,
+    "tests": [
+      "tests/test_regression.py::TestBug::test_nested_loop_scoping"
+    ],
+    "regressed": [
+      "src/jinja2/compiler.py#CodeGenerator.visit_For"
+    ],
+    "evidence": "Fix PR #1449 body: 'changes in f524bcce0cf295941fe665cbcb6846e7e9f39df5 caused assignments in nested loops to still be referenced after the end of the iteration.' (issue #1427, 3.0.0 regression from 2.11.3)",
+    "confidence": "high",
+    "notes": "culprit committed 2021-03-26, fix committed 2021-08-09"
+  },
+  {
+    "repo": "jinja",
+    "culprit_sha": "40a312e80f4f1b25f201293c3f1a840a1b88191d",
+    "culprit_pr": 1244,
+    "base": "f71f5ebab2e76c5ee6f5f705a2703f3891e762bc",
+    "head": "49d5f9788c32033d624ce443f1830871a0c79675",
+    "head_source": "pr-api",
+    "fix_sha": "1c863d0447efb7e68e2593e7de3fec87670521cb",
+    "fix_pr": 1374,
+    "tests": [
+      "tests/test_regression.py::TestBug::test_cached_extends"
+    ],
+    "regressed": [
+      "src/jinja2/environment.py#Environment._load_template"
+    ],
+    "evidence": "Issue #1376 'TypeError: unhashable type: Config (regression)': 'This is caused by #1244 / 40a312e80f4f1b25f201293c3f1a840a1b88191d - the commit before that (f71f5eb) works fine.'; fix PR #1374 'fixes #1376'.",
+    "confidence": "high",
+    "notes": "some tests are modified existing tests: tests/test_regression.py::TestBug::test_cached_extends; culprit committed 2021-03-30, fix committed 2021-03-31"
+  },
+  {
+    "repo": "attrs",
+    "culprit_sha": "89a890a3262273514619d1881c6a8b0fe26c66ac",
+    "culprit_pr": 1009,
+    "base": "5ecc39749a98c7ec3fc63b8cbaa82de5eb17c173",
+    "head": "a8593482dd67a34fdee565772021db75ef19f160",
+    "head_source": "pr-api",
+    "fix_sha": "c9150d278ced32056d73c239ff64034e5056bcb6",
+    "fix_pr": 1085,
+    "tests": [
+      "tests/test_slots.py::test_slots_unpickle_after_attr_removed",
+      "tests/test_slots.py::test_slots_unpickle_after_attr_added",
+      "tests/test_slots.py::test_slots_unpickle_is_backward_compatible"
+    ],
+    "regressed": [
+      "src/attr/_make.py#_ClassBuilder._make_getstate_setstate.slots_setstate"
+    ],
+    "evidence": "Fix PR #1085 'Fix backward compatibility with pickles before v22.2.0': 'Regression in 89a890a3262273514619d1881c6a8b0fe26c66ac.'",
+    "confidence": "high",
+    "notes": "some tests are modified existing tests: tests/test_slots.py::test_slots_unpickle_after_attr_removed, tests/test_slots.py::test_slots_unpickle_after_attr_added; culprit committed 2022-08-18, fix committed 2023-01-25"
+  },
+  {
+    "repo": "attrs",
+    "culprit_sha": "e048efcb395443608d184a149c0adbca166cb833",
+    "culprit_pr": 1401,
+    "base": "75723b7720952ac0a4c7d3e277b6714ba55ded18",
+    "head": "63ab6c3bc98c636c994a1472bfa4bf18b520e001",
+    "head_source": "pr-api",
+    "fix_sha": "3b0378dd66d33ebddb52be85b8c4aac6a914b1a2",
+    "fix_pr": 1417,
+    "tests": [
+      "tests/test_hooks.py::TestTransformHook::test_hook_generator"
+    ],
+    "regressed": [
+      "src/attr/_make.py#_transform_attrs"
+    ],
+    "evidence": "Fix PR #1417 'Cope with field_transformer being a generator': 'This worked on 25.1.0 but was inadvertently broken by #1401'; CHANGELOG: 'Restore support for generator-based field_transformers.'",
+    "confidence": "high",
+    "notes": "culprit committed 2025-02-09, fix committed 2025-03-13"
+  },
+  {
+    "repo": "attrs",
+    "culprit_sha": "fe6eb3120013833d1927374eb5e826b72815a775",
+    "culprit_pr": 759,
+    "base": "1499c77e79315ef8c5c98c088dc3ef99bdba72b4",
+    "head": "75495debc5ef946ac95ecb334e911338c2ffe58c",
+    "head_source": "pr-api",
+    "fix_sha": "f10d05086417b2e2c3f88ae61384ca4c282c0acc",
+    "fix_pr": 806,
+    "tests": [
+      "tests/test_funcs.py::TestEvolve::test_regression_attrs_classes",
+      "tests/test_funcs.py::TestEvolve::test_dicts"
+    ],
+    "regressed": [
+      "src/attr/_funcs.py#evolve"
+    ],
+    "evidence": "PR #806 'Revert recursive evolve': 'So this reverts it and adds a regression test'; CHANGELOG: 'We had to revert the recursive feature for attr.evolve() because it broke some use-cases'. Culprit fe6eb31 'Recursively evolve nested attrs classes (#759)'.",
+    "confidence": "high",
+    "notes": "fix is a revert of the culprit's feature; culprit committed 2021-02-19, fix committed 2021-05-06"
+  },
+  {
+    "repo": "attrs",
+    "culprit_sha": "f5683b852b1e7ec1f26aabbb55aad332de79066d",
+    "culprit_pr": 1267,
+    "base": "0f045cd231f01716c9c81ac78fa2c237c0dd1933",
+    "head": "a9141ef723c243ff404b7717cf74dd1863598d18",
+    "head_source": "pr-api",
+    "fix_sha": "6fda0a4e086b56d7058855e4c15112c8f58de74c",
+    "fix_pr": 1328,
+    "tests": [
+      "tests/test_setattr.py::TestSetAttr::test_pipe",
+      "tests/test_setattr.py::TestSetAttr::test_setattr_converter_piped"
+    ],
+    "regressed": [
+      "src/attr/_make.py#Converter.__init__",
+      "src/attr/_make.py#pipe.pipe_converter"
+    ],
+    "evidence": "Issue #1327 'Upgrade to 24.1.0 seems to break assignment to fields with chained converters' (works on 23.2.0); hynek: '#1328 should fix it'. CHANGELOG 24.2.0: 'converters.pipe() ... works again when passing attrs.setters.convert to on_setattr'. Culprit f5683b8 'converters: allow wrapping and passing self and fields (#1267)', the 24.1.0 Converter change (pickaxe: class Converter).",
+    "confidence": "medium",
+    "notes": "culprit identified as the 24.1.0 Converter introduction by pickaxe, not named in the fix; some tests are modified existing tests: tests/test_converters.py::TestConverter::test_pickle, tests/test_setattr.py::TestSetAttr::test_pipe; fix also changes test-support files: tests/test_converters.py; culprit committed 2024-07-28, fix committed 2024-08-06"
+  },
+  {
+    "repo": "attrs",
+    "culprit_sha": "f5683b852b1e7ec1f26aabbb55aad332de79066d",
+    "culprit_pr": 1267,
+    "base": "0f045cd231f01716c9c81ac78fa2c237c0dd1933",
+    "head": "a9141ef723c243ff404b7717cf74dd1863598d18",
+    "head_source": "pr-api",
+    "fix_sha": "e21793e90a25c7ea47a9c0369150067cc8322de0",
+    "fix_pr": 1372,
+    "tests": [
+      "tests/test_converters.py::TestOptional::test_converter_instance",
+      "tests/test_converters.py::TestOptionalPipe::test_optional",
+      "tests/test_converters.py::TestOptionalPipe::test_pipe",
+      "tests/test_converters.py::TestOptionalPipe::test_instance"
+    ],
+    "regressed": [
+      "src/attr/converters.py#optional"
+    ],
+    "evidence": "Issue #1348 'Error occurs when using converters.optional and converters.pipe together': '23.2.0 is OK ... after 24.1.0, error occurs'; fix PR #1372 'Fixes #1348'; CHANGELOG: 'attrs.converters.optional() works again when taking attrs.converters.pipe()'.",
+    "confidence": "medium",
+    "notes": "culprit identified as the 24.1.0 Converter introduction by pickaxe, not named in the fix; regressed = functions changed by the fix (no overlap with functions changed by culprit); culprit committed 2024-07-28, fix committed 2024-11-17"
+  },
+  {
+    "repo": "httpx",
+    "culprit_sha": "57daabf673705954afa94686c0002801c93d31f3",
+    "culprit_pr": 2252,
+    "base": "7c53d99da8351eea5ff71e1fa829e1d2e9727c0d",
+    "head": "4081406dfef43b26623a9d9dd14022a71fb4d991",
+    "head_source": "pr-api",
+    "fix_sha": "9ae170a936df39f42a6ddf8eb2c27026e20bea7e",
+    "fix_pr": 2671,
+    "tests": [
+      "tests/test_urlparse.py::test_param_requires_encoding",
+      "tests/test_urlparse.py::test_param_does_not_require_encoding",
+      "tests/test_urlparse.py::test_param_with_existing_escape_requires_encoding"
+    ],
+    "regressed": [
+      "httpx/_urlparse.py#percent_encode",
+      "httpx/_urlparse.py#quote"
+    ],
+    "evidence": "Issue #2670 'Percent sign not encoded when present in query params value': 'Since httpx 0.24 the behavior regarding query params changed'; fix PR #2671 'Closes #2670'. Blame of the replaced line in httpx/_urlparse.py at fix^ points to 57daabf 'Drop rfc3986 requirement. (#2252)' (0.24.0).",
+    "confidence": "high",
+    "notes": "culprit committed 2023-01-10, fix committed 2023-04-19"
+  },
+  {
+    "repo": "httpx",
+    "culprit_sha": "57daabf673705954afa94686c0002801c93d31f3",
+    "culprit_pr": 2252,
+    "base": "7c53d99da8351eea5ff71e1fa829e1d2e9727c0d",
+    "head": "4081406dfef43b26623a9d9dd14022a71fb4d991",
+    "head_source": "pr-api",
+    "fix_sha": "ee432c0d3098375df258b6d5844e7569080b2369",
+    "fix_pr": 2701,
+    "tests": [
+      "tests/test_urlparse.py::test_path_percent_encoding",
+      "tests/test_urlparse.py::test_query_percent_encoding",
+      "tests/test_urlparse.py::test_fragment_percent_encoding"
+    ],
+    "regressed": [
+      "httpx/_urlparse.py#urlparse"
+    ],
+    "evidence": "Issue #2694 'Square brackets no longer work': 'after 0.23.3 it stopped working'; fix PR #2701 'Closes #2694'. 0.24.0 introduced the in-house URL parser in #2252 (57daabf).",
+    "confidence": "medium",
+    "notes": "culprit inferred from release boundary (0.23.3 -> 0.24.0) and the module the fix edits; culprit committed 2023-01-10, fix committed 2023-05-09"
+  },
+  {
+    "repo": "httpx",
+    "culprit_sha": "57daabf673705954afa94686c0002801c93d31f3",
+    "culprit_pr": 2252,
+    "base": "7c53d99da8351eea5ff71e1fa829e1d2e9727c0d",
+    "head": "4081406dfef43b26623a9d9dd14022a71fb4d991",
+    "head_source": "pr-api",
+    "fix_sha": "15d09a3bbc20372cd87e48f17f7c9381c8220a0f",
+    "fix_pr": 2659,
+    "tests": [
+      "tests/test_utils.py::test_get_environment_proxies"
+    ],
+    "regressed": [
+      "httpx/_utils.py#get_environment_proxies",
+      "httpx/_utils.py#is_ipv4_hostname",
+      "httpx/_utils.py#is_ipv6_hostname"
+    ],
+    "evidence": "Fix PR #2659 body: env no_proxy '::1' 'is wrongly transformed into all://*::1 and causes urlparse error since the _urlparse.py parses the :1 as port.' _urlparse.py was introduced by #2252.",
+    "confidence": "low",
+    "notes": "may be a pre-existing bug made visible by the new parser rather than a clean regression; some tests are modified existing tests: tests/test_utils.py::test_get_environment_proxies; regressed = functions changed by the fix (no overlap with functions changed by culprit); culprit committed 2023-01-10, fix committed 2023-04-19"
+  },
+  {
+    "repo": "httpx",
+    "culprit_sha": "6f5865f8605b2cf15872388c3d9bc3623bbf265e",
+    "culprit_pr": 1948,
+    "base": "e232226d77b5faecc64cc618687b4d52d24ab1db",
+    "head": "0ff572676a20dfe7e190a8128313d8e7bb762484",
+    "head_source": "pr-api",
+    "fix_sha": "b7dc0c3df68279ce89f016a69a41b27a2346d54d",
+    "fix_pr": 2016,
+    "tests": [
+      "tests/test_api.py::test_post_byte_stream"
+    ],
+    "regressed": [
+      "httpx/_content.py#IteratorByteStream.__iter__",
+      "httpx/_content.py#AsyncIteratorByteStream.__aiter__"
+    ],
+    "evidence": "CHANGELOG 0.21.3: 'Fix streaming uploads using SyncByteStream or AsyncByteStream. Regression in 0.21.2. (#2016)'. Blame of the changed lines at fix^ points to 6f5865f8 (PR #1948 'Read upload files using read(CHUNK_SIZE) rather than iter()').",
+    "confidence": "high",
+    "notes": "2021-11 tree; httpcore 0.14-era dependency pins; culprit committed 2021-11-22, fix committed 2022-01-06"
+  },
+  {
+    "repo": "requests",
+    "culprit_sha": "561e4b6889f53584c39a67f8794c53a414f68481",
+    "culprit_pr": 7272,
+    "base": "6ec76b4a36fba4a32fb72f5f9ba04e632635e477",
+    "head": "4cf9bb5cb159ad54165e1808666154a7509da4e6",
+    "head_source": "pr-api",
+    "fix_sha": "6404f345e562d962abe6700a1c357ec1e7e18232",
+    "fix_pr": 7433,
+    "tests": [
+      "tests/test_requests.py::TestRequests::test_getattr_proxy_stream_follows_redirect"
+    ],
+    "regressed": [
+      "src/requests/models.py#PreparedRequest.prepare_body"
+    ],
+    "evidence": "Issue #7432 'prepare_body stream detection regression': 'Requests 2.34.0 changed the stream detection in PreparedRequest.prepare_body() from hasattr(data, \"__iter__\") to isinstance(data, Iterable)'; that change is in 561e4b68 'Add inline types to Requests (#7272)'; fix PR #7433 'restoring the 2.33.1 behavior'.",
+    "confidence": "high",
+    "notes": "culprit committed 2026-05-03, fix committed 2026-05-12"
+  },
+  {
+    "repo": "requests",
+    "culprit_sha": "561e4b6889f53584c39a67f8794c53a414f68481",
+    "culprit_pr": 7272,
+    "base": "6ec76b4a36fba4a32fb72f5f9ba04e632635e477",
+    "head": "4cf9bb5cb159ad54165e1808666154a7509da4e6",
+    "head_source": "pr-api",
+    "fix_sha": "6f205ff422bccd5e4c4fc0b64c5f3e7df5181db6",
+    "fix_pr": 7502,
+    "tests": [
+      "tests/test_requests.py::TestRequests::test_post_named_tempfile"
+    ],
+    "regressed": [
+      "src/requests/models.py#RequestEncodingMixin._encode_files"
+    ],
+    "evidence": "Fix PR #7502 'Fix _encode_files detection for __getattr__-based file wrappers' replaces isinstance(fp, _SupportsRead) (introduced in 561e4b68, #7272, replacing hasattr(fp, 'read')) with an added hasattr fallback.",
+    "confidence": "high",
+    "notes": "culprit committed 2026-05-03, fix committed 2026-06-08"
+  },
+  {
+    "repo": "requests",
+    "culprit_sha": "561e4b6889f53584c39a67f8794c53a414f68481",
+    "culprit_pr": 7272,
+    "base": "6ec76b4a36fba4a32fb72f5f9ba04e632635e477",
+    "head": "4cf9bb5cb159ad54165e1808666154a7509da4e6",
+    "head_source": "pr-api",
+    "fix_sha": "6f66281a1d6326b1b9c4ac09ca30de0fc4e6ef43",
+    "fix_pr": 7505,
+    "tests": [
+      "tests/test_requests.py::TestRequests::test_post_getattr_proxy_read_only"
+    ],
+    "regressed": [
+      "src/requests/models.py#RequestEncodingMixin._encode_params",
+      "src/requests/models.py#RequestEncodingMixin._encode_files",
+      "src/requests/models.py#PreparedRequest.prepare_body"
+    ],
+    "evidence": "Fix PR #7505 'Add hasattr checks for remaining protocol isinstance checks' restores hasattr(...,'read') semantics replaced by isinstance(..., _SupportsRead) in 561e4b68 (#7272).",
+    "confidence": "medium",
+    "notes": "follow-up hardening; check each added test exercises a #7272-changed site; culprit committed 2026-05-03, fix committed 2026-06-09"
+  },
+  {
+    "repo": "requests",
+    "culprit_sha": "60389df6d69ce833164696dcf36cbb43336d3426",
+    "culprit_pr": 6644,
+    "base": "7a13c041dbef42f9f3feb14110f02626f6892e9a",
+    "head": "60389df6d69ce833164696dcf36cbb43336d3426",
+    "head_source": "pr-api",
+    "fix_sha": "fd628095d7b9ddbf3e987d8a4bf0e6062768916f",
+    "fix_pr": 7315,
+    "tests": [
+      "tests/test_adapters.py::test_request_url_handles_leading_path_separators"
+    ],
+    "regressed": [
+      "src/requests/adapters.py#HTTPAdapter.request_url"
+    ],
+    "evidence": "Issue #6711 'breaking aws s3 usage with requests 2.32.0': 'requests 2.32.0 introduced a change https://github.com/psf/requests/pull/6644 that strips double /'; fix PR #7315 'Fixes #6711' removes the stripping (blame: 60389df6).",
+    "confidence": "medium",
+    "notes": "fix renames and inverts the culprit's own test (test_request_url_trims_leading_path_separators -> test_request_url_handles_leading_path_separators); culprit committed 2024-02-22, fix committed 2026-05-10"
+  },
+  {
+    "repo": "flask",
+    "culprit_sha": "cbebdae698272eeea2739988ccce54b1f14a1a67",
+    "culprit_pr": 4682,
+    "base": "c757882808a7e4e29636e433463435a7eed5b952",
+    "head": "e0dad454810dd081947d3ca2ff376c5096185698",
+    "head_source": "pr-api",
+    "fix_sha": "38b4c1e19b50494cfcdc9332899e09b7fed34979",
+    "fix_pr": 5799,
+    "tests": [
+      "tests/test_helpers.py::TestStreaming::test_async_view"
+    ],
+    "regressed": [
+      "src/flask/helpers.py#stream_with_context.generator"
+    ],
+    "evidence": "Issue #5774 'stream_with_context does not work with async routes': 'no issue with e.g. flask 2.1.0; I believe this was introduced in flask 2.2.0, specifically by #4682'; davidism: 'Thanks for finding the PR that affected it'; fix PR #5799 'refactor stream_with_context for async views'.",
+    "confidence": "medium",
+    "notes": "culprit 2022-07 (Flask 2.2 dev); test needs flask[async] (asgiref); culprit committed 2022-07-08, fix committed 2025-08-19"
+  },
+  {
+    "repo": "flask",
+    "culprit_sha": "fdf5d11b515aa2d0937ccc31ef7f20b94d3a8794",
+    "culprit_pr": 3794,
+    "base": "15f0fc2d24a6e5cc35216b81b360be6ab89a7a4c",
+    "head": "01621485fdad733b0886117d59bea1adac8d4fcc",
+    "head_source": "pr-api",
+    "fix_sha": "9039534eee6a87da98a1dee9e4338d1b73e861f8",
+    "fix_pr": 4055,
+    "tests": [
+      "tests/test_converters.py::test_context_available"
+    ],
+    "regressed": [
+      "src/flask/ctx.py#RequestContext.push"
+    ],
+    "evidence": "Issue #4053 'custom converter with flask-login doesn't have access to session' (Flask 2.0.0): davidism 'This is because of #3776 ... I'll roll back #3794.'; fix PR #4055 'converters have access to session'; CHANGES 2.0.1: 'Revert a change to the order that URL matching was done.'",
+    "confidence": "high",
+    "notes": "culprit 2021-02 (Flask 2.0 dev); Werkzeug 2.0-era deps; some tests are modified existing tests: tests/test_converters.py::test_context_available; dropped tests/test_session_interface.py::test_open_session_with_endpoint (the culprit's own test, rewritten by the fix); fix also changes test-support files: tests/test_session_interface.py; culprit committed 2021-02-01, fix committed 2021-05-14"
+  }
+]

@@ -1,0 +1,46 @@
+**AMU: 0 flips** at `<sha>`, among 1151 tests run; every changed hunk ran on both sides, in up to 17 tests; 1 test of the pull request's own fail on the merge base and pass on the head
+
+### Behaviour differs on the same input (0)
+
+Each changed function was recorded in each side's own run of the same tests, on the objects that side's code built. Calls are paired by test and by their order in it, and compared only where both inputs are equal: 1 pair(s) compared, 31 not compared because the inputs differ, 5 call(s) without a partner, of 1 of 1 changed function(s). The tests behind a difference ran again on each side, and the merge base's twice, the second time in another checkout: 11 fields differed between the merge base's two runs, so they belong to the process or checkout and are left out of the comparison.
+
+### Change evidence: the pull request's own tests (1)
+
+The 2 tests this pull request adds or edits ran on the head and on the merge base `<sha>` with the tests as the pull request leaves them.
+
+Fail on the merge base and pass on the head, so the change does what they check. Each failure on the merge base repeated in a fresh process.
+
+- `tests/middleware/test_csp.py::CSPStreamingTests::test_nonce_generated_during_streaming_is_in_header`
+
+### Renamed or moved, nothing else (1)
+
+The same code under a new name or in a new place: refactor, behaviour preserved if tests pass.
+
+- `django/core/checks/security/base.py#_csp_policy_contains_nonce` -> `django/utils/csp.py#_csp_policy_contains_nonce` (move)
+
+### Changed hunks (5)
+
+What ran each hunk of the change, from each side's own run:
+
+- `django/core/checks/security/base.py:4`: ran on both sides (`at import`)
+- `django/core/checks/security/base.py:179`: ran on both sides (11 tests)
+- `django/middleware/csp.py:3`: ran on both sides (`at import`)
+- `django/middleware/csp.py:33` in `ContentSecurityPolicyMiddleware.process_response`: ran on both sides (17 tests)
+- `django/utils/csp.py:129` in `build_policy`: ran on both sides (4 tests)
+
+### Gaps (4)
+
+Not run or not seen:
+
+- `1 test(s) the change adds or edits fail before and after it: tests/middleware/test_csp.py::CSPStreamingTests::test_unused_nonce_with_unsafe_inline`
+- `2 candidate(s) could not be run by django-runtests and are not covered by this result`
+- `Skipped 2 non-Python file(s)`
+- `tests/test_runner_apps/tagged/tests_syntax_error.py: SyntaxError`
+
+### What ran
+
+1151 of 1153 candidate tests on the head and on the merge base, 35.6 s with `django-runtests`, budget 300 s per side. Candidates: 59 the suite recording of `<sha>` saw running the code the change touches (0 file(s) changed since that commit), 1092 from the static graph, for changed code no recording covers, 2 the pull request adds or edits; the merge base ran 1149 tests with the recorder, chosen from the suite recording. Tests outside the candidates were not run.
+
+<sub>AMU `0.7.0` from `<sha>`, report `<sha>`. Full JSON is in the workflow run's artifact.</sub>
+
+<!-- amu-ci-comment v1 -->
