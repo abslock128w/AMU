@@ -48,8 +48,7 @@ labelled then; with 30841 relabelled it is 17 right and 2 false rows. Counted fl
 
 ## Stability
 
-10 of the 47 (Django 4, Flask 2, sympy 4) were run three times (`v071-47/stability.json`). The whole set was planned;
-the time ran out.
+10 of the 47 (Django 4, Flask 2, sympy 4) were run three times (`v071-47/stability.json`). The other 37 were run once.
 
 | | of 10 |
 |---|---:|
