@@ -35,7 +35,7 @@ import os as _os, sys as _sys
 _spec_path = _os.environ.get("AMU_REC_SPEC")
 if _spec_path and _sys.version_info >= (3, 12):
     try:
-        import atexit, hashlib, json, re, threading, types
+        import atexit, hashlib, io, json, re, stat, threading, types
         with open(_spec_path) as _h:
             _spec = json.load(_h)
         _root = _os.path.realpath(_spec["root"])
@@ -64,6 +64,7 @@ if _spec_path and _sys.version_info >= (3, 12):
         _buffer = []
         _local = threading.local()
         _ADDRESS = re.compile(r" at 0x[0-9a-fA-F]+")
+        _CUT = re.compile(r"['\"]\+(\d+)$")
         _GEN = 0x20 | 0x80 | 0x100 | 0x200
 
         def _flush():
@@ -96,6 +97,19 @@ if _spec_path and _sys.version_info >= (3, 12):
                 return repr(value) if len(value) <= 2000 else repr(value[:2000]) + "+%d" % len(value)
             if kind is bytes:
                 return repr(value) if len(value) <= 2000 else repr(value[:2000]) + "+%d" % len(value)
+            if isinstance(value, io.IOBase):
+                # An open file is input the object does not hold: what the call reads comes from the disk. Its size
+                # stands for its content, so the same call on a file the change edits is not the same input.
+                try:
+                    found = _os.fstat(value.fileno())
+                    if stat.S_ISREG(found.st_mode):
+                        # Three scalars, written out here: however deep the file sits in the input, they are kept.
+                        about = [[repr(k), _fp(v if type(v) in (str, bytes, int) else None)]
+                                 for k, v in (("name", getattr(value, "name", None)), ("mode", getattr(value, "mode", None)),
+                                              ("size", found.st_size))]
+                        return [getattr(kind, "__module__", "?") + "." + kind.__qualname__, ["dict", about, 3], []]
+                except Exception:
+                    pass
             if depth > 4 or id(value) in seen:
                 return "<" + kind.__qualname__ + ">"
             seen = (*seen, id(value))
@@ -188,6 +202,11 @@ if _spec_path and _sys.version_info >= (3, 12):
             else:
                 out[path] = value if isinstance(value, str) and len(value) <= 40 else hashlib.sha1(
                     json.dumps(value, default=str).encode()).hexdigest()[:12]
+                if isinstance(value, str) and len(value) > 40:
+                    # How long a long text is, apart from what it holds: a text holding a value new in every run can
+                    # still be told from a longer one (unstable_fields, without).
+                    cut = _CUT.search(value)
+                    out[path + "~size"] = cut.group(1) if cut else str(len(value))
 
         def _fields(value):
             out = {}
@@ -216,7 +235,13 @@ if _spec_path and _sys.version_info >= (3, 12):
                 count += 1
             if code.co_flags & 0x08:
                 names.append(code.co_varnames[count])
-            return [frame.f_locals.get(n) for n in names]
+            values = [frame.f_locals.get(n) for n in names]
+            # A nested function also reads its free variables: they are input as much as its arguments are, so two
+            # calls with different closure state are not the same input. ``__class__`` (zero-argument super) is not.
+            free = [n for n in code.co_freevars if n != "__class__"]
+            if free:
+                values.append({"<closure>": {n: frame.f_locals.get(n) for n in free}})
+            return values
 
         def _start(code, offset):
             known = _codes.get(code)
@@ -548,11 +573,17 @@ def pair(before, after, defaults=None, differ=None):
         # compared: what a call leaves on its arguments is mostly lazy caches filled earlier or later on one side.
         if (old.get('result') or old['output']) != (new.get('result') or new['output']):
             differs = ['result']
+            # Where the two results part, field by field: the text kept of a long result can end before that place.
+            was, now = (side.get('fields_kept', side.get('fields_out')) for side in (old, new))
+            where = [] if was is None or now is None else [
+                dict(path=path, before=was.get(path), after=now.get(path))
+                for path in sorted(set(was) | set(now), key=lambda f: (f.endswith(SIZE), f)) if was.get(path) != now.get(path)]
             rows.append(dict(test=key[0], function=key[1], n=key[2], input=old['input_shown'] + (
                              f" [{', '.join(sorted(assumed))} left at each side's default]" if assumed else ''), differs=differs,
                              before=old['output_shown'], after=new['output_shown'],
                              before_args=old.get('after_shown', ''), after_args=new.get('after_shown', ''),
-                             digest=(old.get('result') or old['output'], new.get('result') or new['output'])))
+                             digest=(old.get('result') or old['output'], new.get('result') or new['output']),
+                             where=where[:WHERE]))
     # The same difference on the same input, seen in several tests or calls, is one row with its count.
     unique = {}
     for row in rows:
@@ -566,10 +597,21 @@ def pair(before, after, defaults=None, differ=None):
 
 
 INDEX = re.compile(r'\[\d+\]')
+WHERE = 3  # differing fields a row names
+SIZE = '~size'  # the entry holding how long a long text field is (the recorder's _flat)
+
+
+TOP = re.compile(r'(\[\d+\])((?:\[\d+\])*)(#len|@|~size)?')
 
 
 def pattern(path):
-    """A field's path with its item positions left out: the same attribute of every item counts as one field."""
+    """A field's path with its item positions left out: the same attribute of every item counts as one field, and of
+    every argument too (the same kind of object in two arguments holds the same per-run attribute). A path made of
+    positions alone keeps its first: at the top that is one argument of a call (or the kind of result and its value),
+    and a per-run value passed as one argument says nothing of the others."""
+    top = TOP.fullmatch(path)
+    if top:
+        return top.group(1) + INDEX.sub('[*]', top.group(2)) + (top.group(3) or '')
     return INDEX.sub('[*]', path)
 
 
@@ -584,30 +626,53 @@ def _field(path):
 
 
 def _within(path, fields):
-    found = pattern(path)
-    return any(found == f or (found.startswith(f) and found[len(f)] in '[/.#@') for f in fields)
+    """Whether ``path`` is ``fields``' to leave out. A field that names one argument holds everything under it."""
+    whole = INDEX.sub('[*]', path)
+    return any(text == f or (text.startswith(f) and text[len(f)] in '[/.#@')
+               for f in fields for text in (path if INDEX.fullmatch(f) else whole,))
+
+
+def _kinds(fields):
+    """The type recorded for each whole argument of a call's input."""
+    return {path: value for path, value in fields.items() if path.endswith('@') and INDEX.fullmatch(path[:-1])}
 
 
 def unstable_fields(first, second):
     """Fields that differ between two runs of the same code on the same tests: {function: {'in': {pattern}, 'out':
     {pattern}}}. Calls are paired by (test, function, call index); a field present in one run's call and not the other's
-    differs too. Only calls recorded with fields count."""
+    differs too. Only calls recorded with fields count, and only pairs whose arguments are the same kinds of object."""
     one = {(c['test'], c['function'], c['n']): c for c in first if 'fields_out' in c and c['test'] != IMPORT}
     two = {(c['test'], c['function'], c['n']): c for c in second if 'fields_out' in c and c['test'] != IMPORT}
     found = {}
     for key in set(one) & set(two):
         a, b = one[key], two[key]
+        if _kinds(a.get('fields_in') or {}) != _kinds(b.get('fields_in') or {}):
+            # Another kind of object in an argument: the two runs did not make the same call at this index (calls in
+            # another order under another hash seed). What differs between them says nothing about any field.
+            continue
         for side, name in (('in', 'fields_in'), ('out', 'fields_out')):
             x, y = a.get(name) or {}, b.get(name) or {}
             for path in set(x) | set(y):
                 if x.get(path) != y.get(path):
-                    found.setdefault(key[1], {'in': set(), 'out': set()})[side].add(_field(path))
+                    entry = found.setdefault(key[1], {'in': set(), 'out': set(), 'sizes': set()})
+                    if path.endswith(SIZE):
+                        if side == 'in':
+                            entry['sizes'].add(pattern(path))
+                    else:
+                        entry[side].add(_field(path))
     return found
 
 
-def _masked(fields, drop):
+def _masked(fields, drop, sizes=None):
+    """The digest of ``fields`` without those under ``drop``. ``sizes`` (inputs only): the size entries that differed
+    between the two runs. The size of a text whose content is left out stays in the digest unless it differed too:
+    two inputs that differ in length are not the same input, whatever per-run value they both hold."""
     import hashlib
-    kept = sorted((path, value) for path, value in fields.items() if not _within(path, drop))
+    def stays(path):
+        if path.endswith(SIZE):
+            return sizes is not None and _within(path[:-len(SIZE)], drop) and pattern(path) not in sizes
+        return not _within(path, drop)
+    kept = sorted((path, value) for path, value in fields.items() if stays(path))
     return hashlib.sha1(json.dumps(kept).encode()).hexdigest()[:16]
 
 
@@ -622,8 +687,9 @@ def without(calls, unstable):
             continue
         c = dict(c)
         if c.get('fields_in') is not None and c.get('input'):
-            c['input'] = _masked(c['fields_in'], drop['in'])
+            c['input'] = _masked(c['fields_in'], drop['in'], drop.get('sizes') or set())
         if c.get('output') is not None:
             c['result'] = c['output'] = _masked(c['fields_out'], drop['out'])
+            c['fields_kept'] = {path: value for path, value in c['fields_out'].items() if not _within(path, drop['out'])}
         out.append(c)
     return out

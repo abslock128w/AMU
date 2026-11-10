@@ -31,12 +31,18 @@ def file_at(root, commit, path):
         return None
 
 
+# How the diff lines up the two sides. The default lines up a rewritten stretch by its blank lines and quote marks, so
+# a new docstring lands against removed code and a hunk mixes the two; histogram anchors on the lines that occur once
+# (a def, a class), which keeps each definition's change in its own hunk.
+ALIGN = '--diff-algorithm=histogram'
+
+
 def working_diff(root):
     """(diff of tracked changes against HEAD, gaps). Never raises; a missing repository is a gap."""
     gaps = []
     try:
         # External diff drivers and textconv filters are repository-controlled programs; keep them off.
-        diff = _git(root, 'diff', 'HEAD', '--no-ext-diff', '--no-textconv', '--no-color', '--no-renames')
+        diff = _git(root, 'diff', 'HEAD', '--no-ext-diff', '--no-textconv', '--no-color', '--no-renames', ALIGN)
     except (OSError, subprocess.TimeoutExpired) as exc:
         return '', [f'No patch given and git diff unavailable ({exc}); pass --patch-file']
     try:

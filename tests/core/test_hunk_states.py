@@ -184,9 +184,37 @@ def test_code_reachable_only_through_a_conditional_expression_false_here_cannot_
         ''')
     tests = 'from lib import KINDS\n\n\ndef test_kinds():\n    assert KINDS[int]().show() == "base"\n'
     report, body = change(tmp_path, {'compat.py': compat, 'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1})
-    assert [row['state'] for row in report['hunks']] == ['not-executable-here'] * 2, report['hunks']
-    assert report['hunks'][1]['line'] == 21 and report['hunks'][1]['why'].endswith('(needs NEWER)'), report['hunks']
-    assert '2 of 2 changed hunks not executable on' in body[0], body[0]
+    # The class is used only inside the branch not taken here; the KINDS line itself runs at import, so it ran.
+    assert [row['state'] for row in report['hunks']] == ['not-executable-here', 'executed-both-sides'], report['hunks']
+    assert '1 of 2 changed hunks not executable on' in body[0], body[0]
+
+
+# A chained comparison as a guard: evaluated pair by pair when it can be told, unknown (never gated) when not.
+@pytest.mark.parametrize('condition,gated', [('(99, 0) <= sys.version_info < (100, 0)', True),
+                                             ('(21,) <= self.connection.version < (23,)', False),
+                                             ('not -n <= len(parts) < n', False)])
+def test_a_chained_comparison_guard_is_evaluated_or_unknown_never_a_crash(tmp_path, condition, gated):
+    lib0 = 'import sys\n\n\nclass Joiner:\n    def join(self, parts, n=9):\n        joined = "/".join(parts)\n        return joined\n'
+    lib1 = (f'import sys\n\n\nclass Joiner:\n    def join(self, parts, n=9):\n        if {condition}:\n'
+            '            joined = "\\\\".join(parts)\n        else:\n            joined = "/".join(parts)\n        return joined\n')
+    tests = 'from lib import Joiner\n\n\ndef test_join():\n    assert Joiner().join(["a", "b"]) == "a/b"\n'
+    report, body = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1})
+    assert 'error' not in report, report.get('error')
+    [row] = report['hunks']
+    assert (row['state'] == 'not-executable-here') is gated, row
+
+
+# Only one operand of the conditional expression is gated; the line itself ran in a test, so it is executed.
+def test_a_gated_operand_on_a_line_that_ran_is_executed(tmp_path):
+    lib0 = 'import os\n\n\ndef make(path):\n    maker = os.makedirs\n    maker(path, exist_ok=True)\n    return path\n'
+    lib1 = ('import os\nimport sys\n\n\ndef make(path):\n    maker = os.mkdir if sys.version_info >= (99, 0) else os.makedirs\n'
+            '    maker(path, exist_ok=True)\n    return path\n')
+    tests = 'from lib import make\n\n\ndef test_make(tmp_path):\n    assert make(str(tmp_path / "a" / "b"))\n'
+    report, body = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1})
+    states = {row['line']: row['state'] for row in report['hunks']}
+    assert 'not-executable-here' not in states.values(), report['hunks']
+    assert states.get(6) == 'executed-both-sides', report['hunks']
+    assert 'not executable' not in body[0], body[0]
 
 
 def test_a_signature_change_says_which_tests_called_the_function(tmp_path):
@@ -224,3 +252,157 @@ def test_reach_guesses_of_the_static_graph_are_not_gaps_once_the_hunks_were_reco
     report, body = change(tmp_path, {'lib.py': lib, 'tests/test_lib.py': tests}, {'lib.py': lib.replace('return 1', 'return 2')})
     assert [row['state'] for row in report['hunks']] == ['executed-both-sides'], report['hunks']
     assert not any('five source hops' in g or 'call sites unresolved' in g for g in report.get('gaps') or []), report['gaps']
+
+
+# Flask 5812, jinja 2099: unchanged lines inside one block of changes are part of it when it is re-applied.
+def test_comments_removed_around_an_unchanged_line_are_not_code(tmp_path):
+    lib0 = 'def area(w, h):\n    # width\n    x = w\n    # height\n    return x * h\n'
+    lib1 = 'def area(w, h):\n    x = w\n    return x * h\n'
+    tests = 'from lib import area\n\n\ndef test_area():\n    assert area(2, 3) == 6\n'
+    report, body = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1})
+    assert [row['state'] for row in report['hunks']] == ['not-code'], report['hunks']
+    assert body[0].startswith('**AMU: docstring or comment changes only**'), body[0]
+
+
+# A docstring edit and a code edit a line apart share a diff block: the docstring part is not code, the code part has
+# its own state.
+def test_a_block_mixing_a_docstring_edit_and_a_code_edit_is_split(tmp_path):
+    lib0 = 'def area(w, h):\n    """Area of a box."""\n    x = w\n    return x * h\n\n\ndef unused():\n    return 1\n'
+    lib1 = 'def area(w, h):\n    """Area of a w by h box."""\n    x = w\n    return h * x\n\n\ndef unused():\n    return 1\n'
+    tests = 'from lib import area\n\n\ndef test_area():\n    assert area(2, 3) == 6\n'
+    report, body = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests}, {'lib.py': lib1})
+    states = sorted((row['line'], row['state']) for row in report['hunks'])
+    assert states == [(2, 'not-code'), (4, 'executed-both-sides')], report['hunks']
+    assert body[0].endswith('every changed hunk ran on both sides, in up to 1 test'), body[0]
+
+
+# jinja 2099: a generator script in a top-level scripts/ folder that the package does not import is not production.
+def test_a_script_the_package_does_not_import_is_not_production(tmp_path):
+    lib = LIB
+    script = 'def build():\n    return 1\n\n\nif __name__ == "__main__":\n    print(build())\n'
+    report, body = change(tmp_path, {'lib.py': lib, 'scripts/gen.py': script, 'tests/test_lib.py': TESTS},
+                          {'lib.py': lib.replace('* d', '* d * 1'), 'scripts/gen.py': script.replace('return 1', 'return 2')})
+    states = {row['path']: row['state'] for row in report['hunks']}
+    assert states == {'lib.py': 'executed-both-sides', 'scripts/gen.py': 'not-production'}, report['hunks']
+    assert 'scripts/gen.py' not in body[0] and body[0].endswith('every changed hunk ran on both sides, in up to 1 test'), body[0]
+
+
+TYPED = 'from typing import TYPE_CHECKING\n\nif TYPE_CHECKING:\n    from collections.abc import Mapping\n\n    Box = Mapping[str, int]\nelse:\n    Box = dict\n\n' + LIB
+
+
+def test_a_change_under_type_checking_is_typing_only_not_unrun_code(tmp_path):
+    """An alias or import under ``if TYPE_CHECKING:`` never runs: it is typing, not a hunk no test reached. Added, edited
+    and deleted lines alike; the else branch does run and is not touched by this."""
+    edited = TYPED.replace('Mapping[str, int]', 'Mapping[str, float]')
+    report, body = change(tmp_path, {'lib.py': TYPED, 'tests/test_lib.py': TESTS}, {'lib.py': edited})
+    assert [row['state'] for row in report['hunks']] == ['annotations-only'], report['hunks']
+    assert 'TYPE_CHECKING' in report['hunks'][0]['why'] and body[0].startswith('**AMU: type annotations only**'), body[0]
+
+
+def test_a_deleted_import_under_type_checking_is_typing_only(tmp_path):
+    before = TYPED.replace('    from collections.abc import Mapping\n', '    from collections.abc import Mapping\n    from os import PathLike\n')
+    report, body = change(tmp_path, {'lib.py': before, 'tests/test_lib.py': TESTS}, {'lib.py': TYPED})
+    assert [row['state'] for row in report['hunks']] == ['annotations-only'], report['hunks']
+    assert 'ran in no test' not in body[0], body[0]
+
+
+def test_the_else_of_type_checking_is_code(tmp_path):
+    report, body = change(tmp_path, {'lib.py': TYPED, 'tests/test_lib.py': TESTS}, {'lib.py': TYPED.replace('Box = dict\n', 'Box = list\n')})
+    assert [row['state'] for row in report['hunks']] == ['executed-both-sides'], report['hunks']
+
+
+def test_a_new_function_only_the_changes_own_test_calls_ran_only_there_not_at_import(tmp_path):
+    # Existing code names the new function, so it is not "new code only"; its def line runs at import, and its body
+    # runs in the test the change adds and in no other.
+    other = 'import lib\n\n\ndef outline(w, h):\n    return lib.perimeter(w, h)\n'
+    after = LIB + '\n\ndef perimeter(w, h):\n    return 2 * (w + h)\n'
+    tests = TESTS + '\n\ndef test_perimeter():\n    from lib import perimeter\n    assert perimeter(1, 2) == 6\n'
+    report, body = change(tmp_path, {'lib.py': LIB, 'other.py': 'import lib\n', 'tests/test_lib.py': TESTS},
+                          {'lib.py': after, 'other.py': other, 'tests/test_lib.py': tests})
+    row = next(r for r in report['hunks'] if r['path'] == 'lib.py')
+    assert row['state'] == 'executed-head-only' and row['tests'] == 1 and row['why'] == '', row
+    assert "ran only in the pull request's own tests: `lib.py:" in body[0], body[0]
+
+
+_STEPS = ''.join(f'''
+    def step_{n}(self, value):
+        """Step {n}."""
+        self.seen.append(({n}, value))
+        return value + {n}
+''' for n in range(8))
+_MERGE_BEFORE = '''def active():
+    """Works like the other one.
+
+    .. versionadded:: 0.9
+    """
+    return CURRENT.get(None) is not None
+
+
+class App:
+    """The app side."""
+
+    def __init__(self, app):
+        self.app = app
+        self.tokens = []
+
+    def push(self):
+        """Binds it."""
+        self.tokens.append(CURRENT.set(self))
+
+
+class Request:
+    """The request side."""
+
+    def __init__(self, app, environ):
+        self.app = app
+        self.environ = environ
+        self.seen = []
+''' + _STEPS
+_MERGE_AFTER = '''def active():
+    """Test if one is active.
+
+    It can be true outside a request.
+
+        if active():
+            cached = ...
+
+    If one is active the proxies are there.
+
+        if proxy:
+            cached = ...
+
+    .. versionadded:: 0.9
+    """
+    return CURRENT.get(None) is not None
+
+
+class App:
+    """Both sides in one."""
+
+    def __init__(self, app, environ=None):
+        self.app = app
+        self.environ = environ
+        self.seen = []
+''' + _STEPS
+
+
+def test_a_docstring_rewritten_beside_a_rewritten_class_is_not_read_as_code(tmp_path):
+    """Two classes merged into one below a function whose docstring grows: lined up by blank lines and quote marks, the
+    new docstring lands against the removed class and reads as a code change in a function no test ran. Lined up on the
+    lines that occur once, the docstring is its own hunk."""
+    from amu.core import git as core_git
+    from amu.core import patch as core_patch
+    from amu.core import states
+
+    def git(*args):
+        subprocess.run(['git', '-C', str(tmp_path), '-c', 'user.name=a', '-c', 'user.email=a@b.c', *args], check=True, capture_output=True)
+
+    git('init', '-q')
+    (tmp_path/'m.py').write_text(_MERGE_BEFORE)
+    git('add', '.')
+    git('commit', '-qm', 'before')
+    (tmp_path/'m.py').write_text(_MERGE_AFTER)
+    diff, _ = core_git.working_diff(tmp_path)
+    edits, _ = core_patch.changes(tmp_path, diff)
+    rows = states.classify(tmp_path, edits, {'m.py': _MERGE_BEFORE}, {'m.py': _MERGE_AFTER}, None)
+    assert [row['state'] for row in rows if row['function'] == 'active'] == ['not-code']

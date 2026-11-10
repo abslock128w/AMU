@@ -16,6 +16,7 @@ HTML or @mention in it. The whole comment is cut to fit GitHub's limit.
 """
 from __future__ import annotations
 
+import difflib
 import json
 import re
 import sys
@@ -117,11 +118,42 @@ def extras(report, listed=LISTED):
 
 # Hunk states (amu/core/states.py), worst first: the first one any hunk has is what the first line reports.
 WORST = ('executed-none', 'not-executable-here', 'not-recorded', 'executed-head-only', 'new-code', 'executed-both-sides',
-         'annotations-only', 'not-code')
+         'annotations-only', 'not-code', 'not-production')
 STATE_TEXT = {'executed-none': 'ran in no test', 'not-executable-here': 'cannot run here', 'not-recorded': 'not recorded',
               'executed-head-only': "ran only in the pull request's own tests", 'new-code': 'new code, no existing callers',
               'executed-both-sides': 'ran on both sides', 'annotations-only': 'type annotations only',
-              'not-code': 'docstring, comment or layout only'}
+              'not-code': 'docstring, comment or layout only', 'not-production': 'outside the production code'}
+
+
+INDEX = re.compile(r'\[\d+\]')
+TOKEN = re.compile(r'"(?:[^"\\]|\\.)*"|\'(?:[^\'\\]|\\.)*\'|[^\s,\[\]{}():]+|[\[\]{}(),:]')
+
+
+def _shown(value):
+    text = '?' if value is None else value if isinstance(value, str) else json.dumps(value, ensure_ascii=False)
+    return re.sub(r'\s+', ' ', text).replace('`', "'").strip()
+
+
+def change_of(row):
+    """What a behaviour row's two results differ by, as the token runs that change: rows alike in that show one change."""
+    differs = [str(f) for f in row.get('differs') or []]
+    field = next((f for f in differs if f in ('result', 'args_after', 'stdout', 'calls')), 'result')
+    was = TOKEN.findall(_shown((row.get('before') or {}).get(field) if isinstance(row.get('before'), dict) else None))
+    now = TOKEN.findall(_shown((row.get('after') or {}).get(field) if isinstance(row.get('after'), dict) else None))
+    ops = difflib.SequenceMatcher(None, was, now, autojunk=False).get_opcodes()
+    change = tuple((' '.join(was[a:b]), ' '.join(now[c:d])) for tag, a, b, c, d in ops if tag != 'equal')
+    # Results alike in the text kept part further on: the fields they part at tell one such change from another.
+    return field, change or tuple((INDEX.sub('[*]', str(w.get('path'))), str(w.get('before')), str(w.get('after')))
+                                  for w in row.get('where') or [] if isinstance(w, dict))
+
+
+def kinds(behaviour):
+    """[(first row, rows like it, functions they are in)] with rows that show the same change grouped, largest first."""
+    groups = {}
+    for row in behaviour:
+        groups.setdefault(change_of(row), []).append(row)
+    return sorted(((rows_[0], len(rows_), sorted({str(r.get('target', '?')) for r in rows_})) for rows_ in groups.values()),
+                  key=lambda g: -g[1])
 
 
 def hunk_rows(report):
@@ -136,16 +168,30 @@ def places(rows, limit=3):
     return ', '.join(place(row) for row in rows[:limit]) + (f' and {len(rows) - limit} more' if len(rows) > limit else '')
 
 
+def counted(report, ran):
+    """'ran all N tests' only when every test of the suite gave an outcome; else how many did not, and why."""
+    executed = report.get('executed') or {}
+    total = executed.get('candidates') or ran
+    if ran >= total:
+        return f"ran all {plural(ran, 'test')}"
+    why = next((g.split('no outcomes read: ', 1)[1] for g in report.get('gaps') or [] if 'no outcomes read: ' in g), None)
+    why = why or next((g for g in report.get('gaps') or [] if 'stopped at' in g or 'could not be run' in g), 'see the gaps')
+    return f"ran {ran} of {plural(total, 'test')}, {total - ran} gave no outcome: {code(why, 160)}"
+
+
 def headline(report, head, ran):
     """The first line when tests ran and none flipped: what the worst hunk's evidence says. Without hunk states (a report
     from an older engine), only that nothing flipped."""
-    rows = hunk_rows(report)
+    # Hunks outside the production code (scripts/, examples/ the package does not import) are listed, never the lead.
+    rows = [row for row in hunk_rows(report) if row['state'] != 'not-production']
     chosen = report.get('selection_evidence') if isinstance(report.get('selection_evidence'), dict) else {}
-    among = (f"ran all {plural(ran, 'test')}" if chosen.get('mode') == 'all of the suite'
-             else f"among {plural(ran, 'test')} run")
+    among = (counted(report, ran) if chosen.get('mode') == 'all of the suite' else f"among {plural(ran, 'test')} run")
     if chosen.get('static_fallback'):
         among += '; no suite recording for base; selected statically'
 
+    if not rows and hunk_rows(report):
+        outside = hunk_rows(report)
+        return f"**AMU: 0 flips** at {short(head)}, {among}; only code outside the production code changed: {places(outside)}"
     if not rows:
         return f"**AMU: 0 flips** at {short(head)}, {among}; which tests ran the changed code was not recorded"
     present = {row['state'] for row in rows}
@@ -171,9 +217,13 @@ def headline(report, head, ran):
         return first + f"{len(picked)} of {plural(total, 'changed hunk')} ran in no test: {places(picked)}"
     if worst == 'not-executable-here':
         reasons = sorted({row.get('why') or 'not executable here' for row in picked})
+        reasons = [r for r in reasons if not any(o != r and o.startswith(r) for o in reasons)]
         return first + f"{len(picked)} of {plural(total, 'changed hunk')} {'; '.join(reasons)}: {places(picked)}"
     if worst == 'not-recorded':
-        return first + 'which tests ran the changed code was not recorded'
+        reasons = sorted({row.get('why') for row in picked if row.get('why')})
+        if not reasons:
+            return first + 'which tests ran the changed code was not recorded'
+        return first + f"{len(picked)} of {plural(total, 'changed hunk')} not recorded ({'; '.join(reasons)}): {places(picked)}"
     if worst == 'executed-head-only':
         return first + f"{len(picked)} of {plural(total, 'changed hunk')} ran only in the pull request's own tests: {places(picked)}"
     covered = max((row.get('tests') or 0 for row in rows if row['state'] == 'executed-both-sides'), default=0)
@@ -234,7 +284,9 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
     behaviour = [row for row in report.get('behaviour_differences') or [] if isinstance(row, dict)]
     side = report.get('side_by_side') if isinstance(report.get('side_by_side'), dict) else None
     if behaviour and side is not None and side.get('mode') == 'paired records' and not report.get('error'):
-        first += f"; {plural(len(behaviour), 'behaviour difference')} on the same input"
+        grouped = kinds(behaviour)
+        first += f"; {plural(len(grouped), 'behaviour difference')} on the same input" + (
+            f" ({len(behaviour)} calls)" if len(behaviour) > len(grouped) else '')
     elif behaviour and side is not None and not report.get('error'):
         first += f"; {plural(len(behaviour), 'behaviour difference')} on captured input, collapsed at the end"
     out, collapsed = [first, ''], []
@@ -312,6 +364,19 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
             text = '?' if value is None else value if isinstance(value, str) else json.dumps(value, ensure_ascii=False)
             return re.sub(r'\s+', ' ', text).replace('`', "'").strip()
 
+        def shown_field(w):
+            path = str(w.get('path') or '')
+            return ('length of result' + path[:-len('~size')]) if path.endswith('~size') else 'result' + path
+
+        def part(w):
+            # A field holds its text when short, else a digest of it: a digest says only that the value changed.
+            was, now = w.get('before'), w.get('after')
+            if was is None or now is None:
+                return f"{code(shown_field(w), 80)}, {'absent as it was' if was is None else 'absent as changed'}"
+            if any(re.fullmatch(r'[0-9a-f]{12}', str(v)) for v in (was, now)):
+                return f"{code(shown_field(w), 80)}, a long value"
+            return f"{code(shown_field(w), 80)}: as it was {code(str(was), 60)}, as changed {code(str(now), 60)}"
+
         def difference(row):
             differs = [str(f) for f in row.get('differs') or []]
             # Show the first field that differs, cut to a window around where the two versions part: outcomes that
@@ -324,12 +389,30 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
             def window(text):
                 return ('…' if start else '') + text[start:start + 160] + ('…' if len(text) > start + 160 else '')
             where = f", from character {at + 1}" if start else ''
+            if was == now:
+                # The text kept of each result ends before the two part: name the fields they part at instead.
+                fields = [w for w in row.get('where') or [] if isinstance(w, dict)]
+                parts = '; '.join(part(w) for w in fields)
+                return (f"{code(row.get('target', '?'), 120)} on {code(row.get('input', ''), 160)}: the results differ past "
+                        f"the {len(was)} characters kept of each"
+                        + (f", at {parts}" if parts else '') + f" (differs in: {code(', '.join(differs), 60)})"
+                        + (f"; {row['seen']} calls alike" if isinstance(row.get('seen'), int) and row['seen'] > 1 else ''))
             return (f"{code(row.get('target', '?'), 120)} on {code(row.get('input', ''), 160)}: as it was {code(window(was), 170)}, "
                     f"as changed {code(window(now), 170)} (differs in: {code(', '.join(differs), 60)}; shown: {field}{where})"
                     + (f"; {row['seen']} calls alike" if isinstance(row.get('seen'), int) and row['seen'] > 1 else ''))
-        section += rows(behaviour, difference, listed) + ['']
+        if paired:
+            # Rows that show the same change are one line, with how many calls and which functions show it.
+            def grouped_line(group):
+                row, count, functions = group
+                more = (f"; {count} calls show this change" + (f" in {len(functions)} functions" if len(functions) > 1 else '')
+                        if count > 1 else '')
+                return difference(row) + more
+            section += rows(kinds(behaviour), grouped_line, listed) + ['']
+        else:
+            section += rows(behaviour, difference, listed) + ['']
         if behaviour and paired:
-            out += [f'### Behaviour differs on the same input ({len(behaviour)})', '', *section]
+            out += [f'### Behaviour differs on the same input ({plural(len(kinds(behaviour)), "change")}, '
+                    f'{plural(len(behaviour), "call")})', '', *section]
         elif behaviour:
             collapsed = [f'<details><summary>Behaviour differs on captured input ({len(behaviour)})</summary>', '',
                          "Collapsed until side-by-side's false rows are fixed: of 18 such rows hand-labelled on Django and "
