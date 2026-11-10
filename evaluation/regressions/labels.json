@@ -1,0 +1,443 @@
+{
+ "attrs:1009:c9150d278c": {
+  "repo": "attrs",
+  "culprit_pr": 1009,
+  "fix_pr": 1085,
+  "regressed": [
+   "src/attr/_make.py#_ClassBuilder._make_getstate_setstate.slots_setstate"
+  ],
+  "regressed_tests": [
+   "tests/test_slots.py::test_slots_unpickle_is_backward_compatible[False]",
+   "tests/test_slots.py::test_slots_unpickle_is_backward_compatible[True]"
+  ],
+  "caught": false,
+  "by": null,
+  "cause": "suite",
+  "rows_on_regressed": 0,
+  "other_rows": 0,
+  "regressed_hunk_states": [
+   "executed-both-sides"
+  ],
+  "first": "**AMU: 0 flips** at `a859348`, ran all 524 tests; every changed hunk ran on both sides, in up to 12 tests; 2 tests of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 45.8,
+  "note": ""
+ },
+ "attrs:1267:6fda0a4e08": {
+  "repo": "attrs",
+  "culprit_pr": 1267,
+  "fix_pr": 1328,
+  "regressed": [
+   "src/attr/_make.py#Converter.__init__",
+   "src/attr/_make.py#pipe.pipe_converter"
+  ],
+  "regressed_tests": [
+   "tests/test_setattr.py::TestSetAttr::test_setattr_converter_piped"
+  ],
+  "caught": false,
+  "by": null,
+  "cause": "suite",
+  "rows_on_regressed": 0,
+  "other_rows": 3,
+  "regressed_hunk_states": [],
+  "first": "**AMU: 0 flips** at `a9141ef`, ran all 596 tests; 1 of 39 changed hunks ran only in the pull request's own tests: `src/attr/_make.py:3331`; 3 behaviour differences on the same input",
+  "seconds": 177.5,
+  "note": ""
+ },
+ "attrs:1401:3b0378dd66": {
+  "repo": "attrs",
+  "culprit_pr": 1401,
+  "fix_pr": 1417,
+  "regressed": [
+   "src/attr/_make.py#_transform_attrs"
+  ],
+  "regressed_tests": [
+   "tests/test_hooks.py::TestTransformHook::test_hook_generator"
+  ],
+  "caught": false,
+  "by": null,
+  "cause": "suite",
+  "rows_on_regressed": 0,
+  "other_rows": 0,
+  "regressed_hunk_states": [
+   "executed-both-sides"
+  ],
+  "first": "**AMU: 0 flips** at `63ab6c3`, ran all 617 tests; every changed hunk ran on both sides, in up to 319 tests; 2 tests of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 74.9,
+  "note": ""
+ },
+ "attrs:759:f10d050864": {
+  "repo": "attrs",
+  "culprit_pr": 759,
+  "fix_pr": 806,
+  "regressed": [
+   "src/attr/_funcs.py#evolve"
+  ],
+  "regressed_tests": [
+   "tests/test_funcs.py::TestEvolve::test_dicts",
+   "tests/test_funcs.py::TestEvolve::test_regression_attrs_classes"
+  ],
+  "caught": false,
+  "by": null,
+  "cause": "suite",
+  "rows_on_regressed": 0,
+  "other_rows": 0,
+  "regressed_hunk_states": [
+   "executed-both-sides",
+   "not-code"
+  ],
+  "first": "**AMU: 0 flips** at `75495de`, ran 349 of 406 tests, 57 gave no outcome: `57 candidate(s) could not be run by pytest and are not covered by this result`; every changed hunk ran on both sides, in up to 6 tests; 1 test of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 121.6,
+  "note": "57 of 406 tests could not be run by pytest at this old commit on Python 3.14; stated in the first line."
+ },
+ "django:18270:7bf3ac3ee2": {
+  "repo": "django",
+  "culprit_pr": 18270,
+  "fix_pr": 20459,
+  "regressed": [
+   "django/urls/resolvers.py#RoutePattern.match"
+  ],
+  "regressed_tests": [
+   "urlpatterns.test_resolvers.RoutePatternTests.test_match_lazy_route_without_converters"
+  ],
+  "caught": false,
+  "by": null,
+  "cause": "suite",
+  "rows_on_regressed": 0,
+  "other_rows": 0,
+  "regressed_hunk_states": [
+   "executed-both-sides"
+  ],
+  "first": "**AMU: 0 flips** at `07897da`, ran 18084 of 18088 tests, 4 gave no outcome: `4 candidate(s) could not be run by django-runtests and are not covered by this result`; every changed hunk ran on both sides, in up to 1656 tests",
+  "seconds": 409.5,
+  "note": ""
+ },
+ "django:18314:802baf5da5": {
+  "repo": "django",
+  "culprit_pr": 18314,
+  "fix_pr": 19472,
+  "regressed": [
+   "django/db/models/query.py#QuerySet.union"
+  ],
+  "regressed_tests": [
+   "queries.test_qs_combinators.QuerySetSetOperationTests.test_union_empty_slice"
+  ],
+  "caught": false,
+  "by": null,
+  "cause": "suite",
+  "rows_on_regressed": 0,
+  "other_rows": 1,
+  "regressed_hunk_states": [],
+  "first": "**AMU: 0 flips** at `62e2204`, ran 17355 of 17358 tests, 3 gave no outcome: `3 candidate(s) could not be run by django-runtests and are not covered by this result`; every changed hunk ran on both sides, in up to 56 tests; 1 behaviour difference on the same input",
+  "seconds": 446.0,
+  "note": ""
+ },
+ "django:18620:d469db978e": {
+  "repo": "django",
+  "culprit_pr": 18620,
+  "fix_pr": 19372,
+  "regressed": [
+   "django/contrib/auth/password_validation.py#MinimumLengthValidator.validate",
+   "django/contrib/auth/password_validation.py#MinimumLengthValidator.get_error_message"
+  ],
+  "regressed_tests": [
+   "auth_tests.test_validators.MinimumLengthValidatorTest.test_validate"
+  ],
+  "caught": false,
+  "by": null,
+  "cause": "suite",
+  "rows_on_regressed": 0,
+  "other_rows": 0,
+  "regressed_hunk_states": [
+   "executed-both-sides"
+  ],
+  "first": "**AMU: 0 flips** at `73a108c`, ran 17593 of 17597 tests, 4 gave no outcome: `4 candidate(s) could not be run by django-runtests and are not covered by this result`; every changed hunk ran on both sides, in up to 13 tests; 5 tests of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 254.6,
+  "note": ""
+ },
+ "django:19073:b8e5a8a9a2": {
+  "repo": "django",
+  "culprit_pr": 19073,
+  "fix_pr": 19494,
+  "regressed": [
+   "django/db/models/aggregates.py#Aggregate.__init__",
+   "django/db/models/aggregates.py#Aggregate.resolve_expression"
+  ],
+  "regressed_tests": [
+   "aggregation.test_filter_argument.FilteredAggregateTests.test_filtered_aggregrate_ref_in_subquery_annotation"
+  ],
+  "caught": false,
+  "by": null,
+  "cause": "suite",
+  "rows_on_regressed": 0,
+  "other_rows": 89,
+  "regressed_hunk_states": [
+   "executed-both-sides"
+  ],
+  "first": "**AMU: 0 flips** at `7ea3269`, ran 17884 of 17889 tests, 5 gave no outcome: `5 candidate(s) could not be run by django-runtests and are not covered by this result`; every changed hunk ran on both sides, in up to 5555 tests; 4 tests of the pull request's own fail on the merge base and pass on the head; 9 behaviour differences on the same input (89 calls)",
+  "seconds": 531.8,
+  "note": "89 rows, none on the regressed Aggregate methods: 84 on CombinedExpression.resolve_expression, 5 on BaseExpression.resolve_expression. The harness first matched them by method name alone; corrected."
+ },
+ "django:19395:edde2891c3": {
+  "repo": "django",
+  "culprit_pr": 19395,
+  "fix_pr": 19945,
+  "regressed": [
+   "django/db/models/indexes.py#Index.check"
+  ],
+  "regressed_tests": [
+   "invalid_models_tests.test_models.IndexesTests.test_pointing_to_desc_field"
+  ],
+  "caught": false,
+  "by": null,
+  "cause": "suite",
+  "rows_on_regressed": 0,
+  "other_rows": 0,
+  "regressed_hunk_states": [],
+  "first": "**AMU: 0 flips** at `ba519a7`, ran 18081 of 18085 tests, 4 gave no outcome: `4 candidate(s) could not be run by django-runtests and are not covered by this result`; every changed hunk ran on both sides, in up to 219 tests",
+  "seconds": 445.1,
+  "note": ""
+ },
+ "django:19494:2a6e0bd72d": {
+  "repo": "django",
+  "culprit_pr": 19494,
+  "fix_pr": 20303,
+  "regressed": [
+   "django/db/models/expressions.py#BaseExpression.replace_expressions"
+  ],
+  "regressed_tests": [
+   "aggregation.test_filter_argument.FilteredAggregateTests.test_empty_filtered_aggregates_with_annotation"
+  ],
+  "caught": false,
+  "by": null,
+  "cause": "suite",
+  "rows_on_regressed": 0,
+  "other_rows": 0,
+  "regressed_hunk_states": [],
+  "first": "**AMU: 0 flips** at `406c242`, ran 18119 of 18122 tests, 3 gave no outcome: `3 candidate(s) could not be run by django-runtests and are not covered by this result`; every changed hunk ran on both sides, in up to 1186 tests; 1 test of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 437.5,
+  "note": ""
+ },
+ "requests:6644:fd628095d7": {
+  "repo": "requests",
+  "culprit_pr": 6644,
+  "fix_pr": 7315,
+  "regressed": [
+   "src/requests/adapters.py#HTTPAdapter.request_url"
+  ],
+  "regressed_tests": [
+   "tests/test_adapters.py::test_request_url_handles_leading_path_separators"
+  ],
+  "caught": false,
+  "by": null,
+  "cause": "suite",
+  "rows_on_regressed": 0,
+  "other_rows": 0,
+  "regressed_hunk_states": [
+   "executed-both-sides"
+  ],
+  "first": "**AMU: 0 flips** at `60389df`, ran all 325 tests; every changed hunk ran on both sides, in up to 124 tests; 1 test of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 309.0,
+  "note": ""
+ },
+ "requests:7272:6404f345e5": {
+  "repo": "requests",
+  "culprit_pr": 7272,
+  "fix_pr": 7433,
+  "regressed": [
+   "src/requests/models.py#PreparedRequest.prepare_body"
+  ],
+  "regressed_tests": [
+   "tests/test_requests.py::TestRequests::test_getattr_proxy_stream_follows_redirect"
+  ],
+  "caught": false,
+  "by": null,
+  "cause": "suite",
+  "rows_on_regressed": 0,
+  "other_rows": 10,
+  "regressed_hunk_states": [
+   "executed-both-sides",
+   "not-code"
+  ],
+  "first": "**AMU: 0 flips** at `4cf9bb5`, ran all 340 tests; 13 of 338 changed hunks ran in no test: `src/requests/__init__.py:60`, `src/requests/__init__.py:73`, `src/requests/__init__.py:99` and 10 more; 5 behaviour differences on the same input (10 calls)",
+  "seconds": 483.2,
+  "note": "One typing pull request with three later fixes. 7 rows on super_len are false at v0.7.1 (defect T5, fixed in PR #108); 3 on api.post not traced."
+ },
+ "requests:7272:6f205ff422": {
+  "repo": "requests",
+  "culprit_pr": 7272,
+  "fix_pr": 7502,
+  "regressed": [
+   "src/requests/models.py#RequestEncodingMixin._encode_files"
+  ],
+  "regressed_tests": [
+   "tests/test_requests.py::TestRequests::test_post_named_tempfile"
+  ],
+  "caught": false,
+  "by": null,
+  "cause": "suite",
+  "rows_on_regressed": 0,
+  "other_rows": 10,
+  "regressed_hunk_states": [
+   "annotations-only",
+   "executed-both-sides",
+   "not-code"
+  ],
+  "first": "**AMU: 0 flips** at `4cf9bb5`, ran all 340 tests; 13 of 338 changed hunks ran in no test: `src/requests/__init__.py:60`, `src/requests/__init__.py:73`, `src/requests/__init__.py:99` and 10 more; 5 behaviour differences on the same input (10 calls)",
+  "seconds": 473.2,
+  "note": "One typing pull request with three later fixes. 7 rows on super_len are false at v0.7.1 (defect T5, fixed in PR #108); 3 on api.post not traced."
+ },
+ "requests:7272:6f66281a1d": {
+  "repo": "requests",
+  "culprit_pr": 7272,
+  "fix_pr": 7505,
+  "regressed": [
+   "src/requests/models.py#RequestEncodingMixin._encode_params",
+   "src/requests/models.py#RequestEncodingMixin._encode_files",
+   "src/requests/models.py#PreparedRequest.prepare_body"
+  ],
+  "regressed_tests": [
+   "tests/test_requests.py::TestRequests::test_post_getattr_proxy_read_only"
+  ],
+  "caught": false,
+  "by": null,
+  "cause": "suite",
+  "rows_on_regressed": 0,
+  "other_rows": 10,
+  "regressed_hunk_states": [
+   "annotations-only",
+   "executed-both-sides",
+   "not-code"
+  ],
+  "first": "**AMU: 0 flips** at `4cf9bb5`, ran all 340 tests; 13 of 338 changed hunks ran in no test: `src/requests/__init__.py:60`, `src/requests/__init__.py:73`, `src/requests/__init__.py:99` and 10 more; 5 behaviour differences on the same input (10 calls)",
+  "seconds": 483.1,
+  "note": "One typing pull request with three later fixes. 7 rows on super_len are false at v0.7.1 (defect T5, fixed in PR #108); 3 on api.post not traced."
+ },
+ "sympy:24303:9977815e98": {
+  "repo": "sympy",
+  "culprit_pr": 24303,
+  "fix_pr": 24826,
+  "regressed": [
+   "sympy/simplify/cse_main.py#opt_cse._find_opts"
+  ],
+  "regressed_tests": [
+   "sympy/simplify/tests/test_cse.py::test_cse_unevaluated"
+  ],
+  "caught": false,
+  "by": null,
+  "cause": "suite",
+  "rows_on_regressed": 0,
+  "other_rows": 0,
+  "regressed_hunk_states": [],
+  "first": "**AMU: 0 flips** at `ef0542a`, among 240 tests run; no suite recording for base; selected statically; every changed hunk ran on both sides, in up to 40 tests; 1 test of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 969.2,
+  "note": ""
+ },
+ "sympy:25753:17639a46b6": {
+  "repo": "sympy",
+  "culprit_pr": 25753,
+  "fix_pr": 26429,
+  "regressed": [
+   "sympy/algebras/quaternion.py#Quaternion._eval_subs"
+  ],
+  "regressed_tests": [
+   "sympy/algebras/tests/test_quaternion.py::test_quaternion_subs"
+  ],
+  "caught": false,
+  "by": null,
+  "cause": "suite",
+  "rows_on_regressed": 0,
+  "other_rows": 2,
+  "regressed_hunk_states": [
+   "not-recorded"
+  ],
+  "first": "**AMU: 0 flips** at `61e3dc2`, among 320 tests run; no suite recording for base; selected statically; 25 of 46 changed hunks not recorded (the run stopped after 320 of 11656 candidate tests): `doc/src/conf.py:463`, `setup.py:152`, `setup.py:329` and 22 more; 2 tests of the pull request's own fail on the merge base and pass on the head; 2 behaviour differences on the same input",
+  "seconds": 921.1,
+  "note": ""
+ },
+ "sympy:25913:94be224391": {
+  "repo": "sympy",
+  "culprit_pr": 25913,
+  "fix_pr": 26713,
+  "regressed": [
+   "sympy/utilities/lambdify.py#_EvaluatorPrinter._preprocess"
+  ],
+  "regressed_tests": [
+   "sympy/utilities/tests/test_lambdify.py::test_lambdify__arguments_with_invalid_python_identifiers"
+  ],
+  "caught": false,
+  "by": null,
+  "cause": "suite",
+  "rows_on_regressed": 0,
+  "other_rows": 0,
+  "regressed_hunk_states": [],
+  "first": "**AMU: 0 flips** at `36d2e6e`, among 1910 tests run; no suite recording for base; selected statically; 2 of 36 changed hunks not recorded (9550 of 11460 candidate tests gave no outcome): `sympy/printing/numpy.py:261`, `sympy/utilities/codegen.py:1012`; 13 tests of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 814.6,
+  "note": ""
+ },
+ "sympy:26358:240a6ad728": {
+  "repo": "sympy",
+  "culprit_pr": 26358,
+  "fix_pr": 26935,
+  "regressed": [
+   "sympy/integrals/heurisch.py#heurisch"
+  ],
+  "regressed_tests": [
+   "sympy/integrals/tests/test_heurisch.py::test_heurisch_issue_26922",
+   "sympy/integrals/tests/test_heurisch.py::test_heurisch_issue_26930"
+  ],
+  "caught": true,
+  "by": "behaviour row",
+  "cause": null,
+  "rows_on_regressed": 1,
+  "other_rows": 0,
+  "regressed_hunk_states": [
+   "executed-both-sides"
+  ],
+  "first": "**AMU: 0 flips** at `ca87484`, among 1000 tests run; no suite recording for base; selected statically; every changed hunk ran on both sides, in up to 183 tests; 2 tests of the pull request's own fail on the merge base and pass on the head; 1 behaviour difference on the same input",
+  "seconds": 990.8,
+  "note": "1 row on heurisch itself: as it was raise PolynomialError, as changed return None. Counted caught by the rule. Whether that input is one the regression breaks was not established; it reads like the change the pull request intended."
+ },
+ "sympy:27373:9cb23e233b": {
+  "repo": "sympy",
+  "culprit_pr": 27373,
+  "fix_pr": 30930,
+  "regressed": [
+   "sympy/matrices/matrixbase.py#MatrixBase.norm"
+  ],
+  "regressed_tests": [
+   "sympy/matrices/tests/test_matrixbase.py::test_matrix_norm"
+  ],
+  "caught": false,
+  "by": null,
+  "cause": "suite",
+  "rows_on_regressed": 0,
+  "other_rows": 0,
+  "regressed_hunk_states": [],
+  "first": "**AMU: no flip count** at `d53b58a`: `stopped at the wall cap of 1200 s; amu reported nothing`",
+  "seconds": 1140.2,
+  "note": "AMU reported nothing: stopped at the harness wall cap of 1200 s on a loaded machine. No existing test flips, so a full run would not have flipped either."
+ },
+ "sympy:30882:ceb4071329": {
+  "repo": "sympy",
+  "culprit_pr": 30882,
+  "fix_pr": 30986,
+  "regressed": [
+   "sympy/core/exprtools.py#_monotonic_sign"
+  ],
+  "regressed_tests": [
+   "sympy/core/tests/test_exprtools.py::test_monotonic_sign_discontinuous_integer_domain"
+  ],
+  "caught": false,
+  "by": null,
+  "cause": "suite",
+  "rows_on_regressed": 0,
+  "other_rows": 0,
+  "regressed_hunk_states": [
+   "executed-both-sides",
+   "not-code"
+  ],
+  "first": "**AMU: 0 flips** at `dc68b2d`, among 755 tests run; no suite recording for base; selected statically; every changed hunk ran on both sides, in up to 547 tests; 1 test of the pull request's own fail on the merge base and pass on the head",
+  "seconds": 1026.9,
+  "note": "Several tests failed once and passed in both reruns, labelled unstable. None is the regression test and no existing test flips, so the cause is the suite, not flip trust."
+ }
+}
