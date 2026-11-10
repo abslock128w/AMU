@@ -97,6 +97,19 @@ if _spec_path and _sys.version_info >= (3, 12):
                 return repr(value) if len(value) <= 2000 else repr(value[:2000]) + "+%d" % len(value)
             if kind is bytes:
                 return repr(value) if len(value) <= 2000 else repr(value[:2000]) + "+%d" % len(value)
+            if isinstance(value, io.IOBase):
+                # An open file is input the object does not hold: what the call reads comes from the disk. Its size
+                # stands for its content, so the same call on a file the change edits is not the same input.
+                try:
+                    found = _os.fstat(value.fileno())
+                    if stat.S_ISREG(found.st_mode):
+                        # Three scalars, written out here: however deep the file sits in the input, they are kept.
+                        about = [[repr(k), _fp(v if type(v) in (str, bytes, int) else None)]
+                                 for k, v in (("name", getattr(value, "name", None)), ("mode", getattr(value, "mode", None)),
+                                              ("size", found.st_size))]
+                        return [getattr(kind, "__module__", "?") + "." + kind.__qualname__, ["dict", about, 3], []]
+                except Exception:
+                    pass
             if depth > 4 or id(value) in seen:
                 return "<" + kind.__qualname__ + ">"
             seen = (*seen, id(value))
@@ -120,16 +133,6 @@ if _spec_path and _sys.version_info >= (3, 12):
             if isinstance(value, types.ModuleType):
                 return "module:" + value.__name__
             name = getattr(kind, "__module__", "?") + "." + kind.__qualname__
-            if isinstance(value, io.IOBase):
-                # An open file is input the object does not hold: what the call reads comes from the disk. Its size
-                # stands for its content, so the same call on a file the change edits is not the same input.
-                try:
-                    found = _os.fstat(value.fileno())
-                    if stat.S_ISREG(found.st_mode):
-                        about = {"name": getattr(value, "name", None), "mode": getattr(value, "mode", None), "size": found.st_size}
-                        return [name, _fp(about, depth + 1, seen), []]
-                except Exception:
-                    pass
             state = None
             try:
                 found = object.__getattribute__(value, "__dict__")

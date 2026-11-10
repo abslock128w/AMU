@@ -265,9 +265,11 @@ def test_results_that_part_past_the_text_kept_name_the_field_they_part_at(tmp_pa
 # requests 7272: the tests upload their own file, which the change edits. The open file was the same on both sides to
 # the fingerprint, so the two responses echoing its content read as a difference on the same input.
 def test_an_open_file_the_change_edits_is_not_the_same_input(tmp_path):
-    lib0 = 'def read(handle):\n    return handle.read()\n'
-    lib1 = 'def read(handle):\n    return handle.read() + ""\n'
-    tests0 = 'from lib import read\n\n\ndef test_read():\n    with open(__file__) as handle:\n        assert read(handle)\n'
+    # The file sits as deep as in the requests case: in a tuple, in a dict, in a dict of keyword arguments.
+    lib0 = 'def read(box):\n    return box["a"]["b"][0].read()\n'
+    lib1 = 'def read(box):\n    return box["a"]["b"][0].read() + ""\n'
+    tests0 = ('from lib import read\n\n\ndef test_read():\n    with open(__file__) as handle:\n'
+              '        assert read({"a": {"b": (handle, 1)}})\n')
     report = change(tmp_path, {'lib.py': lib0, 'tests/test_lib.py': tests0}, {'lib.py': lib1, 'tests/test_lib.py': tests0 + '# edited\n'})
     assert report['behaviour_differences'] == [], report['behaviour_differences']
 
