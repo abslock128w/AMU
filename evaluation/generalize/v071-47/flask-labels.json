@@ -1,0 +1,112 @@
+{
+ "flask#5812": {
+  "first": "**AMU: 0 flips** at `c2705ff`, ran all 370 tests; 7 of 67 changed hunks ran in no test: `src/flask/ctx.py:191`, `src/flask/ctx.py:235`, `src/flask/ctx.py:242` and 4 more; 4 tests of the pull request's own fail on the merge base and pass on the head; 13 behaviour differences on the same input (366 calls)",
+  "first_line_correct": false,
+  "adds": "nothing",
+  "real": 13,
+  "false": 0,
+  "raise_catchers": 244,
+  "raise_missed": null,
+  "seconds": 53.8,
+  "note": "Same first line as v0.7.0, still wrong: the 7 hunks named as ran in no test include ctx.py:235/242/251, docstring or comment edits inside a block that read as code. Rows now grouped: 13 rows for 366 calls, all real and intended."
+ },
+ "flask#5818": {
+  "first": "**AMU: 0 flips** at `6a64969`, ran all 370 tests; 2 of 43 changed hunks ran in no test: `src/flask/app.py:79`, `src/flask/templating.py:194`; 2 tests of the pull request's own fail on the merge base and pass on the head",
+  "first_line_correct": true,
+  "adds": "something",
+  "real": 0,
+  "false": 0,
+  "raise_catchers": 221,
+  "raise_missed": null,
+  "seconds": 43.7,
+  "note": "Same first line as v0.7.0."
+ },
+ "flask#5898": {
+  "first": "**AMU: 0 flips** at `eca5fd1`, ran all 370 tests; every changed hunk ran on both sides, in up to 5 tests; 1 behaviour difference on the same input (6 calls)",
+  "first_line_correct": true,
+  "adds": "something",
+  "real": 1,
+  "false": 0,
+  "raise_catchers": 5,
+  "raise_missed": null,
+  "seconds": 12.2,
+  "note": "Same line. Rows grouped: 1 row for 6 calls, real."
+ },
+ "flask#5899": {
+  "first": "**AMU: 0 flips** at `c77a520`, ran all 370 tests; every changed hunk ran on both sides, in up to 195 tests",
+  "first_line_correct": true,
+  "adds": "nothing",
+  "real": 0,
+  "false": 0,
+  "raise_catchers": 195,
+  "raise_missed": null,
+  "seconds": 15.1,
+  "note": "Same first line as v0.7.0."
+ },
+ "flask#5917": {
+  "first": "**AMU: 0 flips** at `e82db2c`, ran all 374 tests; every changed hunk ran on both sides, in up to 331 tests; 2 tests of the pull request's own fail on the merge base and pass on the head",
+  "first_line_correct": true,
+  "adds": "something",
+  "real": 0,
+  "false": 0,
+  "raise_catchers": 342,
+  "raise_missed": null,
+  "seconds": 20.0,
+  "note": "Same first line as v0.7.0."
+ },
+ "flask#5928": {
+  "first": "**AMU: 0 flips** at `fbb6f0b`, ran all 375 tests; 1 of 10 changed hunks not executable on Python 3.14 here (needs not sys.version_info >= (3, 11)): `src/flask/helpers.py:670`; 1 test of the pull request's own fail on the merge base and pass on the head",
+  "first_line_correct": true,
+  "adds": "something",
+  "real": 0,
+  "false": 0,
+  "raise_catchers": 238,
+  "raise_missed": null,
+  "seconds": 29.6,
+  "note": "Same first line as v0.7.0."
+ },
+ "flask#6013": {
+  "first": "**AMU: 0 flips** at `9368fb3`, ran all 371 tests; every changed hunk ran on both sides, in up to 28 tests",
+  "first_line_correct": true,
+  "adds": "nothing",
+  "real": 0,
+  "false": 0,
+  "raise_catchers": 36,
+  "raise_missed": null,
+  "seconds": 9.7,
+  "note": "Same first line as v0.7.0."
+ },
+ "flask#6096": {
+  "first": "**AMU: 0 flips** at `7203fea`, ran all 372 tests; 1 of 5 changed hunks ran only in the pull request's own tests: `src/flask/app.py:725`; 2 tests of the pull request's own fail on the merge base and pass on the head",
+  "first_line_correct": true,
+  "adds": "something",
+  "real": 0,
+  "false": 0,
+  "raise_catchers": 204,
+  "raise_missed": null,
+  "seconds": 17.9,
+  "note": "Same first line as v0.7.0."
+ },
+ "flask#6133": {
+  "first": "**AMU: 0 flips** at `8999295`, ran all 372 tests; every changed hunk ran on both sides (at import)",
+  "first_line_correct": false,
+  "adds": "nothing",
+  "real": 0,
+  "false": 0,
+  "raise_catchers": 1,
+  "raise_missed": null,
+  "seconds": 15.9,
+  "note": "Still \"(at import)\" at tag v0.7.1; wrong under R5, the new method body ran only in the pull request's own test. Fixed after the tag by PR #107."
+ },
+ "flask#6168": {
+  "first": "**AMU: 0 flips** at `7689f98`, ran all 372 tests; 1 of 3 changed hunks ran only in the pull request's own tests: `src/flask/helpers.py:679`",
+  "first_line_correct": true,
+  "adds": "nothing",
+  "real": 0,
+  "false": 0,
+  "raise_catchers": 4,
+  "raise_missed": null,
+  "seconds": 18.5,
+  "note": "Same first line as v0.7.0."
+ }
+}

@@ -63,3 +63,18 @@ After a month on at least one real repository with `counters: 'true'` (per-push 
 4. **The misses matter there.** A class of the five misses above shows up in at least 3 of their pull requests before it is worth an engine change.
 
 If flips stay at zero for the month, the flip path is still unmeasured. The question then is whether change evidence alone earns the job time: a median of 2 to 5 minutes on Django and sympy, and under 20 s on Flask.
+
+## How much to trust these numbers (added 2026-11-10, v0.7.1)
+
+The tables above are from v0.5.1. The current figures are in `generalize/REPORT-v071.md`: first line right on 45 of
+the 47, and on 60 of 60 across four pilot repositories; 1 false row; 0 counted flips.
+
+- **One labeller, checked once.** A second, blind labelling of 20 comments agreed on the first line for 19 (kappa
+  0.64) and on "adds something / nothing / noise" for 16 (kappa 0.6). Treat a difference of one or two pull requests
+  between versions as within the labelling error.
+- **Run-to-run stability: pending.** The whole set is being run two more times at the tag. Until that is in, a row
+  count is one run's count. One sympy pull request (30841) showed 2 real rows, then 0, then 2 on the same engine.
+- **Real regressions: 1 of 20 caught** (`regressions/REPORT.md`). A pull request that breaks something no existing
+  test checks gets "0 flips", and that line is true. It is not evidence the change is harmless.
+- **Seven repositories, all pure-Python libraries with pytest or Django's runner.** Nothing here says how AMU does on
+  applications, compiled extensions, or suites that need services.
