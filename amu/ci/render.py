@@ -428,13 +428,14 @@ def render(report, meta, limit=LIMIT, listed=LISTED, extra='', verify=None, quie
     if made is not None and not report.get('error') and made.get('proposed'):
         # A call that returned on the merge base and, on the head, fails at a statement of the project that is not a
         # raise: the one kind of generated row that was more often a regression than an intended change when measured.
+        # An input built on a class the probe made up is set aside: on normal pull requests every such row was contrived.
         crashes, failing_at = [], set()
         for row in produced:
             spot = (row.get('target'), json.dumps(row.get('at')))
-            if row.get('origin') == 'crash' and spot not in failing_at:
+            if row.get('origin') == 'crash' and not row.get('stand_in') and spot not in failing_at:
                 failing_at.add(spot)
                 crashes.append(row)
-        rest = [row for row in produced if row.get('origin') != 'crash']
+        rest = [row for row in produced if row.get('origin') != 'crash' or row.get('stand_in')]
         out += [f"### Generated tests: calls that worked before and now fail in the project's code ({len(crashes)})", '']
         spent = (f"through {code(str(made.get('backend')), 20)}, at a cost of Claude plan usage, within "
                  f"{float(made.get('minutes_cap') or 0):g} min" if made.get('cost_basis') == 'plan usage' else

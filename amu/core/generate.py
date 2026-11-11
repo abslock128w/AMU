@@ -72,9 +72,11 @@ SYSTEM = (
     "are compared by the harness. The project's own tests already pass on both versions, so the ordinary inputs are "
     "covered. Choose inputs a caller could legitimately have passed to the code before the change, that reach the "
     "changed lines, and that the change may treat differently without meaning to: another type the old code accepted "
-    "(a tuple, a generator, a subclass, a lazy or proxy object, an object that only has the needed method), an empty, "
-    "falsy or None value, a boundary value, an argument left out, a value in an older or alternative format. Prefer "
-    "inputs on which the old code returned normally. Use only names importable from the project; import what you use "
+    "(a tuple, a generator, a subclass, a lazy or proxy object), an empty, falsy or None value, a boundary value, an "
+    "argument left out, a value in an older or alternative format. Build inputs from types that exist: the project's "
+    "own classes, the standard library's, or a subclass of one of them. Do not invent a stand-in class with just the "
+    "methods the code happens to call: no caller is known to pass one. Prefer inputs on which the old code returned "
+    "normally. Use only names importable from the project; import what you use "
     "in the setup. Keep each probe deterministic: no time, randomness, network, or files outside a temporary directory.")
 
 
@@ -557,6 +559,8 @@ def run(runner, python, after_tree, before_tree, targets, changed, examples, scr
                 if before_outcome[0][0] == 'return' and first[i][0][0] == 'raise':
                     differences[-1]['origin'] = origin(after_tree, origins.get(i), set(files), i in origins.get('warned', ()))
                     differences[-1]['at'] = origins.get(i)
+                if stand_in(probe):
+                    differences[-1]['stand_in'] = True
         differences[:] = ordered(differences)
         info['differed'] = len(differences)
     info['accepted'] = len(differences)
@@ -564,6 +568,16 @@ def run(runner, python, after_tree, before_tree, targets, changed, examples, scr
     shutil.rmtree(elsewhere.parent, ignore_errors=True)
     shutil.rmtree(Path(scratch)/'c1-head', ignore_errors=True)
     return info, differences, gaps
+
+
+def stand_in(probe):
+    """Whether the probe's setup makes up a class from nothing (no base, no decorator): an input built on one is not
+    an input any caller is known to pass, however the code treats it."""
+    try:
+        nodes = ast.walk(ast.parse(textwrap.dedent(probe.get('setup') or '')))
+    except (SyntaxError, ValueError):
+        return False
+    return any(isinstance(node, ast.ClassDef) and not node.bases and not node.decorator_list for node in nodes)
 
 
 def origin(tree, at, hosts, warned=False):
