@@ -23,6 +23,8 @@ At your keyboard, bare `amu` does it for the uncommitted change of the working t
 - `amu watch` does it again on every save of a Python file and prints the summary line and the flips. It keeps the
   index and its copy of the tree between saves, so on Django the first test runs 1.3 to 1.7 s after a save once the
   first save has warmed it (the first run builds the index; `amu watch --phase N` is the older contract watch).
+- `amu --since REF` does it for the commits since `REF` (from where your branch left it) together with what is not
+  committed yet, for example `amu --since main` before you open the pull request.
 
 ## Why AMU exists
 
