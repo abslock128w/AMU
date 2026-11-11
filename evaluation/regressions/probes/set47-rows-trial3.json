@@ -1,0 +1,4183 @@
+[
+ {
+  "repo": "django",
+  "number": 21855,
+  "target": "django/middleware/common.py#CommonMiddleware.get_full_path_with_slash",
+  "call": "mw.get_full_path_with_slash(req)",
+  "setup": "import django\nfrom django.conf import settings\nif not settings.configured:\n    settings.configure(DEBUG=False, ALLOWED_HOSTS=['*'], SECRET_KEY='x', USE_TZ=True)\n    django.setup()\nfrom django.test.utils import override_settings\no = override_settings(DEBUG=True, ALLOWED_HOSTS=['*'])\no.enable()\nfrom django.test import RequestFactory\nfrom django.middleware.common import CommonMiddleware\nreq = RequestFactory().generic('QUERY', '/foo')\nmw = CommonMiddleware(lambda r: None)",
+  "before": [
+   "return",
+   "str",
+   "'/foo/'"
+  ],
+  "after": [
+   "raise",
+   "RuntimeError",
+   "RuntimeError(\"You called this URL via QUERY, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining QUERY data. Change your form to point to testserver/foo/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.\")"
+  ],
+  "origin": "raised",
+  "at": [
+   "django/middleware/common.py",
+   94
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 21855,
+  "target": "django/middleware/http.py#ConditionalGetMiddleware.process_response",
+  "call": "(r.status_code, sorted(r.headers.items()))",
+  "setup": "import django\nfrom django.conf import settings\nif not settings.configured:\n    settings.configure(DEBUG=False, ALLOWED_HOSTS=['*'], SECRET_KEY='x', USE_TZ=True)\n    django.setup()\nfrom django.test import RequestFactory\nfrom django.http import HttpResponse\nfrom django.middleware.http import ConditionalGetMiddleware\nresp = HttpResponse('hello')\nresp['ETag'] = '\"abc\"'\nreq = RequestFactory().generic('QUERY', '/', HTTP_IF_NONE_MATCH='\"abc\"')\nmw = ConditionalGetMiddleware(lambda r: resp)\nr = mw.process_response(req, resp)",
+  "before": [
+   "return",
+   "tuple",
+   "(200, [('Content-Type', 'text/html; charset=utf-8'), ('ETag', '\"abc\"')])"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(304, [('ETag', '\"abc\"')])"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 21855,
+  "target": "django/utils/cache.py#get_conditional_response",
+  "call": "getattr(get_conditional_response(req, etag='\"abc\"'), 'status_code', None)",
+  "setup": "import django\nfrom django.conf import settings\nif not settings.configured:\n    settings.configure(DEBUG=False, ALLOWED_HOSTS=['*'], SECRET_KEY='x', USE_TZ=True)\n    django.setup()\nfrom django.test import RequestFactory\nfrom django.utils.cache import get_conditional_response\nreq = RequestFactory().generic('QUERY', '/', HTTP_IF_NONE_MATCH='\"abc\"')",
+  "before": [
+   "return",
+   "int",
+   "412"
+  ],
+  "after": [
+   "return",
+   "int",
+   "304"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 21855,
+  "target": "django/views/decorators/http.py#condition",
+  "call": "(r.status_code, r.get('ETag'))",
+  "setup": "import django\nfrom django.conf import settings\nif not settings.configured:\n    settings.configure(DEBUG=False, ALLOWED_HOSTS=['*'], SECRET_KEY='x', USE_TZ=True)\n    django.setup()\nfrom django.test import RequestFactory\nfrom django.http import HttpResponse\nfrom django.views.decorators.http import condition\nview = condition(etag_func=lambda r: 'abc')(lambda r: HttpResponse('ok'))\nreq = RequestFactory().generic('QUERY', '/')\nr = view(req)",
+  "before": [
+   "return",
+   "tuple",
+   "(200, None)"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(200, '\"abc\"')"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 21855,
+  "target": "django/middleware/csrf.py#CsrfViewMiddleware.process_view",
+  "call": "getattr(mw.process_view(req, view, (), {}), 'status_code', None)",
+  "setup": "from django.conf import settings\nif not settings.configured:\n    settings.configure(SECRET_KEY='x'*50, ALLOWED_HOSTS=['*'], INSTALLED_APPS=['django.contrib.contenttypes','django.contrib.auth'], DATABASES={'default':{'ENGINE':'django.db.backends.sqlite3','NAME':':memory:'}})\nimport django\ndjango.setup()\nfrom django.test import RequestFactory\nfrom django.middleware.csrf import CsrfViewMiddleware\nreq = RequestFactory().generic('QUERY', '/search/', data='q=1', content_type='application/x-www-form-urlencoded')\nmw = CsrfViewMiddleware(lambda r: None)\ndef view(r):\n    return None",
+  "before": [
+   "return",
+   "int",
+   "403"
+  ],
+  "after": [
+   "return",
+   "NoneType",
+   "None"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 21855,
+  "target": "django/contrib/admin/options.py#ModelAdmin.delete_view",
+  "call": "ma.delete_view(req, '1')",
+  "setup": "from django.conf import settings\nif not settings.configured:\n    settings.configure(SECRET_KEY='x'*50, ALLOWED_HOSTS=['*'], INSTALLED_APPS=['django.contrib.contenttypes','django.contrib.auth','django.contrib.admin','django.contrib.messages','django.contrib.sessions'], DATABASES={'default':{'ENGINE':'django.db.backends.sqlite3','NAME':':memory:'}})\nimport django\ndjango.setup()\nfrom django.db import transaction, router\nfrom django.contrib.admin import ModelAdmin, AdminSite\nfrom django.contrib.auth.models import Group\nfrom django.test import RequestFactory\nclass A(ModelAdmin):\n    def _delete_view(self, request, object_id, extra_context):\n        return transaction.get_connection(router.db_for_write(self.model)).in_atomic_block\nma = A(Group, AdminSite())\nreq = RequestFactory().generic('QUERY', '/admin/auth/group/1/delete/')",
+  "before": [
+   "return",
+   "HttpResponseForbidden",
+   "<HttpResponseForbidden status_code=403, \"text/html; charset=utf-8\">"
+  ],
+  "after": [
+   "return",
+   "bool",
+   "True"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 21855,
+  "target": "django/contrib/auth/admin.py#UserAdmin.add_view",
+  "call": "ua.add_view(req)",
+  "setup": "from django.conf import settings\nif not settings.configured:\n    settings.configure(SECRET_KEY='x'*50, ALLOWED_HOSTS=['*'], INSTALLED_APPS=['django.contrib.contenttypes','django.contrib.auth','django.contrib.admin','django.contrib.messages','django.contrib.sessions'], DATABASES={'default':{'ENGINE':'django.db.backends.sqlite3','NAME':':memory:'}})\nimport django\ndjango.setup()\nfrom django.db import transaction, router\nfrom django.contrib.admin import AdminSite\nfrom django.contrib.auth.admin import UserAdmin\nfrom django.contrib.auth.models import User\nfrom django.test import RequestFactory\nclass U(UserAdmin):\n    def _add_view(self, request, form_url, extra_context):\n        return transaction.get_connection(router.db_for_write(self.model)).in_atomic_block\nua = U(User, AdminSite())\nreq = RequestFactory().generic('QUERY', '/admin/auth/user/add/')",
+  "before": [
+   "return",
+   "HttpResponseForbidden",
+   "<HttpResponseForbidden status_code=403, \"text/html; charset=utf-8\">"
+  ],
+  "after": [
+   "return",
+   "bool",
+   "True"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 21855,
+  "target": "django/middleware/common.py#CommonMiddleware.get_full_path_with_slash",
+  "call": "mw.get_full_path_with_slash(req)",
+  "setup": "import django\nfrom django.conf import settings\nif not settings.configured:\n    settings.configure(DEBUG=False, ALLOWED_HOSTS=['*'], SECRET_KEY='x', USE_TZ=True)\n    django.setup()\nfrom django.test.utils import override_settings\no = override_settings(DEBUG=True, ALLOWED_HOSTS=['*'])\no.enable()\nfrom django.test import RequestFactory\nfrom django.middleware.common import CommonMiddleware\nreq = RequestFactory().generic('QUERY', '/foo', QUERY_STRING='a=1')\nmw = CommonMiddleware(lambda r: None)",
+  "before": [
+   "return",
+   "str",
+   "'/foo/?a=1'"
+  ],
+  "after": [
+   "raise",
+   "RuntimeError",
+   "RuntimeError(\"You called this URL via QUERY, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining QUERY data. Change your form to point to testserver/foo/?a=1 (note the trailing slash), or set APPEND_SLASH=False in your Django settings.\")"
+  ],
+  "origin": "raised",
+  "at": [
+   "django/middleware/common.py",
+   94
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 21855,
+  "target": "django/middleware/http.py#ConditionalGetMiddleware.process_response",
+  "call": "(r.status_code, r.has_header('ETag'))",
+  "setup": "import django\nfrom django.conf import settings\nif not settings.configured:\n    settings.configure(DEBUG=False, ALLOWED_HOSTS=['*'], SECRET_KEY='x', USE_TZ=True)\n    django.setup()\nfrom django.test import RequestFactory\nfrom django.http import HttpResponse\nfrom django.middleware.http import ConditionalGetMiddleware\nresp = HttpResponse('hello body')\nreq = RequestFactory().generic('QUERY', '/')\nmw = ConditionalGetMiddleware(lambda r: resp)\nr = mw.process_response(req, resp)",
+  "before": [
+   "return",
+   "tuple",
+   "(200, False)"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(200, True)"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 21855,
+  "target": "django/utils/cache.py#get_conditional_response",
+  "call": "getattr(get_conditional_response(req, last_modified=946684800), 'status_code', None)",
+  "setup": "import django\nfrom django.conf import settings\nif not settings.configured:\n    settings.configure(DEBUG=False, ALLOWED_HOSTS=['*'], SECRET_KEY='x', USE_TZ=True)\n    django.setup()\nfrom django.test import RequestFactory\nfrom django.utils.cache import get_conditional_response\nreq = RequestFactory().generic('QUERY', '/', HTTP_IF_MODIFIED_SINCE='Mon, 01 Jan 2024 00:00:00 GMT')",
+  "before": [
+   "return",
+   "NoneType",
+   "None"
+  ],
+  "after": [
+   "return",
+   "int",
+   "304"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 21855,
+  "target": "django/views/decorators/http.py#condition",
+  "call": "(r.status_code, r.get('Last-Modified'))",
+  "setup": "import django, datetime\nfrom django.conf import settings\nif not settings.configured:\n    settings.configure(DEBUG=False, ALLOWED_HOSTS=['*'], SECRET_KEY='x', USE_TZ=True)\n    django.setup()\nfrom django.test import RequestFactory\nfrom django.http import HttpResponse\nfrom django.views.decorators.http import condition\nview = condition(last_modified_func=lambda r: datetime.datetime(2000, 1, 1))(lambda r: HttpResponse('ok'))\nreq = RequestFactory().generic('QUERY', '/')\nr = view(req)",
+  "before": [
+   "return",
+   "tuple",
+   "(200, None)"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(200, 'Sat, 01 Jan 2000 00:00:00 GMT')"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 21855,
+  "target": "django/middleware/csrf.py#CsrfViewMiddleware.process_view",
+  "call": "getattr(mw.process_view(req, view, (), {}), 'status_code', None)",
+  "setup": "from django.conf import settings\nif not settings.configured:\n    settings.configure(SECRET_KEY='x'*50, ALLOWED_HOSTS=['*'], INSTALLED_APPS=['django.contrib.contenttypes','django.contrib.auth'], DATABASES={'default':{'ENGINE':'django.db.backends.sqlite3','NAME':':memory:'}})\nimport django\ndjango.setup()\nfrom django.test import RequestFactory\nfrom django.middleware.csrf import CsrfViewMiddleware\nreq = RequestFactory().generic('QUERY', '/search/', HTTP_ORIGIN='https://evil.example.com')\nmw = CsrfViewMiddleware(lambda r: None)\ndef view(r):\n    return None",
+  "before": [
+   "return",
+   "int",
+   "403"
+  ],
+  "after": [
+   "return",
+   "NoneType",
+   "None"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 21855,
+  "target": "django/contrib/admin/options.py#ModelAdmin.delete_view",
+  "call": "ma.delete_view(req, '1', extra_context={'k': 1})",
+  "setup": "from django.conf import settings\nif not settings.configured:\n    settings.configure(SECRET_KEY='x'*50, ALLOWED_HOSTS=['*'], INSTALLED_APPS=['django.contrib.contenttypes','django.contrib.auth','django.contrib.admin','django.contrib.messages','django.contrib.sessions'], DATABASES={'default':{'ENGINE':'django.db.backends.sqlite3','NAME':':memory:'}})\nimport django\ndjango.setup()\nfrom django.db import transaction, router\nfrom django.contrib.admin import ModelAdmin, AdminSite\nfrom django.contrib.auth.models import Group\nfrom django.http import HttpRequest\nclass A(ModelAdmin):\n    def _delete_view(self, request, object_id, extra_context):\n        return (transaction.get_connection(router.db_for_write(self.model)).in_atomic_block, extra_context)\nma = A(Group, AdminSite())\nreq = HttpRequest()\nreq.method = 'QUERY'",
+  "before": [
+   "return",
+   "HttpResponseForbidden",
+   "<HttpResponseForbidden status_code=403, \"text/html; charset=utf-8\">"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(True, {'k': 1})"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 21855,
+  "target": "django/contrib/auth/admin.py#UserAdmin.add_view",
+  "call": "ua.add_view(req, form_url='/x/', extra_context=None)",
+  "setup": "from django.conf import settings\nif not settings.configured:\n    settings.configure(SECRET_KEY='x'*50, ALLOWED_HOSTS=['*'], INSTALLED_APPS=['django.contrib.contenttypes','django.contrib.auth','django.contrib.admin','django.contrib.messages','django.contrib.sessions'], DATABASES={'default':{'ENGINE':'django.db.backends.sqlite3','NAME':':memory:'}})\nimport django\ndjango.setup()\nfrom django.db import transaction, router\nfrom django.contrib.admin import AdminSite\nfrom django.contrib.auth.admin import UserAdmin\nfrom django.contrib.auth.models import User\nfrom django.http import HttpRequest\nclass U(UserAdmin):\n    def _add_view(self, request, form_url, extra_context):\n        return (transaction.get_connection(router.db_for_write(self.model)).in_atomic_block, form_url)\nua = U(User, AdminSite())\nreq = HttpRequest()\nreq.method = 'QUERY'",
+  "before": [
+   "return",
+   "HttpResponseForbidden",
+   "<HttpResponseForbidden status_code=403, \"text/html; charset=utf-8\">"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(True, '/x/')"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 21855,
+  "target": "django/middleware/http.py#ConditionalGetMiddleware.process_response",
+  "call": "r.status_code",
+  "setup": "import django\nfrom django.conf import settings\nif not settings.configured:\n    settings.configure(DEBUG=False, ALLOWED_HOSTS=['*'], SECRET_KEY='x', USE_TZ=True)\n    django.setup()\nfrom django.test import RequestFactory\nfrom django.http import HttpResponse\nfrom django.middleware.http import ConditionalGetMiddleware\nresp = HttpResponse('hello')\nresp['Last-Modified'] = 'Sat, 01 Jan 2000 00:00:00 GMT'\nreq = RequestFactory().generic('QUERY', '/', HTTP_IF_MODIFIED_SINCE='Mon, 01 Jan 2024 00:00:00 GMT')\nmw = ConditionalGetMiddleware(lambda r: resp)\nr = mw.process_response(req, resp)",
+  "before": [
+   "return",
+   "int",
+   "200"
+  ],
+  "after": [
+   "return",
+   "int",
+   "304"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 21855,
+  "target": "django/utils/cache.py#get_conditional_response",
+  "call": "getattr(get_conditional_response(req, etag='\"x\"'), 'status_code', None)",
+  "setup": "import django\nfrom django.conf import settings\nif not settings.configured:\n    settings.configure(DEBUG=False, ALLOWED_HOSTS=['*'], SECRET_KEY='x', USE_TZ=True)\n    django.setup()\nfrom django.test import RequestFactory\nfrom django.utils.cache import get_conditional_response\nreq = RequestFactory().generic('QUERY', '/', HTTP_IF_NONE_MATCH='*')",
+  "before": [
+   "return",
+   "int",
+   "412"
+  ],
+  "after": [
+   "return",
+   "int",
+   "304"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 21855,
+  "target": "django/views/decorators/http.py#condition",
+  "call": "(r.status_code, r.get('ETag'))",
+  "setup": "import django\nfrom django.conf import settings\nif not settings.configured:\n    settings.configure(DEBUG=False, ALLOWED_HOSTS=['*'], SECRET_KEY='x', USE_TZ=True)\n    django.setup()\nfrom django.test import RequestFactory\nfrom django.http import HttpResponse\nfrom django.views.decorators.http import condition\nview = condition(etag_func=lambda r: '\"abc\"')(lambda r: HttpResponse('ok'))\nreq = RequestFactory().generic('QUERY', '/', HTTP_IF_NONE_MATCH='\"abc\"')\nr = view(req)",
+  "before": [
+   "return",
+   "tuple",
+   "(412, None)"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(304, '\"abc\"')"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 21855,
+  "target": "django/middleware/csrf.py#CsrfViewMiddleware.process_view",
+  "call": "getattr(mw.process_view(req, view, (), {}), 'status_code', None)",
+  "setup": "from django.conf import settings\nif not settings.configured:\n    settings.configure(SECRET_KEY='x'*50, ALLOWED_HOSTS=['*'], INSTALLED_APPS=['django.contrib.contenttypes','django.contrib.auth'], DATABASES={'default':{'ENGINE':'django.db.backends.sqlite3','NAME':':memory:'}})\nimport django\ndjango.setup()\nfrom django.test import RequestFactory\nfrom django.middleware.csrf import CsrfViewMiddleware\nreq = RequestFactory().generic('QUERY', '/search/', secure=True)\nmw = CsrfViewMiddleware(lambda r: None)\ndef view(r):\n    return None",
+  "before": [
+   "return",
+   "int",
+   "403"
+  ],
+  "after": [
+   "return",
+   "NoneType",
+   "None"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22026,
+  "target": "django/utils/functional.py#cached_property.__init__",
+  "call": "cached_property(f).__doc__",
+  "setup": "from django.utils.functional import cached_property\ndef f(self):\n    'doc here'\n    return 1",
+  "before": [
+   "return",
+   "str",
+   "'doc here'"
+  ],
+  "after": [
+   "raise",
+   "RemovedInDjango2029Warning",
+   "RemovedInDjango2029Warning('django.utils.functional.cached_property is deprecated. Use functools.cached_property instead.')"
+  ],
+  "origin": "raised",
+  "at": [
+   "django/utils/functional.py",
+   33
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22026,
+  "target": "django/db/models/query.py#get_prefetcher",
+  "call": "(get_prefetcher(obj, 'missing', 'foo')[3](obj), 'foo' in obj.__dict__)",
+  "setup": "import functools\nfrom django.db.models.query import get_prefetcher\nclass Obj:\n    @functools.cached_property\n    def foo(self):\n        return 42\nobj = Obj()",
+  "before": [
+   "return",
+   "tuple",
+   "(True, True)"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(False, False)"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": true
+ },
+ {
+  "repo": "django",
+  "number": 22026,
+  "target": "django/utils/functional.py#cached_property.__init__",
+  "call": "cached_property(lambda self: 1).real_func(None)",
+  "setup": "from django.utils.functional import cached_property\nimport warnings\nwarnings.simplefilter('error')",
+  "before": [
+   "return",
+   "int",
+   "1"
+  ],
+  "after": [
+   "raise",
+   "RemovedInDjango2029Warning",
+   "RemovedInDjango2029Warning('django.utils.functional.cached_property is deprecated. Use functools.cached_property instead.')"
+  ],
+  "origin": "raised",
+  "at": [
+   "django/utils/functional.py",
+   33
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22026,
+  "target": "django/db/models/query.py#get_prefetcher",
+  "call": "(get_prefetcher(obj, 'missing', 'foo')[2:3], get_prefetcher(obj, 'missing', 'foo')[3](obj), 'foo' in obj.__dict__)",
+  "setup": "import functools\nfrom django.db.models.query import get_prefetcher\nclass MyCP(functools.cached_property):\n    pass\nclass Obj:\n    @MyCP\n    def foo(self):\n        return 1\nobj = Obj()",
+  "before": [
+   "return",
+   "tuple",
+   "((False,), True, True)"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "((False,), False, False)"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": true
+ },
+ {
+  "repo": "django",
+  "number": 22026,
+  "target": "django/utils/functional.py#cached_property.__init__",
+  "call": "cached_property(p).real_func(None)",
+  "setup": "from django.utils.functional import cached_property\nimport functools\ndef g(self, x=2):\n    return x\np = functools.partial(g, x=3)",
+  "before": [
+   "return",
+   "int",
+   "3"
+  ],
+  "after": [
+   "raise",
+   "RemovedInDjango2029Warning",
+   "RemovedInDjango2029Warning('django.utils.functional.cached_property is deprecated. Use functools.cached_property instead.')"
+  ],
+  "origin": "raised",
+  "at": [
+   "django/utils/functional.py",
+   33
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22095,
+  "target": "django/utils/_os.py#safe_makedirs",
+  "call": "(safe_makedirs(p), oct(os.stat(p).st_mode & 0o7777), oct(os.stat(os.path.dirname(p)).st_mode & 0o7777))",
+  "setup": "import os, tempfile\nfrom django.utils._os import safe_makedirs\nos.umask(0o022)\nd = tempfile.mkdtemp()\np = os.path.join(d, 'a', 'b')",
+  "before": [
+   "return",
+   "tuple",
+   "(None, '0o777', '0o777')"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(None, '0o755', '0o755')"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22095,
+  "target": "django/utils/_os.py#makedirs",
+  "call": "(makedirs(p, 0o777), oct(os.stat(p).st_mode & 0o7777), oct(os.stat(os.path.dirname(p)).st_mode & 0o7777))",
+  "setup": "import os, tempfile\nfrom django.utils._os import makedirs\nos.umask(0o022)\nd = tempfile.mkdtemp()\np = os.path.join(d, 'm1', 'm2')",
+  "before": [
+   "return",
+   "tuple",
+   "(None, '0o777', '0o777')"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(None, '0o755', '0o755')"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22095,
+  "target": "django/utils/_os.py#safe_makedirs",
+  "call": "(safe_makedirs(p, mode=0o775), oct(os.stat(p).st_mode & 0o7777), oct(os.stat(os.path.join(d, 'x')).st_mode & 0o7777))",
+  "setup": "import os, tempfile\nfrom django.utils._os import safe_makedirs\nos.umask(0o027)\nd = tempfile.mkdtemp()\np = os.path.join(d, 'x', 'y', 'z')",
+  "before": [
+   "return",
+   "tuple",
+   "(None, '0o775', '0o775')"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(None, '0o750', '0o750')"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22095,
+  "target": "django/utils/_os.py#makedirs",
+  "call": "(makedirs(p), oct(os.stat(p).st_mode & 0o7777))",
+  "setup": "import os, tempfile\nfrom django.utils._os import makedirs\nos.umask(0o077)\nd = tempfile.mkdtemp()\np = os.path.join(d, 'q')",
+  "before": [
+   "return",
+   "tuple",
+   "(None, '0o777')"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(None, '0o700')"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22095,
+  "target": "django/utils/_os.py#safe_makedirs",
+  "call": "(safe_makedirs(p, mode=0o1777), oct(os.stat(p).st_mode & 0o7777))",
+  "setup": "import os, tempfile\nfrom django.utils._os import safe_makedirs\nos.umask(0o022)\nd = tempfile.mkdtemp()\np = os.path.join(d, 'sticky')",
+  "before": [
+   "return",
+   "tuple",
+   "(None, '0o1777')"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(None, '0o755')"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22095,
+  "target": "django/utils/_os.py#makedirs",
+  "call": "(makedirs(p, mode=0o755, parent_mode=0o777), oct(os.stat(p).st_mode & 0o7777), oct(os.stat(os.path.join(d, 'r1')).st_mode & 0o7777))",
+  "setup": "import os, tempfile\nfrom django.utils._os import makedirs\nos.umask(0o022)\nd = tempfile.mkdtemp()\np = os.path.join(d, 'r1', 'r2', 'r3')",
+  "before": [
+   "return",
+   "tuple",
+   "(None, '0o755', '0o777')"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(None, '0o755', '0o755')"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22095,
+  "target": "django/utils/_os.py#safe_makedirs",
+  "call": "(safe_makedirs(p, mode=0o777), oct(p.stat().st_mode & 0o7777))",
+  "setup": "import os, tempfile, pathlib\nfrom django.utils._os import safe_makedirs\nos.umask(0o002)\nd = tempfile.mkdtemp()\np = pathlib.Path(d) / 'p1' / 'p2'",
+  "before": [
+   "return",
+   "tuple",
+   "(None, '0o777')"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(None, '0o775')"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22095,
+  "target": "django/utils/_os.py#makedirs",
+  "call": "(makedirs(p, mode=0o3777), oct(os.stat(p).st_mode & 0o7777))",
+  "setup": "import os, tempfile\nfrom django.utils._os import makedirs\nos.umask(0o022)\nd = tempfile.mkdtemp()\np = os.path.join(d, 's')",
+  "before": [
+   "return",
+   "tuple",
+   "(None, '0o3777')"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(None, '0o755')"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22095,
+  "target": "django/utils/_os.py#safe_makedirs",
+  "call": "(safe_makedirs(p, mode=0o770), oct(os.stat(p).st_mode & 0o7777))",
+  "setup": "import os, tempfile\nfrom django.utils._os import safe_makedirs\nos.umask(0o022)\nd = tempfile.mkdtemp()\np = os.fsencode(os.path.join(d, 'b1', 'b2'))",
+  "before": [
+   "return",
+   "tuple",
+   "(None, '0o770')"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(None, '0o750')"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22095,
+  "target": "django/utils/_os.py#makedirs",
+  "call": "(makedirs(p, 0o777, parent_mode=0o777), oct(os.stat(p).st_mode & 0o7777))",
+  "setup": "import os, tempfile\nfrom django.utils._os import makedirs\nos.umask(0o022)\nd = tempfile.mkdtemp()\np = os.fsencode(os.path.join(d, 'by', 'te'))",
+  "before": [
+   "return",
+   "tuple",
+   "(None, '0o777')"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(None, '0o755')"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22095,
+  "target": "django/utils/_os.py#safe_makedirs",
+  "call": "(safe_makedirs(p, mode=0o777), oct(os.stat(p).st_mode & 0o7777))",
+  "setup": "import os, tempfile\nfrom django.utils._os import safe_makedirs\nos.umask(0o022)\nd = tempfile.mkdtemp()\np = os.path.join(d, 't1', 't2') + os.sep",
+  "before": [
+   "return",
+   "tuple",
+   "(None, '0o777')"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(None, '0o755')"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22095,
+  "target": "django/utils/_os.py#safe_makedirs",
+  "call": "(safe_makedirs(p, mode=0o2775), oct(os.stat(p).st_mode & 0o7777))",
+  "setup": "import os, tempfile\nfrom django.utils._os import safe_makedirs\nos.umask(0o022)\nd = tempfile.mkdtemp()\np = os.path.join(d, 'g')",
+  "before": [
+   "return",
+   "tuple",
+   "(None, '0o2775')"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(None, '0o755')"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22137,
+  "target": "django/middleware/csp.py#ContentSecurityPolicyMiddleware.process_response",
+  "call": "norm(mw.process_response(req, resp))",
+  "setup": "import re\nfrom django.http import HttpResponse, StreamingHttpResponse\nfrom django.middleware.csp import ContentSecurityPolicyMiddleware\nfrom django.test import RequestFactory\nfrom django.utils.csp import CSP\nmw = ContentSecurityPolicyMiddleware(lambda r: HttpResponse())\nreq = RequestFactory().get('/')\nmw.process_request(req)\nresp = StreamingHttpResponse(iter([b'a', b'b']))\nresp._csp_config = {'default-src': CSP.NONCE}\nresp._csp_ro_config = {}\ndef norm(r):\n    return tuple(re.sub(r\"nonce-[^']+\", 'nonce-X', r.get(h, '<absent>')) for h in (CSP.HEADER_ENFORCE, CSP.HEADER_REPORT_ONLY))",
+  "before": [
+   "return",
+   "tuple",
+   "('', '<absent>')"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(\"default-src 'nonce-X'\", '<absent>')"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22137,
+  "target": "django/middleware/csp.py#ContentSecurityPolicyMiddleware.process_response",
+  "call": "norm(mw.process_response(req, resp))",
+  "setup": "import re\nfrom django.http import HttpResponse, StreamingHttpResponse\nfrom django.middleware.csp import ContentSecurityPolicyMiddleware\nfrom django.test import RequestFactory\nfrom django.utils.csp import CSP\nmw = ContentSecurityPolicyMiddleware(lambda r: HttpResponse())\nreq = RequestFactory().get('/')\nmw.process_request(req)\nresp = StreamingHttpResponse(iter([b'a']))\nresp._csp_config = {'default-src': (CSP.SELF, CSP.NONCE), 'script-src': {CSP.SELF}}\nresp._csp_ro_config = {}\ndef norm(r):\n    return tuple(re.sub(r\"nonce-[^']+\", 'nonce-X', r.get(h, '<absent>')) for h in (CSP.HEADER_ENFORCE, CSP.HEADER_REPORT_ONLY))",
+  "before": [
+   "return",
+   "tuple",
+   "(\"default-src 'self'; script-src 'self'\", '<absent>')"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(\"default-src 'self' 'nonce-X'; script-src 'self'\", '<absent>')"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22137,
+  "target": "django/middleware/csp.py#ContentSecurityPolicyMiddleware.process_response",
+  "call": "norm(mw.process_response(req, resp))",
+  "setup": "import re, io\nfrom django.http import HttpResponse, FileResponse\nfrom django.middleware.csp import ContentSecurityPolicyMiddleware\nfrom django.test import RequestFactory\nfrom django.utils.csp import CSP\nmw = ContentSecurityPolicyMiddleware(lambda r: HttpResponse())\nreq = RequestFactory().get('/')\nmw.process_request(req)\nresp = FileResponse(io.BytesIO(b'data'))\nresp._csp_config = {}\nresp._csp_ro_config = {'script-src': CSP.NONCE, 'upgrade-insecure-requests': True}\ndef norm(r):\n    return tuple(re.sub(r\"nonce-[^']+\", 'nonce-X', r.get(h, '<absent>')) for h in (CSP.HEADER_ENFORCE, CSP.HEADER_REPORT_ONLY))",
+  "before": [
+   "return",
+   "tuple",
+   "('<absent>', 'upgrade-insecure-requests')"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "('<absent>', \"script-src 'nonce-X'; upgrade-insecure-requests\")"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22137,
+  "target": "django/middleware/csp.py#ContentSecurityPolicyMiddleware.process_response",
+  "call": "norm(mw.process_response(req, resp))",
+  "setup": "import re, types\nfrom django.http import HttpResponse, StreamingHttpResponse\nfrom django.middleware.csp import ContentSecurityPolicyMiddleware\nfrom django.test import RequestFactory\nfrom django.utils.csp import CSP\nmw = ContentSecurityPolicyMiddleware(lambda r: HttpResponse())\nreq = RequestFactory().get('/')\nmw.process_request(req)\nresp = StreamingHttpResponse(iter([b'a']))\nresp._csp_config = types.MappingProxyType({'default-src': [CSP.SELF], 'script-src': [CSP.NONCE]})\nresp._csp_ro_config = {}\ndef norm(r):\n    return tuple(re.sub(r\"nonce-[^']+\", 'nonce-X', r.get(h, '<absent>')) for h in (CSP.HEADER_ENFORCE, CSP.HEADER_REPORT_ONLY))",
+  "before": [
+   "return",
+   "tuple",
+   "(\"default-src 'self'\", '<absent>')"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(\"default-src 'self'; script-src 'nonce-X'\", '<absent>')"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22154,
+  "target": "django/contrib/contenttypes/fields.py#create_generic_related_manager",
+  "call": "book.reviews.select_for_update().db",
+  "setup": "import datetime\nfrom django.test import override_settings\nfrom multiple_database.models import Book, Review\nfrom multiple_database.routers import WriteRouter\nbook = Book.objects.create(title='Pro Django', published=datetime.date(2008, 12, 16))\nov = override_settings(DATABASE_ROUTERS=[WriteRouter()])\nov.enable()",
+  "before": [
+   "return",
+   "str",
+   "'default'"
+  ],
+  "after": [
+   "return",
+   "str",
+   "'writer'"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22169,
+  "target": "django/db/models/sql/query.py#JoinPromoter.__init__",
+  "call": "JoinPromoter('and', 2, False).effective_connector",
+  "setup": "from django.db.models.sql.query import JoinPromoter",
+  "before": [
+   "return",
+   "str",
+   "'and'"
+  ],
+  "after": [
+   "raise",
+   "AttributeError",
+   "AttributeError(\"'JoinPromoter' object has no attribute 'effective_connector'\")"
+  ],
+  "origin": "call",
+  "at": [
+   "tests/amu_generated/tests.py",
+   35
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22169,
+  "target": "django/db/models/sql/query.py#JoinPromoter.update_join_types",
+  "call": "sorted(p.update_join_types(q))",
+  "setup": "from django.db.models.sql.query import JoinPromoter, Query\nfrom django.db.models.sql.where import XOR\nfrom queries.models import Tag\nq = Query(Tag)\na = q.get_initial_alias()\np = JoinPromoter(XOR, 2, True)\np.add_votes([a])",
+  "before": [
+   "return",
+   "list",
+   "['queries_tag']"
+  ],
+  "after": [
+   "return",
+   "list",
+   "[]"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22169,
+  "target": "django/db/models/sql/query.py#JoinPromoter.__init__",
+  "call": "JoinPromoter(None, 1, False).effective_connector",
+  "setup": "from django.db.models.sql.query import JoinPromoter",
+  "before": [
+   "return",
+   "NoneType",
+   "None"
+  ],
+  "after": [
+   "raise",
+   "AttributeError",
+   "AttributeError(\"'JoinPromoter' object has no attribute 'effective_connector'\")"
+  ],
+  "origin": "call",
+  "at": [
+   "tests/amu_generated/tests.py",
+   43
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22169,
+  "target": "django/db/models/sql/query.py#JoinPromoter.update_join_types",
+  "call": "sorted(p.update_join_types(q))",
+  "setup": "from django.db.models.sql.query import JoinPromoter, Query\nfrom django.db.models.sql.where import XOR\nfrom queries.models import Tag\nq = Query(Tag)\na = q.get_initial_alias()\np = JoinPromoter(XOR, 1, False)\np.add_votes([a])",
+  "before": [
+   "return",
+   "list",
+   "[]"
+  ],
+  "after": [
+   "return",
+   "list",
+   "['queries_tag']"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22169,
+  "target": "django/db/models/sql/query.py#JoinPromoter.__init__",
+  "call": "JoinPromoter('or', 2, True).effective_connector",
+  "setup": "from django.db.models.sql.query import JoinPromoter",
+  "before": [
+   "return",
+   "str",
+   "'AND'"
+  ],
+  "after": [
+   "raise",
+   "AttributeError",
+   "AttributeError(\"'JoinPromoter' object has no attribute 'effective_connector'\")"
+  ],
+  "origin": "call",
+  "at": [
+   "tests/amu_generated/tests.py",
+   51
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22169,
+  "target": "django/db/models/sql/query.py#JoinPromoter.update_join_types",
+  "call": "str(Tag.objects.filter(Q(parent__name='t1') ^ Q(parent__name='t2')).query)",
+  "setup": "from django.db.models import Q\nfrom queries.models import Tag",
+  "before": [
+   "return",
+   "str",
+   "'SELECT \"queries_tag\".\"id\", \"queries_tag\".\"name\", \"queries_tag\".\"parent_id\", \"queries_tag\".\"category_id\" FROM \"queries_tag\" LEFT OUTER JOIN \"queries_tag\" \"T2\" ON (\"queries_tag\".\"parent_id\" = \"T2\".\"id\") WHERE ((\"T2\".\"name\" = t1 OR \"T2\".\"name\" = t2) AND 1 = (CASE WHEN \"T2\".\"name\" = t1 THEN 1 ELSE 0 END + CASE WHEN \"T2\".\"name\" = t2 THEN 1 ELSE 0 END)) ORDER BY \"queries_tag\".\"name\" ASC'"
+  ],
+  "after": [
+   "return",
+   "str",
+   "'SELECT \"queries_tag\".\"id\", \"queries_tag\".\"name\", \"queries_tag\".\"parent_id\", \"queries_tag\".\"category_id\" FROM \"queries_tag\" INNER JOIN \"queries_tag\" \"T2\" ON (\"queries_tag\".\"parent_id\" = \"T2\".\"id\") WHERE ((\"T2\".\"name\" = t1 OR \"T2\".\"name\" = t2) AND 1 = (CASE WHEN \"T2\".\"name\" = t1 THEN 1 ELSE 0 END + CASE WHEN \"T2\".\"name\" = t2 THEN 1 ELSE 0 END)) ORDER BY \"queries_tag\".\"name\" ASC'"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22169,
+  "target": "django/db/models/sql/query.py#JoinPromoter.__init__",
+  "call": "JoinPromoter(XOR, 2, False).effective_connector",
+  "setup": "from django.db.models.sql.query import JoinPromoter\nfrom django.db.models.sql.where import XOR",
+  "before": [
+   "return",
+   "str",
+   "'XOR'"
+  ],
+  "after": [
+   "return",
+   "str",
+   "'OR'"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22169,
+  "target": "django/db/models/sql/query.py#JoinPromoter.__init__",
+  "call": "JoinPromoter(XOR, 2, True).effective_connector",
+  "setup": "from django.db.models.sql.query import JoinPromoter\nfrom django.db.models.sql.where import XOR",
+  "before": [
+   "return",
+   "str",
+   "'AND'"
+  ],
+  "after": [
+   "return",
+   "str",
+   "'XOR'"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22171,
+  "target": "django/db/models/query.py#QuerySet.select_for_update",
+  "call": "qs.select_for_update().query.select_for_update",
+  "setup": "from queries.models import Number\nqs = Number.objects.filter(num__lte=1).union(Number.objects.filter(num__gte=8))",
+  "before": [
+   "return",
+   "bool",
+   "True"
+  ],
+  "after": [
+   "raise",
+   "NotSupportedError",
+   "NotSupportedError('Calling QuerySet.select_for_update() after union() is not supported.')"
+  ],
+  "origin": "raised",
+  "at": [
+   "django/db/models/query.py",
+   2404
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22171,
+  "target": "django/db/models/query.py#QuerySet.select_for_update",
+  "call": "qs.select_for_update(nowait=True).query.select_for_update_nowait",
+  "setup": "from queries.models import Number\nqs = Number.objects.all().intersection(Number.objects.all())",
+  "before": [
+   "return",
+   "bool",
+   "True"
+  ],
+  "after": [
+   "raise",
+   "NotSupportedError",
+   "NotSupportedError('Calling QuerySet.select_for_update() after intersection() is not supported.')"
+  ],
+  "origin": "raised",
+  "at": [
+   "django/db/models/query.py",
+   2404
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22171,
+  "target": "django/db/models/query.py#QuerySet.select_for_update",
+  "call": "qs.select_for_update(skip_locked=True).query.select_for_update_skip_locked",
+  "setup": "from queries.models import Number\nqs = Number.objects.all().difference(Number.objects.filter(num=5))",
+  "before": [
+   "return",
+   "bool",
+   "True"
+  ],
+  "after": [
+   "raise",
+   "NotSupportedError",
+   "NotSupportedError('Calling QuerySet.select_for_update() after difference() is not supported.')"
+  ],
+  "origin": "raised",
+  "at": [
+   "django/db/models/query.py",
+   2404
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22171,
+  "target": "django/db/models/query.py#QuerySet.select_for_update",
+  "call": "qs.select_for_update().query.select_for_update",
+  "setup": "from queries.models import Number\nqs = Number.objects.all().union(Number.objects.all()).none()",
+  "before": [
+   "return",
+   "bool",
+   "True"
+  ],
+  "after": [
+   "raise",
+   "NotSupportedError",
+   "NotSupportedError('Calling QuerySet.select_for_update() after union() is not supported.')"
+  ],
+  "origin": "raised",
+  "at": [
+   "django/db/models/query.py",
+   2404
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22171,
+  "target": "django/db/models/query.py#QuerySet.select_for_update",
+  "call": "qs.select_for_update(of=('self',)).query.select_for_update_of",
+  "setup": "from queries.models import Number\nqs = Number.objects.values('num').union(Number.objects.values('num'), all=True)",
+  "before": [
+   "return",
+   "tuple",
+   "('self',)"
+  ],
+  "after": [
+   "raise",
+   "NotSupportedError",
+   "NotSupportedError('Calling QuerySet.select_for_update() after union() is not supported.')"
+  ],
+  "origin": "raised",
+  "at": [
+   "django/db/models/query.py",
+   2404
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22171,
+  "target": "django/db/models/query.py#QuerySet.select_for_update",
+  "call": "qs.select_for_update().query.select_for_update",
+  "setup": "from queries.models import Number\nqs = Number.objects.filter(num__lte=1).union(Number.objects.filter(num__gte=8))[:2]",
+  "before": [
+   "return",
+   "bool",
+   "True"
+  ],
+  "after": [
+   "raise",
+   "NotSupportedError",
+   "NotSupportedError('Calling QuerySet.select_for_update() after union() is not supported.')"
+  ],
+  "origin": "raised",
+  "at": [
+   "django/db/models/query.py",
+   2404
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22171,
+  "target": "django/db/models/query.py#QuerySet.select_for_update",
+  "call": "qs.select_for_update(nowait=True, skip_locked=True)",
+  "setup": "from queries.models import Number\nqs = Number.objects.all().union(Number.objects.all())",
+  "before": [
+   "raise",
+   "ValueError",
+   "ValueError('The nowait option cannot be used with skip_locked.')"
+  ],
+  "after": [
+   "raise",
+   "NotSupportedError",
+   "NotSupportedError('Calling QuerySet.select_for_update() after union() is not supported.')"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22176,
+  "target": "django/db/models/query_utils.py#Q.check",
+  "call": "(Q(x=1).check({'x': RawSQL('\"bad\\nname\\x1b%s\"()', [])}), msgs)",
+  "setup": "import logging\nfrom django.db.models import Q\nfrom django.db.models.expressions import RawSQL\nmsgs = []\nclass H(logging.Handler):\n    def emit(self, record):\n        msgs.append(record.getMessage())\nlg = logging.getLogger('django.db.models')\nlg.addHandler(H())\nlg.setLevel(logging.WARNING)",
+  "before": [
+   "return",
+   "tuple",
+   "(True, [\"Got a database error calling check() on <Q: (AND: ('x', 1))>: no such function: bad\\nname\\x1b?\"])"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(True, [\"Got a database error calling check() on <Q: (AND: ('x', 1))>: no such function: bad\\\\nname\\\\x1b?\"])"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22176,
+  "target": "django/db/models/query_utils.py#Q.check",
+  "call": "(Q(x=1).check({'x': RawSQL('\"' + '\u00e9' * 3000 + '\"()', [])}), msgs)",
+  "setup": "import logging\nfrom django.db.models import Q\nfrom django.db.models.expressions import RawSQL\nmsgs = []\nclass H(logging.Handler):\n    def emit(self, record):\n        msgs.append(record.getMessage())\nlg = logging.getLogger('django.db.models')\nlg.addHandler(H())\nlg.setLevel(logging.WARNING)",
+  "before": [
+   "return",
+   "tuple",
+   "(True, [\"Got a database error calling check() on <Q: (AND: ('x', 1))>: no such function: \u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(True, [\"Got a database error calling check() on <Q: (AND: ('x', 1))>: no such function: \\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\\\xe9\\"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22179,
+  "target": "django/utils/csp.py#build_policy",
+  "call": "build_policy({'script-src': (CSP.NONCE,)})",
+  "setup": "from django.utils.csp import build_policy, CSP",
+  "before": [
+   "return",
+   "str",
+   "''"
+  ],
+  "after": [
+   "return",
+   "str",
+   "\"script-src 'none'\""
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22179,
+  "target": "django/utils/csp.py#build_policy",
+  "call": "build_policy({'script-src': {CSP.NONCE}, 'img-src': [CSP.SELF]})",
+  "setup": "from django.utils.csp import build_policy, CSP",
+  "before": [
+   "return",
+   "str",
+   "\"img-src 'self'\""
+  ],
+  "after": [
+   "return",
+   "str",
+   "\"script-src 'none'; img-src 'self'\""
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22179,
+  "target": "django/utils/csp.py#build_policy",
+  "call": "build_policy({'script-src': [CSP.NONCE]}, nonce='')",
+  "setup": "from django.utils.csp import build_policy, CSP",
+  "before": [
+   "return",
+   "str",
+   "''"
+  ],
+  "after": [
+   "return",
+   "str",
+   "\"script-src 'none'\""
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22179,
+  "target": "django/utils/csp.py#build_policy",
+  "call": "build_policy({'default-src': CSP.NONCE, 'style-src': [CSP.SELF, CSP.NONCE]})",
+  "setup": "from django.utils.csp import build_policy, CSP",
+  "before": [
+   "return",
+   "str",
+   "\"style-src 'self'\""
+  ],
+  "after": [
+   "return",
+   "str",
+   "\"default-src 'none'; style-src 'self'\""
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22179,
+  "target": "django/utils/csp.py#build_policy",
+  "call": "build_policy({'script-src': [CSP.NONCE, CSP.NONCE]})",
+  "setup": "from django.utils.csp import build_policy, CSP",
+  "before": [
+   "return",
+   "str",
+   "''"
+  ],
+  "after": [
+   "return",
+   "str",
+   "\"script-src 'none'\""
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22179,
+  "target": "django/utils/csp.py#build_policy",
+  "call": "build_policy({'script-src': [CSP.NONCE], 'upgrade-insecure-requests': True, 'frame-src': None})",
+  "setup": "from django.utils.csp import build_policy, CSP",
+  "before": [
+   "return",
+   "str",
+   "'upgrade-insecure-requests'"
+  ],
+  "after": [
+   "return",
+   "str",
+   "\"script-src 'none'; upgrade-insecure-requests\""
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22179,
+  "target": "django/utils/csp.py#build_policy",
+  "call": "build_policy({'script-src': [CSP.NONCE]}, nonce=None)",
+  "setup": "from django.utils.csp import build_policy, CSP",
+  "before": [
+   "return",
+   "str",
+   "''"
+  ],
+  "after": [
+   "return",
+   "str",
+   "\"script-src 'none'\""
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22204,
+  "target": "django/db/backends/oracle/features.py#DatabaseFeatures.django_test_skips",
+  "call": "sorted((k, sorted(v)) for k, v in f.django_test_skips.items())",
+  "setup": "from types import SimpleNamespace\nfrom django.db.backends.oracle.features import DatabaseFeatures\nf = DatabaseFeatures(SimpleNamespace(oracle_version=(21,), is_pool=False))",
+  "before": [
+   "return",
+   "list",
+   "[(\"Oracle doesn't correctly calculate ISO 8601 week numbering before 1583 (the Gregorian calendar was introduced in 1582).\", ['db_functions.datetime.test_extract_trunc.DateFunctionTests.test_trunc_week_before_1000', 'db_functions.datetime.test_extract_trunc.DateFunctionWithTimeZoneTests.test_trunc_week_before_1000']), (\"Oracle doesn't support SHA224.\", ['db_functions.text.test_sha224.SHA224Tests.test_basic', 'db_functions.text.test_sha224.SHA224Tests.test_transform']), (\"Oracle doesn't support bitwise XOR.\", ['expressions.tests.ExpressionOperatorTests.test_lefthand_bitwise_xor', 'expressions.tests.ExpressionOperatorTests.test_lefthand_bitwise_xor_null', 'expressions.tests.ExpressionOperatorTests.test_lefthand_bitwise_xor_right_null']), (\"Oracle doesn't support casting filters to NUMBER.\", ['lookup.tests.LookupQueryingTests.test_aggregate_combined_lookup']), (\"Oracle doesn't support changing collations on indexed columns (#33671).\", ['migrations.test_operations.OperationTests.test_alter_field_pk_fk_db_collation']), (\"Oracle doesn't support comparing NCLOB to NUMBER.\", ['generic_relations_regress.tests.GenericRelationTests.test_textlink_filter']), (\"Oracle doesn't support some data types (e.g. BOOLEAN, BLOB) in GeneratedField expressions (ORA-54003).\", ['schema.tests.SchemaTests.test_add_generated_field_contains', 'schema.tests.SchemaTests.test_add_generated_field_with_kt_model']), (\"Oracle requires ORDER BY in row_number, ANSI:SQL doesn't.\", ['expressions_window.tests.WindowFunctionTests.test_row_number_no_ordering', 'prefetch_related.tests.PrefetchLimitTests.test_empty_order']), ('Raises ORA-00600 on Oracle < 23c: internal error code.', ['model_fields.test_jsonfield.TestQuerying.test_usage_in_subquery'])]"
+  ],
+  "after": [
+   "return",
+   "list",
+   "[(\"Oracle doesn't correctly calculate ISO 8601 week numbering before 1583 (the Gregorian calendar was introduced in 1582).\", ['db_functions.datetime.test_extract_trunc.DateFunctionTests.test_trunc_week_before_1000', 'db_functions.datetime.test_extract_trunc.DateFunctionWithTimeZoneTests.test_trunc_week_before_1000']), (\"Oracle doesn't support SHA224.\", ['db_functions.text.test_sha224.SHA224Tests.test_basic', 'db_functions.text.test_sha224.SHA224Tests.test_transform']), (\"Oracle doesn't support bitwise XOR.\", ['expressions.tests.ExpressionOperatorTests.test_lefthand_bitwise_xor', 'expressions.tests.ExpressionOperatorTests.test_lefthand_bitwise_xor_null', 'expressions.tests.ExpressionOperatorTests.test_lefthand_bitwise_xor_right_null']), (\"Oracle doesn't support casting filters to NUMBER.\", ['lookup.tests.LookupQueryingTests.test_aggregate_combined_lookup']), (\"Oracle doesn't support changing collations on indexed columns (#33671).\", ['migrations.test_operations.OperationTests.test_alter_field_pk_fk_db_collation']), (\"Oracle doesn't support comparing NCLOB to NUMBER.\", ['generic_relations_regress.tests.GenericRelationTests.test_textlink_filter']), (\"Oracle doesn't support some data types (e.g. BOOLEAN, BLOB) in GeneratedField expressions (ORA-54003).\", ['schema.tests.SchemaTests.test_add_generated_field_contains', 'schema.tests.SchemaTests.test_add_generated_field_with_kt_model']), (\"Oracle requires ORDER BY in row_number, ANSI:SQL doesn't.\", ['expressions_window.tests.WindowFunctionTests.test_row_number_no_ordering', 'prefetch_related.tests.PrefetchLimitTests.test_empty_order']), ('Raises ORA-00600 on Oracle < 23c: internal error code.', ['model_fields.test_jsonfield.TestQuerying.test_usage_in_subquery']), ('Raises ORA-24826 on Oracle 21c: value LOB no longer available', ['db_functions.json.test_json_object.JSONObjectTests.test_order_by_key.', 'db_functions.json.test_json_object.JSONObjectTests.test_order_by_nested_key'])]"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22204,
+  "target": "django/db/backends/oracle/features.py#DatabaseFeatures.django_test_skips",
+  "call": "sorted((k, sorted(v)) for k, v in f.django_test_skips.items())",
+  "setup": "from types import SimpleNamespace\nfrom django.db.backends.oracle.features import DatabaseFeatures\nf = DatabaseFeatures(SimpleNamespace(oracle_version=(22, 9, 9), is_pool=False))",
+  "before": [
+   "return",
+   "list",
+   "[(\"Oracle doesn't correctly calculate ISO 8601 week numbering before 1583 (the Gregorian calendar was introduced in 1582).\", ['db_functions.datetime.test_extract_trunc.DateFunctionTests.test_trunc_week_before_1000', 'db_functions.datetime.test_extract_trunc.DateFunctionWithTimeZoneTests.test_trunc_week_before_1000']), (\"Oracle doesn't support SHA224.\", ['db_functions.text.test_sha224.SHA224Tests.test_basic', 'db_functions.text.test_sha224.SHA224Tests.test_transform']), (\"Oracle doesn't support bitwise XOR.\", ['expressions.tests.ExpressionOperatorTests.test_lefthand_bitwise_xor', 'expressions.tests.ExpressionOperatorTests.test_lefthand_bitwise_xor_null', 'expressions.tests.ExpressionOperatorTests.test_lefthand_bitwise_xor_right_null']), (\"Oracle doesn't support casting filters to NUMBER.\", ['lookup.tests.LookupQueryingTests.test_aggregate_combined_lookup']), (\"Oracle doesn't support changing collations on indexed columns (#33671).\", ['migrations.test_operations.OperationTests.test_alter_field_pk_fk_db_collation']), (\"Oracle doesn't support comparing NCLOB to NUMBER.\", ['generic_relations_regress.tests.GenericRelationTests.test_textlink_filter']), (\"Oracle doesn't support some data types (e.g. BOOLEAN, BLOB) in GeneratedField expressions (ORA-54003).\", ['schema.tests.SchemaTests.test_add_generated_field_contains', 'schema.tests.SchemaTests.test_add_generated_field_with_kt_model']), (\"Oracle requires ORDER BY in row_number, ANSI:SQL doesn't.\", ['expressions_window.tests.WindowFunctionTests.test_row_number_no_ordering', 'prefetch_related.tests.PrefetchLimitTests.test_empty_order']), ('Raises ORA-00600 on Oracle < 23c: internal error code.', ['model_fields.test_jsonfield.TestQuerying.test_usage_in_subquery'])]"
+  ],
+  "after": [
+   "return",
+   "list",
+   "[(\"Oracle doesn't correctly calculate ISO 8601 week numbering before 1583 (the Gregorian calendar was introduced in 1582).\", ['db_functions.datetime.test_extract_trunc.DateFunctionTests.test_trunc_week_before_1000', 'db_functions.datetime.test_extract_trunc.DateFunctionWithTimeZoneTests.test_trunc_week_before_1000']), (\"Oracle doesn't support SHA224.\", ['db_functions.text.test_sha224.SHA224Tests.test_basic', 'db_functions.text.test_sha224.SHA224Tests.test_transform']), (\"Oracle doesn't support bitwise XOR.\", ['expressions.tests.ExpressionOperatorTests.test_lefthand_bitwise_xor', 'expressions.tests.ExpressionOperatorTests.test_lefthand_bitwise_xor_null', 'expressions.tests.ExpressionOperatorTests.test_lefthand_bitwise_xor_right_null']), (\"Oracle doesn't support casting filters to NUMBER.\", ['lookup.tests.LookupQueryingTests.test_aggregate_combined_lookup']), (\"Oracle doesn't support changing collations on indexed columns (#33671).\", ['migrations.test_operations.OperationTests.test_alter_field_pk_fk_db_collation']), (\"Oracle doesn't support comparing NCLOB to NUMBER.\", ['generic_relations_regress.tests.GenericRelationTests.test_textlink_filter']), (\"Oracle doesn't support some data types (e.g. BOOLEAN, BLOB) in GeneratedField expressions (ORA-54003).\", ['schema.tests.SchemaTests.test_add_generated_field_contains', 'schema.tests.SchemaTests.test_add_generated_field_with_kt_model']), (\"Oracle requires ORDER BY in row_number, ANSI:SQL doesn't.\", ['expressions_window.tests.WindowFunctionTests.test_row_number_no_ordering', 'prefetch_related.tests.PrefetchLimitTests.test_empty_order']), ('Raises ORA-00600 on Oracle < 23c: internal error code.', ['model_fields.test_jsonfield.TestQuerying.test_usage_in_subquery']), ('Raises ORA-24826 on Oracle 21c: value LOB no longer available', ['db_functions.json.test_json_object.JSONObjectTests.test_order_by_key.', 'db_functions.json.test_json_object.JSONObjectTests.test_order_by_nested_key'])]"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "django",
+  "number": 22204,
+  "target": "django/db/backends/oracle/features.py#DatabaseFeatures.django_test_skips",
+  "call": "sorted(t for v in f.django_test_skips.values() for t in v)",
+  "setup": "from types import SimpleNamespace\nfrom django.db.backends.oracle.features import DatabaseFeatures\nf = DatabaseFeatures(SimpleNamespace(oracle_version=(21,), is_pool=False))",
+  "before": [
+   "return",
+   "list",
+   "['db_functions.datetime.test_extract_trunc.DateFunctionTests.test_trunc_week_before_1000', 'db_functions.datetime.test_extract_trunc.DateFunctionWithTimeZoneTests.test_trunc_week_before_1000', 'db_functions.text.test_sha224.SHA224Tests.test_basic', 'db_functions.text.test_sha224.SHA224Tests.test_transform', 'expressions.tests.ExpressionOperatorTests.test_lefthand_bitwise_xor', 'expressions.tests.ExpressionOperatorTests.test_lefthand_bitwise_xor_null', 'expressions.tests.ExpressionOperatorTests.test_lefthand_bitwise_xor_right_null', 'expressions_window.tests.WindowFunctionTests.test_row_number_no_ordering', 'generic_relations_regress.tests.GenericRelationTests.test_textlink_filter', 'lookup.tests.LookupQueryingTests.test_aggregate_combined_lookup', 'migrations.test_operations.OperationTests.test_alter_field_pk_fk_db_collation', 'model_fields.test_jsonfield.TestQuerying.test_usage_in_subquery', 'prefetch_related.tests.PrefetchLimitTests.test_empty_order', 'schema.tests.SchemaTests.test_add_generated_field_contains', 'schema.tests.SchemaTests.test_add_generated_field_with_kt_model']"
+  ],
+  "after": [
+   "return",
+   "list",
+   "['db_functions.datetime.test_extract_trunc.DateFunctionTests.test_trunc_week_before_1000', 'db_functions.datetime.test_extract_trunc.DateFunctionWithTimeZoneTests.test_trunc_week_before_1000', 'db_functions.json.test_json_object.JSONObjectTests.test_order_by_key.', 'db_functions.json.test_json_object.JSONObjectTests.test_order_by_nested_key', 'db_functions.text.test_sha224.SHA224Tests.test_basic', 'db_functions.text.test_sha224.SHA224Tests.test_transform', 'expressions.tests.ExpressionOperatorTests.test_lefthand_bitwise_xor', 'expressions.tests.ExpressionOperatorTests.test_lefthand_bitwise_xor_null', 'expressions.tests.ExpressionOperatorTests.test_lefthand_bitwise_xor_right_null', 'expressions_window.tests.WindowFunctionTests.test_row_number_no_ordering', 'generic_relations_regress.tests.GenericRelationTests.test_textlink_filter', 'lookup.tests.LookupQueryingTests.test_aggregate_combined_lookup', 'migrations.test_operations.OperationTests.test_alter_field_pk_fk_db_collation', 'model_fields.test_jsonfield.TestQuerying.test_usage_in_subquery', 'prefetch_related.tests.PrefetchLimitTests.test_empty_order', 'schema.tests.SchemaTests.test_add_generated_field_contains', 'schema.tests.SchemaTests.test_add_generated_field_with_kt_model']"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5812,
+  "target": "src/flask/app.py#Flask.url_for",
+  "call": "app.url_for('index', _scheme='https')",
+  "setup": "import flask\napp = flask.Flask('probe')\napp.config['SERVER_NAME'] = 'localhost'\n@app.route('/')\ndef index():\n    return ''",
+  "before": [
+   "return",
+   "str",
+   "'https://localhost/'"
+  ],
+  "after": [
+   "raise",
+   "RuntimeError",
+   "RuntimeError(\"Unable to build URLs outside an active request without 'SERVER_NAME' configured. Also configure 'APPLICATION_ROOT' and 'PREFERRED_URL_SCHEME' as needed.\")"
+  ],
+  "origin": "raised",
+  "at": [
+   "src/flask/app.py",
+   1082
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5812,
+  "target": "src/flask/ctx.py#after_this_request",
+  "call": "flask.after_this_request(f)",
+  "setup": "import flask\napp = flask.Flask('probe')\nctx = app.app_context()\nctx.push()\ndef f(r):\n    return r",
+  "before": [
+   "return",
+   "function",
+   "<function test_amu_probe_46.<locals>.f at 0x?>"
+  ],
+  "after": [
+   "raise",
+   "RuntimeError",
+   "RuntimeError(\"'after_this_request' can only be used when a request context is active, such as in a view function.\")"
+  ],
+  "origin": "raised",
+  "at": [
+   "src/flask/ctx.py",
+   141
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5812,
+  "target": "src/flask/helpers.py#get_flashed_messages",
+  "call": "flask.get_flashed_messages()",
+  "setup": "import flask\napp = flask.Flask('probe')\nctx = app.app_context()\nctx.push()",
+  "before": [
+   "return",
+   "list",
+   "['a', 'b']"
+  ],
+  "after": [
+   "raise",
+   "RuntimeError",
+   "RuntimeError('There is no request in this context.')"
+  ],
+  "origin": "raised",
+  "at": [
+   "src/flask/ctx.py",
+   387
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5812,
+  "target": "src/flask/ctx.py#AppContext.pop",
+  "call": "run()",
+  "setup": "import flask\napp = flask.Flask('probe')\nseen = []\n@app.teardown_appcontext\ndef td(exc):\n    seen.append(repr(exc))\nctx = app.app_context()\nctx.push()\ndef run():\n    try:\n        raise ValueError('boom')\n    except ValueError:\n        ctx.pop()\n    return seen",
+  "before": [
+   "return",
+   "list",
+   "[\"ValueError('boom')\"]"
+  ],
+  "after": [
+   "return",
+   "list",
+   "['None']"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5812,
+  "target": "src/flask/ctx.py#AppContext.push",
+  "call": "run()",
+  "setup": "import flask\nfrom flask.signals import appcontext_pushed\napp = flask.Flask('probe')\ncount = []\ndef rec(sender, **kw):\n    count.append(1)\nappcontext_pushed.connect(rec, app)\nctx = app.app_context()\ndef run():\n    ctx.push(); ctx.push()\n    ctx.pop(); ctx.pop()\n    return len(count)",
+  "before": [
+   "return",
+   "int",
+   "2"
+  ],
+  "after": [
+   "return",
+   "int",
+   "1"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5812,
+  "target": "src/flask/templating.py#_default_template_ctx_processor",
+  "call": "run()",
+  "setup": "import flask\nfrom flask.templating import _default_template_ctx_processor\napp = flask.Flask('probe')\napp.secret_key = 'k'\ndef run():\n    with app.test_request_context('/'):\n        with app.app_context():\n            return sorted(_default_template_ctx_processor())",
+  "before": [
+   "return",
+   "list",
+   "['g', 'request', 'session']"
+  ],
+  "after": [
+   "return",
+   "list",
+   "['g']"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5812,
+  "target": "src/flask/app.py#Flask.do_teardown_request",
+  "call": "run()",
+  "setup": "import flask\napp = flask.Flask('probe')\nseen = []\n@app.teardown_request\ndef td(exc):\n    seen.append(repr(exc))\ndef run():\n    with app.test_request_context('/'):\n        try:\n            raise ValueError('boom')\n        except ValueError:\n            app.do_teardown_request()\n    return seen",
+  "before": [
+   "return",
+   "list",
+   "[\"ValueError('boom')\", 'None']"
+  ],
+  "after": [
+   "return",
+   "list",
+   "['None', 'None']"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5812,
+  "target": "src/flask/app.py#Flask.test_request_context",
+  "call": "type(app.test_request_context('/a?x=1')).__name__",
+  "setup": "import flask\napp = flask.Flask('probe')",
+  "before": [
+   "return",
+   "str",
+   "'RequestContext'"
+  ],
+  "after": [
+   "return",
+   "str",
+   "'AppContext'"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5812,
+  "target": "src/flask/app.py#Flask.do_teardown_appcontext",
+  "call": "run()",
+  "setup": "import flask\napp = flask.Flask('probe')\nseen = []\n@app.teardown_appcontext\ndef td(exc):\n    seen.append(repr(exc))\ndef run():\n    try:\n        raise ValueError('active')\n    except ValueError:\n        app.do_teardown_appcontext()\n    return list(seen)",
+  "before": [
+   "return",
+   "list",
+   "[\"ValueError('active')\"]"
+  ],
+  "after": [
+   "return",
+   "list",
+   "['None']"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5812,
+  "target": "src/flask/helpers.py#redirect",
+  "call": "(type(flask.redirect('/x', 301, MyResp)).__name__, flask.redirect('/x', 301, MyResp).status_code)",
+  "setup": "import flask\nfrom werkzeug.wrappers import Response as WR\nclass MyResp(WR):\n    pass",
+  "before": [
+   "return",
+   "tuple",
+   "('MyResp', 301)"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "('Response', 301)"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5812,
+  "target": "src/flask/ctx.py#has_request_context",
+  "call": "flask.has_request_context()",
+  "setup": "import flask\napp = flask.Flask('probe')\nctx = app.app_context()\nctx.push()",
+  "before": [
+   "return",
+   "bool",
+   "True"
+  ],
+  "after": [
+   "return",
+   "bool",
+   "False"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5812,
+  "target": "src/flask/app.py#Flask.wsgi_app",
+  "call": "(b''.join(app.wsgi_app(env, sr)), len(preserved))[1]",
+  "setup": "import flask\nfrom werkzeug.test import EnvironBuilder\napp = flask.Flask('probe')\n@app.route('/')\ndef index():\n    return 'hi'\npreserved = []\nenv = EnvironBuilder('/').get_environ()\nenv['werkzeug.debug.preserve_context'] = preserved.append\ndef sr(status, headers, exc_info=None):\n    return None",
+  "before": [
+   "return",
+   "int",
+   "2"
+  ],
+  "after": [
+   "return",
+   "int",
+   "1"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5812,
+  "target": "src/flask/app.py#Flask.get_send_file_max_age",
+  "call": "app.get_send_file_max_age('x.txt')",
+  "setup": "import flask\napp = flask.Flask('probe_app')\napp.config['SEND_FILE_MAX_AGE_DEFAULT'] = 42",
+  "before": [
+   "return",
+   "NoneType",
+   "None"
+  ],
+  "after": [
+   "return",
+   "int",
+   "42"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5812,
+  "target": "src/flask/app.py#Flask.request_context",
+  "call": "type(app.request_context(env)).__name__",
+  "setup": "import flask\nfrom werkzeug.test import EnvironBuilder\napp = flask.Flask('p')\nenv = EnvironBuilder(path='/x?a=1').get_environ()",
+  "before": [
+   "return",
+   "str",
+   "'RequestContext'"
+  ],
+  "after": [
+   "return",
+   "str",
+   "'AppContext'"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5812,
+  "target": "src/flask/app.py#Flask.dispatch_request",
+  "call": "run()",
+  "setup": "import flask\napp = flask.Flask('p')\n@app.route('/a')\ndef a():\n    return 'x'\ndef run():\n    with app.app_context():\n        try:\n            return app.dispatch_request()\n        except Exception as e:\n            return type(e).__name__",
+  "before": [
+   "return",
+   "str",
+   "'NotFound'"
+  ],
+  "after": [
+   "return",
+   "str",
+   "'RuntimeError'"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5812,
+  "target": "src/flask/ctx.py#copy_current_request_context",
+  "call": "run()",
+  "setup": "import flask\napp = flask.Flask('p')\ndef run():\n    with app.app_context():\n        try:\n            w = flask.copy_current_request_context(lambda: flask.current_app.name)\n            return w()\n        except Exception as e:\n            return type(e).__name__ + ':' + str(e)[:40]",
+  "before": [
+   "return",
+   "str",
+   "'probe'"
+  ],
+  "after": [
+   "return",
+   "str",
+   "'p'"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5812,
+  "target": "src/flask/ctx.py#after_this_request",
+  "call": "flask.after_this_request(f) is f",
+  "setup": "import flask\napp = flask.Flask('probe')\nrctx = app.test_request_context('/')\nrctx.push()\nactx = app.app_context()\nactx.push()\ndef f(r):\n    return r",
+  "before": [
+   "return",
+   "bool",
+   "True"
+  ],
+  "after": [
+   "raise",
+   "RuntimeError",
+   "RuntimeError(\"'after_this_request' can only be used when a request context is active, such as in a view function.\")"
+  ],
+  "origin": "raised",
+  "at": [
+   "src/flask/ctx.py",
+   141
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5812,
+  "target": "src/flask/ctx.py#AppContext.pop",
+  "call": "run()",
+  "setup": "import flask\napp = flask.Flask('probe')\nctx = app.app_context()\ndef run():\n    try:\n        ctx.pop()\n    except Exception as e:\n        return type(e).__name__\n    return 'ok'",
+  "before": [
+   "return",
+   "str",
+   "'LookupError'"
+  ],
+  "after": [
+   "return",
+   "str",
+   "'RuntimeError'"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5812,
+  "target": "src/flask/ctx.py#AppContext.push",
+  "call": "run()",
+  "setup": "import flask\napp = flask.Flask('probe')\nseen = []\n@app.teardown_appcontext\ndef td(exc):\n    seen.append(1)\nctx = app.app_context()\ndef run():\n    ctx.push(); ctx.push()\n    ctx.pop()\n    a = (flask.current_app._get_current_object() is app, len(seen))\n    ctx.pop()\n    return a, len(seen), bool(flask.current_app)",
+  "before": [
+   "return",
+   "tuple",
+   "((True, 0), 1, False)"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "((True, 0), 1, True)"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5812,
+  "target": "src/flask/app.py#Flask.url_for",
+  "call": "run()",
+  "setup": "import flask\napp = flask.Flask('probe')\n@app.route('/hello')\ndef hello():\n    return ''\ndef run():\n    with app.test_request_context('/hello'):\n        with app.app_context():\n            try:\n                return flask.url_for('hello')\n            except Exception as e:\n                return type(e).__name__",
+  "before": [
+   "return",
+   "str",
+   "'/hello'"
+  ],
+  "after": [
+   "return",
+   "str",
+   "'RuntimeError'"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5812,
+  "target": "src/flask/templating.py#_default_template_ctx_processor",
+  "call": "_default_template_ctx_processor()",
+  "setup": "from flask.templating import _default_template_ctx_processor",
+  "before": [
+   "return",
+   "dict",
+   "{}"
+  ],
+  "after": [
+   "return",
+   "dict",
+   "{'g': <flask.g of 'probe'>}"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5812,
+  "target": "src/flask/app.py#Flask.test_request_context",
+  "call": "run()",
+  "setup": "import flask\napp = flask.Flask('probe')\ndef run():\n    with app.test_request_context(json={'a': 1}) as c:\n        return (flask.request.get_json(), flask.request.path, type(c).__name__)",
+  "before": [
+   "return",
+   "tuple",
+   "({'a': 1}, '/', 'RequestContext')"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "({'a': 1}, '/', 'AppContext')"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5812,
+  "target": "src/flask/app.py#Flask.do_teardown_appcontext",
+  "call": "run()",
+  "setup": "import flask\nfrom flask.signals import appcontext_tearing_down\napp = flask.Flask('probe')\nseen = []\n@app.teardown_appcontext\ndef td(exc):\n    seen.append(repr(exc))\nsig = []\ndef rec(sender, exc=None, **kw):\n    sig.append(repr(exc))\nappcontext_tearing_down.connect(rec, app)\ndef run():\n    try:\n        raise KeyError('k')\n    except KeyError:\n        with app.app_context():\n            app.do_teardown_appcontext()\n    return (seen, sig)",
+  "before": [
+   "return",
+   "tuple",
+   "([\"KeyError('k')\", 'None'], [\"KeyError('k')\", 'None'])"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(['None', 'None'], ['None', 'None'])"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5812,
+  "target": "src/flask/ctx.py#has_request_context",
+  "call": "run()",
+  "setup": "import flask\napp = flask.Flask('probe')\ndef run():\n    out = []\n    with app.test_request_context('/'):\n        out.append(flask.has_request_context())\n        with app.app_context():\n            out.append(flask.has_request_context())\n        out.append(flask.has_request_context())\n    out.append(flask.has_request_context())\n    return out",
+  "before": [
+   "return",
+   "list",
+   "[True, True, True, True]"
+  ],
+  "after": [
+   "return",
+   "list",
+   "[True, False, True, False]"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5812,
+  "target": "src/flask/app.py#Flask.wsgi_app",
+  "call": "(b''.join(app.wsgi_app(env, sr)), statuses, len(preserved))[1:]",
+  "setup": "import flask\nfrom werkzeug.test import EnvironBuilder\napp = flask.Flask('probe')\npreserved = []\nenv = EnvironBuilder('/missing').get_environ()\nenv['werkzeug.debug.preserve_context'] = preserved.append\nstatuses = []\ndef sr(status, headers, exc_info=None):\n    statuses.append(status)",
+  "before": [
+   "return",
+   "tuple",
+   "(['404 NOT FOUND'], 2)"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(['404 NOT FOUND'], 1)"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5812,
+  "target": "src/flask/app.py#Flask.get_send_file_max_age",
+  "call": "run()",
+  "setup": "import flask\nfrom datetime import timedelta\na = flask.Flask('a')\nb = flask.Flask('b')\na.config['SEND_FILE_MAX_AGE_DEFAULT'] = timedelta(hours=1)\nb.config['SEND_FILE_MAX_AGE_DEFAULT'] = 7\ndef run():\n    with a.app_context():\n        return b.get_send_file_max_age(None)",
+  "before": [
+   "return",
+   "int",
+   "3600"
+  ],
+  "after": [
+   "return",
+   "int",
+   "7"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5812,
+  "target": "src/flask/ctx.py#copy_current_request_context",
+  "call": "run()",
+  "setup": "import flask\napp = flask.Flask('p')\napp.secret_key = 'k'\ndef run():\n    with app.test_request_context('/'):\n        flask.session['a'] = 1\n        flask.g.x = 5\n        w = flask.copy_current_request_context(lambda: (flask.session.get('a'), getattr(flask.g, 'x', None)))\n        return w()",
+  "before": [
+   "return",
+   "tuple",
+   "(1, 5)"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(1, None)"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5812,
+  "target": "src/flask/ctx.py#AppContext.pop",
+  "call": "run()",
+  "setup": "import flask\napp = flask.Flask('probe')\nc1 = app.app_context()\nc2 = app.app_context()\nc1.push()\nc2.push()\ndef run():\n    try:\n        c1.pop()\n    except Exception as e:\n        return type(e).__name__\n    return 'ok'",
+  "before": [
+   "return",
+   "str",
+   "'AssertionError'"
+  ],
+  "after": [
+   "return",
+   "str",
+   "'RuntimeError'"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5812,
+  "target": "src/flask/ctx.py#has_request_context",
+  "call": "flask.has_request_context()",
+  "setup": "import flask",
+  "before": [
+   "return",
+   "bool",
+   "True"
+  ],
+  "after": [
+   "return",
+   "bool",
+   "False"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5818,
+  "target": "src/flask/templating.py#_default_template_ctx_processor",
+  "call": "_default_template_ctx_processor()",
+  "setup": "from flask.templating import _default_template_ctx_processor",
+  "before": [
+   "return",
+   "dict",
+   "{}"
+  ],
+  "after": [
+   "raise",
+   "RuntimeError",
+   "RuntimeError(\"Working outside of application context.\\n\\nAttempted to use functionality that expected a current application to be set. To\\nsolve this, set up an app context using 'with app.app_context()'. See the\\ndocumentation on app context for more information.\")"
+  ],
+  "origin": "crash",
+  "at": [
+   "src/flask/templating.py",
+   25
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5818,
+  "target": "src/flask/app.py#Flask.update_template_context",
+  "call": "(app.update_template_context(d), sorted(d))",
+  "setup": "import flask\napp = flask.Flask('probe')\nctx = app.app_context()\nctx.push()\nd = {'x': 1}",
+  "before": [
+   "return",
+   "tuple",
+   "(None, ['g', 'x'])"
+  ],
+  "after": [
+   "raise",
+   "TypeError",
+   "TypeError(\"Flask.update_template_context() missing 1 required positional argument: 'context'\")"
+  ],
+  "origin": "call",
+  "at": [
+   "test_amu_generated.py",
+   75
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5818,
+  "target": "src/flask/app.py#Flask.make_default_options_response",
+  "call": "sorted(app.make_default_options_response().allow)",
+  "setup": "import flask\napp = flask.Flask('probe')\n@app.route('/x', methods=['GET','POST'])\ndef x():\n    return 'x'\nctx = app.test_request_context('/x', method='OPTIONS')\nctx.push()",
+  "before": [
+   "return",
+   "list",
+   "['GET', 'HEAD', 'OPTIONS', 'POST']"
+  ],
+  "after": [
+   "raise",
+   "TypeError",
+   "TypeError(\"Flask.make_default_options_response() missing 1 required positional argument: 'ctx'\")"
+  ],
+  "origin": "call",
+  "at": [
+   "test_amu_generated.py",
+   123
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5818,
+  "target": "src/flask/app.py#Flask.do_teardown_request",
+  "call": "(app.do_teardown_request(), seen)",
+  "setup": "import flask\napp = flask.Flask('probe')\nseen = []\n@app.teardown_request\ndef td(e):\n    seen.append(repr(e))\nctx = app.test_request_context('/')\nctx.push()",
+  "before": [
+   "return",
+   "tuple",
+   "(None, ['None'])"
+  ],
+  "after": [
+   "raise",
+   "TypeError",
+   "TypeError(\"Flask.do_teardown_request() missing 1 required positional argument: 'ctx'\")"
+  ],
+  "origin": "call",
+  "at": [
+   "test_amu_generated.py",
+   155
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5818,
+  "target": "src/flask/app.py#Flask.dispatch_request",
+  "call": "app.dispatch_request()",
+  "setup": "import flask\napp = flask.Flask('probe')\n@app.route('/v/<int:n>')\ndef v(n):\n    return str(n * 2)\nctx = app.test_request_context('/v/21')\nctx.push()",
+  "before": [
+   "return",
+   "str",
+   "'42'"
+  ],
+  "after": [
+   "raise",
+   "TypeError",
+   "TypeError(\"Flask.dispatch_request() missing 1 required positional argument: 'ctx'\")"
+  ],
+  "origin": "call",
+  "at": [
+   "test_amu_generated.py",
+   212
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5818,
+  "target": "src/flask/app.py#Flask.full_dispatch_request",
+  "call": "app.full_dispatch_request().status_code",
+  "setup": "import flask\napp = flask.Flask('probe')\n@app.route('/')\ndef i():\n    return 'ok'\nctx = app.test_request_context('/')\nctx.push()",
+  "before": [
+   "return",
+   "int",
+   "200"
+  ],
+  "after": [
+   "raise",
+   "TypeError",
+   "TypeError(\"Flask.full_dispatch_request() missing 1 required positional argument: 'ctx'\")"
+  ],
+  "origin": "call",
+  "at": [
+   "test_amu_generated.py",
+   383
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5818,
+  "target": "src/flask/app.py#Flask.log_exception",
+  "call": "(app.log_exception((None, None, None)), buf.getvalue())",
+  "setup": "import flask, logging, io\napp = flask.Flask('probe')\nbuf = io.StringIO()\napp.logger.addHandler(logging.StreamHandler(buf))\nctx = app.test_request_context('/direct', method='PUT')\nctx.push()",
+  "before": [
+   "return",
+   "tuple",
+   "(None, 'Exception on /direct [PUT]\\nNoneType: None\\n')"
+  ],
+  "after": [
+   "raise",
+   "TypeError",
+   "TypeError(\"Flask.log_exception() missing 1 required positional argument: 'exc_info'\")"
+  ],
+  "origin": "call",
+  "at": [
+   "test_amu_generated.py",
+   417
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5818,
+  "target": "src/flask/app.py#Flask.preprocess_request",
+  "call": "app.preprocess_request()",
+  "setup": "import flask\napp = flask.Flask('probe')\n@app.before_request\ndef br():\n    return 'early'\nctx = app.test_request_context('/')\nctx.push()",
+  "before": [
+   "return",
+   "str",
+   "'early'"
+  ],
+  "after": [
+   "raise",
+   "TypeError",
+   "TypeError(\"Flask.preprocess_request() missing 1 required positional argument: 'ctx'\")"
+  ],
+  "origin": "call",
+  "at": [
+   "test_amu_generated.py",
+   623
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5818,
+  "target": "src/flask/app.py#Flask.process_response",
+  "call": "dict(app.process_response(app.response_class('hello')).headers)",
+  "setup": "import flask\napp = flask.Flask('probe')\n@app.after_request\ndef ar(r):\n    r.headers['X-A'] = '1'\n    return r\nctx = app.test_request_context('/')\nctx.push()",
+  "before": [
+   "return",
+   "dict",
+   "{'Content-Type': 'text/html; charset=utf-8', 'Content-Length': '5', 'X-A': '1'}"
+  ],
+  "after": [
+   "raise",
+   "TypeError",
+   "TypeError(\"Flask.process_response() missing 1 required positional argument: 'response'\")"
+  ],
+  "origin": "call",
+  "at": [
+   "test_amu_generated.py",
+   674
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5818,
+  "target": "src/flask/app.py#Flask.handle_exception",
+  "call": "(lambda r: (r.status_code, r.data))(app.handle_exception(ValueError('boom')))",
+  "setup": "import flask\napp = flask.Flask('probe')\napp.config['PROPAGATE_EXCEPTIONS'] = False\n@app.errorhandler(500)\ndef h(e):\n    return 'handled', 500\nctx = app.test_request_context('/')\nctx.push()",
+  "before": [
+   "return",
+   "tuple",
+   "(500, b'handled')"
+  ],
+  "after": [
+   "raise",
+   "TypeError",
+   "TypeError(\"Flask.handle_exception() missing 1 required positional argument: 'e'\")"
+  ],
+  "origin": "call",
+  "at": [
+   "test_amu_generated.py",
+   736
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5818,
+  "target": "src/flask/app.py#Flask.handle_user_exception",
+  "call": "app.handle_user_exception(KeyError('a'))",
+  "setup": "import flask\napp = flask.Flask('probe')\n@app.errorhandler(KeyError)\ndef h(e):\n    return 'key', 400\nctx = app.test_request_context('/')\nctx.push()",
+  "before": [
+   "return",
+   "tuple",
+   "('key', 400)"
+  ],
+  "after": [
+   "raise",
+   "TypeError",
+   "TypeError(\"Flask.handle_user_exception() missing 1 required positional argument: 'e'\")"
+  ],
+  "origin": "call",
+  "at": [
+   "test_amu_generated.py",
+   789
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5818,
+  "target": "src/flask/app.py#Flask.handle_http_exception",
+  "call": "app.handle_http_exception(NotFound())",
+  "setup": "import flask\nfrom werkzeug.exceptions import NotFound\napp = flask.Flask('probe')\n@app.errorhandler(404)\ndef h(e):\n    return 'nf', 404\nctx = app.test_request_context('/')\nctx.push()",
+  "before": [
+   "return",
+   "tuple",
+   "('nf', 404)"
+  ],
+  "after": [
+   "raise",
+   "TypeError",
+   "TypeError(\"Flask.handle_http_exception() missing 1 required positional argument: 'e'\")"
+  ],
+  "origin": "call",
+  "at": [
+   "test_amu_generated.py",
+   839
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5818,
+  "target": "src/flask/app.py#Flask.finalize_request",
+  "call": "(lambda r: (r.status_code, r.data))(app.finalize_request('hello'))",
+  "setup": "import flask\napp = flask.Flask('probe')\nctx = app.test_request_context('/')\nctx.push()",
+  "before": [
+   "return",
+   "tuple",
+   "(200, b'hello')"
+  ],
+  "after": [
+   "raise",
+   "TypeError",
+   "TypeError(\"Flask.finalize_request() missing 1 required positional argument: 'rv'\")"
+  ],
+  "origin": "call",
+  "at": [
+   "test_amu_generated.py",
+   880
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5818,
+  "target": "src/flask/app.py#Flask.do_teardown_appcontext",
+  "call": "(app.do_teardown_appcontext(), buf)[1]",
+  "setup": "import flask\napp = flask.Flask('probe')\nbuf = []\n@app.teardown_appcontext\ndef td(exc):\n    buf.append(repr(exc))",
+  "before": [
+   "return",
+   "list",
+   "['None']"
+  ],
+  "after": [
+   "raise",
+   "TypeError",
+   "TypeError(\"Flask.do_teardown_appcontext() missing 1 required positional argument: 'ctx'\")"
+  ],
+  "origin": "call",
+  "at": [
+   "test_amu_generated.py",
+   925
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5818,
+  "target": "src/flask/app.py#Flask.update_template_context",
+  "call": "(app.update_template_context(d), sorted(d))",
+  "setup": "import flask\napp = flask.Flask('probe')\nd = {}",
+  "before": [
+   "return",
+   "tuple",
+   "(None, ['g'])"
+  ],
+  "after": [
+   "raise",
+   "TypeError",
+   "TypeError(\"Flask.update_template_context() missing 1 required positional argument: 'context'\")"
+  ],
+  "origin": "call",
+  "at": [
+   "test_amu_generated.py",
+   87
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5818,
+  "target": "src/flask/app.py#Flask.do_teardown_request",
+  "call": "(app.do_teardown_request(ValueError('boom')), seen)",
+  "setup": "import flask\napp = flask.Flask('probe')\nseen = []\n@app.teardown_request\ndef td(e):\n    seen.append(repr(e))\nctx = app.test_request_context('/')\nctx.push()",
+  "before": [
+   "return",
+   "tuple",
+   "(None, [\"ValueError('boom')\"])"
+  ],
+  "after": [
+   "raise",
+   "AttributeError",
+   "AttributeError(\"'ValueError' object has no attribute 'request'\")"
+  ],
+  "origin": "crash",
+  "at": [
+   "src/flask/app.py",
+   1425
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5818,
+  "target": "src/flask/app.py#Flask.dispatch_request",
+  "call": "sorted(app.dispatch_request().allow)",
+  "setup": "import flask\napp = flask.Flask('probe')\n@app.route('/v')\ndef v():\n    return 'v'\nctx = app.test_request_context('/v', method='OPTIONS')\nctx.push()",
+  "before": [
+   "return",
+   "list",
+   "['GET', 'HEAD', 'OPTIONS']"
+  ],
+  "after": [
+   "raise",
+   "TypeError",
+   "TypeError(\"Flask.dispatch_request() missing 1 required positional argument: 'ctx'\")"
+  ],
+  "origin": "call",
+  "at": [
+   "test_amu_generated.py",
+   228
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5818,
+  "target": "src/flask/app.py#Flask.preprocess_request",
+  "call": "app.preprocess_request()",
+  "setup": "import flask\napp = flask.Flask('probe')\nctx = app.test_request_context('/')\nctx.push()",
+  "before": [
+   "return",
+   "NoneType",
+   "None"
+  ],
+  "after": [
+   "raise",
+   "TypeError",
+   "TypeError(\"Flask.preprocess_request() missing 1 required positional argument: 'ctx'\")"
+  ],
+  "origin": "call",
+  "at": [
+   "test_amu_generated.py",
+   636
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5818,
+  "target": "src/flask/app.py#Flask.handle_user_exception",
+  "call": "repr(app.handle_user_exception(NotFound()))",
+  "setup": "import flask\nfrom werkzeug.exceptions import NotFound\napp = flask.Flask('probe')\nctx = app.test_request_context('/')\nctx.push()",
+  "before": [
+   "return",
+   "str",
+   "\"<NotFound '404: Not Found'>\""
+  ],
+  "after": [
+   "raise",
+   "TypeError",
+   "TypeError(\"Flask.handle_user_exception() missing 1 required positional argument: 'e'\")"
+  ],
+  "origin": "call",
+  "at": [
+   "test_amu_generated.py",
+   822
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5818,
+  "target": "src/flask/app.py#Flask.finalize_request",
+  "call": "(lambda r: (r.status_code, r.data))(app.finalize_request(('err', 500), from_error_handler=True))",
+  "setup": "import flask\napp = flask.Flask('probe')\n@app.after_request\ndef bad(r):\n    raise RuntimeError('fail')\nctx = app.test_request_context('/')\nctx.push()",
+  "before": [
+   "return",
+   "tuple",
+   "(500, b'err')"
+  ],
+  "after": [
+   "raise",
+   "TypeError",
+   "TypeError(\"Flask.finalize_request() missing 1 required positional argument: 'rv'\")"
+  ],
+  "origin": "call",
+  "at": [
+   "test_amu_generated.py",
+   896
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5818,
+  "target": "src/flask/app.py#Flask.do_teardown_appcontext",
+  "call": "(app.do_teardown_appcontext(exc=KeyError('k')), buf)[1]",
+  "setup": "import flask\napp = flask.Flask('probe')\nbuf = []\n@app.teardown_appcontext\ndef td(exc):\n    buf.append(repr(exc))",
+  "before": [
+   "return",
+   "list",
+   "[\"KeyError('k')\"]"
+  ],
+  "after": [
+   "raise",
+   "TypeError",
+   "TypeError(\"Flask.do_teardown_appcontext() missing 1 required positional argument: 'ctx'\")"
+  ],
+  "origin": "call",
+  "at": [
+   "test_amu_generated.py",
+   955
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5818,
+  "target": "src/flask/app.py#Flask.preprocess_request",
+  "call": "(app.preprocess_request(), seen)",
+  "setup": "import flask\napp = flask.Flask('probe')\nseen = []\n@app.url_value_preprocessor\ndef uvp(endpoint, values):\n    seen.append((endpoint, values))\n@app.route('/u/<int:n>')\ndef u(n):\n    return str(n)\nctx = app.test_request_context('/u/3')\nctx.push()\nctx.match_request() if hasattr(ctx, 'match_request') else None",
+  "before": [
+   "return",
+   "tuple",
+   "(None, [('u', {'n': 3})])"
+  ],
+  "after": [
+   "raise",
+   "TypeError",
+   "TypeError(\"Flask.preprocess_request() missing 1 required positional argument: 'ctx'\")"
+  ],
+  "origin": "call",
+  "at": [
+   "test_amu_generated.py",
+   657
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5818,
+  "target": "src/flask/app.py#Flask.do_teardown_appcontext",
+  "call": "(app.do_teardown_appcontext(ValueError('boom')), buf)[1]",
+  "setup": "import flask\napp = flask.Flask('probe')\nbuf = []\n@app.teardown_appcontext\ndef td(exc):\n    buf.append(repr(exc))",
+  "before": [
+   "return",
+   "list",
+   "[\"ValueError('boom')\"]"
+  ],
+  "after": [
+   "return",
+   "list",
+   "['None']"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5898,
+  "target": "src/flask/helpers.py#redirect",
+  "call": "flask.redirect('/target').status_code",
+  "setup": "import flask",
+  "before": [
+   "return",
+   "int",
+   "302"
+  ],
+  "after": [
+   "return",
+   "int",
+   "303"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5898,
+  "target": "src/flask/sansio/app.py#App.redirect",
+  "call": "app.redirect('/x').status_code",
+  "setup": "import flask\napp = flask.Flask('probe')",
+  "before": [
+   "return",
+   "int",
+   "302"
+  ],
+  "after": [
+   "return",
+   "int",
+   "303"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5898,
+  "target": "src/flask/helpers.py#redirect",
+  "call": "flask.redirect('/target').status_code",
+  "setup": "import flask\napp = flask.Flask('probe')\nctx = app.app_context()\nctx.push()",
+  "before": [
+   "return",
+   "int",
+   "302"
+  ],
+  "after": [
+   "return",
+   "int",
+   "303"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5898,
+  "target": "src/flask/sansio/app.py#App.redirect",
+  "call": "(lambda r: (type(r).__name__, r.status_code))(app.redirect('/x'))",
+  "setup": "import flask\nclass MyResp(flask.Response):\n    pass\nclass MyApp(flask.Flask):\n    response_class = MyResp\napp = MyApp('probe')",
+  "before": [
+   "return",
+   "tuple",
+   "('MyResp', 302)"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "('MyResp', 303)"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5898,
+  "target": "src/flask/helpers.py#redirect",
+  "call": "(lambda r: (type(r).__name__, r.status_code, r.status))(flask.redirect('http://example.com/x', Response=Response))",
+  "setup": "import flask\nfrom werkzeug.wrappers import Response",
+  "before": [
+   "return",
+   "tuple",
+   "('Response', 302, '302 FOUND')"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "('Response', 303, '303 SEE OTHER')"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5898,
+  "target": "src/flask/helpers.py#redirect",
+  "call": "flask.redirect('').status_code",
+  "setup": "import flask",
+  "before": [
+   "return",
+   "int",
+   "302"
+  ],
+  "after": [
+   "return",
+   "int",
+   "303"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5917,
+  "target": "src/flask/sansio/app.py#App.add_url_rule",
+  "call": "(app.add_url_rule('/x', view_func=index, provide_automatic_options=True), rule_info('/x'))",
+  "setup": "import flask\napp = flask.Flask('probe')\ndef index():\n    return 'hi'\ndef rule_info(path):\n    r = [r for r in app.url_map.iter_rules() if r.rule == path][0]\n    return (sorted(r.methods), r.provide_automatic_options)",
+  "before": [
+   "return",
+   "tuple",
+   "(None, (['GET', 'HEAD'], True))"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(None, (['GET', 'HEAD', 'OPTIONS'], True))"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5917,
+  "target": "src/flask/sansio/app.py#App.add_url_rule",
+  "call": "(app.add_url_rule('/x', view_func=index, methods=['POST']), rule_info('/x'))",
+  "setup": "import flask\napp = flask.Flask('probe')\ndef index():\n    return 'hi'\nindex.provide_automatic_options = True\ndef rule_info(path):\n    r = [r for r in app.url_map.iter_rules() if r.rule == path][0]\n    return (sorted(r.methods), r.provide_automatic_options)",
+  "before": [
+   "return",
+   "tuple",
+   "(None, (['POST'], True))"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(None, (['OPTIONS', 'POST'], True))"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5917,
+  "target": "src/flask/sansio/app.py#App.add_url_rule",
+  "call": "(app.add_url_rule('/x', view_func=index), rule_info('/x'))",
+  "setup": "import flask\napp = flask.Flask('probe')\napp.config['PROVIDE_AUTOMATIC_OPTIONS'] = 1\ndef index():\n    return 'hi'\ndef rule_info(path):\n    r = [r for r in app.url_map.iter_rules() if r.rule == path][0]\n    return (sorted(r.methods), r.provide_automatic_options)",
+  "before": [
+   "return",
+   "tuple",
+   "(None, (['GET', 'HEAD', 'OPTIONS'], True))"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(None, (['GET', 'HEAD', 'OPTIONS'], 1))"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5917,
+  "target": "src/flask/sansio/app.py#App.add_url_rule",
+  "call": "(app.add_url_rule('/x', view_func=index), rule_info('/x'))",
+  "setup": "import flask\napp = flask.Flask('probe')\napp.config['PROVIDE_AUTOMATIC_OPTIONS'] = ''\ndef index():\n    return 'hi'\ndef rule_info(path):\n    r = [r for r in app.url_map.iter_rules() if r.rule == path][0]\n    return (sorted(r.methods), r.provide_automatic_options)",
+  "before": [
+   "return",
+   "tuple",
+   "(None, (['GET', 'HEAD'], False))"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(None, (['GET', 'HEAD'], ''))"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5917,
+  "target": "src/flask/sansio/app.py#App.add_url_rule",
+  "call": "(app.add_url_rule('/x', view_func=index, provide_automatic_options=True, methods=('GET', 'PUT')), rule_info('/x'))",
+  "setup": "import flask\napp = flask.Flask('probe')\napp.config['PROVIDE_AUTOMATIC_OPTIONS'] = False\ndef index():\n    return 'hi'\ndef rule_info(path):\n    r = [r for r in app.url_map.iter_rules() if r.rule == path][0]\n    return (sorted(r.methods), r.provide_automatic_options)",
+  "before": [
+   "return",
+   "tuple",
+   "(None, (['GET', 'HEAD', 'PUT'], True))"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(None, (['GET', 'HEAD', 'OPTIONS', 'PUT'], True))"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5917,
+  "target": "src/flask/sansio/app.py#App.add_url_rule",
+  "call": "(app.register_blueprint(bp), rule_info('/y'))",
+  "setup": "import flask\napp = flask.Flask('probe')\nbp = flask.Blueprint('bp', __name__)\n@bp.route('/y', provide_automatic_options=True)\ndef y():\n    return 'y'\ndef rule_info(path):\n    r = [r for r in app.url_map.iter_rules() if r.rule == path][0]\n    return (sorted(r.methods), r.provide_automatic_options)",
+  "before": [
+   "return",
+   "tuple",
+   "(None, (['GET', 'HEAD'], True))"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(None, (['GET', 'HEAD', 'OPTIONS'], True))"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5917,
+  "target": "src/flask/sansio/app.py#App.add_url_rule",
+  "call": "(app.add_url_rule('/v', view_func=V.as_view('v')), rule_info('/v'))",
+  "setup": "import flask\nfrom flask.views import View\nclass V(View):\n    methods = ['GET', 'POST']\n    provide_automatic_options = True\n    def dispatch_request(self):\n        return 'v'\napp = flask.Flask('probe')\ndef rule_info(path):\n    r = [r for r in app.url_map.iter_rules() if r.rule == path][0]\n    return (sorted(r.methods), r.provide_automatic_options)",
+  "before": [
+   "return",
+   "tuple",
+   "(None, (['GET', 'HEAD', 'POST'], True))"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(None, (['GET', 'HEAD', 'OPTIONS', 'POST'], True))"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5917,
+  "target": "src/flask/sansio/app.py#App.add_url_rule",
+  "call": "(app.add_url_rule('/x', view_func=index, provide_automatic_options=1), rule_info('/x'))",
+  "setup": "import flask\napp = flask.Flask('probe')\ndef index():\n    return 'hi'\ndef rule_info(path):\n    r = [r for r in app.url_map.iter_rules() if r.rule == path][0]\n    return (sorted(r.methods), r.provide_automatic_options)",
+  "before": [
+   "return",
+   "tuple",
+   "(None, (['GET', 'HEAD'], 1))"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(None, (['GET', 'HEAD', 'OPTIONS'], 1))"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5928,
+  "target": "src/flask/app.py#Flask.do_teardown_appcontext",
+  "call": "run()",
+  "setup": "import flask\napp = flask.Flask('probe')\nlog = []\n@app.teardown_appcontext\ndef first(e):\n    log.append(('first', e))\n@app.teardown_appcontext\ndef second(e):\n    log.append(('second', e))\n    raise ValueError('boom')\ndef run():\n    ctx = app.app_context()\n    try:\n        app.do_teardown_appcontext(ctx, None)\n        return ('ok', log)\n    except BaseException as e:\n        return (type(e).__name__, str(e), getattr(e, 'exceptions', None) and [type(x).__name__ for x in e.exceptions], log)",
+  "before": [
+   "return",
+   "tuple",
+   "('ValueError', 'boom', None, [('second', None)])"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "('ExceptionGroup', 'Errors during app teardown (1 sub-exception)', ['ValueError'], [('second', None), ('first', None)])"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5928,
+  "target": "src/flask/app.py#Flask.do_teardown_request",
+  "call": "run()",
+  "setup": "import flask\napp = flask.Flask('probe')\nbp = flask.Blueprint('bp', __name__)\nlog = []\n@bp.teardown_request\ndef bp_td(e):\n    log.append('bp')\n    raise ValueError('bp fail')\n@app.teardown_request\ndef app_td(e):\n    log.append('app')\n@bp.route('/x')\ndef x():\n    return 'x'\napp.register_blueprint(bp, url_prefix='/bp')\ndef run():\n    with app.test_request_context('/bp/x') as ctx:\n        flask.request.blueprints\n        try:\n            app.do_teardown_request(ctx, None)\n            return ('ok', log)\n        except BaseException as e:\n            return (type(e).__name__, str(e), log)",
+  "before": [
+   "raise",
+   "ValueError",
+   "ValueError('bp fail')"
+  ],
+  "after": [
+   "raise",
+   "ExceptionGroup",
+   "ExceptionGroup('Errors during context teardown', [ExceptionGroup('Errors during request teardown', [ValueError('bp fail')])])"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5928,
+  "target": "src/flask/ctx.py#AppContext.pop",
+  "call": "run()",
+  "setup": "import flask\napp = flask.Flask('probe')\nlog = []\n@app.teardown_request\ndef tr(e):\n    log.append('req')\n    raise ValueError('req fail')\n@app.teardown_appcontext\ndef ta(e):\n    log.append('app')\ndef run():\n    ctx = app.test_request_context('/')\n    ctx.push()\n    try:\n        ctx.pop()\n        res = 'ok'\n    except BaseException as e:\n        res = (type(e).__name__, str(e))\n    return (res, log, bool(flask.current_app), ctx._cv_token is None)",
+  "before": [
+   "return",
+   "tuple",
+   "(('ValueError', 'req fail'), ['req', 'app'], False, True)"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(('ExceptionGroup', 'Errors during context teardown (1 sub-exception)'), ['req', 'app'], False, True)"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5928,
+  "target": "src/flask/app.py#Flask.do_teardown_appcontext",
+  "call": "run()",
+  "setup": "import flask\napp = flask.Flask('probe')\nlog = []\n@app.teardown_appcontext\ndef first(e):\n    log.append('first')\n@app.teardown_appcontext\ndef second(e):\n    log.append('second')\n    raise KeyboardInterrupt()\ndef run():\n    ctx = app.app_context()\n    try:\n        app.do_teardown_appcontext(ctx, RuntimeError('orig'))\n        return ('ok', log)\n    except BaseException as e:\n        return (type(e).__name__, log)",
+  "before": [
+   "return",
+   "tuple",
+   "('KeyboardInterrupt', ['second'])"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "('BaseExceptionGroup', ['second', 'first'])"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5928,
+  "target": "src/flask/app.py#Flask.do_teardown_request",
+  "call": "run()",
+  "setup": "import flask\napp = flask.Flask('probe')\nlog = []\n@app.teardown_request\ndef a(e):\n    log.append('a')\n    raise TypeError('a')\n@app.teardown_request\ndef b(e):\n    log.append('b')\n    raise ValueError('b')\ndef run():\n    with app.test_request_context('/') as ctx:\n        try:\n            app.do_teardown_request(ctx, None)\n            return ('ok', log)\n        except BaseException as e:\n            return (type(e).__name__, getattr(e, 'exceptions', None) and [type(x).__name__ for x in e.exceptions], log)",
+  "before": [
+   "raise",
+   "ValueError",
+   "ValueError('b')"
+  ],
+  "after": [
+   "raise",
+   "ExceptionGroup",
+   "ExceptionGroup('Errors during context teardown', [ExceptionGroup('Errors during request teardown', [ValueError('b'), TypeError('a')])])"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5928,
+  "target": "src/flask/ctx.py#AppContext.pop",
+  "call": "run()",
+  "setup": "import flask\nfrom flask.signals import appcontext_popped\napp = flask.Flask('probe')\nlog = []\ndef recv(sender, **kw):\n    log.append('popped')\n    raise RuntimeError('popped fail')\nappcontext_popped.connect(recv, app)\ndef run():\n    ctx = app.app_context()\n    ctx.push()\n    try:\n        ctx.pop()\n        res = 'ok'\n    except BaseException as e:\n        res = (type(e).__name__, str(e))\n    finally:\n        appcontext_popped.disconnect(recv, app)\n    return (res, log, bool(flask.current_app))",
+  "before": [
+   "return",
+   "tuple",
+   "(('RuntimeError', 'popped fail'), ['popped'], False)"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(('ExceptionGroup', 'Errors during context teardown (1 sub-exception)'), ['popped'], False)"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5928,
+  "target": "src/flask/app.py#Flask.do_teardown_appcontext",
+  "call": "run()",
+  "setup": "import flask\nfrom flask.signals import appcontext_tearing_down\napp = flask.Flask('probe')\nlog = []\n@app.teardown_appcontext\ndef td(e):\n    log.append(('td', type(e).__name__))\ndef recv(sender, exc=None, **kw):\n    log.append('signal')\n    raise LookupError('sig')\nappcontext_tearing_down.connect(recv, app)\ndef run():\n    ctx = app.app_context()\n    try:\n        app.do_teardown_appcontext(ctx, KeyError('x'))\n        return ('ok', log)\n    except BaseException as e:\n        return (type(e).__name__, str(e), log)\n    finally:\n        appcontext_tearing_down.disconnect(recv, app)",
+  "before": [
+   "return",
+   "tuple",
+   "('LookupError', 'sig', [('td', 'KeyError'), 'signal'])"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "('ExceptionGroup', 'Errors during app teardown (1 sub-exception)', [('td', 'KeyError'), 'signal'])"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5928,
+  "target": "src/flask/ctx.py#AppContext.pop",
+  "call": "run()",
+  "setup": "import flask\napp = flask.Flask('probe')\nlog = []\n@app.teardown_appcontext\ndef ta(e):\n    log.append(type(e).__name__)\n    raise KeyError('k')\ndef run():\n    try:\n        with app.app_context():\n            pass\n        res = 'ok'\n    except BaseException as e:\n        res = (type(e).__name__, str(e))\n    return (res, log, bool(flask.current_app))",
+  "before": [
+   "return",
+   "tuple",
+   "(('KeyError', \"'k'\"), ['NoneType'], True)"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(('ExceptionGroup', 'Errors during context teardown (1 sub-exception)'), ['NoneType'], False)"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 5928,
+  "target": "src/flask/ctx.py#AppContext.pop",
+  "call": "run()",
+  "setup": "import flask\napp = flask.Flask('probe')\nlog = []\n@app.teardown_appcontext\ndef ta(e):\n    log.append(e)\ndef run():\n    ctx = app.app_context()\n    ctx.push()\n    ctx.push()\n    ctx.pop()\n    mid = (list(log), bool(flask.current_app))\n    ctx.pop(None)\n    return (mid, log, bool(flask.current_app))",
+  "before": [
+   "return",
+   "tuple",
+   "(([], True), [None], True)"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(([], True), [None], False)"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 6013,
+  "target": "src/flask/sansio/app.py#App.select_jinja_autoescape",
+  "call": "app.select_jinja_autoescape('page.HTML')",
+  "setup": "import flask\napp = flask.Flask('probe')",
+  "before": [
+   "return",
+   "bool",
+   "False"
+  ],
+  "after": [
+   "return",
+   "bool",
+   "True"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 6013,
+  "target": "src/flask/sansio/app.py#App.select_jinja_autoescape",
+  "call": "app.select_jinja_autoescape('Mail.Svg')",
+  "setup": "import flask\napp = flask.Flask('probe')",
+  "before": [
+   "return",
+   "bool",
+   "False"
+  ],
+  "after": [
+   "return",
+   "bool",
+   "True"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 6013,
+  "target": "src/flask/sansio/app.py#App.select_jinja_autoescape",
+  "call": "app.select_jinja_autoescape(name)",
+  "setup": "import flask\napp = flask.Flask('probe')\nclass Name(str):\n    pass\nname = Name('folder/index.XHTML')",
+  "before": [
+   "return",
+   "bool",
+   "False"
+  ],
+  "after": [
+   "return",
+   "bool",
+   "True"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 6013,
+  "target": "src/flask/sansio/app.py#App.select_jinja_autoescape",
+  "call": "flask.render_template('T.HTM', v='<b>')",
+  "setup": "import tempfile, os, flask\nd = tempfile.mkdtemp()\nopen(os.path.join(d, 'T.HTM'), 'w').write('{{ v }}')\napp = flask.Flask('probe', template_folder=d)\nctx = app.app_context(); ctx.push()",
+  "before": [
+   "return",
+   "str",
+   "'<b>'"
+  ],
+  "after": [
+   "return",
+   "str",
+   "'&lt;b&gt;'"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 6096,
+  "target": "src/flask/app.py#Flask.run",
+  "call": "(app.run(load_dotenv=False), captured)[1]",
+  "setup": "import os\nimport flask\nimport werkzeug.serving\nos.environ.pop('FLASK_RUN_FROM_CLI', None)\ncaptured = {}\ndef _fake(host, port, app, **kw):\n    captured['host'] = host; captured['port'] = port\nwerkzeug.serving.run_simple = _fake\napp = flask.Flask('probe')\napp.config['SERVER_NAME'] = 'localhost:99999'",
+  "before": [
+   "return",
+   "dict",
+   "{'host': 'localhost', 'port': 99999}"
+  ],
+  "after": [
+   "raise",
+   "ValueError",
+   "ValueError('Port out of range 0-65535')"
+  ],
+  "origin": "crash",
+  "at": [
+   "src/flask/app.py",
+   727
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 6096,
+  "target": "src/flask/testing.py#FlaskClient.session_transaction",
+  "call": "go(base_url='http://[::1]:5000/')",
+  "setup": "import flask\napp = flask.Flask('probe')\napp.secret_key = 'k'\nclient = app.test_client()\ndef go(**kw):\n    with client.session_transaction(**kw) as s:\n        s['a'] = 1\n    return sorted(client._cookies.keys())",
+  "before": [
+   "return",
+   "list",
+   "[('[', '/', 'session')]"
+  ],
+  "after": [
+   "return",
+   "list",
+   "[('::1', '/', 'session')]"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 6096,
+  "target": "src/flask/app.py#Flask.run",
+  "call": "(app.run(host='0.0.0.0', port=8000, load_dotenv=False), captured)[1]",
+  "setup": "import os\nimport flask\nimport werkzeug.serving\nos.environ.pop('FLASK_RUN_FROM_CLI', None)\ncaptured = {}\ndef _fake(host, port, app, **kw):\n    captured['host'] = host; captured['port'] = port\nwerkzeug.serving.run_simple = _fake\napp = flask.Flask('probe')\napp.config['SERVER_NAME'] = 'localhost:99999'",
+  "before": [
+   "return",
+   "dict",
+   "{'host': '0.0.0.0', 'port': 8000}"
+  ],
+  "after": [
+   "raise",
+   "ValueError",
+   "ValueError('Port out of range 0-65535')"
+  ],
+  "origin": "crash",
+  "at": [
+   "src/flask/app.py",
+   727
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 6096,
+  "target": "src/flask/testing.py#FlaskClient.session_transaction",
+  "call": "go(environ_overrides={'HTTP_HOST': 'Sub.Example.com:9000'})",
+  "setup": "import flask\napp = flask.Flask('probe')\napp.secret_key = 'k'\nclient = app.test_client()\ndef go(**kw):\n    with client.session_transaction(**kw) as s:\n        s['a'] = 1\n    return sorted(client._cookies.keys())",
+  "before": [
+   "return",
+   "list",
+   "[('Sub.Example.com', '/', 'session')]"
+  ],
+  "after": [
+   "return",
+   "list",
+   "[('sub.example.com', '/', 'session')]"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 6096,
+  "target": "src/flask/app.py#Flask.run",
+  "call": "(app.run(load_dotenv=False), captured)[1]",
+  "setup": "import os\nimport flask\nimport werkzeug.serving\nos.environ.pop('FLASK_RUN_FROM_CLI', None)\ncaptured = {}\ndef _fake(host, port, app, **kw):\n    captured['host'] = host; captured['port'] = port\nwerkzeug.serving.run_simple = _fake\napp = flask.Flask('probe')\napp.config['SERVER_NAME'] = 'localhost: 8080'",
+  "before": [
+   "return",
+   "dict",
+   "{'host': 'localhost', 'port': 8080}"
+  ],
+  "after": [
+   "raise",
+   "ValueError",
+   "ValueError(\"Port could not be cast to integer value as ' 8080'\")"
+  ],
+  "origin": "crash",
+  "at": [
+   "src/flask/app.py",
+   727
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 6096,
+  "target": "src/flask/app.py#Flask.run",
+  "call": "(app.run(load_dotenv=False), captured)[1]",
+  "setup": "import os\nimport flask\nimport werkzeug.serving\nos.environ.pop('FLASK_RUN_FROM_CLI', None)\ncaptured = {}\ndef _fake(host, port, app, **kw):\n    captured['host'] = host; captured['port'] = port\nwerkzeug.serving.run_simple = _fake\napp = flask.Flask('probe')\napp.config['SERVER_NAME'] = 'localhost:\uff18\uff10'",
+  "before": [
+   "return",
+   "dict",
+   "{'host': 'localhost', 'port': 80}"
+  ],
+  "after": [
+   "raise",
+   "ValueError",
+   "ValueError(\"Port could not be cast to integer value as '\uff18\uff10'\")"
+  ],
+  "origin": "crash",
+  "at": [
+   "src/flask/app.py",
+   727
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 6096,
+  "target": "src/flask/app.py#Flask.run",
+  "call": "(app.run(load_dotenv=False), captured)[1]",
+  "setup": "import os\nimport flask\nimport werkzeug.serving\nos.environ.pop('FLASK_RUN_FROM_CLI', None)\ncaptured = {}\ndef _fake(host, port, app, **kw):\n    captured['host'] = host; captured['port'] = port; captured['opts'] = sorted(kw)\nwerkzeug.serving.run_simple = _fake\napp = flask.Flask('probe')\napp.config['SERVER_NAME'] = 'Example.COM:8080'",
+  "before": [
+   "return",
+   "dict",
+   "{'host': 'Example.COM', 'port': 8080, 'opts': ['threaded', 'use_debugger', 'use_reloader']}"
+  ],
+  "after": [
+   "return",
+   "dict",
+   "{'host': 'example.com', 'port': 8080, 'opts': ['threaded', 'use_debugger', 'use_reloader']}"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "flask",
+  "number": 6096,
+  "target": "src/flask/app.py#Flask.run",
+  "call": "(app.run(load_dotenv=False), captured)[1]",
+  "setup": "import os\nimport flask\nimport werkzeug.serving\nos.environ.pop('FLASK_RUN_FROM_CLI', None)\ncaptured = {}\ndef _fake(host, port, app, **kw):\n    captured['host'] = host; captured['port'] = port\nwerkzeug.serving.run_simple = _fake\napp = flask.Flask('probe')\napp.config['SERVER_NAME'] = 'user@myhost:7000'",
+  "before": [
+   "return",
+   "dict",
+   "{'host': 'user@myhost', 'port': 7000}"
+  ],
+  "after": [
+   "return",
+   "dict",
+   "{'host': 'myhost', 'port': 7000}"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30646,
+  "target": "sympy/solvers/ode/lie_group.py#lie_heuristic_abaco2_similar",
+  "call": "infinitesimals(eq, hint='abaco2_similar')",
+  "setup": "from sympy import Function, symbols, exp\nfrom sympy.solvers.ode import infinitesimals\nx = symbols('x')\nf = Function('f')\neq = f(x).diff(x) - (x + exp(f(x)))",
+  "before": [
+   "raise",
+   "TypeError",
+   "TypeError('exp takes exactly 1 argument (2 given)')"
+  ],
+  "after": [
+   "return",
+   "list",
+   "[{xi(x, f(x)): exp(-x**2/2), eta(x, f(x)): x*exp(-x**2/2)}]"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30646,
+  "target": "sympy/solvers/ode/lie_group.py#lie_heuristic_abaco2_unique_general",
+  "call": "infinitesimals(eq, hint='abaco2_unique_general')",
+  "setup": "from sympy import Function, symbols\nfrom sympy.solvers.ode import infinitesimals\nx = symbols('x')\nf = Function('f')\neq = f(x).diff(x) - (x + f(x))/(x - f(x))",
+  "before": [
+   "raise",
+   "TypeError",
+   "TypeError(\"argument of type 'Mul' is not a container or iterable\")"
+  ],
+  "after": [
+   "raise",
+   "ValueError",
+   "ValueError('Infinitesimals could not be found using the given heuristic')"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30646,
+  "target": "sympy/solvers/ode/lie_group.py#lie_heuristic_bivariate",
+  "call": "infinitesimals(eq, hint='bivariate')",
+  "setup": "from sympy import Function, symbols\nfrom sympy.solvers.ode import infinitesimals\nx = symbols('x')\nf = Function('f')\neq = f(x).diff(x) - x",
+  "before": [
+   "raise",
+   "UnboundLocalError",
+   "UnboundLocalError(\"cannot access local variable 'polyy' where it is not associated with a value\")"
+  ],
+  "after": [
+   "return",
+   "list",
+   "[{eta(x, f(x)): x + f(x) + 1, xi(x, f(x)): x/2 + 1}]"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30646,
+  "target": "sympy/solvers/ode/lie_group.py#lie_heuristic_abaco2_similar",
+  "call": "infinitesimals(eq, hint='abaco2_similar')",
+  "setup": "from sympy import Function, symbols, exp\nfrom sympy.solvers.ode import infinitesimals\nx = symbols('x')\nf = Function('f')\neq = f(x).diff(x) - exp(f(x))",
+  "before": [
+   "raise",
+   "ValueError",
+   "ValueError('specify dummy variables for 0')"
+  ],
+  "after": [
+   "return",
+   "list",
+   "[{xi(x, f(x)): 1, eta(x, f(x)): 0}]"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30646,
+  "target": "sympy/solvers/ode/lie_group.py#lie_heuristic_abaco2_unique_general",
+  "call": "infinitesimals(eq, hint='abaco2_unique_general')",
+  "setup": "from sympy import Function, symbols\nfrom sympy.solvers.ode import infinitesimals\nx = symbols('x')\nf = Function('f')\neq = f(x).diff(x) - 4*x*f(x)/(3*(x**2 - f(x)**2))",
+  "before": [
+   "raise",
+   "TypeError",
+   "TypeError(\"argument of type 'Mul' is not a container or iterable\")"
+  ],
+  "after": [
+   "raise",
+   "ValueError",
+   "ValueError('Infinitesimals could not be found using the given heuristic')"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30646,
+  "target": "sympy/solvers/ode/lie_group.py#lie_heuristic_bivariate",
+  "call": "infinitesimals(eq, hint='bivariate')",
+  "setup": "from sympy import Function, symbols\nfrom sympy.solvers.ode import infinitesimals\nx = symbols('x')\nf = Function('f')\neq = f(x).diff(x) - f(x)",
+  "before": [
+   "raise",
+   "UnboundLocalError",
+   "UnboundLocalError(\"cannot access local variable 'polyy' where it is not associated with a value\")"
+  ],
+  "after": [
+   "return",
+   "list",
+   "[{eta(x, f(x)): x*f(x) + f(x)**2 + f(x), xi(x, f(x)): x + f(x) + 1}]"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30646,
+  "target": "sympy/solvers/ode/lie_group.py#lie_heuristic_abaco2_similar",
+  "call": "infinitesimals(eq, hint='abaco2_similar')",
+  "setup": "from sympy import Function, symbols, exp\nfrom sympy.solvers.ode import infinitesimals\nx = symbols('x')\nf = Function('f')\neq = f(x).diff(x) - 1/(f(x) + exp(x))",
+  "before": [
+   "raise",
+   "TypeError",
+   "TypeError(\"'NoneType' object is not subscriptable\")"
+  ],
+  "after": [
+   "return",
+   "list",
+   "[{eta(x, f(x)): exp(-f(x)**2/2), xi(x, f(x)): f(x)*exp(-f(x)**2/2)}]"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30646,
+  "target": "sympy/solvers/ode/lie_group.py#lie_heuristic_abaco2_similar",
+  "call": "infinitesimals(eq, hint='abaco2_similar')",
+  "setup": "from sympy import Function, symbols, exp\nfrom sympy.solvers.ode import infinitesimals\nx = symbols('x')\nf = Function('f')\neq = f(x).diff(x) - (x**2 + x*exp(2*f(x)))",
+  "before": [
+   "raise",
+   "TypeError",
+   "TypeError(\"'NoneType' object is not subscriptable\")"
+  ],
+  "after": [
+   "raise",
+   "ValueError",
+   "ValueError('Infinitesimals could not be found using the given heuristic')"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30741,
+  "target": "sympy/polys/polytools.py#PurePoly.__eq__",
+  "call": "PurePoly(x**2 + 1, x) == x**2 + 1",
+  "setup": "from sympy import PurePoly\nfrom sympy.abc import x",
+  "before": [
+   "return",
+   "bool",
+   "True"
+  ],
+  "after": [
+   "return",
+   "bool",
+   "False"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30741,
+  "target": "sympy/matrices/determinant.py#_charpoly",
+  "call": "M.charpoly(x) == M.charpoly(y)",
+  "setup": "from sympy import Matrix\nfrom sympy.abc import x, y\nM = Matrix([[1, 3], [2, 0]])",
+  "before": [
+   "return",
+   "bool",
+   "True"
+  ],
+  "after": [
+   "return",
+   "bool",
+   "False"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30741,
+  "target": "sympy/polys/specialpolys.py#swinnerton_dyer_poly",
+  "call": "str(swinnerton_dyer_poly(1))",
+  "setup": "from sympy.polys.specialpolys import swinnerton_dyer_poly",
+  "before": [
+   "return",
+   "str",
+   "'_x**2 - 2'"
+  ],
+  "after": [
+   "return",
+   "str",
+   "'_0**2 - 2'"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30741,
+  "target": "sympy/matrices/matrices.py#MatrixDeprecated.berkowitz_charpoly",
+  "call": "str(M.berkowitz_charpoly())",
+  "setup": "import warnings\nwarnings.simplefilter('ignore')\nfrom sympy import Matrix\nM = Matrix([[1, 2], [3, 4]])",
+  "before": [
+   "return",
+   "str",
+   "\"PurePoly(_lambda**2 - 5*_lambda - 2, _lambda, domain='ZZ')\""
+  ],
+  "after": [
+   "return",
+   "str",
+   "\"PurePoly(_0**2 - 5*_0 - 2, _0, domain='ZZ')\""
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30741,
+  "target": "sympy/matrices/matrixbase.py#MatrixBase.charpoly",
+  "call": "(M.charpoly().as_expr(), M.charpoly().gens, M.charpoly().as_expr().free_symbols == {Symbol('lambda')})",
+  "setup": "from sympy import Matrix, Symbol\nM = Matrix([[1, 2], [3, 4]])",
+  "before": [
+   "return",
+   "tuple",
+   "(lambda**2 - 5*lambda - 2, (lambda,), True)"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(_0**2 - 5*_0 - 2, (_0,), False)"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30741,
+  "target": "sympy/matrices/matrixbase.py#MatrixBase.berkowitz_charpoly",
+  "call": "(M.berkowitz_charpoly().as_expr(), str(M.berkowitz_charpoly().gens), M.berkowitz_charpoly().as_expr().free_symbols == {Symbol('lambda')})",
+  "setup": "from sympy import Matrix, Symbol\nM = Matrix([[2, 1], [1, 2]])",
+  "before": [
+   "return",
+   "tuple",
+   "(_lambda**2 - 4*_lambda + 3, '(_lambda,)', False)"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(_0**2 - 4*_0 + 3, '(_0,)', False)"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30741,
+  "target": "sympy/matrices/matrices.py#MatrixDeterminant.charpoly",
+  "call": "(MatrixDeterminant.charpoly(M).as_expr(), MatrixDeterminant.charpoly(M).as_expr().free_symbols == {Symbol('lambda')})",
+  "setup": "from sympy import Matrix, Symbol\nfrom sympy.matrices.matrices import MatrixDeterminant\nM = Matrix([[1, 2], [3, 4]])",
+  "before": [
+   "return",
+   "tuple",
+   "(lambda**2 - 5*lambda - 2, True)"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(_0**2 - 5*_0 - 2, False)"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30741,
+  "target": "sympy/polys/polytools.py#PurePoly.__eq__",
+  "call": "PurePoly(x + 1, x, domain=ZZ) == PurePoly(x + 1, x, domain=QQ)",
+  "setup": "from sympy import PurePoly, ZZ, QQ\nfrom sympy.abc import x",
+  "before": [
+   "return",
+   "bool",
+   "True"
+  ],
+  "after": [
+   "return",
+   "bool",
+   "False"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30741,
+  "target": "sympy/matrices/determinant.py#_charpoly",
+  "call": "str(M.charpoly().as_expr())",
+  "setup": "from sympy import Matrix\nM = Matrix([[1, 3], [2, 0]])",
+  "before": [
+   "return",
+   "str",
+   "'lambda**2 - lambda - 6'"
+  ],
+  "after": [
+   "return",
+   "str",
+   "'_0**2 - _0 - 6'"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30741,
+  "target": "sympy/polys/specialpolys.py#swinnerton_dyer_poly",
+  "call": "str(swinnerton_dyer_poly(4, polys=True))",
+  "setup": "from sympy.polys.specialpolys import swinnerton_dyer_poly",
+  "before": [
+   "return",
+   "str",
+   "\"PurePoly(_x**16 - 136*_x**14 + 6476*_x**12 - 141912*_x**10 + 1513334*_x**8 - 7453176*_x**6 + 13950764*_x**4 - 5596840*_x**2 + 46225, _x, domain='ZZ')\""
+  ],
+  "after": [
+   "return",
+   "str",
+   "\"PurePoly(_0**16 - 136*_0**14 + 6476*_0**12 - 141912*_0**10 + 1513334*_0**8 - 7453176*_0**6 + 13950764*_0**4 - 5596840*_0**2 + 46225, _0, domain='ZZ')\""
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30741,
+  "target": "sympy/matrices/matrices.py#MatrixDeprecated.berkowitz_charpoly",
+  "call": "M.berkowitz_charpoly(x) == M.berkowitz_charpoly(y)",
+  "setup": "import warnings\nwarnings.simplefilter('ignore')\nfrom sympy import Matrix\nfrom sympy.abc import x, y\nM = Matrix([[1, 2], [3, 4]])",
+  "before": [
+   "return",
+   "bool",
+   "True"
+  ],
+  "after": [
+   "return",
+   "bool",
+   "False"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30741,
+  "target": "sympy/matrices/matrixbase.py#MatrixBase.charpoly",
+  "call": "(M.charpoly().as_expr(), M.charpoly().gens)",
+  "setup": "from sympy import Matrix, Symbol\nlam = Symbol('lambda')\nM = Matrix([[lam, 1], [0, 2]])",
+  "before": [
+   "return",
+   "tuple",
+   "(_lambda**2 + _lambda*(-lambda - 2) + 2*lambda, (_lambda,))"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(_0**2 + _0*(-lambda - 2) + 2*lambda, (_0,))"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30741,
+  "target": "sympy/matrices/matrixbase.py#MatrixBase.berkowitz_charpoly",
+  "call": "(M.berkowitz_charpoly().as_expr(), str(M.berkowitz_charpoly().gens))",
+  "setup": "from sympy import Matrix, Symbol\nlam = Symbol('lambda')\nM = Matrix([[lam, 0], [1, lam]])",
+  "before": [
+   "return",
+   "tuple",
+   "(_lambda**2 - 2*_lambda*lambda + lambda**2, '(_lambda,)')"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(_0**2 - 2*_0*lambda + lambda**2, '(_0,)')"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30741,
+  "target": "sympy/matrices/matrices.py#MatrixDeterminant.charpoly",
+  "call": "(MatrixDeterminant.charpoly(M).as_expr(), str(MatrixDeterminant.charpoly(M).gens))",
+  "setup": "from sympy import Matrix, Symbol\nfrom sympy.matrices.matrices import MatrixDeterminant\nlam = Symbol('lambda')\nM = Matrix([[lam, 1], [1, 0]])",
+  "before": [
+   "return",
+   "tuple",
+   "(_lambda**2 - _lambda*lambda - 1, '(_lambda,)')"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(_0**2 - _0*lambda - 1, '(_0,)')"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30741,
+  "target": "sympy/polys/polytools.py#PurePoly.__eq__",
+  "call": "PurePoly(x**2 - 2, x) == Poly(x**2 - 2, x)",
+  "setup": "from sympy import PurePoly, Poly\nfrom sympy.abc import x",
+  "before": [
+   "return",
+   "bool",
+   "True"
+  ],
+  "after": [
+   "return",
+   "bool",
+   "False"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30741,
+  "target": "sympy/matrices/determinant.py#_charpoly",
+  "call": "type(M.charpoly('t')).__name__ + ' ' + str(M.charpoly('t'))",
+  "setup": "from sympy import Matrix\nfrom sympy.abc import x\nM = Matrix([[x, 1], [0, 2]])",
+  "before": [
+   "return",
+   "str",
+   "\"PurePoly PurePoly(t**2 + (-x - 2)*t + 2*x, t, domain='ZZ[x]')\""
+  ],
+  "after": [
+   "return",
+   "str",
+   "\"Poly Poly(t**2 + (-x - 2)*t + 2*x, t, domain='ZZ[x]')\""
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30741,
+  "target": "sympy/polys/specialpolys.py#swinnerton_dyer_poly",
+  "call": "swinnerton_dyer_poly(2) == swinnerton_dyer_poly(2)",
+  "setup": "from sympy.polys.specialpolys import swinnerton_dyer_poly\nfrom sympy.abc import x",
+  "before": [
+   "return",
+   "bool",
+   "False"
+  ],
+  "after": [
+   "return",
+   "bool",
+   "True"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30741,
+  "target": "sympy/matrices/matrixbase.py#MatrixBase.charpoly",
+  "call": "(M.charpoly().as_expr(), M.charpoly().gens)",
+  "setup": "from sympy import Matrix\nM = Matrix()",
+  "before": [
+   "return",
+   "tuple",
+   "(1, (lambda,))"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(1, (_0,))"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30741,
+  "target": "sympy/matrices/matrices.py#MatrixDeterminant.charpoly",
+  "call": "(MatrixDeterminant.charpoly(M).as_expr(), str(MatrixDeterminant.charpoly(M).gens))",
+  "setup": "from sympy import ImmutableMatrix\nfrom sympy.matrices.matrices import MatrixDeterminant\nM = ImmutableMatrix([[0, 0], [0, 0]])",
+  "before": [
+   "return",
+   "tuple",
+   "(lambda**2, '(lambda,)')"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(_0**2, '(_0,)')"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30779,
+  "target": "sympy/geometry/plane.py#Plane.distance",
+  "call": "pl.distance(s)",
+  "setup": "from sympy.geometry import Point3D, Segment3D, Plane\npl = Plane(Point3D(1, 1, 1), normal_vector=(1, 1, 1))\ns = Segment3D(Point3D(3, 3, 3), Point3D(4, 2, 3))",
+  "before": [
+   "raise",
+   "ValueError",
+   "ValueError('not enough values to unpack (expected 1, got 0)')"
+  ],
+  "after": [
+   "return",
+   "Mul",
+   "2*sqrt(3)"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30779,
+  "target": "sympy/geometry/plane.py#Plane.distance",
+  "call": "pl.distance(r)",
+  "setup": "from sympy.geometry import Point3D, Ray3D, Plane\npl = Plane(Point3D(0, 0, 0), normal_vector=(0, 0, 1))\nr = Ray3D(Point3D(0, 0, -2), Point3D(1, 0, -2))",
+  "before": [
+   "raise",
+   "ValueError",
+   "ValueError('not enough values to unpack (expected 1, got 0)')"
+  ],
+  "after": [
+   "return",
+   "Integer",
+   "2"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30779,
+  "target": "sympy/geometry/plane.py#Plane.distance",
+  "call": "pl.distance(s)",
+  "setup": "from sympy import Rational\nfrom sympy.geometry import Point3D, Segment3D, Plane\npl = Plane(Point3D(0, 0, 0), normal_vector=(1, -2, 1))\ns = Segment3D(Point3D(Rational(1, 2), 0, 0), Point3D(Rational(1, 2), 1, 2))",
+  "before": [
+   "raise",
+   "ValueError",
+   "ValueError('not enough values to unpack (expected 1, got 0)')"
+  ],
+  "after": [
+   "return",
+   "Mul",
+   "sqrt(6)/12"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30780,
+  "target": "sympy/matrices/inverse.py#_pinv_rank_decomposition",
+  "call": "Matrix([1 + I, 2, -I]).pinv(method='RD')",
+  "setup": "from sympy import Matrix, I",
+  "before": [
+   "return",
+   "MutableDenseMatrix",
+   "Matrix([[1/7 - I/7, 2/7, I/7]])"
+  ],
+  "after": [
+   "return",
+   "MutableDenseMatrix",
+   "Matrix([[(1 - I)/((1 - I)*(1 + I) + 5), 2/((1 - I)*(1 + I) + 5), I/((1 - I)*(1 + I) + 5)]])"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30780,
+  "target": "sympy/matrices/inverse.py#_pinv_rank_decomposition",
+  "call": "Matrix([[x, y]]).pinv(method='RD')",
+  "setup": "from sympy import Matrix\nfrom sympy.abc import x, y",
+  "before": [
+   "return",
+   "MutableDenseMatrix",
+   "Matrix([\n[                        1/(x*(1 + y*conjugate(y)/(x*conjugate(x))))],\n[conjugate(y)/(x*(1 + y*conjugate(y)/(x*conjugate(x)))*conjugate(x))]])"
+  ],
+  "after": [
+   "return",
+   "MutableDenseMatrix",
+   "Matrix([\n[conjugate(x)/(x*conjugate(x) + y*conjugate(y))],\n[conjugate(y)/(x*conjugate(x) + y*conjugate(y))]])"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30780,
+  "target": "sympy/matrices/inverse.py#_pinv_rank_decomposition",
+  "call": "SparseMatrix([1, 0, 2]).pinv(method='RD')",
+  "setup": "from sympy import SparseMatrix",
+  "before": [
+   "return",
+   "MutableDenseMatrix",
+   "Matrix([[1/5, 0, 2/5]])"
+  ],
+  "after": [
+   "return",
+   "MutableSparseMatrix",
+   "Matrix([[1/5, 0, 2/5]])"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30808,
+  "target": "sympy/core/mul.py#Mul._eval_real_imag",
+  "call": "e.is_imaginary",
+  "setup": "from sympy import Symbol, Mul\nx = Symbol('x', finite=True, extended_real=False)\ne = Mul(2, x)",
+  "before": [
+   "return",
+   "bool",
+   "False"
+  ],
+  "after": [
+   "return",
+   "NoneType",
+   "None"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30808,
+  "target": "sympy/core/mul.py#Mul._eval_real_imag",
+  "call": "e.is_real",
+  "setup": "from sympy import Symbol, Mul, I\nx = Symbol('x', finite=True, extended_real=False)\ne = Mul(I, x, evaluate=False)",
+  "before": [
+   "return",
+   "bool",
+   "False"
+  ],
+  "after": [
+   "return",
+   "NoneType",
+   "None"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30808,
+  "target": "sympy/core/mul.py#Mul._eval_real_imag",
+  "call": "e._eval_real_imag(False)",
+  "setup": "from sympy import Symbol, Mul\nx = Symbol('x', finite=True, extended_real=False)\ne = Mul(2, x)",
+  "before": [
+   "return",
+   "bool",
+   "False"
+  ],
+  "after": [
+   "return",
+   "NoneType",
+   "None"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30808,
+  "target": "sympy/core/mul.py#Mul._eval_real_imag",
+  "call": "(e.is_real, e.is_imaginary)",
+  "setup": "from sympy import Symbol, Mul\nx = Symbol('x', infinite=False, extended_real=False)\ny = Symbol('y', real=True)\ne = Mul(x, y)",
+  "before": [
+   "return",
+   "tuple",
+   "(False, None)"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(None, None)"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30808,
+  "target": "sympy/core/mul.py#Mul._eval_real_imag",
+  "call": "(e.is_real, e.is_imaginary)",
+  "setup": "from sympy import Symbol, Mul\nx = Symbol('x', finite=True, extended_real=False)\ny = Symbol('y', finite=True, extended_real=False)\ne = Mul(x, y)",
+  "before": [
+   "return",
+   "tuple",
+   "(False, False)"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "(None, None)"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30815,
+  "target": "sympy/core/expr.py#Expr.as_terms",
+  "call": "e.as_terms()",
+  "setup": "from sympy import Mul, Symbol\nx = Symbol('x')\ne = Mul(x, x, evaluate=False)",
+  "before": [
+   "return",
+   "tuple",
+   "([(x*x, ((1.0, 0.0), (1,), ()))], [x])"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "([(x*x, ((1.0, 0.0), (2,), ()))], [x])"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30815,
+  "target": "sympy/core/expr.py#Expr.as_terms",
+  "call": "e.as_terms()",
+  "setup": "from sympy import Mul, Symbol, Pow\nx = Symbol('x')\ne = Mul(x, Pow(x, 2), evaluate=False)",
+  "before": [
+   "return",
+   "tuple",
+   "([(x*x**2, ((1.0, 0.0), (2,), ()))], [x])"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "([(x*x**2, ((1.0, 0.0), (3,), ()))], [x])"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30815,
+  "target": "sympy/core/expr.py#Expr.as_terms",
+  "call": "e.as_terms()",
+  "setup": "from sympy import Mul, Add, Symbol\nx, y = Symbol('x'), Symbol('y')\ne = Add(Mul(3, x, y, x, evaluate=False), y, evaluate=False)",
+  "before": [
+   "return",
+   "tuple",
+   "([(3*x*x*y, ((3.0, 0.0), (1, 1), ())), (y, ((1.0, 0.0), (0, 1), ()))], [x, y])"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "([(3*x*x*y, ((3.0, 0.0), (2, 1), ())), (y, ((1.0, 0.0), (0, 1), ()))], [x, y])"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30815,
+  "target": "sympy/core/expr.py#Expr.as_terms",
+  "call": "e.as_terms()",
+  "setup": "from sympy import Mul, Symbol, exp\nx = Symbol('x')\ne = Mul(exp(x), exp(2*x), evaluate=False)",
+  "before": [
+   "return",
+   "tuple",
+   "([(exp(x)*exp(2*x), ((1.0, 0.0), (2,), ()))], [exp(x)])"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "([(exp(x)*exp(2*x), ((1.0, 0.0), (3,), ()))], [exp(x)])"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30815,
+  "target": "sympy/core/expr.py#Expr.as_terms",
+  "call": "e.as_terms()",
+  "setup": "from sympy import Mul, Symbol, Pow\nx = Symbol('x')\ne = Mul(x, Pow(x, -1, evaluate=False), evaluate=False)",
+  "before": [
+   "return",
+   "tuple",
+   "([(x/x, ((1.0, 0.0), (-1,), ()))], [x])"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "([(x/x, ((1.0, 0.0), (0,), ()))], [x])"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30815,
+  "target": "sympy/core/expr.py#Expr.as_terms",
+  "call": "e.as_terms()",
+  "setup": "from sympy import Symbol, Mul\nA = Symbol('A', commutative=False)\nx = Symbol('x')\ne = Mul(x, A, x, evaluate=False)",
+  "before": [
+   "return",
+   "tuple",
+   "([(x*A*x, ((1.0, 0.0), (1,), (A,)))], [x])"
+  ],
+  "after": [
+   "return",
+   "tuple",
+   "([(x*A*x, ((1.0, 0.0), (2,), (A,)))], [x])"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30827,
+  "target": "sympy/geometry/plane.py#Plane.distance",
+  "call": "pl.distance(o)",
+  "setup": "from sympy.geometry import Plane, Point3D, Point\npl = Plane(Point3D(0, 0, 0), normal_vector=(0, 0, 1))\no = Point(1, 2)",
+  "before": [
+   "return",
+   "Zero",
+   "0"
+  ],
+  "after": [
+   "raise",
+   "NotImplementedError",
+   "NotImplementedError(\"distance between Plane and <class 'sympy.geometry.point.Point2D'> is not implemented\")"
+  ],
+  "origin": "raised",
+  "at": [
+   "sympy/geometry/plane.py",
+   337
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30827,
+  "target": "sympy/geometry/plane.py#Plane.distance",
+  "call": "pl.distance(o)",
+  "setup": "from sympy.geometry import Plane, Point3D, Line, Point\npl = Plane(Point3D(0, 0, 1), normal_vector=(0, 0, 1))\no = Line(Point(0, 0), Point(1, 1))",
+  "before": [
+   "return",
+   "One",
+   "1"
+  ],
+  "after": [
+   "raise",
+   "NotImplementedError",
+   "NotImplementedError(\"distance between Plane and <class 'sympy.geometry.line.Line2D'> is not implemented\")"
+  ],
+  "origin": "raised",
+  "at": [
+   "sympy/geometry/plane.py",
+   337
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30827,
+  "target": "sympy/geometry/plane.py#Plane.distance",
+  "call": "pl.distance(o)",
+  "setup": "from sympy.geometry import Plane, Point3D, Segment, Point\npl = Plane(Point3D(0, 0, 0), normal_vector=(0, 0, 1))\no = Segment(Point(0, 0), Point(1, 1))",
+  "before": [
+   "return",
+   "Zero",
+   "0"
+  ],
+  "after": [
+   "raise",
+   "NotImplementedError",
+   "NotImplementedError(\"distance between Plane and <class 'sympy.geometry.line.Segment2D'> is not implemented\")"
+  ],
+  "origin": "raised",
+  "at": [
+   "sympy/geometry/plane.py",
+   337
+  ],
+  "stand_in": false
+ },
+ {
+  "repo": "sympy",
+  "number": 30827,
+  "target": "sympy/geometry/plane.py#Plane.distance",
+  "call": "pl.distance(o)",
+  "setup": "from sympy import symbols\nfrom sympy.geometry import Plane, Point3D\nx, y, z = symbols('x y z', real=True)\npl = Plane(Point3D(1, 1, 1), normal_vector=(2, 2, 2))\no = Point3D(x, y, z)",
+  "before": [
+   "return",
+   "Abs",
+   "Abs(sqrt(3)*(x - 1)/3 + sqrt(3)*(y - 1)/3 + sqrt(3)*(z - 1)/3)"
+  ],
+  "after": [
+   "return",
+   "Mul",
+   "sqrt(3)*Abs(2*x + 2*y + 2*z - 6)/6"
+  ],
+  "origin": null,
+  "at": null,
+  "stand_in": false
+ }
+]
