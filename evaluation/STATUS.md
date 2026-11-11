@@ -80,6 +80,10 @@ the 47, and on 60 of 60 across four pilot repositories; 3 false rows; 0 counted 
   had been labelled real for two versions. A label can be wrong where the row reads plausibly.
 - **Real regressions: 1 of 20 caught** (`regressions/REPORT.md`). A pull request that breaks something no existing
   test checks gets "0 flips", and that line is true. It is not evidence the change is harmless.
+  With probes on (off by default, `claude-code` or an API key), a call that worked before and now fails in the
+  project's code showed on 4 of the 20, and on 2 of the 47 normal pull requests, both real changes for old callers
+  (`regressions/probes/README.md`). An earlier prompt showed 9 of the 20 with 3 of the 47 flagged on contrived
+  inputs. One run each, one reader, and the model may know the fixes.
 - **Seven repositories, all pure-Python libraries with pytest or Django's runner.** Nothing here says how AMU does on
   applications, compiled extensions, or suites that need services.
 

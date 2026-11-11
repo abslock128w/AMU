@@ -543,9 +543,9 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
         if functions and not aborted and wanted and late(deadline):
             cut.append('generated probes')
         elif functions and not aborted and wanted:
-            spec_targets, left_out = sidebyside.targets(functions, before_src, after_src)
-            called = set((side or {}).get('called') or ())
-            uncalled = [t for t in spec_targets if t['id'] not in called]
+            # Every changed function gets probes, also one the tests call: they compare it only on the inputs they
+            # pass, and a regression is an input they do not pass.
+            uncalled, left_out = generate.targets(functions, before_src, after_src)
             example = next((_read(Path(trees['after'])/_path(i)) for i in ids if _path(i).endswith('.py')), '')
             changed = {path: _after_lines(path, edit) for path, edit in edits.items()
                        if path.endswith('.py') and not replay.is_test_file(path)}
@@ -555,10 +555,7 @@ def run(root, edits, ids, python=None, budget=60, runner=None, memo=None, own=()
             made, generated, more = generate.run(runner, python, trees['after'], trees['before'], uncalled, changed, example,
                                                  scratch, dollars, within(minutes * 60, deadline) / 60, model,
                                                  copy_before=not live_is_after, cli=bool(cli and cli[0]))
-            if side is None:
-                # Side-by-side did not run (Python before 3.12), so its list of the changed functions left out, and why,
-                # is not in the report: it goes with the generated tests, which got the same targets.
-                made['not_compared'] = left_out
+            made['not_probed'] = left_out
             gaps += more
         flagged = [extra for extra in ('mutation', 'equivalence') if extra in extras]
         if functions and not aborted and flagged and late(deadline):

@@ -56,16 +56,21 @@ def test_only_probes_that_pass_every_filter_are_kept_and_their_outcomes_come_fro
     assert row['label'] == 'generated test shows a difference' and row['call'] == 'scale(50)'
     assert row['before'][::2] == ['return', '100'] and row['after'][::2] == ['return', '150'], row
     assert "assert repr(scale(50)) == '150'" in row['test']
-    # The request: the changed functions the tests never called (on Python 3.12+, where side-by-side execution says which
-    # were called; below that, every changed function), structured output, the default fallback.
+    # The probe whose setup fails never reached its call: the report says so, with what the runner said.
+    [gap] = [g for g in report['gaps'] if 'did not run' in g]
+    assert gap.startswith('generated tests: 1 of 3 probes did not run on the head (') and 'nothing_like_this' in gap, gap
+    # The request: every changed function, also one the tests call (they compare it only on the inputs they pass),
+    # structured output, the default fallback.
     [params] = api.calls
     assert 'lib.py#scale' in params['messages'][0]['content']
-    assert ('lib.py#tested' in params['messages'][0]['content']) == (sys.version_info < (3, 12))
+    assert 'lib.py#tested' in params['messages'][0]['content']
     assert params['output_config']['format']['type'] == 'json_schema' and params['fallbacks'] == 'default'
     assert made['cost'] == round((4000 * 4 + 1500 * 20) / 1e6, 5)
     from amu.ci.render import render
     body = render(report, dict(head='a' * 40, merge_base='b' * 40))
-    assert '### Generated tests showing a difference (1)' in body and '`scale(50)`' in body and '<details>' in body, body
+    # A changed return value is not a new failure: it is listed, collapsed, under the heading that counts new failures.
+    assert "### Generated tests: calls that worked before and now fail in the project's code (0)" in body, body
+    assert 'Other generated tests whose outcome differs (1)' in body and '`scale(50)`' in body, body
 
 
 @pytest.mark.parametrize('on_disk', [True, False], ids=['change-on-disk', 'code-before-on-disk'])
@@ -141,7 +146,7 @@ def test_test_file_functions_and_docstring_only_changes_get_no_probes_and_the_re
     diff = ''.join(''.join(difflib.unified_diff(before[n].splitlines(True), after[n].splitlines(True), 'a/' + n, 'b/' + n))
                    for n in after if before[n] != after[n])
     probes = [dict(function='lib.py#scale', setup='from lib import scale', call='scale(50)', why='reaches the new branch')]
-    unchanged, ran_side = 'only its docstring, comments or layout changed', []
+    unchanged, ran_side = 'only its annotations, decorators, docstring or layout changed', []
     # With side-by-side execution (Python 3.12+) and without it (below 3.12, simulated here).
     for monitoring in (shadow._monitoring, lambda python: False):
         monkeypatch.setattr(shadow, '_monitoring', monitoring)
@@ -156,10 +161,90 @@ def test_test_file_functions_and_docstring_only_changes_get_no_probes_and_the_re
         asked = [line[3:] for line in params['messages'][0]['content'].splitlines() if line.startswith('## ')]
         assert asked == ['lib.py#scale'] and report['generated']['functions'] == 1, (asked, report['generated'])
         assert [row['call'] for row in report['generated_differences']] == ['scale(50)'], report['generated_differences']
-        # What was left out, and why, is in the report once: with side-by-side's list when it ran, else with the tier.
+        # What was left out of the probes, and why, is in the report with the tier.
         side = report.get('side_by_side')
-        left_out = side['not_compared'] if side is not None else report['generated']['not_compared']
-        assert left_out == {'lib.py#doc': unchanged, 'tests/test_lib.py#test_doc': 'in a test file'}, left_out
-        assert ('not_compared' in report['generated']) == (side is None), report['generated']
+        assert report['generated']['not_probed'] == {'lib.py#doc': unchanged, 'tests/test_lib.py#test_doc': 'in a test file'}
         ran_side.append(side is not None)
     assert ran_side == [sys.version_info >= (3, 12), False]
+
+
+def test_targets_reach_nested_functions_and_generators_and_leave_out_what_runs_the_same():
+    before = {'lib.py': 'def outer(x):\n    def inner(y):\n        return y\n    return inner(x)\n\n\n'
+                        'def items(xs):\n    return [x for x in xs]\n\n\n'
+                        'def typed(x):\n    return x\n\n\nasync def wait(x):\n    return x\n',
+              'tests/test_lib.py': 'def test_a():\n    assert 1\n'}
+    after = {'lib.py': 'def outer(x):\n    def inner(y):\n        return y + 1\n    return inner(x)\n\n\n'
+                       'def items(xs):\n    for x in xs:\n        yield x\n\n\n'
+                       'def typed(x: int) -> int:\n    """Typed."""\n    return x\n\n\nasync def wait(x):\n    return x + 1\n\n\n'
+                       'def added():\n    return 1\n',
+             'tests/test_lib.py': 'def test_a():\n    assert 2\n'}
+    rows = [dict(file='lib.py', symbol=s) for s in ('outer.<locals>.inner', 'items', 'typed', 'wait', 'added')]
+    rows.append(dict(file='tests/test_lib.py', symbol='test_a'))
+    found, skipped = generate.targets(rows, before, after)
+    # The nested function is probed through the function that holds it; a function that became a generator is a target.
+    assert sorted(t['id'] for t in found) == ['lib.py#items', 'lib.py#outer'], found
+    assert 'return y + 1' in next(t for t in found if t['id'] == 'lib.py#outer')['after']
+    assert skipped == {'lib.py#typed': 'only its annotations, decorators, docstring or layout changed', 'lib.py#wait': 'coroutine',
+                       'lib.py#added': 'not on both sides (new or removed)', 'tests/test_lib.py#test_a': 'in a test file'}
+
+
+def test_targets_are_the_most_changed_functions_up_to_the_cap_and_the_rest_are_listed(monkeypatch):
+    monkeypatch.setattr(generate, 'MAX_TARGETS', 2)
+    before = {'lib.py': ''.join(f'def f{i}(x):\n    return x\n\n\n' for i in range(3))}
+    after = {'lib.py': 'def f0(x):\n    return x + 1\n\n\ndef f1(x):\n    if x:\n        return x * 2\n    return [x, x]\n\n\n'
+                       'def f2(x):\n    return x - (x + 1)\n\n\n'}
+    found, skipped = generate.targets([dict(file='lib.py', symbol=f'f{i}') for i in range(3)], before, after)
+    assert [t['id'] for t in found] == ['lib.py#f1', 'lib.py#f2'], [(t['id'], t['weight']) for t in found]
+    assert skipped == {'lib.py#f0': 'more than 2 changed functions: the 2 most changed were probed'}
+    # Fewer functions get more probes each.
+    assert [generate.probes_per_function(n) for n in (1, 2, 3, 6, 7, 40)] == [8, 8, 5, 5, 3, 3]
+
+
+def test_a_django_probe_is_hosted_in_the_test_app_it_imports_from(tmp_path):
+    (tmp_path/'tests'/'queries').mkdir(parents=True)
+    (tmp_path/'tests'/'queries'/'__init__.py').write_text('')
+    probes = [(0, dict(setup='from queries.models import Number', call='Number.objects.none().union()')),
+              (1, dict(setup='from django.utils.text import slugify', call="slugify('a b')")),
+              (2, dict(setup='import queries.models as m', call='m.Number'))]
+    files, ids = generate.test_file('django-runtests', probes, tmp_path)
+    assert sorted(files) == ['tests/amu_generated/tests.py', 'tests/queries/test_amu_generated.py']
+    assert ids == {0: 'tests/queries/test_amu_generated.py::AmuGeneratedTests::test_amu_probe_0',
+                   1: 'tests/amu_generated/tests.py::AmuGeneratedTests::test_amu_probe_1',
+                   2: 'tests/queries/test_amu_generated.py::AmuGeneratedTests::test_amu_probe_2'}
+    for source in files.values():
+        compile(source, 'generated', 'exec')
+    # Other runners keep one file.
+    files, ids = generate.test_file('pytest', probes, tmp_path)
+    assert list(files) == ['test_amu_generated.py'] and len(ids) == 3
+
+
+def test_rows_are_ordered_one_per_function_first_and_newly_raising_calls_before_others():
+    def row(target, call, before, after):
+        return dict(target=target, call=call, before=[before, 'int', '1'], after=[after, 'int', '2'])
+    got = generate.ordered([row('a', 'a(1)', 'return', 'return'), row('a', 'a(2)', 'return', 'raise'),
+                            row('a', 'a(3)', 'raise', 'return'), row('b', 'b(1)', 'raise', 'raise'), row('c', 'c(1)', 'return', 'raise')])
+    assert [r['call'] for r in got] == ['a(2)', 'c(1)', 'b(1)', 'a(1)', 'a(3)']
+
+
+def test_a_call_that_now_fails_at_a_statement_that_is_not_a_raise_is_a_crash_row(tmp_path, monkeypatch):
+    monkeypatch.setattr(sys.modules[__name__], 'LIB1', 'def tested(x):\n    return x + 0\n\n\ndef scale(x):\n'
+                        '    if x == 7:\n        raise ValueError("seven")\n    import warnings\n'
+                        '    warnings.warn("old", DeprecationWarning)\n    return x.real * 2\n')
+    probes = [dict(function='lib.py#scale', setup='from lib import scale', call="scale('ab')", why='a string'),
+              dict(function='lib.py#scale', setup='from lib import scale', call="scale('cd')", why='another string'),
+              dict(function='lib.py#scale', setup='from lib import scale', call='scale(7)', why='the refused value'),
+              dict(function='lib.py#scale', setup='import warnings\nwarnings.simplefilter("error")\nfrom lib import scale',
+                   call='scale(3)', why='warnings as errors'),
+              dict(function='lib.py#scale', setup='from lib import scale\nclass Fake:\n    def __mul__(self, n):\n        return 0',
+                   call='scale(Fake())', why='a stand-in')]
+    report, _ = run(tmp_path, probes, monkeypatch)
+    rows = {row['call']: row for row in report['generated_differences']}
+    assert {call: (row.get('origin'), row.get('at')) for call, row in rows.items()} == {
+        "scale('ab')": ('crash', ['lib.py', 10]), "scale('cd')": ('crash', ['lib.py', 10]), 'scale(7)': ('raised', ['lib.py', 7]),
+        'scale(3)': ('raised', ['lib.py', 9]), 'scale(Fake())': ('crash', ['lib.py', 10])}, rows
+    assert [call for call, row in rows.items() if row.get('stand_in')] == ['scale(Fake())']
+    from amu.ci.render import render
+    body = render(report, dict(head='a' * 40, merge_base='b' * 40))
+    # Two calls that fail at the same statement are one row. The refusal the change wrote is not a crash, nor is a
+    # warning the probe itself turned into an error, nor a failure on a class the probe made up.
+    assert "now fail in the project's code (1)" in body and 'Other generated tests whose outcome differs (3)' in body, body
