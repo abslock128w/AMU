@@ -228,15 +228,20 @@ def test_rows_are_ordered_one_per_function_first_and_newly_raising_calls_before_
 
 def test_a_call_that_now_fails_at_a_statement_that_is_not_a_raise_is_a_crash_row(tmp_path, monkeypatch):
     monkeypatch.setattr(sys.modules[__name__], 'LIB1', 'def tested(x):\n    return x + 0\n\n\ndef scale(x):\n'
-                        '    if x == 7:\n        raise ValueError("seven")\n    return x.real * 2\n')
+                        '    if x == 7:\n        raise ValueError("seven")\n    import warnings\n'
+                        '    warnings.warn("old", DeprecationWarning)\n    return x.real * 2\n')
     probes = [dict(function='lib.py#scale', setup='from lib import scale', call="scale('ab')", why='a string'),
               dict(function='lib.py#scale', setup='from lib import scale', call="scale('cd')", why='another string'),
-              dict(function='lib.py#scale', setup='from lib import scale', call='scale(7)', why='the refused value')]
+              dict(function='lib.py#scale', setup='from lib import scale', call='scale(7)', why='the refused value'),
+              dict(function='lib.py#scale', setup='import warnings\nwarnings.simplefilter("error")\nfrom lib import scale',
+                   call='scale(3)', why='warnings as errors')]
     report, _ = run(tmp_path, probes, monkeypatch)
     rows = {row['call']: row for row in report['generated_differences']}
     assert {call: (row.get('origin'), row.get('at')) for call, row in rows.items()} == {
-        "scale('ab')": ('crash', ['lib.py', 8]), "scale('cd')": ('crash', ['lib.py', 8]), 'scale(7)': ('raised', ['lib.py', 7])}, rows
+        "scale('ab')": ('crash', ['lib.py', 10]), "scale('cd')": ('crash', ['lib.py', 10]), 'scale(7)': ('raised', ['lib.py', 7]),
+        'scale(3)': ('raised', ['lib.py', 9])}, rows
     from amu.ci.render import render
     body = render(report, dict(head='a' * 40, merge_base='b' * 40))
-    # Two calls that fail at the same statement are one row; the refusal the change wrote is not a crash.
-    assert "now fail in the project's code (1)" in body and 'Other generated tests whose outcome differs (1)' in body, body
+    # Two calls that fail at the same statement are one row. The refusal the change wrote is not a crash, nor is a
+    # warning the probe itself turned into an error.
+    assert "now fail in the project's code (1)" in body and 'Other generated tests whose outcome differs (2)' in body, body

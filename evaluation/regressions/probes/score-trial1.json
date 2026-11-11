@@ -1,0 +1,3559 @@
+[
+ {
+  "id": "attrs:1009:c9150d278c",
+  "seconds": 17.6,
+  "info": {
+   "model": "claude-opus-5-5",
+   "dollars_cap": 0.0,
+   "minutes_cap": 15.0,
+   "functions": 0,
+   "requests": 0,
+   "cost": 0.0,
+   "proposed": 0,
+   "compiled": 0,
+   "ran": 0,
+   "stable": 0,
+   "reached": 0,
+   "differed": 0,
+   "accepted": 0,
+   "backend": "api"
+  },
+  "regressed": [
+   "src/attr/_make.py#_ClassBuilder._make_getstate_setstate.slots_setstate"
+  ],
+  "kept": 0,
+  "restored": 0,
+  "intended": 0,
+  "other": 0,
+  "caught": false,
+  "caught_any": false,
+  "probes": []
+ },
+ {
+  "id": "attrs:1401:3b0378dd66",
+  "seconds": 55.8,
+  "info": {
+   "model": "claude-opus-5-5",
+   "dollars_cap": 0.0,
+   "minutes_cap": 15.0,
+   "functions": 1,
+   "requests": 1,
+   "cost": 0.0,
+   "proposed": 3,
+   "compiled": 3,
+   "ran": 3,
+   "stable": 3,
+   "reached": 3,
+   "differed": 3,
+   "accepted": 3,
+   "backend": "claude -p",
+   "cost_basis": "plan usage",
+   "seconds": 18.9
+  },
+  "regressed": [
+   "src/attr/_make.py#_transform_attrs"
+  ],
+  "kept": 3,
+  "restored": 3,
+  "intended": 0,
+  "other": 0,
+  "caught": true,
+  "caught_any": true,
+  "probes": [
+   {
+    "target": "src/attr/_make.py#_transform_attrs",
+    "call": "(attr.fields_dict(C).keys(), attr.asdict(C(1)))",
+    "before": [
+     "return",
+     "tuple",
+     "(dict_keys(['x', 'y']), {'x': 1, 'y': 2})"
+    ],
+    "after": [
+     "raise",
+     "TypeError",
+     "TypeError('test_amu_probe_0.<locals>.C.__init__() takes 1 positional argument but 2 were given')"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "(dict_keys(['x', 'y']), {'x': 1, 'y': 2})"
+    ],
+    "verdict": "restored"
+   },
+   {
+    "target": "src/attr/_make.py#_transform_attrs",
+    "call": "(list(attr.fields_dict(C)), attr.asdict(C('3')))",
+    "before": [
+     "return",
+     "tuple",
+     "(['a', 'b'], {'a': 3, 'b': 5})"
+    ],
+    "after": [
+     "raise",
+     "TypeError",
+     "TypeError('test_amu_probe_1.<locals>.C.__init__() takes 1 positional argument but 2 were given')"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "(['a', 'b'], {'a': 3, 'b': 5})"
+    ],
+    "verdict": "restored"
+   },
+   {
+    "target": "src/attr/_make.py#_transform_attrs",
+    "call": "(list(attr.fields_dict(C)), repr(C()))",
+    "before": [
+     "return",
+     "tuple",
+     "(['x'], 'C(x=1)')"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "([], 'C()')"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "(['x'], 'C(x=1)')"
+    ],
+    "verdict": "restored"
+   }
+  ]
+ },
+ {
+  "id": "attrs:759:f10d050864",
+  "seconds": 48.7,
+  "info": {
+   "model": "claude-opus-5-5",
+   "dollars_cap": 0.0,
+   "minutes_cap": 15.0,
+   "functions": 1,
+   "requests": 1,
+   "cost": 0.0,
+   "proposed": 3,
+   "compiled": 3,
+   "ran": 3,
+   "stable": 3,
+   "reached": 3,
+   "differed": 3,
+   "accepted": 3,
+   "backend": "claude -p",
+   "cost_basis": "plan usage",
+   "seconds": 11.1
+  },
+  "regressed": [
+   "src/attr/_funcs.py#evolve"
+  ],
+  "kept": 3,
+  "restored": 3,
+  "intended": 0,
+  "other": 0,
+  "caught": true,
+  "caught_any": true,
+  "probes": [
+   {
+    "target": "src/attr/_funcs.py#evolve",
+    "call": "evolve(outer, x=C(5, 6))",
+    "before": [
+     "return",
+     "test_amu_probe_0.<locals>.C",
+     "C(x=C(x=5, y=6), y=3)"
+    ],
+    "after": [
+     "raise",
+     "TypeError",
+     "TypeError('attr._funcs.evolve() argument after ** must be a mapping, not C')"
+    ],
+    "fix": [
+     "return",
+     "test_amu_probe_0.<locals>.C",
+     "C(x=C(x=5, y=6), y=3)"
+    ],
+    "verdict": "restored"
+   },
+   {
+    "target": "src/attr/_funcs.py#evolve",
+    "call": "evolve(outer, x=None)",
+    "before": [
+     "return",
+     "test_amu_probe_1.<locals>.C",
+     "C(x=None, y=3)"
+    ],
+    "after": [
+     "raise",
+     "TypeError",
+     "TypeError('attr._funcs.evolve() argument after ** must be a mapping, not NoneType')"
+    ],
+    "fix": [
+     "return",
+     "test_amu_probe_1.<locals>.C",
+     "C(x=None, y=3)"
+    ],
+    "verdict": "restored"
+   },
+   {
+    "target": "src/attr/_funcs.py#evolve",
+    "call": "evolve(outer, p=7)",
+    "before": [
+     "return",
+     "test_amu_probe_2.<locals>.Outer",
+     "Outer(_p=7, q=2)"
+    ],
+    "after": [
+     "raise",
+     "TypeError",
+     "TypeError('attr._funcs.evolve() argument after ** must be a mapping, not int')"
+    ],
+    "fix": [
+     "return",
+     "test_amu_probe_2.<locals>.Outer",
+     "Outer(_p=7, q=2)"
+    ],
+    "verdict": "restored"
+   }
+  ]
+ },
+ {
+  "id": "attrs:1267:6fda0a4e08",
+  "seconds": 136.1,
+  "info": {
+   "model": "claude-opus-5-5",
+   "dollars_cap": 0.0,
+   "minutes_cap": 15.0,
+   "functions": 8,
+   "requests": 2,
+   "cost": 0.0,
+   "proposed": 20,
+   "compiled": 20,
+   "ran": 19,
+   "stable": 19,
+   "reached": 19,
+   "differed": 2,
+   "accepted": 2,
+   "backend": "claude -p",
+   "cost_basis": "plan usage",
+   "seconds": 51.2
+  },
+  "regressed": [
+   "src/attr/_make.py#Converter.__init__",
+   "src/attr/_make.py#pipe.pipe_converter"
+  ],
+  "kept": 2,
+  "restored": 0,
+  "intended": 0,
+  "other": 2,
+  "caught": false,
+  "caught_any": false,
+  "probes": [
+   {
+    "target": "src/attr/_make.py#pipe",
+    "call": "attr.converters.pipe(int, str)('42')",
+    "before": [
+     "return",
+     "str",
+     "'42'"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'attr._make.Converter' object has no attribute '__call__'\")"
+    ],
+    "fix": [
+     "raise",
+     "TypeError",
+     "TypeError(\"Converter._takes_both() missing 2 required positional arguments: 'instance' and 'field'\")"
+    ],
+    "verdict": "other"
+   },
+   {
+    "target": "src/attr/_make.py#pipe",
+    "call": "(sorted(getattr(p, '__annotations__', {'missing': None}).keys()), p('3') if callable(p) else 'not-callable')",
+    "before": [
+     "return",
+     "tuple",
+     "(['val'], 3.0)"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'attr._make.Converter' object has no attribute '__call__'\")"
+    ],
+    "fix": [
+     "raise",
+     "TypeError",
+     "TypeError(\"Converter._takes_both() missing 2 required positional arguments: 'instance' and 'field'\")"
+    ],
+    "verdict": "other"
+   }
+  ]
+ },
+ {
+  "id": "requests:7272:6404f345e5",
+  "seconds": 1430.3,
+  "info": {
+   "model": "claude-opus-5-5",
+   "dollars_cap": 0.0,
+   "minutes_cap": 15.0,
+   "functions": 225,
+   "requests": 42,
+   "cost": 0.0,
+   "proposed": 433,
+   "compiled": 432,
+   "ran": 429,
+   "stable": 429,
+   "reached": 429,
+   "differed": 25,
+   "accepted": 25,
+   "backend": "claude -p",
+   "cost_basis": "plan usage",
+   "seconds": 992.6
+  },
+  "regressed": [
+   "src/requests/models.py#PreparedRequest.prepare_body"
+  ],
+  "kept": 25,
+  "restored": 2,
+  "intended": 23,
+  "other": 0,
+  "caught": true,
+  "caught_any": true,
+  "probes": [
+   {
+    "target": "src/requests/utils.py#dict_to_sequence",
+    "call": "list(dict_to_sequence(obj))",
+    "before": [
+     "return",
+     "list",
+     "[('a', 1), ('b', 2)]"
+    ],
+    "after": [
+     "raise",
+     "TypeError",
+     "TypeError(\"'Lazy' object is not iterable\")"
+    ],
+    "fix": [
+     "raise",
+     "TypeError",
+     "TypeError(\"'Lazy' object is not iterable\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/utils.py#get_unicode_from_response",
+    "call": "get_unicode_from_response(r)",
+    "before": [
+     "return",
+     "bytes",
+     "b'hello \\xff world'"
+    ],
+    "after": [
+     "return",
+     "str",
+     "'hello \ufffd world'"
+    ],
+    "fix": [
+     "return",
+     "str",
+     "'hello \ufffd world'"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/utils.py#get_unicode_from_response",
+    "call": "get_unicode_from_response(r)",
+    "before": [
+     "return",
+     "bytes",
+     "b'abc'"
+    ],
+    "after": [
+     "return",
+     "str",
+     "'abc'"
+    ],
+    "fix": [
+     "return",
+     "str",
+     "'abc'"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/auth.py#HTTPDigestAuth.handle_401",
+    "call": "(lambda out: (out.status_code, sorted(out.request.headers.items()), len(out.history)))(a.handle_401(r))",
+    "before": [
+     "return",
+     "tuple",
+     "(200, [('Authorization', None)], 1)"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "(200, [], 1)"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "(200, [], 1)"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/auth.py#HTTPDigestAuth.handle_401",
+    "call": "(lambda out: (out is r, a._thread_local.num_401_calls))(a.handle_401(r))",
+    "before": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'str' object has no attribute 'seek'\")"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "(True, 1)"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "(True, 1)"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/auth.py#HTTPDigestAuth.__call__",
+    "call": "repr(auth(req).headers.get('Authorization', 'MISSING'))",
+    "before": [
+     "return",
+     "str",
+     "'None'"
+    ],
+    "after": [
+     "return",
+     "str",
+     "\"'MISSING'\""
+    ],
+    "fix": [
+     "return",
+     "str",
+     "\"'MISSING'\""
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/auth.py#HTTPDigestAuth.__call__",
+    "call": "repr(('Authorization' in auth(req).headers, req.headers.get('Authorization', 'MISSING')))",
+    "before": [
+     "return",
+     "str",
+     "'(True, None)'"
+    ],
+    "after": [
+     "return",
+     "str",
+     "\"(False, 'MISSING')\""
+    ],
+    "fix": [
+     "return",
+     "str",
+     "\"(False, 'MISSING')\""
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#RequestsCookieJar.set_cookie",
+    "call": "(jar.set_cookie(c), jar.items())",
+    "before": [
+     "return",
+     "tuple",
+     "(None, [('a', 123)])"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'int' object has no attribute 'startswith'\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'int' object has no attribute 'startswith'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#RequestsCookieJar.set_cookie",
+    "call": "(jar.set_cookie(c), jar['a'])",
+    "before": [
+     "return",
+     "tuple",
+     "(None, 1.5)"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'float' object has no attribute 'startswith'\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'float' object has no attribute 'startswith'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#RequestsCookieJar.__setitem__",
+    "call": "(jar.__setitem__('n', 42), jar.items())",
+    "before": [
+     "return",
+     "tuple",
+     "(None, [('n', 42)])"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'int' object has no attribute 'startswith'\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'int' object has no attribute 'startswith'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#RequestsCookieJar.items",
+    "call": "cookiejar_from_dict({'a': 1, 'b': None, 'c': 'x'}).items()",
+    "before": [
+     "return",
+     "list",
+     "[('a', 1), ('b', None), ('c', 'x')]"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'int' object has no attribute 'startswith'\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'int' object has no attribute 'startswith'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#RequestsCookieJar._find_no_duplicates",
+    "call": "jar.get('a', 'DEFAULT')",
+    "before": [
+     "return",
+     "str",
+     "'DEFAULT'"
+    ],
+    "after": [
+     "return",
+     "str",
+     "''"
+    ],
+    "fix": [
+     "return",
+     "str",
+     "''"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#RequestsCookieJar._find_no_duplicates",
+    "call": "jar._find_no_duplicates('a', domain='example.com', path='/')",
+    "before": [
+     "raise",
+     "KeyError",
+     "KeyError(\"name='a', domain='example.com', path='/'\")"
+    ],
+    "after": [
+     "return",
+     "str",
+     "''"
+    ],
+    "fix": [
+     "return",
+     "str",
+     "''"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#RequestsCookieJar._find_no_duplicates",
+    "call": "('a' in jar, jar.get('a'), jar['b'])",
+    "before": [
+     "return",
+     "tuple",
+     "(False, None, 'x')"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "(True, '', 'x')"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "(True, '', 'x')"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#RequestsCookieJar.copy",
+    "call": "(lambda c: (sorted(c.items()), c.get('a', 'DEF')))(jar.copy())",
+    "before": [
+     "return",
+     "tuple",
+     "([('a', ''), ('b', 'v')], 'DEF')"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "([('a', ''), ('b', 'v')], '')"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "([('a', ''), ('b', 'v')], '')"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#RequestsCookieJar.__getstate__",
+    "call": "(lambda j: (sorted(j.items()), j.get('a', 'DEF')))(pickle.loads(pickle.dumps(jar)))",
+    "before": [
+     "return",
+     "tuple",
+     "([('a', ''), ('b', 'v')], 'DEF')"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "([('a', ''), ('b', 'v')], '')"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "([('a', ''), ('b', 'v')], '')"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#_copy_cookie_jar",
+    "call": "run()",
+    "before": [
+     "return",
+     "tuple",
+     "('err', 'TypeError')"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "('ok', 'J', ['a'])"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "('ok', 'J', ['a'])"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#merge_cookies",
+    "call": "sorted(c.name for c in merge_cookies(jar, src))",
+    "before": [
+     "return",
+     "list",
+     "['a', 'b']"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError('no update here')"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError('no update here')"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#merge_cookies",
+    "call": "sorted(c.name for c in merge_cookies(jar, src))",
+    "before": [
+     "raise",
+     "TypeError",
+     "TypeError(\"'NoneType' object is not callable\")"
+    ],
+    "after": [
+     "return",
+     "list",
+     "['x']"
+    ],
+    "fix": [
+     "return",
+     "list",
+     "['x']"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/hooks.py#dispatch_hook",
+    "call": "repr(dispatch_hook('response', hooks, 'data'))",
+    "before": [
+     "raise",
+     "TypeError",
+     "TypeError(\"'Obj' object is not callable\")"
+    ],
+    "after": [
+     "raise",
+     "TypeError",
+     "TypeError(\"'Obj' object is not iterable\")"
+    ],
+    "fix": [
+     "raise",
+     "TypeError",
+     "TypeError(\"'Obj' object is not iterable\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/models.py#PreparedRequest.prepare_body",
+    "call": "(p.prepare_body(d, None), p.body is d, dict(p.headers))[1:]",
+    "before": [
+     "return",
+     "tuple",
+     "(True, {'Transfer-Encoding': 'chunked'})"
+    ],
+    "after": [
+     "raise",
+     "TypeError",
+     "TypeError(\"'Anything' object is not iterable\")"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "(True, {'Transfer-Encoding': 'chunked'})"
+    ],
+    "verdict": "restored"
+   },
+   {
+    "target": "src/requests/models.py#PreparedRequest.prepare_body",
+    "call": "(p.prepare_body(d, None), p.body is d, dict(p.headers))[1:]",
+    "before": [
+     "return",
+     "tuple",
+     "(True, {'Transfer-Encoding': 'chunked'})"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "(True, {})"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "(True, {'Transfer-Encoding': 'chunked'})"
+    ],
+    "verdict": "restored"
+   },
+   {
+    "target": "src/requests/sessions.py#SessionRedirectMixin.rebuild_auth",
+    "call": "(s.rebuild_auth(p, resp), dict(p.headers))",
+    "before": [
+     "return",
+     "tuple",
+     "(None, {})"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'NoneType' object has no attribute 'url'\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'NoneType' object has no attribute 'url'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/utils.py#get_netrc_auth",
+    "call": "get_netrc_auth('file:///etc/hosts')",
+    "before": [
+     "return",
+     "tuple",
+     "('dflt', 'dpass')"
+    ],
+    "after": [
+     "return",
+     "NoneType",
+     "None"
+    ],
+    "fix": [
+     "return",
+     "NoneType",
+     "None"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/utils.py#get_netrc_auth",
+    "call": "get_netrc_auth(b'http://example.com/path')",
+    "before": [
+     "return",
+     "tuple",
+     "('dflt', 'dpass')"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "('user', 'pass')"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "('user', 'pass')"
+    ],
+    "verdict": "intended"
+   }
+  ]
+ },
+ {
+  "id": "requests:7272:6f205ff422",
+  "seconds": 1430.3,
+  "info": {
+   "model": "claude-opus-5-5",
+   "dollars_cap": 0.0,
+   "minutes_cap": 15.0,
+   "functions": 225,
+   "requests": 42,
+   "cost": 0.0,
+   "proposed": 433,
+   "compiled": 432,
+   "ran": 429,
+   "stable": 429,
+   "reached": 429,
+   "differed": 25,
+   "accepted": 25,
+   "backend": "claude -p",
+   "cost_basis": "plan usage",
+   "seconds": 992.6
+  },
+  "regressed": [
+   "src/requests/models.py#RequestEncodingMixin._encode_files"
+  ],
+  "kept": 25,
+  "restored": 2,
+  "intended": 23,
+  "other": 0,
+  "caught": false,
+  "caught_any": true,
+  "probes": [
+   {
+    "target": "src/requests/utils.py#dict_to_sequence",
+    "call": "list(dict_to_sequence(obj))",
+    "before": [
+     "return",
+     "list",
+     "[('a', 1), ('b', 2)]"
+    ],
+    "after": [
+     "raise",
+     "TypeError",
+     "TypeError(\"'Lazy' object is not iterable\")"
+    ],
+    "fix": [
+     "raise",
+     "TypeError",
+     "TypeError(\"'Lazy' object is not iterable\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/utils.py#get_unicode_from_response",
+    "call": "get_unicode_from_response(r)",
+    "before": [
+     "return",
+     "bytes",
+     "b'hello \\xff world'"
+    ],
+    "after": [
+     "return",
+     "str",
+     "'hello \ufffd world'"
+    ],
+    "fix": [
+     "return",
+     "str",
+     "'hello \ufffd world'"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/utils.py#get_unicode_from_response",
+    "call": "get_unicode_from_response(r)",
+    "before": [
+     "return",
+     "bytes",
+     "b'abc'"
+    ],
+    "after": [
+     "return",
+     "str",
+     "'abc'"
+    ],
+    "fix": [
+     "return",
+     "str",
+     "'abc'"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/auth.py#HTTPDigestAuth.handle_401",
+    "call": "(lambda out: (out.status_code, sorted(out.request.headers.items()), len(out.history)))(a.handle_401(r))",
+    "before": [
+     "return",
+     "tuple",
+     "(200, [('Authorization', None)], 1)"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "(200, [], 1)"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "(200, [], 1)"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/auth.py#HTTPDigestAuth.handle_401",
+    "call": "(lambda out: (out is r, a._thread_local.num_401_calls))(a.handle_401(r))",
+    "before": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'str' object has no attribute 'seek'\")"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "(True, 1)"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "(True, 1)"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/auth.py#HTTPDigestAuth.__call__",
+    "call": "repr(auth(req).headers.get('Authorization', 'MISSING'))",
+    "before": [
+     "return",
+     "str",
+     "'None'"
+    ],
+    "after": [
+     "return",
+     "str",
+     "\"'MISSING'\""
+    ],
+    "fix": [
+     "return",
+     "str",
+     "\"'MISSING'\""
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/auth.py#HTTPDigestAuth.__call__",
+    "call": "repr(('Authorization' in auth(req).headers, req.headers.get('Authorization', 'MISSING')))",
+    "before": [
+     "return",
+     "str",
+     "'(True, None)'"
+    ],
+    "after": [
+     "return",
+     "str",
+     "\"(False, 'MISSING')\""
+    ],
+    "fix": [
+     "return",
+     "str",
+     "\"(False, 'MISSING')\""
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#RequestsCookieJar.set_cookie",
+    "call": "(jar.set_cookie(c), jar.items())",
+    "before": [
+     "return",
+     "tuple",
+     "(None, [('a', 123)])"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'int' object has no attribute 'startswith'\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'int' object has no attribute 'startswith'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#RequestsCookieJar.set_cookie",
+    "call": "(jar.set_cookie(c), jar['a'])",
+    "before": [
+     "return",
+     "tuple",
+     "(None, 1.5)"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'float' object has no attribute 'startswith'\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'float' object has no attribute 'startswith'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#RequestsCookieJar.__setitem__",
+    "call": "(jar.__setitem__('n', 42), jar.items())",
+    "before": [
+     "return",
+     "tuple",
+     "(None, [('n', 42)])"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'int' object has no attribute 'startswith'\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'int' object has no attribute 'startswith'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#RequestsCookieJar.items",
+    "call": "cookiejar_from_dict({'a': 1, 'b': None, 'c': 'x'}).items()",
+    "before": [
+     "return",
+     "list",
+     "[('a', 1), ('b', None), ('c', 'x')]"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'int' object has no attribute 'startswith'\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'int' object has no attribute 'startswith'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#RequestsCookieJar._find_no_duplicates",
+    "call": "jar.get('a', 'DEFAULT')",
+    "before": [
+     "return",
+     "str",
+     "'DEFAULT'"
+    ],
+    "after": [
+     "return",
+     "str",
+     "''"
+    ],
+    "fix": [
+     "return",
+     "str",
+     "''"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#RequestsCookieJar._find_no_duplicates",
+    "call": "jar._find_no_duplicates('a', domain='example.com', path='/')",
+    "before": [
+     "raise",
+     "KeyError",
+     "KeyError(\"name='a', domain='example.com', path='/'\")"
+    ],
+    "after": [
+     "return",
+     "str",
+     "''"
+    ],
+    "fix": [
+     "return",
+     "str",
+     "''"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#RequestsCookieJar._find_no_duplicates",
+    "call": "('a' in jar, jar.get('a'), jar['b'])",
+    "before": [
+     "return",
+     "tuple",
+     "(False, None, 'x')"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "(True, '', 'x')"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "(True, '', 'x')"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#RequestsCookieJar.copy",
+    "call": "(lambda c: (sorted(c.items()), c.get('a', 'DEF')))(jar.copy())",
+    "before": [
+     "return",
+     "tuple",
+     "([('a', ''), ('b', 'v')], 'DEF')"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "([('a', ''), ('b', 'v')], '')"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "([('a', ''), ('b', 'v')], '')"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#RequestsCookieJar.__getstate__",
+    "call": "(lambda j: (sorted(j.items()), j.get('a', 'DEF')))(pickle.loads(pickle.dumps(jar)))",
+    "before": [
+     "return",
+     "tuple",
+     "([('a', ''), ('b', 'v')], 'DEF')"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "([('a', ''), ('b', 'v')], '')"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "([('a', ''), ('b', 'v')], '')"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#_copy_cookie_jar",
+    "call": "run()",
+    "before": [
+     "return",
+     "tuple",
+     "('err', 'TypeError')"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "('ok', 'J', ['a'])"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "('ok', 'J', ['a'])"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#merge_cookies",
+    "call": "sorted(c.name for c in merge_cookies(jar, src))",
+    "before": [
+     "return",
+     "list",
+     "['a', 'b']"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError('no update here')"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError('no update here')"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#merge_cookies",
+    "call": "sorted(c.name for c in merge_cookies(jar, src))",
+    "before": [
+     "raise",
+     "TypeError",
+     "TypeError(\"'NoneType' object is not callable\")"
+    ],
+    "after": [
+     "return",
+     "list",
+     "['x']"
+    ],
+    "fix": [
+     "return",
+     "list",
+     "['x']"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/hooks.py#dispatch_hook",
+    "call": "repr(dispatch_hook('response', hooks, 'data'))",
+    "before": [
+     "raise",
+     "TypeError",
+     "TypeError(\"'Obj' object is not callable\")"
+    ],
+    "after": [
+     "raise",
+     "TypeError",
+     "TypeError(\"'Obj' object is not iterable\")"
+    ],
+    "fix": [
+     "raise",
+     "TypeError",
+     "TypeError(\"'Obj' object is not iterable\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/models.py#PreparedRequest.prepare_body",
+    "call": "(p.prepare_body(d, None), p.body is d, dict(p.headers))[1:]",
+    "before": [
+     "return",
+     "tuple",
+     "(True, {'Transfer-Encoding': 'chunked'})"
+    ],
+    "after": [
+     "raise",
+     "TypeError",
+     "TypeError(\"'Anything' object is not iterable\")"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "(True, {'Transfer-Encoding': 'chunked'})"
+    ],
+    "verdict": "restored"
+   },
+   {
+    "target": "src/requests/models.py#PreparedRequest.prepare_body",
+    "call": "(p.prepare_body(d, None), p.body is d, dict(p.headers))[1:]",
+    "before": [
+     "return",
+     "tuple",
+     "(True, {'Transfer-Encoding': 'chunked'})"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "(True, {})"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "(True, {'Transfer-Encoding': 'chunked'})"
+    ],
+    "verdict": "restored"
+   },
+   {
+    "target": "src/requests/sessions.py#SessionRedirectMixin.rebuild_auth",
+    "call": "(s.rebuild_auth(p, resp), dict(p.headers))",
+    "before": [
+     "return",
+     "tuple",
+     "(None, {})"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'NoneType' object has no attribute 'url'\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'NoneType' object has no attribute 'url'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/utils.py#get_netrc_auth",
+    "call": "get_netrc_auth('file:///etc/hosts')",
+    "before": [
+     "return",
+     "tuple",
+     "('dflt', 'dpass')"
+    ],
+    "after": [
+     "return",
+     "NoneType",
+     "None"
+    ],
+    "fix": [
+     "return",
+     "NoneType",
+     "None"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/utils.py#get_netrc_auth",
+    "call": "get_netrc_auth(b'http://example.com/path')",
+    "before": [
+     "return",
+     "tuple",
+     "('dflt', 'dpass')"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "('user', 'pass')"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "('user', 'pass')"
+    ],
+    "verdict": "intended"
+   }
+  ]
+ },
+ {
+  "id": "requests:7272:6f66281a1d",
+  "seconds": 1430.3,
+  "info": {
+   "model": "claude-opus-5-5",
+   "dollars_cap": 0.0,
+   "minutes_cap": 15.0,
+   "functions": 225,
+   "requests": 42,
+   "cost": 0.0,
+   "proposed": 433,
+   "compiled": 432,
+   "ran": 429,
+   "stable": 429,
+   "reached": 429,
+   "differed": 25,
+   "accepted": 25,
+   "backend": "claude -p",
+   "cost_basis": "plan usage",
+   "seconds": 992.6
+  },
+  "regressed": [
+   "src/requests/models.py#RequestEncodingMixin._encode_params",
+   "src/requests/models.py#RequestEncodingMixin._encode_files",
+   "src/requests/models.py#PreparedRequest.prepare_body"
+  ],
+  "kept": 25,
+  "restored": 2,
+  "intended": 23,
+  "other": 0,
+  "caught": true,
+  "caught_any": true,
+  "probes": [
+   {
+    "target": "src/requests/utils.py#dict_to_sequence",
+    "call": "list(dict_to_sequence(obj))",
+    "before": [
+     "return",
+     "list",
+     "[('a', 1), ('b', 2)]"
+    ],
+    "after": [
+     "raise",
+     "TypeError",
+     "TypeError(\"'Lazy' object is not iterable\")"
+    ],
+    "fix": [
+     "raise",
+     "TypeError",
+     "TypeError(\"'Lazy' object is not iterable\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/utils.py#get_unicode_from_response",
+    "call": "get_unicode_from_response(r)",
+    "before": [
+     "return",
+     "bytes",
+     "b'hello \\xff world'"
+    ],
+    "after": [
+     "return",
+     "str",
+     "'hello \ufffd world'"
+    ],
+    "fix": [
+     "return",
+     "str",
+     "'hello \ufffd world'"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/utils.py#get_unicode_from_response",
+    "call": "get_unicode_from_response(r)",
+    "before": [
+     "return",
+     "bytes",
+     "b'abc'"
+    ],
+    "after": [
+     "return",
+     "str",
+     "'abc'"
+    ],
+    "fix": [
+     "return",
+     "str",
+     "'abc'"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/auth.py#HTTPDigestAuth.handle_401",
+    "call": "(lambda out: (out.status_code, sorted(out.request.headers.items()), len(out.history)))(a.handle_401(r))",
+    "before": [
+     "return",
+     "tuple",
+     "(200, [('Authorization', None)], 1)"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "(200, [], 1)"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "(200, [], 1)"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/auth.py#HTTPDigestAuth.handle_401",
+    "call": "(lambda out: (out is r, a._thread_local.num_401_calls))(a.handle_401(r))",
+    "before": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'str' object has no attribute 'seek'\")"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "(True, 1)"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "(True, 1)"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/auth.py#HTTPDigestAuth.__call__",
+    "call": "repr(auth(req).headers.get('Authorization', 'MISSING'))",
+    "before": [
+     "return",
+     "str",
+     "'None'"
+    ],
+    "after": [
+     "return",
+     "str",
+     "\"'MISSING'\""
+    ],
+    "fix": [
+     "return",
+     "str",
+     "\"'MISSING'\""
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/auth.py#HTTPDigestAuth.__call__",
+    "call": "repr(('Authorization' in auth(req).headers, req.headers.get('Authorization', 'MISSING')))",
+    "before": [
+     "return",
+     "str",
+     "'(True, None)'"
+    ],
+    "after": [
+     "return",
+     "str",
+     "\"(False, 'MISSING')\""
+    ],
+    "fix": [
+     "return",
+     "str",
+     "\"(False, 'MISSING')\""
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#RequestsCookieJar.set_cookie",
+    "call": "(jar.set_cookie(c), jar.items())",
+    "before": [
+     "return",
+     "tuple",
+     "(None, [('a', 123)])"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'int' object has no attribute 'startswith'\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'int' object has no attribute 'startswith'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#RequestsCookieJar.set_cookie",
+    "call": "(jar.set_cookie(c), jar['a'])",
+    "before": [
+     "return",
+     "tuple",
+     "(None, 1.5)"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'float' object has no attribute 'startswith'\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'float' object has no attribute 'startswith'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#RequestsCookieJar.__setitem__",
+    "call": "(jar.__setitem__('n', 42), jar.items())",
+    "before": [
+     "return",
+     "tuple",
+     "(None, [('n', 42)])"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'int' object has no attribute 'startswith'\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'int' object has no attribute 'startswith'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#RequestsCookieJar.items",
+    "call": "cookiejar_from_dict({'a': 1, 'b': None, 'c': 'x'}).items()",
+    "before": [
+     "return",
+     "list",
+     "[('a', 1), ('b', None), ('c', 'x')]"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'int' object has no attribute 'startswith'\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'int' object has no attribute 'startswith'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#RequestsCookieJar._find_no_duplicates",
+    "call": "jar.get('a', 'DEFAULT')",
+    "before": [
+     "return",
+     "str",
+     "'DEFAULT'"
+    ],
+    "after": [
+     "return",
+     "str",
+     "''"
+    ],
+    "fix": [
+     "return",
+     "str",
+     "''"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#RequestsCookieJar._find_no_duplicates",
+    "call": "jar._find_no_duplicates('a', domain='example.com', path='/')",
+    "before": [
+     "raise",
+     "KeyError",
+     "KeyError(\"name='a', domain='example.com', path='/'\")"
+    ],
+    "after": [
+     "return",
+     "str",
+     "''"
+    ],
+    "fix": [
+     "return",
+     "str",
+     "''"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#RequestsCookieJar._find_no_duplicates",
+    "call": "('a' in jar, jar.get('a'), jar['b'])",
+    "before": [
+     "return",
+     "tuple",
+     "(False, None, 'x')"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "(True, '', 'x')"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "(True, '', 'x')"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#RequestsCookieJar.copy",
+    "call": "(lambda c: (sorted(c.items()), c.get('a', 'DEF')))(jar.copy())",
+    "before": [
+     "return",
+     "tuple",
+     "([('a', ''), ('b', 'v')], 'DEF')"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "([('a', ''), ('b', 'v')], '')"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "([('a', ''), ('b', 'v')], '')"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#RequestsCookieJar.__getstate__",
+    "call": "(lambda j: (sorted(j.items()), j.get('a', 'DEF')))(pickle.loads(pickle.dumps(jar)))",
+    "before": [
+     "return",
+     "tuple",
+     "([('a', ''), ('b', 'v')], 'DEF')"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "([('a', ''), ('b', 'v')], '')"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "([('a', ''), ('b', 'v')], '')"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#_copy_cookie_jar",
+    "call": "run()",
+    "before": [
+     "return",
+     "tuple",
+     "('err', 'TypeError')"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "('ok', 'J', ['a'])"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "('ok', 'J', ['a'])"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#merge_cookies",
+    "call": "sorted(c.name for c in merge_cookies(jar, src))",
+    "before": [
+     "return",
+     "list",
+     "['a', 'b']"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError('no update here')"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError('no update here')"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/cookies.py#merge_cookies",
+    "call": "sorted(c.name for c in merge_cookies(jar, src))",
+    "before": [
+     "raise",
+     "TypeError",
+     "TypeError(\"'NoneType' object is not callable\")"
+    ],
+    "after": [
+     "return",
+     "list",
+     "['x']"
+    ],
+    "fix": [
+     "return",
+     "list",
+     "['x']"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/hooks.py#dispatch_hook",
+    "call": "repr(dispatch_hook('response', hooks, 'data'))",
+    "before": [
+     "raise",
+     "TypeError",
+     "TypeError(\"'Obj' object is not callable\")"
+    ],
+    "after": [
+     "raise",
+     "TypeError",
+     "TypeError(\"'Obj' object is not iterable\")"
+    ],
+    "fix": [
+     "raise",
+     "TypeError",
+     "TypeError(\"'Obj' object is not iterable\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/models.py#PreparedRequest.prepare_body",
+    "call": "(p.prepare_body(d, None), p.body is d, dict(p.headers))[1:]",
+    "before": [
+     "return",
+     "tuple",
+     "(True, {'Transfer-Encoding': 'chunked'})"
+    ],
+    "after": [
+     "raise",
+     "TypeError",
+     "TypeError(\"'Anything' object is not iterable\")"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "(True, {'Transfer-Encoding': 'chunked'})"
+    ],
+    "verdict": "restored"
+   },
+   {
+    "target": "src/requests/models.py#PreparedRequest.prepare_body",
+    "call": "(p.prepare_body(d, None), p.body is d, dict(p.headers))[1:]",
+    "before": [
+     "return",
+     "tuple",
+     "(True, {'Transfer-Encoding': 'chunked'})"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "(True, {})"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "(True, {'Transfer-Encoding': 'chunked'})"
+    ],
+    "verdict": "restored"
+   },
+   {
+    "target": "src/requests/sessions.py#SessionRedirectMixin.rebuild_auth",
+    "call": "(s.rebuild_auth(p, resp), dict(p.headers))",
+    "before": [
+     "return",
+     "tuple",
+     "(None, {})"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'NoneType' object has no attribute 'url'\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'NoneType' object has no attribute 'url'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/utils.py#get_netrc_auth",
+    "call": "get_netrc_auth('file:///etc/hosts')",
+    "before": [
+     "return",
+     "tuple",
+     "('dflt', 'dpass')"
+    ],
+    "after": [
+     "return",
+     "NoneType",
+     "None"
+    ],
+    "fix": [
+     "return",
+     "NoneType",
+     "None"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "src/requests/utils.py#get_netrc_auth",
+    "call": "get_netrc_auth(b'http://example.com/path')",
+    "before": [
+     "return",
+     "tuple",
+     "('dflt', 'dpass')"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "('user', 'pass')"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "('user', 'pass')"
+    ],
+    "verdict": "intended"
+   }
+  ]
+ },
+ {
+  "id": "requests:6644:fd628095d7",
+  "seconds": 364.7,
+  "info": {
+   "model": "claude-opus-5-5",
+   "dollars_cap": 0.0,
+   "minutes_cap": 15.0,
+   "functions": 1,
+   "requests": 1,
+   "cost": 0.0,
+   "proposed": 3,
+   "compiled": 3,
+   "ran": 3,
+   "stable": 3,
+   "reached": 3,
+   "differed": 2,
+   "accepted": 2,
+   "backend": "claude -p",
+   "cost_basis": "plan usage",
+   "seconds": 11.7
+  },
+  "regressed": [
+   "src/requests/adapters.py#HTTPAdapter.request_url"
+  ],
+  "kept": 2,
+  "restored": 2,
+  "intended": 0,
+  "other": 0,
+  "caught": true,
+  "caught_any": true,
+  "probes": [
+   {
+    "target": "src/requests/adapters.py#HTTPAdapter.request_url",
+    "call": "a.request_url(p, {'http': 'socks5://127.0.0.1:1080'})",
+    "before": [
+     "return",
+     "str",
+     "'///a//b?x=1'"
+    ],
+    "after": [
+     "return",
+     "str",
+     "'/a//b?x=1'"
+    ],
+    "fix": [
+     "return",
+     "str",
+     "'///a//b?x=1'"
+    ],
+    "verdict": "restored"
+   },
+   {
+    "target": "src/requests/adapters.py#HTTPAdapter.request_url",
+    "call": "a.request_url(p, {'https': 'http://proxy:3128'})",
+    "before": [
+     "return",
+     "str",
+     "'//?q=//x'"
+    ],
+    "after": [
+     "return",
+     "str",
+     "'/?q=//x'"
+    ],
+    "fix": [
+     "return",
+     "str",
+     "'//?q=//x'"
+    ],
+    "verdict": "restored"
+   }
+  ]
+ },
+ {
+  "id": "django:18270:7bf3ac3ee2",
+  "seconds": 202.4,
+  "info": {
+   "model": "claude-opus-5-5",
+   "dollars_cap": 0.0,
+   "minutes_cap": 15.0,
+   "functions": 1,
+   "requests": 1,
+   "cost": 0.0,
+   "proposed": 3,
+   "compiled": 3,
+   "ran": 3,
+   "stable": 3,
+   "reached": 3,
+   "differed": 1,
+   "accepted": 1,
+   "backend": "claude -p",
+   "cost_basis": "plan usage",
+   "seconds": 25.3
+  },
+  "regressed": [
+   "django/urls/resolvers.py#RoutePattern.match"
+  ],
+  "kept": 1,
+  "restored": 1,
+  "intended": 0,
+  "other": 0,
+  "caught": true,
+  "caught_any": true,
+  "probes": [
+   {
+    "target": "django/urls/resolvers.py#RoutePattern.match",
+    "call": "p.match(\"translated/extra/\")",
+    "before": [
+     "return",
+     "tuple",
+     "('extra/', (), {})"
+    ],
+    "after": [
+     "raise",
+     "TypeError",
+     "TypeError('startswith first arg must be str or a tuple of str, not __proxy__')"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "('extra/', (), {})"
+    ],
+    "verdict": "restored"
+   }
+  ]
+ },
+ {
+  "id": "django:19494:2a6e0bd72d",
+  "seconds": 291.2,
+  "info": {
+   "model": "claude-opus-5-5",
+   "dollars_cap": 0.0,
+   "minutes_cap": 15.0,
+   "functions": 2,
+   "requests": 1,
+   "cost": 0.0,
+   "proposed": 5,
+   "compiled": 5,
+   "ran": 5,
+   "stable": 5,
+   "reached": 5,
+   "differed": 4,
+   "accepted": 4,
+   "backend": "claude -p",
+   "cost_basis": "plan usage",
+   "seconds": 23.4
+  },
+  "regressed": [
+   "django/db/models/expressions.py#BaseExpression.replace_expressions"
+  ],
+  "kept": 4,
+  "restored": 0,
+  "intended": 4,
+  "other": 0,
+  "caught": false,
+  "caught_any": false,
+  "probes": [
+   {
+    "target": "django/db/models/aggregates.py#Aggregate.__init__",
+    "call": "(repr(agg), repr(agg.filter), [repr(e) for e in agg.get_source_expressions()])",
+    "before": [
+     "return",
+     "tuple",
+     "('Count(F(pk))', '<Q: (AND: )>', ['F(pk)', '<Q: (AND: )>', 'None'])"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "('Count(F(pk), filter=(AND: ))', 'AggregateFilter((AND: ))', ['F(pk)', 'AggregateFilter((AND: ))', 'None'])"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "('Count(F(pk), filter=(AND: ))', 'AggregateFilter((AND: ))', ['F(pk)', 'AggregateFilter((AND: ))', 'None'])"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "django/db/models/aggregates.py#Aggregate.resolve_expression",
+    "call": "str(qs.query)",
+    "before": [
+     "return",
+     "str",
+     "'SELECT COUNT(\"auth_user\".\"id\") AS \"n\" FROM \"auth_user\" GROUP BY \"auth_user\".\"id\", \"auth_user\".\"password\", \"auth_user\".\"last_login\", \"auth_user\".\"is_superuser\", \"auth_user\".\"username\", \"auth_user\".\"first_name\", \"auth_user\".\"last_name\", \"auth_user\".\"email\", \"auth_user\".\"is_staff\", \"auth_user\".\"is_active\", \"auth_user\".\"date_joined\"'"
+    ],
+    "after": [
+     "return",
+     "str",
+     "'SELECT COUNT(\"auth_user\".\"id\") FILTER (WHERE True) AS \"n\" FROM \"auth_user\" GROUP BY \"auth_user\".\"id\", \"auth_user\".\"password\", \"auth_user\".\"last_login\", \"auth_user\".\"is_superuser\", \"auth_user\".\"username\", \"auth_user\".\"first_name\", \"auth_user\".\"last_name\", \"auth_user\".\"email\", \"auth_user\".\"is_staff\", \"auth_user\".\"is_active\", \"auth_user\".\"date_joined\"'"
+    ],
+    "fix": [
+     "return",
+     "str",
+     "'SELECT COUNT(\"auth_user\".\"id\") FILTER (WHERE True) AS \"n\" FROM \"auth_user\" GROUP BY \"auth_user\".\"id\", \"auth_user\".\"password\", \"auth_user\".\"last_login\", \"auth_user\".\"is_superuser\", \"auth_user\".\"username\", \"auth_user\".\"first_name\", \"auth_user\".\"last_name\", \"auth_user\".\"email\", \"auth_user\".\"is_staff\", \"auth_user\".\"is_active\", \"auth_user\".\"date_joined\"'"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "django/db/models/aggregates.py#Aggregate.resolve_expression",
+    "call": "str(qs.annotate(n=Count('pk', filter=Q(is_staff=True)), s=Sum('id', filter=Q(), default=0)).query)",
+    "before": [
+     "return",
+     "str",
+     "'SELECT \"auth_user\".\"id\", \"auth_user\".\"password\", \"auth_user\".\"last_login\", \"auth_user\".\"is_superuser\", \"auth_user\".\"username\", \"auth_user\".\"first_name\", \"auth_user\".\"last_name\", \"auth_user\".\"email\", \"auth_user\".\"is_staff\", \"auth_user\".\"is_active\", \"auth_user\".\"date_joined\", COUNT(\"auth_user\".\"id\") FILTER (WHERE (\"auth_user\".\"is_staff\")) AS \"n\", COALESCE(SUM(\"auth_user\".\"id\"), 0) AS \"s\" FROM \"auth_user\" GROUP BY \"auth_user\".\"id\", \"auth_user\".\"password\", \"auth_user\".\"last_login\", \"auth_user\".\"is_superuser\", \"auth_user\".\"username\", \"auth_user\".\"first_name\", \"auth_user\".\"last_name\", \"auth_user\".\"email\", \"auth_user\".\"is_staff\", \"auth_user\".\"is_active\", \"auth_user\".\"date_joined\"'"
+    ],
+    "after": [
+     "return",
+     "str",
+     "'SELECT \"auth_user\".\"id\", \"auth_user\".\"password\", \"auth_user\".\"last_login\", \"auth_user\".\"is_superuser\", \"auth_user\".\"username\", \"auth_user\".\"first_name\", \"auth_user\".\"last_name\", \"auth_user\".\"email\", \"auth_user\".\"is_staff\", \"auth_user\".\"is_active\", \"auth_user\".\"date_joined\", COUNT(\"auth_user\".\"id\") FILTER (WHERE \"auth_user\".\"is_staff\") AS \"n\", COALESCE(SUM(\"auth_user\".\"id\") FILTER (WHERE True), 0) AS \"s\" FROM \"auth_user\" GROUP BY \"auth_user\".\"id\", \"auth_user\".\"password\", \"auth_user\".\"last_login\", \"auth_user\".\"is_superuser\", \"auth_user\".\"username\", \"auth_user\".\"first_name\", \"auth_user\".\"last_name\", \"auth_user\".\"email\", \"auth_user\".\"is_staff\", \"auth_user\".\"is_active\", \"auth_user\".\"date_joined\"'"
+    ],
+    "fix": [
+     "return",
+     "str",
+     "'SELECT \"auth_user\".\"id\", \"auth_user\".\"password\", \"auth_user\".\"last_login\", \"auth_user\".\"is_superuser\", \"auth_user\".\"username\", \"auth_user\".\"first_name\", \"auth_user\".\"last_name\", \"auth_user\".\"email\", \"auth_user\".\"is_staff\", \"auth_user\".\"is_active\", \"auth_user\".\"date_joined\", COUNT(\"auth_user\".\"id\") FILTER (WHERE \"auth_user\".\"is_staff\") AS \"n\", COALESCE(SUM(\"auth_user\".\"id\") FILTER (WHERE True), 0) AS \"s\" FROM \"auth_user\" GROUP BY \"auth_user\".\"id\", \"auth_user\".\"password\", \"auth_user\".\"last_login\", \"auth_user\".\"is_superuser\", \"auth_user\".\"username\", \"auth_user\".\"first_name\", \"auth_user\".\"last_name\", \"auth_user\".\"email\", \"auth_user\".\"is_staff\", \"auth_user\".\"is_active\", \"auth_user\".\"date_joined\"'"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "django/db/models/aggregates.py#Aggregate.resolve_expression",
+    "call": "str(qs.annotate(n=Count('pk', filter=Q() & Q())).query)",
+    "before": [
+     "return",
+     "str",
+     "'SELECT \"auth_user\".\"id\", \"auth_user\".\"password\", \"auth_user\".\"last_login\", \"auth_user\".\"is_superuser\", \"auth_user\".\"username\", \"auth_user\".\"first_name\", \"auth_user\".\"last_name\", \"auth_user\".\"email\", \"auth_user\".\"is_staff\", \"auth_user\".\"is_active\", \"auth_user\".\"date_joined\", COUNT(\"auth_user\".\"id\") AS \"n\" FROM \"auth_user\" GROUP BY \"auth_user\".\"id\", \"auth_user\".\"password\", \"auth_user\".\"last_login\", \"auth_user\".\"is_superuser\", \"auth_user\".\"username\", \"auth_user\".\"first_name\", \"auth_user\".\"last_name\", \"auth_user\".\"email\", \"auth_user\".\"is_staff\", \"auth_user\".\"is_active\", \"auth_user\".\"date_joined\"'"
+    ],
+    "after": [
+     "return",
+     "str",
+     "'SELECT \"auth_user\".\"id\", \"auth_user\".\"password\", \"auth_user\".\"last_login\", \"auth_user\".\"is_superuser\", \"auth_user\".\"username\", \"auth_user\".\"first_name\", \"auth_user\".\"last_name\", \"auth_user\".\"email\", \"auth_user\".\"is_staff\", \"auth_user\".\"is_active\", \"auth_user\".\"date_joined\", COUNT(\"auth_user\".\"id\") FILTER (WHERE True) AS \"n\" FROM \"auth_user\" GROUP BY \"auth_user\".\"id\", \"auth_user\".\"password\", \"auth_user\".\"last_login\", \"auth_user\".\"is_superuser\", \"auth_user\".\"username\", \"auth_user\".\"first_name\", \"auth_user\".\"last_name\", \"auth_user\".\"email\", \"auth_user\".\"is_staff\", \"auth_user\".\"is_active\", \"auth_user\".\"date_joined\"'"
+    ],
+    "fix": [
+     "return",
+     "str",
+     "'SELECT \"auth_user\".\"id\", \"auth_user\".\"password\", \"auth_user\".\"last_login\", \"auth_user\".\"is_superuser\", \"auth_user\".\"username\", \"auth_user\".\"first_name\", \"auth_user\".\"last_name\", \"auth_user\".\"email\", \"auth_user\".\"is_staff\", \"auth_user\".\"is_active\", \"auth_user\".\"date_joined\", COUNT(\"auth_user\".\"id\") FILTER (WHERE True) AS \"n\" FROM \"auth_user\" GROUP BY \"auth_user\".\"id\", \"auth_user\".\"password\", \"auth_user\".\"last_login\", \"auth_user\".\"is_superuser\", \"auth_user\".\"username\", \"auth_user\".\"first_name\", \"auth_user\".\"last_name\", \"auth_user\".\"email\", \"auth_user\".\"is_staff\", \"auth_user\".\"is_active\", \"auth_user\".\"date_joined\"'"
+    ],
+    "verdict": "intended"
+   }
+  ]
+ },
+ {
+  "id": "django:19395:edde2891c3",
+  "seconds": 294.9,
+  "info": {
+   "model": "claude-opus-5-5",
+   "dollars_cap": 0.0,
+   "minutes_cap": 15.0,
+   "functions": 1,
+   "requests": 1,
+   "cost": 0.0,
+   "proposed": 3,
+   "compiled": 3,
+   "ran": 3,
+   "stable": 3,
+   "reached": 3,
+   "differed": 3,
+   "accepted": 3,
+   "backend": "claude -p",
+   "cost_basis": "plan usage",
+   "seconds": 22.3
+  },
+  "regressed": [
+   "django/db/models/indexes.py#Index.check"
+  ],
+  "kept": 3,
+  "restored": 0,
+  "intended": 3,
+  "other": 0,
+  "caught": false,
+  "caught_any": false,
+  "probes": [
+   {
+    "target": "django/db/models/base.py#Model._check_indexes",
+    "call": "[(e.id, e.msg) for e in ProbeModelA.check()]",
+    "before": [
+     "return",
+     "list",
+     "[('models.E033', \"The index name '_bad_index_name' cannot start with an underscore or a number.\")]"
+    ],
+    "after": [
+     "return",
+     "list",
+     "[]"
+    ],
+    "fix": [
+     "return",
+     "list",
+     "[]"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "django/db/models/base.py#Model._check_indexes",
+    "call": "[(e.id, e.msg) for e in ProbeModelB._check_indexes(['default', 'other'])]",
+    "before": [
+     "return",
+     "list",
+     "[('models.E012', \"'indexes' refers to the nonexistent field 'missing_field'.\")]"
+    ],
+    "after": [
+     "return",
+     "list",
+     "[('models.E012', \"'indexes' refers to the nonexistent field 'missing_field'.\"), ('models.E012', \"'indexes' refers to the nonexistent field 'missing_field'.\")]"
+    ],
+    "fix": [
+     "return",
+     "list",
+     "[('models.E012', \"'indexes' refers to the nonexistent field 'missing_field'.\"), ('models.E012', \"'indexes' refers to the nonexistent field 'missing_field'.\")]"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "django/db/models/base.py#Model._check_indexes",
+    "call": "[(e.id, e.msg) for e in ProbeModelC._check_indexes([])]",
+    "before": [
+     "return",
+     "list",
+     "[('models.E033', \"The index name '1bad_expr_idx' cannot start with an underscore or a number.\"), ('models.E012', \"'indexes' refers to the nonexistent field 'nope'.\")]"
+    ],
+    "after": [
+     "return",
+     "list",
+     "[]"
+    ],
+    "fix": [
+     "return",
+     "list",
+     "[]"
+    ],
+    "verdict": "intended"
+   }
+  ]
+ },
+ {
+  "id": "django:19073:b8e5a8a9a2",
+  "seconds": 325.0,
+  "info": {
+   "model": "claude-opus-5-5",
+   "dollars_cap": 0.0,
+   "minutes_cap": 15.0,
+   "functions": 2,
+   "requests": 1,
+   "cost": 0.0,
+   "proposed": 6,
+   "compiled": 6,
+   "ran": 6,
+   "stable": 6,
+   "reached": 6,
+   "differed": 3,
+   "accepted": 3,
+   "backend": "claude -p",
+   "cost_basis": "plan usage",
+   "seconds": 34.7
+  },
+  "regressed": [
+   "django/db/models/aggregates.py#Aggregate.__init__",
+   "django/db/models/aggregates.py#Aggregate.resolve_expression"
+  ],
+  "kept": 3,
+  "restored": 0,
+  "intended": 3,
+  "other": 0,
+  "caught": false,
+  "caught_any": false,
+  "probes": [
+   {
+    "target": "django/db/models/expressions.py#CombinedExpression.resolve_expression",
+    "call": "(lambda r: (getattr(r.lhs, 'for_save', None), getattr(r.rhs, 'for_save', None)))((Value(1) + Value(2)).resolve_expression(for_save=True))",
+    "before": [
+     "return",
+     "tuple",
+     "(True, True)"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "(False, False)"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "(False, False)"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "django/db/models/expressions.py#CombinedExpression.resolve_expression",
+    "call": "(lambda r: (type(r).__name__, r.is_summary, getattr(r.lhs, 'for_save', None)))(e.resolve_expression(summarize=True, for_save=True))",
+    "before": [
+     "return",
+     "tuple",
+     "('DurationExpression', True, True)"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "('DurationExpression', False, False)"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "('DurationExpression', False, False)"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "django/db/models/expressions.py#CombinedExpression.resolve_expression",
+    "call": "(lambda r: (type(r).__name__, r.is_summary, type(r.output_field).__name__))(e.resolve_expression(summarize=True))",
+    "before": [
+     "return",
+     "tuple",
+     "('TemporalSubtraction', True, 'DurationField')"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "('TemporalSubtraction', False, 'DurationField')"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "('TemporalSubtraction', False, 'DurationField')"
+    ],
+    "verdict": "intended"
+   }
+  ]
+ },
+ {
+  "id": "django:18314:802baf5da5",
+  "seconds": 147.7,
+  "info": {
+   "model": "claude-opus-5-5",
+   "dollars_cap": 0.0,
+   "minutes_cap": 15.0,
+   "functions": 1,
+   "requests": 1,
+   "cost": 0.0,
+   "proposed": 3,
+   "compiled": 3,
+   "ran": 0,
+   "stable": 0,
+   "reached": 0,
+   "differed": 0,
+   "accepted": 0,
+   "backend": "claude -p",
+   "cost_basis": "plan usage",
+   "seconds": 19.6
+  },
+  "regressed": [
+   "django/db/models/query.py#QuerySet.union"
+  ],
+  "kept": 0,
+  "restored": 0,
+  "intended": 0,
+  "other": 0,
+  "caught": false,
+  "caught_any": false,
+  "probes": []
+ },
+ {
+  "id": "django:18620:d469db978e",
+  "seconds": 218.9,
+  "info": {
+   "model": "claude-opus-5-5",
+   "dollars_cap": 0.0,
+   "minutes_cap": 15.0,
+   "functions": 4,
+   "requests": 1,
+   "cost": 0.0,
+   "proposed": 8,
+   "compiled": 8,
+   "ran": 8,
+   "stable": 8,
+   "reached": 8,
+   "differed": 3,
+   "accepted": 3,
+   "backend": "claude -p",
+   "cost_basis": "plan usage",
+   "seconds": 37.5
+  },
+  "regressed": [
+   "django/contrib/auth/password_validation.py#MinimumLengthValidator.validate",
+   "django/contrib/auth/password_validation.py#MinimumLengthValidator.get_error_message"
+  ],
+  "kept": 3,
+  "restored": 2,
+  "intended": 0,
+  "other": 1,
+  "caught": true,
+  "caught_any": true,
+  "probes": [
+   {
+    "target": "django/contrib/auth/password_validation.py#MinimumLengthValidator.validate",
+    "call": "run(MinimumLengthValidator(min_length=12), 'short')",
+    "before": [
+     "return",
+     "tuple",
+     "(['This password is too short. It must contain at least 12 characters.'], 'password_too_short', {'min_length': 12}, 'This password is too short. It must contain at least %(min_length)d characters.')"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "(['This password is too short. It must contain at least 12 characters.'], 'password_too_short', None, 'This password is too short. It must contain at least 12 characters.')"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "(['This password is too short. It must contain at least 12 characters.'], 'password_too_short', {'min_length': 12}, 'This password is too short. It must contain at least 12 characters.')"
+    ],
+    "verdict": "other"
+   },
+   {
+    "target": "django/contrib/auth/password_validation.py#MinimumLengthValidator.validate",
+    "call": "run(MinimumLengthValidator(min_length=1), '')",
+    "before": [
+     "return",
+     "tuple",
+     "(['This password is too short. It must contain at least 1 character.'], 'password_too_short', {'min_length': 1})"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "(['This password is too short. It must contain at least 1 character.'], 'password_too_short', None)"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "(['This password is too short. It must contain at least 1 character.'], 'password_too_short', {'min_length': 1})"
+    ],
+    "verdict": "restored"
+   },
+   {
+    "target": "django/contrib/auth/password_validation.py#MinimumLengthValidator.validate",
+    "call": "run(V(min_length=8), ('a', 'b', 'c'))",
+    "before": [
+     "return",
+     "tuple",
+     "(['This password is too short. It must contain at least 8 characters.'], 'password_too_short', {'min_length': 8})"
+    ],
+    "after": [
+     "return",
+     "tuple",
+     "(['This password is too short. It must contain at least 8 characters.'], 'password_too_short', None)"
+    ],
+    "fix": [
+     "return",
+     "tuple",
+     "(['This password is too short. It must contain at least 8 characters.'], 'password_too_short', {'min_length': 8})"
+    ],
+    "verdict": "restored"
+   }
+  ]
+ },
+ {
+  "id": "sympy:30882:ceb4071329",
+  "seconds": 619.6,
+  "info": {
+   "model": "claude-opus-5-5",
+   "dollars_cap": 0.0,
+   "minutes_cap": 15.0,
+   "functions": 5,
+   "requests": 1,
+   "cost": 0.0,
+   "proposed": 14,
+   "compiled": 14,
+   "ran": 14,
+   "stable": 14,
+   "reached": 14,
+   "differed": 2,
+   "accepted": 2,
+   "backend": "claude -p",
+   "cost_basis": "plan usage",
+   "seconds": 52.3
+  },
+  "regressed": [
+   "sympy/core/exprtools.py#_monotonic_sign"
+  ],
+  "kept": 2,
+  "restored": 1,
+  "intended": 1,
+  "other": 0,
+  "caught": false,
+  "caught_any": true,
+  "probes": [
+   {
+    "target": "sympy/core/add.py#Add._eval_is_extended_positive",
+    "call": "e.is_extended_positive",
+    "before": [
+     "return",
+     "NoneType",
+     "None"
+    ],
+    "after": [
+     "return",
+     "bool",
+     "True"
+    ],
+    "fix": [
+     "return",
+     "bool",
+     "True"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/core/add.py#Add._eval_is_extended_nonnegative",
+    "call": "e.is_extended_nonnegative",
+    "before": [
+     "return",
+     "NoneType",
+     "None"
+    ],
+    "after": [
+     "return",
+     "bool",
+     "True"
+    ],
+    "fix": [
+     "return",
+     "NoneType",
+     "None"
+    ],
+    "verdict": "restored"
+   }
+  ]
+ },
+ {
+  "id": "sympy:25753:17639a46b6",
+  "seconds": 808.2,
+  "info": {
+   "model": "claude-opus-5-5",
+   "dollars_cap": 0.0,
+   "minutes_cap": 15.0,
+   "functions": 26,
+   "requests": 6,
+   "cost": 0.0,
+   "proposed": 66,
+   "compiled": 66,
+   "ran": 62,
+   "stable": 62,
+   "reached": 62,
+   "differed": 33,
+   "accepted": 33,
+   "backend": "claude -p",
+   "cost_basis": "plan usage",
+   "seconds": 238.7
+  },
+  "regressed": [
+   "sympy/algebras/quaternion.py#Quaternion._eval_subs"
+  ],
+  "kept": 33,
+  "restored": 3,
+  "intended": 29,
+  "other": 1,
+  "caught": true,
+  "caught_any": true,
+  "probes": [
+   {
+    "target": "sympy/algebras/quaternion.py#Quaternion._eval_subs",
+    "call": "Quaternion(x, y, z, w).subs(x, 1)",
+    "before": [
+     "return",
+     "Quaternion",
+     "1 + y*i + z*j + w*k"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'NoneType' object has no attribute 'subs'\")"
+    ],
+    "fix": [
+     "return",
+     "Quaternion",
+     "1 + y*i + z*j + w*k"
+    ],
+    "verdict": "restored"
+   },
+   {
+    "target": "sympy/algebras/quaternion.py#Quaternion._eval_subs",
+    "call": "Quaternion(1, 2, 3, 4).subs({x: y})",
+    "before": [
+     "return",
+     "Quaternion",
+     "1 + 2*i + 3*j + 4*k"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'NoneType' object has no attribute 'subs'\")"
+    ],
+    "fix": [
+     "return",
+     "Quaternion",
+     "1 + 2*i + 3*j + 4*k"
+    ],
+    "verdict": "restored"
+   },
+   {
+    "target": "sympy/algebras/quaternion.py#Quaternion._eval_subs",
+    "call": "Quaternion(x, 0, 0, 0).xreplace({x: y}) == Quaternion(x, 0, 0, 0).subs(x, y)",
+    "before": [
+     "return",
+     "bool",
+     "True"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'NoneType' object has no attribute 'subs'\")"
+    ],
+    "fix": [
+     "return",
+     "bool",
+     "True"
+    ],
+    "verdict": "restored"
+   },
+   {
+    "target": "sympy/assumptions/cnf.py#Literal.rcall",
+    "call": "Literal(Q.positive(x)).rcall(y)",
+    "before": [
+     "raise",
+     "TypeError",
+     "TypeError('Q.positive(y) is not a Predicate.')"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'AppliedPredicate' object has no attribute 'apply'\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'AppliedPredicate' object has no attribute 'apply'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/assumptions/cnf.py#Literal.rcall",
+    "call": "Literal(And(Q.positive(x), Q.real(x)), True).rcall(y)",
+    "before": [
+     "raise",
+     "TypeError",
+     "TypeError('Q.positive(y) is not a Predicate.')"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'And' object has no attribute 'apply'\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'And' object has no attribute 'apply'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/assumptions/cnf.py#Literal.rcall",
+    "call": "Literal(Q.even(x), True).rcall(x)",
+    "before": [
+     "raise",
+     "TypeError",
+     "TypeError('Q.even(x) is not a Predicate.')"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'AppliedPredicate' object has no attribute 'apply'\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'AppliedPredicate' object has no attribute 'apply'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/assumptions/wrapper.py#make_eval_method",
+    "call": "AssumptionsWrapper(x, Q.positive(x)).is_polar",
+    "before": [
+     "return",
+     "NoneType",
+     "None"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'AssumptionKeys' object has no attribute 'polar'\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'AssumptionKeys' object has no attribute 'polar'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/assumptions/wrapper.py#make_eval_method",
+    "call": "[getattr(AssumptionsWrapper(x, Q.real(x)), 'is_' + f, 'missing') for f in ('polar', 'noninteger', 'extended_nonzero', 'commutative', 'hermitian')]",
+    "before": [
+     "return",
+     "list",
+     "[None, None, None, True, True]"
+    ],
+    "after": [
+     "return",
+     "list",
+     "['missing', None, None, True, True]"
+    ],
+    "fix": [
+     "return",
+     "list",
+     "['missing', None, None, True, True]"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/core/evalf.py#get_integer_part",
+    "call": "floor(x).evalf(subs={x: 2.5})",
+    "before": [
+     "return",
+     "Float",
+     "2.00000000000000"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'float' object has no attribute 'as_real_imag'\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'float' object has no attribute 'as_real_imag'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/core/evalf.py#get_integer_part",
+    "call": "ceiling(x + y).evalf(subs={x: 0.25, y: 1})",
+    "before": [
+     "return",
+     "Float",
+     "2.00000000000000"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'float' object has no attribute 'as_real_imag'\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'float' object has no attribute 'as_real_imag'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/matrices/expressions/blockmatrix.py#BlockMatrix._eval_trace",
+    "call": "M._eval_trace()",
+    "before": [
+     "raise",
+     "NotImplementedError",
+     "NotImplementedError(\"Can't perform trace of irregular blockshape\")"
+    ],
+    "after": [
+     "return",
+     "NoneType",
+     "None"
+    ],
+    "fix": [
+     "return",
+     "NoneType",
+     "None"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/physics/vector/vector.py#Vector._pretty",
+    "call": "pretty(Vector(0))",
+    "before": [
+     "return",
+     "str",
+     "'0'"
+    ],
+    "after": [
+     "raise",
+     "TypeError",
+     "TypeError(\"prettyForm.__add__() missing 1 required positional argument: 'self'\")"
+    ],
+    "fix": [
+     "raise",
+     "TypeError",
+     "TypeError(\"prettyForm.__add__() missing 1 required positional argument: 'self'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/physics/vector/vector.py#Vector._pretty",
+    "call": "pretty(v, use_unicode=False)",
+    "before": [
+     "return",
+     "str",
+     "'(a + b) n_x - n_y + (3*a + 1) n_z'"
+    ],
+    "after": [
+     "raise",
+     "TypeError",
+     "TypeError(\"unsupported operand type(s) for +: 'int' and 'prettyForm'\")"
+    ],
+    "fix": [
+     "raise",
+     "TypeError",
+     "TypeError(\"unsupported operand type(s) for +: 'int' and 'prettyForm'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/physics/vector/vector.py#Vector._pretty",
+    "call": "pretty(v, use_unicode=True)",
+    "before": [
+     "return",
+     "str",
+     "'            2\\n1/2 n_x + -a  a_y'"
+    ],
+    "after": [
+     "return",
+     "str",
+     "'            2    \\n1/2 n_x + -a  a_y'"
+    ],
+    "fix": [
+     "return",
+     "str",
+     "'            2    \\n1/2 n_x + -a  a_y'"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/polys/polyutils.py#PicklableWithSlots.__setstate__",
+    "call": "(p.__setstate__({'a': 1, 'b': 2}), p.a, p.b)",
+    "before": [
+     "return",
+     "tuple",
+     "(None, 1, 1)"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"property 'b' of 'test_amu_probe_22.<locals>.P' object has no setter\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"property 'b' of 'test_amu_probe_14.<locals>.P' object has no setter\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/polys/polyutils.py#PicklableWithSlots.__setstate__",
+    "call": "(r.__setstate__(st), r.x)",
+    "before": [
+     "return",
+     "tuple",
+     "(None, 5)"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'Q2' object has no attribute 'gone' and no __dict__ for setting new attributes\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'Q2' object has no attribute 'gone' and no __dict__ for setting new attributes\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/series/sequences.py#SeqBase._start_key",
+    "call": "SeqBase._start_key(object())",
+    "before": [
+     "return",
+     "Infinity",
+     "oo"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'object' object has no attribute 'start'\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'object' object has no attribute 'start'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/series/sequences.py#SeqBase._start_key",
+    "call": "SeqBase._start_key(V())",
+    "before": [
+     "return",
+     "Infinity",
+     "oo"
+    ],
+    "after": [
+     "raise",
+     "ValueError",
+     "ValueError('no start')"
+    ],
+    "fix": [
+     "raise",
+     "ValueError",
+     "ValueError('no start')"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/series/sequences.py#SeqBase._start_key",
+    "call": "sorted([Integer(3), Integer(1)], key=lambda e: str(SeqBase._start_key(e)))",
+    "before": [
+     "return",
+     "list",
+     "[3, 1]"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'Integer' object has no attribute 'start'\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'Integer' object has no attribute 'start'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/testing/runtests.py#SymPyDocTestFinder._get_test",
+    "call": "f._get_test(Weird, 'Weird', None, {}, None)",
+    "before": [
+     "return",
+     "NoneType",
+     "None"
+    ],
+    "after": [
+     "raise",
+     "TypeError",
+     "TypeError('bad doc')"
+    ],
+    "fix": [
+     "raise",
+     "TypeError",
+     "TypeError('bad doc')"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/assumptions/ask_generated.py#get_known_facts_dict",
+    "call": "len(get_known_facts_dict())",
+    "before": [
+     "return",
+     "int",
+     "49"
+    ],
+    "after": [
+     "return",
+     "int",
+     "50"
+    ],
+    "fix": [
+     "return",
+     "int",
+     "50"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/assumptions/ask_generated.py#get_known_facts_dict",
+    "call": "sorted(str(k) for k in get_known_facts_dict())",
+    "before": [
+     "return",
+     "list",
+     "['Q.algebraic', 'Q.antihermitian', 'Q.commutative', 'Q.complex', 'Q.complex_elements', 'Q.composite', 'Q.diagonal', 'Q.even', 'Q.extended_negative', 'Q.extended_nonnegative', 'Q.extended_nonpositive', 'Q.extended_nonzero', 'Q.extended_positive', 'Q.extended_real', 'Q.finite', 'Q.fullrank', 'Q.hermitian', 'Q.imaginary', 'Q.infinite', 'Q.integer', 'Q.integer_elements', 'Q.invertible', 'Q.irrational', 'Q.is_true', 'Q.lower_triangular', 'Q.negative', 'Q.negative_infinite', 'Q.nonnegative', 'Q.nonpositive', 'Q.nonzero', 'Q.normal', 'Q.odd', 'Q.orthogonal', 'Q.positive', 'Q.positive_definite', 'Q.positive_infinite', 'Q.prime', 'Q.rational', 'Q.real', 'Q.real_elements', 'Q.singular', 'Q.square', 'Q.symmetric', 'Q.transcendental', 'Q.triangular', 'Q.unit_triangular', 'Q.unitary', 'Q.upper_triangular', 'Q.zero']"
+    ],
+    "after": [
+     "return",
+     "list",
+     "['Q.algebraic', 'Q.antihermitian', 'Q.commutative', 'Q.complex', 'Q.complex_elements', 'Q.composite', 'Q.diagonal', 'Q.even', 'Q.extended_negative', 'Q.extended_nonnegative', 'Q.extended_nonpositive', 'Q.extended_nonzero', 'Q.extended_positive', 'Q.extended_real', 'Q.finite', 'Q.fullrank', 'Q.hermitian', 'Q.imaginary', 'Q.infinite', 'Q.integer', 'Q.integer_elements', 'Q.invertible', 'Q.irrational', 'Q.is_true', 'Q.lower_triangular', 'Q.negative', 'Q.negative_infinite', 'Q.noninteger', 'Q.nonnegative', 'Q.nonpositive', 'Q.nonzero', 'Q.normal', 'Q.odd', 'Q.orthogonal', 'Q.positive', 'Q.positive_definite', 'Q.positive_infinite', 'Q.prime', 'Q.rational', 'Q.real', 'Q.real_elements', 'Q.singular', 'Q.square', 'Q.symmetric', 'Q.transcendental', 'Q.triangular', 'Q.unit_triangular', 'Q.unitary', 'Q.upper_triangular', 'Q.zero']"
+    ],
+    "fix": [
+     "return",
+     "list",
+     "['Q.algebraic', 'Q.antihermitian', 'Q.commutative', 'Q.complex', 'Q.complex_elements', 'Q.composite', 'Q.diagonal', 'Q.even', 'Q.extended_negative', 'Q.extended_nonnegative', 'Q.extended_nonpositive', 'Q.extended_nonzero', 'Q.extended_positive', 'Q.extended_real', 'Q.finite', 'Q.fullrank', 'Q.hermitian', 'Q.imaginary', 'Q.infinite', 'Q.integer', 'Q.integer_elements', 'Q.invertible', 'Q.irrational', 'Q.is_true', 'Q.lower_triangular', 'Q.negative', 'Q.negative_infinite', 'Q.noninteger', 'Q.nonnegative', 'Q.nonpositive', 'Q.nonzero', 'Q.normal', 'Q.odd', 'Q.orthogonal', 'Q.positive', 'Q.positive_definite', 'Q.positive_infinite', 'Q.prime', 'Q.rational', 'Q.real', 'Q.real_elements', 'Q.singular', 'Q.square', 'Q.symmetric', 'Q.transcendental', 'Q.triangular', 'Q.unit_triangular', 'Q.unitary', 'Q.upper_triangular', 'Q.zero']"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/core/sympify.py#sympify",
+    "call": "sympify(Obj())",
+    "before": [
+     "return",
+     "Float",
+     "2.50000000000000"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError('no')"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError('no')"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/core/sympify.py#sympify",
+    "call": "sympify(Obj())",
+    "before": [
+     "return",
+     "Integer",
+     "7"
+    ],
+    "after": [
+     "raise",
+     "TypeError",
+     "TypeError('not float')"
+    ],
+    "fix": [
+     "raise",
+     "TypeError",
+     "TypeError('not float')"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/core/sympify.py#sympify",
+    "call": "sympify(Idx())",
+    "before": [
+     "return",
+     "Float",
+     "3.00000000000000"
+    ],
+    "after": [
+     "return",
+     "Integer",
+     "3"
+    ],
+    "fix": [
+     "raise",
+     "SympifyError",
+     "SympifyError(\"cannot sympify object of type <class 'test_amu_generated.test_amu_probe_24.<locals>.Idx'>\")"
+    ],
+    "verdict": "other"
+   },
+   {
+    "target": "sympy/logic/inference.py#literal_symbol",
+    "call": "literal_symbol(1)",
+    "before": [
+     "raise",
+     "ValueError",
+     "ValueError('Argument must be a boolean literal.')"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'int' object has no attribute 'is_Symbol'\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'int' object has no attribute 'is_Symbol'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/logic/inference.py#literal_symbol",
+    "call": "literal_symbol(None)",
+    "before": [
+     "raise",
+     "ValueError",
+     "ValueError('Argument must be a boolean literal.')"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'NoneType' object has no attribute 'is_Symbol'\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'NoneType' object has no attribute 'is_Symbol'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/logic/inference.py#literal_symbol",
+    "call": "literal_symbol('A')",
+    "before": [
+     "raise",
+     "ValueError",
+     "ValueError('Argument must be a boolean literal.')"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'str' object has no attribute 'is_Symbol'\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'str' object has no attribute 'is_Symbol'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/physics/quantum/qapply.py#qapply_Mul",
+    "call": "qapply(A*B)",
+    "before": [
+     "return",
+     "Mul",
+     "A*B"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'Symbol' object has no attribute '_apply_operator'\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'Symbol' object has no attribute '_apply_operator'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/physics/quantum/qapply.py#qapply_Mul",
+    "call": "qapply(A*Ket('k'))",
+    "before": [
+     "return",
+     "Mul",
+     "A*|k>"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'Symbol' object has no attribute '_apply_operator'\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'Symbol' object has no attribute '_apply_operator'\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/printing/precedence.py#precedence",
+    "call": "precedence(Proxy())",
+    "before": [
+     "return",
+     "int",
+     "50"
+    ],
+    "after": [
+     "return",
+     "int",
+     "1000"
+    ],
+    "fix": [
+     "return",
+     "int",
+     "1000"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/printing/pretty/pretty.py#PrettyPrinter._print_seq",
+    "call": "pretty((Symbol('x'), Flaky()))",
+    "before": [
+     "return",
+     "str",
+     "'(x, F)'"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError('first')"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError('first')"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/printing/pretty/pretty.py#PrettyPrinter._print_seq",
+    "call": "pretty([Fake(), Fake()])",
+    "before": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'int' object has no attribute 'render'\")"
+    ],
+    "after": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'int' object has no attribute 'baseline'\")"
+    ],
+    "fix": [
+     "raise",
+     "AttributeError",
+     "AttributeError(\"'int' object has no attribute 'baseline'\")"
+    ],
+    "verdict": "intended"
+   }
+  ]
+ },
+ {
+  "id": "sympy:24303:9977815e98",
+  "seconds": 605.7,
+  "info": {
+   "model": "claude-opus-5-5",
+   "dollars_cap": 0.0,
+   "minutes_cap": 15.0,
+   "functions": 1,
+   "requests": 1,
+   "cost": 0.0,
+   "proposed": 3,
+   "compiled": 3,
+   "ran": 3,
+   "stable": 3,
+   "reached": 3,
+   "differed": 1,
+   "accepted": 1,
+   "backend": "claude -p",
+   "cost_basis": "plan usage",
+   "seconds": 29.3
+  },
+  "regressed": [
+   "sympy/simplify/cse_main.py#opt_cse._find_opts"
+  ],
+  "kept": 1,
+  "restored": 0,
+  "intended": 1,
+  "other": 0,
+  "caught": false,
+  "caught_any": false,
+  "probes": [
+   {
+    "target": "sympy/core/add.py#Add.__neg__",
+    "call": "srepr(-e)",
+    "before": [
+     "return",
+     "str",
+     "\"Add(Mul(Integer(-1), Symbol('A', commutative=False)), Mul(Integer(-1), Symbol('B', commutative=False)))\""
+    ],
+    "after": [
+     "return",
+     "str",
+     "\"Mul(Integer(-1), Add(Symbol('A', commutative=False), Symbol('B', commutative=False)))\""
+    ],
+    "fix": [
+     "return",
+     "str",
+     "\"Mul(Integer(-1), Add(Symbol('A', commutative=False), Symbol('B', commutative=False)))\""
+    ],
+    "verdict": "intended"
+   }
+  ]
+ },
+ {
+  "id": "sympy:27373:9cb23e233b",
+  "seconds": 2293.0,
+  "info": {
+   "model": "claude-opus-5-5",
+   "dollars_cap": 0.0,
+   "minutes_cap": 15.0,
+   "functions": 396,
+   "requests": 53,
+   "cost": 0.0,
+   "proposed": 570,
+   "compiled": 570,
+   "ran": 118,
+   "stable": 118,
+   "reached": 118,
+   "differed": 0,
+   "accepted": 0,
+   "backend": "claude -p",
+   "cost_basis": "plan usage",
+   "seconds": 1128.2
+  },
+  "regressed": [
+   "sympy/matrices/matrixbase.py#MatrixBase.norm"
+  ],
+  "kept": 0,
+  "restored": 0,
+  "intended": 0,
+  "other": 0,
+  "caught": false,
+  "caught_any": false,
+  "probes": []
+ },
+ {
+  "id": "sympy:26358:240a6ad728",
+  "seconds": 511.9,
+  "info": {
+   "model": "claude-opus-5-5",
+   "dollars_cap": 0.0,
+   "minutes_cap": 15.0,
+   "functions": 0,
+   "requests": 0,
+   "cost": 0.0,
+   "proposed": 0,
+   "compiled": 0,
+   "ran": 0,
+   "stable": 0,
+   "reached": 0,
+   "differed": 0,
+   "accepted": 0,
+   "backend": "api"
+  },
+  "regressed": [
+   "sympy/integrals/heurisch.py#heurisch"
+  ],
+  "kept": 0,
+  "restored": 0,
+  "intended": 0,
+  "other": 0,
+  "caught": false,
+  "caught_any": false,
+  "probes": []
+ },
+ {
+  "id": "sympy:25913:94be224391",
+  "seconds": 545.4,
+  "info": {
+   "model": "claude-opus-5-5",
+   "dollars_cap": 0.0,
+   "minutes_cap": 15.0,
+   "functions": 12,
+   "requests": 3,
+   "cost": 0.0,
+   "proposed": 27,
+   "compiled": 27,
+   "ran": 27,
+   "stable": 27,
+   "reached": 27,
+   "differed": 10,
+   "accepted": 10,
+   "backend": "claude -p",
+   "cost_basis": "plan usage",
+   "seconds": 105.3
+  },
+  "regressed": [
+   "sympy/utilities/lambdify.py#_EvaluatorPrinter._preprocess"
+  ],
+  "kept": 10,
+  "restored": 0,
+  "intended": 10,
+  "other": 0,
+  "caught": false,
+  "caught_any": false,
+  "probes": [
+   {
+    "target": "sympy/printing/codeprinter.py#CodePrinter.__init__",
+    "call": "ccode(Integral(x, x))",
+    "before": [
+     "return",
+     "str",
+     "'/* Not supported in C: */\\n/* Integral */\\nIntegral(x, x)'"
+    ],
+    "after": [
+     "raise",
+     "PrintMethodNotImplementedError",
+     "PrintMethodNotImplementedError(\"Unsupported by <class 'sympy.printing.c.C99CodePrinter'>: <class 'sympy.integrals.integrals.Integral'>\\nSet the printer option 'strict' to False in order to generate partially printed code.\")"
+    ],
+    "fix": [
+     "raise",
+     "PrintMethodNotImplementedError",
+     "PrintMethodNotImplementedError(\"Unsupported by <class 'sympy.printing.c.C99CodePrinter'>: <class 'sympy.integrals.integrals.Integral'>\\nSet the printer option 'strict' to False in order to generate partially printed code.\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/printing/codeprinter.py#CodePrinter.__init__",
+    "call": "ccode(gamma(x), standard='C89')",
+    "before": [
+     "return",
+     "str",
+     "'/* Not supported in C: */\\n/* gamma */\\ngamma(x)'"
+    ],
+    "after": [
+     "raise",
+     "PrintMethodNotImplementedError",
+     "PrintMethodNotImplementedError(\"Unsupported by <class 'sympy.printing.c.C89CodePrinter'>: gamma\\nSet the printer option 'strict' to False in order to generate partially printed code.\")"
+    ],
+    "fix": [
+     "raise",
+     "PrintMethodNotImplementedError",
+     "PrintMethodNotImplementedError(\"Unsupported by <class 'sympy.printing.c.C89CodePrinter'>: gamma\\nSet the printer option 'strict' to False in order to generate partially printed code.\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/printing/codeprinter.py#CodePrinter._print_not_supported",
+    "call": "pycode(Integral(x, x))",
+    "before": [
+     "return",
+     "str",
+     "'  # Not supported in Python:\\n  # Integral\\nIntegral(x, x)'"
+    ],
+    "after": [
+     "raise",
+     "PrintMethodNotImplementedError",
+     "PrintMethodNotImplementedError(\"Unsupported by <class 'sympy.printing.pycode.PythonCodePrinter'>: <class 'sympy.integrals.integrals.Integral'>\\nSet the printer option 'strict' to False in order to generate partially printed code.\")"
+    ],
+    "fix": [
+     "raise",
+     "PrintMethodNotImplementedError",
+     "PrintMethodNotImplementedError(\"Unsupported by <class 'sympy.printing.pycode.PythonCodePrinter'>: <class 'sympy.integrals.integrals.Integral'>\\nSet the printer option 'strict' to False in order to generate partially printed code.\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/printing/codeprinter.py#CodePrinter._print_not_supported",
+    "call": "fcode(Integral(x, x))",
+    "before": [
+     "return",
+     "str",
+     "'C     Not supported in Fortran:\\nC     Integral\\n      Integral(x, x)'"
+    ],
+    "after": [
+     "raise",
+     "PrintMethodNotImplementedError",
+     "PrintMethodNotImplementedError(\"Unsupported by <class 'sympy.printing.fortran.FCodePrinter'>: <class 'sympy.integrals.integrals.Integral'>\\nSet the printer option 'strict' to False in order to generate partially printed code.\")"
+    ],
+    "fix": [
+     "raise",
+     "PrintMethodNotImplementedError",
+     "PrintMethodNotImplementedError(\"Unsupported by <class 'sympy.printing.fortran.FCodePrinter'>: <class 'sympy.integrals.integrals.Integral'>\\nSet the printer option 'strict' to False in order to generate partially printed code.\")"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/printing/numpy.py#NumPyPrinter._print_NDimArray",
+    "call": "NumPyPrinter().doprint(a)",
+    "before": [
+     "return",
+     "str",
+     "'  # Not supported in Python with numpy:\\n  # ImmutableDenseNDimArray\\n[[[0, 1], [2, 3]], [[4, 5], [6, 7]]]'"
+    ],
+    "after": [
+     "raise",
+     "TypeError",
+     "TypeError('CodePrinter._print_not_supported() takes 2 positional arguments but 3 were given')"
+    ],
+    "fix": [
+     "raise",
+     "TypeError",
+     "TypeError('CodePrinter._print_not_supported() takes 2 positional arguments but 3 were given')"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/printing/numpy.py#NumPyPrinter._print_NDimArray",
+    "call": "NumPyPrinter().doprint(a, assign_to=None)",
+    "before": [
+     "return",
+     "str",
+     "'  # Not supported in Python with numpy:\\n  # ImmutableDenseNDimArray\\n[[[0, 1], [2, 3]], [[4, 5], [6, 7]]]'"
+    ],
+    "after": [
+     "raise",
+     "TypeError",
+     "TypeError('CodePrinter._print_not_supported() takes 2 positional arguments but 3 were given')"
+    ],
+    "fix": [
+     "raise",
+     "TypeError",
+     "TypeError('CodePrinter._print_not_supported() takes 2 positional arguments but 3 were given')"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/printing/numpy.py#NumPyPrinter._print_NDimArray",
+    "call": "NumPyPrinter({'human': False}).doprint(a)",
+    "before": [
+     "return",
+     "tuple",
+     "(set(), {[[[x, x + 1], [2, 3]]]}, '[[[x, x + 1], [2, 3]]]')"
+    ],
+    "after": [
+     "raise",
+     "TypeError",
+     "TypeError('CodePrinter._print_not_supported() takes 2 positional arguments but 3 were given')"
+    ],
+    "fix": [
+     "raise",
+     "TypeError",
+     "TypeError('CodePrinter._print_not_supported() takes 2 positional arguments but 3 were given')"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/utilities/codegen.py#FCodeGen._call_printer",
+    "call": "codegen(('test', h(x) + x), 'F95', 'file', header=False, empty=False, printer=FCodePrinter({'strict': True}))",
+    "before": [
+     "raise",
+     "TypeError",
+     "TypeError(\"Unknown setting 'strict'.\")"
+    ],
+    "after": [
+     "return",
+     "list",
+     "[('file.f90', 'REAL*8 function test(x)\\nimplicit none\\nREAL*8, intent(in) :: x\\nREAL*8 :: h\\ntest = x + h(x)\\nend function\\n'), ('file.h', 'interface\\nREAL*8 function test(x)\\nimplicit none\\nREAL*8, intent(in) :: x\\nend function\\nend interface\\n')]"
+    ],
+    "fix": [
+     "return",
+     "list",
+     "[('file.f90', 'REAL*8 function test(x)\\nimplicit none\\nREAL*8, intent(in) :: x\\nREAL*8 :: h\\ntest = x + h(x)\\nend function\\n'), ('file.h', 'interface\\nREAL*8 function test(x)\\nimplicit none\\nREAL*8, intent(in) :: x\\nend function\\nend interface\\n')]"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/utilities/codegen.py#JuliaCodeGen._call_printer",
+    "call": "codegen(('test', h(x)), 'Julia', 'file', header=False, empty=False, printer=JuliaCodePrinter({'strict': True}))",
+    "before": [
+     "raise",
+     "TypeError",
+     "TypeError(\"Unknown setting 'strict'.\")"
+    ],
+    "after": [
+     "return",
+     "list",
+     "[('file.jl', 'function test(x)\\n    # unsupported: h\\n    out1 = h(x)\\n    return out1\\nend\\n')]"
+    ],
+    "fix": [
+     "return",
+     "list",
+     "[('file.jl', 'function test(x)\\n    # unsupported: h\\n    out1 = h(x)\\n    return out1\\nend\\n')]"
+    ],
+    "verdict": "intended"
+   },
+   {
+    "target": "sympy/utilities/codegen.py#OctaveCodeGen._call_printer",
+    "call": "codegen(('test', h(x)), 'Octave', 'file', header=False, empty=False, printer=OctaveCodePrinter({'strict': True}))",
+    "before": [
+     "raise",
+     "TypeError",
+     "TypeError(\"Unknown setting 'strict'.\")"
+    ],
+    "after": [
+     "raise",
+     "ValueError",
+     "ValueError('Octave function name should match prefix')"
+    ],
+    "fix": [
+     "raise",
+     "ValueError",
+     "ValueError('Octave function name should match prefix')"
+    ],
+    "verdict": "intended"
+   }
+  ]
+ }
+]

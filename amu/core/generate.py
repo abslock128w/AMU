@@ -324,7 +324,7 @@ def _amu_record(probe, kind, value):
                     break
             step = step.tb_next
     with open(_amu_os.environ["AMU_C1_OUT"], "a") as handle:
-        handle.write(_amu_json.dumps(dict(probe=probe, outcome=outcome, at=at)) + "\\n")
+        handle.write(_amu_json.dumps(dict(probe=probe, outcome=outcome, at=at, warned=isinstance(value, Warning))) + "\\n")
 '''
 
 
@@ -398,6 +398,8 @@ def _outcomes(path, origins=None):
         found.setdefault(row['probe'], []).append(row['outcome'])
         if origins is not None and row.get('at'):
             origins[row['probe']] = row['at']
+            if row.get('warned'):
+                origins.setdefault('warned', set()).add(row['probe'])
     return found
 
 
@@ -553,7 +555,7 @@ def run(runner, python, after_tree, before_tree, targets, changed, examples, scr
                                         why=probe.get('why', ''), before=before_outcome[0], after=first[i][0],
                                         test=written_test(probe, first[i][0])))
                 if before_outcome[0][0] == 'return' and first[i][0][0] == 'raise':
-                    differences[-1]['origin'] = origin(after_tree, origins.get(i), set(files))
+                    differences[-1]['origin'] = origin(after_tree, origins.get(i), set(files), i in origins.get('warned', ()))
                     differences[-1]['at'] = origins.get(i)
         differences[:] = ordered(differences)
         info['differed'] = len(differences)
@@ -564,10 +566,13 @@ def run(runner, python, after_tree, before_tree, targets, changed, examples, scr
     return info, differences, gaps
 
 
-def origin(tree, at, hosts):
+def origin(tree, at, hosts, warned=False):
     """Why a call that returned on the merge base raises on the head, from where the exception left the project's code:
     'raised' by a raise statement there, 'call' when it never got past the probe's own call (the arguments no longer
-    fit, or code outside the project refused them), else 'crash': a statement that is not a raise let it out."""
+    fit, or code outside the project refused them), else 'crash': a statement that is not a raise let it out. A warning
+    the probe turned into an error was issued on purpose, wherever it surfaced: 'raised'."""
+    if warned:
+        return 'raised'
     if not at or at[0] in hosts:
         return 'call'
     try:

@@ -1,0 +1,369 @@
+[
+ {
+  "pr": "django#21855",
+  "functions": 8,
+  "proposed": 20,
+  "kept": 16,
+  "crash": []
+ },
+ {
+  "pr": "django#21887",
+  "functions": 0,
+  "proposed": 0,
+  "kept": 0,
+  "crash": []
+ },
+ {
+  "pr": "django#22026",
+  "functions": 3,
+  "proposed": 11,
+  "kept": 3,
+  "crash": [
+   [
+    "django/utils/functional.py#cached_property.__init__",
+    "[\"django/utils/functional.py\", 33]"
+   ]
+  ]
+ },
+ {
+  "pr": "django#22046",
+  "functions": 0,
+  "proposed": 0,
+  "kept": 0,
+  "crash": []
+ },
+ {
+  "pr": "django#22095",
+  "functions": 2,
+  "proposed": 15,
+  "kept": 11,
+  "crash": []
+ },
+ {
+  "pr": "django#22102",
+  "functions": 0,
+  "proposed": 0,
+  "kept": 0,
+  "crash": []
+ },
+ {
+  "pr": "django#22137",
+  "functions": 1,
+  "proposed": 8,
+  "kept": 4,
+  "crash": []
+ },
+ {
+  "pr": "django#22154",
+  "functions": 1,
+  "proposed": 8,
+  "kept": 5,
+  "crash": []
+ },
+ {
+  "pr": "django#22158",
+  "functions": 0,
+  "proposed": 0,
+  "kept": 0,
+  "crash": []
+ },
+ {
+  "pr": "django#22169",
+  "functions": 2,
+  "proposed": 11,
+  "kept": 8,
+  "crash": [
+   [
+    "django/db/models/sql/query.py#JoinPromoter.update_join_types",
+    "[\"django/db/models/sql/query.py\", 2879]"
+   ]
+  ]
+ },
+ {
+  "pr": "django#22171",
+  "functions": 1,
+  "proposed": 8,
+  "kept": 6,
+  "crash": []
+ },
+ {
+  "pr": "django#22176",
+  "functions": 3,
+  "proposed": 15,
+  "kept": 0,
+  "crash": []
+ },
+ {
+  "pr": "django#22179",
+  "functions": 1,
+  "proposed": 8,
+  "kept": 6,
+  "crash": []
+ },
+ {
+  "pr": "django#22186",
+  "functions": 1,
+  "proposed": 8,
+  "kept": 0,
+  "crash": []
+ },
+ {
+  "pr": "django#22187",
+  "functions": null,
+  "proposed": null,
+  "kept": 0,
+  "crash": []
+ },
+ {
+  "pr": "django#22189",
+  "functions": 0,
+  "proposed": 0,
+  "kept": 0,
+  "crash": []
+ },
+ {
+  "pr": "django#22204",
+  "functions": 1,
+  "proposed": 8,
+  "kept": 3,
+  "crash": [
+   [
+    "django/db/backends/oracle/features.py#DatabaseFeatures.django_test_skips",
+    "[\"django/db/backends/oracle/features.py\", 152]"
+   ]
+  ]
+ },
+ {
+  "pr": "flask#5812",
+  "functions": 25,
+  "proposed": 61,
+  "kept": 27,
+  "crash": []
+ },
+ {
+  "pr": "flask#5818",
+  "functions": 22,
+  "proposed": 63,
+  "kept": 27,
+  "crash": [
+   [
+    "src/flask/app.py#Flask.do_teardown_request",
+    "[\"src/flask/app.py\", 1425]"
+   ],
+   [
+    "src/flask/templating.py#_default_template_ctx_processor",
+    "[\"src/flask/templating.py\", 25]"
+   ],
+   [
+    "src/flask/templating.py#_render",
+    "[\"src/flask/templating.py\", 123]"
+   ]
+  ]
+ },
+ {
+  "pr": "flask#5898",
+  "functions": 2,
+  "proposed": 10,
+  "kept": 7,
+  "crash": []
+ },
+ {
+  "pr": "flask#5899",
+  "functions": 2,
+  "proposed": 10,
+  "kept": 1,
+  "crash": []
+ },
+ {
+  "pr": "flask#5917",
+  "functions": 1,
+  "proposed": 8,
+  "kept": 7,
+  "crash": []
+ },
+ {
+  "pr": "flask#5928",
+  "functions": 3,
+  "proposed": 5,
+  "kept": 5,
+  "crash": []
+ },
+ {
+  "pr": "flask#6013",
+  "functions": 1,
+  "proposed": 8,
+  "kept": 4,
+  "crash": [
+   [
+    "src/flask/sansio/app.py#App.select_jinja_autoescape",
+    "[\"src/flask/sansio/app.py\", 547]"
+   ]
+  ]
+ },
+ {
+  "pr": "flask#6096",
+  "functions": 2,
+  "proposed": 15,
+  "kept": 8,
+  "crash": [
+   [
+    "src/flask/app.py#Flask.run",
+    "[\"src/flask/app.py\", 727]"
+   ]
+  ]
+ },
+ {
+  "pr": "flask#6133",
+  "functions": 0,
+  "proposed": 0,
+  "kept": 0,
+  "crash": []
+ },
+ {
+  "pr": "flask#6168",
+  "functions": 2,
+  "proposed": 11,
+  "kept": 0,
+  "crash": []
+ },
+ {
+  "pr": "sympy#29693",
+  "functions": 0,
+  "proposed": 0,
+  "kept": 0,
+  "crash": []
+ },
+ {
+  "pr": "sympy#29763",
+  "functions": 0,
+  "proposed": 0,
+  "kept": 0,
+  "crash": []
+ },
+ {
+  "pr": "sympy#30147",
+  "functions": 0,
+  "proposed": 0,
+  "kept": 0,
+  "crash": []
+ },
+ {
+  "pr": "sympy#30571",
+  "functions": 20,
+  "proposed": 58,
+  "kept": 2,
+  "crash": []
+ },
+ {
+  "pr": "sympy#30646",
+  "functions": 3,
+  "proposed": 14,
+  "kept": 7,
+  "crash": []
+ },
+ {
+  "pr": "sympy#30741",
+  "functions": 8,
+  "proposed": 23,
+  "kept": 19,
+  "crash": []
+ },
+ {
+  "pr": "sympy#30776",
+  "functions": 0,
+  "proposed": 0,
+  "kept": 0,
+  "crash": []
+ },
+ {
+  "pr": "sympy#30779",
+  "functions": 1,
+  "proposed": 8,
+  "kept": 2,
+  "crash": []
+ },
+ {
+  "pr": "sympy#30780",
+  "functions": 1,
+  "proposed": 8,
+  "kept": 2,
+  "crash": []
+ },
+ {
+  "pr": "sympy#30781",
+  "functions": 1,
+  "proposed": 8,
+  "kept": 0,
+  "crash": []
+ },
+ {
+  "pr": "sympy#30797",
+  "functions": 1,
+  "proposed": 8,
+  "kept": 0,
+  "crash": []
+ },
+ {
+  "pr": "sympy#30803",
+  "functions": 1,
+  "proposed": 8,
+  "kept": 0,
+  "crash": []
+ },
+ {
+  "pr": "sympy#30808",
+  "functions": 1,
+  "proposed": 8,
+  "kept": 6,
+  "crash": []
+ },
+ {
+  "pr": "sympy#30809",
+  "functions": 0,
+  "proposed": 0,
+  "kept": 0,
+  "crash": []
+ },
+ {
+  "pr": "sympy#30815",
+  "functions": 1,
+  "proposed": 8,
+  "kept": 8,
+  "crash": []
+ },
+ {
+  "pr": "sympy#30825",
+  "functions": 0,
+  "proposed": 0,
+  "kept": 0,
+  "crash": []
+ },
+ {
+  "pr": "sympy#30827",
+  "functions": 1,
+  "proposed": 8,
+  "kept": 4,
+  "crash": []
+ },
+ {
+  "pr": "sympy#30838",
+  "functions": 0,
+  "proposed": 0,
+  "kept": 0,
+  "crash": []
+ },
+ {
+  "pr": "sympy#30841",
+  "functions": 1,
+  "proposed": 8,
+  "kept": 3,
+  "crash": []
+ },
+ {
+  "pr": "sympy#30851",
+  "functions": 0,
+  "proposed": 0,
+  "kept": 0,
+  "crash": []
+ }
+]
